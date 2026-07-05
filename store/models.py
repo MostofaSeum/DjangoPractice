@@ -1,6 +1,12 @@
 from django.db import models
 
 # Create your models here.
+
+class Promotion(models.Model):
+    description = models.CharField(max_length=255)
+    discount = models.FloatField()
+
+
 class Collection(models.Model):
     title = models.CharField(max_length=255)
     products = models.ForeignKey(Products, on_delete=models.CASCADE)
@@ -11,7 +17,8 @@ class Products(models.Model):
     price = models.DecimalField(max_digits=6,decimal_places=2)
     inventory = models.IntegerField()
     last_update = models.DateTimeField(auto_now=True)
-    collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
+    collection = models.ForeignKey(Collection, on_delete=models.PROTECT) #one to many relation
+    promotions = models.ManyToManyField(Promotion)        #many to many relation
 
 class Customer(models.Model):
     MEMBERSHIP_BRONZE = 'B'
@@ -53,7 +60,7 @@ class OrderItem(models.Model):
 class Adress(models.Model):
     street = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
-    customer = models.OneToOneField(Customer, on_delete=models.CASCADE, primary_key=True)
+    customer = models.OneToOneField(Customer, on_delete=models.CASCADE, primary_key=True) #one to one relation
 
 class Cart(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
