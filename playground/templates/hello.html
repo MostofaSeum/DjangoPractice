@@ -5,6 +5,10 @@
     {% else %}
     <h1>Hello World</h1>
     {% endif %}
-    {{queryset}}
+    <ul>
+      {% for collection in queryset %}
+      <li>{{ collection.title }} - Products: {{ collection.Count_products }}</li>
+      {% endfor %}
+    </ul>
   </body>
 </html>

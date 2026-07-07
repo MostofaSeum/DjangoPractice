@@ -1,3 +1,4 @@
+from store.models import Collection
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.db.models import Q,F
@@ -25,6 +26,8 @@ def say_hello(request):
 
     #queryset = Customer.objects.annotate(full_name=Concat(('first_name'),Value(' '),('last_name')))
     
-    queryset = Customer.object.all()
+    queryset = Collection.objects.annotate(
+        Count_products=Count('product')
+    )
     
-    return render(request, 'hello.html', {'queryset':list(queryset)})
+    return render(request, 'hello.html', {'queryset': list(queryset)})
