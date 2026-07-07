@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.db.models import Q,F
 from django.db.models.aggregates import Count,Avg,Sum,Min,Max
-from django.db.models import Value,F,Func
+from django.db.models import Value,F,Func, ExpressionWrapper
 from django.db.models.functions import Concat
 from store.models import Product,OrderItem,Order,Customer
 
@@ -23,5 +23,8 @@ def say_hello(request):
 #     function='CONCAT')
 #    )
 
-    queryset = Customer.objects.annotate(full_name=Concat(('first_name'),Value(' '),('last_name')))
+    #queryset = Customer.objects.annotate(full_name=Concat(('first_name'),Value(' '),('last_name')))
+    
+    queryset = Customer.object.all()
+    
     return render(request, 'hello.html', {'queryset':list(queryset)})
