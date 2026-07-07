@@ -1,3 +1,4 @@
+from tags.models import TaggedItem
 from store.models import Collection
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -9,6 +10,13 @@ from store.models import Product,OrderItem,Order,Customer
 
 
 def say_hello(request):
+
+    collection = Collection()
+    collection.title = 'Video Games'
+    collection.featured_product = Product(pk=1)
+    collection.save()
+
+
     #query_set = Product.objects.filter(unit_price__range=(20, 30))
     #query_set = Product.objects.values('id','title','collection__title')
     #query_set = Product.objects.filter(id__in=OrderItem.objects.values('product_id').distinct()).order_by('title')
@@ -26,8 +34,12 @@ def say_hello(request):
 
     #queryset = Customer.objects.annotate(full_name=Concat(('first_name'),Value(' '),('last_name')))
     
-    queryset = Collection.objects.annotate(
-        Count_products=Count('product')
-    )
+    # queryset = Collection.objects.annotate(
+    #     Count_products=Count('product')
+    # )
+
+    #queryset = TaggedItem.objects.get_tagged_items(Product, 1)
+
+
     
-    return render(request, 'hello.html', {'queryset': list(queryset)})
+    return render(request, 'hello.html')
