@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.db.models import Q,F
 from django.db.models.aggregates import Count,Avg,Sum,Min,Max
+from django.db.models import Value,F,Func
 from store.models import Product,OrderItem,Order,Customer
-
 
 
 def say_hello(request):
@@ -15,5 +15,9 @@ def say_hello(request):
    # result = Order.objects.aggregate(Count('id'))
    #result = OrderItem.objects.filter(product__id = 1).aggregate(Sum('quantity'))
 
-   queryset = Customer.objects.annotate(is_new = True)
-   return render(request, 'hello.html', {'name': 'Seum'})
+   #queryset = Customer.objects.annotate(is_new = Value(True))
+   queryset = Customer.objects.annotate(
+    full_name = Func(F('first_name'),Value(' '),F('last_name'),
+    function='CONCAT')
+   )
+   return render(request, 'hello.html', {'queryset':list(queryset)})
