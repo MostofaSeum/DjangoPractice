@@ -10,11 +10,21 @@ from store.models import Product,OrderItem,Order,Customer
 
 
 def say_hello(request):
+    #Creating
+    # collection = Collection()
+    # collection.title = 'Video Games'
+    # collection.featured_product = Product(pk=1)
+    # collection.save()
 
-    collection = Collection()
-    collection.title = 'Video Games'
-    collection.featured_product = Product(pk=1)
-    collection.save()
+    #Updating
+    # collection = Collection.objects.get(pk=15)
+    # collection.title='Games'
+    # collection.featured_product = None
+    # collection.save()
+
+    #Delete
+    collection = Collection(15)
+    collection.delete()
 
 
     #query_set = Product.objects.filter(unit_price__range=(20, 30))
