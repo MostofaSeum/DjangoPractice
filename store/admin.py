@@ -1,4 +1,3 @@
-from tags.models import TaggedItem
 from django.db.models import QuerySet
 from re import search
 from django.db.models import Count
@@ -6,7 +5,6 @@ from django.contrib.admin import register
 from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
-from django.contrib.contenttypes.admin import GenericTabularInline
 from . import models
 
 class InventoryFilter(admin.SimpleListFilter):
@@ -23,13 +21,10 @@ class InventoryFilter(admin.SimpleListFilter):
             return queryset.filter(inventory__lt=10)
         return queryset
 
-class TagInline(GenericTabularInline):
-    model = TaggedItem
-    autocomplete_fields = ['tag']
+
     
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
-    inlines = [TagInline]
     autocomplete_fields = ['collection']
     prepopulated_fields = {
         'slug': ['title']
