@@ -1,3 +1,4 @@
+from re import search
 from django.db.models import Count
 from django.contrib.admin import register
 from django.contrib import admin
@@ -16,6 +17,7 @@ class CustomerAdmin(admin.ModelAdmin):
     list_editable = ['membership']
     ordering = ['first_name', 'last_name']
     list_per_page = 10
+    search_fields = ['first_name__istartswith','last_name__istartswith']
 
     def order_list(self,customer):
         url = (reverse('admin:store_order_changelist')
