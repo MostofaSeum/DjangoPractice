@@ -71,10 +71,15 @@ class CustomerAdmin(admin.ModelAdmin):
                 )
         return format_html('<a href="{}">{}</a>',url,customer.order_set.count() )
 
+class OrderItemInline(admin.TabularInline):
+    model = models.OrderItem
+    autocomplete_fields = ['product']
+
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
     autocomplete_fields = ['customer']
     list_display = ['id', 'placed_at', 'customer_name']
+    inlines = [OrderItemInline]
     ordering = ['-placed_at']
     list_per_page = 10
     list_select_related = ['customer']
