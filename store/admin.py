@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.contrib.admin import register
 from django.contrib import admin
 from . import models
@@ -24,6 +25,18 @@ class OrderAdmin(admin.ModelAdmin):
     def customer_name(self,order):
         return f'{order.customer.first_name} {order.customer.last_name}'
         
- 
+@admin.register(models.Collection)
+class CollectionAdmin(admin.ModelAdmin):
+    list_display = ['title', 'Product_Count']
+    ordering = ['title']
+    list_per_page = 10
+    
+    def Product_Count(self,collection):
+        return collection.Product_Count
+    
+    def get_queryset(self,request):
+        return super().get_queryset(request).annotate(
+            Product_Count=Count('product')
+        )
+    
 # Register your models here.
-admin.site.register(models.Collection)
