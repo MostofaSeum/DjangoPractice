@@ -1,6 +1,8 @@
 from django.db.models import Count
 from django.contrib.admin import register
 from django.contrib import admin
+from django.utils.html import format_html
+from django.urls import reverse
 from . import models
 
 @admin.register(models.Product)
@@ -10,10 +12,18 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(models.Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ['first_name', 'last_name', 'membership']
+    list_display = ['first_name', 'last_name', 'membership','order_list']
     list_editable = ['membership']
     ordering = ['first_name', 'last_name']
     list_per_page = 10
+
+    def order_list(self,customer):
+        url = (reverse('admin:store_order_changelist')
+                +
+                '?customer__id='
+                +str(customer.id)
+                )
+        return format_html('<a href="{}">{}</a>',url,customer.order_set.count() )
 
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
