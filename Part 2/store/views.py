@@ -17,10 +17,17 @@ def product_list(request):
         serializer = ProductSerializers(data=request.data)
         serializer.is_valid(raise_exception = True)
         serializer.save()
-        return Response('ok')
+        return Response(serializer.data, status = status.HTTP_201_CREATED)
 
-@api_view()
+@api_view(['GET','PUT','PATCH'])
 def product_detail(request,id):
     product = get_object_or_404(Product, pk=id)
-    serializer = ProductSerializers(product)
-    return Response(serializer.data)
+    if request.method == 'GET':
+     serializer = ProductSerializers(product)
+     return Response(serializer.data)
+
+    elif request.method == 'PUT':
+        serializer = ProductSerializers(product, data=request.data)
+        serializer.is_valid(raise_exception = True)
+        serializer.save()
+        return Response(serializer.data)
