@@ -3,7 +3,7 @@ import Link from 'next/link';
 interface Collection {
   id: number;
   title: string;
-  featured_product: string
+  featured_product: string | null;
 }
 
 interface PageProps {
