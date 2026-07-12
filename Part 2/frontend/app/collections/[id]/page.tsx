@@ -32,7 +32,7 @@ export default async function CollectionDetailPage({ params }: PageProps) {
 
   return (
     <main className="max-w-2xl mx-auto p-8">
-      <Link href="/products" className="text-blue-500 hover:underline mb-6 block">
+      <Link href="/collections" className="text-blue-500 hover:underline mb-6 block">
         Back to Catalog
       </Link>
       <div className="border p-6 rounded-xl shadow-lg bg-white dark:bg-zinc-900">

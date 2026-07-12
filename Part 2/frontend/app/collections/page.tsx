@@ -4,6 +4,7 @@ interface Collection {
   id: number;
   title: string;
   featured_product: string | null;
+  product_count: number;
 }
 
 export default async function CollectionssPage() {
@@ -24,7 +25,7 @@ export default async function CollectionssPage() {
         {collections.map((collection) => (
           <div key={collection.id} className="border p-4 rounded-lg shadow hover:shadow-md transition">
             <h2 className="text-xl font-semibold">{collection.title}</h2>
-            <p className="text-gray-600 mb-4">{collection.featured_product}</p>
+            <p className="text-gray-600 mb-4">{collection.product_count}</p>
             <Link 
               href={`/collections/${collection.id}`}
               className="text-blue-500 hover:underline font-medium"
