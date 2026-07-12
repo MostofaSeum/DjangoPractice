@@ -1,5 +1,6 @@
 from store.serializers import CollectionSerializer
 from store.models import Collection
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from rest_framework.decorators import api_view
@@ -47,7 +48,7 @@ def product_detail(request,id):
 @api_view(['GET','POST'])
 def collection_list(request):
     if request.method == 'GET':
-        queryset = Collection.objects.all()
+        queryset = Collection.objects.annotate(product_count=Count('product')).all()
         serializer = CollectionSerializer(queryset, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
