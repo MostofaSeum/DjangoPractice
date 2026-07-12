@@ -43,10 +43,13 @@ INSTALLED_APPS = [
     'store',
     'store_custom',
     'tags',
-    'likes'
+    'likes',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    "django.middleware.common.CommonMiddleware",
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -146,3 +149,8 @@ REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False
     
 }
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
