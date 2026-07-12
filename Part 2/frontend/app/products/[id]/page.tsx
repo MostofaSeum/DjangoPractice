@@ -23,7 +23,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
       <div className="max-w-md mx-auto p-8 text-center">
         <p className="text-red-500 mb-4 font-semibold">Product not found.</p>
         <Link href="/products" className="text-blue-500 hover:underline">
-          ← Back to Catalog
+           Back to Catalog
         </Link>
       </div>
     );
@@ -34,7 +34,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   return (
     <main className="max-w-2xl mx-auto p-8">
       <Link href="/products" className="text-blue-500 hover:underline mb-6 block">
-        ← Back to Catalog
+        Back to Catalog
       </Link>
       <div className="border p-6 rounded-xl shadow-lg bg-white dark:bg-zinc-900">
         <span className="text-xs text-gray-400 font-mono">ID: {product.id}</span>
