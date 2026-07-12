@@ -22,3 +22,9 @@ class CollectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collection
         fields = ['id', 'title','featured_product','product_count']
+
+class CollectionDetailSerializer(serializers.ModelSerializer):
+    products = ProductSerializers(many=True, read_only=True, source='product_set')
+    class Meta:
+        model = Collection
+        fields = ['id', 'title', 'featured_product', 'products']

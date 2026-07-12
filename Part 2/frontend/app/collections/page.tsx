@@ -7,7 +7,7 @@ interface Collection {
   product_count: number;
 }
 
-export default async function CollectionssPage() {
+export default async function CollectionsPage() {
   const res = await fetch('http://127.0.0.1:8000/store/collections/', {
     cache: 'no-store',
   });

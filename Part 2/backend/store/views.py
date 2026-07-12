@@ -1,4 +1,4 @@
-from store.serializers import CollectionSerializer
+from store.serializers import CollectionSerializer, CollectionDetailSerializer
 from store.models import Collection
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
@@ -62,7 +62,7 @@ def collection_list(request):
 def collection_detail(request,id):
     collection = get_object_or_404(Collection, pk=id)
     if request.method == 'GET':
-     serializer = CollectionSerializer(collection)
+     serializer = CollectionDetailSerializer(collection)
      return Response(serializer.data)
 
     elif request.method == 'PUT':
