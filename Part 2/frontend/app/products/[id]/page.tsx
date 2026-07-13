@@ -179,6 +179,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </div>
         </div>
 
+
         {/* Tab section: Only description, reviews are skipped */}
         <div className="mt-16 border-t border-zinc-100 pt-8">
           <div className="flex space-x-8 border-b border-zinc-100 pb-4 mb-6">
@@ -192,6 +193,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </p>
           </div>
         </div>
+
 
         {/* Related Products Section */}
         {relatedProducts.length > 0 && (
