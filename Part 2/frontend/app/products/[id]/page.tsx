@@ -175,13 +175,6 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 <span className="text-zinc-400 font-medium mr-2">Tag:</span>
                 <span className="hover:text-red-500 cursor-pointer capitalize">{collectionTitle.toLowerCase()}</span>
               </div>
-              <div className="flex items-center space-x-3 pt-2">
-                <span className="text-zinc-400 font-medium mr-2">Share this product:</span>
-                <span className="hover:text-red-500 cursor-pointer font-bold">F</span>
-                <span className="hover:text-red-500 cursor-pointer font-bold">T</span>
-                <span className="hover:text-red-500 cursor-pointer font-bold">P</span>
-                <span className="hover:text-red-500 cursor-pointer font-bold">in</span>
-              </div>
             </div>
           </div>
         </div>
@@ -195,10 +188,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </div>
           <div className="text-sm text-zinc-600 leading-loose max-w-4xl">
             <p className="mb-4">
-              {product.description || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam fringilla augue nec est tristique auctor. Donec non est at libero vulputate rutrum. Morbi ornare lectus quis justo gravida semper. Nulla vulputate adipiscing cursus eu, suscipit id nulla.'}
-            </p>
-            <p>
-              Pelentesq aliuet, sem eget laoreet ultrices, ipsum metus feugiat sem, quis fermentum turpis eros eget velit. Donec ac tempus ante. Fusce ultricies massa massa. Fusce aliquam, purus eget sagittis vulputate, sapien libero hendrerit est, sed commodo augue nisi non neque.
+              {product.description}
             </p>
           </div>
         </div>
