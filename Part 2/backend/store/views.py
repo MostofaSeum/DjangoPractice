@@ -1,6 +1,6 @@
 from store.models import OrderItem
 from django.http import request
-from store.serializers import ProductSerializers,CollectionSerializer,ReviewSerializer
+from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer
 from store.models import Collection,Product,Review   
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
@@ -29,6 +29,11 @@ class ProductViewSet(ModelViewSet):
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.annotate(product_count=Count('product')).all()
     serializer_class = CollectionSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return CollectionDetailSerializer
+        return CollectionSerializer
 
     def destroy(self, request, *args, **kwargs):
         if Product.objects.filter(collection_id=kwargs['pk']).count() > 0:
