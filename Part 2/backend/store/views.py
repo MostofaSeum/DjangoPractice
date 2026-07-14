@@ -10,29 +10,23 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework import ModelViewSet
 from .models import Product
 from .serializers import ProductSerializers
 
 # Create your views here.
-
-class ProductListCreateAPIView(ListCreateAPIView):
+class ProductListView(ModelViewSet):
     queryset = Product.objects.select_related('collection').all()
     serializer_class = ProductSerializers
     def get_serializer_context(self):
         return {'request': self.request}
 
-
-class ProductDetails(RetrieveUpdateDestroyAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializers
-    
     def delete(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
         if product.orderitem_set.count() > 0:
             return Response(status = status.HTTP_405_METHOD_NOT_ALLOWED)
         product.delete()
         return Response(status = status.HTTP_204_NO_CONTENT)
-
 
 
 
