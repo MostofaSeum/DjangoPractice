@@ -35,6 +35,14 @@ export default async function ProductsPage() {
           <div className="w-6 h-6"></div> {/* Spacer to balance */}
         </div>
       </header>
+            {/* Breadcrumbs */} 
+      <div className="bg-zinc-50 border-b border-gray-100 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-xs text-zinc-500 flex items-center space-x-2">
+          <Link href="/" className="hover:text-zinc-800">Home</Link>
+          <span>/</span>
+          <Link href="/products" className="hover:text-zinc-800">Shop</Link>
+        </div>
+      </div>
     <main className="max-w-4xl mx-auto p-8">
       <h1 className="text-3xl font-bold mb-6">Product Catalog</h1>
       <div className="grid gap-4 sm:grid-cols-2">
