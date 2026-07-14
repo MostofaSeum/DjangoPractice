@@ -38,5 +38,5 @@ class CollectionViewSet(ModelViewSet):
 
 class ReviewViewSet(ModelViewSet):
     queryset = Review.objects.all()
-    serializer_set = ReviewSerializer
+    serializer_class = ReviewSerializer
 
