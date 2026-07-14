@@ -173,14 +173,14 @@ export default async function ProductDetailPage({ params }: PageProps) {
               </div>
               <div>
                 <span className="text-zinc-400 font-medium mr-2">Tag:</span>
-                <span className="hover:text-red-500 cursor-pointer capitalize">{collectionTitle.toLowerCase()}</span>
+                <span className="hover:text-red-500 cursor-pointer capitalize">{collectionTitle}</span>
               </div>
             </div>
           </div>
         </div>
 
 
-        {/* Tab section: Only description, reviews are skipped */}
+        {/* Tab section: Only description */}
         <div className="mt-16 border-t border-zinc-100 pt-8">
           <div className="flex space-x-8 border-b border-zinc-100 pb-4 mb-6">
             <button className="text-sm font-bold uppercase tracking-wider text-red-500 border-b-2 border-red-500 pb-4 -mb-[18px]">
