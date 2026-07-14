@@ -6,21 +6,24 @@ from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.views import APIView
 from .models import Product
 from .serializers import ProductSerializers
 
 # Create your views here.
-@api_view(['GET', 'POST'])
-def product_list(request):
-    if request.method == 'GET':
+class ProductList(APIView):
+    def get(self, request):
         queryset = Product.objects.select_related('collection').all()
         serializer = ProductSerializers(queryset, many=True)
         return Response(serializer.data)
-    elif request.method == 'POST':
+    def post(self, request):
         serializer = ProductSerializers(data=request.data)
         serializer.is_valid(raise_exception = True)
         serializer.save()
         return Response(serializer.data, status = status.HTTP_201_CREATED)
+
+
+
 
 
 
