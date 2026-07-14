@@ -9,24 +9,20 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin
-from rest_framework.generic import ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView
 from .models import Product
 from .serializers import ProductSerializers
 
 # Create your views here.
-class ProductList(APIView):
-    def get(self, request):
-        queryset = Product.objects.select_related('collection').all()
-        serializer = ProductSerializers(queryset, many=True)
-        return Response(serializer.data)
-    def post(self, request):
-        serializer = ProductSerializers(data=request.data)
-        serializer.is_valid(raise_exception = True)
-        serializer.save()
-        return Response(serializer.data, status = status.HTTP_201_CREATED)
+
+class ProductListCreateAPIView(ListCreateAPIView):
+    queryset = Product.objects.select_related('collection').all()
+    serializer_class = ProductSerializers
+    def get_serializer_context(self):
+        return {'request': self.request}
 
 
-    
+
 
 class ProductDetails(APIView):
     def get(self, request, id):
@@ -48,17 +44,12 @@ class ProductDetails(APIView):
 
 
 
-@api_view(['GET','POST'])
-def collection_list(request):
-    if request.method == 'GET':
-        queryset = Collection.objects.annotate(product_count=Count('product')).all()
-        serializer = CollectionSerializer(queryset, many=True)
-        return Response(serializer.data)
-    elif request.method == 'POST':
-        serializer = CollectionSerializer(data=request.data)
-        serializer.is_valid(raise_exception = True)
-        serializer.save()
-        return Response(serializer.data, status = status.HTTP_201_CREATED)
+
+class CollectionList(ListCreateAPIView):
+    queryset = Collection.objects.annotate(product_count=Count('product')).all()
+    serializer_class = CollectionSerializer
+
+
 
 
 @api_view(['GET','PUT','DELETE'])
