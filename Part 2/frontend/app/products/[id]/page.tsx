@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import ProductInteractive from './ProductInteractive';
 
 interface Product {
@@ -107,15 +108,21 @@ export default async function ProductDetailPage({ params }: PageProps) {
           
           {/* Left Column: Product Images (Placeholder Mode) */}
           <div className="space-y-4">
-            <div className="aspect-[4/5] w-full rounded border-2 border-dashed border-zinc-200 bg-zinc-50 flex flex-col items-center justify-center p-6 text-center shadow-sm">
+            <div className="aspect-[4/5] w-full rounded border-2 border-dashed border-zinc-200 bg-zinc-50 flex flex-col items-center justify-center p-6 text-center shadow-sm relative overflow-hidden">
+              <Image 
+                src="/"
+                alt={`Image of ${product.title} showing the product features`}
+                fill
+                className="opacity-0 object-cover"
+              />
               {/* Box illustrating where the image will be */}
-              <div className="w-16 h-16 rounded-full bg-zinc-200 flex items-center justify-center text-zinc-400 mb-4">
+              <div className="w-16 h-16 rounded-full bg-zinc-200 flex items-center justify-center text-zinc-400 mb-4 z-10">
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <p className="text-sm font-semibold text-zinc-700 mb-1">Image Placeholder</p>
-              <p className="text-xs text-zinc-400 max-w-xs">
+              <p className="text-sm font-semibold text-zinc-700 mb-1 z-10">Image Placeholder</p>
+              <p className="text-xs text-zinc-400 max-w-xs z-10">
                 Alt Text: Image of <span className="font-semibold text-zinc-500">{product.title}</span> showing the product features.
               </p>
             </div>
@@ -123,8 +130,14 @@ export default async function ProductDetailPage({ params }: PageProps) {
             {/* Thumbnail Placeholders */}
             <div className="grid grid-cols-4 gap-3">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="aspect-square w-full rounded border border-zinc-200 bg-zinc-50 flex items-center justify-center p-2 text-center text-[10px] text-zinc-400 font-medium">
-                  Alt {i}
+                <div key={i} className="aspect-square w-full rounded border border-zinc-200 bg-zinc-50 flex items-center justify-center p-2 text-center text-[10px] text-zinc-400 font-medium relative overflow-hidden">
+                  <Image 
+                    src="/"
+                    alt={`${product.title} detail ${i}`}
+                    fill
+                    className="opacity-0 object-cover"
+                  />
+                  <span className="z-10">Alt {i}</span>
                 </div>
               ))}
             </div>
@@ -201,8 +214,14 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {relatedProducts.map((item) => (
                 <Link key={item.id} href={`/products/${item.id}`} className="group block">
-                  <div className="aspect-[3/4] w-full rounded border border-zinc-100 bg-zinc-50 flex flex-col items-center justify-center p-4 text-center group-hover:shadow-md transition duration-200">
-                    <span className="text-[10px] text-zinc-400 font-medium">Image of {item.title}</span>
+                  <div className="aspect-[3/4] w-full rounded border border-zinc-100 bg-zinc-50 flex flex-col items-center justify-center p-4 text-center group-hover:shadow-md transition duration-200 relative overflow-hidden">
+                    <Image 
+                      src="/"
+                      alt={`Image of ${item.title}`}
+                      fill
+                      className="opacity-0 object-cover"
+                    />
+                    <span className="text-[10px] text-zinc-400 font-medium z-10">Image of {item.title}</span>
                   </div>
                   <div className="mt-4 text-center">
                     <p className="text-[10px] uppercase text-zinc-400 tracking-wider font-semibold">

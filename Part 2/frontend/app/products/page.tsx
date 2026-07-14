@@ -59,8 +59,14 @@ export default async function ProductsPage() {
                 View Details
               </Link>
             </div>
-            <div className="w-20 h-20 flex-shrink-0 bg-zinc-50 border border-zinc-200 rounded flex items-center justify-center p-2 text-center text-[10px] text-zinc-400 font-medium leading-tight">
-              Image of {product.title}
+            <div className="w-20 h-20 flex-shrink-0 bg-zinc-50 border border-zinc-200 rounded relative flex items-center justify-center p-2 text-center text-[10px] text-zinc-400 font-medium leading-tight overflow-hidden">
+              <Image 
+                src="/"
+                alt={`Image of ${product.title}`}
+                fill
+                className="opacity-0 object-cover"
+              />
+              <span>Image of {product.title}</span>
             </div>
           </div>
         ))}
