@@ -65,7 +65,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
     }
   }
 
-  const collectionTitle = collectionData?.title || 'Clothing';
+  const collectionTitle = collectionData?.title || 'Undefined';
   const relatedProducts = (collectionData?.products || [])
     .filter((p) => p.id !== product.id)
     .slice(0, 4);
