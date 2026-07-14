@@ -80,17 +80,15 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </Link>
           <nav className="hidden md:flex space-x-8 text-xs font-semibold tracking-wider text-zinc-600 uppercase">
             <Link href="/" className="hover:text-red-500 transition-colors">Home</Link>
-            <Link href="/products" className="text-red-500 transition-colors">Shop</Link>
-            <Link href="#" className="hover:text-red-500 transition-colors">Blog</Link>
-            <Link href="#" className="hover:text-red-500 transition-colors">Portfolio</Link>
-            <Link href="#" className="hover:text-red-500 transition-colors">Pages</Link>
+              <Link href="/products" className="text-red-500 transition-colors">Shop</Link>
+        
             <Link href="#" className="hover:text-red-500 transition-colors">Contact Us</Link>
           </nav>
           <div className="w-6 h-6"></div> {/* Spacer to balance */}
         </div>
       </header>
 
-      {/* Breadcrumbs */}
+      {/* Breadcrumbs */} 
       <div className="bg-zinc-50 border-b border-gray-100 py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-xs text-zinc-500 flex items-center space-x-2">
           <Link href="/" className="hover:text-zinc-800">Home</Link>

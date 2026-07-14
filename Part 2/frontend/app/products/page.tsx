@@ -19,6 +19,22 @@ export default async function ProductsPage() {
   const products: Product[] = await res.json();
 
   return (
+        <div className="min-h-screen bg-white text-zinc-800 font-sans antialiased pb-16">
+      {/* Header Navigation */}
+      <header className="border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex justify-between items-center">
+          <Link href="/" className="text-2xl font-bold tracking-widest text-zinc-900">
+            PEDONA
+          </Link>
+          <nav className="hidden md:flex space-x-8 text-xs font-semibold tracking-wider text-zinc-600 uppercase">
+            <Link href="/" className="hover:text-red-500 transition-colors">Home</Link>
+            <Link href="/products" className="text-red-500 transition-colors">Shop</Link>
+
+            <Link href="#" className="hover:text-red-500 transition-colors">Contact Us</Link>
+          </nav>
+          <div className="w-6 h-6"></div> {/* Spacer to balance */}
+        </div>
+      </header>
     <main className="max-w-4xl mx-auto p-8">
       <h1 className="text-3xl font-bold mb-6">Product Catalog</h1>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -36,5 +52,6 @@ export default async function ProductsPage() {
         ))}
       </div>
     </main>
+          </div>
   );
 }
