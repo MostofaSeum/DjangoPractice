@@ -47,15 +47,22 @@ export default async function ProductsPage() {
       <h1 className="text-3xl font-bold mb-6">Product Catalog</h1>
       <div className="grid gap-4 sm:grid-cols-2">
         {products.map((product) => (
-          <div key={product.id} className="border p-4 rounded-lg shadow hover:shadow-md transition">
-            <h2 className="text-xl font-semibold">{product.title}</h2>
-            <p className="text-gray-600 mb-4">${product.unit_price}</p>
-            <Link 
-              href={`/products/${product.id}`}
-              className="text-blue-500 hover:underline font-medium"
-            >
-              View Details
-            </Link>
+          <div key={product.id} className="border p-4 rounded-lg shadow hover:shadow-md transition flex justify-between items-center space-x-4">
+            <div className="flex-1">
+              <h2 className="text-xl font-semibold">{product.title}</h2>
+              <p className="text-gray-600 mb-4">${product.unit_price}</p>
+              <Link 
+                href={`/products/${product.id}`}
+                className="text-blue-500 hover:underline font-medium"
+              >
+                View Details
+              </Link>
+            </div>
+            <div className="w-20 h-20 flex-shrink-0 bg-zinc-50 border border-zinc-200 rounded flex items-center justify-center text-center shadow-sm">
+              <svg className="w-8 h-8 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
           </div>
         ))}
       </div>
