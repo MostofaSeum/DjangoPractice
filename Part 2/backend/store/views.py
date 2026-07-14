@@ -25,8 +25,7 @@ class ProductListCreateAPIView(ListCreateAPIView):
 class ProductDetails(RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializers
-
-
+    
     def delete(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
         if product.orderitem_set.count() > 0:
@@ -42,22 +41,11 @@ class CollectionList(ListCreateAPIView):
     serializer_class = CollectionSerializer
 
 
+class CollectionDetail(RetrieveUpdateDestroyAPIView):
+    queryset = Collection.objects.annotate(product_count=Count('product')).all()
+    serializer_class = CollectionDetailSerializer
 
-
-@api_view(['GET','PUT','DELETE'])
-
-def collection_detail(request,id):
-    collection = get_object_or_404(Collection, pk=id)
-    if request.method == 'GET':
-     serializer = CollectionDetailSerializer(collection)
-     return Response(serializer.data)
-
-    elif request.method == 'PUT':
-        serializer = CollectionSerializer(collection, data=request.data)
-        serializer.is_valid(raise_exception = True)
-        serializer.save()
-        return Response(serializer.data)
-
-    elif request.method == 'DELETE':
+    def delete(self, request, pk):
+        collection = get_object_or_404(Collection, pk=pk)
         collection.delete()
         return Response(status = status.HTTP_204_NO_CONTENT)
