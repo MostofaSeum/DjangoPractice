@@ -1,7 +1,7 @@
-from backend.store.models import OrderItem
+from store.models import OrderItem
 from django.http import request
-from store.serializers import CollectionSerializer, CollectionDetailSerializer
-from store.models import Collection
+from store.serializers import ProductSerializers,CollectionSerializer,ReviewSerializer
+from store.models import Collection,Product,Review   
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
@@ -12,8 +12,6 @@ from rest_framework.views import APIView
 from rest_framework.mixins import ListModelMixin, CreateModelMixin
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.viewsets import ModelViewSet
-from .models import Product
-from .serializers import ProductSerializers
 
 # Create your views here.
 class ProductViewSet(ModelViewSet):
@@ -36,4 +34,9 @@ class CollectionViewSet(ModelViewSet):
         if Product.objects.filter(collection_id=kwargs['pk']).count() > 0:
             return Response({'error': 'Collection cannot be deleted because it includes one or more products.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().destroy(request, *args, **kwargs)
+
+
+class ReviewViewSet(ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_set = ReviewSerializer
 

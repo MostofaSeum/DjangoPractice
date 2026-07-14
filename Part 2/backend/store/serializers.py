@@ -1,3 +1,4 @@
+from backend.store.models import Review
 from rest_framework import serializers 
 from .models import Product,Collection
 from decimal import Decimal
@@ -28,3 +29,9 @@ class CollectionDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Collection
         fields = ['id', 'title', 'featured_product', 'products']
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['id', 'name', 'description', 'date', 'product']
