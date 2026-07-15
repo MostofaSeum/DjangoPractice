@@ -87,17 +87,17 @@ export default function Home() {
           {/* Left/Middle (over beige) */}
           <div className="w-[60%] flex items-center justify-between pr-4 md:pr-12">
             <div className="text-xl md:text-2xl font-black tracking-tighter text-[#3a3532] uppercase">
-              Kitchen
+              VibeMart
             </div>
             <nav className="hidden md:flex gap-8 text-[11px] font-bold text-[#3a3532] uppercase tracking-widest">
-              <a href="#" className="hover:opacity-60 transition-opacity">
-                Equipment
+              <a href="#" className="hover:opacity-60 transition-opacity border-b-2 border-[#3a3532] pb-1">
+                Shop
               </a>
-              <a href="#" className="hover:opacity-60 transition-opacity">
-                Kitchenware
+              <a href="#" className="hover:opacity-60 transition-opacity pb-1">
+                Drops
               </a>
-              <a href="#" className="hover:opacity-60 transition-opacity">
-                Chef's Tools
+              <a href="#" className="hover:opacity-60 transition-opacity pb-1">
+                Exclusives
               </a>
             </nav>
           </div>
@@ -117,10 +117,10 @@ export default function Home() {
           {/* Left side text (Image 1 style) */}
           <div className="w-full md:w-[50%] mb-12 md:mb-0">
             <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black text-[#3a3532] leading-[0.9] tracking-tighter mb-8 uppercase">
-              Cook's <br /> Fascinations
+              Elevate <br /> Your Vibe
             </h1>
             <p className="text-lg lg:text-xl text-[#3a3532]/70 max-w-sm mb-10 font-medium leading-relaxed">
-              Quality kitchen tools enhance cooking with precision and ease.
+              Experience the intersection of high-end streetwear and premium digital aesthetics.
             </p>
             <div className="inline-block text-[10px] font-bold tracking-widest uppercase border-b-2 border-[#3a3532] pb-1 cursor-pointer hover:opacity-70 transition-opacity">
               Explore Collection
@@ -131,18 +131,17 @@ export default function Home() {
           <div className="w-full md:w-[40%] bg-white/10 backdrop-blur-xl border border-white/10 p-10 rounded-2xl shadow-2xl text-[#e6e0d4] relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50 pointer-events-none"></div>
             <h2 className="text-3xl font-bold mb-4 uppercase tracking-tight relative z-10">
-              Elevate Your Prep
+              Discover the Vibe
             </h2>
             <p className="text-sm text-[#e6e0d4]/80 mb-8 leading-relaxed relative z-10">
-              Experience the intersection of high-end culinary gear and premium
-              aesthetics. Precision engineered. Infinite durability.
+              Collect exclusive pieces and immerse yourself in the next wave of streetwear. Limited drops. Infinite style.
             </p>
             <div className="flex gap-4 relative z-10">
               <button className="flex-1 bg-[#8b7a66] text-[#e6e0d4] py-3 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#a39079] transition-colors shadow-lg">
-                Shop Drops
+                Shop the Drop
               </button>
               <button className="flex-1 bg-transparent border border-[#e6e0d4]/30 text-[#e6e0d4] py-3 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#e6e0d4]/10 transition-colors">
-                Exclusives
+                View Exclusives
               </button>
             </div>
           </div>
@@ -161,15 +160,15 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-t from-[#3a3532]/80 via-transparent to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
               <div className="absolute inset-0 flex items-center justify-center text-[#3a3532]/10 bg-[#cfc5b0] transition-transform duration-700 group-hover:scale-105">
                 <span className="text-5xl font-black uppercase tracking-tighter">
-                  Pro Cutlery
+                  Cybernetics
                 </span>
               </div>
               <div className="absolute bottom-10 left-10 z-20 text-[#e6e0d4] transform transition-transform duration-500 group-hover:translate-y-[-10px]">
                 <span className="bg-[#e6e0d4] text-[#3a3532] text-xs font-bold px-3 py-1 mb-4 inline-block uppercase tracking-widest rounded-sm">
-                  New Arrival
+                  NEW ARRIVAL
                 </span>
                 <h3 className="text-4xl font-black uppercase tracking-tight">
-                  Chef's Knives Collection
+                  Cyber-street collection
                 </h3>
               </div>
             </div>
@@ -180,12 +179,12 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10" />
                 <div className="absolute inset-0 flex items-center justify-center opacity-30 transition-transform duration-700 group-hover:scale-105">
                   <span className="text-4xl font-black text-[#e6e0d4] uppercase tracking-tighter">
-                    Cookware
+                    Kicks
                   </span>
                 </div>
                 <div className="absolute bottom-8 left-8 z-20 text-[#e6e0d4]">
                   <h3 className="text-2xl font-bold uppercase tracking-tight">
-                    Cast Iron Series
+                    Footwear
                   </h3>
                 </div>
               </div>
@@ -193,12 +192,12 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-[#3a3532]/40 to-transparent z-10" />
                 <div className="absolute inset-0 flex items-center justify-center opacity-10 bg-[#f4f1eb] transition-transform duration-700 group-hover:scale-105">
                   <span className="text-4xl font-black text-[#3a3532] uppercase tracking-tighter">
-                    Essentials
+                    Gear
                   </span>
                 </div>
                 <div className="absolute bottom-8 left-8 z-20 text-[#3a3532]">
                   <h3 className="text-2xl font-bold uppercase tracking-tight">
-                    Prep Tools
+                    Tech Accessories
                   </h3>
                 </div>
               </div>
@@ -226,12 +225,12 @@ export default function Home() {
               <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
                 <div className="w-full h-full bg-[#e6e0d4]/50 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
                   <span className="text-[#3a3532]/20 font-black text-xl uppercase tracking-widest">
-                    Image
+                    HOODIE
                   </span>
                 </div>
               </div>
-              <h4 className="font-bold text-lg mb-1">Nakiri Knife 7"</h4>
-              <p className="text-[#8b7a66] font-bold mb-6">$120</p>
+              <h4 className="font-bold text-lg mb-1">Neon Void Hoodie</h4>
+              <p className="text-[#8b7a66] font-bold mb-6">$129</p>
               <button className="w-full py-3 border-2 border-[#3a3532] rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors flex items-center justify-center gap-2">
                 <CartIcon /> Add to Cart
               </button>
@@ -245,13 +244,13 @@ export default function Home() {
               <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
                 <div className="w-full h-full bg-[#e6e0d4]/50 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
                   <span className="text-[#3a3532]/20 font-black text-xl uppercase tracking-widest">
-                    Image
+                    BAG
                   </span>
                 </div>
               </div>
-              <h4 className="font-bold text-lg mb-1">Walnut Cutting Board</h4>
+              <h4 className="font-bold text-lg mb-1">Stealth Messenger</h4>
               <p className="font-bold mb-6 flex items-center gap-3">
-                <span className="text-[#cc5555]">$85</span>
+                <span className="text-[#cc5555]">$89</span>
                 <span className="line-through text-[#3a3532]/40 text-sm">
                   $110
                 </span>
@@ -266,12 +265,12 @@ export default function Home() {
               <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
                 <div className="w-full h-full bg-[#e6e0d4]/50 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
                   <span className="text-[#3a3532]/20 font-black text-xl uppercase tracking-widest">
-                    Image
+                    SHADES
                   </span>
                 </div>
               </div>
-              <h4 className="font-bold text-lg mb-1">Steel Mixing Bowls</h4>
-              <p className="text-[#8b7a66] font-bold mb-6">$65</p>
+              <h4 className="font-bold text-lg mb-1">Flux Shades</h4>
+              <p className="text-[#8b7a66] font-bold mb-6">$175</p>
               <button className="w-full py-3 border-2 border-[#3a3532] rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors flex items-center justify-center gap-2">
                 <CartIcon /> Add to Cart
               </button>
@@ -282,12 +281,12 @@ export default function Home() {
               <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
                 <div className="w-full h-full bg-[#e6e0d4]/50 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
                   <span className="text-[#3a3532]/20 font-black text-xl uppercase tracking-widest">
-                    Image
+                    TEE
                   </span>
                 </div>
               </div>
-              <h4 className="font-bold text-lg mb-1">Silicone Spatula Set</h4>
-              <p className="text-[#8b7a66] font-bold mb-6">$35</p>
+              <h4 className="font-bold text-lg mb-1">Echo Graphic Tee</h4>
+              <p className="text-[#8b7a66] font-bold mb-6">$55</p>
               <button className="w-full py-3 border-2 border-[#3a3532] rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors flex items-center justify-center gap-2">
                 <CartIcon /> Add to Cart
               </button>
@@ -299,7 +298,7 @@ export default function Home() {
         <section className="bg-[#3a3532] text-[#e6e0d4] mt-32 py-24 px-8 md:px-12 rounded-t-[3rem] mx-4 md:mx-12 lg:mx-20 shadow-2xl">
           <div className="max-w-[1200px] mx-auto">
             <h2 className="text-3xl font-black text-center mb-16 uppercase tracking-tighter">
-              Why Kitchen?
+              Why VibeMart?
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
               <div className="flex flex-col items-center">
@@ -311,7 +310,7 @@ export default function Home() {
                 </h3>
                 <p className="text-[#e6e0d4]/60 leading-relaxed text-sm font-medium">
                   Global expedited delivery ensures you get your gear before the
-                  next meal prep.
+                  hype dies.
                 </p>
               </div>
               <div className="flex flex-col items-center">
@@ -323,7 +322,7 @@ export default function Home() {
                 </h3>
                 <p className="text-[#e6e0d4]/60 leading-relaxed text-sm font-medium">
                   Uncompromising materials and construction. We only sell what
-                  we trust in our own kitchens.
+                  we wear.
                 </p>
               </div>
               <div className="flex flex-col items-center">
@@ -334,8 +333,7 @@ export default function Home() {
                   Secure Checkout
                 </h3>
                 <p className="text-[#e6e0d4]/60 leading-relaxed text-sm font-medium">
-                  Encrypted, lightning-fast transactions to secure your premium
-                  culinary tools.
+                  Encrypted, lightning-fast transactions to secure your limited drops.
                 </p>
               </div>
             </div>
@@ -347,7 +345,7 @@ export default function Home() {
       <footer className="bg-[#2a2624] text-[#e6e0d4]/50 py-16 px-8 md:px-12">
         <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
           <div className="text-3xl font-black tracking-tighter text-[#e6e0d4] uppercase">
-            Kitchen
+            VibeMart
           </div>
           <div className="flex flex-wrap justify-center gap-8 text-xs font-bold uppercase tracking-widest">
             <a href="#" className="hover:text-[#e6e0d4] transition-colors">
@@ -366,9 +364,9 @@ export default function Home() {
               Contact Us
             </a>
           </div>
-          <div className="text-[10px] font-bold tracking-widest uppercase">
-            &copy; 2026 KITCHEN SUPPLY.
-            <br /> ALL RIGHTS RESERVED.
+          <div className="text-[10px] font-bold tracking-widest uppercase text-center md:text-left">
+            &copy; 2026 VIBEMART. ELECTRIC PREMIUM
+            <br /> WORLDWIDE.
           </div>
         </div>
       </footer>
