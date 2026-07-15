@@ -19,7 +19,7 @@ class ProductViewSet(ModelViewSet):
 
     def get_queryset(self):
         queryset = Product.objects.all()
-        collection_id = self.request.query_params['collection_id']
+        collection_id = self.request.query_params.get('collection_id')
         if collection_id is not None:
             queryset = queryset.filter(collection_id=collection_id)
         return queryset
