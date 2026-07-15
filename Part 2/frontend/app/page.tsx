@@ -124,7 +124,7 @@ export default function Home() {
               Experience the intersection of high-end streetwear and premium digital aesthetics.
             </p>
             <div className="inline-block text-[10px] font-bold tracking-widest uppercase border-b-2 border-[#3a3532] pb-1 cursor-pointer hover:opacity-70 transition-opacity">
-              Explore Collection
+              <Link href="/collections">Explore Collection</Link>
             </div>
           </div>
 
