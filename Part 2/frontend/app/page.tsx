@@ -74,7 +74,7 @@ const DiamondIcon = () => (
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans selection:bg-[#3a3532] selection:text-[#e6e0d4]">
-      {/* Hero Section with Split Background (Image 1 Style) */}
+      {/* Hero Section with Split Background*/}
       <section className="relative w-full h-screen min-h-[600px] flex items-center">
         {/* Background Split */}
         <div className="absolute inset-0 flex">
@@ -84,7 +84,7 @@ export default function Home() {
 
         {/* Navbar overlaying hero */}
         <header className="absolute top-0 w-full z-50 py-8 px-8 md:px-12 flex justify-between items-center">
-          {/* Left/Middle (over beige) */}
+          {/* Left/Middle */}
           <div className="w-[60%] flex items-center justify-between pr-4 md:pr-12">
             <div className="text-xl md:text-2xl font-black tracking-tighter text-[#3a3532] uppercase">
               VibeMart
@@ -127,8 +127,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right side floating glass card (VibeMart style influence) */}
-          <div className="w-full md:w-[40%] bg-white/10 backdrop-blur-xl border border-white/10 p-10 rounded-2xl shadow-2xl text-[#e6e0d4] relative overflow-hidden group">
+          {/* Right side floating glass card*/}
+          <div className="w-full md:w-[35%] bg-white/10 backdrop-blur-xl border border-white/10 p-10 rounded-2xl shadow-2xl text-[#e6e0d4] relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50 pointer-events-none"></div>
             <h2 className="text-3xl font-bold mb-4 uppercase tracking-tight relative z-10">
               Discover the Vibe
