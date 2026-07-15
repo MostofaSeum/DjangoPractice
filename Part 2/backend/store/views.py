@@ -18,7 +18,7 @@ from rest_framework.viewsets import ModelViewSet
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializers
-    filter_backend = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend]
     filterset_fields = ['collection_id']
     
     def get_serializer_context(self):
