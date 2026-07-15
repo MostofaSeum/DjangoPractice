@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 // Simple SVG Icons
 const CartIcon = () => (
@@ -151,9 +152,17 @@ export default function Home() {
       <main className="pb-24">
         {/* Featured Categories (VibeMart layout) */}
         <section className="max-w-[1400px] mx-auto px-8 md:px-12 mt-32">
-          <h2 className="text-3xl font-black mb-10 uppercase tracking-tighter">
-            Featured Categories
-          </h2>
+          <div className="flex justify-between items-end mb-10">
+            <h2 className="text-3xl font-black uppercase tracking-tighter">
+              Featured Categories
+            </h2>
+            <Link
+              href="/collections"
+              className="text-xs font-bold uppercase tracking-widest text-[#8b7a66] hover:text-[#3a3532] transition-colors"
+            >
+              View All
+            </Link>
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[600px]">
             {/* Large Card */}
             <div className="lg:col-span-2 relative rounded-2xl overflow-hidden bg-[#d5ccb7] group cursor-pointer shadow-lg min-h-[400px]">
@@ -211,12 +220,12 @@ export default function Home() {
             <h2 className="text-3xl font-black uppercase tracking-tighter">
               Trending Now
             </h2>
-            <a
-              href="#"
+            <Link
+              href="/products"
               className="text-xs font-bold uppercase tracking-widest text-[#8b7a66] hover:text-[#3a3532] transition-colors"
             >
               View All
-            </a>
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
