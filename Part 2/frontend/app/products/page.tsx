@@ -8,70 +8,76 @@ interface Product {
   description: string;
 }
 
+const CartIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+);
+
 export default async function ProductsPage() {
   const res = await fetch('http://127.0.0.1:8000/store/products/', {
     cache: 'no-store',
   });
 
   if (!res.ok) {
-    return <div className="p-8 text-red-500">Failed to load products.</div>;
+    return <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] p-8 text-center font-bold">Failed to load products.</div>;
   }
 
   const products: Product[] = await res.json();
 
   return (
-        <div className="min-h-screen bg-white text-zinc-800 font-sans antialiased pb-16">
+    <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans antialiased pb-24 selection:bg-[#3a3532] selection:text-[#e6e0d4]">
       {/* Header Navigation */}
-      <header className="border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold tracking-widest text-zinc-900">
-            PEDONA
-          </Link>
-          <nav className="hidden md:flex space-x-8 text-xs font-semibold tracking-wider text-zinc-600 uppercase">
-            <Link href="/" className="hover:text-red-500 transition-colors">Home</Link>
-            <Link href="/products" className="text-red-500 transition-colors">Shop</Link>
-
-            <Link href="#" className="hover:text-red-500 transition-colors">Contact Us</Link>
-          </nav>
-          <div className="w-6 h-6"></div> {/* Spacer to balance */}
+      <header className="bg-[#3a3532] text-[#e6e0d4] py-6 px-8 md:px-12 flex justify-between items-center sticky top-0 z-50 shadow-md">
+        <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter uppercase text-[#e6e0d4] hover:opacity-85 transition-opacity">
+          VibeMart
+        </Link>
+        <nav className="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-widest text-[#e6e0d4]/80">
+          <Link href="/" className="hover:text-white transition-colors">Home</Link>
+          <Link href="/products" className="text-white border-b border-white pb-0.5">Shop</Link>
+          <Link href="/collections" className="hover:text-white transition-colors">Collections</Link>
+        </nav>
+        <div className="flex items-center gap-4">
+          <button className="text-[#e6e0d4] hover:text-white transition-colors"><CartIcon /></button>
         </div>
       </header>
-            {/* Breadcrumbs */} 
-      <div className="bg-zinc-50 border-b border-gray-100 py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-xs text-zinc-500 flex items-center space-x-2">
-          <Link href="/" className="hover:text-zinc-800">Home</Link>
+
+      {/* Breadcrumbs */} 
+      <div className="bg-[#3a3532]/5 border-b border-[#3a3532]/10 py-4">
+        <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs text-[#3a3532]/60 flex items-center space-x-2 font-bold uppercase tracking-wider">
+          <Link href="/" className="hover:text-[#3a3532]">Home</Link>
           <span>/</span>
-          <Link href="/products" className="hover:text-zinc-800">Shop</Link>
+          <span className="text-[#3a3532]">Shop</span>
         </div>
       </div>
-    <main className="max-w-4xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">Product Catalog</h1>
-      <div className="grid gap-4 sm:grid-cols-2">
-        {products.map((product) => (
-          <div key={product.id} className="border p-4 rounded-lg shadow hover:shadow-md transition flex justify-between items-center space-x-4">
-            <div className="flex-1">
-              <h2 className="text-xl font-semibold">{product.title}</h2>
-              <p className="text-gray-600 mb-4">${product.unit_price}</p>
-              <Link 
-                href={`/products/${product.id}`}
-                className="text-blue-500 hover:underline font-medium"
-              >
-                View Details
-              </Link>
+
+      <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-16">
+        <h1 className="text-4xl font-black mb-10 uppercase tracking-tighter">Product Catalog</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <div key={product.id} className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between">
+              <div>
+                <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
+                  <div className="w-full h-full bg-[#e6e0d4]/50 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
+                    <span className="text-[#3a3532]/20 font-black text-lg uppercase tracking-widest">
+                      {product.title.split(' ')[0]}
+                    </span>
+                  </div>
+                </div>
+                <h2 className="font-bold text-lg text-[#3a3532] mb-1 line-clamp-1">{product.title}</h2>
+                <p className="text-[#3a3532]/60 text-xs line-clamp-2 mb-4 leading-relaxed">{product.description || 'No description available'}</p>
+              </div>
+              <div>
+                <p className="text-[#8b7a66] font-bold text-lg mb-6">${Number(product.unit_price).toFixed(2)}</p>
+                <Link 
+                  href={`/products/${product.id}`}
+                  className="w-full py-3 border-2 border-[#3a3532] rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors flex items-center justify-center gap-2"
+                >
+                  <CartIcon /> View Details
+                </Link>
+              </div>
             </div>
-            <div className="w-20 h-20 flex-shrink-0 bg-zinc-50 border border-zinc-200 rounded relative flex items-center justify-center p-2 text-center text-[10px] text-zinc-400 font-medium leading-tight overflow-hidden">
-              <Image 
-                src="/"
-                alt={`Image of ${product.title}`}
-                fill
-                className="opacity-0 object-cover"
-              />
-              <span>Image of {product.title}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </main>
-          </div>
+          ))}
+        </div>
+      </main>
+    </div>
   );
 }

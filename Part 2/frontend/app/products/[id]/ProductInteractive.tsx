@@ -14,18 +14,18 @@ export default function ProductInteractive({ productTitle }: { productTitle: str
 
   return (
     <div className="flex items-center gap-4 my-6">
-      <div className="flex items-center border border-gray-300 rounded overflow-hidden">
+      <div className="flex items-center border border-[#3a3532]/20 rounded-xl overflow-hidden bg-white">
         <button
           onClick={handleDecrement}
-          className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold transition-colors"
+          className="px-4 py-2 hover:bg-[#f4f1eb] text-[#3a3532] font-black transition-colors"
           type="button"
         >
           -
         </button>
-        <span className="w-12 text-center font-medium text-gray-800">{quantity}</span>
+        <span className="w-12 text-center font-bold text-[#3a3532]">{quantity}</span>
         <button
           onClick={handleIncrement}
-          className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold transition-colors"
+          className="px-4 py-2 hover:bg-[#f4f1eb] text-[#3a3532] font-black transition-colors"
           type="button"
         >
           +
@@ -34,7 +34,7 @@ export default function ProductInteractive({ productTitle }: { productTitle: str
 
       <button
         onClick={handleAddToCart}
-        className="px-8 py-3 bg-zinc-800 hover:bg-zinc-950 text-white font-semibold rounded text-sm tracking-wider uppercase transition-colors duration-250 shadow-sm"
+        className="px-8 py-3 bg-[#3a3532] hover:bg-[#252220] text-[#e6e0d4] font-bold rounded-xl text-sm tracking-widest uppercase transition-colors shadow-md"
       >
         Add to Cart
       </button>

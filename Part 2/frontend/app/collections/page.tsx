@@ -8,71 +8,76 @@ interface Collection {
   product_count: number;
 }
 
+const CartIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+);
+
 export default async function CollectionsPage() {
   const res = await fetch('http://127.0.0.1:8000/store/collections/', {
     cache: 'no-store',
   });
 
   if (!res.ok) {
-    return <div className="p-8 text-red-500">Failed to load collections.</div>;
+    return <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] p-8 text-center font-bold">Failed to load collections.</div>;
   }
 
   const collections: Collection[] = await res.json();
 
   return (
-    <div className="min-h-screen bg-white text-zinc-800 font-sans antialiased pb-16">
+    <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans antialiased pb-24 selection:bg-[#3a3532] selection:text-[#e6e0d4]">
       {/* Header Navigation */}
-      <header className="border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold tracking-widest text-zinc-900">
-            PEDONA
-          </Link>
-          <nav className="hidden md:flex space-x-8 text-xs font-semibold tracking-wider text-zinc-600 uppercase">
-            <Link href="/" className="hover:text-red-500 transition-colors">Home</Link>
-            <Link href="/products" className="text-red-500 transition-colors">Shop</Link>
-
-            <Link href="#" className="hover:text-red-500 transition-colors">Contact Us</Link>
-          </nav>
-          <div className="w-6 h-6"></div> {/* Spacer to balance */}
+      <header className="bg-[#3a3532] text-[#e6e0d4] py-6 px-8 md:px-12 flex justify-between items-center sticky top-0 z-50 shadow-md">
+        <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter uppercase text-[#e6e0d4] hover:opacity-85 transition-opacity">
+          VibeMart
+        </Link>
+        <nav className="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-widest text-[#e6e0d4]/80">
+          <Link href="/" className="hover:text-white transition-colors">Home</Link>
+          <Link href="/products" className="hover:text-white transition-colors">Shop</Link>
+          <Link href="/collections" className="text-white border-b border-white pb-0.5">Collections</Link>
+        </nav>
+        <div className="flex items-center gap-4">
+          <button className="text-[#e6e0d4] hover:text-white transition-colors"><CartIcon /></button>
         </div>
       </header>
-            {/* Breadcrumbs */} 
-      <div className="bg-zinc-50 border-b border-gray-100 py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-xs text-zinc-500 flex items-center space-x-2">
-          <Link href="/" className="hover:text-zinc-800">Home</Link>
+
+      {/* Breadcrumbs */} 
+      <div className="bg-[#3a3532]/5 border-b border-[#3a3532]/10 py-4">
+        <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs text-[#3a3532]/60 flex items-center space-x-2 font-bold uppercase tracking-wider">
+          <Link href="/" className="hover:text-[#3a3532]">Home</Link>
           <span>/</span>
-          <Link href="/products" className="hover:text-zinc-800">Shop</Link>
+          <span className="text-[#3a3532]">Collections</span>
         </div>
       </div>
-    <main className="max-w-4xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">Product Catalog</h1>
-      <div className="grid gap-4 sm:grid-cols-2">
-        {collections.map((collection) => (
-          <div key={collection.id} className="border p-4 rounded-lg shadow hover:shadow-md transition flex justify-between items-center space-x-4">
-            <div className="flex-1">
-              <h2 className="text-xl font-semibold">{collection.title}</h2>
-              <p className="text-gray-600 mb-4">{collection.product_count} products</p>
-              <Link 
-                href={`/collections/${collection.id}`}
-                className="text-blue-500 hover:underline font-medium"
-              >
-                View Details
-              </Link>
+
+      <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-16">
+        <h1 className="text-4xl font-black mb-10 uppercase tracking-tighter">Product Collections</h1>
+        
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {collections.map((collection) => (
+            <div key={collection.id} className="bg-white rounded-2xl p-6 shadow-sm border border-[#3a3532]/5 hover:shadow-xl transition-all duration-300 flex justify-between items-center space-x-4 group cursor-pointer">
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold mb-1 uppercase tracking-tight group-hover:text-[#8b7a66] transition-colors">{collection.title}</h2>
+                <p className="text-[#3a3532]/60 text-xs font-bold uppercase tracking-wider mb-6">{collection.product_count} products</p>
+                <Link 
+                  href={`/collections/${collection.id}`}
+                  className="inline-block text-[10px] font-bold tracking-widest uppercase border-b-2 border-[#3a3532] pb-1 hover:opacity-70 transition-opacity"
+                >
+                  View Collection
+                </Link>
+              </div>
+              <div className="w-24 h-24 flex-shrink-0 bg-[#f4f1eb] rounded-xl relative flex items-center justify-center p-2 text-center text-[10px] text-[#3a3532]/30 font-bold uppercase tracking-wider overflow-hidden">
+                <Image 
+                  src="/"
+                  alt={`Image of ${collection.title}`}
+                  fill
+                  className="opacity-0 object-cover"
+                />
+                <span>{collection.title}</span>
+              </div>
             </div>
-            <div className="w-20 h-20 flex-shrink-0 bg-zinc-50 border border-zinc-200 rounded relative flex items-center justify-center p-2 text-center text-[10px] text-zinc-400 font-medium leading-tight overflow-hidden">
-              <Image 
-                src="/"
-                alt={`Image of ${collection.title}`}
-                fill
-                className="opacity-0 object-cover"
-              />
-              <span>Image of {collection.title}</span>
-            </div>
-          </div>
-          
-        ))}
-      </div>
-    </main>
+          ))}
+        </div>
+      </main>
     </div>
   );
 }
