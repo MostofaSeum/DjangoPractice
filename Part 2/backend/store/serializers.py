@@ -1,7 +1,7 @@
 from dataclasses import field
 from .models import Review
 from rest_framework import serializers 
-from .models import Product,Collection,CartItem,Cart
+from .models import Product,Collection,Cart
 from decimal import Decimal
 
 # class ProductSerializers(serializers.Serializer):
@@ -46,8 +46,3 @@ class CartSerializers(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = ['id']
-
-class CartItemSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = CartItem
-        fields = ['id','product','quantity']
