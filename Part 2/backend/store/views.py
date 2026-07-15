@@ -15,10 +15,18 @@ from rest_framework.viewsets import ModelViewSet
 
 # Create your views here.
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.select_related('collection').all()
     serializer_class = ProductSerializers
+
+    def get_queryset(self):
+        queryset = Product.objects.all()
+        collection_id = self.request.query_params['collection_id']
+        if collection_id is not None:
+            queryset = queryset.filter(collection_id=collection_id)
+        return queryset
+    
     def get_serializer_context(self):
         return {'request': self.request}
+    
     def destroy(self, request, *args, **kwargs):
         if OrderItem.objects.filter(product_id=kwargs['pk']).count() > 0:
             return Response({'error': 'Product cannot be deleted because it is associated with an order item.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
