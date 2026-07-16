@@ -59,6 +59,3 @@ class ReviewViewSet(ModelViewSet):
 class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyModelMixin):
     queryset = Cart.objects.prefetch_related('items__product').all()
     serializer_class = CartSerializers
-    def destroy(self, request):
-        return super().destroy(request)
-        return Response(status=status.HTTP_204_NO_CONTENT)
