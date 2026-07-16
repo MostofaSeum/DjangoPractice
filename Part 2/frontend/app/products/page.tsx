@@ -116,7 +116,9 @@ export default async function ProductsPage({
                 className="flex flex-col gap-5"
               >
                 {/* Keep active sorting and search parameters */}
-                {ordering && <input type="hidden" name="ordering" value={ordering} />}
+                {ordering && (
+                  <input type="hidden" name="ordering" value={ordering} />
+                )}
                 {search && <input type="hidden" name="search" value={search} />}
 
                 <div className="flex flex-col gap-1.5">
@@ -167,8 +169,12 @@ export default async function ProductsPage({
                 className="flex flex-col gap-5"
               >
                 {/* Keep active price filters and search parameters */}
-                {minPrice && <input type="hidden" name="minPrice" value={minPrice} />}
-                {maxPrice && <input type="hidden" name="maxPrice" value={maxPrice} />}
+                {minPrice && (
+                  <input type="hidden" name="minPrice" value={minPrice} />
+                )}
+                {maxPrice && (
+                  <input type="hidden" name="maxPrice" value={maxPrice} />
+                )}
                 {search && <input type="hidden" name="search" value={search} />}
 
                 <div className="flex flex-col gap-1.5">
@@ -213,21 +219,31 @@ export default async function ProductsPage({
           {/* Right Panel*/}
           <div className="flex-1 w-full">
             {/* Search Bar Form */}
-            <form method="GET" action="/products" className="flex gap-2 mb-8 w-full max-w-3xl">
+            <form
+              method="GET"
+              action="/products"
+              className="flex gap-2 mb-8 w-full max-w-3xl"
+            >
               {/* Preserve other active parameters */}
-              {minPrice && <input type="hidden" name="minPrice" value={minPrice} />}
-              {maxPrice && <input type="hidden" name="maxPrice" value={maxPrice} />}
-              {ordering && <input type="hidden" name="ordering" value={ordering} />}
-              
-              <input 
-                type="text" 
-                name="search" 
-                defaultValue={search || ""} 
-                placeholder="Search products by title or description..." 
+              {minPrice && (
+                <input type="hidden" name="minPrice" value={minPrice} />
+              )}
+              {maxPrice && (
+                <input type="hidden" name="maxPrice" value={maxPrice} />
+              )}
+              {ordering && (
+                <input type="hidden" name="ordering" value={ordering} />
+              )}
+
+              <input
+                type="text"
+                name="search"
+                defaultValue={search || ""}
+                placeholder="Search products by title or description..."
                 className="flex-1 px-5 py-3 border border-[#3a3532]/10 rounded-2xl bg-white text-sm text-[#3a3532] placeholder-[#3a3532]/30 outline-none focus:border-[#3a3532]/30 transition-colors shadow-sm"
               />
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="px-6 py-3 bg-[#3a3532] text-[#e6e0d4] rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-[#252220] transition-colors"
               >
                 Search
