@@ -5,7 +5,7 @@ from store.models import Collection,Product,Review,Cart
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter,OrderingFilter
-from rest_framework.mixins import CreateModelMixin
+from rest_framework.mixins import CreateModelMixin,RetrieveModelMixin, DestroyModelMixin
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
@@ -56,8 +56,6 @@ class ReviewViewSet(ModelViewSet):
         return {'product_id' : self.kwargs['product_pk']}
 
 
-class CartViewSet(CreateModelMixin,GenericViewSet):
+class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyModelMixin):
     queryset = Cart.objects.all()
     serializer_class = CartSerializers
-    
-
