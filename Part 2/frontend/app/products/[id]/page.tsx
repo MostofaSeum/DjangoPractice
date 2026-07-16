@@ -77,22 +77,6 @@ export default async function ProductDetailPage({ params }: PageProps) {
     }
   }
 
-  // Fetch collection detail to get related products and collection name
-  let collectionProductsData: Product[] | null = null;
-  if (collectionId) {
-    try {
-      const collectionRes = await fetch(
-        `http://127.0.0.1:8000/store/products/?collection_id=${collectionId}`,
-        { cache: "no-store" },
-      );
-      if (collectionRes.ok) {
-        collectionProductsData = await collectionRes.json();
-      }
-    } catch (err) {
-      console.error("Error fetching collection data:", err);
-    }
-  }
-
   const collectionTitle = collectionData?.title || "Undefined";
   const relatedProducts = (collectionData?.products || [])
     .filter((p) => p.id !== product.id)
@@ -140,8 +124,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
             Shop
           </Link>
           <span>/</span>
-          <span className="hover:text-[#3a3532] capitalize cursor-pointer">
-            {collectionTitle}
+          <span>
+            <Link
+              href={`/collections/${collectionId}`}
+              className="w-full py-2 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:text-[#3a3532] transition-colors flex items-center justify-center gap-2"
+            >
+              {collectionTitle}
+            </Link>
           </span>
           <span>/</span>
           <span className="text-[#8b7a66] font-bold truncate max-w-[200px] sm:max-w-none">
@@ -310,7 +299,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                       href={`/products/${item.id}`}
                       className="w-full py-2 border-2 border-[#3a3532] rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors flex items-center justify-center gap-2"
                     >
-                      <CartIcon /> Details
+                       Details
                     </Link>
                   </div>
                 </div>
