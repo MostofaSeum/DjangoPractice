@@ -25,15 +25,17 @@ export default async function ProductsPage({
     maxPrice?: string;
     ordering?: string;
     search?: string;
+    page?:string 
   }>;
 }) {
-  const { minPrice, maxPrice, ordering, search } = await searchParams;
+  const { minPrice, maxPrice, ordering, search, page } = await searchParams;
 
   const queryParams = new URLSearchParams();
   if (minPrice) queryParams.append("unit_price__gt", minPrice);
   if (maxPrice) queryParams.append("unit_price__lt", maxPrice);
   if (ordering) queryParams.append("ordering", ordering);
   if (search) queryParams.append("search", search);
+  if (page) queryParams.append("page", page);
 
   const res = await fetch(
     `http://127.0.0.1:8000/store/products/?${queryParams.toString()}`,
@@ -52,6 +54,8 @@ export default async function ProductsPage({
 
   const data = await res.json();
   const products: Product[] = Array.isArray(data) ? data : data.results || [];
+  const totalProducts = data.count || 0 ;
+  const totalPages = Math.ceil(totalProducts / 10);
 
   return (
     <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans antialiased pb-24 selection:bg-[#3a3532] selection:text-[#e6e0d4]">
