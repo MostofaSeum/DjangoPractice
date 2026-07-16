@@ -24,14 +24,16 @@ export default async function ProductsPage({
     minPrice?: string;
     maxPrice?: string;
     ordering?: string;
+    search?: string;
   }>;
 }) {
-  const { minPrice, maxPrice, ordering } = await searchParams;
+  const { minPrice, maxPrice, ordering, search } = await searchParams;
 
   const queryParams = new URLSearchParams();
   if (minPrice) queryParams.append("unit_price__gt", minPrice);
   if (maxPrice) queryParams.append("unit_price__lt", maxPrice);
   if (ordering) queryParams.append("ordering", ordering);
+  if (search) queryParams.append("search", search);
 
   const res = await fetch(
     `http://127.0.0.1:8000/store/products/?${queryParams.toString()}`,
@@ -100,7 +102,6 @@ export default async function ProductsPage({
         <h1 className="text-4xl font-black mb-10 uppercase tracking-tighter">
           Product Catalog
         </h1>
-
         <div className="flex flex-col lg:flex-row gap-10 items-start">
           {/* Left Sidebar: Filters & Sorting */}
           <div className="w-full lg:w-64 flex-shrink-0 flex flex-col gap-6">
@@ -114,8 +115,9 @@ export default async function ProductsPage({
                 action="/products"
                 className="flex flex-col gap-5"
               >
-                {/* Keep active sorting parameter */}
+                {/* Keep active sorting and search parameters */}
                 {ordering && <input type="hidden" name="ordering" value={ordering} />}
+                {search && <input type="hidden" name="search" value={search} />}
 
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/60">
@@ -164,9 +166,10 @@ export default async function ProductsPage({
                 action="/products"
                 className="flex flex-col gap-5"
               >
-                {/* Keep active price filters */}
-                {minPrice && <input type="hidden" name="minPrice" value={minPrice || ""} />}
-                {maxPrice && <input type="hidden" name="maxPrice" value={maxPrice || ""} />}
+                {/* Keep active price filters and search parameters */}
+                {minPrice && <input type="hidden" name="minPrice" value={minPrice} />}
+                {maxPrice && <input type="hidden" name="maxPrice" value={maxPrice} />}
+                {search && <input type="hidden" name="search" value={search} />}
 
                 <div className="flex flex-col gap-1.5">
                   <label
@@ -197,7 +200,7 @@ export default async function ProductsPage({
             </section>
 
             {/* Clear All Filters Button */}
-            {(minPrice || maxPrice || ordering) && (
+            {(minPrice || maxPrice || ordering || search) && (
               <Link
                 href="/products"
                 className="w-full py-3 border-2 border-[#3a3532] text-[#3a3532] bg-white rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-[#f4f1eb] transition-all flex items-center justify-center shadow-sm"
@@ -209,6 +212,28 @@ export default async function ProductsPage({
 
           {/* Right Panel*/}
           <div className="flex-1 w-full">
+            {/* Search Bar Form */}
+            <form method="GET" action="/products" className="flex gap-2 mb-8 w-full max-w-3xl">
+              {/* Preserve other active parameters */}
+              {minPrice && <input type="hidden" name="minPrice" value={minPrice} />}
+              {maxPrice && <input type="hidden" name="maxPrice" value={maxPrice} />}
+              {ordering && <input type="hidden" name="ordering" value={ordering} />}
+              
+              <input 
+                type="text" 
+                name="search" 
+                defaultValue={search || ""} 
+                placeholder="Search products by title or description..." 
+                className="flex-1 px-5 py-3 border border-[#3a3532]/10 rounded-2xl bg-white text-sm text-[#3a3532] placeholder-[#3a3532]/30 outline-none focus:border-[#3a3532]/30 transition-colors shadow-sm"
+              />
+              <button 
+                type="submit" 
+                className="px-6 py-3 bg-[#3a3532] text-[#e6e0d4] rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-[#252220] transition-colors"
+              >
+                Search
+              </button>
+            </form>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.length > 0 ? (
                 products.map((product) => (
