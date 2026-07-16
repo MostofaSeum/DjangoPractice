@@ -206,13 +206,6 @@ export default async function ProductsPage({
 
           {/* Right Main Panel: Product Grid & Sorting Toolbar */}
           <div className="flex-1 w-full">
-            {/* Sorting Toolbar */}
-            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6 bg-white p-4 rounded-2xl border border-[#3a3532]/5 shadow-sm">
-              <span className="text-xs text-[#3a3532]/60 font-bold uppercase tracking-wider">
-                Showing {products.length} {products.length === 1 ? 'product' : 'products'}
-              </span>
-            </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.length > 0 ? (
                 products.map((product) => (
