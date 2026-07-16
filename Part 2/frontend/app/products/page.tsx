@@ -23,15 +23,15 @@ export default async function ProductsPage({
   searchParams: Promise<{
     minPrice?: string;
     maxPrice?: string;
-    sort?: string;
+    ordering?: string;
   }>;
 }) {
-  const { minPrice, maxPrice, sort } = await searchParams;
+  const { minPrice, maxPrice, ordering } = await searchParams;
 
   const queryParams = new URLSearchParams();
   if (minPrice) queryParams.append("unit_price__gt", minPrice);
   if (maxPrice) queryParams.append("unit_price__lt", maxPrice);
-  if (sort) queryParams.append("ordering", sort);
+  if (ordering) queryParams.append("ordering", ordering);
 
   const res = await fetch(
     `http://127.0.0.1:8000/store/products/?${queryParams.toString()}`,
@@ -115,7 +115,7 @@ export default async function ProductsPage({
                 className="flex flex-col gap-5"
               >
                 {/* Keep active sorting parameter */}
-                <input type="hidden" name="sort" value={sort || ""} />
+                {ordering && <input type="hidden" name="ordering" value={ordering} />}
 
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/60">
@@ -154,10 +154,10 @@ export default async function ProductsPage({
               </form>
             </aside>
 
-            {/* Sort by Price Card */}
-            <aside className="bg-white p-6 rounded-2xl border border-[#3a3532]/5 shadow-sm">
+            {/* Sort by Price*/}
+            <section className="bg-white p-6 rounded-2xl border border-[#3a3532]/5 shadow-sm">
               <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532] mb-6 pb-2 border-b border-[#3a3532]/10">
-                Sort Products
+                Sort Ordering
               </h2>
               <form
                 method="GET"
@@ -165,17 +165,20 @@ export default async function ProductsPage({
                 className="flex flex-col gap-5"
               >
                 {/* Keep active price filters */}
-                <input type="hidden" name="minPrice" value={minPrice || ""} />
-                <input type="hidden" name="maxPrice" value={maxPrice || ""} />
+                {minPrice && <input type="hidden" name="minPrice" value={minPrice || ""} />}
+                {maxPrice && <input type="hidden" name="maxPrice" value={maxPrice || ""} />}
 
                 <div className="flex flex-col gap-1.5">
-                  <label htmlFor="sort" className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/60">
-                    Sort Direction
+                  <label
+                    htmlFor="sort"
+                    className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/60"
+                  >
+                    Sort Ordering
                   </label>
                   <select
                     id="sort"
-                    name="sort"
-                    defaultValue={sort || ""}
+                    name="ordering"
+                    defaultValue={ordering || ""}
                     className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-sm text-[#3a3532] outline-none focus:border-[#3a3532]/30 transition-colors w-full cursor-pointer"
                   >
                     <option value="">Default</option>
@@ -188,13 +191,13 @@ export default async function ProductsPage({
                   type="submit"
                   className="w-full py-2.5 bg-[#3a3532] text-[#e6e0d4] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#252220] transition-colors pt-2"
                 >
-                  Apply Sort
+                  Apply Ordering
                 </button>
               </form>
-            </aside>
+            </section>
 
             {/* Clear All Filters Button */}
-            {(minPrice || maxPrice || sort) && (
+            {(minPrice || maxPrice || ordering) && (
               <Link
                 href="/products"
                 className="w-full py-3 border-2 border-[#3a3532] text-[#3a3532] bg-white rounded-2xl text-xs font-bold uppercase tracking-widest hover:bg-[#f4f1eb] transition-all flex items-center justify-center shadow-sm"
@@ -204,7 +207,7 @@ export default async function ProductsPage({
             )}
           </div>
 
-          {/* Right Main Panel: Product Grid & Sorting Toolbar */}
+          {/* Right Panel*/}
           <div className="flex-1 w-full">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.length > 0 ? (
