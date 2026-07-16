@@ -72,7 +72,7 @@ export default async function ProductsPage() {
                   href={`/products/${product.id}`}
                   className="w-full py-3 border-2 border-[#3a3532] rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors flex items-center justify-center gap-2"
                 >
-                  <CartIcon /> View Details
+                  View Details
                 </Link>
               </div>
             </div>
