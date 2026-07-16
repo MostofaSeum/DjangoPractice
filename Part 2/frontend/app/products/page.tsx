@@ -63,80 +63,90 @@ export default async function ProductsPage({
       <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-16">
         <h1 className="text-4xl font-black mb-10 uppercase tracking-tighter">Product Catalog</h1>
 
-        {/* Filter Form */}
-        <form method="GET" action="/products" className="flex flex-wrap gap-4 mb-10 items-end bg-white p-6 rounded-2xl border border-[#3a3532]/5 shadow-sm max-w-2xl">
-          <div className="flex flex-col gap-1.5 flex-1 min-w-[120px]">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/60">Min Price ($)</label>
-            <input 
-              type="number" 
-              name="minPrice" 
-              defaultValue={minPrice || ""} 
-              placeholder="e.g. 10" 
-              className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-sm text-[#3a3532] placeholder-[#3a3532]/30 outline-none focus:border-[#3a3532]/30 transition-colors"
-            />
-          </div>
+        <div className="flex flex-col lg:flex-row gap-10 items-start">
+          {/* Left Sidebar: Filters */}
+          <aside className="w-full lg:w-64 flex-shrink-0 bg-white p-6 rounded-2xl border border-[#3a3532]/5 shadow-sm">
+            <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532] mb-6 pb-2 border-b border-[#3a3532]/10">
+              Filter by Price
+            </h2>
+            <form method="GET" action="/products" className="flex flex-col gap-5">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/60">Min Price ($)</label>
+                <input 
+                  type="number" 
+                  name="minPrice" 
+                  defaultValue={minPrice || ""} 
+                  placeholder="e.g. 10" 
+                  className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-sm text-[#3a3532] placeholder-[#3a3532]/30 outline-none focus:border-[#3a3532]/30 transition-colors w-full"
+                />
+              </div>
 
-          <div className="flex flex-col gap-1.5 flex-1 min-w-[120px]">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/60">Max Price ($)</label>
-            <input 
-              type="number" 
-              name="maxPrice" 
-              defaultValue={maxPrice || ""} 
-              placeholder="e.g. 100" 
-              className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-sm text-[#3a3532] placeholder-[#3a3532]/30 outline-none focus:border-[#3a3532]/30 transition-colors"
-            />
-          </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/60">Max Price ($)</label>
+                <input 
+                  type="number" 
+                  name="maxPrice" 
+                  defaultValue={maxPrice || ""} 
+                  placeholder="e.g. 100" 
+                  className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-sm text-[#3a3532] placeholder-[#3a3532]/30 outline-none focus:border-[#3a3532]/30 transition-colors w-full"
+                />
+              </div>
 
-          <div className="flex gap-2">
-            <button 
-              type="submit" 
-              className="px-6 py-2.5 bg-[#3a3532] text-[#e6e0d4] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#252220] transition-colors"
-            >
-              Filter
-            </button>
-            
-            {(minPrice || maxPrice) && (
-              <Link 
-                href="/products" 
-                className="px-6 py-2.5 border-2 border-[#3a3532] text-[#3a3532] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#f4f1eb] transition-colors flex items-center"
-              >
-                Clear
-              </Link>
-            )}
-          </div>
-        </form>
+              <div className="flex flex-col gap-2 pt-2">
+                <button 
+                  type="submit" 
+                  className="w-full py-2.5 bg-[#3a3532] text-[#e6e0d4] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#252220] transition-colors"
+                >
+                  Apply Filters
+                </button>
+                
+                {(minPrice || maxPrice) && (
+                  <Link 
+                    href="/products" 
+                    className="w-full py-2.5 border-2 border-[#3a3532] text-[#3a3532] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#f4f1eb] transition-colors flex items-center justify-center"
+                  >
+                    Clear Filters
+                  </Link>
+                )}
+              </div>
+            </form>
+          </aside>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.length > 0 ? (
-            products.map((product) => (
-              <div key={product.id} className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between">
-                <div>
-                  <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                    <div className="w-full h-full bg-[#e6e0d4]/50 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
-                      <span className="text-[#3a3532]/20 font-black text-lg uppercase tracking-widest">
-                        {product.title.split(' ')[0]}
-                      </span>
+          {/* Right Main Panel: Product Grid */}
+          <div className="flex-1 w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.length > 0 ? (
+                products.map((product) => (
+                  <div key={product.id} className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between">
+                    <div>
+                      <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
+                        <div className="w-full h-full bg-[#e6e0d4]/50 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
+                          <span className="text-[#3a3532]/20 font-black text-lg uppercase tracking-widest">
+                            {product.title.split(' ')[0]}
+                          </span>
+                        </div>
+                      </div>
+                      <h2 className="font-bold text-lg text-[#3a3532] mb-1 line-clamp-1">{product.title}</h2>
+                      <p className="text-[#3a3532]/60 text-xs line-clamp-2 mb-4 leading-relaxed">{product.description || 'No description available'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[#8b7a66] font-bold text-lg mb-6">${Number(product.unit_price).toFixed(2)}</p>
+                      <Link 
+                        href={`/products/${product.id}`}
+                        className="w-full py-3 border-2 border-[#3a3532] rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors flex items-center justify-center gap-2"
+                      >
+                        View Details
+                      </Link>
                     </div>
                   </div>
-                  <h2 className="font-bold text-lg text-[#3a3532] mb-1 line-clamp-1">{product.title}</h2>
-                  <p className="text-[#3a3532]/60 text-xs line-clamp-2 mb-4 leading-relaxed">{product.description || 'No description available'}</p>
+                ))
+              ) : (
+                <div className="col-span-full py-16 text-center text-sm font-bold uppercase tracking-wider text-[#3a3532]/60">
+                  No products found matching the criteria.
                 </div>
-                <div>
-                  <p className="text-[#8b7a66] font-bold text-lg mb-6">${Number(product.unit_price).toFixed(2)}</p>
-                  <Link 
-                    href={`/products/${product.id}`}
-                    className="w-full py-3 border-2 border-[#3a3532] rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors flex items-center justify-center gap-2"
-                  >
-                    View Details
-                  </Link>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="col-span-full py-16 text-center text-sm font-bold uppercase tracking-wider text-[#3a3532]/60">
-              No products found matching the criteria.
+              )}
             </div>
-          )}
+          </div>
         </div>
       </main>
     </div>
