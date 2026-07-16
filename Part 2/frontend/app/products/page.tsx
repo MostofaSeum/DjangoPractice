@@ -29,6 +29,7 @@ export default async function ProductsPage({
   }>;
 }) {
   const { minPrice, maxPrice, ordering, search, page } = await searchParams;
+  const currentPage = Number(page) || 1;
 
   const queryParams = new URLSearchParams();
   if (minPrice) queryParams.append("unit_price__gt", minPrice);
@@ -55,7 +56,7 @@ export default async function ProductsPage({
   const data = await res.json();
   const products: Product[] = Array.isArray(data) ? data : data.results || [];
   const totalProducts = data.count || 0 ;
-  const totalPages = Math.ceil(totalProducts / 10);
+  const totalPages = Math.ceil(totalProducts / 9);
 
   return (
     <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans antialiased pb-24 selection:bg-[#3a3532] selection:text-[#e6e0d4]">
@@ -295,6 +296,62 @@ export default async function ProductsPage({
                 </div>
               )}
             </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-6 mt-12">
+                {/* Previous Button */}
+                {currentPage > 1 ? (
+                  <Link
+                    href={{
+                      pathname: "/products",
+                      query: {
+                        ...(minPrice && { minPrice }),
+                        ...(maxPrice && { maxPrice }),
+                        ...(ordering && { ordering }),
+                        ...(search && { search }),
+                        page: currentPage - 1,
+                      },
+                    }}
+                    className="px-5 py-2.5 border-2 border-[#3a3532] text-[#3a3532] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#f4f1eb] transition-colors"
+                  >
+                    Previous
+                  </Link>
+                ) : (
+                  <span className="px-5 py-2.5 border-2 border-[#3a3532]/10 text-[#3a3532]/20 rounded-xl text-xs font-bold uppercase tracking-widest cursor-not-allowed">
+                    Previous
+                  </span>
+                )}
+
+                {/* Page indicator */}
+                <span className="text-xs font-bold text-[#3a3532]/60 uppercase tracking-wider">
+                  Page {currentPage} of {totalPages}
+                </span>
+
+                {/* Next Button */}
+                {currentPage < totalPages ? (
+                  <Link
+                    href={{
+                      pathname: "/products",
+                      query: {
+                        ...(minPrice && { minPrice }),
+                        ...(maxPrice && { maxPrice }),
+                        ...(ordering && { ordering }),
+                        ...(search && { search }),
+                        page: currentPage + 1,
+                      },
+                    }}
+                    className="px-5 py-2.5 border-2 border-[#3a3532] text-[#3a3532] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#f4f1eb] transition-colors"
+                  >
+                    Next
+                  </Link>
+                ) : (
+                  <span className="px-5 py-2.5 border-2 border-[#3a3532]/10 text-[#3a3532]/20 rounded-xl text-xs font-bold uppercase tracking-widest cursor-not-allowed">
+                    Next
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </main>
