@@ -1,6 +1,6 @@
 from store.models import OrderItem
 from django.http import request
-from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers
+from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers
 from store.models import Collection,Product,Review,Cart,CartItem
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
@@ -61,9 +61,12 @@ class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyMo
     serializer_class = CartSerializers
 
 class CartItemViewSet(ModelViewSet):
+    http_method_names = ['get', 'post', 'patch', 'delete']
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return AddCartItemSerializers
+        elif self.request.method == 'PATCH':
+            return UpdateCartItemSerializers
         return CartItemSerializers
     def get_serializer_context(self):
         return {'cart_id' : self.kwargs['cart_pk']}
