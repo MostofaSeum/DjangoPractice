@@ -88,19 +88,15 @@ TEMPLATES = [
 WSGI_APPLICATION = 'storefront.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'storefront2',
-        'HOST': 'localhost',
-        'USER': 'root',
-        'PASSWORD': 'Mseum017?'
-    }
-}
-
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'storefront2',
+#         'HOST': 'localhost',
+#         'USER': 'root',
+#         'PASSWORD': 'Mseum017?'
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -157,10 +153,21 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
 ]
 
+import os
 import dj_database_url
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default='mysql://root:Mseum017?@localhost/storefront2'
-    )
-}
+if os.environ.get('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.config()
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'storefront2',
+            'HOST': 'localhost',
+            'USER': 'root',
+            'PASSWORD': 'Mseum017?'
+        }
+    }
+
