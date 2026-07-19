@@ -17,7 +17,7 @@ export default async function CollectionsPage() {
   const res = await fetch(`${apiBaseUrl}/store/collections/`, {
     cache: "no-store",
   });
-
+ 
   if (!res.ok) {
     return (
       <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] p-8 text-center font-bold">
