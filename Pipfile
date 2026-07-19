@@ -12,6 +12,7 @@ drf-nested-routers = "*"
 django-filter = "*"
 dj-database-url = "*"
 gunicorn = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 
