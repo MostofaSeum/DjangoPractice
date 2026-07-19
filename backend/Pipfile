@@ -8,6 +8,7 @@ django = "*"
 django-debug-toolbar = "*"
 mysqlclient = "*"
 django-cors-headers = "*"
+dj-database-url = "*"
 
 [dev-packages]
 

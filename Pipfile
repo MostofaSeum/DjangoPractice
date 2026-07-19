@@ -4,8 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+django = "*"
+django-debug-toolbar = "*"
+mysqlclient = "*"
+django-cors-headers = "*"
 drf-nested-routers = "*"
 django-filter = "*"
+dj-database-url = "*"
 
 [dev-packages]
 
