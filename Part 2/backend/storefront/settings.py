@@ -157,3 +157,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
 ]
 
+import dj_database_url
+
+DATABASES = {
+    'default': dj_database_url.config(
+        default='mysql://root:Mseum017?@localhost/storefront2'
+    )
+}
