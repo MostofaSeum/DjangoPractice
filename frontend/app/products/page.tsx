@@ -38,8 +38,9 @@ export default async function ProductsPage({
   if (search) queryParams.append("search", search);
   if (page) queryParams.append("page", page);
 
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
   const res = await fetch(
-    `http://127.0.0.1:8000/store/products/?${queryParams.toString()}`,
+    `${apiBaseUrl}/store/products/?${queryParams.toString()}`,
     {
       cache: "no-store",
     },

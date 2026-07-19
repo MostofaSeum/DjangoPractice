@@ -13,7 +13,8 @@ const CartIcon = () => (
 );
 
 export default async function CollectionsPage() {
-  const res = await fetch("http://127.0.0.1:8000/store/collections/", {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+  const res = await fetch(`${apiBaseUrl}/store/collections/`, {
     cache: "no-store",
   });
 

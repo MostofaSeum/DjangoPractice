@@ -32,8 +32,10 @@ const CartIcon = () => (
 export default async function ProductDetailPage({ params }: PageProps) {
   const { id } = await params;
 
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
   // Fetch product detail
-  const res = await fetch(`http://127.0.0.1:8000/store/products/${id}/`, {
+  const res = await fetch(`${apiBaseUrl}/store/products/${id}/`, {
     cache: "no-store",
   });
 
@@ -66,7 +68,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   if (collectionId) {
     try {
       const collectionRes = await fetch(
-        `http://127.0.0.1:8000/store/collections/${collectionId}/`,
+        `${apiBaseUrl}/store/collections/${collectionId}/`,
         { cache: "no-store" },
       );
       if (collectionRes.ok) {
