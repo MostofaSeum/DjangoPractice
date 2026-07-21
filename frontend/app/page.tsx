@@ -106,7 +106,6 @@ export default function Home() {
             <div className="flex gap-4 z-10">
               <Link href="/collections" className="bg-[#3a3532] text-[#e6e0d4] px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#524b47] transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2 duration-300">
                 Explore Collection
-                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
               </Link>
             </div>
           </div>
