@@ -88,10 +88,10 @@ export default function Home() {
 
       {/* Bento Box Hero Section */}
       <section className="relative w-full min-h-screen pt-32 pb-12 px-4 md:px-8 max-w-[1400px] mx-auto flex items-center justify-center">
-        <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-3 gap-4 md:gap-6 w-full h-full min-h-[600px]">
+        <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-3 gap-4 md:gap-6 w-full h-full">
           
           {/* Main Large Bento Item (Text & Main CTA) */}
-          <div className="md:col-span-2 md:row-span-2 bg-white rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group shadow-sm hover:shadow-xl transition-all duration-500 border border-[#3a3532]/5">
+          <div className="md:col-span-2 md:row-span-2 bg-white rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group shadow-sm hover:shadow-xl transition-all duration-500 border border-[#3a3532]/5 min-h-[360px] md:min-h-0">
             <div className="absolute top-10 right-10 text-[#3a3532]/5 group-hover:scale-125 group-hover:rotate-12 group-hover:text-[#3a3532]/10 transition-all duration-700">
                <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13"/><path d="M12 22 16 9l-3-6"/></svg>
             </div>
@@ -112,7 +112,7 @@ export default function Home() {
           </div>
 
           {/* Top Right Bento Item (Discover the Vibe) */}
-          <div className="md:col-span-2 md:row-span-1 bg-[#3a3532] rounded-[2rem] p-8 md:p-10 text-[#e6e0d4] relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500">
+          <div className="md:col-span-2 md:row-span-1 bg-[#3a3532] rounded-[2rem] p-8 md:p-10 text-[#e6e0d4] relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500 min-h-[220px] md:min-h-0">
              <Image src="/homepage/Fashion.jpg" alt="Discover" fill className="object-cover opacity-20 mix-blend-overlay group-hover:opacity-40 group-hover:scale-105 transition-all duration-700" unoptimized />
              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#e6e0d4]/10 pointer-events-none group-hover:opacity-100 opacity-50 transition-opacity duration-500"></div>
              <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/5 rounded-full blur-2xl group-hover:bg-white/20 transition-colors duration-700 group-hover:scale-150"></div>
@@ -130,7 +130,7 @@ export default function Home() {
           </div>
 
           {/* Middle Right Item 1 (Beauty) */}
-          <Link href="/collections/3" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
+          <Link href="/collections/3" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
              <Image src="/homepage/Beauty.webp" alt="Beauty" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
@@ -139,23 +139,26 @@ export default function Home() {
           </Link>
 
           {/* Middle Right Item 2 (24/7 Global Drops) */}
-          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
-             <Image src="/homepage/24-7.jpg" alt="24/7 Global Drops" fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
+          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
+             <Image src="/homepage/24-7.jpg" alt="24/7 Global Drops" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
+             <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                <span className="text-3xl font-black uppercase tracking-tighter text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">24/7</span>
+                <span className="text-[10px] font-bold text-white/90 uppercase tracking-widest mt-1 drop-shadow-sm">Global Drops</span>
+             </div>
           </div>
 
           {/* Bottom Row Item 1 (Fast Delivery) */}
-          <div className="md:col-span-1 md:row-span-1 bg-[#8b7a66] rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end">
+          <div className="md:col-span-1 md:row-span-1 bg-[#8b7a66] rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end min-h-[220px] md:min-h-0">
              <Image src="/homepage/Delivery.jpg" alt="Fast Delivery" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-             <div className="absolute top-6 right-6 opacity-20 transform group-hover:rotate-12 group-hover:scale-150 group-hover:opacity-40 transition-all duration-500 z-10">
-             </div>
              <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-10">
                <div className="text-xl font-black uppercase tracking-tight mb-1 drop-shadow-md">Fast Delivery</div>
              </div>
           </div>
 
           {/* Bottom Row Item 2 (Cleaning) */}
-          <Link href="/collections/4" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
+          <Link href="/collections/4" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
              <Image src="/homepage/Cleaning.webp" alt="Cleaning" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
@@ -164,7 +167,7 @@ export default function Home() {
           </Link>
 
           {/* Bottom Row Item 3 (Pets) */}
-          <Link href="/collections/6" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
+          <Link href="/collections/6" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
              <Image src="/homepage/Pet.jpg" alt="Pets" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
@@ -173,7 +176,7 @@ export default function Home() {
           </Link>
 
           {/* Bottom Row Item 4 (Stationary) */}
-          <Link href="/collections/5" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
+          <Link href="/collections/5" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
              <Image src="/homepage/Stationary.jpg" alt="Stationary" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
