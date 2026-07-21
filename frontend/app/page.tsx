@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import AnimatedWord from "./components/AnimatedWord";
 
 const CartIcon = () => (
   <Image src="/shopping-cart-white-icon.webp" width={23} height={23} alt="Cart" />
@@ -98,7 +99,7 @@ export default function Home() {
               New Collection
             </span>
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-[#3a3532] leading-[0.9] tracking-tighter mb-6 uppercase z-10">
-              Elevate <br /> Your Vibe
+              Elevate <br /> Your <AnimatedWord />
             </h1>
             <p className="text-base text-[#3a3532]/70 max-w-sm mb-10 font-medium leading-relaxed z-10">
               Experience the intersection of high-end streetwear and premium digital aesthetics.
