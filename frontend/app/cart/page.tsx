@@ -11,21 +11,6 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans">
-      {/* Header */}
-      <header className="py-8 px-8 md:px-12 flex justify-center items-center border-b border-[#3a3532]/10 bg-[#e6e0d4]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-[1400px] w-full flex justify-between items-center relative">
-          <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter text-[#3a3532] uppercase">
-            VibeMart
-          </Link>
-          <div className="text-xs font-bold uppercase tracking-widest text-[#8b7a66]">
-            Shopping Cart
-          </div>
-          <Link href="/products" className="text-xs font-bold uppercase tracking-widest text-[#3a3532] hover:opacity-60 transition-opacity">
-            Continue Shopping &rarr;
-          </Link>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="max-w-[1400px] mx-auto px-4 md:px-12 py-16">
 

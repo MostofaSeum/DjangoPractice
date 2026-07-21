@@ -62,28 +62,6 @@ const DiamondIcon = () => (
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans selection:bg-[#3a3532] selection:text-[#e6e0d4]">
-      {/* Navbar overlaying hero */}
-      <header className="absolute top-0 w-full z-50 py-8 px-8 md:px-12 flex justify-center items-center">
-        <div className="max-w-[1400px] w-full flex justify-between items-center relative">
-          <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter text-[#3a3532] uppercase z-10">
-            VibeMart
-          </Link>
-          <nav className="hidden md:flex gap-8 text-[11px] font-bold text-[#3a3532] uppercase tracking-widest absolute left-1/2 -translate-x-1/2">
-            <Link href="/products" className="hover:opacity-60 transition-opacity border-b-2 border-[#3a3532] pb-1">
-              Shop
-            </Link>
-            <Link href="/collections" className="hover:opacity-60 transition-opacity pb-1">
-              Collections
-            </Link>
-          </nav>
-          <div className="flex justify-end items-center gap-6 z-10">
-            <CartButton />
-            <button className="border-2 border-[#3a3532] text-[#3a3532] px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors rounded-xl">
-              Sign In
-            </button>
-          </div>
-        </div>
-      </header>
 
       {/* Bento Box Hero Section */}
       <section className="relative w-full min-h-screen pt-32 pb-12 px-4 md:px-8 max-w-[1400px] mx-auto flex items-center justify-center">
@@ -376,36 +354,6 @@ export default function Home() {
            </button>
          </div>
       </section>
-
-      {/* Footer */}
-      <footer className="bg-[#2a2624] text-[#e6e0d4]/50 py-16 px-8 md:px-12">
-        <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
-          <div className="text-3xl font-black tracking-tighter text-[#e6e0d4] uppercase">
-            VibeMart
-          </div>
-          <div className="flex flex-wrap justify-center gap-8 text-xs font-bold uppercase tracking-widest">
-            <a href="#" className="hover:text-[#e6e0d4] transition-colors">
-              Privacy Policy
-            </a>
-            <a href="#" className="hover:text-[#e6e0d4] transition-colors">
-              Terms of Service
-            </a>
-            <a href="#" className="hover:text-[#e6e0d4] transition-colors">
-              Shipping Info
-            </a>
-            <a href="#" className="hover:text-[#e6e0d4] transition-colors">
-              Returns
-            </a>
-            <a href="#" className="hover:text-[#e6e0d4] transition-colors">
-              Contact Us
-            </a>
-          </div>
-          <div className="text-[10px] font-bold tracking-widest uppercase text-center md:text-left">
-            &copy; 2026 VIBEMART. ELECTRIC PREMIUM
-            <br /> WORLDWIDE.
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
