@@ -151,7 +151,6 @@ export default function Home() {
              </div>
              <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-10">
                <div className="text-xl font-black uppercase tracking-tight mb-1 drop-shadow-md">Fast Delivery</div>
-               <div className="text-[10px] font-bold uppercase tracking-widest text-white/90 group-hover:text-white transition-colors drop-shadow-sm">Worldwide Shipping</div>
              </div>
           </div>
 
