@@ -49,20 +49,6 @@ export default async function CollectionDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans antialiased pb-24 selection:bg-[#3a3532] selection:text-[#e6e0d4]">
-      {/* Header Navigation */}
-      <header className="bg-[#3a3532] text-[#e6e0d4] py-6 px-8 md:px-12 flex justify-between items-center sticky top-0 z-50 shadow-md">
-        <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter uppercase text-[#e6e0d4] hover:opacity-85 transition-opacity">
-          VibeMart
-        </Link>
-        <nav className="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-widest text-[#e6e0d4]/80">
-          <Link href="/" className="hover:text-white transition-colors">Home</Link>
-          <Link href="/products" className="hover:text-white transition-colors">Shop</Link>
-          <Link href="/collections" className="text-white border-b border-white pb-0.5">Collections</Link>
-        </nav>
-        <div className="flex items-center gap-4">
-          <button className="text-[#e6e0d4] hover:text-white transition-colors"><CartIcon /></button>
-        </div>
-      </header>
 
       {/* Breadcrumbs */} 
       <div className="bg-[#3a3532]/5 border-b border-[#3a3532]/10 py-4">

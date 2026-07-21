@@ -43,9 +43,14 @@ export default function Header() {
                 </Link>
               );
             })}
+            
           </nav>
 
           <CartButton />
+
+          <div className="flex items-center gap-4 text-[11px] font-bold uppercase tracking-widest">
+            <button className="text-[#e6e0d4] hover:text-white transition-all bg-white/10 px-4 py-2 rounded-full border border-white/20 hover:bg-white/20">Sign In</button>
+          </div>
         </div>
       </div>
     </header>
