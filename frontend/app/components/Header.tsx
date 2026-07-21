@@ -21,7 +21,7 @@ export default function Header() {
           VibeMart
         </Link>
 
-        {/* Right Section: Nav Links + Cart */}
+        {/* Right Section*/}
         <div className="flex items-center gap-10">
           <nav className="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-widest">
             {navLinks.map((link) => {

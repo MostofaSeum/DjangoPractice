@@ -25,7 +25,7 @@ export default function Footer() {
           </a>
         </div>
         <div className="text-[10px] font-bold tracking-widest uppercase text-center md:text-left">
-          &copy; 2026 VIBEMART. ELECTRIC PREMIUM
+          &copy; 2026 VIBEMART.
           <br /> WORLDWIDE.
         </div>
       </div>

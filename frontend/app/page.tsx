@@ -61,7 +61,7 @@ const DiamondIcon = () => (
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans selection:bg-[#3a3532] selection:text-[#e6e0d4]">
+    <div className="min-h-screen pb-24 bg-[#e6e0d4] text-[#3a3532] font-sans selection:bg-[#3a3532] selection:text-[#e6e0d4]">
 
       {/* Bento Box Hero Section */}
       <section className="relative w-full min-h-screen pt-32 pb-12 px-4 md:px-8 max-w-[1400px] mx-auto flex items-center justify-center">
@@ -118,11 +118,6 @@ export default function Home() {
           {/* Middle Right Item 2 (24/7 Global Drops) */}
           <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
              <Image src="/homepage/24-7.jpg" alt="24/7 Global Drops" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
-             <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-                <span className="text-3xl font-black uppercase tracking-tighter text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">24/7</span>
-                <span className="text-[10px] font-bold text-white/90 uppercase tracking-widest mt-1 drop-shadow-sm">Global Drops</span>
-             </div>
           </div>
 
           {/* Bottom Row Item 1 (Fast Delivery) */}
@@ -294,7 +289,7 @@ export default function Home() {
         </section>
 
         {/* Why Choose Us (VibeMart footer-pre-section) */}
-        <section className="bg-[#3a3532] text-[#e6e0d4] mt-32 py-24 px-8 md:px-12 rounded-t-[3rem] mx-4 md:mx-12 lg:mx-20 shadow-2xl">
+        <section className="bg-[#3a3532] text-[#e6e0d4] mt-24 mb-16 py-20 px-8 md:px-12 rounded-[3rem] mx-4 md:mx-12 lg:mx-20 shadow-2xl">
           <div className="max-w-[1200px] mx-auto">
             <h2 className="text-3xl font-black text-center mb-16 uppercase tracking-tighter">
               Why VibeMart?
@@ -341,7 +336,7 @@ export default function Home() {
       </main>
 
       {/* Join the Club Section */}
-      <section className="bg-white py-24 px-8 md:px-12 mx-4 md:mx-12 lg:mx-20 rounded-[3rem] shadow-xl border border-[#3a3532]/5 mb-32 flex flex-col items-center text-center relative overflow-hidden group">
+      <section className="bg-white py-20 px-8 md:px-12 mx-4 md:mx-12 lg:mx-20 rounded-[3rem] shadow-xl border border-[#3a3532]/5 flex flex-col items-center text-center relative overflow-hidden group">
          <div className="absolute top-0 right-0 p-12 opacity-5 transform group-hover:rotate-12 transition-transform duration-700 pointer-events-none group-hover:scale-110">
             <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13"/><path d="M12 22 16 9l-3-6"/></svg>
          </div>
