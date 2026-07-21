@@ -1,26 +1,51 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import CartButton from "./CartButton";
 
 export default function Header() {
+  const pathname = usePathname();
+
+  const navLinks = [
+    { name: "HOME", href: "/" },
+    { name: "SHOP", href: "/products" },
+    { name: "COLLECTIONS", href: "/collections" },
+  ];
+
   return (
-    <header className="w-full z-50 py-8 px-8 md:px-12 flex justify-center items-center bg-[#e6e0d4]/90 backdrop-blur-md sticky top-0 border-b border-[#3a3532]/5">
-      <div className="max-w-[1400px] w-full flex justify-between items-center relative">
-        <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter text-[#3a3532] uppercase z-10">
+    <header className="w-full z-50 py-5 px-8 md:px-12 bg-[#3a3532] text-[#e6e0d4] sticky top-0 shadow-md border-b border-white/5">
+      <div className="max-w-[1400px] mx-auto flex justify-between items-center">
+        {/* Logo */}
+        <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter uppercase text-[#e6e0d4] hover:opacity-90 transition-opacity">
           VibeMart
         </Link>
-        <nav className="hidden md:flex gap-8 text-[11px] font-bold text-[#3a3532] uppercase tracking-widest absolute left-1/2 -translate-x-1/2">
-          <Link href="/products" className="hover:opacity-60 transition-opacity border-b-2 border-[#3a3532] pb-1">
-            Shop
-          </Link>
-          <Link href="/collections" className="hover:opacity-60 transition-opacity pb-1">
-            Collections
-          </Link>
-        </nav>
-        <div className="flex justify-end items-center gap-6 z-10">
+
+        {/* Right Section: Nav Links + Cart */}
+        <div className="flex items-center gap-10">
+          <nav className="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-widest">
+            {navLinks.map((link) => {
+              const isActive =
+                link.href === "/"
+                  ? pathname === "/"
+                  : pathname.startsWith(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`transition-all py-1 ${
+                    isActive
+                      ? "text-white border-b-2 border-white font-extrabold"
+                      : "text-[#e6e0d4]/70 hover:text-white font-bold"
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
+          </nav>
+
           <CartButton />
-          <button className="border-2 border-[#3a3532] text-[#3a3532] px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors rounded-xl">
-            Sign In
-          </button>
         </div>
       </div>
     </header>
