@@ -128,18 +128,17 @@ export default function Home() {
              </div>
           </div>
 
-          {/* Middle Right Item 1 (Graphic) */}
-          <div className="md:col-span-1 md:row-span-1 bg-[#d5ccb7] rounded-[2rem] p-6 relative overflow-hidden group shadow-sm hover:shadow-lg transition-all duration-500 flex items-center justify-center border border-[#3a3532]/5">
-            <div className="absolute inset-0 bg-[#3a3532]/5 group-hover:bg-transparent transition-colors duration-500"></div>
-            <div className="w-full h-full border-2 border-dashed border-[#3a3532]/20 rounded-2xl flex flex-col items-center justify-center text-[#3a3532]/50 group-hover:border-[#3a3532]/40 transition-colors group-hover:scale-95 duration-500">
-               <div className="group-hover:scale-110 group-hover:text-[#3a3532]/70 transition-all duration-300 flex flex-col items-center">
-                 <ShieldIcon />
-                 <span className="text-[10px] font-bold uppercase tracking-widest mt-3">Premium</span>
-               </div>
-            </div>
+          {/* Middle Right Item 1 (Beauty) */}
+          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
+             <Image src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=1000&auto=format&fit=crop" alt="Beauty" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" unoptimized />
+             <div className="absolute inset-0 bg-[#3a3532]/25 group-hover:bg-[#3a3532]/15 transition-colors duration-500"></div>
+             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-lg">BEAUTY</span>
+                <span className="text-[9px] font-bold text-white/80 uppercase tracking-wider mt-1">254+ Products</span>
+             </div>
           </div>
 
-          {/* Middle Right Item 2 (Stats) */}
+          {/* Middle Right Item 2 (24/7 Global Drops) */}
           <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] p-6 md:p-8 relative flex flex-col justify-between shadow-sm border border-[#3a3532]/5 group hover:shadow-lg transition-all duration-500 hover:-translate-y-1">
              <div className="w-12 h-12 rounded-full bg-[#f4f1eb] flex items-center justify-center text-[#3a3532] group-hover:scale-110 group-hover:bg-[#3a3532] group-hover:text-white transition-all duration-500">
                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
@@ -150,7 +149,7 @@ export default function Home() {
              </div>
           </div>
 
-          {/* Bottom Left (Shop the Drop) */}
+          {/* Bottom Row Item 1 (Fast Delivery) */}
           <div className="md:col-span-1 md:row-span-1 bg-[#8b7a66] rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end">
             <div className="absolute top-6 right-6 opacity-20 transform group-hover:rotate-12 group-hover:scale-150 group-hover:opacity-40 transition-all duration-500">
                <TruckIcon />
@@ -161,25 +160,33 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Bottom Middle (Image Replacement for Placeholder) */}
+          {/* Bottom Row Item 2 (Cleaning) */}
           <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
-             <Image src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?q=80&w=1000&auto=format&fit=crop" alt="Accessories" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" unoptimized />
-             <div className="absolute inset-0 bg-[#3a3532]/20 group-hover:bg-[#3a3532]/10 transition-colors duration-500"></div>
-             <div className="absolute inset-0 flex items-center justify-center z-10">
-                <span className="text-3xl font-black uppercase tracking-widest text-white transform -rotate-12 group-hover:rotate-0 group-hover:scale-110 transition-all duration-500 drop-shadow-lg">GEAR</span>
+             <Image src="https://images.unsplash.com/photo-1583947215259-38e31be8751f?q=80&w=1000&auto=format&fit=crop" alt="Cleaning" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" unoptimized />
+             <div className="absolute inset-0 bg-[#3a3532]/25 group-hover:bg-[#3a3532]/15 transition-colors duration-500"></div>
+             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-lg">CLEANING</span>
+                <span className="text-[9px] font-bold text-white/80 uppercase tracking-wider mt-1">263+ Products</span>
              </div>
           </div>
 
-          {/* Bottom Right (New Image Item replacing Join the Club) */}
-          <div className="md:col-span-2 md:row-span-1 bg-[#d5ccb7] rounded-[2rem] relative overflow-hidden group shadow-sm hover:shadow-xl transition-all duration-500 border border-[#3a3532]/5">
-             <Image src="https://images.unsplash.com/photo-1550614000-4b95d4ebf5b1?q=80&w=2070&auto=format&fit=crop" alt="Streetwear Collection" fill className="object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100" unoptimized />
-             <div className="absolute inset-0 bg-gradient-to-t from-[#3a3532]/80 via-[#3a3532]/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500"></div>
-             <div className="absolute bottom-8 left-8 text-white z-10 transform translate-y-2 group-hover:translate-y-0 transition-all duration-500">
-               <span className="bg-[#e6e0d4]/20 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 mb-3 inline-block uppercase tracking-widest rounded-sm">
-                 Lookbook
-               </span>
-               <div className="text-2xl font-black uppercase tracking-tight mb-1">New Arrivals</div>
-               <div className="text-xs font-bold uppercase tracking-widest text-white/80 group-hover:text-white transition-colors">Explore the Collection</div>
+          {/* Bottom Row Item 3 (Pets) */}
+          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
+             <Image src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?q=80&w=1000&auto=format&fit=crop" alt="Pets" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" unoptimized />
+             <div className="absolute inset-0 bg-[#3a3532]/25 group-hover:bg-[#3a3532]/15 transition-colors duration-500"></div>
+             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-lg">PETS</span>
+                <span className="text-[9px] font-bold text-white/80 uppercase tracking-wider mt-1">238+ Products</span>
+             </div>
+          </div>
+
+          {/* Bottom Row Item 4 (Stationary) */}
+          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
+             <Image src="https://images.unsplash.com/photo-1586075010923-2dd4570fb338?q=80&w=1000&auto=format&fit=crop" alt="Stationary" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" unoptimized />
+             <div className="absolute inset-0 bg-[#3a3532]/25 group-hover:bg-[#3a3532]/15 transition-colors duration-500"></div>
+             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-lg">STATIONARY</span>
+                <span className="text-[9px] font-bold text-white/80 uppercase tracking-wider mt-1">245+ Products</span>
              </div>
           </div>
 
