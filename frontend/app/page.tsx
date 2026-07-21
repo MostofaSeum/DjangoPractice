@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import AnimatedWord from "./components/AnimatedWord";
+import CartButton from "./components/CartButton";
 
 const CartIcon = () => (
   <Image src="/shopping-cart-white-icon.webp" width={23} height={23} alt="Cart" />
@@ -76,9 +77,7 @@ export default function Home() {
             </Link>
           </nav>
           <div className="flex justify-end items-center gap-6 z-10">
-            <button className="text-[#3a3532] hover:opacity-70 transition-opacity hover:scale-110 duration-300">
-              <Image src="/HomePage/shopping-cart.png" width={23} height={23} alt="Cart" />
-            </button>
+            <CartButton />
             <button className="border-2 border-[#3a3532] text-[#3a3532] px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors rounded-xl">
               Sign In
             </button>
