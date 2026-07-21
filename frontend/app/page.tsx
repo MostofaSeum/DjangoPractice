@@ -259,11 +259,7 @@ export default function Home() {
             {/* Product Card 1 */}
             <div className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer">
               <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                <div className="w-full h-full bg-[#e6e0d4]/50 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
-                  <span className="text-[#3a3532]/20 font-black text-xl uppercase tracking-widest">
-                    HOODIE
-                  </span>
-                </div>
+                <Image src="/homepage/Neon Void Hoodie.webp" alt="Neon Void Hoodie" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
               </div>
               <h4 className="font-bold text-lg mb-1">Neon Void Hoodie</h4>
               <p className="text-[#8b7a66] font-bold mb-6">$129</p>
@@ -278,11 +274,7 @@ export default function Home() {
                 Sale
               </span>
               <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                <div className="w-full h-full bg-[#e6e0d4]/50 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
-                  <span className="text-[#3a3532]/20 font-black text-xl uppercase tracking-widest">
-                    BAG
-                  </span>
-                </div>
+                <Image src="/homepage/Stealth Messenger.jpg" alt="Stealth Messenger" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
               </div>
               <h4 className="font-bold text-lg mb-1">Stealth Messenger</h4>
               <p className="font-bold mb-6 flex items-center gap-3">
@@ -299,11 +291,7 @@ export default function Home() {
             {/* Product Card 3 */}
             <div className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer">
               <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                <div className="w-full h-full bg-[#e6e0d4]/50 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
-                  <span className="text-[#3a3532]/20 font-black text-xl uppercase tracking-widest">
-                    SHADES
-                  </span>
-                </div>
+                <Image src="/homepage/Flux Shades.jpg" alt="Flux Shades" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
               </div>
               <h4 className="font-bold text-lg mb-1">Flux Shades</h4>
               <p className="text-[#8b7a66] font-bold mb-6">$175</p>
@@ -315,11 +303,7 @@ export default function Home() {
             {/* Product Card 4 */}
             <div className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer">
               <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                <div className="w-full h-full bg-[#e6e0d4]/50 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
-                  <span className="text-[#3a3532]/20 font-black text-xl uppercase tracking-widest">
-                    TEE
-                  </span>
-                </div>
+                <Image src="/homepage/Echo Graphic Tee.webp" alt="Echo Graphic Tee" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
               </div>
               <h4 className="font-bold text-lg mb-1">Echo Graphic Tee</h4>
               <p className="text-[#8b7a66] font-bold mb-6">$55</p>
