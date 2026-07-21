@@ -225,7 +225,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <hr className="border-[#3a3532]/10 my-4" />
 
             {/* Quantity Selector & Add to Cart Client Area */}
-            <ProductInteractive productTitle={product.title} />
+            <ProductInteractive productId={product.id} productTitle={product.title} />
 
             <hr className="border-[#3a3532]/10 my-4" />
 

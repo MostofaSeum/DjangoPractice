@@ -1,14 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import { useCart } from '@/app/context/CartContext';
 
-export default function ProductInteractive({ productTitle }: { productTitle: string }) {
+export default function ProductInteractive({ productId, productTitle }: { productId: number, productTitle: string }) {
   const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCart();
 
   const handleIncrement = () => setQuantity((prev) => prev + 1);
   const handleDecrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
+    await addToCart(productId, quantity);
     alert(`Added ${quantity} of "${productTitle}" to cart!`);
   };
 
