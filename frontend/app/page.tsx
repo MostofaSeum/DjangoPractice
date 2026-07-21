@@ -144,13 +144,14 @@ export default function Home() {
 
           {/* Bottom Row Item 1 (Fast Delivery) */}
           <div className="md:col-span-1 md:row-span-1 bg-[#8b7a66] rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end">
-            <div className="absolute top-6 right-6 opacity-20 transform group-hover:rotate-12 group-hover:scale-150 group-hover:opacity-40 transition-all duration-500">
-               <TruckIcon />
-            </div>
-            <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-10">
-              <div className="text-xl font-black uppercase tracking-tight mb-1">Fast Delivery</div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-white/80 group-hover:text-white transition-colors">Worldwide Shipping</div>
-            </div>
+             <Image src="/homepage/Delivery.jpg" alt="Fast Delivery" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
+             <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+             <div className="absolute top-6 right-6 opacity-20 transform group-hover:rotate-12 group-hover:scale-150 group-hover:opacity-40 transition-all duration-500 z-10">
+             </div>
+             <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-10">
+               <div className="text-xl font-black uppercase tracking-tight mb-1 drop-shadow-md">Fast Delivery</div>
+               <div className="text-[10px] font-bold uppercase tracking-widest text-white/90 group-hover:text-white transition-colors drop-shadow-sm">Worldwide Shipping</div>
+             </div>
           </div>
 
           {/* Bottom Row Item 2 (Cleaning) */}
@@ -159,7 +160,6 @@ export default function Home() {
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
                 <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">CLEANING</span>
-                <span className="text-[9px] font-bold text-white/90 uppercase tracking-wider mt-1 drop-shadow-sm">263+ Products</span>
              </div>
           </div>
 
@@ -169,7 +169,6 @@ export default function Home() {
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
                 <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">PETS</span>
-                <span className="text-[9px] font-bold text-white/90 uppercase tracking-wider mt-1 drop-shadow-sm">238+ Products</span>
              </div>
           </div>
 
@@ -179,7 +178,6 @@ export default function Home() {
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
                 <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">STATIONARY</span>
-                <span className="text-[9px] font-bold text-white/90 uppercase tracking-wider mt-1 drop-shadow-sm">245+ Products</span>
              </div>
           </div>
 
@@ -201,52 +199,43 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[600px]">
-            {/* Large Card */}
-            <div className="lg:col-span-2 relative rounded-2xl overflow-hidden bg-[#d5ccb7] group cursor-pointer shadow-lg min-h-[400px]">
-              <div className="absolute inset-0 bg-gradient-to-t from-[#3a3532]/80 via-transparent to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
-              <div className="absolute inset-0 flex items-center justify-center text-[#3a3532]/10 bg-[#cfc5b0] transition-transform duration-700 group-hover:scale-105">
-                <span className="text-5xl font-black uppercase tracking-tighter">
-                  Cybernetics
+            {/* Large Card (Grocery) */}
+            <Link href="/collections" className="lg:col-span-2 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[400px]">
+              <Image src="/homepage/Grocery.png" alt="Grocery" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
+              <div className="absolute bottom-10 left-10 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-5px]">
+                <span className="bg-[#e6e0d4] text-[#3a3532] text-xs font-bold px-3 py-1 mb-4 inline-block uppercase tracking-widest rounded-md shadow-md">
+                  POPULAR
                 </span>
-              </div>
-              <div className="absolute bottom-10 left-10 z-20 text-[#e6e0d4] transform transition-transform duration-500 group-hover:translate-y-[-10px]">
-                <span className="bg-[#e6e0d4] text-[#3a3532] text-xs font-bold px-3 py-1 mb-4 inline-block uppercase tracking-widest rounded-sm">
-                  NEW ARRIVAL
-                </span>
-                <h3 className="text-4xl font-black uppercase tracking-tight">
-                  Cyber-street collection
+                <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tight drop-shadow-md">
+                  Grocery Essentials
                 </h3>
               </div>
-            </div>
+            </Link>
 
-            {/* Small Stacked Cards */}
+            {/* Small Stacked Cards (Toys & Magazines) */}
             <div className="flex flex-col gap-6">
-              <div className="flex-1 relative rounded-2xl overflow-hidden bg-[#3a3532] group cursor-pointer shadow-lg min-h-[250px]">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10" />
-                <div className="absolute inset-0 flex items-center justify-center opacity-30 transition-transform duration-700 group-hover:scale-105">
-                  <span className="text-4xl font-black text-[#e6e0d4] uppercase tracking-tighter">
-                    Kicks
-                  </span>
-                </div>
-                <div className="absolute bottom-8 left-8 z-20 text-[#e6e0d4]">
-                  <h3 className="text-2xl font-bold uppercase tracking-tight">
-                    Footwear
+              {/* Toys Card */}
+              <Link href="/collections" className="flex-1 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[250px]">
+                <Image src="/homepage/Toysjpg.jpg" alt="Toys" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
+                <div className="absolute bottom-8 left-8 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-3px]">
+                  <h3 className="text-2xl font-bold uppercase tracking-tight drop-shadow-md">
+                    Toys & Fun
                   </h3>
                 </div>
-              </div>
-              <div className="flex-1 relative rounded-2xl overflow-hidden bg-white group cursor-pointer shadow-lg min-h-[250px]">
-                <div className="absolute inset-0 bg-gradient-to-t from-[#3a3532]/40 to-transparent z-10" />
-                <div className="absolute inset-0 flex items-center justify-center opacity-10 bg-[#f4f1eb] transition-transform duration-700 group-hover:scale-105">
-                  <span className="text-4xl font-black text-[#3a3532] uppercase tracking-tighter">
-                    Gear
-                  </span>
-                </div>
-                <div className="absolute bottom-8 left-8 z-20 text-[#3a3532]">
-                  <h3 className="text-2xl font-bold uppercase tracking-tight">
-                    Tech Accessories
+              </Link>
+
+              {/* Magazines Card */}
+              <Link href="/collections" className="flex-1 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[250px]">
+                <Image src="/homepage/Magazines.jpg" alt="Magazines" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
+                <div className="absolute bottom-8 left-8 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-3px]">
+                  <h3 className="text-2xl font-bold uppercase tracking-tight drop-shadow-md">
+                    Magazines & Reads
                   </h3>
                 </div>
-              </div>
+              </Link>
             </div>
           </div>
         </section>
