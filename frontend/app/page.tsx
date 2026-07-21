@@ -112,7 +112,7 @@ export default function Home() {
 
           {/* Top Right Bento Item (Discover the Vibe) */}
           <div className="md:col-span-2 md:row-span-1 bg-[#3a3532] rounded-[2rem] p-8 md:p-10 text-[#e6e0d4] relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500">
-             <Image src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2000&auto=format&fit=crop" alt="Discover" fill className="object-cover opacity-20 mix-blend-overlay group-hover:opacity-40 group-hover:scale-105 transition-all duration-700" unoptimized />
+             <Image src="/homepage/Discover.jpg" alt="Discover" fill className="object-cover opacity-20 mix-blend-overlay group-hover:opacity-40 group-hover:scale-105 transition-all duration-700" unoptimized />
              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#e6e0d4]/10 pointer-events-none group-hover:opacity-100 opacity-50 transition-opacity duration-500"></div>
              <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/5 rounded-full blur-2xl group-hover:bg-white/20 transition-colors duration-700 group-hover:scale-150"></div>
              <h2 className="text-3xl font-black mb-3 uppercase tracking-tight relative z-10">
@@ -134,19 +134,12 @@ export default function Home() {
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
                 <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">BEAUTY</span>
-                <span className="text-[9px] font-bold text-white/90 uppercase tracking-wider mt-1 drop-shadow-sm">254+ Products</span>
              </div>
           </div>
 
           {/* Middle Right Item 2 (24/7 Global Drops) */}
-          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] p-6 md:p-8 relative flex flex-col justify-between shadow-sm border border-[#3a3532]/5 group hover:shadow-lg transition-all duration-500 hover:-translate-y-1">
-             <div className="w-12 h-12 rounded-full bg-[#f4f1eb] flex items-center justify-center text-[#3a3532] group-hover:scale-110 group-hover:bg-[#3a3532] group-hover:text-white transition-all duration-500">
-               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-             </div>
-             <div>
-               <div className="text-4xl font-black text-[#3a3532] tracking-tighter mb-1">24/7</div>
-               <div className="text-[10px] font-bold text-[#3a3532]/50 uppercase tracking-widest group-hover:text-[#3a3532] transition-colors">Global Drops</div>
-             </div>
+          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
+             <Image src="/homepage/24-7.jpg" alt="24/7 Global Drops" fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
           </div>
 
           {/* Bottom Row Item 1 (Fast Delivery) */}
