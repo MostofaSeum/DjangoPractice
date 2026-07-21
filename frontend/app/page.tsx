@@ -112,7 +112,7 @@ export default function Home() {
 
           {/* Top Right Bento Item (Discover the Vibe) */}
           <div className="md:col-span-2 md:row-span-1 bg-[#3a3532] rounded-[2rem] p-8 md:p-10 text-[#e6e0d4] relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500">
-             <Image src="/homepage/Discover.jpg" alt="Discover" fill className="object-cover opacity-20 mix-blend-overlay group-hover:opacity-40 group-hover:scale-105 transition-all duration-700" unoptimized />
+             <Image src="/homepage/Fashion.jpg" alt="Discover" fill className="object-cover opacity-20 mix-blend-overlay group-hover:opacity-40 group-hover:scale-105 transition-all duration-700" unoptimized />
              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#e6e0d4]/10 pointer-events-none group-hover:opacity-100 opacity-50 transition-opacity duration-500"></div>
              <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/5 rounded-full blur-2xl group-hover:bg-white/20 transition-colors duration-700 group-hover:scale-150"></div>
              <h2 className="text-3xl font-black mb-3 uppercase tracking-tight relative z-10">
