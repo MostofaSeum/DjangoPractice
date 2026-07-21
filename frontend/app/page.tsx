@@ -130,13 +130,13 @@ export default function Home() {
           </div>
 
           {/* Middle Right Item 1 (Beauty) */}
-          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
+          <Link href="/collections/3" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
              <Image src="/homepage/Beauty.webp" alt="Beauty" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
                 <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">BEAUTY</span>
              </div>
-          </div>
+          </Link>
 
           {/* Middle Right Item 2 (24/7 Global Drops) */}
           <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
@@ -156,31 +156,31 @@ export default function Home() {
           </div>
 
           {/* Bottom Row Item 2 (Cleaning) */}
-          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
+          <Link href="/collections/4" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
              <Image src="/homepage/Cleaning.webp" alt="Cleaning" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
                 <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">CLEANING</span>
              </div>
-          </div>
+          </Link>
 
           {/* Bottom Row Item 3 (Pets) */}
-          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
+          <Link href="/collections/6" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
              <Image src="/homepage/Pet.jpg" alt="Pets" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
                 <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">PETS</span>
              </div>
-          </div>
+          </Link>
 
           {/* Bottom Row Item 4 (Stationary) */}
-          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
+          <Link href="/collections/5" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
              <Image src="/homepage/Stationary.jpg" alt="Stationary" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
                 <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">STATIONARY</span>
              </div>
-          </div>
+          </Link>
 
         </div>
       </section>
@@ -201,7 +201,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[600px]">
             {/* Large Card (Grocery) */}
-            <Link href="/collections" className="lg:col-span-2 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[400px]">
+            <Link href="/collections/2" className="lg:col-span-2 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[400px]">
               <Image src="/homepage/Grocery.png" alt="Grocery" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
               <div className="absolute bottom-10 left-10 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-5px]">
@@ -217,7 +217,7 @@ export default function Home() {
             {/* Small Stacked Cards (Toys & Magazines) */}
             <div className="flex flex-col gap-6">
               {/* Toys Card */}
-              <Link href="/collections" className="flex-1 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[250px]">
+              <Link href="/collections/9" className="flex-1 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[250px]">
                 <Image src="/homepage/Toysjpg.jpg" alt="Toys" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
                 <div className="absolute bottom-8 left-8 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-3px]">
@@ -228,7 +228,7 @@ export default function Home() {
               </Link>
 
               {/* Magazines Card */}
-              <Link href="/collections" className="flex-1 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[250px]">
+              <Link href="/collections/10" className="flex-1 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[250px]">
                 <Image src="/homepage/Magazines.jpg" alt="Magazines" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
                 <div className="absolute bottom-8 left-8 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-3px]">
