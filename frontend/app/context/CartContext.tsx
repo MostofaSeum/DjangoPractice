@@ -76,7 +76,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Update Item Quantity)
+  // Update Item Quantity
   const updateQuantity = async (itemId: number, quantity: number) => {
     if (!cart) return;
     const res = await fetch(`${API_BASE}/store/carts/${cart.id}/items/${itemId}/`, {
@@ -89,7 +89,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Remove Item from Cart (DELETE /store/carts/<cart_id>/items/<item_id>/)
+  // Remove Item from Cart
   const removeFromCart = async (itemId: number) => {
     if (!cart) return;
     const res = await fetch(`${API_BASE}/store/carts/${cart.id}/items/${itemId}/`, {
