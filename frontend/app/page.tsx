@@ -60,77 +60,126 @@ const DiamondIcon = () => (
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans selection:bg-[#3a3532] selection:text-[#e6e0d4]">
-      {/* Hero Section with Split Background*/}
-      <section className="relative w-full h-screen min-h-[600px] flex items-center">
-        {/* Background Split */}
-        <div className="absolute inset-0 flex">
-          <div className="w-[60%] bg-[#e6e0d4]"></div>
-          <div className="w-[40%] bg-[#3a3532]"></div>
-        </div>
-
-        {/* Navbar overlaying hero */}
-        <header className="absolute top-0 w-full z-50 py-8 px-8 md:px-12 flex justify-between items-center">
-          {/* Left/Middle */}
-          <div className="w-[60%] flex items-center justify-between pr-4 md:pr-12">
-            <div className="text-xl md:text-2xl font-black tracking-tighter text-[#3a3532] uppercase">
+      {/* Navbar overlaying hero */}
+      <header className="absolute top-0 w-full z-50 py-8 px-8 md:px-12 flex justify-center items-center">
+        <div className="max-w-[1400px] w-full flex justify-between items-center">
+          <div className="flex items-center gap-12">
+            <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter text-[#3a3532] uppercase">
               VibeMart
-            </div>
+            </Link>
             <nav className="hidden md:flex gap-8 text-[11px] font-bold text-[#3a3532] uppercase tracking-widest">
-              <a href="#" className="hover:opacity-60 transition-opacity border-b-2 border-[#3a3532] pb-1">
+              <Link href="/products" className="hover:opacity-60 transition-opacity border-b-2 border-[#3a3532] pb-1">
                 Shop
-              </a>
-              <a href="#" className="hover:opacity-60 transition-opacity pb-1">
-                Drops
-              </a>
-              <a href="#" className="hover:opacity-60 transition-opacity pb-1">
-                Exclusives
-              </a>
+              </Link>
+              <Link href="/collections" className="hover:opacity-60 transition-opacity pb-1">
+                Collections
+              </Link>
             </nav>
           </div>
-          {/* Right (over dark) */}
-          <div className="w-[40%] flex justify-end items-center gap-6 pl-4 md:pl-12">
-            <button className="text-[#e6e0d4] hover:opacity-70 transition-opacity">
-              <CartIcon />
+          <div className="flex justify-end items-center gap-6">
+            <button className="text-[#3a3532] hover:opacity-70 transition-opacity">
+              <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
             </button>
-            <button className="border border-[#e6e0d4]/30 text-[#e6e0d4] px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-[#e6e0d4] hover:text-[#3a3532] transition-colors rounded-sm">
+            <button className="border-2 border-[#3a3532] text-[#3a3532] px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors rounded-xl">
               Sign In
             </button>
           </div>
-        </header>
+        </div>
+      </header>
 
-        {/* Content overlay */}
-        <div className="relative z-10 w-full max-w-[1400px] mx-auto px-8 md:px-12 flex flex-col md:flex-row justify-between items-center h-full pt-20">
-          {/* Left side text (Image 1 style) */}
-          <div className="w-full md:w-[50%] mb-12 md:mb-0">
-            <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black text-[#3a3532] leading-[0.9] tracking-tighter mb-8 uppercase">
+      {/* Bento Box Hero Section */}
+      <section className="relative w-full min-h-screen pt-32 pb-12 px-4 md:px-8 max-w-[1400px] mx-auto flex items-center justify-center">
+        <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-3 gap-4 md:gap-6 w-full h-full min-h-[600px]">
+          
+          {/* Main Large Bento Item (Text & Main CTA) */}
+          <div className="md:col-span-2 md:row-span-2 bg-white rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group shadow-sm border border-[#3a3532]/5">
+            <div className="absolute top-10 right-10 text-[#3a3532]/5 group-hover:scale-110 group-hover:rotate-12 transition-all duration-700">
+               <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13"/><path d="M12 22 16 9l-3-6"/></svg>
+            </div>
+            <span className="bg-[#e6e0d4] text-[#3a3532] text-[10px] font-bold px-3 py-1 mb-8 inline-block uppercase tracking-widest rounded-md self-start border border-[#3a3532]/10">
+              New Collection
+            </span>
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-[#3a3532] leading-[0.9] tracking-tighter mb-6 uppercase z-10">
               Elevate <br /> Your Vibe
             </h1>
-            <p className="text-lg lg:text-xl text-[#3a3532]/70 max-w-sm mb-10 font-medium leading-relaxed">
+            <p className="text-base text-[#3a3532]/70 max-w-sm mb-10 font-medium leading-relaxed z-10">
               Experience the intersection of high-end streetwear and premium digital aesthetics.
             </p>
-            <div className="inline-block text-[10px] font-bold tracking-widest uppercase border-b-2 border-[#3a3532] pb-1 cursor-pointer hover:opacity-70 transition-opacity">
-              <Link href="/collections">Explore Collection</Link>
+            <div className="flex gap-4 z-10">
+              <Link href="/collections" className="bg-[#3a3532] text-[#e6e0d4] px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#524b47] transition-colors shadow-lg flex items-center gap-2">
+                Explore Collection
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              </Link>
             </div>
           </div>
 
-          {/* Right side floating glass card*/}
-          <div className="w-full md:w-[35%] bg-white/10 backdrop-blur-xl border border-white/10 p-10 rounded-2xl shadow-2xl text-[#e6e0d4] relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50 pointer-events-none"></div>
-            <h2 className="text-3xl font-bold mb-4 uppercase tracking-tight relative z-10">
+          {/* Top Right Bento Item (Discover the Vibe) */}
+          <div className="md:col-span-2 md:row-span-1 bg-[#3a3532] rounded-[2rem] p-8 md:p-10 text-[#e6e0d4] relative overflow-hidden flex flex-col justify-center group shadow-xl">
+             <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#e6e0d4]/10 pointer-events-none group-hover:opacity-70 transition-opacity"></div>
+             <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-colors duration-700"></div>
+             <h2 className="text-3xl font-black mb-3 uppercase tracking-tight relative z-10">
               Discover the Vibe
-            </h2>
-            <p className="text-sm text-[#e6e0d4]/80 mb-8 leading-relaxed relative z-10">
-              Collect exclusive pieces and immerse yourself in the next wave of streetwear. Limited drops. Infinite style.
-            </p>
-            <div className="flex gap-4 relative z-10">
-              <button className="flex-1 bg-[#8b7a66] text-[#e6e0d4] py-3 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#a39079] transition-colors shadow-lg">
-                Shop the Drop
-              </button>
-              <button className="flex-1 bg-transparent border border-[#e6e0d4]/30 text-[#e6e0d4] py-3 rounded-xl font-bold text-sm uppercase tracking-widest hover:bg-[#e6e0d4]/10 transition-colors">
-                View Exclusives
-              </button>
+             </h2>
+             <p className="text-sm text-[#e6e0d4]/70 mb-8 leading-relaxed relative z-10 max-w-md">
+              Collect exclusive pieces and immerse yourself in the next wave of streetwear.
+             </p>
+             <div className="flex gap-4 relative z-10">
+               <Link href="/products" className="bg-[#8b7a66] text-[#e6e0d4] px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-[#a39079] transition-colors inline-flex justify-center items-center">
+                 View Exclusives
+               </Link>
+             </div>
+          </div>
+
+          {/* Middle Right Item 1 (Graphic) */}
+          <div className="md:col-span-1 md:row-span-1 bg-[#d5ccb7] rounded-[2rem] p-6 relative overflow-hidden group shadow-sm flex items-center justify-center border border-[#3a3532]/5">
+            <div className="absolute inset-0 bg-[#3a3532]/5 group-hover:bg-transparent transition-colors duration-500"></div>
+            <div className="w-full h-full border-2 border-dashed border-[#3a3532]/20 rounded-2xl flex flex-col items-center justify-center text-[#3a3532]/50 group-hover:border-[#3a3532]/40 transition-colors">
+               <ShieldIcon />
+               <span className="text-[10px] font-bold uppercase tracking-widest mt-3">Premium</span>
             </div>
           </div>
+
+          {/* Middle Right Item 2 (Stats) */}
+          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] p-6 md:p-8 relative flex flex-col justify-between shadow-sm border border-[#3a3532]/5 group">
+             <div className="w-12 h-12 rounded-full bg-[#f4f1eb] flex items-center justify-center text-[#3a3532] group-hover:scale-110 transition-transform">
+               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+             </div>
+             <div>
+               <div className="text-4xl font-black text-[#3a3532] tracking-tighter mb-1">24/7</div>
+               <div className="text-[10px] font-bold text-[#3a3532]/50 uppercase tracking-widest">Global Drops</div>
+             </div>
+          </div>
+
+          {/* Bottom Left (Shop the Drop) */}
+          <div className="md:col-span-1 md:row-span-1 bg-[#8b7a66] rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md flex items-end">
+            <div className="absolute top-6 right-6 opacity-20 transform group-hover:rotate-12 group-hover:scale-125 transition-all duration-500">
+               <TruckIcon />
+            </div>
+            <div>
+              <div className="text-xl font-black uppercase tracking-tight mb-1">Fast Delivery</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-white/80">Worldwide Shipping</div>
+            </div>
+          </div>
+
+          {/* Bottom Middle (Placeholder) */}
+          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] p-6 relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group">
+             <div className="w-full h-full bg-[#f4f1eb] rounded-2xl flex items-center justify-center text-[#3a3532]/20 group-hover:bg-[#e6e0d4] transition-colors duration-500">
+                <span className="text-2xl font-black uppercase tracking-widest transform -rotate-12 group-hover:rotate-0 transition-transform duration-500">STYLE</span>
+             </div>
+          </div>
+
+          {/* Bottom Right (Newsletter/Interactive) */}
+          <div className="md:col-span-2 md:row-span-1 bg-white rounded-[2rem] p-8 md:p-10 relative flex flex-col justify-center shadow-sm border border-[#3a3532]/5">
+             <h3 className="text-2xl font-black text-[#3a3532] uppercase tracking-tight mb-2">Join the Club</h3>
+             <p className="text-xs text-[#3a3532]/60 font-medium mb-6">Get early access to exclusive drops and members-only events.</p>
+             <div className="flex gap-2">
+               <input type="email" placeholder="ENTER YOUR EMAIL" className="flex-1 bg-[#f4f1eb] border-none rounded-xl px-5 py-3.5 text-xs font-bold text-[#3a3532] placeholder:text-[#3a3532]/40 outline-none focus:ring-2 focus:ring-[#8b7a66] transition-shadow" />
+               <button className="bg-[#3a3532] text-[#e6e0d4] px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#524b47] transition-colors flex items-center justify-center shadow-md hover:shadow-lg">
+                 Subscribe
+               </button>
+             </div>
+          </div>
+
         </div>
       </section>
 
