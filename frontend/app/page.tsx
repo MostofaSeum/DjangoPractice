@@ -62,22 +62,20 @@ export default function Home() {
     <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans selection:bg-[#3a3532] selection:text-[#e6e0d4]">
       {/* Navbar overlaying hero */}
       <header className="absolute top-0 w-full z-50 py-8 px-8 md:px-12 flex justify-center items-center">
-        <div className="max-w-[1400px] w-full flex justify-between items-center">
-          <div className="flex items-center gap-12">
-            <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter text-[#3a3532] uppercase">
-              VibeMart
+        <div className="max-w-[1400px] w-full flex justify-between items-center relative">
+          <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter text-[#3a3532] uppercase z-10">
+            VibeMart
+          </Link>
+          <nav className="hidden md:flex gap-8 text-[11px] font-bold text-[#3a3532] uppercase tracking-widest absolute left-1/2 -translate-x-1/2">
+            <Link href="/products" className="hover:opacity-60 transition-opacity border-b-2 border-[#3a3532] pb-1">
+              Shop
             </Link>
-            <nav className="hidden md:flex gap-8 text-[11px] font-bold text-[#3a3532] uppercase tracking-widest">
-              <Link href="/products" className="hover:opacity-60 transition-opacity border-b-2 border-[#3a3532] pb-1">
-                Shop
-              </Link>
-              <Link href="/collections" className="hover:opacity-60 transition-opacity pb-1">
-                Collections
-              </Link>
-            </nav>
-          </div>
-          <div className="flex justify-end items-center gap-6">
-            <button className="text-[#3a3532] hover:opacity-70 transition-opacity">
+            <Link href="/collections" className="hover:opacity-60 transition-opacity pb-1">
+              Collections
+            </Link>
+          </nav>
+          <div className="flex justify-end items-center gap-6 z-10">
+            <button className="text-[#3a3532] hover:opacity-70 transition-opacity hover:scale-110 duration-300">
               <svg xmlns="http://www.w3.org/2000/svg" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
             </button>
             <button className="border-2 border-[#3a3532] text-[#3a3532] px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors rounded-xl">
@@ -92,8 +90,8 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-3 gap-4 md:gap-6 w-full h-full min-h-[600px]">
           
           {/* Main Large Bento Item (Text & Main CTA) */}
-          <div className="md:col-span-2 md:row-span-2 bg-white rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group shadow-sm border border-[#3a3532]/5">
-            <div className="absolute top-10 right-10 text-[#3a3532]/5 group-hover:scale-110 group-hover:rotate-12 transition-all duration-700">
+          <div className="md:col-span-2 md:row-span-2 bg-white rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group shadow-sm hover:shadow-xl transition-all duration-500 border border-[#3a3532]/5">
+            <div className="absolute top-10 right-10 text-[#3a3532]/5 group-hover:scale-125 group-hover:rotate-12 group-hover:text-[#3a3532]/10 transition-all duration-700">
                <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13"/><path d="M12 22 16 9l-3-6"/></svg>
             </div>
             <span className="bg-[#e6e0d4] text-[#3a3532] text-[10px] font-bold px-3 py-1 mb-8 inline-block uppercase tracking-widest rounded-md self-start border border-[#3a3532]/10">
@@ -106,17 +104,18 @@ export default function Home() {
               Experience the intersection of high-end streetwear and premium digital aesthetics.
             </p>
             <div className="flex gap-4 z-10">
-              <Link href="/collections" className="bg-[#3a3532] text-[#e6e0d4] px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#524b47] transition-colors shadow-lg flex items-center gap-2">
+              <Link href="/collections" className="bg-[#3a3532] text-[#e6e0d4] px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#524b47] transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2 duration-300">
                 Explore Collection
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
               </Link>
             </div>
           </div>
 
           {/* Top Right Bento Item (Discover the Vibe) */}
-          <div className="md:col-span-2 md:row-span-1 bg-[#3a3532] rounded-[2rem] p-8 md:p-10 text-[#e6e0d4] relative overflow-hidden flex flex-col justify-center group shadow-xl">
-             <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#e6e0d4]/10 pointer-events-none group-hover:opacity-70 transition-opacity"></div>
-             <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-colors duration-700"></div>
+          <div className="md:col-span-2 md:row-span-1 bg-[#3a3532] rounded-[2rem] p-8 md:p-10 text-[#e6e0d4] relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500">
+             <Image src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2000&auto=format&fit=crop" alt="Discover" fill className="object-cover opacity-20 mix-blend-overlay group-hover:opacity-40 group-hover:scale-105 transition-all duration-700" unoptimized />
+             <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#e6e0d4]/10 pointer-events-none group-hover:opacity-100 opacity-50 transition-opacity duration-500"></div>
+             <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/5 rounded-full blur-2xl group-hover:bg-white/20 transition-colors duration-700 group-hover:scale-150"></div>
              <h2 className="text-3xl font-black mb-3 uppercase tracking-tight relative z-10">
               Discover the Vibe
              </h2>
@@ -124,59 +123,64 @@ export default function Home() {
               Collect exclusive pieces and immerse yourself in the next wave of streetwear.
              </p>
              <div className="flex gap-4 relative z-10">
-               <Link href="/products" className="bg-[#8b7a66] text-[#e6e0d4] px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-[#a39079] transition-colors inline-flex justify-center items-center">
+               <Link href="/products" className="bg-[#8b7a66] text-[#e6e0d4] px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-[#a39079] transition-all hover:-translate-y-0.5 duration-300 inline-flex justify-center items-center shadow-lg">
                  View Exclusives
                </Link>
              </div>
           </div>
 
           {/* Middle Right Item 1 (Graphic) */}
-          <div className="md:col-span-1 md:row-span-1 bg-[#d5ccb7] rounded-[2rem] p-6 relative overflow-hidden group shadow-sm flex items-center justify-center border border-[#3a3532]/5">
+          <div className="md:col-span-1 md:row-span-1 bg-[#d5ccb7] rounded-[2rem] p-6 relative overflow-hidden group shadow-sm hover:shadow-lg transition-all duration-500 flex items-center justify-center border border-[#3a3532]/5">
             <div className="absolute inset-0 bg-[#3a3532]/5 group-hover:bg-transparent transition-colors duration-500"></div>
-            <div className="w-full h-full border-2 border-dashed border-[#3a3532]/20 rounded-2xl flex flex-col items-center justify-center text-[#3a3532]/50 group-hover:border-[#3a3532]/40 transition-colors">
-               <ShieldIcon />
-               <span className="text-[10px] font-bold uppercase tracking-widest mt-3">Premium</span>
+            <div className="w-full h-full border-2 border-dashed border-[#3a3532]/20 rounded-2xl flex flex-col items-center justify-center text-[#3a3532]/50 group-hover:border-[#3a3532]/40 transition-colors group-hover:scale-95 duration-500">
+               <div className="group-hover:scale-110 group-hover:text-[#3a3532]/70 transition-all duration-300 flex flex-col items-center">
+                 <ShieldIcon />
+                 <span className="text-[10px] font-bold uppercase tracking-widest mt-3">Premium</span>
+               </div>
             </div>
           </div>
 
           {/* Middle Right Item 2 (Stats) */}
-          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] p-6 md:p-8 relative flex flex-col justify-between shadow-sm border border-[#3a3532]/5 group">
-             <div className="w-12 h-12 rounded-full bg-[#f4f1eb] flex items-center justify-center text-[#3a3532] group-hover:scale-110 transition-transform">
+          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] p-6 md:p-8 relative flex flex-col justify-between shadow-sm border border-[#3a3532]/5 group hover:shadow-lg transition-all duration-500 hover:-translate-y-1">
+             <div className="w-12 h-12 rounded-full bg-[#f4f1eb] flex items-center justify-center text-[#3a3532] group-hover:scale-110 group-hover:bg-[#3a3532] group-hover:text-white transition-all duration-500">
                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
              </div>
              <div>
                <div className="text-4xl font-black text-[#3a3532] tracking-tighter mb-1">24/7</div>
-               <div className="text-[10px] font-bold text-[#3a3532]/50 uppercase tracking-widest">Global Drops</div>
+               <div className="text-[10px] font-bold text-[#3a3532]/50 uppercase tracking-widest group-hover:text-[#3a3532] transition-colors">Global Drops</div>
              </div>
           </div>
 
           {/* Bottom Left (Shop the Drop) */}
-          <div className="md:col-span-1 md:row-span-1 bg-[#8b7a66] rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md flex items-end">
-            <div className="absolute top-6 right-6 opacity-20 transform group-hover:rotate-12 group-hover:scale-125 transition-all duration-500">
+          <div className="md:col-span-1 md:row-span-1 bg-[#8b7a66] rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end">
+            <div className="absolute top-6 right-6 opacity-20 transform group-hover:rotate-12 group-hover:scale-150 group-hover:opacity-40 transition-all duration-500">
                <TruckIcon />
             </div>
-            <div>
+            <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-10">
               <div className="text-xl font-black uppercase tracking-tight mb-1">Fast Delivery</div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-white/80">Worldwide Shipping</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-white/80 group-hover:text-white transition-colors">Worldwide Shipping</div>
             </div>
           </div>
 
-          {/* Bottom Middle (Placeholder) */}
-          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] p-6 relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group">
-             <div className="w-full h-full bg-[#f4f1eb] rounded-2xl flex items-center justify-center text-[#3a3532]/20 group-hover:bg-[#e6e0d4] transition-colors duration-500">
-                <span className="text-2xl font-black uppercase tracking-widest transform -rotate-12 group-hover:rotate-0 transition-transform duration-500">STYLE</span>
+          {/* Bottom Middle (Image Replacement for Placeholder) */}
+          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
+             <Image src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?q=80&w=1000&auto=format&fit=crop" alt="Accessories" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" unoptimized />
+             <div className="absolute inset-0 bg-[#3a3532]/20 group-hover:bg-[#3a3532]/10 transition-colors duration-500"></div>
+             <div className="absolute inset-0 flex items-center justify-center z-10">
+                <span className="text-3xl font-black uppercase tracking-widest text-white transform -rotate-12 group-hover:rotate-0 group-hover:scale-110 transition-all duration-500 drop-shadow-lg">GEAR</span>
              </div>
           </div>
 
-          {/* Bottom Right (Newsletter/Interactive) */}
-          <div className="md:col-span-2 md:row-span-1 bg-white rounded-[2rem] p-8 md:p-10 relative flex flex-col justify-center shadow-sm border border-[#3a3532]/5">
-             <h3 className="text-2xl font-black text-[#3a3532] uppercase tracking-tight mb-2">Join the Club</h3>
-             <p className="text-xs text-[#3a3532]/60 font-medium mb-6">Get early access to exclusive drops and members-only events.</p>
-             <div className="flex gap-2">
-               <input type="email" placeholder="ENTER YOUR EMAIL" className="flex-1 bg-[#f4f1eb] border-none rounded-xl px-5 py-3.5 text-xs font-bold text-[#3a3532] placeholder:text-[#3a3532]/40 outline-none focus:ring-2 focus:ring-[#8b7a66] transition-shadow" />
-               <button className="bg-[#3a3532] text-[#e6e0d4] px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#524b47] transition-colors flex items-center justify-center shadow-md hover:shadow-lg">
-                 Subscribe
-               </button>
+          {/* Bottom Right (New Image Item replacing Join the Club) */}
+          <div className="md:col-span-2 md:row-span-1 bg-[#d5ccb7] rounded-[2rem] relative overflow-hidden group shadow-sm hover:shadow-xl transition-all duration-500 border border-[#3a3532]/5">
+             <Image src="https://images.unsplash.com/photo-1550614000-4b95d4ebf5b1?q=80&w=2070&auto=format&fit=crop" alt="Streetwear Collection" fill className="object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100" unoptimized />
+             <div className="absolute inset-0 bg-gradient-to-t from-[#3a3532]/80 via-[#3a3532]/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500"></div>
+             <div className="absolute bottom-8 left-8 text-white z-10 transform translate-y-2 group-hover:translate-y-0 transition-all duration-500">
+               <span className="bg-[#e6e0d4]/20 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 mb-3 inline-block uppercase tracking-widest rounded-sm">
+                 Lookbook
+               </span>
+               <div className="text-2xl font-black uppercase tracking-tight mb-1">New Arrivals</div>
+               <div className="text-xs font-bold uppercase tracking-widest text-white/80 group-hover:text-white transition-colors">Explore the Collection</div>
              </div>
           </div>
 
@@ -383,6 +387,21 @@ export default function Home() {
           </div>
         </section>
       </main>
+
+      {/* Join the Club Section */}
+      <section className="bg-white py-24 px-8 md:px-12 mx-4 md:mx-12 lg:mx-20 rounded-[3rem] shadow-xl border border-[#3a3532]/5 mb-32 flex flex-col items-center text-center relative overflow-hidden group">
+         <div className="absolute top-0 right-0 p-12 opacity-5 transform group-hover:rotate-12 transition-transform duration-700 pointer-events-none group-hover:scale-110">
+            <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13"/><path d="M12 22 16 9l-3-6"/></svg>
+         </div>
+         <h2 className="text-4xl md:text-5xl font-black text-[#3a3532] uppercase tracking-tighter mb-4 relative z-10">Join the Club</h2>
+         <p className="text-sm md:text-base text-[#3a3532]/60 font-medium mb-10 max-w-md relative z-10">Get early access to exclusive drops, members-only events, and behind-the-scenes content.</p>
+         <div className="flex gap-2 w-full max-w-md relative z-10">
+           <input type="email" placeholder="ENTER YOUR EMAIL" className="flex-1 bg-[#f4f1eb] border-none rounded-2xl px-6 py-4 text-xs font-bold text-[#3a3532] placeholder:text-[#3a3532]/40 outline-none focus:ring-2 focus:ring-[#8b7a66] transition-shadow" />
+           <button className="bg-[#3a3532] text-[#e6e0d4] px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-[#524b47] transition-all flex items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-0.5 duration-300">
+             Subscribe
+           </button>
+         </div>
+      </section>
 
       {/* Footer */}
       <footer className="bg-[#2a2624] text-[#e6e0d4]/50 py-16 px-8 md:px-12">
