@@ -90,7 +90,7 @@ export default function Home() {
 
           {/* Top Right Bento Item (Discover the Vibe) */}
           <div className="md:col-span-2 md:row-span-1 bg-[#3a3532] rounded-[2rem] p-8 md:p-10 text-[#e6e0d4] relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500 min-h-[220px] md:min-h-0">
-             <Image src="/homepage/Fashion.jpg" alt="Discover" fill className="object-cover opacity-20 mix-blend-overlay group-hover:opacity-40 group-hover:scale-105 transition-all duration-700" unoptimized />
+             <Image src="/HomePage/Fashion.jpg" alt="Discover" fill className="object-cover opacity-20 mix-blend-overlay group-hover:opacity-40 group-hover:scale-105 transition-all duration-700" unoptimized />
              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#e6e0d4]/10 pointer-events-none group-hover:opacity-100 opacity-50 transition-opacity duration-500"></div>
              <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/5 rounded-full blur-2xl group-hover:bg-white/20 transition-colors duration-700 group-hover:scale-150"></div>
              <h2 className="text-3xl font-black mb-3 uppercase tracking-tight relative z-10">
@@ -108,7 +108,7 @@ export default function Home() {
 
           {/* Middle Right Item 1 (Beauty) */}
           <Link href="/collections/3" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
-             <Image src="/homepage/Beauty.webp" alt="Beauty" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
+             <Image src="/HomePage/Beauty.webp" alt="Beauty" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
                 <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">BEAUTY</span>
@@ -117,12 +117,12 @@ export default function Home() {
 
           {/* Middle Right Item 2 (24/7 Global Drops) */}
           <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
-             <Image src="/homepage/24-7.jpg" alt="24/7 Global Drops" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
+             <Image src="/HomePage/24-7.jpg" alt="24/7 Global Drops" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
           </div>
 
           {/* Bottom Row Item 1 (Fast Delivery) */}
           <div className="md:col-span-1 md:row-span-1 bg-[#8b7a66] rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end min-h-[220px] md:min-h-0">
-             <Image src="/homepage/Delivery.jpg" alt="Fast Delivery" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
+             <Image src="/HomePage/Delivery.jpg" alt="Fast Delivery" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-10">
                <div className="text-xl font-black uppercase tracking-tight mb-1 drop-shadow-md">Fast Delivery</div>
@@ -131,7 +131,7 @@ export default function Home() {
 
           {/* Bottom Row Item 2 (Cleaning) */}
           <Link href="/collections/4" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
-             <Image src="/homepage/Cleaning.webp" alt="Cleaning" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
+             <Image src="/HomePage/Cleaning.webp" alt="Cleaning" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
                 <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">CLEANING</span>
@@ -140,7 +140,7 @@ export default function Home() {
 
           {/* Bottom Row Item 3 (Pets) */}
           <Link href="/collections/6" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
-             <Image src="/homepage/Pet.jpg" alt="Pets" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
+             <Image src="/HomePage/Pet.jpg" alt="Pets" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
                 <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">PETS</span>
@@ -149,7 +149,7 @@ export default function Home() {
 
           {/* Bottom Row Item 4 (Stationary) */}
           <Link href="/collections/5" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
-             <Image src="/homepage/Stationary.jpg" alt="Stationary" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
+             <Image src="/HomePage/Stationary.jpg" alt="Stationary" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
                 <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">STATIONARY</span>
@@ -176,7 +176,7 @@ export default function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[600px]">
             {/* Large Card (Grocery) */}
             <Link href="/collections/2" className="lg:col-span-2 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[400px]">
-              <Image src="/homepage/Grocery.png" alt="Grocery" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+              <Image src="/HomePage/Grocery.png" alt="Grocery" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
               <div className="absolute bottom-10 left-10 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-5px]">
                 <span className="bg-[#e6e0d4] text-[#3a3532] text-xs font-bold px-3 py-1 mb-4 inline-block uppercase tracking-widest rounded-md shadow-md">
@@ -192,7 +192,7 @@ export default function Home() {
             <div className="flex flex-col gap-6">
               {/* Toys Card */}
               <Link href="/collections/9" className="flex-1 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[250px]">
-                <Image src="/homepage/Toysjpg.jpg" alt="Toys" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                <Image src="/HomePage/Toysjpg.jpg" alt="Toys" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
                 <div className="absolute bottom-8 left-8 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-3px]">
                   <h3 className="text-2xl font-bold uppercase tracking-tight drop-shadow-md">
@@ -203,7 +203,7 @@ export default function Home() {
 
               {/* Magazines Card */}
               <Link href="/collections/10" className="flex-1 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[250px]">
-                <Image src="/homepage/Magazines.jpg" alt="Magazines" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                <Image src="/HomePage/Magazines.jpg" alt="Magazines" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
                 <div className="absolute bottom-8 left-8 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-3px]">
                   <h3 className="text-2xl font-bold uppercase tracking-tight drop-shadow-md">
@@ -233,7 +233,7 @@ export default function Home() {
             {/* Product Card 1 */}
             <div className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer">
               <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                <Image src="/homepage/Neon Void Hoodie.webp" alt="Neon Void Hoodie" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                <Image src="/HomePage/Neon Void Hoodie.webp" alt="Neon Void Hoodie" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
               </div>
               <h4 className="font-bold text-lg mb-1">Neon Void Hoodie</h4>
               <p className="text-[#8b7a66] font-bold mb-6">$129</p>
@@ -248,7 +248,7 @@ export default function Home() {
                 Sale
               </span>
               <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                <Image src="/homepage/Stealth Messenger.jpg" alt="Stealth Messenger" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                <Image src="/HomePage/Stealth Messenger.jpg" alt="Stealth Messenger" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
               </div>
               <h4 className="font-bold text-lg mb-1">Stealth Messenger</h4>
               <p className="font-bold mb-6 flex items-center gap-3">
@@ -265,7 +265,7 @@ export default function Home() {
             {/* Product Card 3 */}
             <div className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer">
               <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                <Image src="/homepage/Flux Shades.jpg" alt="Flux Shades" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                <Image src="/HomePage/Flux Shades.jpg" alt="Flux Shades" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
               </div>
               <h4 className="font-bold text-lg mb-1">Flux Shades</h4>
               <p className="text-[#8b7a66] font-bold mb-6">$175</p>
@@ -277,7 +277,7 @@ export default function Home() {
             {/* Product Card 4 */}
             <div className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer">
               <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                <Image src="/homepage/Echo Graphic Tee.webp" alt="Echo Graphic Tee" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                <Image src="/HomePage/Echo Graphic Tee.webp" alt="Echo Graphic Tee" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
               </div>
               <h4 className="font-bold text-lg mb-1">Echo Graphic Tee</h4>
               <p className="text-[#8b7a66] font-bold mb-6">$55</p>
