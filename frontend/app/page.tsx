@@ -130,11 +130,11 @@ export default function Home() {
 
           {/* Middle Right Item 1 (Beauty) */}
           <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
-             <Image src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=1000&auto=format&fit=crop" alt="Beauty" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" unoptimized />
-             <div className="absolute inset-0 bg-[#3a3532]/25 group-hover:bg-[#3a3532]/15 transition-colors duration-500"></div>
+             <Image src="/homepage/Beauty.webp" alt="Beauty" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
+             <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-                <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-lg">BEAUTY</span>
-                <span className="text-[9px] font-bold text-white/80 uppercase tracking-wider mt-1">254+ Products</span>
+                <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">BEAUTY</span>
+                <span className="text-[9px] font-bold text-white/90 uppercase tracking-wider mt-1 drop-shadow-sm">254+ Products</span>
              </div>
           </div>
 
@@ -162,31 +162,31 @@ export default function Home() {
 
           {/* Bottom Row Item 2 (Cleaning) */}
           <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
-             <Image src="https://images.unsplash.com/photo-1583947215259-38e31be8751f?q=80&w=1000&auto=format&fit=crop" alt="Cleaning" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" unoptimized />
-             <div className="absolute inset-0 bg-[#3a3532]/25 group-hover:bg-[#3a3532]/15 transition-colors duration-500"></div>
+             <Image src="/homepage/Cleaning.webp" alt="Cleaning" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
+             <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-                <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-lg">CLEANING</span>
-                <span className="text-[9px] font-bold text-white/80 uppercase tracking-wider mt-1">263+ Products</span>
+                <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">CLEANING</span>
+                <span className="text-[9px] font-bold text-white/90 uppercase tracking-wider mt-1 drop-shadow-sm">263+ Products</span>
              </div>
           </div>
 
           {/* Bottom Row Item 3 (Pets) */}
           <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
-             <Image src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?q=80&w=1000&auto=format&fit=crop" alt="Pets" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" unoptimized />
-             <div className="absolute inset-0 bg-[#3a3532]/25 group-hover:bg-[#3a3532]/15 transition-colors duration-500"></div>
+             <Image src="/homepage/Pet.jpg" alt="Pets" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
+             <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-                <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-lg">PETS</span>
-                <span className="text-[9px] font-bold text-white/80 uppercase tracking-wider mt-1">238+ Products</span>
+                <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">PETS</span>
+                <span className="text-[9px] font-bold text-white/90 uppercase tracking-wider mt-1 drop-shadow-sm">238+ Products</span>
              </div>
           </div>
 
           {/* Bottom Row Item 4 (Stationary) */}
           <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500">
-             <Image src="https://images.unsplash.com/photo-1586075010923-2dd4570fb338?q=80&w=1000&auto=format&fit=crop" alt="Stationary" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" unoptimized />
-             <div className="absolute inset-0 bg-[#3a3532]/25 group-hover:bg-[#3a3532]/15 transition-colors duration-500"></div>
+             <Image src="/homepage/Stationary.jpg" alt="Stationary" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
+             <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-                <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-lg">STATIONARY</span>
-                <span className="text-[9px] font-bold text-white/80 uppercase tracking-wider mt-1">245+ Products</span>
+                <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">STATIONARY</span>
+                <span className="text-[9px] font-bold text-white/90 uppercase tracking-wider mt-1 drop-shadow-sm">245+ Products</span>
              </div>
           </div>
 
