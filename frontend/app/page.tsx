@@ -75,7 +75,7 @@ export default function Home() {
             <span className="bg-[#e6e0d4] text-[#3a3532] text-[10px] font-bold px-3 py-1 mb-8 inline-block uppercase tracking-widest rounded-md self-start border border-[#3a3532]/10">
               New Collection
             </span>
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-[#3a3532] leading-[0.9] tracking-tighter mb-6 uppercase z-10">
+            <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-[#3a3532] leading-[0.9] tracking-tighter mb-6 uppercase z-10">
               Elevate <br /> Your <AnimatedWord />
             </h1>
             <p className="text-base text-[#3a3532]/70 max-w-sm mb-10 font-medium leading-relaxed z-10">
