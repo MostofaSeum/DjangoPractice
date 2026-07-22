@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useCart } from '@/app/context/CartContext';
+import Swal from 'sweetalert2';
 
 export default function ProductInteractive({ productId, productTitle }: { productId: number, productTitle: string }) {
   const [quantity, setQuantity] = useState(1);
@@ -12,7 +13,13 @@ export default function ProductInteractive({ productId, productTitle }: { produc
 
   const handleAddToCart = async () => {
     await addToCart(productId, quantity);
-    alert(`Added ${quantity} of "${productTitle}" to cart!`);
+    Swal.fire({
+      position: 'top-end',
+      icon: 'success',
+      title: `Added ${quantity} of "${productTitle}" to cart!`,
+      showConfirmButton: false,
+      timer: 1500
+    });
   };
 
   return (
