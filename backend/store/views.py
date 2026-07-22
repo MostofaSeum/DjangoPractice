@@ -99,6 +99,6 @@ class CustomerViewSet(ModelViewSet):
 
 
 class OrderViewSet(ModelViewSet):
-    query_set = Order.objects.get_queryset()
+    queryset = Order.objects.all()
     serializer_class = OrderSerializers
     permission_classes = [IsAuthenticated]
