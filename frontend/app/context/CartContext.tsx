@@ -30,14 +30,22 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<Cart | null>(null);
 
+  // Helper: Create a new Cart ID from API
+  const createNewCart = async (): Promise<string> => {
+    const res = await fetch(`${API_BASE}/store/carts/`, { method: "POST" });
+    const data = await res.json();
+    const cartId = data.id;
+    if (cartId) {
+      localStorage.setItem("cart_id", cartId);
+    }
+    return cartId;
+  };
+
   // Helper: Get or Create Cart ID from API & localStorage
   const getOrCreateCartId = async (): Promise<string> => {
     let cartId = localStorage.getItem("cart_id");
     if (!cartId) {
-      const res = await fetch(`${API_BASE}/store/carts/`, { method: "POST" });
-      const data = await res.json();
-      cartId = data.id;
-      localStorage.setItem("cart_id", cartId!);
+      cartId = await createNewCart();
     }
     return cartId!;
   };
@@ -49,6 +57,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         setCart(data);
+      } else if (res.status === 404) {
+        localStorage.removeItem("cart_id");
+        const newCartId = await createNewCart();
+        await refreshCart(newCartId);
       }
     } catch (err) {
       console.error("Failed to fetch cart:", err);
@@ -65,12 +77,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Add Item to Cart 
   const addToCart = async (productId: number, quantity = 1) => {
-    const cartId = await getOrCreateCartId();
-    const res = await fetch(`${API_BASE}/store/carts/${cartId}/items/`, {
+    let cartId = await getOrCreateCartId();
+    let res = await fetch(`${API_BASE}/store/carts/${cartId}/items/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ product_id: productId, quantity }),
     });
+
+    if (res.status === 404) {
+      localStorage.removeItem("cart_id");
+      cartId = await createNewCart();
+      res = await fetch(`${API_BASE}/store/carts/${cartId}/items/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ product_id: productId, quantity }),
+      });
+    }
+
     if (res.ok) {
       await refreshCart(cartId);
     }
