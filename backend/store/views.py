@@ -1,3 +1,4 @@
+from .permissions import ViewCustomerHistoryPermission
 from rest_framework.decorators import action
 from store.models import OrderItem
 from django.http import request
@@ -79,6 +80,10 @@ class CustomerViewSet(ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializers
     permission_classes = [IsAdminUser]
+
+    @action(detail = True,permission_classes=[ViewCustomerHistoryPermission])
+    def history(self,request,pk):
+        return Response('ok')
 
     @action(detail=False, methods = ['GET','PUT'], permission_classes = [IsAuthenticated])
     def me(self,request):
