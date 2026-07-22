@@ -100,4 +100,4 @@ class CustomerSerializers(serializers.ModelSerializer):
     user_id = serializers.IntegerField()
     class Meta:
         model = Customer
-        fields = ['id', 'user_id', 'phone_number', 'birth_date','membership']
+        fields = ['id', 'user_id', 'phone', 'birth_date','membership']
