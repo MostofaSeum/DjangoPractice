@@ -1,3 +1,4 @@
+from rest_framework.decorators import action
 from store.models import OrderItem
 from django.http import request
 from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers
@@ -77,3 +78,8 @@ class CustomerViewSet(CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, Ge
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializers
 
+    @action(detail=False)
+    def me(self,request):
+        customer = Customer.objects.get(user_id=request.user.id)
+        serializer = CustomerSerializers(customer)
+        return Response(serializer.data)
