@@ -38,7 +38,7 @@ class ProductViewSet(ModelViewSet):
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.annotate(product_count=Count('product')).all()
     serializer_class = CollectionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminOrReadOnly]
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return CollectionDetailSerializer
