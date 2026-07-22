@@ -11,6 +11,9 @@ django-cors-headers = "*"
 dj-database-url = "*"
 gunicorn = "*"
 psycopg2-binary = "*"
+djoser = "*"
+djangorestframework-simplejwt = "*"
+
 
 [dev-packages]
 
