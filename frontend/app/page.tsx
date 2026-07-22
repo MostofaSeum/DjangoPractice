@@ -68,21 +68,21 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-3 gap-4 md:gap-6 w-full h-full">
           
           {/* Main Large Bento Item (Text & Main CTA) */}
-          <div className="md:col-span-2 md:row-span-2 bg-white rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group shadow-sm hover:shadow-xl transition-all duration-500 border border-[#3a3532]/5 min-h-[360px] md:min-h-0">
-            <div className="absolute top-10 right-10 text-[#3a3532]/5 group-hover:scale-125 group-hover:rotate-12 group-hover:text-[#3a3532]/10 transition-all duration-700">
+          <div className="md:col-span-2 md:row-span-2 bg-white rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group shadow-sm hover:shadow-xl transition-all duration-500 border border-brand-dark/5 min-h-[360px] md:min-h-0">
+            <div className="absolute top-10 right-10 text-brand-dark/5 group-hover:scale-125 group-hover:rotate-12 group-hover:text-brand-dark/10 transition-all duration-700">
                <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13"/><path d="M12 22 16 9l-3-6"/></svg>
             </div>
-            <span className="bg-[#e6e0d4] text-[#3a3532] text-[10px] font-bold px-3 py-1 mb-8 inline-block uppercase tracking-widest rounded-md self-start border border-[#3a3532]/10">
+            <span className="bg-brand-bg text-brand-dark text-[10px] font-bold px-3 py-1 mb-8 inline-block uppercase tracking-widest rounded-md self-start border border-brand-dark/10">
               New Collection
             </span>
-            <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-[#3a3532] leading-[0.9] tracking-tighter mb-6 uppercase z-10">
+            <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-brand-dark leading-[0.9] tracking-tighter mb-6 uppercase z-10">
               Elevate <br /> Your <AnimatedWord />
             </h1>
-            <p className="text-base text-[#3a3532]/70 max-w-sm mb-10 font-medium leading-relaxed z-10">
+            <p className="text-base text-brand-dark/70 max-w-sm mb-10 font-medium leading-relaxed z-10">
               Experience the intersection of high-end streetwear and premium digital aesthetics.
             </p>
             <div className="flex gap-4 z-10">
-              <Link href="/collections" className="bg-[#3a3532] text-[#e6e0d4] px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#524b47] transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2 duration-300">
+              <Link href="/collections" className="bg-brand-dark text-brand-bg px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-brand-dark-hover transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2 duration-300">
                 Explore Collection
               </Link>
             </div>

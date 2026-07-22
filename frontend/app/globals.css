@@ -1,11 +1,20 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-bg: #e6e0d4;
+  --color-brand-dark: #3a3532;
+  --color-brand-accent: #8b7a66;
+  --color-brand-light: #f4f1eb;
+  --color-brand-dark-hover: #524b47;
+  --color-brand-dark-active: #252220;
+}
+
 :root {
   --background: #e6e0d4;
   --foreground: #3a3532;
 }
 
 html, body {
-  background-color: #e6e0d4 !important;
-  color: #3a3532 !important;
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
 }
