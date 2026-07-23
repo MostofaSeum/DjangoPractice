@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import CartButton from "./CartButton";
+import { useAuth } from "../context/AuthContext";
 
 export default function Header() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   const navLinks = [
     { name: "HOME", href: "/" },
@@ -48,8 +50,27 @@ export default function Header() {
 
           <CartButton />
 
-          <div className="flex items-center gap-4 text-[11px] font-bold uppercase tracking-widest">
-            <button className="text-[#e6e0d4] hover:text-white transition-all bg-white/10 px-4 py-2 rounded-full border border-white/20 hover:bg-white/20">Sign In</button>
+          <div className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest">
+            {user ? (
+              <div className="flex items-center gap-3">
+                <span className="text-[#e6e0d4]/80 text-[10px]">
+                  HI, {user.first_name || user.username}
+                </span>
+                <button
+                  onClick={logout}
+                  className="text-[#e6e0d4] hover:text-white transition-all bg-white/10 px-4 py-2 rounded-full border border-white/20 hover:bg-white/20"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="text-[#e6e0d4] hover:text-white transition-all bg-white/10 px-4 py-2 rounded-full border border-white/20 hover:bg-white/20"
+              >
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       </div>
