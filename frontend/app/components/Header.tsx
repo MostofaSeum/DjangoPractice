@@ -53,6 +53,14 @@ export default function Header() {
           <div className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest">
             {user ? (
               <div className="flex items-center gap-3">
+                {user.is_staff && (
+                  <Link
+                    href="/admin"
+                    className="bg-[#8b7a66] text-white px-3 py-1.5 rounded-lg border border-white/20 hover:bg-[#a39079] transition-all font-black text-[10px] tracking-wider"
+                  >
+                    ADMIN
+                  </Link>
+                )}
                 <Link
                   href="/profile"
                   className="text-[#e6e0d4]/80 hover:text-white hover:underline transition-all text-[10px]"
