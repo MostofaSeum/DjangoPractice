@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
+import ProductImage from "@/app/components/ProductImage";
 
 export default function CartPage() {
   const { cart, updateQuantity, removeFromCart } = useCart();
@@ -48,13 +49,7 @@ export default function CartPage() {
                 >
                   <div className="flex items-center gap-6 w-full sm:w-auto">
                     <div className="w-20 h-20 bg-[#f4f1eb] rounded-2xl flex items-center justify-center flex-shrink-0 relative overflow-hidden">
-                      <Image
-                        src="/shopping-cart-white-icon.webp"
-                        width={32}
-                        height={32}
-                        alt={item.product.title}
-                        className="opacity-40"
-                      />
+                      <ProductImage title={item.product.title} />
                     </div>
                     <div>
                       <h3 className="font-black text-lg uppercase tracking-tight">

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import ProductImage from '@/app/components/ProductImage';
 
 interface Product {
   id: number;
@@ -74,11 +75,7 @@ export default async function CollectionDetailPage({ params }: PageProps) {
               <div key={product.id} className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between">
                 <div>
                   <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                    <div className="w-full h-full bg-[#e6e0d4]/50 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
-                      <span className="text-[#3a3532]/20 font-black text-lg uppercase tracking-widest">
-                        {product.title.split(' ')[0]}
-                      </span>
-                    </div>
+                    <ProductImage title={product.title} />
                   </div>
                   <h3 className="font-bold text-lg text-[#3a3532] mb-1 line-clamp-1">{product.title}</h3>
                   <p className="text-[#3a3532]/60 text-xs line-clamp-2 mb-4 leading-relaxed">{product.description || 'No description available'}</p>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import ProductInteractive from "./ProductInteractive";
+import ProductImage from "@/app/components/ProductImage";
 
 interface Product {
   id: number;
@@ -116,37 +117,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
       <main className="max-w-[1400px] mx-auto px-8 md:px-12 py-12">
         {/* Product Area Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-[#3a3532]/5">
-          {/* Left Column: Product Images (Placeholder Mode) */}
+          {/* Left Column: Product Images */}
           <div className="space-y-4">
-            <div className="aspect-[4/5] w-full rounded-2xl border-2 border-dashed border-[#3a3532]/10 bg-[#f4f1eb] flex flex-col items-center justify-center p-6 text-center shadow-inner relative overflow-hidden">
-              <Image
-                src="/"
-                alt={`Image of ${product.title} showing the product features`}
-                fill
-                className="opacity-0 object-cover"
-              />
-              <div className="w-16 h-16 rounded-full bg-[#3a3532]/5 flex items-center justify-center text-[#3a3532]/30 mb-4 z-10">
-                <svg
-                  className="w-8 h-8"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="1.5"
-                    d="M4 16l4.586-4.586a2 2 0 0 0 2.828 0L16 16m-2-2l1.586-1.586a2 2 0 0 1 2.828 0L20 14m-6-6h.01M6 20h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"
-                  />
-                </svg>
-              </div>
-              <p className="text-sm font-bold text-[#3a3532] mb-1 z-10 uppercase tracking-tight">
-                Image Placeholder
-              </p>
-              <p className="text-xs text-[#3a3532]/60 max-w-xs z-10 leading-relaxed font-semibold">
-                Alt Text: Image of{" "}
-                <span className="text-[#3a3532]">{product.title}</span>.
-              </p>
+            <div className="aspect-[4/5] w-full rounded-2xl border border-[#3a3532]/10 bg-[#f4f1eb] flex items-center justify-center relative overflow-hidden shadow-sm">
+              <ProductImage title={product.title} alt={product.title} />
             </div>
 
             {/* Thumbnail Placeholders */}

@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import AnimatedWord from "./components/AnimatedWord";
 import AddToCartButton from "./components/AddToCartButton";
+import ProductImage from "./components/ProductImage";
 
 interface Product {
   id: number;
@@ -260,11 +261,7 @@ export default async function Home() {
                 >
                   <Link href={`/products/${product.id}`} className="block">
                     <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                      <div className="w-full h-full bg-[#e6e0d4]/50 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
-                        <span className="text-[#3a3532]/20 font-black text-lg uppercase tracking-widest text-center px-2">
-                          {product.title.split(" ")[0]}
-                        </span>
-                      </div>
+                      <ProductImage title={product.title} />
                     </div>
                     <h4 className="font-bold text-lg text-[#3a3532] mb-1 line-clamp-1 group-hover:text-[#8b7a66] transition-colors">
                       {product.title}
