@@ -33,13 +33,13 @@ export default function ProfilePage() {
     const loadProfile = async () => {
       try {
         setLoading(true);
-        // Fetch User Info (/auth/users/me/)
+        // Fetch User Info 
         const userRes = await fetch(`${API_BASE}/auth/users/me/`, {
           headers: { Authorization: `JWT ${token}` },
         });
         const userData = userRes.ok ? await userRes.json() : {};
 
-        // Fetch Customer Info (/store/customers/me/) - Triggers get_or_create on backend
+        // Fetch Customer Info  - Triggers get_or_create on backend
         const customerRes = await fetch(`${API_BASE}/store/customers/me/`, {
           headers: { Authorization: `JWT ${token}` },
         });
