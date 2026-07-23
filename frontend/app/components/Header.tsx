@@ -53,9 +53,12 @@ export default function Header() {
           <div className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest">
             {user ? (
               <div className="flex items-center gap-3">
-                <span className="text-[#e6e0d4]/80 text-[10px]">
+                <Link
+                  href="/profile"
+                  className="text-[#e6e0d4]/80 hover:text-white hover:underline transition-all text-[10px]"
+                >
                   HI, {user.first_name || user.username}
-                </span>
+                </Link>
                 <button
                   onClick={logout}
                   className="text-[#e6e0d4] hover:text-white transition-all bg-white/10 px-4 py-2 rounded-full border border-white/20 hover:bg-white/20"
