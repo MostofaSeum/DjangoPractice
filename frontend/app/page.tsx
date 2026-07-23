@@ -1,7 +1,15 @@
+export const dynamic = "force-dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import AnimatedWord from "./components/AnimatedWord";
-import CartButton from "./components/CartButton";
+import AddToCartButton from "./components/AddToCartButton";
+
+interface Product {
+  id: number;
+  title: string;
+  unit_price: number;
+  description?: string;
+}
 
 const CartIcon = () => (
   <Image src="/shopping-cart-white-icon.webp" width={23} height={23} alt="Cart" />
@@ -59,7 +67,21 @@ const DiamondIcon = () => (
   </svg>
 );
 
-export default function Home() {
+export default async function Home() {
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+  let trendingProducts: Product[] = [];
+
+  try {
+    const res = await fetch(`${apiBaseUrl}/store/products/`, { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      const products: Product[] = Array.isArray(data) ? data : data.results || [];
+      trendingProducts = products.slice(0, 4);
+    }
+  } catch (err) {
+    console.error("Failed to fetch trending products:", err);
+  }
+
   return (
     <div className="min-h-screen pb-24 bg-[#e6e0d4] text-[#3a3532] font-sans selection:bg-[#3a3532] selection:text-[#e6e0d4]">
 
@@ -230,61 +252,41 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Product Card 1 */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer">
-              <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                <Image src="/HomePage/Neon Void Hoodie.webp" alt="Neon Void Hoodie" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-              </div>
-              <h4 className="font-bold text-lg mb-1">Neon Void Hoodie</h4>
-              <p className="text-[#8b7a66] font-bold mb-6">$129</p>
-              <button className="w-full py-3 border-2 border-[#3a3532] rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors flex items-center justify-center gap-2">
-                <CartIcon /> Add to Cart
-              </button>
-            </div>
+            {trendingProducts.length > 0 ? (
+              trendingProducts.map((product) => (
+                <div
+                  key={product.id}
+                  className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between"
+                >
+                  <Link href={`/products/${product.id}`} className="block">
+                    <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
+                      <div className="w-full h-full bg-[#e6e0d4]/50 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
+                        <span className="text-[#3a3532]/20 font-black text-lg uppercase tracking-widest text-center px-2">
+                          {product.title.split(" ")[0]}
+                        </span>
+                      </div>
+                    </div>
+                    <h4 className="font-bold text-lg text-[#3a3532] mb-1 line-clamp-1 group-hover:text-[#8b7a66] transition-colors">
+                      {product.title}
+                    </h4>
+                  </Link>
 
-            {/* Product Card 2 */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer relative">
-              <span className="absolute top-8 left-8 bg-[#cc5555] text-white text-[10px] font-bold px-2 py-1 rounded-sm z-10 uppercase tracking-widest">
-                Sale
-              </span>
-              <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                <Image src="/HomePage/Stealth Messenger.jpg" alt="Stealth Messenger" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div>
+                    <p className="text-[#8b7a66] font-bold text-lg mb-6">
+                      ${Number(product.unit_price).toFixed(2)}
+                    </p>
+                    <AddToCartButton
+                      productId={product.id}
+                      productTitle={product.title}
+                    />
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full py-12 text-center text-sm font-bold uppercase tracking-wider text-[#3a3532]/60">
+                No trending products available.
               </div>
-              <h4 className="font-bold text-lg mb-1">Stealth Messenger</h4>
-              <p className="font-bold mb-6 flex items-center gap-3">
-                <span className="text-[#cc5555]">$89</span>
-                <span className="line-through text-[#3a3532]/40 text-sm">
-                  $110
-                </span>
-              </p>
-              <button className="w-full py-3 border-2 border-[#3a3532] rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors flex items-center justify-center gap-2">
-                <CartIcon /> Add to Cart
-              </button>
-            </div>
-
-            {/* Product Card 3 */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer">
-              <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                <Image src="/HomePage/Flux Shades.jpg" alt="Flux Shades" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-              </div>
-              <h4 className="font-bold text-lg mb-1">Flux Shades</h4>
-              <p className="text-[#8b7a66] font-bold mb-6">$175</p>
-              <button className="w-full py-3 border-2 border-[#3a3532] rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors flex items-center justify-center gap-2">
-                <CartIcon /> Add to Cart
-              </button>
-            </div>
-
-            {/* Product Card 4 */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer">
-              <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                <Image src="/HomePage/Echo Graphic Tee.webp" alt="Echo Graphic Tee" fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-              </div>
-              <h4 className="font-bold text-lg mb-1">Echo Graphic Tee</h4>
-              <p className="text-[#8b7a66] font-bold mb-6">$55</p>
-              <button className="w-full py-3 border-2 border-[#3a3532] rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors flex items-center justify-center gap-2">
-                <CartIcon /> Add to Cart
-              </button>
-            </div>
+            )}
           </div>
         </section>
 
