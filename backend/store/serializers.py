@@ -1,3 +1,4 @@
+from django.db.models import UUIDField
 from rest_framework import serializers 
 from .models import Product,Collection,Cart,Review,CartItem,Customer,Order,OrderItem
 from decimal import Decimal
@@ -113,3 +114,14 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['id', 'customer', 'payment_status','placed_at','items']
+
+class CreateOrderSerializer(serializers.Serializer):
+    cart_id = serializers.UUIDField()
+
+    def save(self,**kwargs):
+        print(self.validated_data['cart_id'])
+        print(self.context['user_id'])
+
+        (customer, created) = Customer.objects.get_or_create(user_id = self.context['user_id'])
+        Order.objects.create(customer = customer)
+
