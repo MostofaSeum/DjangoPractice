@@ -103,7 +103,7 @@ class CustomerSerializers(serializers.ModelSerializer):
         fields = ['id', 'user_id', 'phone', 'birth_date','membership']
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    
+    product = SimpleProductSerializers()
     class Meta:
         model = OrderItem
         fields = ['id','product', 'quantity', 'unit_price']
