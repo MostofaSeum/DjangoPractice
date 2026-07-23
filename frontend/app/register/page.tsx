@@ -48,8 +48,8 @@ export default function RegisterPage() {
         last_name: formData.last_name,
       };
 
-      const created = await register(payload);
-      if (created) {
+      const res = await register(payload);
+      if (res.success) {
         // Auto-login after successful registration
         await login(formData.username, formData.password);
         Swal.fire({
@@ -62,7 +62,7 @@ export default function RegisterPage() {
         });
         router.push("/");
       } else {
-        setError("Could not create account. Username or email may already be in use.");
+        setError(res.error || "Could not create account. Please check your inputs.");
       }
     } catch (err) {
       console.error(err);

@@ -16,7 +16,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   login: (username: string, password: string) => Promise<boolean>;
-  register: (data: Record<string, string>) => Promise<boolean>;
+  register: (data: Record<string, string>) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
 
@@ -72,13 +72,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   // Sign Up / Register
-  const register = async (userData: Record<string, string>): Promise<boolean> => {
-    const res = await fetch(`${API_BASE}/auth/users/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData),
-    });
-    return res.ok;
+  const register = async (
+    userData: Record<string, string>
+  ): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/users/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+
+      if (res.ok) {
+        return { success: true };
+      }
+
+      const errorData = await res.json();
+      let firstError = "Registration failed.";
+
+      if (typeof errorData === "object" && errorData !== null) {
+        const errorMessages = Object.entries(errorData).map(([field, msgs]) => {
+          const msgText = Array.isArray(msgs) ? msgs.join(" ") : String(msgs);
+          const formattedField = field.replace("_", " ").toUpperCase();
+          return `${formattedField}: ${msgText}`;
+        });
+        firstError = errorMessages.join(" | ");
+      }
+
+      return { success: false, error: firstError };
+    } catch (err) {
+      console.error(err);
+      return { success: false, error: "Network error. Please try again." };
+    }
   };
 
   // Logout
