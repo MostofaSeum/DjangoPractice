@@ -143,9 +143,6 @@ export default function ProfilePage() {
           <h1 className="text-3xl font-black uppercase tracking-tighter text-[#3a3532]">
             My Profile
           </h1>
-          <p className="text-xs text-[#3a3532]/60 mt-2 font-medium">
-            Logged in as <span className="font-bold text-[#3a3532]">{user?.username}</span>
-          </p>
         </div>
 
         {/* Error Alert */}
