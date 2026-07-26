@@ -22,7 +22,7 @@ export default function Header() {
     { name: "COLLECTIONS", href: "/collections" },
   ];
 
-  // Hide header for Admin/Staff users
+  // Hide header for Admin users
   if (user?.is_staff) {
     return null;
   }

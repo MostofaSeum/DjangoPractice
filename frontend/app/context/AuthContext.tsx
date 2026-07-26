@@ -34,7 +34,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const savedToken = localStorage.getItem("access_token");
     if (savedToken) {
       setToken(savedToken);
-      fetchUser(savedToken).finally(() => setLoading(false));
+      setLoading(false);
+      fetchUser(savedToken);
     } else {
       setLoading(false);
     }

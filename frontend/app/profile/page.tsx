@@ -138,35 +138,13 @@ export default function ProfilePage() {
     <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans flex items-center justify-center px-4 py-16 selection:bg-[#3a3532] selection:text-[#e6e0d4]">
       <div className="w-full max-w-lg bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-[#3a3532]/5 relative overflow-hidden">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8 pb-4 border-b border-[#3a3532]/10">
-          <div>
-            <span className="bg-[#3a3532]/5 text-[#3a3532] text-[10px] font-bold px-3.5 py-1.5 uppercase tracking-widest rounded-md inline-block mb-1 border border-[#3a3532]/10">
-              Account Management
-            </span>
-            <h1 className="text-2xl font-black uppercase tracking-tighter text-[#3a3532]">
-              My Profile
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {user?.is_staff && (
-              <button
-                onClick={() => router.push("/admin")}
-                className="bg-[#8b7a66] text-white px-3 py-1.5 rounded-xl font-black text-[10px] uppercase tracking-wider hover:bg-[#a39079] transition-colors"
-              >
-                Admin
-              </button>
-            )}
-            <button
-              onClick={() => {
-                logout();
-                router.push("/login");
-              }}
-              className="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-colors"
-            >
-              Logout
-            </button>
-          </div>
+        <div className="text-center mb-8">
+          <span className="bg-[#3a3532]/5 text-[#3a3532] text-[10px] font-bold px-3.5 py-1.5 uppercase tracking-widest rounded-md inline-block mb-4 border border-[#3a3532]/10">
+            Account Management
+          </span>
+          <h1 className="text-3xl font-black uppercase tracking-tighter text-[#3a3532]">
+            My Profile
+          </h1>
         </div>
 
         {/* Error Alert */}
