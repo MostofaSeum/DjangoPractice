@@ -49,6 +49,10 @@ export default function AdminDashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Pagination State for Admin Products Table
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
   // Selected Product for Edit
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
 
@@ -306,21 +310,21 @@ export default function AdminDashboardPage() {
       {/* Top Banner */}
       <div className="bg-[#3a3532] text-[#e6e0d4] py-10 px-8 md:px-12 border-b border-white/10 shadow-md">
         <div className="max-w-[1400px] mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center gap-4">
-            <div>
-              <span className="bg-[#8b7a66] text-white text-[10px] font-black px-3 py-1 uppercase tracking-widest rounded-md mb-2 inline-block">
-                Staff Portal
-              </span>
+          <div>
+            <span className="bg-[#8b7a66] text-white text-[10px] font-black px-3 py-1 uppercase tracking-widest rounded-md mb-2 inline-block">
+              Staff Portal
+            </span>
+            <div className="flex items-center gap-4">
               <h1 className="text-3xl font-black uppercase tracking-tighter">
                 Admin Dashboard
               </h1>
+              <button
+                onClick={handleLogout}
+                className="bg-red-500/20 text-red-300 hover:bg-red-500/30 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border border-red-500/20 transition-colors"
+              >
+                Logout
+              </button>
             </div>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500/20 text-red-300 hover:bg-red-500/30 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border border-red-500/20 transition-colors"
-            >
-              Logout
-            </button>
           </div>
 
           {/* Navigation Tabs */}
@@ -493,9 +497,14 @@ export default function AdminDashboardPage() {
 
             {/* Products Table (2 Columns) */}
             <div className="lg:col-span-2 bg-white p-8 rounded-3xl border border-[#3a3532]/5 shadow-sm overflow-x-auto">
-              <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532] mb-6 pb-2 border-b border-[#3a3532]/10">
-                All Products ({products.length})
-              </h2>
+              <div className="flex justify-between items-center mb-6 pb-2 border-b border-[#3a3532]/10">
+                <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532]">
+                  All Products ({products.length})
+                </h2>
+                <span className="text-[10px] font-bold text-[#3a3532]/60 uppercase tracking-wider">
+                  Page {currentPage} of {Math.ceil(products.length / itemsPerPage) || 1}
+                </span>
+              </div>
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-[#3a3532]/10 text-[10px] font-black uppercase tracking-wider text-[#3a3532]/60">
@@ -507,45 +516,88 @@ export default function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#3a3532]/5 text-xs font-bold">
-                  {products.map((prod) => (
-                    <tr
-                      key={prod.id}
-                      onClick={() => handleSelectProduct(prod)}
-                      className={`cursor-pointer transition-colors ${
-                        editingProductId === prod.id
-                          ? "bg-[#8b7a66]/15"
-                          : "hover:bg-[#f4f1eb]"
-                      }`}
-                    >
-                      <td className="py-3.5 px-2 text-[#3a3532]/50">
-                        #{prod.id}
-                      </td>
-                      <td className="py-3.5 px-2 font-black">{prod.title}</td>
-                      <td className="py-3.5 px-2 text-[#8b7a66]">
-                        ${Number(prod.unit_price).toFixed(2)}
-                      </td>
-                      <td className="py-3.5 px-2">{prod.inventory}</td>
-                      <td
-                        className="py-3.5 px-2 text-right flex justify-end gap-2"
-                        onClick={(e) => e.stopPropagation()}
+                  {products
+                    .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                    .map((prod) => (
+                      <tr
+                        key={prod.id}
+                        onClick={() => handleSelectProduct(prod)}
+                        className={`cursor-pointer transition-colors ${
+                          editingProductId === prod.id
+                            ? "bg-[#8b7a66]/15"
+                            : "hover:bg-[#f4f1eb]"
+                        }`}
                       >
-                        <button
-                          onClick={() => handleSelectProduct(prod)}
-                          className="px-3 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                        <td className="py-3.5 px-2 text-[#3a3532]/50">
+                          #{prod.id}
+                        </td>
+                        <td className="py-3.5 px-2 font-black">{prod.title}</td>
+                        <td className="py-3.5 px-2 text-[#8b7a66]">
+                          ${Number(prod.unit_price).toFixed(2)}
+                        </td>
+                        <td className="py-3.5 px-2">{prod.inventory}</td>
+                        <td
+                          className="py-3.5 px-2 text-right flex justify-end gap-2"
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteProduct(prod.id)}
-                          className="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                          <button
+                            onClick={() => handleSelectProduct(prod)}
+                            className="px-3 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProduct(prod.id)}
+                            className="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
+
+              {/* Pagination Controls */}
+              {products.length > itemsPerPage && (
+                <div className="flex justify-between items-center mt-6 pt-4 border-t border-[#3a3532]/10 text-xs font-bold">
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 bg-[#f4f1eb] hover:bg-[#3a3532] hover:text-[#e6e0d4] disabled:opacity-40 disabled:hover:bg-[#f4f1eb] disabled:hover:text-[#3a3532] rounded-xl transition-colors uppercase tracking-wider text-[10px]"
+                  >
+                    Previous
+                  </button>
+
+                  <div className="flex gap-1.5">
+                    {Array.from({ length: Math.ceil(products.length / itemsPerPage) }).map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentPage(idx + 1)}
+                        className={`w-7 h-7 rounded-lg text-[10px] font-black transition-colors ${
+                          currentPage === idx + 1
+                            ? "bg-[#3a3532] text-[#e6e0d4]"
+                            : "bg-[#f4f1eb] text-[#3a3532] hover:bg-[#3a3532]/10"
+                        }`}
+                      >
+                        {idx + 1}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) =>
+                        Math.min(prev + 1, Math.ceil(products.length / itemsPerPage))
+                      )
+                    }
+                    disabled={currentPage === Math.ceil(products.length / itemsPerPage)}
+                    className="px-4 py-2 bg-[#f4f1eb] hover:bg-[#3a3532] hover:text-[#e6e0d4] disabled:opacity-40 disabled:hover:bg-[#f4f1eb] disabled:hover:text-[#3a3532] rounded-xl transition-colors uppercase tracking-wider text-[10px]"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
