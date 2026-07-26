@@ -69,7 +69,7 @@ const DiamondIcon = () => (
 );
 
 export default async function Home() {
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+  const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
   let trendingProducts: Product[] = [];
 
   try {

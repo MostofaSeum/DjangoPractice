@@ -33,7 +33,7 @@ const CartIcon = () => (
 export default async function ProductDetailPage({ params }: PageProps) {
   const { id } = await params;
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+  const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
 
   // Fetch product detail
   const res = await fetch(`${apiBaseUrl}/store/products/${id}/`, {
