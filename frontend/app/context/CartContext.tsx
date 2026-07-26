@@ -21,6 +21,7 @@ interface CartContextType {
   addToCart: (productId: number, quantity?: number) => Promise<void>;
   updateQuantity: (itemId: number, quantity: number) => Promise<void>;
   removeFromCart: (itemId: number) => Promise<void>;
+  clearCart: () => Promise<void>;
 }
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
@@ -134,7 +135,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const itemCount = cart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
   return (
-    <CartContext.Provider value={{ cart, itemCount, addToCart, updateQuantity, removeFromCart }}>
+    <CartContext.Provider value={{ cart, itemCount, addToCart, updateQuantity, removeFromCart, clearCart }}>
       {children}
     </CartContext.Provider>
   );

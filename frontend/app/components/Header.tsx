@@ -4,10 +4,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import CartButton from "./CartButton";
 import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
 
 export default function Header() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { clearCart } = useCart();
+
+  const handleLogout = async () => {
+    logout();
+    await clearCart();
+  };
 
   const navLinks = [
     { name: "HOME", href: "/" },
@@ -68,7 +75,7 @@ export default function Header() {
                   HI, {user.first_name || user.username}
                 </Link>
                 <button
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="text-[#e6e0d4] hover:text-white transition-all bg-white/10 px-4 py-2 rounded-full border border-white/20 hover:bg-white/20"
                 >
                   Logout
