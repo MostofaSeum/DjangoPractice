@@ -62,7 +62,7 @@ export default function ProfilePage() {
     };
 
     loadProfile();
-  }, [token, router]);
+  }, [token, authLoading, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({

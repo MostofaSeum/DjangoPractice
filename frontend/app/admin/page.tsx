@@ -73,7 +73,7 @@ export default function AdminDashboardPage() {
     }
 
     fetchAdminData();
-  }, [user, token, router]);
+  }, [user, token, authLoading, router]);
 
   const fetchAdminData = async () => {
     if (!token) return;
