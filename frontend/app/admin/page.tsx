@@ -50,7 +50,6 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
 
   // Pagination State for Admin Products Table
-  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
 
   // Selected Product for Edit
