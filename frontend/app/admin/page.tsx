@@ -40,8 +40,11 @@ export default function AdminDashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // New Product Form
-  const [newProduct, setNewProduct] = useState({
+  // Selected Product for Edit
+  const [editingProductId, setEditingProductId] = useState<number | null>(null);
+
+  // Product Form State
+  const [productForm, setProductForm] = useState({
     title: "",
     slug: "",
     unit_price: "",
@@ -49,6 +52,19 @@ export default function AdminDashboardPage() {
     collection: "1",
     description: "",
   });
+
+  // Select Product to populate left form for editing
+  const handleSelectProduct = (prod: Product) => {
+    setEditingProductId(prod.id);
+    setProductForm({
+      title: prod.title || "",
+      slug: prod.slug || "",
+      unit_price: String(prod.unit_price || ""),
+      inventory: String(prod.inventory || 0),
+      collection: String(prod.collection || 1),
+      description: (prod as any).description || "",
+    });
+  };
 
   // New Collection Form
   const [newCollectionTitle, setNewCollectionTitle] = useState("");
@@ -80,7 +96,7 @@ export default function AdminDashboardPage() {
     setLoading(true);
     try {
       // Fetch Products
-      const prodRes = await fetch(`${API_BASE}/store/products/`, { cache: "no-store" });
+      const prodRes = await fetch(`${API_BASE}/store/products/?page_size=1000`, { cache: "no-store" });
       if (prodRes.ok) {
         const prodData = await prodRes.json();
         setProducts(Array.isArray(prodData) ? prodData : prodData.results || []);
@@ -108,23 +124,35 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Add Product (POST /store/products/)
-  const handleAddProduct = async (e: React.FormEvent) => {
+  // Reset form to Add mode
+  const handleCancelEdit = () => {
+    setEditingProductId(null);
+    setProductForm({ title: "", slug: "", unit_price: "", inventory: "10", collection: "1", description: "" });
+  };
+
+  // Create or Update Product (POST or PUT)
+  const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
 
     try {
       const payload = {
-        title: newProduct.title,
-        slug: newProduct.slug || newProduct.title.toLowerCase().replace(/\s+/g, "-"),
-        unit_price: parseFloat(newProduct.unit_price),
-        inventory: parseInt(newProduct.inventory),
-        collection: parseInt(newProduct.collection),
-        description: newProduct.description,
+        title: productForm.title,
+        slug: productForm.slug || productForm.title.toLowerCase().replace(/\s+/g, "-"),
+        unit_price: parseFloat(productForm.unit_price),
+        inventory: parseInt(productForm.inventory),
+        collection: parseInt(productForm.collection),
+        description: productForm.description,
       };
 
-      const res = await fetch(`${API_BASE}/store/products/`, {
-        method: "POST",
+      const isEditing = editingProductId !== null;
+      const url = isEditing
+        ? `${API_BASE}/store/products/${editingProductId}/`
+        : `${API_BASE}/store/products/`;
+      const method = isEditing ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `JWT ${token}`,
@@ -136,18 +164,18 @@ export default function AdminDashboardPage() {
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: "Product added successfully!",
+          title: isEditing ? "Product updated successfully!" : "Product added successfully!",
           showConfirmButton: false,
           timer: 1800,
           toast: true,
         });
-        setNewProduct({ title: "", slug: "", unit_price: "", inventory: "10", collection: "1", description: "" });
+        handleCancelEdit();
         fetchAdminData();
       } else {
         const err = await res.json();
         Swal.fire({
           icon: "error",
-          title: "Failed to add product",
+          title: isEditing ? "Failed to update product" : "Failed to add product",
           text: JSON.stringify(err),
         });
       }
@@ -292,12 +320,22 @@ export default function AdminDashboardPage() {
         {/* PRODUCTS TAB */}
         {activeTab === "products" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            {/* Add Product Form (1 Column) */}
+            {/* Add/Edit Product Form (1 Column) */}
             <div className="bg-white p-8 rounded-3xl border border-[#3a3532]/5 shadow-sm h-fit">
-              <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532] mb-6 pb-2 border-b border-[#3a3532]/10">
-                Add New Product
-              </h2>
-              <form onSubmit={handleAddProduct} className="flex flex-col gap-4">
+              <div className="flex justify-between items-center mb-6 pb-2 border-b border-[#3a3532]/10">
+                <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532]">
+                  {editingProductId ? `Edit Product #${editingProductId}` : "Add New Product"}
+                </h2>
+                {editingProductId && (
+                  <button
+                    onClick={handleCancelEdit}
+                    className="text-[10px] font-bold uppercase tracking-wider text-[#cc5555] hover:underline"
+                  >
+                    Cancel Edit
+                  </button>
+                )}
+              </div>
+              <form onSubmit={handleSaveProduct} className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
                     Product Title *
@@ -305,8 +343,8 @@ export default function AdminDashboardPage() {
                   <input
                     type="text"
                     required
-                    value={newProduct.title}
-                    onChange={(e) => setNewProduct({ ...newProduct, title: e.target.value })}
+                    value={productForm.title}
+                    onChange={(e) => setProductForm({ ...productForm, title: e.target.value })}
                     placeholder="e.g. Neon Void Hoodie"
                     className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none"
                   />
@@ -321,8 +359,8 @@ export default function AdminDashboardPage() {
                       type="number"
                       step="0.01"
                       required
-                      value={newProduct.unit_price}
-                      onChange={(e) => setNewProduct({ ...newProduct, unit_price: e.target.value })}
+                      value={productForm.unit_price}
+                      onChange={(e) => setProductForm({ ...productForm, unit_price: e.target.value })}
                       placeholder="99.99"
                       className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none"
                     />
@@ -335,8 +373,8 @@ export default function AdminDashboardPage() {
                     <input
                       type="number"
                       required
-                      value={newProduct.inventory}
-                      onChange={(e) => setNewProduct({ ...newProduct, inventory: e.target.value })}
+                      value={productForm.inventory}
+                      onChange={(e) => setProductForm({ ...productForm, inventory: e.target.value })}
                       placeholder="10"
                       className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none"
                     />
@@ -348,8 +386,8 @@ export default function AdminDashboardPage() {
                     Collection *
                   </label>
                   <select
-                    value={newProduct.collection}
-                    onChange={(e) => setNewProduct({ ...newProduct, collection: e.target.value })}
+                    value={productForm.collection}
+                    onChange={(e) => setProductForm({ ...productForm, collection: e.target.value })}
                     className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none cursor-pointer"
                   >
                     {collections.map((col) => (
@@ -366,8 +404,8 @@ export default function AdminDashboardPage() {
                   </label>
                   <textarea
                     rows={3}
-                    value={newProduct.description}
-                    onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                    value={productForm.description}
+                    onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
                     placeholder="Short product description..."
                     className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none"
                   />
@@ -377,7 +415,7 @@ export default function AdminDashboardPage() {
                   type="submit"
                   className="w-full mt-2 py-3 bg-[#3a3532] text-[#e6e0d4] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#252220] transition-colors"
                 >
-                  Create Product
+                  {editingProductId ? "Update Product" : "Create Product"}
                 </button>
               </form>
             </div>
@@ -385,7 +423,7 @@ export default function AdminDashboardPage() {
             {/* Products Table (2 Columns) */}
             <div className="lg:col-span-2 bg-white p-8 rounded-3xl border border-[#3a3532]/5 shadow-sm overflow-x-auto">
               <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532] mb-6 pb-2 border-b border-[#3a3532]/10">
-                All Products ({products.length})
+                All Products ({products.length}) - <span className="text-[#8b7a66] font-semibold lowercase">click any row to edit</span>
               </h2>
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -399,12 +437,24 @@ export default function AdminDashboardPage() {
                 </thead>
                 <tbody className="divide-y divide-[#3a3532]/5 text-xs font-bold">
                   {products.map((prod) => (
-                    <tr key={prod.id} className="hover:bg-[#f4f1eb]/50 transition-colors">
+                    <tr
+                      key={prod.id}
+                      onClick={() => handleSelectProduct(prod)}
+                      className={`cursor-pointer transition-colors ${
+                        editingProductId === prod.id ? "bg-[#8b7a66]/15" : "hover:bg-[#f4f1eb]"
+                      }`}
+                    >
                       <td className="py-3.5 px-2 text-[#3a3532]/50">#{prod.id}</td>
-                      <td className="py-3.5 px-2">{prod.title}</td>
+                      <td className="py-3.5 px-2 font-black">{prod.title}</td>
                       <td className="py-3.5 px-2 text-[#8b7a66]">${Number(prod.unit_price).toFixed(2)}</td>
                       <td className="py-3.5 px-2">{prod.inventory}</td>
-                      <td className="py-3.5 px-2 text-right">
+                      <td className="py-3.5 px-2 text-right flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={() => handleSelectProduct(prod)}
+                          className="px-3 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                        >
+                          Edit
+                        </button>
                         <button
                           onClick={() => handleDeleteProduct(prod.id)}
                           className="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
