@@ -5,7 +5,9 @@ import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
+const API_BASE = (
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
+).replace(/\/+$/, "");
 
 interface Product {
   id: number;
@@ -37,7 +39,9 @@ export default function AdminDashboardPage() {
   };
   const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState<"products" | "collections" | "orders">("products");
+  const [activeTab, setActiveTab] = useState<
+    "products" | "collections" | "orders"
+  >("products");
 
   // State data
   const [products, setProducts] = useState<Product[]>([]);
@@ -101,17 +105,26 @@ export default function AdminDashboardPage() {
     setLoading(true);
     try {
       // Fetch Products
-      const prodRes = await fetch(`${API_BASE}/store/products/?page_size=1000`, { cache: "no-store" });
+      const prodRes = await fetch(
+        `${API_BASE}/store/products/?page_size=1000`,
+        { cache: "no-store" },
+      );
       if (prodRes.ok) {
         const prodData = await prodRes.json();
-        setProducts(Array.isArray(prodData) ? prodData : prodData.results || []);
+        setProducts(
+          Array.isArray(prodData) ? prodData : prodData.results || [],
+        );
       }
 
       // Fetch Collections
-      const colRes = await fetch(`${API_BASE}/store/collections/`, { cache: "no-store" });
+      const colRes = await fetch(`${API_BASE}/store/collections/`, {
+        cache: "no-store",
+      });
       if (colRes.ok) {
         const colData = await colRes.json();
-        setCollections(Array.isArray(colData) ? colData : colData.results || []);
+        setCollections(
+          Array.isArray(colData) ? colData : colData.results || [],
+        );
       }
 
       // Fetch Orders
@@ -120,7 +133,9 @@ export default function AdminDashboardPage() {
       });
       if (orderRes.ok) {
         const orderData = await orderRes.json();
-        setOrders(Array.isArray(orderData) ? orderData : orderData.results || []);
+        setOrders(
+          Array.isArray(orderData) ? orderData : orderData.results || [],
+        );
       }
     } catch (err) {
       console.error("Failed to fetch admin data:", err);
@@ -132,7 +147,14 @@ export default function AdminDashboardPage() {
   // Reset form to Add mode
   const handleCancelEdit = () => {
     setEditingProductId(null);
-    setProductForm({ title: "", slug: "", unit_price: "", inventory: "10", collection: "1", description: "" });
+    setProductForm({
+      title: "",
+      slug: "",
+      unit_price: "",
+      inventory: "10",
+      collection: "1",
+      description: "",
+    });
   };
 
   // Create or Update Product (POST or PUT)
@@ -143,7 +165,9 @@ export default function AdminDashboardPage() {
     try {
       const payload = {
         title: productForm.title,
-        slug: productForm.slug || productForm.title.toLowerCase().replace(/\s+/g, "-"),
+        slug:
+          productForm.slug ||
+          productForm.title.toLowerCase().replace(/\s+/g, "-"),
         unit_price: parseFloat(productForm.unit_price),
         inventory: parseInt(productForm.inventory),
         collection: parseInt(productForm.collection),
@@ -169,7 +193,9 @@ export default function AdminDashboardPage() {
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: isEditing ? "Product updated successfully!" : "Product added successfully!",
+          title: isEditing
+            ? "Product updated successfully!"
+            : "Product added successfully!",
           showConfirmButton: false,
           timer: 1800,
           toast: true,
@@ -180,7 +206,9 @@ export default function AdminDashboardPage() {
         const err = await res.json();
         Swal.fire({
           icon: "error",
-          title: isEditing ? "Failed to update product" : "Failed to add product",
+          title: isEditing
+            ? "Failed to update product"
+            : "Failed to add product",
           text: JSON.stringify(err),
         });
       }
@@ -220,7 +248,10 @@ export default function AdminDashboardPage() {
           });
           fetchAdminData();
         } else {
-          Swal.fire({ icon: "error", title: "Cannot delete product (may be linked to orders)." });
+          Swal.fire({
+            icon: "error",
+            title: "Cannot delete product (may be linked to orders).",
+          });
         }
       } catch (err) {
         console.error(err);
@@ -284,21 +315,12 @@ export default function AdminDashboardPage() {
                 Admin Dashboard
               </h1>
             </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => router.push("/profile")}
-                className="bg-white/10 text-[#e6e0d4] hover:text-white px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border border-white/10 transition-colors"
-              >
-                Profile
-              </button>
-              <button
-                onClick={handleLogout}
-                className="bg-red-500/20 text-red-300 hover:bg-red-500/30 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border border-red-500/20 transition-colors"
-              >
-                Logout
-              </button>
-            </div>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500/20 text-red-300 hover:bg-red-500/30 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border border-red-500/20 transition-colors"
+            >
+              Logout
+            </button>
           </div>
 
           {/* Navigation Tabs */}
@@ -346,7 +368,9 @@ export default function AdminDashboardPage() {
             <div className="bg-white p-8 rounded-3xl border border-[#3a3532]/5 shadow-sm h-fit">
               <div className="flex justify-between items-center mb-6 pb-2 border-b border-[#3a3532]/10">
                 <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532]">
-                  {editingProductId ? `Edit Product #${editingProductId}` : "Add New Product"}
+                  {editingProductId
+                    ? `Edit Product #${editingProductId}`
+                    : "Add New Product"}
                 </h2>
                 {editingProductId && (
                   <button
@@ -357,7 +381,10 @@ export default function AdminDashboardPage() {
                   </button>
                 )}
               </div>
-              <form onSubmit={handleSaveProduct} className="flex flex-col gap-4">
+              <form
+                onSubmit={handleSaveProduct}
+                className="flex flex-col gap-4"
+              >
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
                     Product Title *
@@ -366,7 +393,9 @@ export default function AdminDashboardPage() {
                     type="text"
                     required
                     value={productForm.title}
-                    onChange={(e) => setProductForm({ ...productForm, title: e.target.value })}
+                    onChange={(e) =>
+                      setProductForm({ ...productForm, title: e.target.value })
+                    }
                     placeholder="e.g. Neon Void Hoodie"
                     className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none"
                   />
@@ -382,7 +411,12 @@ export default function AdminDashboardPage() {
                       step="0.01"
                       required
                       value={productForm.unit_price}
-                      onChange={(e) => setProductForm({ ...productForm, unit_price: e.target.value })}
+                      onChange={(e) =>
+                        setProductForm({
+                          ...productForm,
+                          unit_price: e.target.value,
+                        })
+                      }
                       placeholder="99.99"
                       className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none"
                     />
@@ -396,7 +430,12 @@ export default function AdminDashboardPage() {
                       type="number"
                       required
                       value={productForm.inventory}
-                      onChange={(e) => setProductForm({ ...productForm, inventory: e.target.value })}
+                      onChange={(e) =>
+                        setProductForm({
+                          ...productForm,
+                          inventory: e.target.value,
+                        })
+                      }
                       placeholder="10"
                       className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none"
                     />
@@ -409,7 +448,12 @@ export default function AdminDashboardPage() {
                   </label>
                   <select
                     value={productForm.collection}
-                    onChange={(e) => setProductForm({ ...productForm, collection: e.target.value })}
+                    onChange={(e) =>
+                      setProductForm({
+                        ...productForm,
+                        collection: e.target.value,
+                      })
+                    }
                     className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none cursor-pointer"
                   >
                     {collections.map((col) => (
@@ -427,7 +471,12 @@ export default function AdminDashboardPage() {
                   <textarea
                     rows={3}
                     value={productForm.description}
-                    onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                    onChange={(e) =>
+                      setProductForm({
+                        ...productForm,
+                        description: e.target.value,
+                      })
+                    }
                     placeholder="Short product description..."
                     className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none"
                   />
@@ -445,7 +494,7 @@ export default function AdminDashboardPage() {
             {/* Products Table (2 Columns) */}
             <div className="lg:col-span-2 bg-white p-8 rounded-3xl border border-[#3a3532]/5 shadow-sm overflow-x-auto">
               <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532] mb-6 pb-2 border-b border-[#3a3532]/10">
-                All Products ({products.length}) - <span className="text-[#8b7a66] font-semibold lowercase">click any row to edit</span>
+                All Products ({products.length})
               </h2>
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -463,14 +512,23 @@ export default function AdminDashboardPage() {
                       key={prod.id}
                       onClick={() => handleSelectProduct(prod)}
                       className={`cursor-pointer transition-colors ${
-                        editingProductId === prod.id ? "bg-[#8b7a66]/15" : "hover:bg-[#f4f1eb]"
+                        editingProductId === prod.id
+                          ? "bg-[#8b7a66]/15"
+                          : "hover:bg-[#f4f1eb]"
                       }`}
                     >
-                      <td className="py-3.5 px-2 text-[#3a3532]/50">#{prod.id}</td>
+                      <td className="py-3.5 px-2 text-[#3a3532]/50">
+                        #{prod.id}
+                      </td>
                       <td className="py-3.5 px-2 font-black">{prod.title}</td>
-                      <td className="py-3.5 px-2 text-[#8b7a66]">${Number(prod.unit_price).toFixed(2)}</td>
+                      <td className="py-3.5 px-2 text-[#8b7a66]">
+                        ${Number(prod.unit_price).toFixed(2)}
+                      </td>
                       <td className="py-3.5 px-2">{prod.inventory}</td>
-                      <td className="py-3.5 px-2 text-right flex justify-end gap-2" onClick={(e) => e.stopPropagation()}>
+                      <td
+                        className="py-3.5 px-2 text-right flex justify-end gap-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <button
                           onClick={() => handleSelectProduct(prod)}
                           className="px-3 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
@@ -500,7 +558,10 @@ export default function AdminDashboardPage() {
               <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532] mb-6 pb-2 border-b border-[#3a3532]/10">
                 Create Collection
               </h2>
-              <form onSubmit={handleAddCollection} className="flex flex-col gap-4">
+              <form
+                onSubmit={handleAddCollection}
+                className="flex flex-col gap-4"
+              >
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
                     Collection Title *
@@ -530,9 +591,14 @@ export default function AdminDashboardPage() {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {collections.map((col) => (
-                  <div key={col.id} className="p-4 rounded-2xl bg-[#f4f1eb] border border-[#3a3532]/5 flex justify-between items-center">
+                  <div
+                    key={col.id}
+                    className="p-4 rounded-2xl bg-[#f4f1eb] border border-[#3a3532]/5 flex justify-between items-center"
+                  >
                     <div>
-                      <h3 className="font-bold text-sm text-[#3a3532]">{col.title}</h3>
+                      <h3 className="font-bold text-sm text-[#3a3532]">
+                        {col.title}
+                      </h3>
                       <span className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/50">
                         ID: #{col.id} • {col.product_count || 0} Products
                       </span>
@@ -561,9 +627,14 @@ export default function AdminDashboardPage() {
                 </thead>
                 <tbody className="divide-y divide-[#3a3532]/5 text-xs font-bold">
                   {orders.map((order) => (
-                    <tr key={order.id} className="hover:bg-[#f4f1eb]/50 transition-colors">
+                    <tr
+                      key={order.id}
+                      className="hover:bg-[#f4f1eb]/50 transition-colors"
+                    >
                       <td className="py-3.5 px-2">Order #{order.id}</td>
-                      <td className="py-3.5 px-2">Customer #{order.customer}</td>
+                      <td className="py-3.5 px-2">
+                        Customer #{order.customer}
+                      </td>
                       <td className="py-3.5 px-2">
                         <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-[10px] uppercase font-black tracking-wider">
                           {order.payment_status || "Pending"}
