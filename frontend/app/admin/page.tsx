@@ -82,15 +82,15 @@ export default function AdminDashboardPage() {
   // New Collection Form
   const [newCollectionTitle, setNewCollectionTitle] = useState("");
 
-  // Check Staff Permission & Fetch Initial Data
+  const [prodPage, setProdPage] = useState(1);
+  const [totalProductsCount, setTotalProductsCount] = useState(0);
+
   useEffect(() => {
     if (authLoading) return;
-
     if (!token) {
       router.push("/login");
       return;
     }
-
     if (user && !user.is_staff) {
       Swal.fire({
         icon: "error",
@@ -101,23 +101,22 @@ export default function AdminDashboardPage() {
       return;
     }
 
-    fetchAdminData();
-  }, [user, token, authLoading, router]);
+    fetchAdminData(prodPage);
+  }, [user, token, authLoading, router, prodPage]);
 
-  const fetchAdminData = async () => {
+  const fetchAdminData = async (pageNumber = 1) => {
     if (!token) return;
     setLoading(true);
     try {
-      // Fetch Products
+      // Fetch Paginated Products from Backend API (9 items per page)
       const prodRes = await fetch(
-        `${API_BASE}/store/products/?page_size=1000`,
-        { cache: "no-store" },
+        `${API_BASE}/store/products/?page=${pageNumber}`,
+        { cache: "no-store" }
       );
       if (prodRes.ok) {
         const prodData = await prodRes.json();
-        setProducts(
-          Array.isArray(prodData) ? prodData : prodData.results || [],
-        );
+        setProducts(Array.isArray(prodData) ? prodData : prodData.results || []);
+        setTotalProductsCount(prodData.count || (Array.isArray(prodData) ? prodData.length : 0));
       }
 
       // Fetch Collections
@@ -337,7 +336,7 @@ export default function AdminDashboardPage() {
                   : "text-[#e6e0d4]/70 hover:text-white"
               }`}
             >
-              Products ({products.length})
+              Products ({totalProductsCount})
             </button>
             <button
               onClick={() => setActiveTab("collections")}
@@ -499,10 +498,10 @@ export default function AdminDashboardPage() {
             <div className="lg:col-span-2 bg-white p-8 rounded-3xl border border-[#3a3532]/5 shadow-sm overflow-x-auto">
               <div className="flex justify-between items-center mb-6 pb-2 border-b border-[#3a3532]/10">
                 <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532]">
-                  All Products ({products.length})
+                  All Products ({totalProductsCount || products.length})
                 </h2>
                 <span className="text-[10px] font-bold text-[#3a3532]/60 uppercase tracking-wider">
-                  Page {currentPage} of {Math.ceil(products.length / itemsPerPage) || 1}
+                  Page {prodPage} of {Math.ceil(totalProductsCount / 9) || 1}
                 </span>
               </div>
               <table className="w-full text-left border-collapse">
@@ -516,83 +515,69 @@ export default function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#3a3532]/5 text-xs font-bold">
-                  {products
-                    .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-                    .map((prod) => (
-                      <tr
-                        key={prod.id}
-                        onClick={() => handleSelectProduct(prod)}
-                        className={`cursor-pointer transition-colors ${
-                          editingProductId === prod.id
-                            ? "bg-[#8b7a66]/15"
-                            : "hover:bg-[#f4f1eb]"
-                        }`}
+                  {products.map((prod) => (
+                    <tr
+                      key={prod.id}
+                      onClick={() => handleSelectProduct(prod)}
+                      className={`cursor-pointer transition-colors ${
+                        editingProductId === prod.id
+                          ? "bg-[#8b7a66]/15"
+                          : "hover:bg-[#f4f1eb]"
+                      }`}
+                    >
+                      <td className="py-3.5 px-2 text-[#3a3532]/50">
+                        #{prod.id}
+                      </td>
+                      <td className="py-3.5 px-2 font-black">{prod.title}</td>
+                      <td className="py-3.5 px-2 text-[#8b7a66]">
+                        ${Number(prod.unit_price).toFixed(2)}
+                      </td>
+                      <td className="py-3.5 px-2">{prod.inventory}</td>
+                      <td
+                        className="py-3.5 px-2 text-right flex justify-end gap-2"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <td className="py-3.5 px-2 text-[#3a3532]/50">
-                          #{prod.id}
-                        </td>
-                        <td className="py-3.5 px-2 font-black">{prod.title}</td>
-                        <td className="py-3.5 px-2 text-[#8b7a66]">
-                          ${Number(prod.unit_price).toFixed(2)}
-                        </td>
-                        <td className="py-3.5 px-2">{prod.inventory}</td>
-                        <td
-                          className="py-3.5 px-2 text-right flex justify-end gap-2"
-                          onClick={(e) => e.stopPropagation()}
+                        <button
+                          onClick={() => handleSelectProduct(prod)}
+                          className="px-3 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
                         >
-                          <button
-                            onClick={() => handleSelectProduct(prod)}
-                            className="px-3 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteProduct(prod.id)}
-                            className="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteProduct(prod.id)}
+                          className="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
 
-              {/* Pagination Controls */}
-              {products.length > itemsPerPage && (
+              {/* Pagination Controls (Matching Shop Page) */}
+              {Math.ceil(totalProductsCount / 9) > 1 && (
                 <div className="flex justify-between items-center mt-6 pt-4 border-t border-[#3a3532]/10 text-xs font-bold">
                   <button
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                    className="px-4 py-2 bg-[#f4f1eb] hover:bg-[#3a3532] hover:text-[#e6e0d4] disabled:opacity-40 disabled:hover:bg-[#f4f1eb] disabled:hover:text-[#3a3532] rounded-xl transition-colors uppercase tracking-wider text-[10px]"
+                    onClick={() => setProdPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={prodPage === 1}
+                    className="px-5 py-2.5 border-2 border-[#3a3532] text-[#3a3532] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#f4f1eb] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
                     Previous
                   </button>
 
-                  <div className="flex gap-1.5">
-                    {Array.from({ length: Math.ceil(products.length / itemsPerPage) }).map((_, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setCurrentPage(idx + 1)}
-                        className={`w-7 h-7 rounded-lg text-[10px] font-black transition-colors ${
-                          currentPage === idx + 1
-                            ? "bg-[#3a3532] text-[#e6e0d4]"
-                            : "bg-[#f4f1eb] text-[#3a3532] hover:bg-[#3a3532]/10"
-                        }`}
-                      >
-                        {idx + 1}
-                      </button>
-                    ))}
-                  </div>
+                  <span className="text-xs font-bold text-[#3a3532]/60 uppercase tracking-wider">
+                    Page {prodPage} of {Math.ceil(totalProductsCount / 9)}
+                  </span>
 
                   <button
                     onClick={() =>
-                      setCurrentPage((prev) =>
-                        Math.min(prev + 1, Math.ceil(products.length / itemsPerPage))
+                      setProdPage((prev) =>
+                        Math.min(prev + 1, Math.ceil(totalProductsCount / 9))
                       )
                     }
-                    disabled={currentPage === Math.ceil(products.length / itemsPerPage)}
-                    className="px-4 py-2 bg-[#f4f1eb] hover:bg-[#3a3532] hover:text-[#e6e0d4] disabled:opacity-40 disabled:hover:bg-[#f4f1eb] disabled:hover:text-[#3a3532] rounded-xl transition-colors uppercase tracking-wider text-[10px]"
+                    disabled={prodPage >= Math.ceil(totalProductsCount / 9)}
+                    className="px-5 py-2.5 border-2 border-[#3a3532] text-[#3a3532] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#f4f1eb] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
                     Next
                   </button>
