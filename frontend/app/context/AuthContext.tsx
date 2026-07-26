@@ -16,6 +16,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   token: string | null;
+  loading: boolean;
   login: (username: string, password: string) => Promise<boolean>;
   register: (data: Record<string, string>) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
@@ -26,13 +27,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   // Load token and user on startup
   useEffect(() => {
     const savedToken = localStorage.getItem("access_token");
     if (savedToken) {
       setToken(savedToken);
-      fetchUser(savedToken);
+      fetchUser(savedToken).finally(() => setLoading(false));
+    } else {
+      setLoading(false);
     }
   }, []);
 
@@ -121,7 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

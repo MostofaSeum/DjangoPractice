@@ -29,7 +29,7 @@ interface Order {
 }
 
 export default function AdminDashboardPage() {
-  const { user, token } = useAuth();
+  const { user, token, loading: authLoading } = useAuth();
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState<"products" | "collections" | "orders">("products");
@@ -55,6 +55,8 @@ export default function AdminDashboardPage() {
 
   // Check Staff Permission & Fetch Initial Data
   useEffect(() => {
+    if (authLoading) return;
+
     if (!token) {
       router.push("/login");
       return;

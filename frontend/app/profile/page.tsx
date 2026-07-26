@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
 
 export default function ProfilePage() {
-  const { user, token } = useAuth();
+  const { user, token, loading: authLoading } = useAuth();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -25,6 +25,8 @@ export default function ProfilePage() {
 
   // Load user profile & customer info on mount
   useEffect(() => {
+    if (authLoading) return;
+
     if (!token) {
       router.push("/login");
       return;
