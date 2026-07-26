@@ -22,6 +22,11 @@ export default function Header() {
     { name: "COLLECTIONS", href: "/collections" },
   ];
 
+  // Hide header for Admin/Staff users
+  if (user?.is_staff) {
+    return null;
+  }
+
   return (
     <header className="w-full z-50 py-5 px-8 md:px-12 bg-[#3a3532] text-[#e6e0d4] sticky top-0 shadow-md border-b border-white/5">
       <div className="max-w-[1400px] mx-auto flex justify-between items-center">

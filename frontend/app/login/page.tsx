@@ -21,8 +21,8 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const success = await login(username, password);
-      if (success) {
+      const loggedInUser = await login(username, password);
+      if (loggedInUser) {
         Swal.fire({
           position: "top-end",
           icon: "success",
@@ -31,7 +31,12 @@ export default function LoginPage() {
           timer: 1800,
           toast: true,
         });
-        router.push("/");
+
+        if (loggedInUser.is_staff) {
+          router.push("/profile");
+        } else {
+          router.push("/");
+        }
       } else {
         setError("Invalid username or password. Please try again.");
       }

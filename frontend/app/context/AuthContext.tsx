@@ -17,7 +17,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (username: string, password: string) => Promise<boolean>;
+  login: (username: string, password: string) => Promise<User | null>;
   register: (data: Record<string, string>) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Fetch Current User
-  const fetchUser = async (authToken: string) => {
+  const fetchUser = async (authToken: string): Promise<User | null> => {
     try {
       const res = await fetch(`${API_BASE}/auth/users/me/`, {
         headers: { Authorization: `JWT ${authToken}` },
@@ -49,16 +49,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const userData = await res.json();
         setUser(userData);
+        return userData;
       } else {
         logout();
+        return null;
       }
     } catch (err) {
       console.error(err);
+      return null;
     }
   };
 
   // Sign In / Login
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const login = async (username: string, password: string): Promise<User | null> => {
     const res = await fetch(`${API_BASE}/auth/jwt/create/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -70,10 +73,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("access_token", data.access);
       localStorage.setItem("refresh_token", data.refresh);
       setToken(data.access);
-      await fetchUser(data.access);
-      return true;
+      const userData = await fetchUser(data.access);
+      return userData;
     }
-    return false;
+    return null;
   };
 
   // Sign Up / Register
