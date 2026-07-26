@@ -33,7 +33,7 @@ export default function LoginPage() {
         });
 
         if (loggedInUser.is_staff) {
-          router.push("/profile");
+          router.push("/admin");
         } else {
           router.push("/");
         }

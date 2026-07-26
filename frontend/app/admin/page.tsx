@@ -29,7 +29,12 @@ interface Order {
 }
 
 export default function AdminDashboardPage() {
-  const { user, token, loading: authLoading } = useAuth();
+  const { user, token, logout, loading: authLoading } = useAuth();
+
+  const handleLogout = async () => {
+    logout();
+    router.push("/login");
+  };
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState<"products" | "collections" | "orders">("products");
@@ -270,13 +275,30 @@ export default function AdminDashboardPage() {
       {/* Top Banner */}
       <div className="bg-[#3a3532] text-[#e6e0d4] py-10 px-8 md:px-12 border-b border-white/10 shadow-md">
         <div className="max-w-[1400px] mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <span className="bg-[#8b7a66] text-white text-[10px] font-black px-3 py-1 uppercase tracking-widest rounded-md mb-2 inline-block">
-              Staff Portal
-            </span>
-            <h1 className="text-3xl font-black uppercase tracking-tighter">
-              Admin Dashboard
-            </h1>
+          <div className="flex items-center gap-4">
+            <div>
+              <span className="bg-[#8b7a66] text-white text-[10px] font-black px-3 py-1 uppercase tracking-widest rounded-md mb-2 inline-block">
+                Staff Portal
+              </span>
+              <h1 className="text-3xl font-black uppercase tracking-tighter">
+                Admin Dashboard
+              </h1>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => router.push("/profile")}
+                className="bg-white/10 text-[#e6e0d4] hover:text-white px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border border-white/10 transition-colors"
+              >
+                Profile
+              </button>
+              <button
+                onClick={handleLogout}
+                className="bg-red-500/20 text-red-300 hover:bg-red-500/30 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border border-red-500/20 transition-colors"
+              >
+                Logout
+              </button>
+            </div>
           </div>
 
           {/* Navigation Tabs */}
