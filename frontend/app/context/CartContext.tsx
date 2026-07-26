@@ -67,11 +67,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Clear state and reset cart
+  const clearCart = async () => {
+    localStorage.removeItem("cart_id");
+    const newCartId = await createNewCart();
+    await refreshCart(newCartId);
+  };
+
   useEffect(() => {
     const initCart = async () => {
       const cartId = await getOrCreateCartId();
       await refreshCart(cartId);
     };
+
     initCart();
   }, []);
 
