@@ -87,7 +87,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: true };
       }
 
-      const errorData = await res.json();
+      let errorData;
+      try {
+        errorData = await res.json();
+      } catch {
+        return { success: false, error: `Server Error (${res.status}). Please check backend logs.` };
+      }
+
       let firstError = "Registration failed.";
 
       if (typeof errorData === "object" && errorData !== null) {
