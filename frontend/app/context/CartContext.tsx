@@ -31,7 +31,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<Cart | null>(null);
 
-  // Helper: Create a new Cart ID from API
+  //  Create a new Cart ID from API
   const createNewCart = async (): Promise<string> => {
     const res = await fetch(`${API_BASE}/store/carts/`, { method: "POST" });
     const data = await res.json();
@@ -42,7 +42,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return cartId;
   };
 
-  // Helper: Get or Create Cart ID from API & localStorage
+  //  Get or Create Cart ID from API & localStorage
   const getOrCreateCartId = async (): Promise<string> => {
     let cartId = localStorage.getItem("cart_id");
     if (!cartId) {
