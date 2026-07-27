@@ -70,6 +70,48 @@ class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyMo
         else:
             serializer.save()
 
+    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    def me(self, request):
+        (customer, _) = Customer.objects.get_or_create(user_id=request.user.id)
+        (cart, _) = Cart.objects.prefetch_related('items__product').get_or_create(customer=customer)
+        serializer = CartSerializers(cart)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
+    def sync(self, request):
+        guest_cart_id = request.data.get('cart_id')
+        customer, _ = Customer.objects.get_or_create(user_id=request.user.id)
+
+        user_cart = Cart.objects.filter(customer=customer).prefetch_related('items__product').first()
+
+        if guest_cart_id:
+            try:
+                guest_cart = Cart.objects.filter(id=guest_cart_id).prefetch_related('items__product').first()
+                if guest_cart:
+                    if not user_cart:
+                        guest_cart.customer = customer
+                        guest_cart.save()
+                        user_cart = guest_cart
+                    elif user_cart.id != guest_cart.id:
+                        for item in guest_cart.items.all():
+                            cart_item, created = CartItem.objects.get_or_create(
+                                cart=user_cart,
+                                product=item.product,
+                                defaults={'quantity': item.quantity}
+                            )
+                            if not created:
+                                cart_item.quantity += item.quantity
+                                cart_item.save()
+                        guest_cart.delete()
+            except Exception:
+                pass
+
+        if not user_cart:
+            user_cart, _ = Cart.objects.get_or_create(customer=customer)
+
+        serializer = CartSerializers(user_cart)
+        return Response(serializer.data)
+
 class CartItemViewSet(ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
     def get_serializer_class(self):
