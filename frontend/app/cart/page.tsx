@@ -4,9 +4,34 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
 import ProductImage from "@/app/components/ProductImage";
+import Swal from "sweetalert2";
 
 export default function CartPage() {
   const { cart, updateQuantity, removeFromCart } = useCart();
+
+  const handleRemoveItem = async (itemId: number, itemTitle: string) => {
+    const confirm = await Swal.fire({
+      title: "Remove from Cart?",
+      text: `Are you sure you want to remove "${itemTitle}" from your cart?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#cc5555",
+      cancelButtonColor: "#3a3532",
+      confirmButtonText: "Yes, Remove",
+    });
+
+    if (confirm.isConfirmed) {
+      await removeFromCart(itemId);
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Item removed from cart",
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+      });
+    }
+  };
 
   const isCartEmpty = !cart || cart.items.length === 0;
 
@@ -100,7 +125,7 @@ export default function CartPage() {
 
                     {/* Delete Button */}
                     <button
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => handleRemoveItem(item.id, item.product.title)}
                       className="text-[#3a3532]/40 hover:text-[#cc5555] transition-colors p-2"
                       title="Remove item"
                       type="button"
