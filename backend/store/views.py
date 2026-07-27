@@ -130,9 +130,12 @@ class CartItemViewSet(ModelViewSet):
         return CartItem.objects.filter(cart_id=self.kwargs['cart_pk']).select_related('product')
 
 class CustomerViewSet(ModelViewSet):
-    queryset = Customer.objects.select_related('user').all()
+    queryset = Customer.objects.all()
     serializer_class = CustomerSerializers
     permission_classes = [IsAdminUser]
+
+    def get_queryset(self):
+        return Customer.objects.select_related('user').filter(user__is_staff=False)
 
     @action(detail=True, permission_classes=[ViewCustomerHistoryPermission])
     def history(self, request, pk):
