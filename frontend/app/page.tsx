@@ -9,6 +9,7 @@ interface Product {
   id: number;
   title: string;
   unit_price: number;
+  inventory: number;
   description?: string;
 }
 
@@ -275,6 +276,7 @@ export default async function Home() {
                     <AddToCartButton
                       productId={product.id}
                       productTitle={product.title}
+                      inventory={product.inventory}
                     />
                   </div>
                 </div>

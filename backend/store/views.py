@@ -186,4 +186,9 @@ class OrderViewSet(ModelViewSet):
         customer_id = Customer.objects.only('id').get(user_id = user.id)
         return Order.objects.select_related('customer__user').filter(customer_id=customer_id)
 
+    def destroy(self, request, *args, **kwargs):
+        order = self.get_object()
+        order.items.all().delete()
+        return super().destroy(request, *args, **kwargs)
+
 
