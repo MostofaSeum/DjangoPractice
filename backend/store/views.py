@@ -65,7 +65,7 @@ class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyMo
 
     def perform_create(self, serializer):
         if self.request.user and self.request.user.is_authenticated:
-            customer, _ = Customer.objects.get_or_create(user_id=self.request.user.id)
+            customer = Customer.objects.get(user_id=self.request.user.id)
             user_cart = Cart.objects.filter(customer=customer).first()
             if user_cart:
                 serializer.instance = user_cart
@@ -76,7 +76,7 @@ class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyMo
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
     def me(self, request):
-        (customer, _) = Customer.objects.get_or_create(user_id=request.user.id)
+        customer = Customer.objects.get(user_id=request.user.id)
         (cart, _) = Cart.objects.prefetch_related('items__product').get_or_create(customer=customer)
         serializer = CartSerializers(cart)
         return Response(serializer.data)
@@ -84,7 +84,7 @@ class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyMo
     @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
     def sync(self, request):
         guest_cart_id = request.data.get('cart_id')
-        customer, _ = Customer.objects.get_or_create(user_id=request.user.id)
+        customer = Customer.objects.get(user_id=request.user.id)
 
         user_cart = Cart.objects.filter(customer=customer).prefetch_related('items__product').first()
 
@@ -140,7 +140,7 @@ class CustomerViewSet(ModelViewSet):
 
     @action(detail=False, methods = ['GET','PUT'], permission_classes = [IsAuthenticated])
     def me(self,request):
-        (customer,created) = Customer.objects.get_or_create(user_id=request.user.id)
+        customer = Customer.objects.get(user_id=request.user.id)
         if request.method == 'GET':
             serializer = CustomerSerializers(customer)
             return Response(serializer.data)
@@ -178,7 +178,7 @@ class OrderViewSet(ModelViewSet):
         user = self.request.user
         if user.is_staff:
             return Order.objects.all()
-        (customer,created) = Customer.objects.only('id').get_or_create(user_id = user.id)
-        return Order.objects.filter(customer_id=customer.id)
+        customer_id = Customer.objects.only('id').get(user_id = user.id)
+        return Order.objects.filter(customer_id=customer_id)
 
 
