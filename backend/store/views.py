@@ -130,17 +130,19 @@ class CartItemViewSet(ModelViewSet):
         return CartItem.objects.filter(cart_id=self.kwargs['cart_pk']).select_related('product')
 
 class CustomerViewSet(ModelViewSet):
-    queryset = Customer.objects.all()
+    queryset = Customer.objects.select_related('user').all()
     serializer_class = CustomerSerializers
     permission_classes = [IsAdminUser]
 
-    @action(detail = True,permission_classes=[ViewCustomerHistoryPermission])
-    def history(self,request,pk):
-        return Response('ok')
+    @action(detail=True, permission_classes=[ViewCustomerHistoryPermission])
+    def history(self, request, pk):
+        orders = Order.objects.filter(customer_id=pk).select_related('customer__user').prefetch_related('items__product')
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data)
 
     @action(detail=False, methods = ['GET','PUT'], permission_classes = [IsAuthenticated])
     def me(self,request):
-        customer = Customer.objects.get(user_id=request.user.id)
+        customer = Customer.objects.select_related('user').get(user_id=request.user.id)
         if request.method == 'GET':
             serializer = CustomerSerializers(customer)
             return Response(serializer.data)
@@ -177,8 +179,8 @@ class OrderViewSet(ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
-            return Order.objects.all()
+            return Order.objects.select_related('customer__user').all()
         customer_id = Customer.objects.only('id').get(user_id = user.id)
-        return Order.objects.filter(customer_id=customer_id)
+        return Order.objects.select_related('customer__user').filter(customer_id=customer_id)
 
 

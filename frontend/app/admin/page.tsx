@@ -34,6 +34,7 @@ interface OrderItem {
 interface Order {
   id: number;
   customer: number;
+  customer_name?: string;
   payment_status: string;
   placed_at?: string;
   shipping_address?: string;
@@ -41,6 +42,17 @@ interface Order {
   payment_method?: string;
   transaction_id?: string;
   items?: OrderItem[];
+}
+interface CustomerItem {
+  id: number;
+  phone: string;
+  birth_date: string | null;
+  membership: string;
+  user_id: number;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  customer_name?: string;
 }
 
 export default function AdminDashboardPage() {
@@ -53,23 +65,31 @@ export default function AdminDashboardPage() {
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState<
-    "products" | "collections" | "orders"
+    "products" | "collections" | "orders" | "customers"
   >("products");
 
   // State data
   const [products, setProducts] = useState<Product[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [customers, setCustomers] = useState<CustomerItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Search states
   const [productSearch, setProductSearch] = useState("");
   const [collectionSearch, setCollectionSearch] = useState("");
   const [orderSearch, setOrderSearch] = useState("");
+  const [customerSearch, setCustomerSearch] = useState("");
 
   const [activeProductQuery, setActiveProductQuery] = useState("");
   const [activeCollectionQuery, setActiveCollectionQuery] = useState("");
   const [activeOrderQuery, setActiveOrderQuery] = useState("");
+  const [activeCustomerQuery, setActiveCustomerQuery] = useState("");
+
+  const [customerHistoryModal, setCustomerHistoryModal] = useState<{
+    customerId: number;
+    orders: Order[];
+  } | null>(null);
 
   // Pagination State for Admin Products Table
   const itemsPerPage = 8;
@@ -161,6 +181,17 @@ export default function AdminDashboardPage() {
           Array.isArray(orderData) ? orderData : orderData.results || [],
         );
       }
+
+      // Fetch Customers
+      const custRes = await fetch(`${API_BASE}/store/customers/`, {
+        headers: { Authorization: `JWT ${token}` },
+      });
+      if (custRes.ok) {
+        const custData = await custRes.json();
+        setCustomers(
+          Array.isArray(custData) ? custData : custData.results || [],
+        );
+      }
     } catch (err) {
       console.error("Failed to fetch admin data:", err);
     } finally {
@@ -177,9 +208,44 @@ export default function AdminDashboardPage() {
   const filteredOrders = orders.filter(
     (o) =>
       String(o.id).includes(activeOrderQuery) ||
+      (o.customer_name && o.customer_name.toLowerCase().includes(activeOrderQuery.toLowerCase())) ||
       String(o.customer).includes(activeOrderQuery) ||
       (o.payment_status && o.payment_status.toLowerCase().includes(activeOrderQuery.toLowerCase()))
   );
+
+  const filteredCustomers = customers.filter(
+    (c) =>
+      String(c.id).includes(activeCustomerQuery) ||
+      (c.customer_name && c.customer_name.toLowerCase().includes(activeCustomerQuery.toLowerCase())) ||
+      (c.phone && c.phone.includes(activeCustomerQuery)) ||
+      (c.membership && c.membership.toLowerCase().includes(activeCustomerQuery.toLowerCase()))
+  );
+
+  const handleViewCustomerHistory = async (customerPk: number) => {
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/store/customers/${customerPk}/history/`, {
+        headers: { Authorization: `JWT ${token}` },
+      });
+
+      if (res.ok) {
+        const historyOrders = await res.json();
+        setCustomerHistoryModal({
+          customerId: customerPk,
+          orders: Array.isArray(historyOrders) ? historyOrders : [],
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed to load history",
+          text: "Could not fetch customer order history.",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   // Reset form to Add mode
   const handleCancelEdit = () => {
@@ -556,6 +622,16 @@ export default function AdminDashboardPage() {
               }`}
             >
               Orders ({orders.length})
+            </button>
+            <button
+              onClick={() => setActiveTab("customers")}
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                activeTab === "customers"
+                  ? "bg-[#e6e0d4] text-[#3a3532] shadow-md"
+                  : "text-[#e6e0d4]/70 hover:text-white"
+              }`}
+            >
+              Customers ({customers.length})
             </button>
           </div>
         </div>
@@ -990,7 +1066,7 @@ export default function AdminDashboardPage() {
                   <thead>
                     <tr className="border-b border-[#3a3532]/10 text-[10px] font-black uppercase tracking-wider text-[#3a3532]/60">
                       <th className="py-3 px-2">Order ID</th>
-                      <th className="py-3 px-2">Customer ID</th>
+                      <th className="py-3 px-2">Customer</th>
                       <th className="py-3 px-2">Date Placed</th>
                       <th className="py-3 px-2">Items Count</th>
                       <th className="py-3 px-2">Payment Status</th>
@@ -1007,8 +1083,8 @@ export default function AdminDashboardPage() {
                           className="hover:bg-[#f4f1eb]/50 transition-colors"
                         >
                           <td className="py-3.5 px-2 font-black">Order #{order.id}</td>
-                          <td className="py-3.5 px-2 text-[#3a3532]/70">
-                            Customer #{order.customer}
+                          <td className="py-3.5 px-2 text-[#3a3532]/90 font-bold">
+                            {order.customer_name || `Customer #${order.customer}`}
                           </td>
                           <td className="py-3.5 px-2 text-[#3a3532]/60 text-[11px]">
                             {order.placed_at ? new Date(order.placed_at).toLocaleDateString() : "N/A"}
@@ -1141,6 +1217,165 @@ export default function AdminDashboardPage() {
                   Total: ${selectedOrderDetails.items ? selectedOrderDetails.items.reduce((sum, i) => sum + (i.quantity * Number(i.unit_price)), 0).toFixed(2) : "0.00"}
                 </span>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* CUSTOMERS TAB */}
+        {activeTab === "customers" && (
+          <div className="bg-white p-8 rounded-3xl border border-[#3a3532]/5 shadow-sm">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-[#3a3532]/10">
+              <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532]">
+                Registered Customers ({filteredCustomers.length})
+              </h2>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setActiveCustomerQuery(customerSearch);
+                }}
+                className="flex items-center gap-2 w-full sm:w-auto"
+              >
+                <input
+                  type="text"
+                  value={customerSearch}
+                  onChange={(e) => setCustomerSearch(e.target.value)}
+                  placeholder="Search customer..."
+                  className="px-3.5 py-1.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none w-full sm:w-48 focus:ring-2 focus:ring-[#8b7a66]"
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                >
+                  Search
+                </button>
+                {activeCustomerQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCustomerSearch("");
+                      setActiveCustomerQuery("");
+                    }}
+                    className="text-[10px] font-bold text-red-600 hover:underline uppercase"
+                  >
+                    Clear
+                  </button>
+                )}
+              </form>
+            </div>
+            {filteredCustomers.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-[#3a3532]/10 text-[10px] font-black uppercase tracking-wider text-[#3a3532]/60">
+                      <th className="py-3 px-2">Customer Name</th>
+                      <th className="py-3 px-2">Phone</th>
+                      <th className="py-3 px-2">Membership</th>
+                      <th className="py-3 px-2 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#3a3532]/5 text-xs font-bold">
+                    {filteredCustomers.map((cust) => (
+                      <tr
+                        key={cust.id}
+                        className="hover:bg-[#f4f1eb]/50 transition-colors"
+                      >
+                        <td className="py-3.5 px-2 font-black">
+                          {cust.customer_name || `Customer #${cust.id}`}
+                        </td>
+                        <td className="py-3.5 px-2 text-[#3a3532]/80">
+                          {cust.phone || "No Phone Registered"}
+                        </td>
+                        <td className="py-3.5 px-2">
+                          <span className="px-3 py-1 bg-amber-100 text-amber-900 rounded-full text-[10px] uppercase font-black tracking-wider">
+                            {cust.membership === "G" ? "Gold (G)" : cust.membership === "S" ? "Silver (S)" : "Bronze (B)"}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-2 text-right">
+                          <button
+                            onClick={() => handleViewCustomerHistory(cust.id)}
+                            className="px-3.5 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors shadow-sm"
+                          >
+                            View Order History
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="py-12 text-center text-xs font-bold uppercase tracking-wider text-[#3a3532]/50">
+                No customers found.
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Customer Order History Modal */}
+        {customerHistoryModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl border border-[#3a3532]/10 relative max-h-[80vh] overflow-y-auto">
+              <div className="flex justify-between items-center pb-4 border-b border-[#3a3532]/10 mb-6">
+                <div>
+                  <h3 className="text-lg font-black uppercase tracking-tight text-[#3a3532]">
+                    Order History - Customer #{customerHistoryModal.customerId}
+                  </h3>
+                  <span className="text-[10px] font-bold text-[#3a3532]/60 uppercase tracking-wider">
+                    Total Orders: {customerHistoryModal.orders.length}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setCustomerHistoryModal(null)}
+                  className="text-xs font-bold bg-[#f4f1eb] hover:bg-[#3a3532] hover:text-white px-3 py-1.5 rounded-xl transition-colors uppercase"
+                >
+                  Close ✕
+                </button>
+              </div>
+
+              {customerHistoryModal.orders.length > 0 ? (
+                <div className="space-y-4">
+                  {customerHistoryModal.orders.map((ord) => (
+                    <div
+                      key={ord.id}
+                      className="p-4 rounded-2xl bg-[#f4f1eb] border border-[#3a3532]/10 space-y-2 text-xs"
+                    >
+                      <div className="flex justify-between items-center font-bold">
+                        <span className="font-black text-sm">Order #{ord.id}</span>
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] uppercase font-black ${
+                          ord.payment_status === "C" ? "bg-green-200 text-green-900" : ord.payment_status === "F" ? "bg-red-200 text-red-900" : "bg-yellow-200 text-yellow-900"
+                        }`}>
+                          {ord.payment_status === "C" ? "Complete" : ord.payment_status === "F" ? "Failed" : "Pending"}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[#3a3532]/70">
+                        <strong>Placed At:</strong> {ord.placed_at ? new Date(ord.placed_at).toLocaleString() : "N/A"}
+                      </p>
+                      <p className="text-[11px] text-[#3a3532]/70">
+                        <strong>Shipping:</strong> {ord.shipping_address || "N/A"} | <strong>Phone:</strong> {ord.phone || "N/A"}
+                      </p>
+                      <p className="text-[11px] text-[#3a3532]/70">
+                        <strong>Payment Method:</strong> {ord.payment_method === "O" ? `bKash (TrxID: ${ord.transaction_id || "N/A"})` : "Cash on Delivery (COD)"}
+                      </p>
+                      
+                      {ord.items && ord.items.length > 0 && (
+                        <div className="mt-2 pt-2 border-t border-[#3a3532]/10 space-y-1">
+                          <p className="text-[10px] font-black uppercase text-[#3a3532]/60">Items:</p>
+                          {ord.items.map((it) => (
+                            <div key={it.id} className="flex justify-between text-[11px]">
+                              <span>{it.product?.title || `Product #${it.product}`} x {it.quantity}</span>
+                              <span className="font-bold">${(it.quantity * Number(it.unit_price)).toFixed(2)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-8 text-center text-xs font-bold uppercase tracking-wider text-[#3a3532]/50">
+                  This customer has not placed any orders yet.
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -102,9 +102,19 @@ class UpdateCartItemSerializers(serializers.ModelSerializer):
 
 class CustomerSerializers(serializers.ModelSerializer):
     user_id = serializers.IntegerField(read_only = True)
+    first_name = serializers.CharField(source='user.first_name', read_only=True)
+    last_name = serializers.CharField(source='user.last_name', read_only=True)
+    email = serializers.CharField(source='user.email', read_only=True)
+    customer_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Customer
-        fields = ['id', 'user_id', 'phone', 'birth_date','membership']
+        fields = ['id', 'user_id', 'first_name', 'last_name', 'email', 'customer_name', 'phone', 'birth_date','membership']
+
+    def get_customer_name(self, obj):
+        if hasattr(obj, 'user') and obj.user:
+            return obj.user.username
+        return f"Customer #{obj.id}"
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product = SimpleProductSerializers()
@@ -114,9 +124,16 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many =True)
+    customer_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'payment_status','placed_at', 'shipping_address', 'phone', 'payment_method', 'transaction_id', 'items']
+        fields = ['id', 'customer', 'customer_name', 'payment_status','placed_at', 'shipping_address', 'phone', 'payment_method', 'transaction_id', 'items']
+
+    def get_customer_name(self, obj):
+        if obj.customer and hasattr(obj.customer, 'user') and obj.customer.user:
+            return obj.customer.user.username
+        return f"Customer #{obj.customer_id}"
 
 class UpdateOrderSerializer(serializers.ModelSerializer):
     class Meta:
