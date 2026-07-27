@@ -36,6 +36,10 @@ interface Order {
   customer: number;
   payment_status: string;
   placed_at?: string;
+  shipping_address?: string;
+  phone?: string;
+  payment_method?: string;
+  transaction_id?: string;
   items?: OrderItem[];
 }
 
@@ -1076,6 +1080,23 @@ export default function AdminDashboardPage() {
                 >
                   Close ✕
                 </button>
+              </div>
+
+              {/* Customer Contact & Address Info */}
+              <div className="bg-[#f4f1eb] p-4 rounded-2xl mb-6 text-xs space-y-1 text-[#3a3532]">
+                <p><strong>Phone:</strong> {selectedOrderDetails.phone || "N/A"}</p>
+                <p><strong>Shipping Address:</strong> {selectedOrderDetails.shipping_address || "N/A"}</p>
+                <p>
+                  <strong>Payment Method:</strong>{" "}
+                  {selectedOrderDetails.payment_method === "O" ? (
+                    <span className="text-[#e2136e] font-black uppercase">Online / bKash</span>
+                  ) : (
+                    <span className="font-black uppercase">Cash on Delivery (COD)</span>
+                  )}
+                </p>
+                {selectedOrderDetails.payment_method === "O" && (
+                  <p><strong>bKash TrxID:</strong> <code className="bg-white px-2 py-0.5 rounded font-mono font-bold text-[#e2136e]">{selectedOrderDetails.transaction_id || "N/A"}</code></p>
+                )}
               </div>
 
               {/* Order Items Table */}

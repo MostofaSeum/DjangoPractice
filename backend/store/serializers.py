@@ -116,7 +116,7 @@ class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many =True)
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'payment_status','placed_at','items']
+        fields = ['id', 'customer', 'payment_status','placed_at', 'shipping_address', 'phone', 'payment_method', 'transaction_id', 'items']
 
 class UpdateOrderSerializer(serializers.ModelSerializer):
     class Meta:
@@ -125,6 +125,10 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
 
 class CreateOrderSerializer(serializers.Serializer):
     cart_id = serializers.UUIDField()
+    shipping_address = serializers.CharField(max_length=255, required=False, allow_blank=True, default='')
+    phone = serializers.CharField(max_length=255, required=False, allow_blank=True, default='')
+    payment_method = serializers.CharField(max_length=1, required=False, default='C')
+    transaction_id = serializers.CharField(max_length=255, required=False, allow_blank=True, default='')
 
     def validate_cart_id(self, cart_id):
         if not Cart.objects.filter(pk=cart_id).exists():
@@ -138,7 +142,13 @@ class CreateOrderSerializer(serializers.Serializer):
         with transaction.atomic():
             cart_id = self.validated_data['cart_id']
             customer = Customer.objects.get(user_id=self.context['user_id'])
-            order = Order.objects.create(customer=customer)
+            order = Order.objects.create(
+                customer=customer,
+                shipping_address=self.validated_data.get('shipping_address', ''),
+                phone=self.validated_data.get('phone', ''),
+                payment_method=self.validated_data.get('payment_method', 'C'),
+                transaction_id=self.validated_data.get('transaction_id', '')
+            )
 
             cart_items = CartItem.objects.select_related('product').filter(cart_id=cart_id)
             order_items = [

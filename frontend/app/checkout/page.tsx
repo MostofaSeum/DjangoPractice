@@ -1,0 +1,371 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useAuth } from "@/app/context/AuthContext";
+import { useCart } from "@/app/context/CartContext";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Swal from "sweetalert2";
+
+const API_BASE = (
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
+).replace(/\/+$/, "");
+
+export default function CheckoutPage() {
+  const { user, token, loading: authLoading } = useAuth();
+  const { cart, clearCart } = useCart();
+  const router = useRouter();
+
+  const [phone, setPhone] = useState("");
+  const [shippingAddress, setShippingAddress] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"C" | "O">("C");
+  const [transactionId, setTransactionId] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Prefill phone/customer info on load
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (!token) {
+      Swal.fire({
+        icon: "warning",
+        title: "Please Sign In",
+        text: "You must be logged in to proceed to checkout.",
+      });
+      router.push("/login");
+      return;
+    }
+
+    const fetchCustomerInfo = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${API_BASE}/store/customers/me/`, {
+          headers: { Authorization: `JWT ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.phone) setPhone(data.phone);
+        }
+      } catch (err) {
+        console.error("Failed to fetch customer data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCustomerInfo();
+  }, [token, authLoading, router]);
+
+  const isCartEmpty = !cart || cart.items.length === 0;
+
+  // Validation: Online/bKash requires TrxID
+  const isOnlinePayment = paymentMethod === "O";
+  const isOrderValid =
+    phone.trim().length > 0 &&
+    shippingAddress.trim().length > 0 &&
+    (!isOnlinePayment || transactionId.trim().length > 0);
+
+  const handleSubmitOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token || !cart || !isOrderValid) return;
+
+    setSubmitting(true);
+
+    try {
+      const payload = {
+        cart_id: cart.id,
+        shipping_address: shippingAddress,
+        phone: phone,
+        payment_method: paymentMethod,
+        transaction_id: isOnlinePayment ? transactionId : "",
+      };
+
+      const res = await fetch(`${API_BASE}/store/orders/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const orderData = await res.json();
+        
+        // Reset local cart storage
+        localStorage.removeItem("cart_id");
+        await clearCart();
+
+        await Swal.fire({
+          icon: "success",
+          title: "Order Placed Successfully!",
+          text: `Your Order #${orderData.id} has been received. Thank you for shopping with VibeMart!`,
+          confirmButtonColor: "#3a3532",
+        });
+
+        router.push("/profile");
+      } else {
+        const errData = await res.json();
+        Swal.fire({
+          icon: "error",
+          title: "Order Placement Failed",
+          text: JSON.stringify(errData),
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "An Error Occurred",
+        text: "Could not submit your order. Please try again.",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading || authLoading) {
+    return (
+      <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] flex items-center justify-center p-8 font-bold text-xs uppercase tracking-widest">
+        Loading Checkout...
+      </div>
+    );
+  }
+
+  if (isCartEmpty) {
+    return (
+      <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] flex flex-col items-center justify-center p-8 text-center">
+        <h2 className="text-2xl font-black uppercase tracking-tight mb-4">
+          Your Cart is Empty
+        </h2>
+        <p className="text-sm font-medium text-[#3a3532]/70 mb-6">
+          Please add items to your cart before proceeding to checkout.
+        </p>
+        <Link
+          href="/products"
+          className="bg-[#3a3532] text-[#e6e0d4] px-8 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#252220] transition-colors"
+        >
+          Browse Products
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans antialiased pb-24">
+      {/* Breadcrumb */}
+      <div className="bg-[#3a3532]/5 border-b border-[#3a3532]/10 py-4">
+        <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs text-[#3a3532]/60 flex items-center space-x-2 font-bold uppercase tracking-wider">
+          <Link href="/" className="hover:text-[#3a3532]">
+            Home
+          </Link>
+          <span>/</span>
+          <Link href="/cart" className="hover:text-[#3a3532]">
+            Cart
+          </Link>
+          <span>/</span>
+          <span className="text-[#3a3532]">Checkout</span>
+        </div>
+      </div>
+
+      <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-12">
+        <h1 className="text-4xl font-black mb-10 uppercase tracking-tighter">
+          Checkout & Shipping
+        </h1>
+
+        <form onSubmit={handleSubmitOrder} className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+          {/* Shipping & Payment Info (2 Columns) */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Contact & Address Section */}
+            <div className="bg-white rounded-3xl p-8 border border-[#3a3532]/5 shadow-sm space-y-6">
+              <h2 className="text-xl font-black uppercase tracking-tight pb-3 border-b border-[#3a3532]/10 flex items-center gap-3">
+                <span className="w-8 h-8 rounded-full bg-[#3a3532] text-white flex items-center justify-center text-xs">
+                  1
+                </span>
+                Shipping Information
+              </h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-bold uppercase tracking-wider text-[#3a3532]/80">
+                    Phone Number *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="e.g. 01700000000"
+                    className="px-4 py-3 border border-[#3a3532]/10 rounded-2xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none focus:ring-2 focus:ring-[#8b7a66]"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-2 sm:col-span-2">
+                  <label className="text-xs font-bold uppercase tracking-wider text-[#3a3532]/80">
+                    Shipping Address (Street, House/Flat, City/District) *
+                  </label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={shippingAddress}
+                    onChange={(e) => setShippingAddress(e.target.value)}
+                    placeholder="e.g. House 12, Road 5, Block B, Dhanmondi, Dhaka"
+                    className="px-4 py-3 border border-[#3a3532]/10 rounded-2xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none focus:ring-2 focus:ring-[#8b7a66]"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Method Section */}
+            <div className="bg-white rounded-3xl p-8 border border-[#3a3532]/5 shadow-sm space-y-6">
+              <h2 className="text-xl font-black uppercase tracking-tight pb-3 border-b border-[#3a3532]/10 flex items-center gap-3">
+                <span className="w-8 h-8 rounded-full bg-[#3a3532] text-white flex items-center justify-center text-xs">
+                  2
+                </span>
+                Payment Options
+              </h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Cash on Delivery Option */}
+                <div
+                  onClick={() => setPaymentMethod("C")}
+                  className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
+                    paymentMethod === "C"
+                      ? "border-[#3a3532] bg-[#f4f1eb]"
+                      : "border-[#3a3532]/10 bg-white hover:border-[#3a3532]/30"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-black text-sm uppercase tracking-tight">
+                      Cash on Delivery (COD)
+                    </span>
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      checked={paymentMethod === "C"}
+                      onChange={() => setPaymentMethod("C")}
+                      className="w-4 h-4 accent-[#3a3532]"
+                    />
+                  </div>
+                  <p className="text-xs text-[#3a3532]/70 font-medium">
+                    Pay in cash when your order is delivered to your doorstep.
+                  </p>
+                </div>
+
+                {/* bKash / Online Option */}
+                <div
+                  onClick={() => setPaymentMethod("O")}
+                  className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
+                    paymentMethod === "O"
+                      ? "border-[#e2136e] bg-pink-50/50"
+                      : "border-[#3a3532]/10 bg-white hover:border-[#e2136e]/40"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-black text-sm uppercase tracking-tight text-[#e2136e]">
+                      bKash / Online Payment
+                    </span>
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      checked={paymentMethod === "O"}
+                      onChange={() => setPaymentMethod("O")}
+                      className="w-4 h-4 accent-[#e2136e]"
+                    />
+                  </div>
+                  <p className="text-xs text-[#3a3532]/70 font-medium">
+                    Pay via bKash and provide the Transaction ID (TrxID).
+                  </p>
+                </div>
+              </div>
+
+              {/* bKash Extra Fields */}
+              {paymentMethod === "O" && (
+                <div className="mt-6 p-6 rounded-2xl bg-pink-50 border border-[#e2136e]/20 space-y-4">
+                  <div className="text-xs font-bold text-[#e2136e] space-y-1">
+                    <p className="font-black uppercase tracking-wider">
+                      bKash Payment Instructions:
+                    </p>
+                    <p>1. Go to your bKash Mobile App or Dial *247#</p>
+                    <p>2. Select <strong>Send Money</strong> or <strong>Payment</strong> to <strong>01700000000</strong></p>
+                    <p>3. Complete payment for <strong>${Number(cart.total_price).toFixed(2)}</strong></p>
+                    <p>4. Copy and paste the 8-10 digit <strong>TrxID</strong> below:</p>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5 pt-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#3a3532]">
+                      bKash Transaction ID (TrxID) *
+                    </label>
+                    <input
+                      type="text"
+                      required={paymentMethod === "O"}
+                      value={transactionId}
+                      onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
+                      placeholder="e.g. 9B7X2K1L8M"
+                      className="px-4 py-3 border border-[#e2136e]/30 rounded-xl bg-white text-xs font-bold text-[#3a3532] uppercase outline-none focus:ring-2 focus:ring-[#e2136e]"
+                    />
+                    {!transactionId.trim() && (
+                      <p className="text-[10px] text-red-600 font-bold uppercase">
+                        * Transaction ID is required for bKash orders.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Order Summary Side Card (1 Column) */}
+          <div className="bg-white rounded-3xl p-8 border border-[#3a3532]/5 shadow-md sticky top-28 space-y-6">
+            <h2 className="text-2xl font-black uppercase tracking-tight pb-4 border-b border-[#3a3532]/10">
+              Order Summary
+            </h2>
+
+            {/* Items Mini List */}
+            <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
+              {cart.items.map((item) => (
+                <div key={item.id} className="flex justify-between items-center text-xs">
+                  <div>
+                    <p className="font-bold text-[#3a3532]">{item.product.title}</p>
+                    <p className="text-[10px] text-[#3a3532]/50 font-bold">Qty: {item.quantity}</p>
+                  </div>
+                  <span className="font-black text-[#8b7a66]">
+                    ${(item.quantity * Number(item.product.unit_price)).toFixed(2)}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-4 border-t border-[#3a3532]/10 space-y-3 text-sm">
+              <div className="flex justify-between text-[#3a3532]/70 font-medium">
+                <span>Subtotal</span>
+                <span className="font-bold text-[#3a3532]">
+                  ${Number(cart.total_price).toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between text-[#3a3532]/70 font-medium">
+                <span>Shipping</span>
+                <span className="font-bold text-green-700 uppercase text-xs">Free</span>
+              </div>
+              <div className="pt-3 border-t border-[#3a3532]/10 flex justify-between items-center text-base font-black">
+                <span>Total Amount</span>
+                <span className="text-2xl text-[#3a3532]">
+                  ${Number(cart.total_price).toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={!isOrderValid || submitting}
+              className="w-full py-4 bg-[#3a3532] text-[#e6e0d4] rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-[#252220] transition-all shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {submitting ? "Processing Order..." : "Confirm & Place Order"}
+            </button>
+          </div>
+        </form>
+      </main>
+    </div>
+  );
+}

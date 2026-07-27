@@ -175,12 +175,12 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <button
-                onClick={() => alert("Checkout integration coming soon!")}
-                className="w-full bg-[#3a3532] text-[#e6e0d4] py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-[#524b47] transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2"
+              <Link
+                href="/checkout"
+                className="w-full bg-[#3a3532] text-[#e6e0d4] py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-[#524b47] transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2 text-center"
               >
                 Proceed to Checkout
-              </button>
+              </Link>
             </div>
           </div>
         )}

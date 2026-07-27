@@ -87,10 +87,22 @@ class Order(models.Model):
         (PAYMENT_STATUS_FAILED, 'Failed')
     ]
 
+    PAYMENT_METHOD_COD = 'C'
+    PAYMENT_METHOD_ONLINE = 'O'
+    PAYMENT_METHOD_CHOICES = [
+        (PAYMENT_METHOD_COD, 'COD'),
+        (PAYMENT_METHOD_ONLINE, 'Online'),
+    ]
+
     placed_at = models.DateTimeField(auto_now_add=True)
     payment_status = models.CharField(
         max_length=1, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING)
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
+    shipping_address = models.CharField(max_length=255, default='', blank=True)
+    phone = models.CharField(max_length=255, default='', blank=True)
+    payment_method = models.CharField(
+        max_length=1, choices=PAYMENT_METHOD_CHOICES, default=PAYMENT_METHOD_COD)
+    transaction_id = models.CharField(max_length=255, default='', blank=True)
     class Meta:
         permissions = [
             ('cancel_order', 'Can cancel order'),
