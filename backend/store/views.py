@@ -63,6 +63,13 @@ class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyMo
     queryset = Cart.objects.prefetch_related('items__product').all()
     serializer_class = CartSerializers
 
+    def perform_create(self, serializer):
+        if self.request.user and self.request.user.is_authenticated:
+            customer, _ = Customer.objects.get_or_create(user_id=self.request.user.id)
+            serializer.save(customer=customer)
+        else:
+            serializer.save()
+
 class CartItemViewSet(ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete']
     def get_serializer_class(self):
