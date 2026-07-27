@@ -24,10 +24,19 @@ interface Collection {
   product_count: number;
 }
 
+interface OrderItem {
+  id: number;
+  product: { id: number; title: string; unit_price: number };
+  quantity: number;
+  unit_price: number;
+}
+
 interface Order {
   id: number;
   customer: number;
   payment_status: string;
+  placed_at?: string;
+  items?: OrderItem[];
 }
 
 export default function AdminDashboardPage() {
@@ -391,6 +400,89 @@ export default function AdminDashboardPage() {
             icon: "error",
             title: "Cannot delete collection",
             text: errData.error || "Collection includes one or more products.",
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
+  // Order State & Handlers
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState<Order | null>(null);
+
+  // Update Order Payment Status (PATCH /store/orders/{id}/)
+  const handleUpdateOrderStatus = async (orderId: number, newStatus: string) => {
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/store/orders/${orderId}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify({ payment_status: newStatus }),
+      });
+
+      if (res.ok) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Order status updated!",
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+        });
+        fetchAdminData();
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed to update order status",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Delete Order (DELETE /store/orders/{id}/)
+  const handleDeleteOrder = async (orderId: number) => {
+    if (!token) return;
+
+    const confirm = await Swal.fire({
+      title: `Delete Order #${orderId}?`,
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#cc5555",
+      confirmButtonText: "Yes, Delete",
+    });
+
+    if (confirm.isConfirmed) {
+      try {
+        const res = await fetch(`${API_BASE}/store/orders/${orderId}/`, {
+          method: "DELETE",
+          headers: { Authorization: `JWT ${token}` },
+        });
+
+        if (res.ok || res.status === 204) {
+          Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: "Order deleted!",
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+          });
+          if (selectedOrderDetails?.id === orderId) {
+            setSelectedOrderDetails(null);
+          }
+          fetchAdminData();
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Failed to delete order.",
           });
         }
       } catch (err) {
@@ -889,38 +981,146 @@ export default function AdminDashboardPage() {
               </form>
             </div>
             {filteredOrders.length > 0 ? (
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="border-b border-[#3a3532]/10 text-[10px] font-black uppercase tracking-wider text-[#3a3532]/60">
-                    <th className="py-3 px-2">Order ID</th>
-                    <th className="py-3 px-2">Customer ID</th>
-                    <th className="py-3 px-2">Payment Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#3a3532]/5 text-xs font-bold">
-                  {filteredOrders.map((order) => (
-                    <tr
-                      key={order.id}
-                      className="hover:bg-[#f4f1eb]/50 transition-colors"
-                    >
-                      <td className="py-3.5 px-2">Order #{order.id}</td>
-                      <td className="py-3.5 px-2">
-                        Customer #{order.customer}
-                      </td>
-                      <td className="py-3.5 px-2">
-                        <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-[10px] uppercase font-black tracking-wider">
-                          {order.payment_status || "Pending"}
-                        </span>
-                      </td>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-[#3a3532]/10 text-[10px] font-black uppercase tracking-wider text-[#3a3532]/60">
+                      <th className="py-3 px-2">Order ID</th>
+                      <th className="py-3 px-2">Customer ID</th>
+                      <th className="py-3 px-2">Date Placed</th>
+                      <th className="py-3 px-2">Items Count</th>
+                      <th className="py-3 px-2">Payment Status</th>
+                      <th className="py-3 px-2 text-right">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-[#3a3532]/5 text-xs font-bold">
+                    {filteredOrders.map((order) => {
+                      const itemCount = order.items ? order.items.reduce((sum, i) => sum + i.quantity, 0) : 0;
+
+                      return (
+                        <tr
+                          key={order.id}
+                          className="hover:bg-[#f4f1eb]/50 transition-colors"
+                        >
+                          <td className="py-3.5 px-2 font-black">Order #{order.id}</td>
+                          <td className="py-3.5 px-2 text-[#3a3532]/70">
+                            Customer #{order.customer}
+                          </td>
+                          <td className="py-3.5 px-2 text-[#3a3532]/60 text-[11px]">
+                            {order.placed_at ? new Date(order.placed_at).toLocaleDateString() : "N/A"}
+                          </td>
+                          <td className="py-3.5 px-2">
+                            {itemCount} item(s)
+                          </td>
+                          <td className="py-3.5 px-2">
+                            <select
+                              value={order.payment_status || "P"}
+                              onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
+                              className={`px-3 py-1 rounded-full text-[10px] uppercase font-black tracking-wider outline-none cursor-pointer border ${
+                                order.payment_status === "C"
+                                  ? "bg-green-100 text-green-800 border-green-300"
+                                  : order.payment_status === "F"
+                                  ? "bg-red-100 text-red-800 border-red-300"
+                                  : "bg-yellow-100 text-yellow-800 border-yellow-300"
+                              }`}
+                            >
+                              <option value="P">Pending (P)</option>
+                              <option value="C">Complete (C)</option>
+                              <option value="F">Failed (F)</option>
+                            </select>
+                          </td>
+                          <td className="py-3.5 px-2 text-right flex justify-end gap-2">
+                            <button
+                              onClick={() => setSelectedOrderDetails(order)}
+                              className="px-3 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                            >
+                              View Details
+                            </button>
+                            <button
+                              onClick={() => handleDeleteOrder(order.id)}
+                              className="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             ) : (
               <div className="py-12 text-center text-xs font-bold uppercase tracking-wider text-[#3a3532]/50">
                 No orders found.
               </div>
             )}
+          </div>
+        )}
+
+        {/* Order Details Modal */}
+        {selectedOrderDetails && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-white rounded-3xl p-8 max-w-xl w-full shadow-2xl border border-[#3a3532]/10 relative">
+              <div className="flex justify-between items-center pb-4 border-b border-[#3a3532]/10 mb-6">
+                <div>
+                  <h3 className="text-lg font-black uppercase tracking-tight text-[#3a3532]">
+                    Order #{selectedOrderDetails.id}
+                  </h3>
+                  <span className="text-[10px] font-bold text-[#3a3532]/60 uppercase tracking-wider">
+                    Customer #{selectedOrderDetails.customer} • {selectedOrderDetails.placed_at ? new Date(selectedOrderDetails.placed_at).toLocaleString() : ""}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setSelectedOrderDetails(null)}
+                  className="text-xs font-bold bg-[#f4f1eb] hover:bg-[#3a3532] hover:text-white px-3 py-1.5 rounded-xl transition-colors uppercase"
+                >
+                  Close ✕
+                </button>
+              </div>
+
+              {/* Order Items Table */}
+              <div className="max-h-60 overflow-y-auto mb-6">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="border-b border-[#3a3532]/10 text-[10px] font-black uppercase text-[#3a3532]/60">
+                      <th className="py-2 px-1">Product</th>
+                      <th className="py-2 px-1">Qty</th>
+                      <th className="py-2 px-1">Unit Price</th>
+                      <th className="py-2 px-1 text-right">Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#3a3532]/5">
+                    {selectedOrderDetails.items && selectedOrderDetails.items.length > 0 ? (
+                      selectedOrderDetails.items.map((item) => (
+                        <tr key={item.id}>
+                          <td className="py-2 px-1 font-bold">{item.product?.title || `Product #${item.product}`}</td>
+                          <td className="py-2 px-1">{item.quantity}</td>
+                          <td className="py-2 px-1">${Number(item.unit_price).toFixed(2)}</td>
+                          <td className="py-2 px-1 text-right font-black text-[#8b7a66]">
+                            ${(item.quantity * Number(item.unit_price)).toFixed(2)}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={4} className="py-4 text-center text-xs text-[#3a3532]/50">
+                          No item breakdown available.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="flex justify-between items-center pt-4 border-t border-[#3a3532]/10">
+                <span className="text-xs font-bold text-[#3a3532]/70 uppercase">
+                  Payment Status: <strong className="uppercase font-black text-[#3a3532]">{selectedOrderDetails.payment_status === "C" ? "Complete" : selectedOrderDetails.payment_status === "F" ? "Failed" : "Pending"}</strong>
+                </span>
+                <span className="text-base font-black text-[#3a3532]">
+                  Total: ${selectedOrderDetails.items ? selectedOrderDetails.items.reduce((sum, i) => sum + (i.quantity * Number(i.unit_price)), 0).toFixed(2) : "0.00"}
+                </span>
+              </div>
+            </div>
           </div>
         )}
       </main>
