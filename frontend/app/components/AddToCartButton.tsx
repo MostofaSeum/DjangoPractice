@@ -12,20 +12,37 @@ const CartIcon = () => (
 interface AddToCartButtonProps {
   productId: number;
   productTitle: string;
+  inventory?: number;
   className?: string;
 }
 
 export default function AddToCartButton({
   productId,
   productTitle,
+  inventory = 1,
   className,
 }: AddToCartButtonProps) {
   const { addToCart } = useCart();
   const [loading, setLoading] = useState(false);
 
+  const isOutOfStock = inventory <= 0;
+
+  if (isOutOfStock) {
+    return (
+      <button
+        disabled
+        className="w-full py-3 bg-red-100 text-red-700 font-bold text-xs uppercase tracking-widest rounded-xl border border-red-300 cursor-not-allowed opacity-80 flex items-center justify-center gap-2"
+      >
+        Out of Stock
+      </button>
+    );
+  }
+
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (inventory <= 0) return;
+
     try {
       setLoading(true);
       await addToCart(productId, 1);

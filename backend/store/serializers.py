@@ -45,7 +45,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 class SimpleProductSerializers(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['id', 'title', 'unit_price']
+        fields = ['id', 'title', 'unit_price', 'inventory']
 
 class CartItemSerializers(serializers.ModelSerializer):
     product = SimpleProductSerializers()

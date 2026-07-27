@@ -7,6 +7,7 @@ interface Product {
   id: number;
   title: string;
   unit_price: number;
+  inventory: number;
   description: string;
   collection: number | { id: number; title: string };
 }
@@ -171,7 +172,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <hr className="border-[#3a3532]/10 my-4" />
 
             {/* Quantity Selector & Add to Cart Client Area */}
-            <ProductInteractive productId={product.id} productTitle={product.title} />
+            <ProductInteractive
+              productId={product.id}
+              productTitle={product.title}
+              inventory={product.inventory}
+            />
 
             <hr className="border-[#3a3532]/10 my-4" />
 
