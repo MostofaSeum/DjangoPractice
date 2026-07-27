@@ -283,14 +283,33 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Add Collection (POST /store/collections/)
-  const handleAddCollection = async (e: React.FormEvent) => {
+  // Collection Edit State & Handlers
+  const [editingCollectionId, setEditingCollectionId] = useState<number | null>(null);
+
+  const handleSelectCollection = (col: Collection) => {
+    setEditingCollectionId(col.id);
+    setNewCollectionTitle(col.title);
+  };
+
+  const handleCancelCollectionEdit = () => {
+    setEditingCollectionId(null);
+    setNewCollectionTitle("");
+  };
+
+  // Create or Update Collection (POST or PUT /store/collections/)
+  const handleSaveCollection = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token || !newCollectionTitle.trim()) return;
 
     try {
-      const res = await fetch(`${API_BASE}/store/collections/`, {
-        method: "POST",
+      const isEditing = editingCollectionId !== null;
+      const url = isEditing
+        ? `${API_BASE}/store/collections/${editingCollectionId}/`
+        : `${API_BASE}/store/collections/`;
+      const method = isEditing ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `JWT ${token}`,
@@ -302,18 +321,81 @@ export default function AdminDashboardPage() {
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: "Collection created!",
+          title: isEditing
+            ? "Collection updated successfully!"
+            : "Collection created successfully!",
           showConfirmButton: false,
           timer: 1800,
           toast: true,
         });
-        setNewCollectionTitle("");
+        handleCancelCollectionEdit();
         fetchAdminData();
       } else {
-        Swal.fire({ icon: "error", title: "Failed to create collection" });
+        const errData = await res.json();
+        Swal.fire({
+          icon: "error",
+          title: isEditing ? "Failed to update collection" : "Failed to create collection",
+          text: JSON.stringify(errData),
+        });
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  // Delete Collection (DELETE /store/collections/{id}/)
+  const handleDeleteCollection = async (col: Collection) => {
+    if (!token) return;
+
+    if (col.product_count > 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Cannot Delete Collection",
+        text: `Collection "${col.title}" cannot be deleted because it contains ${col.product_count} product(s). Please delete or reassign its products first.`,
+      });
+      return;
+    }
+
+    const confirm = await Swal.fire({
+      title: `Delete Collection "${col.title}"?`,
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#cc5555",
+      confirmButtonText: "Yes, Delete",
+    });
+
+    if (confirm.isConfirmed) {
+      try {
+        const res = await fetch(`${API_BASE}/store/collections/${col.id}/`, {
+          method: "DELETE",
+          headers: { Authorization: `JWT ${token}` },
+        });
+
+        if (res.ok || res.status === 204) {
+          Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: "Collection deleted!",
+            showConfirmButton: false,
+            timer: 1500,
+            toast: true,
+          });
+          if (editingCollectionId === col.id) {
+            handleCancelCollectionEdit();
+          }
+          fetchAdminData();
+        } else {
+          const errData = await res.json();
+          Swal.fire({
+            icon: "error",
+            title: "Cannot delete collection",
+            text: errData.error || "Collection includes one or more products.",
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 
@@ -645,11 +727,23 @@ export default function AdminDashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {/* Create Collection Form */}
             <div className="bg-white p-8 rounded-3xl border border-[#3a3532]/5 shadow-sm h-fit">
-              <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532] mb-6 pb-2 border-b border-[#3a3532]/10">
-                Create Collection
-              </h2>
+              <div className="flex justify-between items-center mb-6 pb-2 border-b border-[#3a3532]/10">
+                <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532]">
+                  {editingCollectionId
+                    ? `Edit Collection #${editingCollectionId}`
+                    : "Create Collection"}
+                </h2>
+                {editingCollectionId && (
+                  <button
+                    onClick={handleCancelCollectionEdit}
+                    className="text-[10px] font-bold uppercase tracking-wider text-[#cc5555] hover:underline"
+                  >
+                    Cancel Edit
+                  </button>
+                )}
+              </div>
               <form
-                onSubmit={handleAddCollection}
+                onSubmit={handleSaveCollection}
                 className="flex flex-col gap-4"
               >
                 <div className="flex flex-col gap-1">
@@ -669,7 +763,7 @@ export default function AdminDashboardPage() {
                   type="submit"
                   className="w-full py-3 bg-[#3a3532] text-[#e6e0d4] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#252220] transition-colors"
                 >
-                  Save Collection
+                  {editingCollectionId ? "Update Collection" : "Save Collection"}
                 </button>
               </form>
             </div>
@@ -718,7 +812,11 @@ export default function AdminDashboardPage() {
                 {filteredCollections.map((col) => (
                   <div
                     key={col.id}
-                    className="p-4 rounded-2xl bg-[#f4f1eb] border border-[#3a3532]/5 flex justify-between items-center"
+                    className={`p-4 rounded-2xl border transition-all flex justify-between items-center ${
+                      editingCollectionId === col.id
+                        ? "bg-[#8b7a66]/15 border-[#8b7a66]"
+                        : "bg-[#f4f1eb] border-[#3a3532]/5 hover:border-[#3a3532]/20"
+                    }`}
                   >
                     <div>
                       <h3 className="font-bold text-sm text-[#3a3532]">
@@ -727,6 +825,20 @@ export default function AdminDashboardPage() {
                       <span className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/50">
                         ID: #{col.id} • {col.product_count || 0} Products
                       </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleSelectCollection(col)}
+                        className="px-3 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCollection(col)}
+                        className="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 ))}
