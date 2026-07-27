@@ -35,7 +35,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   //  Create a new Cart ID from API
   const createNewCart = async (): Promise<string> => {
-    const res = await fetch(`${API_BASE}/store/carts/`, { method: "POST" });
+    const res = await fetch(`${API_BASE}/store/carts/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
     const data = await res.json();
     const cartId = data.id;
     if (cartId) {

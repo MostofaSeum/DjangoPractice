@@ -66,6 +66,10 @@ class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyMo
     def perform_create(self, serializer):
         if self.request.user and self.request.user.is_authenticated:
             customer, _ = Customer.objects.get_or_create(user_id=self.request.user.id)
+            user_cart = Cart.objects.filter(customer=customer).first()
+            if user_cart:
+                serializer.instance = user_cart
+                return
             serializer.save(customer=customer)
         else:
             serializer.save()
