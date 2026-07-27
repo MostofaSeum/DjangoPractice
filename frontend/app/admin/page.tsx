@@ -49,6 +49,15 @@ export default function AdminDashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Search states
+  const [productSearch, setProductSearch] = useState("");
+  const [collectionSearch, setCollectionSearch] = useState("");
+  const [orderSearch, setOrderSearch] = useState("");
+
+  const [activeProductQuery, setActiveProductQuery] = useState("");
+  const [activeCollectionQuery, setActiveCollectionQuery] = useState("");
+  const [activeOrderQuery, setActiveOrderQuery] = useState("");
+
   // Pagination State for Admin Products Table
   const itemsPerPage = 8;
 
@@ -100,16 +109,16 @@ export default function AdminDashboardPage() {
       return;
     }
 
-    fetchAdminData(prodPage);
-  }, [user, token, authLoading, router, prodPage]);
+    fetchAdminData(prodPage, activeProductQuery);
+  }, [user, token, authLoading, router, prodPage, activeProductQuery]);
 
-  const fetchAdminData = async (pageNumber = 1) => {
+  const fetchAdminData = async (pageNumber = 1, searchQuery = "") => {
     if (!token) return;
     setLoading(true);
     try {
-      // Fetch Paginated Products from Backend API (9 items per page)
+      const searchParam = searchQuery ? `&search=${encodeURIComponent(searchQuery)}` : "";
       const prodRes = await fetch(
-        `${API_BASE}/store/products/?page=${pageNumber}`,
+        `${API_BASE}/store/products/?page=${pageNumber}${searchParam}`,
         { cache: "no-store" }
       );
       if (prodRes.ok) {
@@ -145,6 +154,19 @@ export default function AdminDashboardPage() {
       setLoading(false);
     }
   };
+
+  const filteredCollections = collections.filter(
+    (c) =>
+      c.title.toLowerCase().includes(activeCollectionQuery.toLowerCase()) ||
+      String(c.id).includes(activeCollectionQuery)
+  );
+
+  const filteredOrders = orders.filter(
+    (o) =>
+      String(o.id).includes(activeOrderQuery) ||
+      String(o.customer).includes(activeOrderQuery) ||
+      (o.payment_status && o.payment_status.toLowerCase().includes(activeOrderQuery.toLowerCase()))
+  );
 
   // Reset form to Add mode
   const handleCancelEdit = () => {
@@ -495,13 +517,45 @@ export default function AdminDashboardPage() {
 
             {/* Products Table (2 Columns) */}
             <div className="lg:col-span-2 bg-white p-8 rounded-3xl border border-[#3a3532]/5 shadow-sm overflow-x-auto">
-              <div className="flex justify-between items-center mb-6 pb-2 border-b border-[#3a3532]/10">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-[#3a3532]/10">
                 <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532]">
                   All Products ({totalProductsCount || products.length})
                 </h2>
-                <span className="text-[10px] font-bold text-[#3a3532]/60 uppercase tracking-wider">
-                  Page {prodPage} of {Math.ceil(totalProductsCount / 9) || 1}
-                </span>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    setActiveProductQuery(productSearch);
+                    setProdPage(1);
+                  }}
+                  className="flex items-center gap-2 w-full sm:w-auto"
+                >
+                  <input
+                    type="text"
+                    value={productSearch}
+                    onChange={(e) => setProductSearch(e.target.value)}
+                    placeholder="Search product..."
+                    className="px-3.5 py-1.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none w-full sm:w-48 focus:ring-2 focus:ring-[#8b7a66]"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                  >
+                    Search
+                  </button>
+                  {activeProductQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProductSearch("");
+                        setActiveProductQuery("");
+                        setProdPage(1);
+                      }}
+                      className="text-[10px] font-bold text-red-600 hover:underline uppercase"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </form>
               </div>
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -622,11 +676,46 @@ export default function AdminDashboardPage() {
 
             {/* Collections List */}
             <div className="lg:col-span-2 bg-white p-8 rounded-3xl border border-[#3a3532]/5 shadow-sm">
-              <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532] mb-6 pb-2 border-b border-[#3a3532]/10">
-                Existing Collections ({collections.length})
-              </h2>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-[#3a3532]/10">
+                <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532]">
+                  Existing Collections ({filteredCollections.length})
+                </h2>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    setActiveCollectionQuery(collectionSearch);
+                  }}
+                  className="flex items-center gap-2 w-full sm:w-auto"
+                >
+                  <input
+                    type="text"
+                    value={collectionSearch}
+                    onChange={(e) => setCollectionSearch(e.target.value)}
+                    placeholder="Search collection..."
+                    className="px-3.5 py-1.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none w-full sm:w-48 focus:ring-2 focus:ring-[#8b7a66]"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                  >
+                    Search
+                  </button>
+                  {activeCollectionQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCollectionSearch("");
+                        setActiveCollectionQuery("");
+                      }}
+                      className="text-[10px] font-bold text-red-600 hover:underline uppercase"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </form>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {collections.map((col) => (
+                {filteredCollections.map((col) => (
                   <div
                     key={col.id}
                     className="p-4 rounded-2xl bg-[#f4f1eb] border border-[#3a3532]/5 flex justify-between items-center"
@@ -649,10 +738,45 @@ export default function AdminDashboardPage() {
         {/* ORDERS TAB */}
         {activeTab === "orders" && (
           <div className="bg-white p-8 rounded-3xl border border-[#3a3532]/5 shadow-sm">
-            <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532] mb-6 pb-2 border-b border-[#3a3532]/10">
-              Customer Orders ({orders.length})
-            </h2>
-            {orders.length > 0 ? (
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-[#3a3532]/10">
+              <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532]">
+                Customer Orders ({filteredOrders.length})
+              </h2>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setActiveOrderQuery(orderSearch);
+                }}
+                className="flex items-center gap-2 w-full sm:w-auto"
+              >
+                <input
+                  type="text"
+                  value={orderSearch}
+                  onChange={(e) => setOrderSearch(e.target.value)}
+                  placeholder="Search order ID..."
+                  className="px-3.5 py-1.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none w-full sm:w-48 focus:ring-2 focus:ring-[#8b7a66]"
+                />
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                >
+                  Search
+                </button>
+                {activeOrderQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOrderSearch("");
+                      setActiveOrderQuery("");
+                    }}
+                    className="text-[10px] font-bold text-red-600 hover:underline uppercase"
+                  >
+                    Clear
+                  </button>
+                )}
+              </form>
+            </div>
+            {filteredOrders.length > 0 ? (
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-[#3a3532]/10 text-[10px] font-black uppercase tracking-wider text-[#3a3532]/60">
@@ -662,7 +786,7 @@ export default function AdminDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#3a3532]/5 text-xs font-bold">
-                  {orders.map((order) => (
+                  {filteredOrders.map((order) => (
                     <tr
                       key={order.id}
                       className="hover:bg-[#f4f1eb]/50 transition-colors"
