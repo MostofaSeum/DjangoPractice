@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { useAuth } from "./AuthContext";
 
 interface CartItem {
   id: number;
@@ -30,6 +31,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<Cart | null>(null);
+  const { token } = useAuth();
 
   //  Create a new Cart ID from API
   const createNewCart = async (): Promise<string> => {
@@ -77,12 +79,38 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const initCart = async () => {
-      const cartId = await getOrCreateCartId();
-      await refreshCart(cartId);
+      if (token) {
+        const currentCartId = localStorage.getItem("cart_id");
+        try {
+          const res = await fetch(`${API_BASE}/store/carts/sync/`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `JWT ${token}`,
+            },
+            body: JSON.stringify({ cart_id: currentCartId }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            localStorage.setItem("cart_id", data.id);
+            setCart(data);
+            return;
+          }
+        } catch (err) {
+          console.error("Cart sync failed:", err);
+        }
+      } else {
+        const cartId = localStorage.getItem("cart_id");
+        if (cartId) {
+          await refreshCart(cartId);
+        } else {
+          setCart(null);
+        }
+      }
     };
 
     initCart();
-  }, []);
+  }, [token]);
 
   // Add Item to Cart 
   const addToCart = async (productId: number, quantity = 1) => {
