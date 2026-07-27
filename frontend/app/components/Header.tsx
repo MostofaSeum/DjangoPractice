@@ -1,15 +1,24 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import CartButton from "./CartButton";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, logout } = useAuth();
   const { clearCart } = useCart();
+
+  // Automatically redirect Admin/Staff users back to /admin if they visit non-admin pages
+  useEffect(() => {
+    if (user?.is_staff && pathname !== "/admin") {
+      router.push("/admin");
+    }
+  }, [user, pathname, router]);
 
   const handleLogout = async () => {
     logout();
