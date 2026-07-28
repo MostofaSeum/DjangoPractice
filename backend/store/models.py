@@ -4,7 +4,7 @@ from django.db.models import Model
 from django.core.validators import MinValueValidator
 from django.db import models
 from uuid import uuid4
-
+from .validators import validate_file_size
 class Promotion(models.Model):
     description = models.CharField(max_length=255)
     discount = models.FloatField()
