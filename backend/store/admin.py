@@ -18,7 +18,7 @@ class InventoryFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset: QuerySet):
         if self.value() == '<10':
             return queryset.filter(inventory__lt=10)
-
+class 
 
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
