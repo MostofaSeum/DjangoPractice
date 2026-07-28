@@ -18,7 +18,20 @@ class InventoryFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset: QuerySet):
         if self.value() == '<10':
             return queryset.filter(inventory__lt=10)
-class 
+class ProductImageInline(admin.TabularInline):
+    model = models.ProductImage
+    readonly_fields = ['thumbnail']
+    max_num = 10
+
+    def thumbnail(self, instance):
+        if instance.image.name != '':
+            return format_html('<img src="{}" class="thumbnail" />', instance.image.url)
+        return ''
+
+    class Media:
+        css = {
+            'all': ['store/styles.css']
+        }
 
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
