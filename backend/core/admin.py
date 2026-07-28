@@ -1,3 +1,4 @@
+from store.admin import ProductImageInline
 from store.models import Product
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -24,7 +25,7 @@ class TagInline(GenericTabularInline):
 
 
 class CustomProductAdmin(ProductAdmin):
-    inlines = [TagInline]
+    inlines = [TagInline,ProductImageInline]
 
 
 admin.site.unregister(Product)
