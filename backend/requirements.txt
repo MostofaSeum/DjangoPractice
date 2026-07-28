@@ -13,5 +13,4 @@ gunicorn
 psycopg2-binary
 djoser
 djangorestframework-simplejwt
-
-
+Pillow
