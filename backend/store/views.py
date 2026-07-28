@@ -17,7 +17,7 @@ from .filters import ProductFilter
 from .permissions import IsAdminOrReadOnly
 # Create your views here.
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.prefetch_related('images').all()
     serializer_class = ProductSerializers
     filter_backends = [DjangoFilterBackend,SearchFilter,OrderingFilter]
     pagination_class = PageNumberPagination
