@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import ImageUploadModal from "@/app/components/ImageUploadModal";
 
 const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
@@ -767,6 +768,13 @@ export default function AdminDashboardPage() {
                   {editingProductId ? "Update Product" : "Create Product"}
                 </button>
               </form>
+
+              {/* Photo Upload Section when editing a product */}
+              {editingProductId && (
+                <div className="mt-4 pt-4 border-t border-[#3a3532]/10">
+                  <ImageUploadModal productId={editingProductId} onSuccess={fetchAdminData} />
+                </div>
+              )}
             </div>
 
             {/* Products Table (2 Columns) */}
