@@ -192,6 +192,7 @@ class OrderViewSet(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 class ProductImageViewSet(ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly]
     serializer_class = ProductImageSerializer
     
     def get_queryset(self):
