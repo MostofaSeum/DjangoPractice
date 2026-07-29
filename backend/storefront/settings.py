@@ -209,6 +209,6 @@ SIMPLE_JWT = {
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 2525
-EMAIL_USER = ''
+EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 DEFAULT_FROM_EMAIL = 'mostofaseum8@gmail.com'
