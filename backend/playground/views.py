@@ -5,7 +5,8 @@ from django.core.mail import EmailMessage,BadHeaderError
 def say_hello(request):
     try:
         message = EmailMessage('subject', 'message', 'mostofaseum8@gmail.com', ['mostofa.seum@brainicontech.com'])
-        message.attach_file('playground/static/images/Sea.png')
+        message.attach_file('D:/Brainicon Technology/storefront/backend/playground/static/images/Sea.png')
+
         message.send()
     except BadHeaderError:
         pass
