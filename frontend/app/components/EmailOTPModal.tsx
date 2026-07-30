@@ -10,6 +10,7 @@ interface EmailOTPModalProps {
   onSuccess?: () => void;
   initialEmail?: string;
   initialStep?: 1 | 2;
+  extraPayload?: Record<string, any>;
 }
 
 export default function EmailOTPModal({
@@ -18,6 +19,7 @@ export default function EmailOTPModal({
   onSuccess,
   initialEmail = "",
   initialStep = 1,
+  extraPayload = {},
 }: EmailOTPModalProps) {
   const { login } = useAuth();
   const [email, setEmail] = useState(initialEmail);
@@ -96,7 +98,7 @@ export default function EmailOTPModal({
       const res = await fetch(`${API_BASE}/auth/otp/verify/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp_code: otpCode }),
+        body: JSON.stringify({ email, otp_code: otpCode, ...extraPayload }),
       });
 
       const data = await res.json();

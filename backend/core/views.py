@@ -34,14 +34,18 @@ def send_otp(request):
     OTPToken.objects.create(email=email, otp_code=otp_code)
 
     # Send email
-    subject = "Your VibeMart Login Verification Code"
-    message = f"Your one-time login verification code is: {otp_code}\n\nThis code will expire in 5 minutes. Do not share it with anyone."
+    subject = "Your VibeMart Verification Code"
+    message = f"Your one-time verification code is: {otp_code}\n\nThis code will expire in 5 minutes. Do not share it with anyone."
     from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@vibemart.com')
 
     try:
-        send_mail(subject, message, from_email, [email], fail_silently=True)
+        send_mail(subject, message, from_email, [email], fail_silently=False)
     except Exception as e:
         print("Email sending error:", e)
+        return Response(
+            {'error': f"Failed to send email: {str(e)}"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     # Also log to console for dev environment testing
     print(f"\n==========================================")
@@ -56,6 +60,10 @@ def send_otp(request):
 def verify_otp(request):
     email = request.data.get('email')
     otp_code = request.data.get('otp_code')
+    username_req = request.data.get('username')
+    password_req = request.data.get('password')
+    first_name = request.data.get('first_name', '')
+    last_name = request.data.get('last_name', '')
 
     if not email or not otp_code:
         return Response({'error': 'Email and OTP code are required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -70,16 +78,27 @@ def verify_otp(request):
     otp_entry.save()
 
     # Get or create user
-    base_username = email.split('@')[0]
     user = User.objects.filter(email=email).first()
     if not user:
-        # Generate unique username if username already exists
+        base_username = username_req or email.split('@')[0]
         username = base_username
         counter = 1
         while User.objects.filter(username=username).exists():
             username = f"{base_username}{counter}"
             counter += 1
-        user = User.objects.create_user(username=username, email=email)
+
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password_req,
+            first_name=first_name,
+            last_name=last_name
+        )
+    elif password_req:
+        user.set_password(password_req)
+        if first_name: user.first_name = first_name
+        if last_name: user.last_name = last_name
+        user.save()
 
     # Issue JWT tokens
     refresh = RefreshToken.for_user(user)

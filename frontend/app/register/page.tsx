@@ -102,37 +102,15 @@ export default function RegisterPage() {
   };
 
   const handleCompleteRegistration = async () => {
-    setLoading(true);
-    try {
-      const payload = {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-      };
-
-      const res = await register(payload);
-      if (res.success) {
-        await login(formData.username, formData.password);
-        Swal.fire({
-          position: "top-end",
-          icon: "success",
-          title: "Account created successfully!",
-          showConfirmButton: false,
-          timer: 1800,
-          toast: true,
-        });
-        router.push("/");
-      } else {
-        setError(res.error || "Could not create account. Please check your inputs.");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("An error occurred during registration. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    Swal.fire({
+      position: "top-end",
+      icon: "success",
+      title: "Account created successfully!",
+      showConfirmButton: false,
+      timer: 1800,
+      toast: true,
+    });
+    window.location.href = "/";
   };
 
   return (
@@ -265,6 +243,12 @@ export default function RegisterPage() {
           isOpen={showOTPModal}
           initialEmail={formData.email}
           initialStep={2}
+          extraPayload={{
+            username: formData.username,
+            password: formData.password,
+            first_name: formData.first_name,
+            last_name: formData.last_name,
+          }}
           onClose={() => setShowOTPModal(false)}
           onSuccess={handleCompleteRegistration}
         />
