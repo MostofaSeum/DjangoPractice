@@ -11,6 +11,7 @@ interface Product {
   unit_price: number;
   inventory: number;
   description?: string;
+  images?: { id?: number; image: string }[];
 }
 
 const CartIcon = () => (
@@ -262,7 +263,7 @@ export default async function Home() {
                 >
                   <Link href={`/products/${product.id}`} className="block">
                     <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                      <ProductImage title={product.title} />
+                      <ProductImage title={product.title} images={product.images} />
                     </div>
                     <h4 className="font-bold text-lg text-[#3a3532] mb-1 line-clamp-1 group-hover:text-[#8b7a66] transition-colors">
                       {product.title}

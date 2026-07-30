@@ -7,6 +7,7 @@ interface Product {
   title: string;
   unit_price: number;
   description: string;
+  images?: { id: number; image: string }[];
 }
 
 const CartIcon = () => (
@@ -235,7 +236,7 @@ export default async function ProductsPage({
                   >
                     <div>
                       <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                        <ProductImage title={product.title} />
+                        <ProductImage title={product.title} images={product.images} />
                       </div>
                       <h2 className="font-bold text-lg text-[#3a3532] mb-1 line-clamp-1">
                         {product.title}

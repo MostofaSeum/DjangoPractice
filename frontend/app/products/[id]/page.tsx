@@ -10,6 +10,7 @@ interface Product {
   inventory: number;
   description: string;
   collection: number | { id: number; title: string };
+  images?: { id: number; image: string }[];
 }
 
 interface CollectionDetail {
@@ -121,7 +122,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
           {/* Left Column: Product Images */}
           <div className="space-y-4">
             <div className="aspect-[4/5] w-full rounded-2xl border border-[#3a3532]/10 bg-[#f4f1eb] flex items-center justify-center relative overflow-hidden shadow-sm">
-              <ProductImage title={product.title} alt={product.title} />
+              <ProductImage title={product.title} images={product.images} alt={product.title} />
             </div>
 
             {/* Thumbnail Placeholders */}
