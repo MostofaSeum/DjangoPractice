@@ -12,4 +12,3 @@ whitenoise
 Pillow
 asgiref
 sqlparse
-templated-mail
