@@ -155,16 +155,16 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
       <div 
         key={`empty-${index}`} 
         onClick={!loading ? handleUploadClick : undefined}
-        className={`relative rounded-xl border-2 border-dashed border-[#8b7a66]/50 bg-[#8b7a66]/5 hover:bg-[#8b7a66]/10 cursor-pointer flex flex-col gap-2 items-center justify-center transition-colors ${isMain ? 'w-full aspect-[4/3]' : 'w-full aspect-square'} ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={`relative rounded-xl border-2 border-dashed border-[#8b7a66]/50 bg-[#8b7a66]/5 hover:bg-[#8b7a66]/10 cursor-pointer flex flex-col gap-1 items-center justify-center p-1 transition-colors ${isMain ? 'w-full aspect-[4/3]' : 'w-full aspect-square'} ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         {loading ? (
-          <span className="text-[10px] text-[#8b7a66] font-bold uppercase tracking-wider animate-pulse">UPLOADING...</span>
+          <span className="text-[9px] text-[#8b7a66] font-bold uppercase tracking-tight animate-pulse text-center">UPLOADING...</span>
         ) : (
           <>
-            <svg className="w-6 h-6 text-[#8b7a66]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className={`${isMain ? 'w-6 h-6' : 'w-4 h-4'} text-[#8b7a66]`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            <span className="text-[10px] text-[#8b7a66] font-bold uppercase tracking-wider">
+            <span className={`${isMain ? 'text-[10px] tracking-wider' : 'text-[8.5px] sm:text-[9px] tracking-tight whitespace-nowrap'} text-[#8b7a66] font-bold uppercase text-center`}>
               {isMain ? 'ADD MAIN IMAGE' : `ADD DETAIL ${index}`}
             </span>
           </>
@@ -192,12 +192,12 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
       {fetchingImages ? (
         <p className="text-xs text-[#3a3532]/50 animate-pulse">Loading photos...</p>
       ) : (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           {/* Main Image Slot */}
           {renderSlot(0)}
           
           {/* Detail Images Slots (4 in a row) */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-4 gap-2">
             {renderSlot(1)}
             {renderSlot(2)}
             {renderSlot(3)}
