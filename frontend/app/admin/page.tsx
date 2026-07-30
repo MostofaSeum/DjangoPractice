@@ -438,7 +438,56 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Delete Collection (DELETE /store/collections/{id}/)
+  // Delete Collection Photo
+  const handleDeleteCollectionPhoto = async () => {
+    if (!token) return;
+
+    if (!editingCollectionId && collectionImagePreview) {
+      setCollectionImageFile(null);
+      setCollectionImagePreview(null);
+      return;
+    }
+
+    const confirm = await Swal.fire({
+      title: "Delete Collection Photo?",
+      text: "Are you sure you want to remove the cover photo from this collection?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#cc5555",
+      confirmButtonText: "Yes, Delete",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/store/collections/${editingCollectionId}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify({ image: null }),
+      });
+
+      if (res.ok) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Collection photo removed!",
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+        });
+        setCollectionImageFile(null);
+        setCollectionImagePreview(null);
+        fetchAdminData();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Delete Collection 
   const handleDeleteCollection = async (col: Collection) => {
     if (!token) return;
 
@@ -972,9 +1021,23 @@ export default function AdminDashboardPage() {
                     className="block w-full text-xs text-[#3a3532] file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#3a3532] file:text-[#e6e0d4] hover:file:opacity-90 cursor-pointer"
                   />
                   {collectionImagePreview && (
-                    <div className="mt-2 relative w-16 h-16 rounded-xl overflow-hidden border border-[#3a3532]/20 shadow-sm bg-white">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={collectionImagePreview.startsWith("http") || collectionImagePreview.startsWith("blob") ? collectionImagePreview : `${API_BASE}${collectionImagePreview}`} alt="Cover preview" className="object-cover w-full h-full" />
+                    <div className="mt-3 flex justify-center w-full">
+                      <div className="relative group w-36 h-36 rounded-2xl overflow-hidden border border-[#3a3532]/20 shadow-md bg-white">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={collectionImagePreview.startsWith("http") || collectionImagePreview.startsWith("blob") ? collectionImagePreview : `${API_BASE}${collectionImagePreview}`}
+                          alt="Cover preview"
+                          className="object-cover w-full h-full"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleDeleteCollectionPhoto}
+                          title="Delete Photo"
+                          className="absolute inset-0 bg-black/60 text-white text-xs font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                        >
+                          Delete Photo
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
