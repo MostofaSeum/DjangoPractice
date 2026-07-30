@@ -26,7 +26,8 @@ export default async function CollectionsPage() {
     );
   }
 
-  const collections: Collection[] = await res.json();
+  const data = await res.json();
+  const collections: Collection[] = Array.isArray(data) ? data : data.results || [];
 
   return (
     <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans antialiased pb-24 selection:bg-[#3a3532] selection:text-[#e6e0d4]">

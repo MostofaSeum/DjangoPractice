@@ -30,7 +30,7 @@ class ProductSerializers(serializers.ModelSerializer):
         return product.unit_price * Decimal('1.1')
 
 class CollectionSerializer(serializers.ModelSerializer):
-    product_count = serializers.IntegerField(source = "product_set.count", read_only = True)
+    product_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Collection
         fields = ['id', 'title','featured_product','product_count']
