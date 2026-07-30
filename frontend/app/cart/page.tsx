@@ -74,7 +74,7 @@ export default function CartPage() {
                 >
                   <div className="flex items-center gap-6 w-full sm:w-auto">
                     <div className="w-20 h-20 bg-[#f4f1eb] rounded-2xl flex items-center justify-center flex-shrink-0 relative overflow-hidden">
-                      <ProductImage title={item.product.title} />
+                      <ProductImage title={item.product.title} images={(item.product as any).images} />
                     </div>
                     <div>
                       <h3 className="font-black text-lg uppercase tracking-tight">

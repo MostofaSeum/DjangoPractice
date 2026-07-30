@@ -863,12 +863,6 @@ export default function AdminDashboardPage() {
                         onClick={(e) => e.stopPropagation()}
                       >
                         <button
-                          onClick={() => handleSelectProduct(prod)}
-                          className="px-3 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
-                        >
-                          Edit
-                        </button>
-                        <button
                           onClick={() => handleDeleteProduct(prod.id)}
                           className="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
                         >
@@ -1002,7 +996,8 @@ export default function AdminDashboardPage() {
                 {filteredCollections.map((col) => (
                   <div
                     key={col.id}
-                    className={`p-4 rounded-2xl border transition-all flex justify-between items-center ${
+                    onClick={() => handleSelectCollection(col)}
+                    className={`p-4 rounded-2xl border transition-all flex justify-between items-center cursor-pointer ${
                       editingCollectionId === col.id
                         ? "bg-[#8b7a66]/15 border-[#8b7a66]"
                         : "bg-[#f4f1eb] border-[#3a3532]/5 hover:border-[#3a3532]/20"
@@ -1016,13 +1011,7 @@ export default function AdminDashboardPage() {
                         ID: #{col.id} • {col.product_count || 0} Products
                       </span>
                     </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleSelectCollection(col)}
-                        className="px-3 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
-                      >
-                        Edit
-                      </button>
+                    <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => handleDeleteCollection(col)}
                         className="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"

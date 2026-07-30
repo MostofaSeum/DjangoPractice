@@ -52,9 +52,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         return Review.objects.create(**validated_data, product_id = product_id)
 
 class SimpleProductSerializers(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True, read_only=True)
     class Meta:
         model = Product
-        fields = ['id', 'title', 'unit_price', 'inventory']
+        fields = ['id', 'title', 'unit_price', 'inventory', 'images']
 
 class CartItemSerializers(serializers.ModelSerializer):
     product = SimpleProductSerializers()
