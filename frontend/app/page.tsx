@@ -1,9 +1,9 @@
 export const dynamic = "force-dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import AnimatedWord from "./components/AnimatedWord";
-import AddToCartButton from "./components/AddToCartButton";
-import ProductImage from "./components/ProductImage";
+import AnimatedWord from "@/components/ui/AnimatedWord";
+import AddToCartButton from "@/features/products/components/AddToCartButton";
+import ProductImage from "@/components/ui/ProductImage";
 
 interface Product {
   id: number;

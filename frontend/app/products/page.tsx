@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import ProductImage from "../components/ProductImage";
-import AddToCartButton from "../components/AddToCartButton";
+import ProductImage from "@/components/ui/ProductImage";
+import AddToCartButton from "@/features/products/components/AddToCartButton";
 
 interface Product {
   id: number;

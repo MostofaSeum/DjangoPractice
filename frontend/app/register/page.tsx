@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useAuth } from "@/app/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
-import EmailOTPModal from "@/app/components/EmailOTPModal";
+import EmailOTPModal from "@/features/auth/components/EmailOTPModal";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({

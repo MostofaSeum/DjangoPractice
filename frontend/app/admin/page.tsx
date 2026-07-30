@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/app/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
-import ImageUploadModal from "@/app/components/ImageUploadModal";
-import ProductImage from "@/app/components/ProductImage";
+import ImageUploadModal from "@/components/ui/ImageUploadModal";
+import ProductImage from "@/components/ui/ProductImage";
 
 const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
