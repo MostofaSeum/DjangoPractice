@@ -1,9 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/app/context/AuthContext";
-import Swal from "sweetalert2";
-
 interface EmailOTPModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -21,7 +18,6 @@ export default function EmailOTPModal({
   initialStep = 1,
   extraPayload = {},
 }: EmailOTPModalProps) {
-  const { login } = useAuth();
   const [email, setEmail] = useState(initialEmail);
   const [otpCode, setOtpCode] = useState("");
   const [step, setStep] = useState<1 | 2>(initialStep);
