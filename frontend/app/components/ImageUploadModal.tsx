@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/app/context/AuthContext';
+import Swal from 'sweetalert2';
 
 interface ProductImage {
   id: number;
@@ -17,21 +18,19 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
   const { user } = useAuth();
   const [existingImages, setExistingImages] = useState<ProductImage[]>([]);
   const [fetchingImages, setFetchingImages] = useState(true);
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
 
-  // Fetch existing product images
   const fetchImages = async () => {
     setFetchingImages(true);
     try {
       const res = await fetch(`${apiBaseUrl}/store/products/${productId}/images/`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
-        setExistingImages(data);
+        setExistingImages(Array.isArray(data) ? data : data.results || []);
       }
     } catch (e) {
       console.error("Failed to load product images", e);
@@ -46,27 +45,23 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
     }
   }, [productId]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setPreview(URL.createObjectURL(selectedFile));
-    }
+  const handleUploadClick = () => {
+    if (existingImages.length >= 5) return;
+    fileInputRef.current?.click();
   };
 
-  const handleUpload = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!file) return;
+  const handleFileChangeAndUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) return;
 
     setLoading(true);
     setMessage(null);
 
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('image', selectedFile);
 
     try {
       const token = localStorage.getItem('access_token') || localStorage.getItem('jwt');
-
       const response = await fetch(`${apiBaseUrl}/store/products/${productId}/images/`, {
         method: 'POST',
         headers: {
@@ -81,18 +76,31 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
       }
 
       setMessage({ type: 'success', text: 'Photo uploaded successfully!' });
-      setFile(null);
-      setPreview(null);
-      fetchImages(); // Refresh thumbnail list
+      fetchImages();
       if (onSuccess) onSuccess();
     } catch (err: any) {
       setMessage({ type: 'error', text: err.message || 'Something went wrong.' });
     } finally {
       setLoading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
   const handleDeleteImage = async (imageId: number) => {
+    const confirmResult = await Swal.fire({
+      title: 'Delete Photo?',
+      text: "Are you sure you want to delete this photo?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#cc5555',
+      cancelButtonColor: '#3a3532',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (!confirmResult.isConfirmed) return;
+
     const token = localStorage.getItem('access_token') || localStorage.getItem('jwt');
     try {
       const res = await fetch(`${apiBaseUrl}/store/products/${productId}/images/${imageId}/`, {
@@ -112,75 +120,91 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
     }
   };
 
+  const renderSlot = (index: number) => {
+    const isMain = index === 0;
+    const img = existingImages[index];
+    const isNextAvailable = index === existingImages.length;
+
+    // Resolve full URL for rendering if it's a relative path from Django
+    const getImageUrl = (path: string) => {
+      if (!path.startsWith("http://") && !path.startsWith("https://")) {
+        return `${apiBaseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
+      }
+      return path;
+    };
+
+    if (img) {
+      return (
+        <div key={img.id} className={`relative group rounded-xl overflow-hidden border border-[#3a3532]/20 shadow-sm bg-white ${isMain ? 'w-full aspect-[4/3]' : 'w-full aspect-square'}`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={getImageUrl(img.image)} alt={`Slot ${index}`} className="object-cover w-full h-full" />
+          <button
+            type="button"
+            onClick={() => handleDeleteImage(img.id)}
+            title="Delete Photo"
+            className="absolute inset-0 bg-black/60 text-white text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+          >
+            Delete
+          </button>
+        </div>
+      );
+    }
+
+    // Empty slot (clickable for upload)
+    return (
+      <div 
+        key={`empty-${index}`} 
+        onClick={!loading ? handleUploadClick : undefined}
+        className={`relative rounded-xl border-2 border-dashed border-[#8b7a66]/50 bg-[#8b7a66]/5 hover:bg-[#8b7a66]/10 cursor-pointer flex flex-col gap-2 items-center justify-center transition-colors ${isMain ? 'w-full aspect-[4/3]' : 'w-full aspect-square'} ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+      >
+        {loading ? (
+          <span className="text-[10px] text-[#8b7a66] font-bold uppercase tracking-wider animate-pulse">UPLOADING...</span>
+        ) : (
+          <>
+            <svg className="w-6 h-6 text-[#8b7a66]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            <span className="text-[10px] text-[#8b7a66] font-bold uppercase tracking-wider">
+              {isMain ? 'ADD MAIN IMAGE' : `ADD DETAIL ${index}`}
+            </span>
+          </>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4 pt-2">
       <div className="flex items-center justify-between">
         <h4 className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
-          Product Photos ({existingImages.length})
+          Product Photos ({existingImages.length}/5)
         </h4>
       </div>
 
-      {/* Existing Images Thumbnails */}
+      <input
+        type="file"
+        accept="image/*"
+        ref={fileInputRef}
+        onChange={handleFileChangeAndUpload}
+        className="hidden"
+      />
+
       {fetchingImages ? (
         <p className="text-xs text-[#3a3532]/50 animate-pulse">Loading photos...</p>
-      ) : existingImages.length > 0 ? (
-        <div className="flex flex-wrap gap-2">
-          {existingImages.map((img) => (
-            <div key={img.id} className="relative group w-20 h-20 rounded-xl overflow-hidden border border-[#3a3532]/20 shadow-sm bg-white">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={img.image} alt="Product Thumbnail" className="object-cover w-full h-full" />
-              <button
-                type="button"
-                onClick={() => handleDeleteImage(img.id)}
-                title="Delete Photo"
-                className="absolute inset-0 bg-black/60 text-white text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
-              >
-                Delete
-              </button>
-            </div>
-          ))}
-        </div>
       ) : (
-        <p className="text-xs text-[#3a3532]/50 italic">No photo uploaded yet.</p>
-      )}
-
-      {/* Upload Form */}
-      <form onSubmit={handleUpload} className="space-y-3 pt-2">
-        <div className="flex flex-col gap-1">
-          <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
-            Upload New Photo
-          </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="block w-full text-xs text-[#3a3532]
-              file:mr-3 file:py-1.5 file:px-3
-              file:rounded-xl file:border-0
-              file:text-xs file:font-bold
-              file:bg-[#3a3532] file:text-[#e6e0d4]
-              hover:file:opacity-90 cursor-pointer"
-          />
-        </div>
-
-        {preview && (
-          <div className="flex items-center gap-3 p-2 bg-[#f4f1eb] rounded-xl border border-[#3a3532]/10">
-            <div className="relative w-12 h-12 rounded-lg overflow-hidden border border-[#3a3532]/20">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={preview} alt="New Preview" className="object-cover w-full h-full" />
-            </div>
-            <span className="text-xs font-bold text-[#3a3532]/70">New photo selected</span>
+        <div className="flex flex-col gap-4">
+          {/* Main Image Slot */}
+          {renderSlot(0)}
+          
+          {/* Detail Images Slots (4 in a row) */}
+          <div className="grid grid-cols-4 gap-4">
+            {renderSlot(1)}
+            {renderSlot(2)}
+            {renderSlot(3)}
+            {renderSlot(4)}
           </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={!file || loading}
-          className="w-full py-2.5 bg-[#8b7a66] hover:bg-[#726453] text-white text-xs font-bold uppercase tracking-wider rounded-xl disabled:opacity-40 transition-colors"
-        >
-          {loading ? 'Uploading...' : 'Save & Attach Photo'}
-        </button>
-      </form>
+        </div>
+      )}
 
       {message && (
         <p className={`text-xs font-bold ${message.type === 'success' ? 'text-green-700' : 'text-red-600'}`}>

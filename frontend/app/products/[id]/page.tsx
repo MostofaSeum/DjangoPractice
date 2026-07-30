@@ -125,24 +125,29 @@ export default async function ProductDetailPage({ params }: PageProps) {
               <ProductImage title={product.title} images={product.images} alt={product.title} />
             </div>
 
-            {/* Thumbnail Placeholders */}
+            {/* Detail Thumbnails */}
             <div className="grid grid-cols-4 gap-3">
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="aspect-square w-full rounded-xl bg-[#f4f1eb] flex items-center justify-center p-2 text-center text-[10px] text-[#3a3532]/30 font-bold relative overflow-hidden"
-                >
-                  <Image
-                    src="/"
-                    alt={`${product.title} detail ${i}`}
-                    fill
-                    className="opacity-0 object-cover"
-                  />
-                  <span className="z-10 uppercase tracking-widest text-[9px]">
-                    Detail {i}
-                  </span>
-                </div>
-              ))}
+              {[1, 2, 3, 4].map((i) => {
+                const imgObj = product.images?.[i];
+                return (
+                  <div
+                    key={i}
+                    className="aspect-square w-full rounded-xl bg-[#f4f1eb] flex items-center justify-center text-center text-[10px] text-[#3a3532]/30 font-bold relative overflow-hidden shadow-sm border border-[#3a3532]/5"
+                  >
+                    {imgObj ? (
+                      <ProductImage 
+                        title={`${product.title} detail ${i}`} 
+                        images={[imgObj]} 
+                        alt={`${product.title} detail ${i}`} 
+                      />
+                    ) : (
+                      <span className="z-10 uppercase tracking-widest text-[9px] px-2">
+                        Detail {i}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
