@@ -33,13 +33,13 @@ class CollectionSerializer(serializers.ModelSerializer):
     product_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Collection
-        fields = ['id', 'title','featured_product','product_count']
+        fields = ['id', 'title', 'featured_product', 'product_count', 'image']
 
 class CollectionDetailSerializer(serializers.ModelSerializer):
     products = ProductSerializers(many=True, read_only=True, source='product_set')
     class Meta:
         model = Collection
-        fields = ['id', 'title', 'featured_product', 'products']
+        fields = ['id', 'title', 'featured_product', 'products', 'image']
 
 
 class ReviewSerializer(serializers.ModelSerializer):

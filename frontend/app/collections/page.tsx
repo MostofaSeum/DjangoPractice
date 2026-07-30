@@ -6,6 +6,7 @@ interface Collection {
   title: string;
   featured_product: string | null;
   product_count: number;
+  image?: string | null;
 }
 
 const CartIcon = () => (
@@ -49,36 +50,47 @@ export default async function CollectionsPage() {
         </h1>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {collections.map((collection) => (
-            <div
-              key={collection.id}
-              className="bg-white rounded-2xl p-6 shadow-sm border border-[#3a3532]/5 hover:shadow-xl transition-all duration-300 flex justify-between items-center space-x-4 group cursor-pointer"
-            >
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold mb-1 uppercase tracking-tight group-hover:text-[#8b7a66] transition-colors">
-                  {collection.title}
-                </h2>
-                <p className="text-[#3a3532]/60 text-xs font-bold uppercase tracking-wider mb-6">
-                  {collection.product_count} products
-                </p>
-                <Link
-                  href={`/collections/${collection.id}`}
-                  className="inline-block text-[10px] font-bold tracking-widest uppercase border-b-2 border-[#3a3532] pb-1 hover:opacity-70 transition-opacity"
-                >
-                  View Collection
-                </Link>
+          {collections.map((collection) => {
+            const imageUrl = collection.image
+              ? collection.image.startsWith("http")
+                ? collection.image
+                : `${apiBaseUrl}${collection.image.startsWith("/") ? "" : "/"}${collection.image}`
+              : null;
+
+            return (
+              <div
+                key={collection.id}
+                className="bg-white rounded-2xl p-6 shadow-sm border border-[#3a3532]/5 hover:shadow-xl transition-all duration-300 flex justify-between items-center space-x-4 group cursor-pointer"
+              >
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold mb-1 uppercase tracking-tight group-hover:text-[#8b7a66] transition-colors">
+                    {collection.title}
+                  </h2>
+                  <p className="text-[#3a3532]/60 text-xs font-bold uppercase tracking-wider mb-6">
+                    {collection.product_count} products
+                  </p>
+                  <Link
+                    href={`/collections/${collection.id}`}
+                    className="inline-block text-[10px] font-bold tracking-widest uppercase border-b-2 border-[#3a3532] pb-1 hover:opacity-70 transition-opacity"
+                  >
+                    View Collection
+                  </Link>
+                </div>
+                <div className="w-24 h-24 flex-shrink-0 bg-[#f4f1eb] rounded-xl relative flex items-center justify-center p-2 text-center text-[10px] text-[#3a3532]/30 font-bold uppercase tracking-wider overflow-hidden border border-[#3a3532]/10">
+                  {imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={imageUrl}
+                      alt={`Cover for ${collection.title}`}
+                      className="w-full h-full object-cover rounded-xl"
+                    />
+                  ) : (
+                    <span>{collection.title}</span>
+                  )}
+                </div>
               </div>
-              <div className="w-24 h-24 flex-shrink-0 bg-[#f4f1eb] rounded-xl relative flex items-center justify-center p-2 text-center text-[10px] text-[#3a3532]/30 font-bold uppercase tracking-wider overflow-hidden">
-                <Image
-                  src="/"
-                  alt={`Image of ${collection.title}`}
-                  fill
-                  className="opacity-0 object-cover"
-                />
-                <span>{collection.title}</span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </main>
     </div>

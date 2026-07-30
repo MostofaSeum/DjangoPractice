@@ -26,6 +26,7 @@ interface Collection {
   id: number;
   title: string;
   product_count: number;
+  image?: string | null;
 }
 
 interface OrderItem {
@@ -368,15 +369,21 @@ export default function AdminDashboardPage() {
 
   // Collection Edit State & Handlers
   const [editingCollectionId, setEditingCollectionId] = useState<number | null>(null);
+  const [collectionImageFile, setCollectionImageFile] = useState<File | null>(null);
+  const [collectionImagePreview, setCollectionImagePreview] = useState<string | null>(null);
 
   const handleSelectCollection = (col: Collection) => {
     setEditingCollectionId(col.id);
     setNewCollectionTitle(col.title);
+    setCollectionImageFile(null);
+    setCollectionImagePreview(col.image || null);
   };
 
   const handleCancelCollectionEdit = () => {
     setEditingCollectionId(null);
     setNewCollectionTitle("");
+    setCollectionImageFile(null);
+    setCollectionImagePreview(null);
   };
 
   // Create or Update Collection (POST or PUT /store/collections/)
@@ -391,13 +398,18 @@ export default function AdminDashboardPage() {
         : `${API_BASE}/store/collections/`;
       const method = isEditing ? "PUT" : "POST";
 
+      const formData = new FormData();
+      formData.append("title", newCollectionTitle);
+      if (collectionImageFile) {
+        formData.append("image", collectionImageFile);
+      }
+
       const res = await fetch(url, {
         method,
         headers: {
-          "Content-Type": "application/json",
           Authorization: `JWT ${token}`,
         },
-        body: JSON.stringify({ title: newCollectionTitle }),
+        body: formData,
       });
 
       if (res.ok) {
@@ -943,6 +955,29 @@ export default function AdminDashboardPage() {
                     className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none"
                   />
                 </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+                    Collection Cover Photo
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setCollectionImageFile(file);
+                        setCollectionImagePreview(URL.createObjectURL(file));
+                      }
+                    }}
+                    className="block w-full text-xs text-[#3a3532] file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#3a3532] file:text-[#e6e0d4] hover:file:opacity-90 cursor-pointer"
+                  />
+                  {collectionImagePreview && (
+                    <div className="mt-2 relative w-16 h-16 rounded-xl overflow-hidden border border-[#3a3532]/20 shadow-sm bg-white">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={collectionImagePreview.startsWith("http") || collectionImagePreview.startsWith("blob") ? collectionImagePreview : `${API_BASE}${collectionImagePreview}`} alt="Cover preview" className="object-cover w-full h-full" />
+                    </div>
+                  )}
+                </div>
                 <button
                   type="submit"
                   className="w-full py-3 bg-[#3a3532] text-[#e6e0d4] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#252220] transition-colors"
@@ -1003,13 +1038,21 @@ export default function AdminDashboardPage() {
                         : "bg-[#f4f1eb] border-[#3a3532]/5 hover:border-[#3a3532]/20"
                     }`}
                   >
-                    <div>
-                      <h3 className="font-bold text-sm text-[#3a3532]">
-                        {col.title}
-                      </h3>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/50">
-                        ID: #{col.id} • {col.product_count || 0} Products
-                      </span>
+                    <div className="flex items-center gap-3">
+                      {col.image && (
+                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-[#3a3532]/20 flex-shrink-0 bg-white">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={col.image.startsWith("http") ? col.image : `${API_BASE}${col.image}`} alt={col.title} className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      <div>
+                        <h3 className="font-bold text-sm text-[#3a3532]">
+                          {col.title}
+                        </h3>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/50">
+                          ID: #{col.id} • {col.product_count || 0} Products
+                        </span>
+                      </div>
                     </div>
                     <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                       <button
