@@ -46,6 +46,11 @@ class ProductImage(models.Model):
         Product, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='store/images')
 
+    def delete(self, *args, **kwargs):
+        if self.image:
+            self.image.delete(save=False)
+        super().delete(*args, **kwargs)
+
 
 class Customer(models.Model):
     MEMBERSHIP_BRONZE = 'B'
