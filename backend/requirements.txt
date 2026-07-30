@@ -12,3 +12,4 @@ whitenoise
 Pillow
 asgiref
 sqlparse
+django-debug-toolbar
