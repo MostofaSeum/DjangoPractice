@@ -176,18 +176,26 @@ import dj_database_url
 
 if os.environ.get('DATABASE_URL'):
     DATABASES = {
-        'default': dj_database_url.config()
+        'default': dj_database_url.config(conn_max_age=600, ssl_require=False)
     }
 else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'storefront2',
-            'HOST': 'localhost',
-            'USER': 'root',
-            'PASSWORD': 'Mseum017?'
+    try:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME': 'storefront2',
+                'HOST': 'localhost',
+                'USER': 'root',
+                'PASSWORD': 'Mseum017?'
+            }
         }
-    }
+    except Exception:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 
 AUTH_USER_MODEL = 'core.User'
 
