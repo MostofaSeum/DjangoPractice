@@ -5,6 +5,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import ImageUploadModal from "@/app/components/ImageUploadModal";
+import ProductImage from "@/app/components/ProductImage";
 
 const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
@@ -17,6 +18,8 @@ interface Product {
   inventory: number;
   slug: string;
   collection: number;
+  description?: string;
+  images?: { id?: number; image: string }[];
 }
 
 interface Collection {
@@ -840,14 +843,21 @@ export default function AdminDashboardPage() {
                           : "hover:bg-[#f4f1eb]"
                       }`}
                     >
-                      <td className="py-3.5 px-2 text-[#3a3532]/50">
+                      <td className="py-2.5 px-2 text-[#3a3532]/50 align-middle">
                         #{prod.id}
                       </td>
-                      <td className="py-3.5 px-2 font-black">{prod.title}</td>
-                      <td className="py-3.5 px-2 text-[#8b7a66]">
+                      <td className="py-2.5 px-2 font-black align-middle">
+                        <div className="flex items-center gap-3">
+                          <div className="relative w-10 h-10 shrink-0 rounded-xl overflow-hidden border border-[#3a3532]/15 bg-[#f4f1eb] shadow-sm">
+                            <ProductImage title={prod.title} images={prod.images} />
+                          </div>
+                          <span className="truncate max-w-[220px] sm:max-w-xs">{prod.title}</span>
+                        </div>
+                      </td>
+                      <td className="py-2.5 px-2 text-[#8b7a66] align-middle">
                         ${Number(prod.unit_price).toFixed(2)}
                       </td>
-                      <td className="py-3.5 px-2">{prod.inventory}</td>
+                      <td className="py-2.5 px-2 align-middle">{prod.inventory}</td>
                       <td
                         className="py-3.5 px-2 text-right flex justify-end gap-2"
                         onClick={(e) => e.stopPropagation()}
