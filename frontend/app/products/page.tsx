@@ -1,12 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import ProductImage from "../components/ProductImage";
+import AddToCartButton from "../components/AddToCartButton";
 
 interface Product {
   id: number;
   title: string;
   unit_price: number;
   description: string;
+  inventory?: number;
   images?: { id: number; image: string }[];
 }
 
@@ -246,15 +248,23 @@ export default async function ProductsPage({
                       </p>
                     </div>
                     <div>
-                      <p className="text-[#8b7a66] font-bold text-lg mb-6">
+                      <p className="text-[#8b7a66] font-bold text-lg mb-4">
                         ${Number(product.unit_price).toFixed(2)}
                       </p>
-                      <Link
-                        href={`/products/${product.id}`}
-                        className="w-full py-3 border-2 border-[#3a3532] rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors flex items-center justify-center gap-2"
-                      >
-                        View Details
-                      </Link>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Link
+                          href={`/products/${product.id}`}
+                          className="py-2.5 px-2 border-2 border-[#3a3532] text-[#3a3532] rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors flex items-center justify-center text-center"
+                        >
+                          View Details
+                        </Link>
+                        <AddToCartButton
+                          productId={product.id}
+                          productTitle={product.title}
+                          inventory={product.inventory ?? 999}
+                          className="py-2.5 px-2 bg-[#3a3532] text-[#e6e0d4] rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-[#252220] transition-colors flex items-center justify-center gap-1 text-center"
+                        />
+                      </div>
                     </div>
                   </div>
                 ))

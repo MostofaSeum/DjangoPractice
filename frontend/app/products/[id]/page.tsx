@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import ProductInteractive from "./ProductInteractive";
-import ProductImage from "@/app/components/ProductImage";
+import ProductGallery from "./ProductGallery";
 
 interface Product {
   id: number;
@@ -119,37 +119,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
       <main className="max-w-[1400px] mx-auto px-8 md:px-12 py-12">
         {/* Product Area Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-[#3a3532]/5">
-          {/* Left Column: Product Images */}
-          <div className="space-y-4">
-            <div className="aspect-[4/5] w-full rounded-2xl border border-[#3a3532]/10 bg-[#f4f1eb] flex items-center justify-center relative overflow-hidden shadow-sm">
-              <ProductImage title={product.title} images={product.images} alt={product.title} />
-            </div>
-
-            {/* Detail Thumbnails */}
-            <div className="grid grid-cols-4 gap-3">
-              {[1, 2, 3, 4].map((i) => {
-                const imgObj = product.images?.[i];
-                return (
-                  <div
-                    key={i}
-                    className="aspect-square w-full rounded-xl bg-[#f4f1eb] flex items-center justify-center text-center text-[10px] text-[#3a3532]/30 font-bold relative overflow-hidden shadow-sm border border-[#3a3532]/5"
-                  >
-                    {imgObj ? (
-                      <ProductImage 
-                        title={`${product.title} detail ${i}`} 
-                        images={[imgObj]} 
-                        alt={`${product.title} detail ${i}`} 
-                      />
-                    ) : (
-                      <span className="z-10 uppercase tracking-widest text-[9px] px-2">
-                        Detail {i}
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          {/* Left Column: Product Images (Interactive Gallery) */}
+          <ProductGallery title={product.title} images={product.images} />
 
           {/* Right Column: Product Info */}
           <div className="flex flex-col justify-start">
