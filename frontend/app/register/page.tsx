@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import EmailOTPModal from "@/app/components/EmailOTPModal";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -17,6 +18,9 @@ export default function RegisterPage() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showOTPModal, setShowOTPModal] = useState(false);
+
+  const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
 
   const { user, token, loading: authLoading, register, login } = useAuth();
   const router = useRouter();
@@ -44,9 +48,29 @@ export default function RegisterPage() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handlePreSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!formData.username.trim()) {
+      setError("Username is required.");
+      return;
+    }
+
+    if (!formData.email || !formData.email.includes("@")) {
+      setError("Please provide a valid email address.");
+      return;
+    }
+
+    if (!formData.password) {
+      setError("Password is required.");
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
@@ -55,6 +79,30 @@ export default function RegisterPage() {
 
     setLoading(true);
 
+    try {
+      // Send OTP (Backend will check email & return error if invalid or user issue)
+      const res = await fetch(`${API_BASE}/auth/otp/send/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email, username: formData.username }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setShowOTPModal(true);
+      } else {
+        setError(data.error || data.detail || "Failed to send verification code.");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError("Failed to validate account details. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCompleteRegistration = async () => {
+    setLoading(true);
     try {
       const payload = {
         username: formData.username,
@@ -66,7 +114,6 @@ export default function RegisterPage() {
 
       const res = await register(payload);
       if (res.success) {
-        // Auto-login after successful registration
         await login(formData.username, formData.password);
         Swal.fire({
           position: "top-end",
@@ -112,7 +159,7 @@ export default function RegisterPage() {
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handlePreSubmit} className="flex flex-col gap-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
@@ -210,9 +257,17 @@ export default function RegisterPage() {
             disabled={loading}
             className="w-full mt-4 py-4 bg-[#3a3532] text-[#e6e0d4] rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-[#252220] transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center"
           >
-            {loading ? "Creating Account..." : "Create Account"}
+            {loading ? "Sending Verification..." : "Create Account"}
           </button>
         </form>
+
+        <EmailOTPModal
+          isOpen={showOTPModal}
+          initialEmail={formData.email}
+          initialStep={2}
+          onClose={() => setShowOTPModal(false)}
+          onSuccess={handleCompleteRegistration}
+        />
 
         {/* Link to Login */}
         <div className="mt-8 pt-6 border-t border-[#3a3532]/10 text-center">
