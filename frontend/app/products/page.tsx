@@ -239,7 +239,7 @@ export default async function ProductsPage({
                       </p>
                     </div>
                     <div>
-                      <p className="text-[var(--brand-accent)] font-bold text-lg mb-4">
+                      <p className="text-[var(--price-color)] font-extrabold text-lg mb-4">
                         ${Number(product.unit_price).toFixed(2)}
                       </p>
                       <div className="grid grid-cols-2 gap-2">

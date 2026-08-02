@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import ImageUploadModal from "@/components/ui/ImageUploadModal";
 import ProductImage from "@/components/ui/ProductImage";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
@@ -635,12 +636,12 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans pb-24 selection:bg-[#3a3532] selection:text-[#e6e0d4]">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans pb-24 transition-colors duration-300">
       {/* Top Banner */}
-      <div className="bg-[#3a3532] text-[#e6e0d4] py-10 px-8 md:px-12 border-b border-white/10 shadow-md">
+      <div className="bg-[var(--header-bg)] text-[var(--header-text)] py-10 px-8 md:px-12 border-b border-white/10 shadow-md transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <span className="bg-[#8b7a66] text-white text-[10px] font-black px-3 py-1 uppercase tracking-widest rounded-md mb-2 inline-block">
+            <span className="bg-[var(--brand-accent)] text-white text-[10px] font-black px-3 py-1 uppercase tracking-widest rounded-md mb-2 inline-block">
               Staff Portal
             </span>
             <div className="flex items-center gap-4">
@@ -653,6 +654,7 @@ export default function AdminDashboardPage() {
               >
                 Logout
               </button>
+              <ThemeToggle />
             </div>
           </div>
 
@@ -708,9 +710,9 @@ export default function AdminDashboardPage() {
         {activeTab === "products" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {/* Add/Edit Product Form (1 Column) */}
-            <div className="bg-white p-8 rounded-3xl border border-[#3a3532]/5 shadow-sm h-fit">
-              <div className="flex justify-between items-center mb-6 pb-2 border-b border-[#3a3532]/10">
-                <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532]">
+            <div className="bg-[var(--card-bg)] text-[var(--foreground)] p-8 rounded-3xl border border-[var(--card-border)] shadow-sm h-fit transition-colors duration-300">
+              <div className="flex justify-between items-center mb-6 pb-2 border-b border-[var(--card-border)]">
+                <h2 className="text-xs font-black uppercase tracking-widest text-[var(--foreground)]">
                   {editingProductId
                     ? `Edit Product #${editingProductId}`
                     : "Add New Product"}
@@ -718,7 +720,7 @@ export default function AdminDashboardPage() {
                 {editingProductId && (
                   <button
                     onClick={handleCancelEdit}
-                    className="text-[10px] font-bold uppercase tracking-wider text-[#cc5555] hover:underline"
+                    className="text-[10px] font-bold uppercase tracking-wider text-red-500 hover:underline"
                   >
                     Cancel Edit
                   </button>
@@ -729,7 +731,7 @@ export default function AdminDashboardPage() {
                 className="flex flex-col gap-4"
               >
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                     Product Title *
                   </label>
                   <input
@@ -740,13 +742,13 @@ export default function AdminDashboardPage() {
                       setProductForm({ ...productForm, title: e.target.value })
                     }
                     placeholder="e.g. Neon Void Hoodie"
-                    className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none"
+                    className="px-4 py-2.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+                    <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                       Unit Price ($) *
                     </label>
                     <input
@@ -761,12 +763,12 @@ export default function AdminDashboardPage() {
                         })
                       }
                       placeholder="99.99"
-                      className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none"
+                      className="px-4 py-2.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
                     />
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+                    <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                       Inventory Stock *
                     </label>
                     <input
@@ -780,13 +782,13 @@ export default function AdminDashboardPage() {
                         })
                       }
                       placeholder="10"
-                      className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none"
+                      className="px-4 py-2.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
                     />
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                     Collection *
                   </label>
                   <select
@@ -797,10 +799,10 @@ export default function AdminDashboardPage() {
                         collection: e.target.value,
                       })
                     }
-                    className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none cursor-pointer"
+                    className="px-4 py-2.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none cursor-pointer focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
                   >
                     {collections.map((col) => (
-                      <option key={col.id} value={col.id}>
+                      <option key={col.id} value={col.id} className="bg-[var(--card-bg)] text-[var(--foreground)]">
                         {col.title} (ID: {col.id})
                       </option>
                     ))}
@@ -808,7 +810,7 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                     Description
                   </label>
                   <textarea
@@ -821,13 +823,13 @@ export default function AdminDashboardPage() {
                       })
                     }
                     placeholder="Short product description..."
-                    className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none"
+                    className="px-4 py-2.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full mt-2 py-3 bg-[#3a3532] text-[#e6e0d4] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#252220] transition-colors"
+                  className="w-full mt-2 py-3 bg-[var(--button-bg)] text-[var(--button-text)] rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md"
                 >
                   {editingProductId ? "Update Product" : "Create Product"}
                 </button>
@@ -835,16 +837,16 @@ export default function AdminDashboardPage() {
 
               {/* Photo Upload Section when editing a product */}
               {editingProductId && (
-                <div className="mt-4 pt-4 border-t border-[#3a3532]/10">
+                <div className="mt-4 pt-4 border-t border-[var(--card-border)]">
                   <ImageUploadModal productId={editingProductId} onSuccess={fetchAdminData} />
                 </div>
               )}
             </div>
 
             {/* Products Table (2 Columns) */}
-            <div className="lg:col-span-2 bg-white p-8 rounded-3xl border border-[#3a3532]/5 shadow-sm overflow-x-auto">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-[#3a3532]/10">
-                <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532]">
+            <div className="lg:col-span-2 bg-[var(--card-bg)] text-[var(--foreground)] p-8 rounded-3xl border border-[var(--card-border)] shadow-sm overflow-x-auto transition-colors duration-300">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-[var(--card-border)]">
+                <h2 className="text-xs font-black uppercase tracking-widest text-[var(--foreground)]">
                   All Products ({totalProductsCount || products.length})
                 </h2>
                 <form
@@ -860,11 +862,11 @@ export default function AdminDashboardPage() {
                     value={productSearch}
                     onChange={(e) => setProductSearch(e.target.value)}
                     placeholder="Search product..."
-                    className="px-3.5 py-1.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none w-full sm:w-48 focus:ring-2 focus:ring-[#8b7a66]"
+                    className="px-3.5 py-1.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none w-full sm:w-48 focus:ring-2 focus:ring-[var(--brand-accent)]"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                    className="px-4 py-1.5 bg-[var(--button-bg)] text-[var(--button-text)] hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
                   >
                     Search
                   </button>
@@ -876,7 +878,7 @@ export default function AdminDashboardPage() {
                         setActiveProductQuery("");
                         setProdPage(1);
                       }}
-                      className="text-[10px] font-bold text-red-600 hover:underline uppercase"
+                      className="text-[10px] font-bold text-red-500 hover:underline uppercase"
                     >
                       Clear
                     </button>
@@ -885,7 +887,7 @@ export default function AdminDashboardPage() {
               </div>
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-[#3a3532]/10 text-[10px] font-black uppercase tracking-wider text-[#3a3532]/60">
+                  <tr className="border-b border-[var(--card-border)] text-[10px] font-black uppercase tracking-wider opacity-60">
                     <th className="py-3 px-2">ID</th>
                     <th className="py-3 px-2">Title</th>
                     <th className="py-3 px-2">Price</th>
@@ -893,29 +895,29 @@ export default function AdminDashboardPage() {
                     <th className="py-3 px-2 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#3a3532]/5 text-xs font-bold">
+                <tbody className="divide-y divide-[var(--card-border)] text-xs font-bold">
                   {products.map((prod) => (
                     <tr
                       key={prod.id}
                       onClick={() => handleSelectProduct(prod)}
                       className={`cursor-pointer transition-colors ${
                         editingProductId === prod.id
-                          ? "bg-[#8b7a66]/15"
-                          : "hover:bg-[#f4f1eb]"
+                          ? "bg-[var(--brand-accent)]/20"
+                          : "hover:bg-[var(--input-bg)]"
                       }`}
                     >
-                      <td className="py-2.5 px-2 text-[#3a3532]/50 align-middle">
+                      <td className="py-2.5 px-2 opacity-50 align-middle">
                         #{prod.id}
                       </td>
                       <td className="py-2.5 px-2 font-black align-middle">
                         <div className="flex items-center gap-3">
-                          <div className="relative w-10 h-10 shrink-0 rounded-xl overflow-hidden border border-[#3a3532]/15 bg-[#f4f1eb] shadow-sm">
+                          <div className="relative w-10 h-10 shrink-0 rounded-xl overflow-hidden border border-[var(--card-border)] bg-[var(--input-bg)] shadow-sm">
                             <ProductImage title={prod.title} images={prod.images} />
                           </div>
                           <span className="truncate max-w-[220px] sm:max-w-xs">{prod.title}</span>
                         </div>
                       </td>
-                      <td className="py-2.5 px-2 text-[#8b7a66] align-middle">
+                      <td className="py-2.5 px-2 text-[var(--price-color)] font-extrabold align-middle">
                         ${Number(prod.unit_price).toFixed(2)}
                       </td>
                       <td className="py-2.5 px-2 align-middle">{prod.inventory}</td>
@@ -925,7 +927,7 @@ export default function AdminDashboardPage() {
                       >
                         <button
                           onClick={() => handleDeleteProduct(prod.id)}
-                          className="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                          className="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
                         >
                           Delete
                         </button>
@@ -937,16 +939,16 @@ export default function AdminDashboardPage() {
 
               {/* Pagination Controls (Matching Shop Page) */}
               {Math.ceil(totalProductsCount / 9) > 1 && (
-                <div className="flex justify-between items-center mt-6 pt-4 border-t border-[#3a3532]/10 text-xs font-bold">
+                <div className="flex justify-between items-center mt-6 pt-4 border-t border-[var(--card-border)] text-xs font-bold">
                   <button
                     onClick={() => setProdPage((prev) => Math.max(prev - 1, 1))}
                     disabled={prodPage === 1}
-                    className="px-5 py-2.5 border-2 border-[#3a3532] text-[#3a3532] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#f4f1eb] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="px-5 py-2.5 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--foreground)] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[var(--button-bg)] hover:text-[var(--button-text)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
                     Previous
                   </button>
 
-                  <span className="text-xs font-bold text-[#3a3532]/60 uppercase tracking-wider">
+                  <span className="text-xs font-bold opacity-60 uppercase tracking-wider">
                     Page {prodPage} of {Math.ceil(totalProductsCount / 9)}
                   </span>
 
@@ -957,7 +959,7 @@ export default function AdminDashboardPage() {
                       )
                     }
                     disabled={prodPage >= Math.ceil(totalProductsCount / 9)}
-                    className="px-5 py-2.5 border-2 border-[#3a3532] text-[#3a3532] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#f4f1eb] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="px-5 py-2.5 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--foreground)] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[var(--button-bg)] hover:text-[var(--button-text)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
                     Next
                   </button>
@@ -971,9 +973,9 @@ export default function AdminDashboardPage() {
         {activeTab === "collections" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {/* Create Collection Form */}
-            <div className="bg-white p-8 rounded-3xl border border-[#3a3532]/5 shadow-sm h-fit">
-              <div className="flex justify-between items-center mb-6 pb-2 border-b border-[#3a3532]/10">
-                <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532]">
+            <div className="bg-[var(--card-bg)] text-[var(--foreground)] p-8 rounded-3xl border border-[var(--card-border)] shadow-sm h-fit transition-colors duration-300">
+              <div className="flex justify-between items-center mb-6 pb-2 border-b border-[var(--card-border)]">
+                <h2 className="text-xs font-black uppercase tracking-widest text-[var(--foreground)]">
                   {editingCollectionId
                     ? `Edit Collection #${editingCollectionId}`
                     : "Create Collection"}
@@ -981,7 +983,7 @@ export default function AdminDashboardPage() {
                 {editingCollectionId && (
                   <button
                     onClick={handleCancelCollectionEdit}
-                    className="text-[10px] font-bold uppercase tracking-wider text-[#cc5555] hover:underline"
+                    className="text-[10px] font-bold uppercase tracking-wider text-red-500 hover:underline"
                   >
                     Cancel Edit
                   </button>
@@ -992,7 +994,7 @@ export default function AdminDashboardPage() {
                 className="flex flex-col gap-4"
               >
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                     Collection Title *
                   </label>
                   <input
@@ -1001,11 +1003,11 @@ export default function AdminDashboardPage() {
                     value={newCollectionTitle}
                     onChange={(e) => setNewCollectionTitle(e.target.value)}
                     placeholder="e.g. Summer Drop"
-                    className="px-4 py-2.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none"
+                    className="px-4 py-2.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                     Collection Cover Photo
                   </label>
                   <input
@@ -1018,11 +1020,11 @@ export default function AdminDashboardPage() {
                         setCollectionImagePreview(URL.createObjectURL(file));
                       }
                     }}
-                    className="block w-full text-xs text-[#3a3532] file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#3a3532] file:text-[#e6e0d4] hover:file:opacity-90 cursor-pointer"
+                    className="block w-full text-xs text-[var(--foreground)] file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[var(--button-bg)] file:text-[var(--button-text)] hover:file:opacity-90 cursor-pointer"
                   />
                   {collectionImagePreview && (
                     <div className="mt-3 flex justify-center w-full">
-                      <div className="relative group w-36 h-36 rounded-2xl overflow-hidden border border-[#3a3532]/20 shadow-md bg-white">
+                      <div className="relative group w-36 h-36 rounded-2xl overflow-hidden border border-[var(--card-border)] shadow-md bg-[var(--input-bg)]">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={collectionImagePreview.startsWith("http") || collectionImagePreview.startsWith("blob") ? collectionImagePreview : `${API_BASE}${collectionImagePreview}`}
@@ -1043,7 +1045,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3 bg-[#3a3532] text-[#e6e0d4] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#252220] transition-colors"
+                  className="w-full py-3 bg-[var(--button-bg)] text-[var(--button-text)] rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md"
                 >
                   {editingCollectionId ? "Update Collection" : "Save Collection"}
                 </button>
@@ -1051,9 +1053,9 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Collections List */}
-            <div className="lg:col-span-2 bg-white p-8 rounded-3xl border border-[#3a3532]/5 shadow-sm">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-[#3a3532]/10">
-                <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532]">
+            <div className="lg:col-span-2 bg-[var(--card-bg)] text-[var(--foreground)] p-8 rounded-3xl border border-[var(--card-border)] shadow-sm transition-colors duration-300">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-[var(--card-border)]">
+                <h2 className="text-xs font-black uppercase tracking-widest text-[var(--foreground)]">
                   Existing Collections ({filteredCollections.length})
                 </h2>
                 <form
@@ -1068,11 +1070,11 @@ export default function AdminDashboardPage() {
                     value={collectionSearch}
                     onChange={(e) => setCollectionSearch(e.target.value)}
                     placeholder="Search collection..."
-                    className="px-3.5 py-1.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none w-full sm:w-48 focus:ring-2 focus:ring-[#8b7a66]"
+                    className="px-3.5 py-1.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none w-full sm:w-48 focus:ring-2 focus:ring-[var(--brand-accent)]"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                    className="px-4 py-1.5 bg-[var(--button-bg)] text-[var(--button-text)] hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
                   >
                     Search
                   </button>
@@ -1083,7 +1085,7 @@ export default function AdminDashboardPage() {
                         setCollectionSearch("");
                         setActiveCollectionQuery("");
                       }}
-                      className="text-[10px] font-bold text-red-600 hover:underline uppercase"
+                      className="text-[10px] font-bold text-red-500 hover:underline uppercase"
                     >
                       Clear
                     </button>
@@ -1097,22 +1099,22 @@ export default function AdminDashboardPage() {
                     onClick={() => handleSelectCollection(col)}
                     className={`p-4 rounded-2xl border transition-all flex justify-between items-center cursor-pointer ${
                       editingCollectionId === col.id
-                        ? "bg-[#8b7a66]/15 border-[#8b7a66]"
-                        : "bg-[#f4f1eb] border-[#3a3532]/5 hover:border-[#3a3532]/20"
+                        ? "bg-[var(--brand-accent)]/20 border-[var(--brand-accent)]"
+                        : "bg-[var(--input-bg)] border-[var(--card-border)] hover:border-[var(--brand-accent)]/50"
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       {col.image && (
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-[#3a3532]/20 flex-shrink-0 bg-white">
+                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-[var(--card-border)] flex-shrink-0 bg-[var(--card-bg)]">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={col.image.startsWith("http") ? col.image : `${API_BASE}${col.image}`} alt={col.title} className="w-full h-full object-cover" />
                         </div>
                       )}
                       <div>
-                        <h3 className="font-bold text-sm text-[#3a3532]">
+                        <h3 className="font-bold text-sm text-[var(--foreground)]">
                           {col.title}
                         </h3>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/50">
+                        <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">
                           ID: #{col.id} • {col.product_count || 0} Products
                         </span>
                       </div>
@@ -1120,7 +1122,7 @@ export default function AdminDashboardPage() {
                     <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => handleDeleteCollection(col)}
-                        className="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                        className="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
                       >
                         Delete
                       </button>
@@ -1134,9 +1136,9 @@ export default function AdminDashboardPage() {
 
         {/* ORDERS TAB */}
         {activeTab === "orders" && (
-          <div className="bg-white p-8 rounded-3xl border border-[#3a3532]/5 shadow-sm">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-[#3a3532]/10">
-              <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532]">
+          <div className="bg-[var(--card-bg)] text-[var(--foreground)] p-8 rounded-3xl border border-[var(--card-border)] shadow-sm transition-colors duration-300">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-[var(--card-border)]">
+              <h2 className="text-xs font-black uppercase tracking-widest text-[var(--foreground)]">
                 Customer Orders ({filteredOrders.length})
               </h2>
               <form
@@ -1151,11 +1153,11 @@ export default function AdminDashboardPage() {
                   value={orderSearch}
                   onChange={(e) => setOrderSearch(e.target.value)}
                   placeholder="Search order ID..."
-                  className="px-3.5 py-1.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none w-full sm:w-48 focus:ring-2 focus:ring-[#8b7a66]"
+                  className="px-3.5 py-1.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none w-full sm:w-48 focus:ring-2 focus:ring-[var(--brand-accent)]"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                  className="px-4 py-1.5 bg-[var(--button-bg)] text-[var(--button-text)] hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
                 >
                   Search
                 </button>
@@ -1166,7 +1168,7 @@ export default function AdminDashboardPage() {
                       setOrderSearch("");
                       setActiveOrderQuery("");
                     }}
-                    className="text-[10px] font-bold text-red-600 hover:underline uppercase"
+                    className="text-[10px] font-bold text-red-500 hover:underline uppercase"
                   >
                     Clear
                   </button>
@@ -1177,7 +1179,7 @@ export default function AdminDashboardPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-[#3a3532]/10 text-[10px] font-black uppercase tracking-wider text-[#3a3532]/60">
+                    <tr className="border-b border-[var(--card-border)] text-[10px] font-black uppercase tracking-wider opacity-60">
                       <th className="py-3 px-2">Order ID</th>
                       <th className="py-3 px-2">Customer</th>
                       <th className="py-3 px-2">Date Placed</th>
@@ -1186,20 +1188,20 @@ export default function AdminDashboardPage() {
                       <th className="py-3 px-2 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#3a3532]/5 text-xs font-bold">
+                  <tbody className="divide-y divide-[var(--card-border)] text-xs font-bold">
                     {filteredOrders.map((order) => {
                       const itemCount = order.items ? order.items.reduce((sum, i) => sum + i.quantity, 0) : 0;
 
                       return (
                         <tr
                           key={order.id}
-                          className="hover:bg-[#f4f1eb]/50 transition-colors"
+                          className="hover:bg-[var(--input-bg)] transition-colors"
                         >
                           <td className="py-3.5 px-2 font-black">Order #{order.id}</td>
-                          <td className="py-3.5 px-2 text-[#3a3532]/90 font-bold">
+                          <td className="py-3.5 px-2 opacity-90 font-bold">
                             {order.customer_name || `Customer #${order.customer}`}
                           </td>
-                          <td className="py-3.5 px-2 text-[#3a3532]/60 text-[11px]">
+                          <td className="py-3.5 px-2 opacity-60 text-[11px]">
                             {order.placed_at ? new Date(order.placed_at).toLocaleDateString() : "N/A"}
                           </td>
                           <td className="py-3.5 px-2">
@@ -1211,27 +1213,27 @@ export default function AdminDashboardPage() {
                               onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
                               className={`px-3 py-1 rounded-full text-[10px] uppercase font-black tracking-wider outline-none cursor-pointer border ${
                                 order.payment_status === "C"
-                                  ? "bg-green-100 text-green-800 border-green-300"
+                                  ? "bg-green-500/20 text-green-500 border-green-500/30"
                                   : order.payment_status === "F"
-                                  ? "bg-red-100 text-red-800 border-red-300"
-                                  : "bg-yellow-100 text-yellow-800 border-yellow-300"
+                                  ? "bg-red-500/20 text-red-500 border-red-500/30"
+                                  : "bg-yellow-500/20 text-yellow-500 border-yellow-500/30"
                               }`}
                             >
-                              <option value="P">Pending (P)</option>
-                              <option value="C">Complete (C)</option>
-                              <option value="F">Failed (F)</option>
+                              <option value="P" className="bg-[var(--card-bg)] text-[var(--foreground)]">Pending (P)</option>
+                              <option value="C" className="bg-[var(--card-bg)] text-[var(--foreground)]">Complete (C)</option>
+                              <option value="F" className="bg-[var(--card-bg)] text-[var(--foreground)]">Failed (F)</option>
                             </select>
                           </td>
                           <td className="py-3.5 px-2 text-right flex justify-end gap-2">
                             <button
                               onClick={() => setSelectedOrderDetails(order)}
-                              className="px-3 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                              className="px-3 py-1.5 bg-[var(--button-bg)] text-[var(--button-text)] hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
                             >
                               View Details
                             </button>
                             <button
                               onClick={() => handleDeleteOrder(order.id)}
-                              className="px-3 py-1.5 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                              className="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
                             >
                               Delete
                             </button>
@@ -1243,7 +1245,7 @@ export default function AdminDashboardPage() {
                 </table>
               </div>
             ) : (
-              <div className="py-12 text-center text-xs font-bold uppercase tracking-wider text-[#3a3532]/50">
+              <div className="py-12 text-center text-xs font-bold uppercase tracking-wider opacity-50">
                 No orders found.
               </div>
             )}
@@ -1252,27 +1254,27 @@ export default function AdminDashboardPage() {
 
         {/* Order Details Modal */}
         {selectedOrderDetails && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="bg-white rounded-3xl p-8 max-w-xl w-full shadow-2xl border border-[#3a3532]/10 relative">
-              <div className="flex justify-between items-center pb-4 border-b border-[#3a3532]/10 mb-6">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-3xl p-8 max-w-xl w-full shadow-2xl border border-[var(--card-border)] relative">
+              <div className="flex justify-between items-center pb-4 border-b border-[var(--card-border)] mb-6">
                 <div>
-                  <h3 className="text-lg font-black uppercase tracking-tight text-[#3a3532]">
+                  <h3 className="text-lg font-black uppercase tracking-tight">
                     Order #{selectedOrderDetails.id}
                   </h3>
-                  <span className="text-[10px] font-bold text-[#3a3532]/60 uppercase tracking-wider">
+                  <span className="text-[10px] font-bold opacity-60 uppercase tracking-wider">
                     Customer #{selectedOrderDetails.customer} • {selectedOrderDetails.placed_at ? new Date(selectedOrderDetails.placed_at).toLocaleString() : ""}
                   </span>
                 </div>
                 <button
                   onClick={() => setSelectedOrderDetails(null)}
-                  className="text-xs font-bold bg-[#f4f1eb] hover:bg-[#3a3532] hover:text-white px-3 py-1.5 rounded-xl transition-colors uppercase"
+                  className="text-xs font-bold bg-[var(--input-bg)] hover:bg-[var(--button-bg)] hover:text-[var(--button-text)] px-3 py-1.5 rounded-xl transition-colors uppercase"
                 >
                   Close ✕
                 </button>
               </div>
 
               {/* Customer Contact & Address Info */}
-              <div className="bg-[#f4f1eb] p-4 rounded-2xl mb-6 text-xs space-y-1 text-[#3a3532]">
+              <div className="bg-[var(--input-bg)] p-4 rounded-2xl mb-6 text-xs space-y-1">
                 <p><strong>Phone:</strong> {selectedOrderDetails.phone || "N/A"}</p>
                 <p><strong>Shipping Address:</strong> {selectedOrderDetails.shipping_address || "N/A"}</p>
                 <p>
@@ -1284,7 +1286,7 @@ export default function AdminDashboardPage() {
                   )}
                 </p>
                 {selectedOrderDetails.payment_method === "O" && (
-                  <p><strong>bKash TrxID:</strong> <code className="bg-white px-2 py-0.5 rounded font-mono font-bold text-[#e2136e]">{selectedOrderDetails.transaction_id || "N/A"}</code></p>
+                  <p><strong>bKash TrxID:</strong> <code className="bg-[var(--card-bg)] px-2 py-0.5 rounded font-mono font-bold text-[#e2136e]">{selectedOrderDetails.transaction_id || "N/A"}</code></p>
                 )}
               </div>
 
@@ -1292,28 +1294,28 @@ export default function AdminDashboardPage() {
               <div className="max-h-60 overflow-y-auto mb-6">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="border-b border-[#3a3532]/10 text-[10px] font-black uppercase text-[#3a3532]/60">
+                    <tr className="border-b border-[var(--card-border)] text-[10px] font-black uppercase opacity-60">
                       <th className="py-2 px-1">Product</th>
                       <th className="py-2 px-1">Qty</th>
                       <th className="py-2 px-1">Unit Price</th>
                       <th className="py-2 px-1 text-right">Subtotal</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#3a3532]/5">
+                  <tbody className="divide-y divide-[var(--card-border)]">
                     {selectedOrderDetails.items && selectedOrderDetails.items.length > 0 ? (
                       selectedOrderDetails.items.map((item) => (
                         <tr key={item.id}>
                           <td className="py-2 px-1 font-bold">{item.product?.title || `Product #${item.product}`}</td>
                           <td className="py-2 px-1">{item.quantity}</td>
                           <td className="py-2 px-1">${Number(item.unit_price).toFixed(2)}</td>
-                          <td className="py-2 px-1 text-right font-black text-[#8b7a66]">
+                          <td className="py-2 px-1 text-right font-black text-[var(--brand-accent)]">
                             ${(item.quantity * Number(item.unit_price)).toFixed(2)}
                           </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={4} className="py-4 text-center text-xs text-[#3a3532]/50">
+                        <td colSpan={4} className="py-4 text-center text-xs opacity-50">
                           No item breakdown available.
                         </td>
                       </tr>
@@ -1322,11 +1324,11 @@ export default function AdminDashboardPage() {
                 </table>
               </div>
 
-              <div className="flex justify-between items-center pt-4 border-t border-[#3a3532]/10">
-                <span className="text-xs font-bold text-[#3a3532]/70 uppercase">
-                  Payment Status: <strong className="uppercase font-black text-[#3a3532]">{selectedOrderDetails.payment_status === "C" ? "Complete" : selectedOrderDetails.payment_status === "F" ? "Failed" : "Pending"}</strong>
+              <div className="flex justify-between items-center pt-4 border-t border-[var(--card-border)]">
+                <span className="text-xs font-bold opacity-70 uppercase">
+                  Payment Status: <strong className="uppercase font-black text-[var(--foreground)]">{selectedOrderDetails.payment_status === "C" ? "Complete" : selectedOrderDetails.payment_status === "F" ? "Failed" : "Pending"}</strong>
                 </span>
-                <span className="text-base font-black text-[#3a3532]">
+                <span className="text-base font-black text-[var(--foreground)]">
                   Total: ${selectedOrderDetails.items ? selectedOrderDetails.items.reduce((sum, i) => sum + (i.quantity * Number(i.unit_price)), 0).toFixed(2) : "0.00"}
                 </span>
               </div>
@@ -1336,9 +1338,9 @@ export default function AdminDashboardPage() {
 
         {/* CUSTOMERS TAB */}
         {activeTab === "customers" && (
-          <div className="bg-white p-8 rounded-3xl border border-[#3a3532]/5 shadow-sm">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-[#3a3532]/10">
-              <h2 className="text-xs font-black uppercase tracking-widest text-[#3a3532]">
+          <div className="bg-[var(--card-bg)] text-[var(--foreground)] p-8 rounded-3xl border border-[var(--card-border)] shadow-sm transition-colors duration-300">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-[var(--card-border)]">
+              <h2 className="text-xs font-black uppercase tracking-widest text-[var(--foreground)]">
                 Registered Customers ({filteredCustomers.length})
               </h2>
               <form
@@ -1353,11 +1355,11 @@ export default function AdminDashboardPage() {
                   value={customerSearch}
                   onChange={(e) => setCustomerSearch(e.target.value)}
                   placeholder="Search customer..."
-                  className="px-3.5 py-1.5 border border-[#3a3532]/10 rounded-xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none w-full sm:w-48 focus:ring-2 focus:ring-[#8b7a66]"
+                  className="px-3.5 py-1.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none w-full sm:w-48 focus:ring-2 focus:ring-[var(--brand-accent)]"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                  className="px-4 py-1.5 bg-[var(--button-bg)] text-[var(--button-text)] hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
                 >
                   Search
                 </button>
@@ -1368,7 +1370,7 @@ export default function AdminDashboardPage() {
                       setCustomerSearch("");
                       setActiveCustomerQuery("");
                     }}
-                    className="text-[10px] font-bold text-red-600 hover:underline uppercase"
+                    className="text-[10px] font-bold text-red-500 hover:underline uppercase"
                   >
                     Clear
                   </button>
@@ -1379,34 +1381,34 @@ export default function AdminDashboardPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-[#3a3532]/10 text-[10px] font-black uppercase tracking-wider text-[#3a3532]/60">
+                    <tr className="border-b border-[var(--card-border)] text-[10px] font-black uppercase tracking-wider opacity-60">
                       <th className="py-3 px-2">Customer Name</th>
                       <th className="py-3 px-2">Phone</th>
                       <th className="py-3 px-2">Membership</th>
                       <th className="py-3 px-2 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#3a3532]/5 text-xs font-bold">
+                  <tbody className="divide-y divide-[var(--card-border)] text-xs font-bold">
                     {filteredCustomers.map((cust) => (
                       <tr
                         key={cust.id}
-                        className="hover:bg-[#f4f1eb]/50 transition-colors"
+                        className="hover:bg-[var(--input-bg)] transition-colors"
                       >
                         <td className="py-3.5 px-2 font-black">
                           {cust.customer_name || `Customer #${cust.id}`}
                         </td>
-                        <td className="py-3.5 px-2 text-[#3a3532]/80">
+                        <td className="py-3.5 px-2 opacity-80">
                           {cust.phone || "No Phone Registered"}
                         </td>
                         <td className="py-3.5 px-2">
-                          <span className="px-3 py-1 bg-amber-100 text-amber-900 rounded-full text-[10px] uppercase font-black tracking-wider">
+                          <span className="px-3 py-1 bg-amber-500/20 text-amber-500 rounded-full text-[10px] uppercase font-black tracking-wider">
                             {cust.membership === "G" ? "Gold (G)" : cust.membership === "S" ? "Silver (S)" : "Bronze (B)"}
                           </span>
                         </td>
                         <td className="py-3.5 px-2 text-right">
                           <button
                             onClick={() => handleViewCustomerHistory(cust.id)}
-                            className="px-3.5 py-1.5 bg-[#3a3532] text-[#e6e0d4] hover:bg-[#252220] rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors shadow-sm"
+                            className="px-3.5 py-1.5 bg-[var(--button-bg)] text-[var(--button-text)] hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors shadow-sm"
                           >
                             View Order History
                           </button>
@@ -1417,7 +1419,7 @@ export default function AdminDashboardPage() {
                 </table>
               </div>
             ) : (
-              <div className="py-12 text-center text-xs font-bold uppercase tracking-wider text-[#3a3532]/50">
+              <div className="py-12 text-center text-xs font-bold uppercase tracking-wider opacity-50">
                 No customers found.
               </div>
             )}
@@ -1426,20 +1428,20 @@ export default function AdminDashboardPage() {
 
         {/* Customer Order History Modal */}
         {customerHistoryModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl border border-[#3a3532]/10 relative max-h-[80vh] overflow-y-auto">
-              <div className="flex justify-between items-center pb-4 border-b border-[#3a3532]/10 mb-6">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-3xl p-8 max-w-2xl w-full shadow-2xl border border-[var(--card-border)] relative max-h-[80vh] overflow-y-auto">
+              <div className="flex justify-between items-center pb-4 border-b border-[var(--card-border)] mb-6">
                 <div>
-                  <h3 className="text-lg font-black uppercase tracking-tight text-[#3a3532]">
+                  <h3 className="text-lg font-black uppercase tracking-tight">
                     Order History - Customer #{customerHistoryModal.customerId}
                   </h3>
-                  <span className="text-[10px] font-bold text-[#3a3532]/60 uppercase tracking-wider">
+                  <span className="text-[10px] font-bold opacity-60 uppercase tracking-wider">
                     Total Orders: {customerHistoryModal.orders.length}
                   </span>
                 </div>
                 <button
                   onClick={() => setCustomerHistoryModal(null)}
-                  className="text-xs font-bold bg-[#f4f1eb] hover:bg-[#3a3532] hover:text-white px-3 py-1.5 rounded-xl transition-colors uppercase"
+                  className="text-xs font-bold bg-[var(--input-bg)] hover:bg-[var(--button-bg)] hover:text-[var(--button-text)] px-3 py-1.5 rounded-xl transition-colors uppercase"
                 >
                   Close ✕
                 </button>
@@ -1450,29 +1452,29 @@ export default function AdminDashboardPage() {
                   {customerHistoryModal.orders.map((ord) => (
                     <div
                       key={ord.id}
-                      className="p-4 rounded-2xl bg-[#f4f1eb] border border-[#3a3532]/10 space-y-2 text-xs"
+                      className="p-4 rounded-2xl bg-[var(--input-bg)] border border-[var(--card-border)] space-y-2 text-xs"
                     >
                       <div className="flex justify-between items-center font-bold">
                         <span className="font-black text-sm">Order #{ord.id}</span>
                         <span className={`px-2.5 py-0.5 rounded-full text-[10px] uppercase font-black ${
-                          ord.payment_status === "C" ? "bg-green-200 text-green-900" : ord.payment_status === "F" ? "bg-red-200 text-red-900" : "bg-yellow-200 text-yellow-900"
+                          ord.payment_status === "C" ? "bg-green-500/20 text-green-500" : ord.payment_status === "F" ? "bg-red-500/20 text-red-500" : "bg-yellow-500/20 text-yellow-500"
                         }`}>
                           {ord.payment_status === "C" ? "Complete" : ord.payment_status === "F" ? "Failed" : "Pending"}
                         </span>
                       </div>
-                      <p className="text-[11px] text-[#3a3532]/70">
+                      <p className="text-[11px] opacity-70">
                         <strong>Placed At:</strong> {ord.placed_at ? new Date(ord.placed_at).toLocaleString() : "N/A"}
                       </p>
-                      <p className="text-[11px] text-[#3a3532]/70">
+                      <p className="text-[11px] opacity-70">
                         <strong>Shipping:</strong> {ord.shipping_address || "N/A"} | <strong>Phone:</strong> {ord.phone || "N/A"}
                       </p>
-                      <p className="text-[11px] text-[#3a3532]/70">
+                      <p className="text-[11px] opacity-70">
                         <strong>Payment Method:</strong> {ord.payment_method === "O" ? `bKash (TrxID: ${ord.transaction_id || "N/A"})` : "Cash on Delivery (COD)"}
                       </p>
                       
                       {ord.items && ord.items.length > 0 && (
-                        <div className="mt-2 pt-2 border-t border-[#3a3532]/10 space-y-1">
-                          <p className="text-[10px] font-black uppercase text-[#3a3532]/60">Items:</p>
+                        <div className="mt-2 pt-2 border-t border-[var(--card-border)] space-y-1">
+                          <p className="text-[10px] font-black uppercase opacity-60">Items:</p>
                           {ord.items.map((it) => (
                             <div key={it.id} className="flex justify-between text-[11px]">
                               <span>{it.product?.title || `Product #${it.product}`} x {it.quantity}</span>
@@ -1485,7 +1487,7 @@ export default function AdminDashboardPage() {
                   ))}
                 </div>
               ) : (
-                <div className="py-8 text-center text-xs font-bold uppercase tracking-wider text-[#3a3532]/50">
+                <div className="py-8 text-center text-xs font-bold uppercase tracking-wider opacity-50">
                   This customer has not placed any orders yet.
                 </div>
               )}

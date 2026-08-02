@@ -136,7 +136,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
 
             {/* Price */}
-            <p className="text-3xl font-black text-[var(--brand-accent)] mb-8">
+            <p className="text-3xl font-black text-[var(--price-color)] mb-8">
               ${Number(product.unit_price).toFixed(2)}
             </p>
 

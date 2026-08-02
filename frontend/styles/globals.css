@@ -11,6 +11,7 @@
   --brand-bg: #e6e0d4;
   --brand-dark: #3a3532;
   --brand-accent: #8b7a66;
+  --price-color: #7a6652;     /* Rich warm bronze price in light mode */
   --brand-light: #f4f1eb;
   --brand-dark-hover: #524b47;
   --brand-dark-active: #252220;
@@ -35,7 +36,8 @@ html[data-theme="dark"],
   --card-border: rgba(230, 224, 212, 0.1);
   --brand-bg: #3b3527;
   --brand-dark: #1d1f21;
-  --brand-accent: #684650;   /* Deep plum / burgundy accent */
+  --brand-accent: #f3c26b;   /* High-contrast warm gold accent */
+  --price-color: #f3c26b;     /* Bright high-contrast warm gold for price text */
   --brand-light: #2c2f31;
   --brand-dark-hover: #2d3033;
   --brand-dark-active: #161819;
@@ -53,6 +55,7 @@ html[data-theme="dark"],
   --color-brand-bg: var(--brand-bg);
   --color-brand-dark: var(--brand-dark);
   --color-brand-accent: var(--brand-accent);
+  --color-price-color: var(--price-color);
   --color-brand-light: var(--brand-light);
   --color-brand-dark-hover: var(--brand-dark-hover);
   --color-brand-dark-active: var(--brand-dark-active);

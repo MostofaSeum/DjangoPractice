@@ -82,7 +82,7 @@ export default async function CollectionDetailPage({ params }: PageProps) {
                 </div>
                 <div>
                   <div className="flex justify-between items-center mb-6">
-                    <span className="text-[var(--brand-accent)] font-bold text-lg">${Number(product.unit_price).toFixed(2)}</span>
+                    <span className="text-[var(--price-color)] font-extrabold text-lg">${Number(product.unit_price).toFixed(2)}</span>
                     <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Qty: {product.inventory}</span>
                   </div>
                   <Link 
