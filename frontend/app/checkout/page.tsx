@@ -101,7 +101,7 @@ export default function CheckoutPage() {
           icon: "success",
           title: "Order Placed Successfully!",
           text: `Your Order #${orderData.id} has been received. Thank you for shopping with VibeMart!`,
-          confirmButtonColor: "#3a3532",
+          confirmButtonColor: "var(--button-bg)",
         });
 
         router.push("/profile");
@@ -127,7 +127,7 @@ export default function CheckoutPage() {
 
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] flex items-center justify-center p-8 font-bold text-xs uppercase tracking-widest">
+      <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex items-center justify-center p-8 font-bold text-xs uppercase tracking-widest transition-colors duration-300">
         Loading Checkout...
       </div>
     );
@@ -135,16 +135,16 @@ export default function CheckoutPage() {
 
   if (isCartEmpty) {
     return (
-      <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] flex flex-col items-center justify-center p-8 text-center">
+      <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col items-center justify-center p-8 text-center transition-colors duration-300">
         <h2 className="text-2xl font-black uppercase tracking-tight mb-4">
           Your Cart is Empty
         </h2>
-        <p className="text-sm font-medium text-[#3a3532]/70 mb-6">
+        <p className="text-sm font-medium opacity-70 mb-6">
           Please add items to your cart before proceeding to checkout.
         </p>
         <Link
           href="/products"
-          className="bg-[#3a3532] text-[#e6e0d4] px-8 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#252220] transition-colors"
+          className="bg-[var(--button-bg)] text-[var(--button-text)] px-8 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-colors shadow-md"
         >
           Browse Products
         </Link>
@@ -153,19 +153,19 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans antialiased pb-24">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans antialiased pb-24 transition-colors duration-300">
       {/* Breadcrumb */}
-      <div className="bg-[#3a3532]/5 border-b border-[#3a3532]/10 py-4">
-        <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs text-[#3a3532]/60 flex items-center space-x-2 font-bold uppercase tracking-wider">
-          <Link href="/" className="hover:text-[#3a3532]">
+      <div className="bg-[var(--banner-bg)] text-[var(--banner-text)] border-b border-[var(--card-border)] py-4 transition-colors duration-300">
+        <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2 font-bold uppercase tracking-wider opacity-90">
+          <Link href="/" className="hover:underline">
             Home
           </Link>
           <span>/</span>
-          <Link href="/cart" className="hover:text-[#3a3532]">
+          <Link href="/cart" className="hover:underline">
             Cart
           </Link>
           <span>/</span>
-          <span className="text-[#3a3532]">Checkout</span>
+          <span className="opacity-60">Checkout</span>
         </div>
       </div>
 
@@ -178,9 +178,9 @@ export default function CheckoutPage() {
           {/* Shipping & Payment Info (2 Columns) */}
           <div className="lg:col-span-2 space-y-8">
             {/* Contact & Address Section */}
-            <div className="bg-white rounded-3xl p-8 border border-[#3a3532]/5 shadow-sm space-y-6">
-              <h2 className="text-xl font-black uppercase tracking-tight pb-3 border-b border-[#3a3532]/10 flex items-center gap-3">
-                <span className="w-8 h-8 rounded-full bg-[#3a3532] text-white flex items-center justify-center text-xs">
+            <div className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-3xl p-8 border border-[var(--card-border)] shadow-sm space-y-6 transition-colors duration-300">
+              <h2 className="text-xl font-black uppercase tracking-tight pb-3 border-b border-[var(--card-border)] flex items-center gap-3">
+                <span className="w-8 h-8 rounded-full bg-[var(--button-bg)] text-[var(--button-text)] flex items-center justify-center text-xs">
                   1
                 </span>
                 Shipping Information
@@ -188,7 +188,7 @@ export default function CheckoutPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-[#3a3532]/80">
+                  <label className="text-xs font-bold uppercase tracking-wider opacity-80">
                     Phone Number *
                   </label>
                   <input
@@ -197,12 +197,12 @@ export default function CheckoutPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="e.g. 01700000000"
-                    className="px-4 py-3 border border-[#3a3532]/10 rounded-2xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none focus:ring-2 focus:ring-[#8b7a66]"
+                    className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
                   />
                 </div>
 
                 <div className="flex flex-col gap-2 sm:col-span-2">
-                  <label className="text-xs font-bold uppercase tracking-wider text-[#3a3532]/80">
+                  <label className="text-xs font-bold uppercase tracking-wider opacity-80">
                     Shipping Address (Street, House/Flat, City/District) *
                   </label>
                   <textarea
@@ -211,16 +211,16 @@ export default function CheckoutPage() {
                     value={shippingAddress}
                     onChange={(e) => setShippingAddress(e.target.value)}
                     placeholder="e.g. House 12, Road 5, Block B, Dhanmondi, Dhaka"
-                    className="px-4 py-3 border border-[#3a3532]/10 rounded-2xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none focus:ring-2 focus:ring-[#8b7a66]"
+                    className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
                   />
                 </div>
               </div>
             </div>
 
             {/* Payment Method Section */}
-            <div className="bg-white rounded-3xl p-8 border border-[#3a3532]/5 shadow-sm space-y-6">
-              <h2 className="text-xl font-black uppercase tracking-tight pb-3 border-b border-[#3a3532]/10 flex items-center gap-3">
-                <span className="w-8 h-8 rounded-full bg-[#3a3532] text-white flex items-center justify-center text-xs">
+            <div className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-3xl p-8 border border-[var(--card-border)] shadow-sm space-y-6 transition-colors duration-300">
+              <h2 className="text-xl font-black uppercase tracking-tight pb-3 border-b border-[var(--card-border)] flex items-center gap-3">
+                <span className="w-8 h-8 rounded-full bg-[var(--button-bg)] text-[var(--button-text)] flex items-center justify-center text-xs">
                   2
                 </span>
                 Payment Options
@@ -232,8 +232,8 @@ export default function CheckoutPage() {
                   onClick={() => setPaymentMethod("C")}
                   className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
                     paymentMethod === "C"
-                      ? "border-[#3a3532] bg-[#f4f1eb]"
-                      : "border-[#3a3532]/10 bg-white hover:border-[#3a3532]/30"
+                      ? "border-[var(--foreground)] bg-[var(--input-bg)]"
+                      : "border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--foreground)]/50"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
@@ -245,10 +245,10 @@ export default function CheckoutPage() {
                       name="payment_method"
                       checked={paymentMethod === "C"}
                       onChange={() => setPaymentMethod("C")}
-                      className="w-4 h-4 accent-[#3a3532]"
+                      className="w-4 h-4 accent-[var(--foreground)]"
                     />
                   </div>
-                  <p className="text-xs text-[#3a3532]/70 font-medium">
+                  <p className="text-xs opacity-70 font-medium">
                     Pay in cash when your order is delivered to your doorstep.
                   </p>
                 </div>
@@ -258,8 +258,8 @@ export default function CheckoutPage() {
                   onClick={() => setPaymentMethod("O")}
                   className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
                     paymentMethod === "O"
-                      ? "border-[#e2136e] bg-pink-50/50"
-                      : "border-[#3a3532]/10 bg-white hover:border-[#e2136e]/40"
+                      ? "border-[#e2136e] bg-[#e2136e]/10"
+                      : "border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[#e2136e]/50"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
@@ -274,7 +274,7 @@ export default function CheckoutPage() {
                       className="w-4 h-4 accent-[#e2136e]"
                     />
                   </div>
-                  <p className="text-xs text-[#3a3532]/70 font-medium">
+                  <p className="text-xs opacity-70 font-medium">
                     Pay via bKash and provide the Transaction ID (TrxID).
                   </p>
                 </div>
@@ -282,7 +282,7 @@ export default function CheckoutPage() {
 
               {/* bKash Extra Fields */}
               {paymentMethod === "O" && (
-                <div className="mt-6 p-6 rounded-2xl bg-pink-50 border border-[#e2136e]/20 space-y-4">
+                <div className="mt-6 p-6 rounded-2xl bg-[#e2136e]/10 border border-[#e2136e]/30 space-y-4">
                   <div className="text-xs font-bold text-[#e2136e] space-y-1">
                     <p className="font-black uppercase tracking-wider">
                       bKash Payment Instructions:
@@ -294,7 +294,7 @@ export default function CheckoutPage() {
                   </div>
 
                   <div className="flex flex-col gap-1.5 pt-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#3a3532]">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[var(--foreground)]">
                       bKash Transaction ID (TrxID) *
                     </label>
                     <input
@@ -303,10 +303,10 @@ export default function CheckoutPage() {
                       value={transactionId}
                       onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
                       placeholder="e.g. 9B7X2K1L8M"
-                      className="px-4 py-3 border border-[#e2136e]/30 rounded-xl bg-white text-xs font-bold text-[#3a3532] uppercase outline-none focus:ring-2 focus:ring-[#e2136e]"
+                      className="px-4 py-3 border border-[#e2136e]/40 rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] uppercase outline-none focus:ring-2 focus:ring-[#e2136e]"
                     />
                     {!transactionId.trim() && (
-                      <p className="text-[10px] text-red-600 font-bold uppercase">
+                      <p className="text-[10px] text-red-500 font-bold uppercase">
                         * Transaction ID is required for bKash orders.
                       </p>
                     )}
@@ -317,8 +317,8 @@ export default function CheckoutPage() {
           </div>
 
           {/* Order Summary Side Card (1 Column) */}
-          <div className="bg-white rounded-3xl p-8 border border-[#3a3532]/5 shadow-md sticky top-28 space-y-6">
-            <h2 className="text-2xl font-black uppercase tracking-tight pb-4 border-b border-[#3a3532]/10">
+          <div className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-3xl p-8 border border-[var(--card-border)] shadow-md sticky top-28 space-y-6 transition-colors duration-300">
+            <h2 className="text-2xl font-black uppercase tracking-tight pb-4 border-b border-[var(--card-border)]">
               Order Summary
             </h2>
 
@@ -327,30 +327,30 @@ export default function CheckoutPage() {
               {cart.items.map((item) => (
                 <div key={item.id} className="flex justify-between items-center text-xs">
                   <div>
-                    <p className="font-bold text-[#3a3532]">{item.product.title}</p>
-                    <p className="text-[10px] text-[#3a3532]/50 font-bold">Qty: {item.quantity}</p>
+                    <p className="font-bold text-[var(--foreground)]">{item.product.title}</p>
+                    <p className="text-[10px] opacity-60 font-bold">Qty: {item.quantity}</p>
                   </div>
-                  <span className="font-black text-[#8b7a66]">
+                  <span className="font-black text-[var(--price-color)]">
                     ${(item.quantity * Number(item.product.unit_price)).toFixed(2)}
                   </span>
                 </div>
               ))}
             </div>
 
-            <div className="pt-4 border-t border-[#3a3532]/10 space-y-3 text-sm">
-              <div className="flex justify-between text-[#3a3532]/70 font-medium">
+            <div className="pt-4 border-t border-[var(--card-border)] space-y-3 text-sm">
+              <div className="flex justify-between opacity-80 font-medium">
                 <span>Subtotal</span>
-                <span className="font-bold text-[#3a3532]">
+                <span className="font-bold text-[var(--foreground)]">
                   ${Number(cart.total_price).toFixed(2)}
                 </span>
               </div>
-              <div className="flex justify-between text-[#3a3532]/70 font-medium">
+              <div className="flex justify-between opacity-80 font-medium">
                 <span>Shipping</span>
-                <span className="font-bold text-green-700 uppercase text-xs">Free</span>
+                <span className="font-bold text-green-500 uppercase text-xs">Free</span>
               </div>
-              <div className="pt-3 border-t border-[#3a3532]/10 flex justify-between items-center text-base font-black">
+              <div className="pt-3 border-t border-[var(--card-border)] flex justify-between items-center text-base font-black">
                 <span>Total Amount</span>
-                <span className="text-2xl text-[#3a3532]">
+                <span className="text-2xl text-[var(--price-color)]">
                   ${Number(cart.total_price).toFixed(2)}
                 </span>
               </div>
@@ -359,7 +359,7 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={!isOrderValid || submitting}
-              className="w-full py-4 bg-[#3a3532] text-[#e6e0d4] rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-[#252220] transition-all shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-4 bg-[var(--button-bg)] text-[var(--button-text)] rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {submitting ? "Processing Order..." : "Confirm & Place Order"}
             </button>

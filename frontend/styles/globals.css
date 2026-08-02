@@ -4,14 +4,13 @@
   /* Light Theme */
   --background: #e6e0d4;
   --foreground: #3a3532;
-  --header-bg: #3a3532;       /* Dark charcoal navbar */
-  --header-text: #e6e0d4;     /* Cream navbar text */
+  --header-bg: #f4f1eb;
+  --header-text: #3a3532;
   --card-bg: #ffffff;
   --card-border: rgba(58, 53, 50, 0.08);
   --brand-bg: #e6e0d4;
   --brand-dark: #3a3532;
   --brand-accent: #8b7a66;
-  --price-color: #7a6652;     /* Rich warm bronze price in light mode */
   --brand-light: #f4f1eb;
   --brand-dark-hover: #524b47;
   --brand-dark-active: #252220;
@@ -28,26 +27,25 @@
 html[data-theme="dark"],
 .dark {
   /* Dark Theme */
-  --background: #3b3527;      /* Warm dark olive */
-  --foreground: #e6e0d4;      /* Cream text */
-  --header-bg: #161616;      /* Deep black navbar */
-  --header-text: #e6e0d4;     /* Cream navbar text */
-  --card-bg: #222527;        /* Dark slate gray card */
+  --background: #3b3527;
+  --foreground: #e6e0d4;
+  --header-bg: #161616;
+  --header-text: #e6e0d4;
+  --card-bg: #222527;
   --card-border: rgba(230, 224, 212, 0.1);
   --brand-bg: #3b3527;
   --brand-dark: #1d1f21;
-  --brand-accent: #f3c26b;   /* High-contrast warm gold accent */
-  --price-color: #f3c26b;     /* Bright high-contrast warm gold for price text */
+  --brand-accent: #684650;
   --brand-light: #2c2f31;
   --brand-dark-hover: #2d3033;
   --brand-dark-active: #161819;
-  --badge-bg: #684650;       /* Deep plum badge */
+  --badge-bg: #684650;
   --badge-text: #e6e0d4;
-  --banner-bg: #4d5557;      /* Muted slate gray subheader banner */
+  --banner-bg: #4d5557;
   --banner-text: #e6e0d4;
-  --input-bg: #363023;       /* Input box background */
+  --input-bg: #363023;
   --input-border: rgba(230, 224, 212, 0.15);
-  --button-bg: #353a3d;      /* Button dark slate */
+  --button-bg: #353a3d;
   --button-text: #e6e0d4;
 }
 
@@ -55,7 +53,6 @@ html[data-theme="dark"],
   --color-brand-bg: var(--brand-bg);
   --color-brand-dark: var(--brand-dark);
   --color-brand-accent: var(--brand-accent);
-  --color-price-color: var(--price-color);
   --color-brand-light: var(--brand-light);
   --color-brand-dark-hover: var(--brand-dark-hover);
   --color-brand-dark-active: var(--brand-dark-active);
@@ -75,8 +72,11 @@ html[data-theme="dark"],
   --color-button-text: var(--button-text);
 }
 
-html, body {
+html,
+body {
   background-color: var(--background) !important;
   color: var(--foreground) !important;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }

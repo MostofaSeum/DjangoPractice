@@ -80,9 +80,6 @@ export default function CartPage() {
                       <h3 className="font-black text-lg uppercase tracking-tight">
                         {item.product.title}
                       </h3>
-                      <p className="text-xs font-bold text-[var(--brand-accent)] mt-1">
-                        ${Number(item.product.unit_price).toFixed(2)} each
-                      </p>
                     </div>
                   </div>
 
