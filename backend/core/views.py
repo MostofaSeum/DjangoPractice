@@ -11,48 +11,47 @@ from .models import User, OTPToken
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def send_otp(request):
-    email = request.data.get('email')
-    username = request.data.get('username')
-
-    if not email:
-        return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Validate if user with this email or username already exists (when registering)
-    if User.objects.filter(email=email).exists():
-        return Response({'error': 'An account with this email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    if username and User.objects.filter(username=username).exists():
-        return Response({'error': 'Username is already taken.'}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Generate 6-digit random code
-    otp_code = f"{random.randint(100000, 999999)}"
-
-    # Delete any existing OTP tokens for this email to prevent leftover data
-    OTPToken.objects.filter(email=email).delete()
-
-    # Save new OTP
-    OTPToken.objects.create(email=email, otp_code=otp_code)
-
-    # Send email
-    subject = "Your VibeMart Verification Code"
-    message = f"Your one-time verification code is: {otp_code}\n\nThis code will expire in 5 minutes. Do not share it with anyone."
-    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@vibemart.com')
-
     try:
+        email = request.data.get('email')
+        username = request.data.get('username')
+
+        if not email:
+            return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validate if user with this email or username already exists (when registering)
+        if User.objects.filter(email=email).exists():
+            return Response({'error': 'An account with this email already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if username and User.objects.filter(username=username).exists():
+            return Response({'error': 'Username is already taken.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Generate 6-digit random code
+        otp_code = f"{random.randint(100000, 999999)}"
+
+        # Delete any existing OTP tokens for this email to prevent leftover data
+        OTPToken.objects.filter(email=email).delete()
+
+        # Save new OTP
+        OTPToken.objects.create(email=email, otp_code=otp_code)
+
+        # Send email
+        subject = "Your VibeMart Verification Code"
+        message = f"Your one-time verification code is: {otp_code}\n\nThis code will expire in 5 minutes. Do not share it with anyone."
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@vibemart.com')
+
         send_mail(subject, message, from_email, [email], fail_silently=False)
+
+        # Also log to console for dev environment testing
+        print(f"\n==========================================")
+        print(f" [OTP CODE] Sent to {email}: {otp_code}")
+        print(f"==========================================\n")
+
+        return Response({'detail': 'Verification code sent to your email!'}, status=status.HTTP_200_OK)
+
     except Exception as e:
-        print("Email sending error:", e)
-        return Response(
-            {'error': f"Failed to send email: {str(e)}"},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-    # Also log to console for dev environment testing
-    print(f"\n==========================================")
-    print(f" [OTP CODE] Sent to {email}: {otp_code}")
-    print(f"==========================================\n")
-
-    return Response({'detail': 'Verification code sent to your email!'}, status=status.HTTP_200_OK)
+        import traceback
+        print("send_otp Error:", traceback.format_exc())
+        return Response({'error': f"Server error: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
