@@ -71,7 +71,7 @@ export default function EmailOTPModal({
       if (res.ok) {
         setMessage({ type: "success", text: "Verification code sent to your email!" });
         setStep(2);
-        setTimer(60);
+        setTimer(30);
       } else {
         throw new Error(data.error || "Failed to send verification code.");
       }
