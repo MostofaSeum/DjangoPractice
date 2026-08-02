@@ -102,15 +102,20 @@ export default function RegisterPage() {
   };
 
   const handleCompleteRegistration = async () => {
-    Swal.fire({
+    // Clear any token saved during registration OTP verification so user must log in manually
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("jwt");
+    localStorage.removeItem("refresh_token");
+
+    await Swal.fire({
       position: "top-end",
       icon: "success",
-      title: "Account created successfully!",
+      title: "Account created successfully! Please sign in.",
       showConfirmButton: false,
-      timer: 1800,
+      timer: 2000,
       toast: true,
     });
-    window.location.href = "/";
+    router.push("/login");
   };
 
   return (
