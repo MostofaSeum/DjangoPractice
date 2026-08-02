@@ -21,6 +21,8 @@ export const metadata: Metadata = {
   description: "High-end streetwear and premium digital aesthetics.",
 };
 
+import { ThemeProvider } from "@/store/ThemeContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,15 +32,18 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-[#e6e0d4]">
-        <AuthProvider>
-          <CartProvider>
-            <Header />
-            <div className="flex-1">{children}</div>
-            <Footer />
-          </CartProvider>
-        </AuthProvider>
+      <body className="min-h-full flex flex-col transition-colors duration-300">
+        <ThemeProvider>
+          <AuthProvider>
+            <CartProvider>
+              <Header />
+              <div className="flex-1">{children}</div>
+              <Footer />
+            </CartProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

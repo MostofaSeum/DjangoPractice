@@ -1,20 +1,49 @@
 @import "tailwindcss";
 
-@theme {
-  --color-brand-bg: #e6e0d4;
-  --color-brand-dark: #3a3532;
-  --color-brand-accent: #8b7a66;
-  --color-brand-light: #f4f1eb;
-  --color-brand-dark-hover: #524b47;
-  --color-brand-dark-active: #252220;
-}
-
 :root {
   --background: #e6e0d4;
   --foreground: #3a3532;
+  --brand-bg: #e6e0d4;
+  --brand-dark: #3a3532;
+  --brand-accent: #8b7a66;
+  --brand-light: #f4f1eb;
+  --brand-dark-hover: #524b47;
+  --brand-dark-active: #252220;
+  --card-bg: #ffffff;
+  --card-border: rgba(58, 53, 50, 0.1);
+  --header-bg: #3a3532;
+  --header-text: #e6e0d4;
+}
+
+html[data-theme="dark"],
+.dark {
+  --background: #181614;
+  --foreground: #f4f1eb;
+  --brand-bg: #181614;
+  --brand-dark: #282422;
+  --brand-accent: #c4b5a0;
+  --brand-light: #25211e;
+  --brand-dark-hover: #35302d;
+  --brand-dark-active: #151312;
+  --card-bg: #23201d;
+  --card-border: rgba(244, 241, 235, 0.15);
+  --header-bg: #12100f;
+  --header-text: #f4f1eb;
+}
+
+@theme {
+  --color-brand-bg: var(--brand-bg);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-light: var(--brand-light);
+  --color-brand-dark-hover: var(--brand-dark-hover);
+  --color-brand-dark-active: var(--brand-dark-active);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
 }
 
 html, body {
-  background-color: var(--background) !important;
-  color: var(--foreground) !important;
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
