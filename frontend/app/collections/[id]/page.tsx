@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import ProductImage from '@/app/components/ProductImage';
+import ProductImage from '@/components/ui/ProductImage';
 
 interface Product {
   id: number;

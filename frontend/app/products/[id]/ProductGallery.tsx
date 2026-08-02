@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import ProductImage from '@/app/components/ProductImage';
+import ProductImage from '@/components/ui/ProductImage';
 
 interface ProductImageItem {
   id?: number;
