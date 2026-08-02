@@ -4,8 +4,8 @@
   /* Light Theme */
   --background: #e6e0d4;
   --foreground: #3a3532;
-  --header-bg: #f4f1eb;
-  --header-text: #3a3532;
+  --header-bg: #3a3532;       /* Dark charcoal navbar */
+  --header-text: #e6e0d4;     /* Cream navbar text */
   --card-bg: #ffffff;
   --card-border: rgba(58, 53, 50, 0.08);
   --brand-bg: #e6e0d4;

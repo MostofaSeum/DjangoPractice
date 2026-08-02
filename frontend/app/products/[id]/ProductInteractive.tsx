@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useCart } from '@/app/context/CartContext';
+import { useCart } from '@/hooks/useCart';
 import Swal from 'sweetalert2';
 
 export default function ProductInteractive({
