@@ -30,7 +30,7 @@ export default function ThemeToggle() {
       title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
     >
       {theme === "light" ? (
-        /* Moon Icon for Light Mode (click to switch to dark) */
+        /* Moon Icon for Light Mode*/
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="w-4 h-4"
@@ -46,7 +46,7 @@ export default function ThemeToggle() {
           />
         </svg>
       ) : (
-        /* Sun Icon for Dark Mode (click to switch to light) */
+        /* Sun Icon for Dark Mode*/
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="w-4 h-4 text-yellow-400"
