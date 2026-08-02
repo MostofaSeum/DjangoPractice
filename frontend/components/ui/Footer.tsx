@@ -2,9 +2,9 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#2a2624] text-[#e6e0d4]/50 py-16 px-8 md:px-12 mt-auto">
+    <footer className="bg-[var(--header-bg)] text-[var(--header-text)] opacity-90 py-16 px-8 md:px-12 mt-auto border-t border-white/5 transition-colors duration-300">
       <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
-        <Link href="/" className="text-3xl font-black tracking-tighter text-[#e6e0d4] uppercase">
+        <Link href="/" className="text-3xl font-black tracking-tighter text-[var(--header-text)] uppercase">
           VibeMart
         </Link>
         <div className="flex flex-wrap justify-center gap-8 text-xs font-bold uppercase tracking-widest">

@@ -75,7 +75,7 @@ export default function AddToCartButton({
       disabled={loading}
       className={
         className ||
-        "w-full py-3 border-2 border-[#3a3532] rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[#3a3532] hover:text-[#e6e0d4] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+        "w-full py-3 border border-current rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[var(--button-bg)] hover:text-[var(--button-text)] transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
       }
     >
       <CartIcon />

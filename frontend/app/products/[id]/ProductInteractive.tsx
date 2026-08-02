@@ -53,7 +53,7 @@ export default function ProductInteractive({
   if (isOutOfStock) {
     return (
       <div className="flex items-center gap-4 my-6">
-        <span className="px-8 py-3.5 bg-red-100 text-red-700 font-bold rounded-xl text-xs tracking-widest uppercase border border-red-300">
+        <span className="px-8 py-3.5 bg-red-500/10 text-red-500 font-bold rounded-xl text-xs tracking-widest uppercase border border-red-500/30">
           Out of Stock
         </span>
       </div>
@@ -62,19 +62,19 @@ export default function ProductInteractive({
 
   return (
     <div className="flex items-center gap-4 my-6">
-      <div className="flex items-center border border-[#3a3532]/20 rounded-xl overflow-hidden bg-white">
+      <div className="flex items-center border border-[var(--input-border)] rounded-xl overflow-hidden bg-[var(--input-bg)]">
         <button
           onClick={handleDecrement}
-          className="px-4 py-2 hover:bg-[#f4f1eb] text-[#3a3532] font-black transition-colors"
+          className="px-4 py-2 hover:bg-[var(--card-bg)] text-[var(--foreground)] font-black transition-colors"
           type="button"
         >
           -
         </button>
-        <span className="w-12 text-center font-bold text-[#3a3532]">{quantity}</span>
+        <span className="w-12 text-center font-bold text-[var(--foreground)]">{quantity}</span>
         <button
           onClick={handleIncrement}
           disabled={quantity >= inventory}
-          className="px-4 py-2 hover:bg-[#f4f1eb] text-[#3a3532] font-black transition-colors disabled:opacity-40"
+          className="px-4 py-2 hover:bg-[var(--card-bg)] text-[var(--foreground)] font-black transition-colors disabled:opacity-40"
           type="button"
         >
           +
@@ -84,7 +84,7 @@ export default function ProductInteractive({
       <button
         onClick={handleAddToCart}
         disabled={loading}
-        className="px-8 py-3 bg-[#3a3532] hover:bg-[#252220] text-[#e6e0d4] font-bold rounded-xl text-sm tracking-widest uppercase transition-colors shadow-md disabled:opacity-50"
+        className="px-8 py-3 bg-[var(--button-bg)] text-[var(--button-text)] hover:opacity-90 font-bold rounded-xl text-sm tracking-widest uppercase transition-colors shadow-md disabled:opacity-50"
       >
         {loading ? "Adding..." : "Add to Cart"}
       </button>

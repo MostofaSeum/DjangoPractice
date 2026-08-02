@@ -9,10 +9,6 @@ interface Collection {
   image?: string | null;
 }
 
-const CartIcon = () => (
-  <Image src="/shopping-cart-white-icon.webp" width={23} height={23} alt="Cart" />
-);
-
 export default async function CollectionsPage() {
   const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
   const res = await fetch(`${apiBaseUrl}/store/collections/`, {
@@ -21,7 +17,7 @@ export default async function CollectionsPage() {
  
   if (!res.ok) {
     return (
-      <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] p-8 text-center font-bold">
+      <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] p-8 text-center font-bold">
         Failed to load collections.
       </div>
     );
@@ -31,21 +27,21 @@ export default async function CollectionsPage() {
   const collections: Collection[] = Array.isArray(data) ? data : data.results || [];
 
   return (
-    <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans antialiased pb-24 selection:bg-[#3a3532] selection:text-[#e6e0d4]">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans antialiased pb-24 transition-colors duration-300">
 
       {/* Breadcrumbs */}
-      <div className="bg-[#3a3532]/5 border-b border-[#3a3532]/10 py-4">
-        <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs text-[#3a3532]/60 flex items-center space-x-2 font-bold uppercase tracking-wider">
-          <Link href="/" className="hover:text-[#3a3532]">
+      <div className="bg-[var(--banner-bg)] text-[var(--banner-text)] border-b border-[#3a3532]/10 py-4 transition-colors duration-300">
+        <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2 font-bold uppercase tracking-wider opacity-90">
+          <Link href="/" className="hover:underline">
             Home
           </Link>
           <span>/</span>
-          <span className="text-[#3a3532]">Collections</span>
+          <span>Collections</span>
         </div>
       </div>
 
       <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-16">
-        <h1 className="text-4xl font-black mb-10 uppercase tracking-tighter">
+        <h1 className="text-4xl font-black mb-10 uppercase tracking-tighter text-[var(--foreground)]">
           Product Collections
         </h1>
 
@@ -60,23 +56,23 @@ export default async function CollectionsPage() {
             return (
               <div
                 key={collection.id}
-                className="bg-white rounded-2xl p-6 shadow-sm border border-[#3a3532]/5 hover:shadow-xl transition-all duration-300 flex justify-between items-center space-x-4 group cursor-pointer"
+                className="bg-[var(--card-bg)] rounded-2xl p-6 shadow-sm border border-[var(--card-border)] hover:shadow-xl transition-all duration-300 flex justify-between items-center space-x-4 group cursor-pointer text-[var(--foreground)]"
               >
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold mb-1 uppercase tracking-tight group-hover:text-[#8b7a66] transition-colors">
+                  <h2 className="text-2xl font-bold mb-1 uppercase tracking-tight group-hover:text-[var(--brand-accent)] transition-colors">
                     {collection.title}
                   </h2>
-                  <p className="text-[#3a3532]/60 text-xs font-bold uppercase tracking-wider mb-6">
+                  <p className="opacity-70 text-xs font-bold uppercase tracking-wider mb-6">
                     {collection.product_count} products
                   </p>
                   <Link
                     href={`/collections/${collection.id}`}
-                    className="inline-block text-[10px] font-bold tracking-widest uppercase border-b-2 border-[#3a3532] pb-1 hover:opacity-70 transition-opacity"
+                    className="inline-block text-[10px] font-bold tracking-widest uppercase border-b-2 border-current pb-1 hover:opacity-70 transition-opacity"
                   >
                     View Collection
                   </Link>
                 </div>
-                <div className="w-24 h-24 flex-shrink-0 bg-[#f4f1eb] rounded-xl relative flex items-center justify-center p-2 text-center text-[10px] text-[#3a3532]/30 font-bold uppercase tracking-wider overflow-hidden border border-[#3a3532]/10">
+                <div className="w-24 h-24 flex-shrink-0 bg-[var(--input-bg)] rounded-xl relative flex items-center justify-center p-2 text-center text-[10px] opacity-60 font-bold uppercase tracking-wider overflow-hidden border border-[var(--input-border)]">
                   {imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img

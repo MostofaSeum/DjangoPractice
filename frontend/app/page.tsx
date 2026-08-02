@@ -14,10 +14,6 @@ interface Product {
   images?: { id?: number; image: string }[];
 }
 
-const CartIcon = () => (
-  <Image src="/shopping-cart-white-icon.webp" width={23} height={23} alt="Cart" />
-);
-
 const TruckIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -71,14 +67,20 @@ const DiamondIcon = () => (
 );
 
 export default async function Home() {
-  const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
+  const apiBaseUrl = (
+    process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
+  ).replace(/\/+$/, "");
   let trendingProducts: Product[] = [];
 
   try {
-    const res = await fetch(`${apiBaseUrl}/store/products/`, { cache: "no-store" });
+    const res = await fetch(`${apiBaseUrl}/store/products/`, {
+      cache: "no-store",
+    });
     if (res.ok) {
       const data = await res.json();
-      const products: Product[] = Array.isArray(data) ? data : data.results || [];
+      const products: Product[] = Array.isArray(data)
+        ? data
+        : data.results || [];
       trendingProducts = products.slice(0, 4);
     }
   } catch (err) {
@@ -86,106 +88,182 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen pb-24 bg-[#e6e0d4] text-[#3a3532] font-sans selection:bg-[#3a3532] selection:text-[#e6e0d4]">
-
+    <div className="min-h-screen pb-24 bg-[var(--background)] text-[var(--foreground)] font-sans transition-colors duration-300">
       {/* Bento Box Hero Section */}
       <section className="relative w-full min-h-screen pt-32 pb-12 px-4 md:px-8 max-w-[1400px] mx-auto flex items-center justify-center">
         <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-3 gap-4 md:gap-6 w-full h-full">
-          
           {/* Main Large Bento Item (Text & Main CTA) */}
-          <div className="md:col-span-2 md:row-span-2 bg-white rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group shadow-sm hover:shadow-xl transition-all duration-500 border border-brand-dark/5 min-h-[360px] md:min-h-0">
-            <div className="absolute top-10 right-10 text-brand-dark/5 group-hover:scale-125 group-hover:rotate-12 group-hover:text-brand-dark/10 transition-all duration-700">
-               <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13"/><path d="M12 22 16 9l-3-6"/></svg>
+          <div className="md:col-span-2 md:row-span-2 bg-[var(--card-bg)] rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group shadow-sm hover:shadow-xl transition-all duration-500 border border-[var(--card-border)] min-h-[360px] md:min-h-0 text-[var(--foreground)]">
+            <div className="absolute top-10 right-10 opacity-10 group-hover:scale-125 group-hover:rotate-12 transition-all duration-700">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="120"
+                height="120"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M6 3h12l4 6-10 13L2 9Z" />
+                <path d="M11 3 8 9l4 13" />
+                <path d="M12 22 16 9l-3-6" />
+              </svg>
             </div>
-            <span className="bg-brand-bg text-brand-dark text-[10px] font-bold px-3 py-1 mb-8 inline-block uppercase tracking-widest rounded-md self-start border border-brand-dark/10">
+            <span className="bg-[var(--badge-bg)] text-[var(--badge-text)] text-[10px] font-bold px-3 py-1 mb-8 inline-block uppercase tracking-widest rounded-md self-start">
               New Collection
             </span>
-            <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-brand-dark leading-[0.9] tracking-tighter mb-6 uppercase z-10">
+            <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[0.9] tracking-tighter mb-6 uppercase z-10">
               Elevate <br /> Your <AnimatedWord />
             </h1>
-            <p className="text-base text-brand-dark/70 max-w-sm mb-10 font-medium leading-relaxed z-10">
-              Experience the intersection of high-end streetwear and premium digital aesthetics.
+            <p className="text-base opacity-70 max-w-sm mb-10 font-medium leading-relaxed z-10">
+              Experience the intersection of high-end streetwear and premium
+              digital aesthetics.
             </p>
             <div className="flex gap-4 z-10">
-              <Link href="/collections" className="bg-brand-dark text-brand-bg px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-brand-dark-hover transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2 duration-300">
+              <Link
+                href="/collections"
+                className="bg-[var(--button-bg)] text-[var(--button-text)] px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2 duration-300"
+              >
                 Explore Collection
               </Link>
             </div>
           </div>
 
           {/* Top Right Bento Item (Discover the Vibe) */}
-          <div className="md:col-span-2 md:row-span-1 bg-[#3a3532] rounded-[2rem] p-8 md:p-10 text-[#e6e0d4] relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500 min-h-[220px] md:min-h-0">
-             <Image src="/HomePage/Fashion.jpg" alt="Discover" fill className="object-cover opacity-20 mix-blend-overlay group-hover:opacity-40 group-hover:scale-105 transition-all duration-700" unoptimized />
-             <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#e6e0d4]/10 pointer-events-none group-hover:opacity-100 opacity-50 transition-opacity duration-500"></div>
-             <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/5 rounded-full blur-2xl group-hover:bg-white/20 transition-colors duration-700 group-hover:scale-150"></div>
-             <h2 className="text-3xl font-black mb-3 uppercase tracking-tight relative z-10">
+          <div className="md:col-span-2 md:row-span-1 bg-[var(--header-bg)] rounded-[2rem] p-8 md:p-10 text-[var(--header-text)] relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500 min-h-[220px] md:min-h-0">
+            <Image
+              src="/HomePage/Fashion.jpg"
+              alt="Discover"
+              fill
+              className="object-cover opacity-20 mix-blend-overlay group-hover:opacity-40 group-hover:scale-105 transition-all duration-700"
+              unoptimized
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/20 pointer-events-none opacity-50"></div>
+            <h2 className="text-3xl font-black mb-3 uppercase tracking-tight relative z-10">
               Discover the Vibe
-             </h2>
-             <p className="text-sm text-[#e6e0d4]/70 mb-8 leading-relaxed relative z-10 max-w-md">
-              Collect exclusive pieces and immerse yourself in the next wave of streetwear.
-             </p>
-             <div className="flex gap-4 relative z-10">
-               <Link href="/products" className="bg-[#8b7a66] text-[#e6e0d4] px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-[#a39079] transition-all hover:-translate-y-0.5 duration-300 inline-flex justify-center items-center shadow-lg">
-                 View Exclusives
-               </Link>
-             </div>
+            </h2>
+            <p className="text-sm opacity-80 mb-8 leading-relaxed relative z-10 max-w-md">
+              Collect exclusive pieces and immerse yourself in the next wave of
+              streetwear.
+            </p>
+            <div className="flex gap-4 relative z-10">
+              <Link
+                href="/products"
+                className="bg-[var(--badge-bg)] text-[var(--badge-text)] px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:opacity-90 transition-all hover:-translate-y-0.5 duration-300 inline-flex justify-center items-center shadow-lg"
+              >
+                View Exclusives
+              </Link>
+            </div>
           </div>
 
           {/* Middle Right Item 1 (Beauty) */}
-          <Link href="/collections/3" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
-             <Image src="/HomePage/Beauty.webp" alt="Beauty" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
-             <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-                <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">BEAUTY</span>
-             </div>
+          <Link
+            href="/collections/3"
+            className="md:col-span-1 md:row-span-1 bg-[var(--card-bg)] rounded-[2rem] relative overflow-hidden shadow-sm border border-[var(--card-border)] flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
+          >
+            <Image
+              src="/HomePage/Beauty.webp"
+              alt="Beauty"
+              fill
+              className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+            />
+            <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+              <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                BEAUTY
+              </span>
+            </div>
           </Link>
 
           {/* Middle Right Item 2 (24/7 Global Drops) */}
-          <div className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
-             <Image src="/HomePage/24-7.jpg" alt="24/7 Global Drops" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
+          <div className="md:col-span-1 md:row-span-1 bg-[var(--card-bg)] rounded-[2rem] relative overflow-hidden shadow-sm border border-[var(--card-border)] flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
+            <Image
+              src="/HomePage/24-7.jpg"
+              alt="24/7 Global Drops"
+              fill
+              className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+            />
           </div>
 
           {/* Bottom Row Item 1 (Fast Delivery) */}
-          <div className="md:col-span-1 md:row-span-1 bg-[#8b7a66] rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end min-h-[220px] md:min-h-0">
-             <Image src="/HomePage/Delivery.jpg" alt="Fast Delivery" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
-             <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-             <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-10">
-               <div className="text-xl font-black uppercase tracking-tight mb-1 drop-shadow-md">Fast Delivery</div>
-             </div>
+          <div className="md:col-span-1 md:row-span-1 bg-[var(--badge-bg)] rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end min-h-[220px] md:min-h-0">
+            <Image
+              src="/HomePage/Delivery.jpg"
+              alt="Fast Delivery"
+              fill
+              className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+            />
+            <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+            <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-10">
+              <div className="text-xl font-black uppercase tracking-tight mb-1 drop-shadow-md">
+                Fast Delivery
+              </div>
+            </div>
           </div>
 
           {/* Bottom Row Item 2 (Cleaning) */}
-          <Link href="/collections/4" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
-             <Image src="/HomePage/Cleaning.webp" alt="Cleaning" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
-             <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-                <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">CLEANING</span>
-             </div>
+          <Link
+            href="/collections/4"
+            className="md:col-span-1 md:row-span-1 bg-[var(--card-bg)] rounded-[2rem] relative overflow-hidden shadow-sm border border-[var(--card-border)] flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
+          >
+            <Image
+              src="/HomePage/Cleaning.webp"
+              alt="Cleaning"
+              fill
+              className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+            />
+            <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+              <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                CLEANING
+              </span>
+            </div>
           </Link>
 
           {/* Bottom Row Item 3 (Pets) */}
-          <Link href="/collections/6" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
-             <Image src="/HomePage/Pet.jpg" alt="Pets" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
-             <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-                <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">PETS</span>
-             </div>
+          <Link
+            href="/collections/6"
+            className="md:col-span-1 md:row-span-1 bg-[var(--card-bg)] rounded-[2rem] relative overflow-hidden shadow-sm border border-[var(--card-border)] flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
+          >
+            <Image
+              src="/HomePage/Pet.jpg"
+              alt="Pets"
+              fill
+              className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+            />
+            <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+              <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                PETS
+              </span>
+            </div>
           </Link>
 
           {/* Bottom Row Item 4 (Stationary) */}
-          <Link href="/collections/5" className="md:col-span-1 md:row-span-1 bg-white rounded-[2rem] relative overflow-hidden shadow-sm border border-[#3a3532]/5 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
-             <Image src="/HomePage/Stationary.jpg" alt="Stationary" fill className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100" />
-             <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-                <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">STATIONARY</span>
-             </div>
+          <Link
+            href="/collections/5"
+            className="md:col-span-1 md:row-span-1 bg-[var(--card-bg)] rounded-[2rem] relative overflow-hidden shadow-sm border border-[var(--card-border)] flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
+          >
+            <Image
+              src="/HomePage/Stationary.jpg"
+              alt="Stationary"
+              fill
+              className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+            />
+            <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+              <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                STATIONARY
+              </span>
+            </div>
           </Link>
-
         </div>
       </section>
 
       <main className="pb-24">
-        {/* Featured Categories (VibeMart layout) */}
+        {/* Featured Categories */}
         <section className="max-w-[1400px] mx-auto px-8 md:px-12 mt-32">
           <div className="flex justify-between items-end mb-10">
             <h2 className="text-3xl font-black uppercase tracking-tighter">
@@ -193,18 +271,27 @@ export default async function Home() {
             </h2>
             <Link
               href="/collections"
-              className="text-xs font-bold uppercase tracking-widest text-[#8b7a66] hover:text-[#3a3532] transition-colors"
+              className="px-4 py-2 bg-[var(--input-bg)] text-[var(--foreground)] border border-[var(--input-border)] hover:bg-[var(--button-bg)] hover:text-[var(--button-text)] rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-sm inline-flex items-center gap-1"
             >
               View All
             </Link>
           </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[600px]">
             {/* Large Card (Grocery) */}
-            <Link href="/collections/2" className="lg:col-span-2 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[400px]">
-              <Image src="/HomePage/Grocery.png" alt="Grocery" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+            <Link
+              href="/collections/2"
+              className="lg:col-span-2 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[400px]"
+            >
+              <Image
+                src="/HomePage/Grocery.png"
+                alt="Grocery"
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-700"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
               <div className="absolute bottom-10 left-10 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-5px]">
-                <span className="bg-[#e6e0d4] text-[#3a3532] text-xs font-bold px-3 py-1 mb-4 inline-block uppercase tracking-widest rounded-md shadow-md">
+                <span className="bg-[var(--badge-bg)] text-[var(--badge-text)] text-xs font-bold px-3 py-1 mb-4 inline-block uppercase tracking-widest rounded-md shadow-md">
                   POPULAR
                 </span>
                 <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tight drop-shadow-md">
@@ -216,8 +303,16 @@ export default async function Home() {
             {/* Small Stacked Cards (Toys & Magazines) */}
             <div className="flex flex-col gap-6">
               {/* Toys Card */}
-              <Link href="/collections/9" className="flex-1 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[250px]">
-                <Image src="/HomePage/Toysjpg.jpg" alt="Toys" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+              <Link
+                href="/collections/9"
+                className="flex-1 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[250px]"
+              >
+                <Image
+                  src="/HomePage/Toysjpg.jpg"
+                  alt="Toys"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
                 <div className="absolute bottom-8 left-8 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-3px]">
                   <h3 className="text-2xl font-bold uppercase tracking-tight drop-shadow-md">
@@ -227,8 +322,16 @@ export default async function Home() {
               </Link>
 
               {/* Magazines Card */}
-              <Link href="/collections/10" className="flex-1 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[250px]">
-                <Image src="/HomePage/Magazines.jpg" alt="Magazines" fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+              <Link
+                href="/collections/10"
+                className="flex-1 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[250px]"
+              >
+                <Image
+                  src="/HomePage/Magazines.jpg"
+                  alt="Magazines"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-700"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
                 <div className="absolute bottom-8 left-8 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-3px]">
                   <h3 className="text-2xl font-bold uppercase tracking-tight drop-shadow-md">
@@ -248,7 +351,7 @@ export default async function Home() {
             </h2>
             <Link
               href="/products"
-              className="text-xs font-bold uppercase tracking-widest text-[#8b7a66] hover:text-[#3a3532] transition-colors"
+              className="px-4 py-2 bg-[var(--input-bg)] text-[var(--foreground)] border border-[var(--input-border)] hover:bg-[var(--button-bg)] hover:text-[var(--button-text)] rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-sm inline-flex items-center gap-1"
             >
               View All
             </Link>
@@ -259,19 +362,22 @@ export default async function Home() {
               trendingProducts.map((product) => (
                 <div
                   key={product.id}
-                  className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between"
+                  className="bg-[var(--card-bg)] rounded-2xl p-5 shadow-sm border border-[var(--card-border)] hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between"
                 >
                   <Link href={`/products/${product.id}`} className="block">
-                    <div className="aspect-square bg-[#f4f1eb] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                      <ProductImage title={product.title} images={product.images} />
+                    <div className="aspect-square bg-[var(--input-bg)] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
+                      <ProductImage
+                        title={product.title}
+                        images={product.images}
+                      />
                     </div>
-                    <h4 className="font-bold text-lg text-[#3a3532] mb-1 line-clamp-1 group-hover:text-[#8b7a66] transition-colors">
+                    <h4 className="font-bold text-lg text-[var(--foreground)] mb-1 line-clamp-1 group-hover:text-[var(--brand-accent)] transition-colors">
                       {product.title}
                     </h4>
                   </Link>
 
                   <div>
-                    <p className="text-[#8b7a66] font-bold text-lg mb-6">
+                    <p className="text-[var(--brand-accent)] font-bold text-lg mb-6">
                       ${Number(product.unit_price).toFixed(2)}
                     </p>
                     <AddToCartButton
@@ -283,53 +389,54 @@ export default async function Home() {
                 </div>
               ))
             ) : (
-              <div className="col-span-full py-12 text-center text-sm font-bold uppercase tracking-wider text-[#3a3532]/60">
+              <div className="col-span-full py-12 text-center text-sm font-bold uppercase tracking-wider opacity-60">
                 No trending products available.
               </div>
             )}
           </div>
         </section>
 
-        {/* Why Choose Us (VibeMart footer-pre-section) */}
-        <section className="bg-[#3a3532] text-[#e6e0d4] mt-24 mb-16 py-20 px-8 md:px-12 rounded-[3rem] mx-4 md:mx-12 lg:mx-20 shadow-2xl">
+        {/* Why Choose Us */}
+        <section className="bg-[var(--card-bg)] text-[var(--foreground)] border border-[var(--card-border)] mt-24 mb-16 py-20 px-8 md:px-12 rounded-[3rem] mx-4 md:mx-12 lg:mx-20 shadow-2xl transition-colors duration-300">
           <div className="max-w-[1200px] mx-auto">
             <h2 className="text-3xl font-black text-center mb-16 uppercase tracking-tighter">
               Why VibeMart?
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-[#e6e0d4]/5 rounded-2xl flex items-center justify-center mb-8 transform rotate-3 hover:rotate-0 transition-transform duration-300 border border-[#e6e0d4]/10">
+                <div className="w-20 h-20 bg-[var(--badge-bg)] text-[var(--badge-text)] rounded-2xl flex items-center justify-center mb-8 transform rotate-3 hover:rotate-0 transition-transform duration-300 shadow-md">
                   <TruckIcon />
                 </div>
                 <h3 className="text-xl font-black mb-4 uppercase tracking-widest">
                   Fast Shipping
                 </h3>
-                <p className="text-[#e6e0d4]/60 leading-relaxed text-sm font-medium">
+                <p className="opacity-70 leading-relaxed text-sm font-medium">
                   Global expedited delivery ensures you get your gear before the
                   hype dies.
                 </p>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-[#e6e0d4]/5 rounded-2xl flex items-center justify-center mb-8 transform -rotate-3 hover:rotate-0 transition-transform duration-300 border border-[#e6e0d4]/10">
+                <div className="w-20 h-20 bg-[var(--badge-bg)] text-[var(--badge-text)] rounded-2xl flex items-center justify-center mb-8 transform -rotate-3 hover:rotate-0 transition-transform duration-300 shadow-md">
                   <DiamondIcon />
                 </div>
                 <h3 className="text-xl font-black mb-4 uppercase tracking-widest">
                   Elite Quality
                 </h3>
-                <p className="text-[#e6e0d4]/60 leading-relaxed text-sm font-medium">
+                <p className="opacity-70 leading-relaxed text-sm font-medium">
                   Uncompromising materials and construction. We only sell what
                   we wear.
                 </p>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-[#e6e0d4]/5 rounded-2xl flex items-center justify-center mb-8 transform rotate-3 hover:rotate-0 transition-transform duration-300 border border-[#e6e0d4]/10">
+                <div className="w-20 h-20 bg-[var(--badge-bg)] text-[var(--badge-text)] rounded-2xl flex items-center justify-center mb-8 transform rotate-3 hover:rotate-0 transition-transform duration-300 shadow-md">
                   <ShieldIcon />
                 </div>
                 <h3 className="text-xl font-black mb-4 uppercase tracking-widest">
                   Secure Checkout
                 </h3>
-                <p className="text-[#e6e0d4]/60 leading-relaxed text-sm font-medium">
-                  Encrypted, lightning-fast transactions to secure your limited drops.
+                <p className="opacity-70 leading-relaxed text-sm font-medium">
+                  Encrypted, lightning-fast transactions to secure your limited
+                  drops.
                 </p>
               </div>
             </div>
@@ -338,18 +445,41 @@ export default async function Home() {
       </main>
 
       {/* Join the Club Section */}
-      <section className="bg-white py-20 px-8 md:px-12 mx-4 md:mx-12 lg:mx-20 rounded-[3rem] shadow-xl border border-[#3a3532]/5 flex flex-col items-center text-center relative overflow-hidden group">
-         <div className="absolute top-0 right-0 p-12 opacity-5 transform group-hover:rotate-12 transition-transform duration-700 pointer-events-none group-hover:scale-110">
-            <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13"/><path d="M12 22 16 9l-3-6"/></svg>
-         </div>
-         <h2 className="text-4xl md:text-5xl font-black text-[#3a3532] uppercase tracking-tighter mb-4 relative z-10">Join the Club</h2>
-         <p className="text-sm md:text-base text-[#3a3532]/60 font-medium mb-10 max-w-md relative z-10">Get early access to exclusive drops, members-only events, and behind-the-scenes content.</p>
-         <div className="flex gap-2 w-full max-w-md relative z-10">
-           <input type="email" placeholder="ENTER YOUR EMAIL" className="flex-1 bg-[#f4f1eb] border-none rounded-2xl px-6 py-4 text-xs font-bold text-[#3a3532] placeholder:text-[#3a3532]/40 outline-none focus:ring-2 focus:ring-[#8b7a66] transition-shadow" />
-           <button className="bg-[#3a3532] text-[#e6e0d4] px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-[#524b47] transition-all flex items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-0.5 duration-300">
-             Subscribe
-           </button>
-         </div>
+      <section className="bg-[var(--card-bg)] text-[var(--foreground)] border border-[var(--card-border)] py-20 px-8 md:px-12 mx-4 md:mx-12 lg:mx-20 rounded-[3rem] shadow-xl flex flex-col items-center text-center relative overflow-hidden group transition-colors duration-300">
+        <div className="absolute top-0 right-0 p-12 opacity-5 transform group-hover:rotate-12 transition-transform duration-700 pointer-events-none group-hover:scale-110">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="200"
+            height="200"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M6 3h12l4 6-10 13L2 9Z" />
+            <path d="M11 3 8 9l4 13" />
+            <path d="M12 22 16 9l-3-6" />
+          </svg>
+        </div>
+        <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4 relative z-10">
+          Join the Club
+        </h2>
+        <p className="text-sm md:text-base opacity-70 font-medium mb-10 max-w-md relative z-10">
+          Get early access to exclusive drops, members-only events, and
+          behind-the-scenes content.
+        </p>
+        <div className="flex gap-2 w-full max-w-md relative z-10">
+          <input
+            type="email"
+            placeholder="ENTER YOUR EMAIL"
+            className="flex-1 bg-[var(--input-bg)] border border-[var(--input-border)] rounded-2xl px-6 py-4 text-xs font-bold text-[var(--foreground)] placeholder:opacity-40 outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+          />
+          <button className="bg-[var(--button-bg)] text-[var(--button-text)] px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-0.5 duration-300">
+            Subscribe
+          </button>
+        </div>
       </section>
     </div>
   );

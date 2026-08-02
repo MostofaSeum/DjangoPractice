@@ -15,42 +15,38 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("light");
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("vibemart_theme") as Theme | null;
-    if (savedTheme === "dark" || savedTheme === "light") {
-      setThemeState(savedTheme);
-      document.documentElement.setAttribute("data-theme", savedTheme);
-      if (savedTheme === "dark") {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-    } else {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const initialTheme = prefersDark ? "dark" : "light";
-      setThemeState(initialTheme);
-      document.documentElement.setAttribute("data-theme", initialTheme);
-      if (initialTheme === "dark") {
+  const applyTheme = (newTheme: Theme) => {
+    if (typeof document !== "undefined") {
+      document.documentElement.setAttribute("data-theme", newTheme);
+      if (newTheme === "dark") {
         document.documentElement.classList.add("dark");
       } else {
         document.documentElement.classList.remove("dark");
       }
     }
+  };
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("vibemart_theme") as Theme | null;
+    let initialTheme: Theme = "light";
+    if (savedTheme === "dark" || savedTheme === "light") {
+      initialTheme = savedTheme;
+    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      initialTheme = "dark";
+    }
+    setThemeState(initialTheme);
+    applyTheme(initialTheme);
   }, []);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
     localStorage.setItem("vibemart_theme", newTheme);
-    document.documentElement.setAttribute("data-theme", newTheme);
-    if (newTheme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    applyTheme(newTheme);
   };
 
   const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
+    const nextTheme = theme === "light" ? "dark" : "light";
+    setTheme(nextTheme);
   };
 
   return (

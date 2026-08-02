@@ -36,7 +36,7 @@ export default function Header() {
   }
 
   return (
-    <header className="w-full z-50 py-5 px-8 md:px-12 bg-[#3a3532] dark:bg-[#12100f] text-[#e6e0d4] sticky top-0 shadow-md border-b border-white/5 transition-colors duration-300">
+    <header className="w-full z-50 py-5 px-8 md:px-12 bg-[var(--header-bg)] text-[#e6e0d4] sticky top-0 shadow-md border-b border-white/5 transition-colors duration-300">
       <div className="max-w-[1400px] mx-auto flex justify-between items-center">
         {/* Logo */}
         <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter uppercase text-[#e6e0d4] hover:opacity-90 transition-opacity">

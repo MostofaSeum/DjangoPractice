@@ -158,29 +158,29 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] flex items-center justify-center p-8 font-bold uppercase tracking-widest text-xs">
+      <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex items-center justify-center p-8 font-bold uppercase tracking-widest text-xs transition-colors duration-300">
         Loading profile...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans py-12 selection:bg-[#3a3532] selection:text-[#e6e0d4]">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans py-12 transition-colors duration-300">
       <main className="max-w-[1400px] mx-auto px-8 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
           {/* Account Profile Form (1 Column) */}
-          <div className="bg-white rounded-[2.5rem] p-8 shadow-md border border-[#3a3532]/5">
-            <div className="text-left mb-6 pb-4 border-b border-[#3a3532]/10">
-              <h2 className="text-xl font-black uppercase tracking-tight text-[#3a3532]">
+          <div className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-[2.5rem] p-8 shadow-md border border-[var(--card-border)] transition-colors duration-300">
+            <div className="text-left mb-6 pb-4 border-b border-[var(--card-border)]">
+              <h2 className="text-xl font-black uppercase tracking-tight text-[var(--foreground)]">
                 My Profile
               </h2>
-              <p className="text-xs text-[#3a3532]/60 font-bold uppercase tracking-wider mt-1">
+              <p className="text-xs opacity-70 font-bold uppercase tracking-wider mt-1">
                 Personal details & contact info
               </p>
             </div>
 
             {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-2xl font-bold text-center">
+              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 text-red-500 text-xs rounded-2xl font-bold text-center">
                 {error}
               </div>
             )}
@@ -188,7 +188,7 @@ export default function ProfilePage() {
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                     First Name
                   </label>
                   <input
@@ -197,12 +197,12 @@ export default function ProfilePage() {
                     value={formData.first_name}
                     onChange={handleChange}
                     placeholder="FIRST NAME"
-                    className="px-4 py-3 border border-[#3a3532]/10 rounded-2xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none focus:ring-2 focus:ring-[#8b7a66] transition-all"
+                    className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
                   />
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                     Last Name
                   </label>
                   <input
@@ -211,13 +211,13 @@ export default function ProfilePage() {
                     value={formData.last_name}
                     onChange={handleChange}
                     placeholder="LAST NAME"
-                    className="px-4 py-3 border border-[#3a3532]/10 rounded-2xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none focus:ring-2 focus:ring-[#8b7a66] transition-all"
+                    className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
                   />
                 </div>
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                   Email Address
                 </label>
                 <input
@@ -226,12 +226,12 @@ export default function ProfilePage() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="YOU@EXAMPLE.COM"
-                  className="px-4 py-3 border border-[#3a3532]/10 rounded-2xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none focus:ring-2 focus:ring-[#8b7a66] transition-all"
+                  className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                   Phone Number
                 </label>
                 <input
@@ -240,12 +240,12 @@ export default function ProfilePage() {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="+1 234 567 8900"
-                  className="px-4 py-3 border border-[#3a3532]/10 rounded-2xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none focus:ring-2 focus:ring-[#8b7a66] transition-all"
+                  className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                   Birth Date
                 </label>
                 <input
@@ -253,14 +253,14 @@ export default function ProfilePage() {
                   name="birth_date"
                   value={formData.birth_date}
                   onChange={handleChange}
-                  className="px-4 py-3 border border-[#3a3532]/10 rounded-2xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] outline-none focus:ring-2 focus:ring-[#8b7a66] transition-all"
+                  className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full mt-4 py-4 bg-[#3a3532] text-[#e6e0d4] rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-[#252220] transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center"
+                className="w-full mt-4 py-4 bg-[var(--button-bg)] text-[var(--button-text)] rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center"
               >
                 {saving ? "Saving Changes..." : "Save Profile Changes"}
               </button>
@@ -268,19 +268,19 @@ export default function ProfilePage() {
           </div>
 
           {/* User's Own Order History (2 Columns) */}
-          <div className="lg:col-span-2 bg-white rounded-[2.5rem] p-8 shadow-md border border-[#3a3532]/5">
-            <div className="flex justify-between items-center pb-4 border-b border-[#3a3532]/10 mb-6">
+          <div className="lg:col-span-2 bg-[var(--card-bg)] text-[var(--foreground)] rounded-[2.5rem] p-8 shadow-md border border-[var(--card-border)] transition-colors duration-300">
+            <div className="flex justify-between items-center pb-4 border-b border-[var(--card-border)] mb-6">
               <div>
-                <h2 className="text-xl font-black uppercase tracking-tight text-[#3a3532]">
+                <h2 className="text-xl font-black uppercase tracking-tight text-[var(--foreground)]">
                   My Order History ({myOrders.length})
                 </h2>
-                <p className="text-xs text-[#3a3532]/60 font-bold uppercase tracking-wider mt-1">
+                <p className="text-xs opacity-70 font-bold uppercase tracking-wider mt-1">
                   Track your previous orders and payment status
                 </p>
               </div>
               <Link
                 href="/products"
-                className="px-4 py-2 bg-[#f4f1eb] text-[#3a3532] hover:bg-[#3a3532] hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
+                className="px-4 py-2 bg-[var(--input-bg)] text-[var(--foreground)] hover:bg-[var(--button-bg)] hover:text-[var(--button-text)] rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
               >
                 Shop Now
               </Link>
@@ -296,24 +296,24 @@ export default function ProfilePage() {
                   return (
                     <div
                       key={ord.id}
-                      className="p-6 rounded-3xl bg-[#f4f1eb] border border-[#3a3532]/10 space-y-4"
+                      className="p-6 rounded-3xl bg-[var(--input-bg)] border border-[var(--input-border)] space-y-4"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#3a3532]/10 pb-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--input-border)] pb-3">
                         <div>
-                          <span className="font-black text-lg text-[#3a3532] uppercase tracking-tight">
+                          <span className="font-black text-lg text-[var(--foreground)] uppercase tracking-tight">
                             Order #{ord.id}
                           </span>
-                          <p className="text-[10px] font-bold text-[#3a3532]/60 uppercase tracking-wider mt-0.5">
+                          <p className="text-[10px] font-bold opacity-60 uppercase tracking-wider mt-0.5">
                             Placed on {ord.placed_at ? new Date(ord.placed_at).toLocaleString() : "N/A"}
                           </p>
                         </div>
                         <span
                           className={`px-3.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider w-fit ${
                             ord.payment_status === "C"
-                              ? "bg-green-200 text-green-900 border border-green-300"
+                              ? "bg-green-500/20 text-green-500 border border-green-500/30"
                               : ord.payment_status === "F"
-                              ? "bg-red-200 text-red-900 border border-red-300"
-                              : "bg-yellow-200 text-yellow-900 border border-yellow-300"
+                              ? "bg-red-500/20 text-red-500 border border-red-500/30"
+                              : "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
                           }`}
                         >
                           Order Status: {ord.payment_status === "C" ? "Complete" : ord.payment_status === "F" ? "Failed" : "Pending"}
@@ -321,16 +321,16 @@ export default function ProfilePage() {
                       </div>
 
                       {/* Details & Address */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium text-[#3a3532]">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium text-[var(--foreground)]">
                         <div>
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/50">
+                          <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">
                             Shipping Details
                           </p>
                           <p className="font-bold">{ord.shipping_address || "Address not specified"}</p>
-                          <p className="text-[11px] text-[#3a3532]/70">Phone: {ord.phone || "N/A"}</p>
+                          <p className="text-[11px] opacity-70">Phone: {ord.phone || "N/A"}</p>
                         </div>
                         <div>
-                          <p className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/50">
+                          <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">
                             Payment Method
                           </p>
                           <p className="font-bold">
@@ -345,25 +345,25 @@ export default function ProfilePage() {
 
                       {/* Items Breakdown */}
                       {ord.items && ord.items.length > 0 && (
-                        <div className="bg-white rounded-2xl p-4 border border-[#3a3532]/5 space-y-2">
-                          <p className="text-[10px] font-black uppercase tracking-wider text-[#3a3532]/60 border-b border-[#3a3532]/5 pb-1">
+                        <div className="bg-[var(--card-bg)] rounded-2xl p-4 border border-[var(--card-border)] space-y-2">
+                          <p className="text-[10px] font-black uppercase tracking-wider opacity-60 border-b border-[var(--card-border)] pb-1">
                             Items Ordered ({ord.items.reduce((s, i) => s + i.quantity, 0)})
                           </p>
                           <div className="space-y-1">
                             {ord.items.map((it) => (
                               <div key={it.id} className="flex justify-between items-center text-xs">
-                                <span className="font-bold text-[#3a3532]">
-                                  {it.product?.title || `Product #${it.product}`} <span className="text-[#3a3532]/50 font-normal">x {it.quantity}</span>
+                                <span className="font-bold text-[var(--foreground)]">
+                                  {it.product?.title || `Product #${it.product}`} <span className="opacity-50 font-normal">x {it.quantity}</span>
                                 </span>
-                                <span className="font-black text-[#8b7a66]">
+                                <span className="font-black text-[var(--brand-accent)]">
                                   ${(it.quantity * Number(it.unit_price)).toFixed(2)}
                                 </span>
                               </div>
                             ))}
                           </div>
-                          <div className="pt-2 border-t border-[#3a3532]/10 flex justify-between items-center text-xs font-black">
-                            <span className="uppercase text-[#3a3532]">Total Amount</span>
-                            <span className="text-base text-[#3a3532]">${orderTotal.toFixed(2)}</span>
+                          <div className="pt-2 border-t border-[var(--card-border)] flex justify-between items-center text-xs font-black">
+                            <span className="uppercase text-[var(--foreground)]">Total Amount</span>
+                            <span className="text-base text-[var(--foreground)]">${orderTotal.toFixed(2)}</span>
                           </div>
                         </div>
                       )}
@@ -372,7 +372,7 @@ export default function ProfilePage() {
                 })}
               </div>
             ) : (
-              <div className="py-16 text-center text-xs font-bold uppercase tracking-wider text-[#3a3532]/50">
+              <div className="py-16 text-center text-xs font-bold uppercase tracking-wider opacity-50">
                 You haven't placed any orders yet.
               </div>
             )}

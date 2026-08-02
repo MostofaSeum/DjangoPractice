@@ -1,18 +1,36 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTheme } from "@/hooks/useTheme";
 
 export default function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="w-8 h-8 rounded-full border border-white/20 bg-white/10" />
+    );
+  }
 
   return (
     <button
-      onClick={toggleTheme}
+      type="button"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleTheme();
+      }}
       aria-label="Toggle Light and Dark Mode"
-      className="p-2 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-[#e6e0d4] hover:text-white transition-all flex items-center justify-center cursor-pointer"
+      className="p-2 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-[#e6e0d4] hover:text-white transition-all flex items-center justify-center cursor-pointer select-none"
       title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
     >
       {theme === "light" ? (
+        /* Moon Icon for Light Mode (click to switch to dark) */
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="w-4 h-4"
@@ -28,6 +46,7 @@ export default function ThemeToggle() {
           />
         </svg>
       ) : (
+        /* Sun Icon for Dark Mode (click to switch to light) */
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="w-4 h-4 text-yellow-400"

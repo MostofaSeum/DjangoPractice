@@ -119,24 +119,24 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans flex items-center justify-center px-4 py-16 selection:bg-[#3a3532] selection:text-[#e6e0d4]">
-      <div className="w-full max-w-lg bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-[#3a3532]/5 relative overflow-hidden">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans flex items-center justify-center px-4 py-16 transition-colors duration-300">
+      <div className="w-full max-w-lg bg-[var(--card-bg)] text-[var(--foreground)] rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-[var(--card-border)] relative overflow-hidden transition-colors duration-300">
         {/* Header */}
         <div className="text-center mb-8">
-          <span className="bg-[#3a3532]/5 text-[#3a3532] text-[10px] font-bold px-3.5 py-1.5 uppercase tracking-widest rounded-md inline-block mb-4 border border-[#3a3532]/10">
+          <span className="bg-[var(--badge-bg)] text-[var(--badge-text)] text-[10px] font-bold px-3.5 py-1.5 uppercase tracking-widest rounded-md inline-block mb-4">
             Join VibeMart
           </span>
-          <h1 className="text-3xl font-black uppercase tracking-tighter text-[#3a3532]">
+          <h1 className="text-3xl font-black uppercase tracking-tighter text-[var(--foreground)]">
             Create Account
           </h1>
-          <p className="text-xs text-[#3a3532]/60 mt-2 font-medium">
+          <p className="text-xs opacity-70 mt-2 font-medium">
             Sign up to collect exclusive drops and manage your orders.
           </p>
         </div>
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 text-xs rounded-2xl font-bold text-center">
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 text-red-500 text-xs rounded-2xl font-bold text-center">
             {error}
           </div>
         )}
@@ -145,7 +145,7 @@ export default function RegisterPage() {
         <form onSubmit={handlePreSubmit} className="flex flex-col gap-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                 First Name
               </label>
               <input
@@ -154,12 +154,12 @@ export default function RegisterPage() {
                 value={formData.first_name}
                 onChange={handleChange}
                 placeholder="JOHN"
-                className="px-4 py-3 border border-[#3a3532]/10 rounded-2xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] placeholder:text-[#3a3532]/30 outline-none focus:ring-2 focus:ring-[#8b7a66] transition-all"
+                className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] placeholder:opacity-40 outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                 Last Name
               </label>
               <input
@@ -168,13 +168,13 @@ export default function RegisterPage() {
                 value={formData.last_name}
                 onChange={handleChange}
                 placeholder="DOE"
-                className="px-4 py-3 border border-[#3a3532]/10 rounded-2xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] placeholder:text-[#3a3532]/30 outline-none focus:ring-2 focus:ring-[#8b7a66] transition-all"
+                className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] placeholder:opacity-40 outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
               />
             </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+            <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
               Username *
             </label>
             <input
@@ -184,12 +184,12 @@ export default function RegisterPage() {
               value={formData.username}
               onChange={handleChange}
               placeholder="CHOOSE A USERNAME"
-              className="px-4 py-3 border border-[#3a3532]/10 rounded-2xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] placeholder:text-[#3a3532]/30 outline-none focus:ring-2 focus:ring-[#8b7a66] transition-all"
+              className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] placeholder:opacity-40 outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+            <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
               Email Address *
             </label>
             <input
@@ -199,13 +199,13 @@ export default function RegisterPage() {
               value={formData.email}
               onChange={handleChange}
               placeholder="YOU@EXAMPLE.COM"
-              className="px-4 py-3 border border-[#3a3532]/10 rounded-2xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] placeholder:text-[#3a3532]/30 outline-none focus:ring-2 focus:ring-[#8b7a66] transition-all"
+              className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] placeholder:opacity-40 outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                 Password *
               </label>
               <input
@@ -215,12 +215,12 @@ export default function RegisterPage() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="••••••••"
-                className="px-4 py-3 border border-[#3a3532]/10 rounded-2xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] placeholder:text-[#3a3532]/30 outline-none focus:ring-2 focus:ring-[#8b7a66] transition-all"
+                className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] placeholder:opacity-40 outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                 Confirm Password *
               </label>
               <input
@@ -230,7 +230,7 @@ export default function RegisterPage() {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 placeholder="••••••••"
-                className="px-4 py-3 border border-[#3a3532]/10 rounded-2xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] placeholder:text-[#3a3532]/30 outline-none focus:ring-2 focus:ring-[#8b7a66] transition-all"
+                className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] placeholder:opacity-40 outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
               />
             </div>
           </div>
@@ -238,7 +238,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-4 py-4 bg-[#3a3532] text-[#e6e0d4] rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-[#252220] transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center"
+            className="w-full mt-4 py-4 bg-[var(--button-bg)] text-[var(--button-text)] rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center"
           >
             {loading ? "Sending Verification..." : "Create Account"}
           </button>
@@ -259,12 +259,12 @@ export default function RegisterPage() {
         />
 
         {/* Link to Login */}
-        <div className="mt-8 pt-6 border-t border-[#3a3532]/10 text-center">
-          <p className="text-xs text-[#3a3532]/60 font-medium">
+        <div className="mt-8 pt-6 border-t border-[var(--card-border)] text-center">
+          <p className="text-xs opacity-70 font-medium">
             Already have an account?{" "}
             <Link
               href="/login"
-              className="font-bold text-[#3a3532] underline hover:text-[#8b7a66] transition-colors"
+              className="font-bold underline hover:text-[var(--brand-accent)] transition-colors"
             >
               Sign In
             </Link>

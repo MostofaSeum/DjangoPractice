@@ -36,12 +36,12 @@ export default function CartPage() {
   const isCartEmpty = !cart || cart.items.length === 0;
 
   return (
-    <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] font-sans">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans transition-colors duration-300">
       {/* Main Content */}
       <main className="max-w-[1400px] mx-auto px-4 md:px-12 py-16">
         {isCartEmpty ? (
-          <div className="bg-white rounded-[2.5rem] p-16 text-center shadow-sm border border-[#3a3532]/5 max-w-2xl mx-auto flex flex-col items-center">
-            <div className="w-20 h-20 bg-[#f4f1eb] rounded-full flex items-center justify-center mb-6">
+          <div className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-[2.5rem] p-16 text-center shadow-sm border border-[var(--card-border)] max-w-2xl mx-auto flex flex-col items-center">
+            <div className="w-20 h-20 bg-[var(--input-bg)] rounded-full flex items-center justify-center mb-6">
               <Image
                 src="/HomePage/shopping-cart.png"
                 width={32}
@@ -52,13 +52,13 @@ export default function CartPage() {
             <h2 className="text-2xl font-black uppercase tracking-tight mb-3">
               Your cart is empty
             </h2>
-            <p className="text-sm text-[#3a3532]/60 font-medium mb-8 max-w-sm">
+            <p className="text-sm opacity-70 font-medium mb-8 max-w-sm">
               Looks like you haven't added anything to your cart yet. Explore
               our latest drops and elevate your vibe!
             </p>
             <Link
               href="/products"
-              className="bg-[#3a3532] text-[#e6e0d4] px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-[#524b47] transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+              className="bg-[var(--button-bg)] text-[var(--button-text)] px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
             >
               Explore Products
             </Link>
@@ -70,17 +70,17 @@ export default function CartPage() {
               {cart.items.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-white rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm border border-[#3a3532]/5 group hover:shadow-md transition-shadow"
+                  className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm border border-[var(--card-border)] group hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-center gap-6 w-full sm:w-auto">
-                    <div className="w-20 h-20 bg-[#f4f1eb] rounded-2xl flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                    <div className="w-20 h-20 bg-[var(--input-bg)] rounded-2xl flex items-center justify-center flex-shrink-0 relative overflow-hidden">
                       <ProductImage title={item.product.title} images={(item.product as any).images} />
                     </div>
                     <div>
                       <h3 className="font-black text-lg uppercase tracking-tight">
                         {item.product.title}
                       </h3>
-                      <p className="text-xs font-bold text-[#8b7a66] mt-1">
+                      <p className="text-xs font-bold text-[var(--brand-accent)] mt-1">
                         ${Number(item.product.unit_price).toFixed(2)} each
                       </p>
                     </div>
@@ -89,7 +89,7 @@ export default function CartPage() {
                   {/* Quantity & Actions */}
                   <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-8">
                     {/* Quantity Controls */}
-                    <div className="flex items-center border border-[#3a3532]/20 rounded-xl overflow-hidden bg-[#f4f1eb]">
+                    <div className="flex items-center border border-[var(--input-border)] rounded-xl overflow-hidden bg-[var(--input-bg)]">
                       <button
                         onClick={() =>
                           updateQuantity(
@@ -97,19 +97,19 @@ export default function CartPage() {
                             Math.max(1, item.quantity - 1),
                           )
                         }
-                        className="px-3 py-1.5 hover:bg-[#e6e0d4] text-[#3a3532] font-black transition-colors"
+                        className="px-3 py-1.5 hover:bg-[var(--card-bg)] text-[var(--foreground)] font-black transition-colors"
                         type="button"
                       >
                         -
                       </button>
-                      <span className="w-10 text-center font-bold text-xs text-[#3a3532]">
+                      <span className="w-10 text-center font-bold text-xs text-[var(--foreground)]">
                         {item.quantity}
                       </span>
                       <button
                         onClick={() =>
                           updateQuantity(item.id, item.quantity + 1)
                         }
-                        className="px-3 py-1.5 hover:bg-[#e6e0d4] text-[#3a3532] font-black transition-colors"
+                        className="px-3 py-1.5 hover:bg-[var(--card-bg)] text-[var(--foreground)] font-black transition-colors"
                         type="button"
                       >
                         +
@@ -126,7 +126,7 @@ export default function CartPage() {
                     {/* Delete Button */}
                     <button
                       onClick={() => handleRemoveItem(item.id, item.product.title)}
-                      className="text-[#3a3532]/40 hover:text-[#cc5555] transition-colors p-2"
+                      className="opacity-50 hover:text-red-500 transition-colors p-2"
                       title="Remove item"
                       type="button"
                     >
@@ -150,26 +150,26 @@ export default function CartPage() {
             </div>
 
             {/* Order Summary Side Card */}
-            <div className="bg-white rounded-[2.5rem] p-8 shadow-md border border-[#3a3532]/5 sticky top-28">
-              <h2 className="text-2xl font-black uppercase tracking-tight mb-6 pb-4 border-b border-[#3a3532]/10">
+            <div className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-[2.5rem] p-8 shadow-md border border-[var(--card-border)] sticky top-28 transition-colors duration-300">
+              <h2 className="text-2xl font-black uppercase tracking-tight mb-6 pb-4 border-b border-[var(--card-border)]">
                 Order Summary
               </h2>
 
               <div className="space-y-4 text-sm font-medium mb-8">
-                <div className="flex justify-between text-[#3a3532]/70">
+                <div className="flex justify-between opacity-80">
                   <span>Subtotal</span>
-                  <span className="font-bold text-[#3a3532]">
+                  <span className="font-bold">
                     ${Number(cart.total_price).toFixed(2)}
                   </span>
                 </div>
-                <div className="flex justify-between text-[#3a3532]/70">
+                <div className="flex justify-between opacity-80">
                   <span>Taxes</span>
-                  <span className="font-bold text-[#3a3532]">$0.00</span>
+                  <span className="font-bold">$0.00</span>
                 </div>
 
-                <div className="pt-4 border-t border-[#3a3532]/10 flex justify-between items-center text-base font-black uppercase tracking-tight">
+                <div className="pt-4 border-t border-[var(--card-border)] flex justify-between items-center text-base font-black uppercase tracking-tight">
                   <span>Total</span>
-                  <span className="text-2xl text-[#3a3532]">
+                  <span className="text-2xl">
                     ${Number(cart.total_price).toFixed(2)}
                   </span>
                 </div>
@@ -177,7 +177,7 @@ export default function CartPage() {
 
               <Link
                 href="/checkout"
-                className="w-full bg-[#3a3532] text-[#e6e0d4] py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-[#524b47] transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2 text-center"
+                className="w-full bg-[var(--button-bg)] text-[var(--button-text)] py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2 text-center"
               >
                 Proceed to Checkout
               </Link>
