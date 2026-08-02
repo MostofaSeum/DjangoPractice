@@ -32,7 +32,7 @@ export default function RegisterPage() {
       if (user?.is_staff) {
         router.push("/admin");
       } else {
-        router.push("/login");
+        router.push("/");
       }
     }
   }, [token, user, authLoading, router]);

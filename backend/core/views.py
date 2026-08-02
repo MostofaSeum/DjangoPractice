@@ -27,8 +27,8 @@ def send_otp(request):
     # Generate 6-digit random code
     otp_code = f"{random.randint(100000, 999999)}"
 
-    # Invalidate previous unused OTPs for this email
-    OTPToken.objects.filter(email=email, is_used=False).update(is_used=True)
+    # Delete any existing OTP tokens for this email to prevent leftover data
+    OTPToken.objects.filter(email=email).delete()
 
     # Save new OTP
     OTPToken.objects.create(email=email, otp_code=otp_code)
@@ -73,9 +73,8 @@ def verify_otp(request):
     if not otp_entry or otp_entry.otp_code != str(otp_code).strip() or not otp_entry.is_valid():
         return Response({'error': 'Invalid or expired verification code'}, status=status.HTTP_400_BAD_REQUEST)
 
-    # Mark OTP as used
-    otp_entry.is_used = True
-    otp_entry.save()
+    # Delete the OTP token after successful verification
+    otp_entry.delete()
 
     # Get or create user
     user = User.objects.filter(email=email).first()
