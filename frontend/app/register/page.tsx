@@ -32,7 +32,7 @@ export default function RegisterPage() {
       if (user?.is_staff) {
         router.push("/admin");
       } else {
-        router.push("/");
+        router.push("/login");
       }
     }
   }, [token, user, authLoading, router]);
@@ -224,7 +224,7 @@ export default function RegisterPage() {
                 required
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                placeholder="********"
+                placeholder="••••••••"
                 className="px-4 py-3 border border-[#3a3532]/10 rounded-2xl bg-[#f4f1eb] text-xs font-bold text-[#3a3532] placeholder:text-[#3a3532]/30 outline-none focus:ring-2 focus:ring-[#8b7a66] transition-all"
               />
             </div>
