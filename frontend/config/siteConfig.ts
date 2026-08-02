@@ -3,7 +3,7 @@ export const siteConfig = {
   description: "Your modern multi-category ecommerce store",
   apiBaseUrl: process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000",
   defaultLocale: "en",
-  locales: ["en", "bn", "es"],
+  locales: ["en", "bn"],
   routes: {
     home: "/",
     products: "/products",
