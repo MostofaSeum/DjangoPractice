@@ -14,7 +14,7 @@ psycopg2-binary = "*"
 djoser = "*"
 djangorestframework-simplejwt = "*"
 celery = "*"
-
+flower = "*"
 
 [dev-packages]
 
