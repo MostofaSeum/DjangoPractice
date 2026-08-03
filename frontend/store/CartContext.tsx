@@ -24,6 +24,7 @@ interface CartContextType {
   updateQuantity: (itemId: number, quantity: number) => Promise<void>;
   removeFromCart: (itemId: number) => Promise<void>;
   clearCart: () => Promise<void>;
+  syncCart: (authToken?: string) => Promise<any>;
 }
 
 const API_BASE = siteConfig.apiBaseUrl.replace(/\/+$/, "");
@@ -82,39 +83,40 @@ export function CartProvider({ children }: { children: ReactNode }) {
     await refreshCart(newCartId);
   };
 
-  useEffect(() => {
-    const initCart = async () => {
-      if (token) {
-        const currentCartId = localStorage.getItem("cart_id");
-        try {
-          const res = await fetch(`${API_BASE}/store/carts/sync/`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `JWT ${token}`,
-            },
-            body: JSON.stringify({ cart_id: currentCartId }),
-          });
-          if (res.ok) {
-            const data = await res.json();
-            localStorage.setItem("cart_id", data.id);
-            setCart(data);
-            return;
-          }
-        } catch (err) {
-          console.error("Cart sync failed:", err);
+  // Sync Guest Cart to User Cart
+  const syncCart = async (authToken?: string) => {
+    const activeToken = authToken || token || localStorage.getItem("access_token");
+    const currentCartId = localStorage.getItem("cart_id");
+    if (activeToken) {
+      try {
+        const res = await fetch(`${API_BASE}/store/carts/sync/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `JWT ${activeToken}`,
+          },
+          body: JSON.stringify({ cart_id: currentCartId }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          localStorage.setItem("cart_id", data.id);
+          setCart(data);
+          return data;
         }
-      } else {
-        const cartId = localStorage.getItem("cart_id");
-        if (cartId) {
-          await refreshCart(cartId);
-        } else {
-          setCart(null);
-        }
+      } catch (err) {
+        console.error("Cart sync failed:", err);
       }
-    };
+    } else {
+      if (currentCartId) {
+        await refreshCart(currentCartId);
+      } else {
+        setCart(null);
+      }
+    }
+  };
 
-    initCart();
+  useEffect(() => {
+    syncCart();
   }, [token]);
 
   // Add Item to Cart 
@@ -168,7 +170,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const itemCount = cart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
   return (
-    <CartContext.Provider value={{ cart, itemCount, addToCart, updateQuantity, removeFromCart, clearCart }}>
+    <CartContext.Provider value={{ cart, itemCount, addToCart, updateQuantity, removeFromCart, clearCart, syncCart }}>
       {children}
     </CartContext.Provider>
   );
@@ -184,6 +186,7 @@ export function useCart() {
       updateQuantity: async () => {},
       removeFromCart: async () => {},
       clearCart: async () => {},
+      syncCart: async () => {},
     };
   }
   return context;

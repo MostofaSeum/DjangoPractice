@@ -6,6 +6,8 @@ from rest_framework import status
 from django.core.mail import send_mail
 from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.utils import timezone
+from datetime import timedelta
 from .models import User, OTPToken
 
 @api_view(['POST'])
@@ -25,11 +27,15 @@ def send_otp(request):
         if username and User.objects.filter(username=username).exists():
             return Response({'error': 'Username is already taken.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Generate 6-digit random code
-        otp_code = f"{random.randint(100000, 999999)}"
+        # Clean up any expired OTP tokens older than 5 minutes from DB
+        five_minutes_ago = timezone.now() - timedelta(minutes=5)
+        OTPToken.objects.filter(created_at__lt=five_minutes_ago).delete()
 
         # Delete any existing OTP tokens for this email to prevent leftover data
         OTPToken.objects.filter(email=email).delete()
+
+        # Generate 6-digit random code
+        otp_code = f"{random.randint(100000, 999999)}"
 
         # Save new OTP
         OTPToken.objects.create(email=email, otp_code=otp_code)
@@ -67,9 +73,15 @@ def verify_otp(request):
     if not email or not otp_code:
         return Response({'error': 'Email and OTP code are required'}, status=status.HTTP_400_BAD_REQUEST)
 
+    # Clean up any expired OTP tokens older than 5 minutes from DB
+    five_minutes_ago = timezone.now() - timedelta(minutes=5)
+    OTPToken.objects.filter(created_at__lt=five_minutes_ago).delete()
+
     otp_entry = OTPToken.objects.filter(email=email, is_used=False).order_by('-created_at').first()
 
     if not otp_entry or otp_entry.otp_code != str(otp_code).strip() or not otp_entry.is_valid():
+        if otp_entry and not otp_entry.is_valid():
+            otp_entry.delete()
         return Response({'error': 'Invalid or expired verification code'}, status=status.HTTP_400_BAD_REQUEST)
 
     # Delete the OTP token after successful verification

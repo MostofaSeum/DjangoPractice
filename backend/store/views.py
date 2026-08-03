@@ -84,7 +84,7 @@ class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyMo
     @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
     def sync(self, request):
         guest_cart_id = request.data.get('cart_id')
-        customer = Customer.objects.get(user_id=request.user.id)
+        customer, _ = Customer.objects.get_or_create(user_id=request.user.id)
 
         user_cart = Cart.objects.filter(customer=customer).prefetch_related('items__product').first()
 
@@ -107,8 +107,8 @@ class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyMo
                                 cart_item.quantity += item.quantity
                                 cart_item.save()
                         guest_cart.delete()
-            except Exception:
-                pass
+            except Exception as e:
+                print("Cart sync exception:", e)
 
         if not user_cart:
             user_cart, _ = Cart.objects.get_or_create(customer=customer)
