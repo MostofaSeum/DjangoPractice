@@ -52,7 +52,7 @@ export default async function CollectionDetailPage({ params }: PageProps) {
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans antialiased pb-24 transition-colors duration-300">
 
       {/* Breadcrumbs */} 
-      <div className="bg-[var(--banner-bg)] text-[var(--banner-text)] border-b border-[#3a3532]/10 py-4 transition-colors duration-300">
+      <div className="bg-primary text-[var(--background)] dark:text-foreground border-b border-foreground/10 py-4 transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2 font-bold uppercase tracking-wider opacity-90">
           <Link href="/" className="hover:underline">Home</Link>
           <span>/</span>
@@ -63,7 +63,7 @@ export default async function CollectionDetailPage({ params }: PageProps) {
       </div>
 
       <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-16">
-        <div className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-3xl p-8 md:p-12 shadow-sm border border-[var(--card-border)] mb-16 relative overflow-hidden transition-colors duration-300">
+        <div className="bg-secondary text-foreground rounded-3xl p-8 md:p-12 shadow-sm border border-foreground/10 mb-16 relative overflow-hidden transition-colors duration-300">
           <span className="text-[10px] opacity-60 font-bold uppercase tracking-widest block mb-2">Collection Detail</span>
           <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter">{collection.title}</h1>
         </div>
@@ -72,22 +72,22 @@ export default async function CollectionDetailPage({ params }: PageProps) {
         {collection.products && collection.products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {collection.products.map((product) => (
-              <div key={product.id} className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-2xl p-5 shadow-sm border border-[var(--card-border)] hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between">
+              <div key={product.id} className="bg-secondary text-foreground rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between">
                 <div>
-                  <div className="aspect-square bg-[var(--input-bg)] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
+                  <div className="aspect-square bg-primary/5 dark:bg-primary/40 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
                     <ProductImage title={product.title} />
                   </div>
-                  <h3 className="font-bold text-lg text-[var(--foreground)] mb-1 line-clamp-1">{product.title}</h3>
+                  <h3 className="font-bold text-lg text-foreground mb-1 line-clamp-1">{product.title}</h3>
                   <p className="opacity-70 text-xs line-clamp-2 mb-4 leading-relaxed">{product.description || 'No description available'}</p>
                 </div>
                 <div>
                   <div className="flex justify-between items-center mb-6">
-                    <span className="text-[var(--price-color)] font-extrabold text-lg">${Number(product.unit_price).toFixed(2)}</span>
+                    <span className="text-accent font-extrabold text-lg">${Number(product.unit_price).toFixed(2)}</span>
                     <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Qty: {product.inventory}</span>
                   </div>
                   <Link 
                     href={`/products/${product.id}`}
-                    className="w-full py-3 border border-current rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-[var(--button-bg)] hover:text-[var(--button-text)] transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-3 border border-current rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-primary hover:text-secondary transition-colors flex items-center justify-center gap-2"
                   >
                     <CartIcon /> View Details
                   </Link>

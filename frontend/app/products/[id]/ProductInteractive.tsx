@@ -62,19 +62,19 @@ export default function ProductInteractive({
 
   return (
     <div className="flex items-center gap-4 my-6">
-      <div className="flex items-center border border-[var(--input-border)] rounded-xl overflow-hidden bg-[var(--input-bg)]">
+      <div className="flex items-center border border-foreground/15 rounded-xl overflow-hidden bg-primary/5 dark:bg-primary/30">
         <button
           onClick={handleDecrement}
-          className="px-4 py-2 hover:bg-[var(--card-bg)] text-[var(--foreground)] font-black transition-colors"
+          className="px-4 py-2 hover:bg-secondary text-foreground font-black transition-colors"
           type="button"
         >
           -
         </button>
-        <span className="w-12 text-center font-bold text-[var(--foreground)]">{quantity}</span>
+        <span className="w-12 text-center font-bold text-foreground">{quantity}</span>
         <button
           onClick={handleIncrement}
           disabled={quantity >= inventory}
-          className="px-4 py-2 hover:bg-[var(--card-bg)] text-[var(--foreground)] font-black transition-colors disabled:opacity-40"
+          className="px-4 py-2 hover:bg-secondary text-foreground font-black transition-colors disabled:opacity-40"
           type="button"
         >
           +
@@ -84,7 +84,7 @@ export default function ProductInteractive({
       <button
         onClick={handleAddToCart}
         disabled={loading}
-        className="px-8 py-3 bg-[var(--button-bg)] text-[var(--button-text)] hover:opacity-90 font-bold rounded-xl text-sm tracking-widest uppercase transition-colors shadow-md disabled:opacity-50"
+        className="px-8 py-3 bg-primary text-secondary hover:opacity-90 font-bold rounded-xl text-sm tracking-widest uppercase transition-colors shadow-md disabled:opacity-50"
       >
         {loading ? "Adding..." : "Add to Cart"}
       </button>

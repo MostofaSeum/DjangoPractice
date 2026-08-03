@@ -40,8 +40,8 @@ export default function CartPage() {
       {/* Main Content */}
       <main className="max-w-[1400px] mx-auto px-4 md:px-12 py-16">
         {isCartEmpty ? (
-          <div className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-[2.5rem] p-16 text-center shadow-sm border border-[var(--card-border)] max-w-2xl mx-auto flex flex-col items-center">
-            <div className="w-20 h-20 bg-[var(--input-bg)] rounded-full flex items-center justify-center mb-6">
+          <div className="bg-secondary text-foreground rounded-[2.5rem] p-16 text-center shadow-sm border border-foreground/10 max-w-2xl mx-auto flex flex-col items-center">
+            <div className="w-20 h-20 bg-primary/5 dark:bg-primary/30 rounded-full flex items-center justify-center mb-6">
               <Image
                 src="/HomePage/shopping-cart.png"
                 width={32}
@@ -58,7 +58,7 @@ export default function CartPage() {
             </p>
             <Link
               href="/products"
-              className="bg-[var(--button-bg)] text-[var(--button-text)] px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+              className="bg-primary text-secondary px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
             >
               Explore Products
             </Link>
@@ -70,10 +70,10 @@ export default function CartPage() {
               {cart.items.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm border border-[var(--card-border)] group hover:shadow-md transition-shadow"
+                  className="bg-secondary text-foreground rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm border border-foreground/10 group hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-center gap-6 w-full sm:w-auto">
-                    <div className="w-20 h-20 bg-[var(--input-bg)] rounded-2xl flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                    <div className="w-20 h-20 bg-primary/5 dark:bg-primary/40 rounded-2xl flex items-center justify-center flex-shrink-0 relative overflow-hidden">
                       <ProductImage title={item.product.title} images={(item.product as any).images} />
                     </div>
                     <div>
@@ -86,7 +86,7 @@ export default function CartPage() {
                   {/* Quantity & Actions */}
                   <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-8">
                     {/* Quantity Controls */}
-                    <div className="flex items-center border border-[var(--input-border)] rounded-xl overflow-hidden bg-[var(--input-bg)]">
+                    <div className="flex items-center border border-foreground/15 rounded-xl overflow-hidden bg-primary/5 dark:bg-primary/30">
                       <button
                         onClick={() =>
                           updateQuantity(
@@ -94,19 +94,19 @@ export default function CartPage() {
                             Math.max(1, item.quantity - 1),
                           )
                         }
-                        className="px-3 py-1.5 hover:bg-[var(--card-bg)] text-[var(--foreground)] font-black transition-colors"
+                        className="px-3 py-1.5 hover:bg-secondary text-foreground font-black transition-colors"
                         type="button"
                       >
                         -
                       </button>
-                      <span className="w-10 text-center font-bold text-xs text-[var(--foreground)]">
+                      <span className="w-10 text-center font-bold text-xs text-foreground">
                         {item.quantity}
                       </span>
                       <button
                         onClick={() =>
                           updateQuantity(item.id, item.quantity + 1)
                         }
-                        className="px-3 py-1.5 hover:bg-[var(--card-bg)] text-[var(--foreground)] font-black transition-colors"
+                        className="px-3 py-1.5 hover:bg-secondary text-foreground font-black transition-colors"
                         type="button"
                       >
                         +
@@ -147,8 +147,8 @@ export default function CartPage() {
             </div>
 
             {/* Order Summary Side Card */}
-            <div className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-[2.5rem] p-8 shadow-md border border-[var(--card-border)] sticky top-28 transition-colors duration-300">
-              <h2 className="text-2xl font-black uppercase tracking-tight mb-6 pb-4 border-b border-[var(--card-border)]">
+            <div className="bg-secondary text-foreground rounded-[2.5rem] p-8 shadow-md border border-foreground/10 sticky top-28 transition-colors duration-300">
+              <h2 className="text-2xl font-black uppercase tracking-tight mb-6 pb-4 border-b border-foreground/10">
                 Order Summary
               </h2>
 
@@ -164,7 +164,7 @@ export default function CartPage() {
                   <span className="font-bold">$0.00</span>
                 </div>
 
-                <div className="pt-4 border-t border-[var(--card-border)] flex justify-between items-center text-base font-black uppercase tracking-tight">
+                <div className="pt-4 border-t border-foreground/10 flex justify-between items-center text-base font-black uppercase tracking-tight">
                   <span>Total</span>
                   <span className="text-2xl">
                     ${Number(cart.total_price).toFixed(2)}
@@ -174,7 +174,7 @@ export default function CartPage() {
 
               <Link
                 href="/checkout"
-                className="w-full bg-[var(--button-bg)] text-[var(--button-text)] py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2 text-center"
+                className="w-full bg-primary text-secondary py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2 text-center"
               >
                 Proceed to Checkout
               </Link>

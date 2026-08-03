@@ -91,7 +91,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans antialiased pb-24 transition-colors duration-300">
 
       {/* Breadcrumbs */}
-      <div className="bg-[var(--banner-bg)] text-[var(--banner-text)] border-b border-[#3a3532]/10 py-4 transition-colors duration-300">
+      <div className="bg-primary text-[var(--background)] dark:text-foreground border-b border-foreground/10 py-4 transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2 font-bold uppercase tracking-wider opacity-90">
           <Link href="/" className="hover:underline">
             Home
@@ -110,7 +110,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </Link>
           </span>
           <span>/</span>
-          <span className="text-[var(--brand-accent)] font-bold truncate max-w-[200px] sm:max-w-none">
+          <span className="text-accent font-bold truncate max-w-[200px] sm:max-w-none">
             {product.title}
           </span>
         </div>
@@ -118,13 +118,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
       <main className="max-w-[1400px] mx-auto px-8 md:px-12 py-12">
         {/* Product Area Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 bg-[var(--card-bg)] text-[var(--foreground)] rounded-3xl p-8 md:p-12 shadow-sm border border-[var(--card-border)] transition-colors duration-300">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 bg-secondary text-foreground rounded-3xl p-8 md:p-12 shadow-sm border border-foreground/10 transition-colors duration-300">
           {/* Left Column: Product Images (Interactive Gallery) */}
           <ProductGallery title={product.title} images={product.images} />
 
           {/* Right Column: Product Info */}
           <div className="flex flex-col justify-start">
-            <h1 className="text-3xl sm:text-4xl font-black text-[var(--foreground)] tracking-tighter leading-tight uppercase">
+            <h1 className="text-3xl sm:text-4xl font-black text-foreground tracking-tighter leading-tight uppercase">
               {product.title}
             </h1>
 
@@ -136,7 +136,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
 
             {/* Price */}
-            <p className="text-3xl font-black text-[var(--price-color)] mb-8">
+            <p className="text-3xl font-black text-accent mb-8">
               ${Number(product.unit_price).toFixed(2)}
             </p>
 
@@ -146,7 +146,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}
             </p>
 
-            <hr className="border-[var(--card-border)] my-4" />
+            <hr className="border-foreground/10 my-4" />
 
             {/* Quantity Selector & Add to Cart Client Area */}
             <ProductInteractive
@@ -155,7 +155,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
               inventory={product.inventory}
             />
 
-            <hr className="border-[var(--card-border)] my-4" />
+            <hr className="border-foreground/10 my-4" />
 
             {/* Additional details */}
             <div className="space-y-3 mt-4 text-[10px] font-bold tracking-widest uppercase opacity-70">
@@ -166,7 +166,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 {collectionId ? (
                   <Link
                     href={`/collections/${collectionId}`}
-                    className="hover:text-[var(--brand-accent)] cursor-pointer transition-colors"
+                    className="hover:text-accent cursor-pointer transition-colors"
                   >
                     {collectionTitle}
                   </Link>
@@ -179,8 +179,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </div>
 
         {/* Tab section: Only description */}
-        <div className="mt-20 border-t border-[var(--card-border)] pt-12">
-          <div className="flex space-x-8 border-b border-[var(--card-border)] pb-4 mb-8">
+        <div className="mt-20 border-t border-foreground/10 pt-12">
+          <div className="flex space-x-8 border-b border-foreground/10 pb-4 mb-8">
             <button className="text-xs font-black uppercase tracking-widest border-b-2 border-current pb-4 -mb-[18px]">
               Description
             </button>
@@ -200,18 +200,18 @@ export default async function ProductDetailPage({ params }: PageProps) {
               <h2 className="text-2xl font-black uppercase tracking-tighter">
                 Related products
               </h2>
-              <div className="w-12 h-1 bg-[var(--brand-accent)] mx-auto mt-3 rounded"></div>
+              <div className="w-12 h-1 bg-accent mx-auto mt-3 rounded"></div>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {relatedProducts.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-2xl p-5 shadow-sm border border-[var(--card-border)] hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between"
+                  className="bg-secondary text-foreground rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between"
                 >
                   <div>
-                    <div className="aspect-square bg-[var(--input-bg)] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                      <div className="w-full h-full bg-[var(--input-bg)] group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
+                    <div className="aspect-square bg-primary/5 dark:bg-primary/40 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
+                      <div className="w-full h-full bg-primary/5 dark:bg-primary/40 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
                         <span className="opacity-40 font-black text-lg uppercase tracking-widest">
                           {item.title.split(" ")[0]}
                         </span>
@@ -222,12 +222,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
                     </h3>
                   </div>
                   <div className="mt-4">
-                    <p className="text-[var(--brand-accent)] font-bold text-sm mb-4">
+                    <p className="text-accent font-bold text-sm mb-4">
                       ${Number(item.unit_price).toFixed(2)}
                     </p>
                     <Link
                       href={`/products/${item.id}`}
-                      className="w-full py-2 border border-current rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-[var(--button-bg)] hover:text-[var(--button-text)] transition-colors flex items-center justify-center gap-2"
+                      className="w-full py-2 border border-current rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-secondary transition-colors flex items-center justify-center gap-2"
                     >
                        Details
                     </Link>

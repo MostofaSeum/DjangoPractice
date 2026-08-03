@@ -30,7 +30,7 @@ export default async function CollectionsPage() {
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans antialiased pb-24 transition-colors duration-300">
 
       {/* Breadcrumbs */}
-      <div className="bg-[var(--banner-bg)] text-[var(--banner-text)] border-b border-[#3a3532]/10 py-4 transition-colors duration-300">
+      <div className="bg-primary text-[var(--background)] dark:text-foreground border-b border-foreground/10 py-4 transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2 font-bold uppercase tracking-wider opacity-90">
           <Link href="/" className="hover:underline">
             Home
@@ -41,7 +41,7 @@ export default async function CollectionsPage() {
       </div>
 
       <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-16">
-        <h1 className="text-4xl font-black mb-10 uppercase tracking-tighter text-[var(--foreground)]">
+        <h1 className="text-4xl font-black mb-10 uppercase tracking-tighter text-foreground">
           Product Collections
         </h1>
 
@@ -56,10 +56,10 @@ export default async function CollectionsPage() {
             return (
               <div
                 key={collection.id}
-                className="bg-[var(--card-bg)] rounded-2xl p-6 shadow-sm border border-[var(--card-border)] hover:shadow-xl transition-all duration-300 flex justify-between items-center space-x-4 group cursor-pointer text-[var(--foreground)]"
+                className="bg-secondary rounded-2xl p-6 shadow-sm border border-foreground/10 hover:shadow-xl transition-all duration-300 flex justify-between items-center space-x-4 group cursor-pointer text-foreground"
               >
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold mb-1 uppercase tracking-tight group-hover:text-[var(--brand-accent)] transition-colors">
+                  <h2 className="text-2xl font-bold mb-1 uppercase tracking-tight group-hover:text-accent transition-colors">
                     {collection.title}
                   </h2>
                   <p className="opacity-70 text-xs font-bold uppercase tracking-wider mb-6">
@@ -72,7 +72,7 @@ export default async function CollectionsPage() {
                     View Collection
                   </Link>
                 </div>
-                <div className="w-24 h-24 flex-shrink-0 bg-[var(--input-bg)] rounded-xl relative flex items-center justify-center p-2 text-center text-[10px] opacity-60 font-bold uppercase tracking-wider overflow-hidden border border-[var(--input-border)]">
+                <div className="w-24 h-24 flex-shrink-0 bg-primary/5 dark:bg-primary/40 rounded-xl relative flex items-center justify-center p-2 text-center text-[10px] opacity-60 font-bold uppercase tracking-wider overflow-hidden border border-foreground/10">
                   {imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img

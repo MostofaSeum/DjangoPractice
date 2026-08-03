@@ -120,13 +120,13 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans flex items-center justify-center px-4 py-16 transition-colors duration-300">
-      <div className="w-full max-w-lg bg-[var(--card-bg)] text-[var(--foreground)] rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-[var(--card-border)] relative overflow-hidden transition-colors duration-300">
+      <div className="w-full max-w-lg bg-secondary text-foreground rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-foreground/10 relative overflow-hidden transition-colors duration-300">
         {/* Header */}
         <div className="text-center mb-8">
-          <span className="bg-[var(--badge-bg)] text-[var(--badge-text)] text-[10px] font-bold px-3.5 py-1.5 uppercase tracking-widest rounded-md inline-block mb-4">
+          <span className="bg-accent/20 text-foreground text-[10px] font-bold px-3.5 py-1.5 uppercase tracking-widest rounded-md inline-block mb-4">
             Join VibeMart
           </span>
-          <h1 className="text-3xl font-black uppercase tracking-tighter text-[var(--foreground)]">
+          <h1 className="text-3xl font-black uppercase tracking-tighter text-foreground">
             Create Account
           </h1>
           <p className="text-xs opacity-70 mt-2 font-medium">
@@ -154,7 +154,7 @@ export default function RegisterPage() {
                 value={formData.first_name}
                 onChange={handleChange}
                 placeholder="JOHN"
-                className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] placeholder:opacity-40 outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground placeholder:opacity-40 outline-none focus:ring-2 focus:ring-accent transition-all"
               />
             </div>
 
@@ -168,7 +168,7 @@ export default function RegisterPage() {
                 value={formData.last_name}
                 onChange={handleChange}
                 placeholder="DOE"
-                className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] placeholder:opacity-40 outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground placeholder:opacity-40 outline-none focus:ring-2 focus:ring-accent transition-all"
               />
             </div>
           </div>
@@ -184,7 +184,7 @@ export default function RegisterPage() {
               value={formData.username}
               onChange={handleChange}
               placeholder="CHOOSE A USERNAME"
-              className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] placeholder:opacity-40 outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+              className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground placeholder:opacity-40 outline-none focus:ring-2 focus:ring-accent transition-all"
             />
           </div>
 
@@ -199,7 +199,7 @@ export default function RegisterPage() {
               value={formData.email}
               onChange={handleChange}
               placeholder="YOU@EXAMPLE.COM"
-              className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] placeholder:opacity-40 outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+              className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground placeholder:opacity-40 outline-none focus:ring-2 focus:ring-accent transition-all"
             />
           </div>
 
@@ -215,7 +215,7 @@ export default function RegisterPage() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="••••••••"
-                className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] placeholder:opacity-40 outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground placeholder:opacity-40 outline-none focus:ring-2 focus:ring-accent transition-all"
               />
             </div>
 
@@ -230,7 +230,7 @@ export default function RegisterPage() {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 placeholder="••••••••"
-                className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] placeholder:opacity-40 outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground placeholder:opacity-40 outline-none focus:ring-2 focus:ring-accent transition-all"
               />
             </div>
           </div>
@@ -238,7 +238,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-4 py-4 bg-[var(--button-bg)] text-[var(--button-text)] rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center"
+            className="w-full mt-4 py-4 bg-primary text-secondary rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center"
           >
             {loading ? "Sending Verification..." : "Create Account"}
           </button>
@@ -259,12 +259,12 @@ export default function RegisterPage() {
         />
 
         {/* Link to Login */}
-        <div className="mt-8 pt-6 border-t border-[var(--card-border)] text-center">
+        <div className="mt-8 pt-6 border-t border-foreground/10 text-center">
           <p className="text-xs opacity-70 font-medium">
             Already have an account?{" "}
             <Link
               href="/login"
-              className="font-bold underline hover:text-[var(--brand-accent)] transition-colors"
+              className="font-bold underline hover:text-accent transition-colors"
             >
               Sign In
             </Link>

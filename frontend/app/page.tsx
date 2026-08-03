@@ -93,7 +93,7 @@ export default async function Home() {
       <section className="relative w-full min-h-screen pt-32 pb-12 px-4 md:px-8 max-w-[1400px] mx-auto flex items-center justify-center">
         <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-3 gap-4 md:gap-6 w-full h-full">
           {/* Main Large Bento Item (Text & Main CTA) */}
-          <div className="md:col-span-2 md:row-span-2 bg-[var(--card-bg)] rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group shadow-sm hover:shadow-xl transition-all duration-500 border border-[var(--card-border)] min-h-[360px] md:min-h-0 text-[var(--foreground)]">
+          <div className="md:col-span-2 md:row-span-2 bg-secondary rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group shadow-sm hover:shadow-xl transition-all duration-500 border border-foreground/10 min-h-[360px] md:min-h-0 text-foreground">
             <div className="absolute top-10 right-10 opacity-10 group-hover:scale-125 group-hover:rotate-12 transition-all duration-700">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -111,7 +111,7 @@ export default async function Home() {
                 <path d="M12 22 16 9l-3-6" />
               </svg>
             </div>
-            <span className="bg-[var(--badge-bg)] text-[var(--badge-text)] text-[10px] font-bold px-3 py-1 mb-8 inline-block uppercase tracking-widest rounded-md self-start">
+            <span className="bg-accent/20 text-foreground text-[10px] font-bold px-3 py-1 mb-8 inline-block uppercase tracking-widest rounded-md self-start">
               New Collection
             </span>
             <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[0.9] tracking-tighter mb-6 uppercase z-10">
@@ -124,7 +124,7 @@ export default async function Home() {
             <div className="flex gap-4 z-10">
               <Link
                 href="/collections"
-                className="bg-[var(--button-bg)] text-[var(--button-text)] px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2 duration-300"
+                className="bg-primary text-secondary px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2 duration-300"
               >
                 Explore Collection
               </Link>
@@ -132,7 +132,7 @@ export default async function Home() {
           </div>
 
           {/* Top Right Bento Item (Discover the Vibe) */}
-          <div className="md:col-span-2 md:row-span-1 bg-[var(--header-bg)] rounded-[2rem] p-8 md:p-10 text-[var(--header-text)] relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500 min-h-[220px] md:min-h-0">
+          <div className="md:col-span-2 md:row-span-1 bg-primary rounded-[2rem] p-8 md:p-10 text-[var(--background)] dark:text-[var(--foreground)] relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500 min-h-[220px] md:min-h-0">
             <Image
               src="/HomePage/Fashion.jpg"
               alt="Discover"
@@ -151,7 +151,7 @@ export default async function Home() {
             <div className="flex gap-4 relative z-10">
               <Link
                 href="/products"
-                className="bg-[var(--badge-bg)] text-[var(--badge-text)] px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:opacity-90 transition-all hover:-translate-y-0.5 duration-300 inline-flex justify-center items-center shadow-lg"
+                className="bg-accent text-white px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:opacity-90 transition-all hover:-translate-y-0.5 duration-300 inline-flex justify-center items-center shadow-lg"
               >
                 View Exclusives
               </Link>
@@ -161,7 +161,7 @@ export default async function Home() {
           {/* Middle Right Item 1 (Beauty) */}
           <Link
             href="/collections/3"
-            className="md:col-span-1 md:row-span-1 bg-[var(--card-bg)] rounded-[2rem] relative overflow-hidden shadow-sm border border-[var(--card-border)] flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
+            className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
           >
             <Image
               src="/HomePage/Beauty.webp"
@@ -178,7 +178,7 @@ export default async function Home() {
           </Link>
 
           {/* Middle Right Item 2 (24/7 Global Drops) */}
-          <div className="md:col-span-1 md:row-span-1 bg-[var(--card-bg)] rounded-[2rem] relative overflow-hidden shadow-sm border border-[var(--card-border)] flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
+          <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
             <Image
               src="/HomePage/24-7.jpg"
               alt="24/7 Global Drops"
@@ -188,7 +188,7 @@ export default async function Home() {
           </div>
 
           {/* Bottom Row Item 1 (Fast Delivery) */}
-          <div className="md:col-span-1 md:row-span-1 bg-[var(--badge-bg)] rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end min-h-[220px] md:min-h-0">
+          <div className="md:col-span-1 md:row-span-1 bg-accent/20 rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end min-h-[220px] md:min-h-0">
             <Image
               src="/HomePage/Delivery.jpg"
               alt="Fast Delivery"
@@ -206,7 +206,7 @@ export default async function Home() {
           {/* Bottom Row Item 2 (Cleaning) */}
           <Link
             href="/collections/4"
-            className="md:col-span-1 md:row-span-1 bg-[var(--card-bg)] rounded-[2rem] relative overflow-hidden shadow-sm border border-[var(--card-border)] flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
+            className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
           >
             <Image
               src="/HomePage/Cleaning.webp"
@@ -225,7 +225,7 @@ export default async function Home() {
           {/* Bottom Row Item 3 (Pets) */}
           <Link
             href="/collections/6"
-            className="md:col-span-1 md:row-span-1 bg-[var(--card-bg)] rounded-[2rem] relative overflow-hidden shadow-sm border border-[var(--card-border)] flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
+            className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
           >
             <Image
               src="/HomePage/Pet.jpg"
@@ -244,7 +244,7 @@ export default async function Home() {
           {/* Bottom Row Item 4 (Stationary) */}
           <Link
             href="/collections/5"
-            className="md:col-span-1 md:row-span-1 bg-[var(--card-bg)] rounded-[2rem] relative overflow-hidden shadow-sm border border-[var(--card-border)] flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
+            className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
           >
             <Image
               src="/HomePage/Stationary.jpg"
@@ -271,7 +271,7 @@ export default async function Home() {
             </h2>
             <Link
               href="/collections"
-              className="px-4 py-2 bg-[var(--input-bg)] text-[var(--foreground)] border border-[var(--input-border)] hover:bg-[var(--button-bg)] hover:text-[var(--button-text)] rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-sm inline-flex items-center gap-1"
+              className="px-4 py-2 bg-primary/5 text-foreground border border-foreground/15 hover:bg-primary hover:text-secondary rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-sm inline-flex items-center gap-1"
             >
               View All
             </Link>
@@ -291,7 +291,7 @@ export default async function Home() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
               <div className="absolute bottom-10 left-10 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-5px]">
-                <span className="bg-[var(--badge-bg)] text-[var(--badge-text)] text-xs font-bold px-3 py-1 mb-4 inline-block uppercase tracking-widest rounded-md shadow-md">
+                <span className="bg-accent/20 text-foreground text-xs font-bold px-3 py-1 mb-4 inline-block uppercase tracking-widest rounded-md shadow-md">
                   POPULAR
                 </span>
                 <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tight drop-shadow-md">
@@ -351,7 +351,7 @@ export default async function Home() {
             </h2>
             <Link
               href="/products"
-              className="px-4 py-2 bg-[var(--input-bg)] text-[var(--foreground)] border border-[var(--input-border)] hover:bg-[var(--button-bg)] hover:text-[var(--button-text)] rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-sm inline-flex items-center gap-1"
+              className="px-4 py-2 bg-primary/5 text-foreground border border-foreground/15 hover:bg-primary hover:text-secondary rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-sm inline-flex items-center gap-1"
             >
               View All
             </Link>
@@ -362,22 +362,22 @@ export default async function Home() {
               trendingProducts.map((product) => (
                 <div
                   key={product.id}
-                  className="bg-[var(--card-bg)] rounded-2xl p-5 shadow-sm border border-[var(--card-border)] hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between"
+                  className="bg-secondary rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between"
                 >
                   <Link href={`/products/${product.id}`} className="block">
-                    <div className="aspect-square bg-[var(--input-bg)] rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
+                    <div className="aspect-square bg-primary/5 dark:bg-primary/40 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
                       <ProductImage
                         title={product.title}
                         images={product.images}
                       />
                     </div>
-                    <h4 className="font-bold text-lg text-[var(--foreground)] mb-1 line-clamp-1 group-hover:text-[var(--brand-accent)] transition-colors">
+                    <h4 className="font-bold text-lg text-foreground mb-1 line-clamp-1 group-hover:text-accent transition-colors">
                       {product.title}
                     </h4>
                   </Link>
 
                   <div>
-                    <p className="text-[var(--brand-accent)] font-bold text-lg mb-6">
+                    <p className="text-accent font-bold text-lg mb-6">
                       ${Number(product.unit_price).toFixed(2)}
                     </p>
                     <AddToCartButton
@@ -397,14 +397,14 @@ export default async function Home() {
         </section>
 
         {/* Why Choose Us */}
-        <section className="bg-[var(--card-bg)] text-[var(--foreground)] border border-[var(--card-border)] mt-24 mb-16 py-20 px-8 md:px-12 rounded-[3rem] mx-4 md:mx-12 lg:mx-20 shadow-2xl transition-colors duration-300">
+        <section className="bg-secondary text-foreground border border-foreground/10 mt-24 mb-16 py-20 px-8 md:px-12 rounded-[3rem] mx-4 md:mx-12 lg:mx-20 shadow-2xl transition-colors duration-300">
           <div className="max-w-[1200px] mx-auto">
             <h2 className="text-3xl font-black text-center mb-16 uppercase tracking-tighter">
               Why VibeMart?
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-[var(--badge-bg)] text-[var(--badge-text)] rounded-2xl flex items-center justify-center mb-8 transform rotate-3 hover:rotate-0 transition-transform duration-300 shadow-md">
+                <div className="w-20 h-20 bg-accent/20 text-foreground rounded-2xl flex items-center justify-center mb-8 transform rotate-3 hover:rotate-0 transition-transform duration-300 shadow-md">
                   <TruckIcon />
                 </div>
                 <h3 className="text-xl font-black mb-4 uppercase tracking-widest">
@@ -416,7 +416,7 @@ export default async function Home() {
                 </p>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-[var(--badge-bg)] text-[var(--badge-text)] rounded-2xl flex items-center justify-center mb-8 transform -rotate-3 hover:rotate-0 transition-transform duration-300 shadow-md">
+                <div className="w-20 h-20 bg-accent/20 text-foreground rounded-2xl flex items-center justify-center mb-8 transform -rotate-3 hover:rotate-0 transition-transform duration-300 shadow-md">
                   <DiamondIcon />
                 </div>
                 <h3 className="text-xl font-black mb-4 uppercase tracking-widest">
@@ -428,7 +428,7 @@ export default async function Home() {
                 </p>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-[var(--badge-bg)] text-[var(--badge-text)] rounded-2xl flex items-center justify-center mb-8 transform rotate-3 hover:rotate-0 transition-transform duration-300 shadow-md">
+                <div className="w-20 h-20 bg-accent/20 text-foreground rounded-2xl flex items-center justify-center mb-8 transform rotate-3 hover:rotate-0 transition-transform duration-300 shadow-md">
                   <ShieldIcon />
                 </div>
                 <h3 className="text-xl font-black mb-4 uppercase tracking-widest">
@@ -445,7 +445,7 @@ export default async function Home() {
       </main>
 
       {/* Join the Club Section */}
-      <section className="bg-[var(--card-bg)] text-[var(--foreground)] border border-[var(--card-border)] py-20 px-8 md:px-12 mx-4 md:mx-12 lg:mx-20 rounded-[3rem] shadow-xl flex flex-col items-center text-center relative overflow-hidden group transition-colors duration-300">
+      <section className="bg-secondary text-foreground border border-foreground/10 py-20 px-8 md:px-12 mx-4 md:mx-12 lg:mx-20 rounded-[3rem] shadow-xl flex flex-col items-center text-center relative overflow-hidden group transition-colors duration-300">
         <div className="absolute top-0 right-0 p-12 opacity-5 transform group-hover:rotate-12 transition-transform duration-700 pointer-events-none group-hover:scale-110">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -474,9 +474,9 @@ export default async function Home() {
           <input
             type="email"
             placeholder="ENTER YOUR EMAIL"
-            className="flex-1 bg-[var(--input-bg)] border border-[var(--input-border)] rounded-2xl px-6 py-4 text-xs font-bold text-[var(--foreground)] placeholder:opacity-40 outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+            className="flex-1 bg-primary/5 border border-foreground/15 rounded-2xl px-6 py-4 text-xs font-bold text-foreground placeholder:opacity-40 outline-none focus:ring-2 focus:ring-accent transition-all"
           />
-          <button className="bg-[var(--button-bg)] text-[var(--button-text)] px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-0.5 duration-300">
+          <button className="bg-primary text-secondary px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-0.5 duration-300">
             Subscribe
           </button>
         </div>

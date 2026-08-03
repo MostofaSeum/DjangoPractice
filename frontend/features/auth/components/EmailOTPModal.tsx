@@ -126,25 +126,25 @@ export default function EmailOTPModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-[#3a3532]/10 relative">
+      <div className="bg-secondary text-foreground rounded-3xl p-8 max-w-md w-full shadow-2xl border border-foreground/10 relative">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 text-[#3a3532]/40 hover:text-[#3a3532] font-bold text-lg transition-colors"
+          className="absolute top-5 right-5 text-foreground/40 hover:text-foreground font-bold text-lg transition-colors"
         >
           ✕
         </button>
 
         <div className="text-center mb-6">
-          <div className="w-14 h-14 bg-[#8b7a66]/10 rounded-2xl flex items-center justify-center mx-auto mb-4 text-[#8b7a66]">
+          <div className="w-14 h-14 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-4 text-accent">
             <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
-          <h3 className="text-2xl font-black uppercase tracking-tight text-[#3a3532]">
+          <h3 className="text-2xl font-black uppercase tracking-tight text-foreground">
             {step === 1 ? "Email Login & Sign Up" : "Enter Verification Code"}
           </h3>
-          <p className="text-xs font-semibold text-[#3a3532]/60 mt-1">
+          <p className="text-xs font-semibold text-foreground/60 mt-1">
             {step === 1
               ? "Enter your email to receive a 6-digit one-time password"
               : `We sent a 6-digit code to ${email}`}
@@ -154,7 +154,7 @@ export default function EmailOTPModal({
         {step === 1 ? (
           <form onSubmit={handleSendOTP} className="space-y-4">
             <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">
                 Email Address
               </label>
               <input
@@ -163,14 +163,14 @@ export default function EmailOTPModal({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
-                className="w-full px-4 py-3 border border-[#3a3532]/15 rounded-xl bg-[#f4f1eb] text-sm text-[#3a3532] font-semibold outline-none focus:ring-2 focus:ring-[#8b7a66] transition-all"
+                className="w-full px-4 py-3 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-sm text-foreground font-semibold outline-none focus:ring-2 focus:ring-accent transition-all"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 bg-[#3a3532] text-[#e6e0d4] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[#252220] disabled:opacity-50 transition-colors shadow-md"
+              className="w-full py-3.5 bg-primary text-secondary rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-primary/80 disabled:opacity-50 transition-colors shadow-md"
             >
               {loading ? "Sending Code..." : "Send Verification Code"}
             </button>
@@ -178,7 +178,7 @@ export default function EmailOTPModal({
         ) : (
           <form onSubmit={handleVerifyOTP} className="space-y-4">
             <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-[#3a3532]/70">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">
                 6-Digit OTP Code
               </label>
               <input
@@ -188,14 +188,14 @@ export default function EmailOTPModal({
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
                 placeholder="123456"
-                className="w-full px-4 py-3 border border-[#3a3532]/15 rounded-xl bg-[#f4f1eb] text-center text-xl tracking-[0.4em] font-black text-[#3a3532] outline-none focus:ring-2 focus:ring-[#8b7a66] transition-all"
+                className="w-full px-4 py-3 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-center text-xl tracking-[0.4em] font-black text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading || otpCode.length < 6}
-              className="w-full py-3.5 bg-[#8b7a66] hover:bg-[#726453] text-white rounded-xl text-xs font-bold uppercase tracking-widest disabled:opacity-40 transition-colors shadow-md"
+              className="w-full py-3.5 bg-accent hover:bg-accent/80 text-white rounded-xl text-xs font-bold uppercase tracking-widest disabled:opacity-40 transition-colors shadow-md"
             >
               {loading ? "Verifying..." : "Verify & Log In"}
             </button>
@@ -204,17 +204,17 @@ export default function EmailOTPModal({
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="text-[#3a3532]/60 hover:text-[#3a3532] underline"
+                className="text-foreground/60 hover:text-foreground underline"
               >
                 Change Email
               </button>
               {timer > 0 ? (
-                <span className="text-[#3a3532]/40 font-mono">Resend in {timer}s</span>
+                <span className="text-foreground/40 font-mono">Resend in {timer}s</span>
               ) : (
                 <button
                   type="button"
                   onClick={handleSendOTP}
-                  className="text-[#8b7a66] hover:underline"
+                  className="text-accent hover:underline"
                 >
                   Resend Code
                 </button>

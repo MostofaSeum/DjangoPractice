@@ -169,9 +169,9 @@ export default function ProfilePage() {
       <main className="max-w-[1400px] mx-auto px-8 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
           {/* Account Profile Form (1 Column) */}
-          <div className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-[2.5rem] p-8 shadow-md border border-[var(--card-border)] transition-colors duration-300">
-            <div className="text-left mb-6 pb-4 border-b border-[var(--card-border)]">
-              <h2 className="text-xl font-black uppercase tracking-tight text-[var(--foreground)]">
+          <div className="bg-secondary text-foreground rounded-[2.5rem] p-8 shadow-md border border-foreground/10 transition-colors duration-300">
+            <div className="text-left mb-6 pb-4 border-b border-foreground/10">
+              <h2 className="text-xl font-black uppercase tracking-tight text-foreground">
                 My Profile
               </h2>
               <p className="text-xs opacity-70 font-bold uppercase tracking-wider mt-1">
@@ -197,7 +197,7 @@ export default function ProfilePage() {
                     value={formData.first_name}
                     onChange={handleChange}
                     placeholder="FIRST NAME"
-                    className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                    className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
                   />
                 </div>
 
@@ -211,7 +211,7 @@ export default function ProfilePage() {
                     value={formData.last_name}
                     onChange={handleChange}
                     placeholder="LAST NAME"
-                    className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                    className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
                   />
                 </div>
               </div>
@@ -226,7 +226,7 @@ export default function ProfilePage() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="YOU@EXAMPLE.COM"
-                  className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                  className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
                 />
               </div>
 
@@ -240,7 +240,7 @@ export default function ProfilePage() {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="+1 234 567 8900"
-                  className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                  className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
                 />
               </div>
 
@@ -253,14 +253,14 @@ export default function ProfilePage() {
                   name="birth_date"
                   value={formData.birth_date}
                   onChange={handleChange}
-                  className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                  className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full mt-4 py-4 bg-[var(--button-bg)] text-[var(--button-text)] rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center"
+                className="w-full mt-4 py-4 bg-primary text-secondary rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center"
               >
                 {saving ? "Saving Changes..." : "Save Profile Changes"}
               </button>
@@ -268,10 +268,10 @@ export default function ProfilePage() {
           </div>
 
           {/* User's Own Order History (2 Columns) */}
-          <div className="lg:col-span-2 bg-[var(--card-bg)] text-[var(--foreground)] rounded-[2.5rem] p-8 shadow-md border border-[var(--card-border)] transition-colors duration-300">
-            <div className="flex justify-between items-center pb-4 border-b border-[var(--card-border)] mb-6">
+          <div className="lg:col-span-2 bg-secondary text-foreground rounded-[2.5rem] p-8 shadow-md border border-foreground/10 transition-colors duration-300">
+            <div className="flex justify-between items-center pb-4 border-b border-foreground/10 mb-6">
               <div>
-                <h2 className="text-xl font-black uppercase tracking-tight text-[var(--foreground)]">
+                <h2 className="text-xl font-black uppercase tracking-tight text-foreground">
                   My Order History ({myOrders.length})
                 </h2>
                 <p className="text-xs opacity-70 font-bold uppercase tracking-wider mt-1">
@@ -280,7 +280,7 @@ export default function ProfilePage() {
               </div>
               <Link
                 href="/products"
-                className="px-4 py-2 bg-[var(--input-bg)] text-[var(--foreground)] hover:bg-[var(--button-bg)] hover:text-[var(--button-text)] rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
+                className="px-4 py-2 bg-primary/5 dark:bg-primary/30 text-foreground hover:bg-primary hover:text-secondary rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
               >
                 Shop Now
               </Link>
@@ -296,11 +296,11 @@ export default function ProfilePage() {
                   return (
                     <div
                       key={ord.id}
-                      className="p-6 rounded-3xl bg-[var(--input-bg)] border border-[var(--input-border)] space-y-4"
+                      className="p-6 rounded-3xl bg-primary/5 dark:bg-primary/30 border border-foreground/15 space-y-4"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--input-border)] pb-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-foreground/15 pb-3">
                         <div>
-                          <span className="font-black text-lg text-[var(--foreground)] uppercase tracking-tight">
+                          <span className="font-black text-lg text-foreground uppercase tracking-tight">
                             Order #{ord.id}
                           </span>
                           <p className="text-[10px] font-bold opacity-60 uppercase tracking-wider mt-0.5">
@@ -321,7 +321,7 @@ export default function ProfilePage() {
                       </div>
 
                       {/* Details & Address */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium text-[var(--foreground)]">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium text-foreground">
                         <div>
                           <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">
                             Shipping Details
@@ -345,25 +345,25 @@ export default function ProfilePage() {
 
                       {/* Items Breakdown */}
                       {ord.items && ord.items.length > 0 && (
-                        <div className="bg-[var(--card-bg)] rounded-2xl p-4 border border-[var(--card-border)] space-y-2">
-                          <p className="text-[10px] font-black uppercase tracking-wider opacity-60 border-b border-[var(--card-border)] pb-1">
+                        <div className="bg-secondary rounded-2xl p-4 border border-foreground/10 space-y-2">
+                          <p className="text-[10px] font-black uppercase tracking-wider opacity-60 border-b border-foreground/10 pb-1">
                             Items Ordered ({ord.items.reduce((s, i) => s + i.quantity, 0)})
                           </p>
                           <div className="space-y-1">
                             {ord.items.map((it) => (
                               <div key={it.id} className="flex justify-between items-center text-xs">
-                                <span className="font-bold text-[var(--foreground)]">
+                                <span className="font-bold text-foreground">
                                   {it.product?.title || `Product #${it.product}`} <span className="opacity-50 font-normal">x {it.quantity}</span>
                                 </span>
-                                <span className="font-black text-[var(--brand-accent)]">
+                                <span className="font-black text-accent">
                                   ${(it.quantity * Number(it.unit_price)).toFixed(2)}
                                 </span>
                               </div>
                             ))}
                           </div>
-                          <div className="pt-2 border-t border-[var(--card-border)] flex justify-between items-center text-xs font-black">
-                            <span className="uppercase text-[var(--foreground)]">Total Amount</span>
-                            <span className="text-base text-[var(--foreground)]">${orderTotal.toFixed(2)}</span>
+                          <div className="pt-2 border-t border-foreground/10 flex justify-between items-center text-xs font-black">
+                            <span className="uppercase text-foreground">Total Amount</span>
+                            <span className="text-base text-foreground">${orderTotal.toFixed(2)}</span>
                           </div>
                         </div>
                       )}

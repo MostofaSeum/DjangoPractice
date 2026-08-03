@@ -144,7 +144,7 @@ export default function CheckoutPage() {
         </p>
         <Link
           href="/products"
-          className="bg-[var(--button-bg)] text-[var(--button-text)] px-8 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-colors shadow-md"
+          className="bg-primary text-secondary px-8 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-colors shadow-md"
         >
           Browse Products
         </Link>
@@ -155,7 +155,7 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans antialiased pb-24 transition-colors duration-300">
       {/* Breadcrumb */}
-      <div className="bg-[var(--banner-bg)] text-[var(--banner-text)] border-b border-[var(--card-border)] py-4 transition-colors duration-300">
+      <div className="bg-primary text-[var(--background)] dark:text-foreground border-b border-foreground/10 py-4 transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2 font-bold uppercase tracking-wider opacity-90">
           <Link href="/" className="hover:underline">
             Home
@@ -178,9 +178,9 @@ export default function CheckoutPage() {
           {/* Shipping & Payment Info (2 Columns) */}
           <div className="lg:col-span-2 space-y-8">
             {/* Contact & Address Section */}
-            <div className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-3xl p-8 border border-[var(--card-border)] shadow-sm space-y-6 transition-colors duration-300">
-              <h2 className="text-xl font-black uppercase tracking-tight pb-3 border-b border-[var(--card-border)] flex items-center gap-3">
-                <span className="w-8 h-8 rounded-full bg-[var(--button-bg)] text-[var(--button-text)] flex items-center justify-center text-xs">
+            <div className="bg-secondary text-foreground rounded-3xl p-8 border border-foreground/10 shadow-sm space-y-6 transition-colors duration-300">
+              <h2 className="text-xl font-black uppercase tracking-tight pb-3 border-b border-foreground/10 flex items-center gap-3">
+                <span className="w-8 h-8 rounded-full bg-primary text-secondary flex items-center justify-center text-xs">
                   1
                 </span>
                 Shipping Information
@@ -197,7 +197,7 @@ export default function CheckoutPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="e.g. 01700000000"
-                    className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                    className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
                   />
                 </div>
 
@@ -211,16 +211,16 @@ export default function CheckoutPage() {
                     value={shippingAddress}
                     onChange={(e) => setShippingAddress(e.target.value)}
                     placeholder="e.g. House 12, Road 5, Block B, Dhanmondi, Dhaka"
-                    className="px-4 py-3 border border-[var(--input-border)] rounded-2xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                    className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
                   />
                 </div>
               </div>
             </div>
 
             {/* Payment Method Section */}
-            <div className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-3xl p-8 border border-[var(--card-border)] shadow-sm space-y-6 transition-colors duration-300">
-              <h2 className="text-xl font-black uppercase tracking-tight pb-3 border-b border-[var(--card-border)] flex items-center gap-3">
-                <span className="w-8 h-8 rounded-full bg-[var(--button-bg)] text-[var(--button-text)] flex items-center justify-center text-xs">
+            <div className="bg-secondary text-foreground rounded-3xl p-8 border border-foreground/10 shadow-sm space-y-6 transition-colors duration-300">
+              <h2 className="text-xl font-black uppercase tracking-tight pb-3 border-b border-foreground/10 flex items-center gap-3">
+                <span className="w-8 h-8 rounded-full bg-primary text-secondary flex items-center justify-center text-xs">
                   2
                 </span>
                 Payment Options
@@ -232,8 +232,8 @@ export default function CheckoutPage() {
                   onClick={() => setPaymentMethod("C")}
                   className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
                     paymentMethod === "C"
-                      ? "border-[var(--foreground)] bg-[var(--input-bg)]"
-                      : "border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[var(--foreground)]/50"
+                      ? "border-foreground bg-primary/5 dark:bg-primary/30"
+                      : "border-foreground/10 bg-secondary hover:border-foreground/50"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
@@ -245,7 +245,7 @@ export default function CheckoutPage() {
                       name="payment_method"
                       checked={paymentMethod === "C"}
                       onChange={() => setPaymentMethod("C")}
-                      className="w-4 h-4 accent-[var(--foreground)]"
+                      className="w-4 h-4 accent-foreground"
                     />
                   </div>
                   <p className="text-xs opacity-70 font-medium">
@@ -259,7 +259,7 @@ export default function CheckoutPage() {
                   className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
                     paymentMethod === "O"
                       ? "border-[#e2136e] bg-[#e2136e]/10"
-                      : "border-[var(--card-border)] bg-[var(--card-bg)] hover:border-[#e2136e]/50"
+                      : "border-foreground/10 bg-secondary hover:border-[#e2136e]/50"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
@@ -294,7 +294,7 @@ export default function CheckoutPage() {
                   </div>
 
                   <div className="flex flex-col gap-1.5 pt-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[var(--foreground)]">
+                    <label className="text-xs font-bold uppercase tracking-wider text-foreground">
                       bKash Transaction ID (TrxID) *
                     </label>
                     <input
@@ -303,7 +303,7 @@ export default function CheckoutPage() {
                       value={transactionId}
                       onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
                       placeholder="e.g. 9B7X2K1L8M"
-                      className="px-4 py-3 border border-[#e2136e]/40 rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] uppercase outline-none focus:ring-2 focus:ring-[#e2136e]"
+                      className="px-4 py-3 border border-[#e2136e]/40 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground uppercase outline-none focus:ring-2 focus:ring-[#e2136e]"
                     />
                     {!transactionId.trim() && (
                       <p className="text-[10px] text-red-500 font-bold uppercase">
@@ -317,8 +317,8 @@ export default function CheckoutPage() {
           </div>
 
           {/* Order Summary Side Card (1 Column) */}
-          <div className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-3xl p-8 border border-[var(--card-border)] shadow-md sticky top-28 space-y-6 transition-colors duration-300">
-            <h2 className="text-2xl font-black uppercase tracking-tight pb-4 border-b border-[var(--card-border)]">
+          <div className="bg-secondary text-foreground rounded-3xl p-8 border border-foreground/10 shadow-md sticky top-28 space-y-6 transition-colors duration-300">
+            <h2 className="text-2xl font-black uppercase tracking-tight pb-4 border-b border-foreground/10">
               Order Summary
             </h2>
 
@@ -327,20 +327,20 @@ export default function CheckoutPage() {
               {cart.items.map((item) => (
                 <div key={item.id} className="flex justify-between items-center text-xs">
                   <div>
-                    <p className="font-bold text-[var(--foreground)]">{item.product.title}</p>
+                    <p className="font-bold text-foreground">{item.product.title}</p>
                     <p className="text-[10px] opacity-60 font-bold">Qty: {item.quantity}</p>
                   </div>
-                  <span className="font-black text-[var(--price-color)]">
+                  <span className="font-black text-accent">
                     ${(item.quantity * Number(item.product.unit_price)).toFixed(2)}
                   </span>
                 </div>
               ))}
             </div>
 
-            <div className="pt-4 border-t border-[var(--card-border)] space-y-3 text-sm">
+            <div className="pt-4 border-t border-foreground/10 space-y-3 text-sm">
               <div className="flex justify-between opacity-80 font-medium">
                 <span>Subtotal</span>
-                <span className="font-bold text-[var(--foreground)]">
+                <span className="font-bold text-foreground">
                   ${Number(cart.total_price).toFixed(2)}
                 </span>
               </div>
@@ -348,9 +348,9 @@ export default function CheckoutPage() {
                 <span>Shipping</span>
                 <span className="font-bold text-green-500 uppercase text-xs">Free</span>
               </div>
-              <div className="pt-3 border-t border-[var(--card-border)] flex justify-between items-center text-base font-black">
+              <div className="pt-3 border-t border-foreground/10 flex justify-between items-center text-base font-black">
                 <span>Total Amount</span>
-                <span className="text-2xl text-[var(--price-color)]">
+                <span className="text-2xl text-accent">
                   ${Number(cart.total_price).toFixed(2)}
                 </span>
               </div>
@@ -359,7 +359,7 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={!isOrderValid || submitting}
-              className="w-full py-4 bg-[var(--button-bg)] text-[var(--button-text)] rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-4 bg-primary text-secondary rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {submitting ? "Processing Order..." : "Confirm & Place Order"}
             </button>

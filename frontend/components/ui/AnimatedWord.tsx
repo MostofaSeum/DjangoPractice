@@ -22,7 +22,7 @@ export default function AnimatedWord() {
 
   return (
     <span
-      className={`inline-block text-brand-accent transition-all duration-300 transform ${
+      className={`inline-block text-accent transition-all duration-300 transform ${
         fade ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
       }`}
     >
