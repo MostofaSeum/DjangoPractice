@@ -99,7 +99,7 @@ export default function LoginPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="ENTER YOUR USERNAME"
-              className="px-5 py-3.5 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground placeholder:opacity-40 outline-none focus:ring-2 focus:ring-accent transition-all"
+              className="px-5 py-3.5 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
             />
           </div>
 
@@ -113,7 +113,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="px-5 py-3.5 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground placeholder:opacity-40 outline-none focus:ring-2 focus:ring-accent transition-all"
+              className="px-5 py-3.5 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
             />
           </div>
 

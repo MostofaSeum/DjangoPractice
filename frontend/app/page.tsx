@@ -132,7 +132,7 @@ export default async function Home() {
           </div>
 
           {/* Top Right Bento Item (Discover the Vibe) */}
-          <div className="md:col-span-2 md:row-span-1 bg-primary rounded-[2rem] p-8 md:p-10 text-background dark:text-foreground relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500 min-h-[220px] md:min-h-0">
+          <div className="md:col-span-2 md:row-span-1 bg-primary rounded-[2rem] p-8 md:p-10 text-background relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500 min-h-[220px] md:min-h-0">
             <Image
               src="/HomePage/Fashion.jpg"
               alt="Discover"
@@ -474,7 +474,7 @@ export default async function Home() {
           <input
             type="email"
             placeholder="ENTER YOUR EMAIL"
-            className="flex-1 bg-primary/5 border border-foreground/15 rounded-2xl px-6 py-4 text-xs font-bold text-foreground placeholder:opacity-40 outline-none focus:ring-2 focus:ring-accent transition-all"
+            className="flex-1 bg-secondary border border-foreground/15 rounded-2xl px-6 py-4 text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
           />
           <button className="bg-primary text-secondary px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-0.5 duration-300">
             Subscribe

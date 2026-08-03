@@ -26,7 +26,7 @@ export default function ThemeToggle() {
         toggleTheme();
       }}
       aria-label="Toggle Light and Dark Mode"
-      className="p-2 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-background dark:text-foreground hover:text-white transition-all flex items-center justify-center cursor-pointer select-none"
+      className="p-2 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-background hover:text-white transition-all flex items-center justify-center cursor-pointer select-none"
       title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
     >
       {theme === "light" ? (

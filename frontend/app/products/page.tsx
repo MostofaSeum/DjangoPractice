@@ -100,7 +100,7 @@ export default async function ProductsPage({
                     name="minPrice"
                     defaultValue={minPrice || ""}
                     placeholder="e.g. 10"
-                    className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-sm text-foreground placeholder:opacity-40 outline-none focus:border-accent transition-colors w-full"
+                    className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-secondary text-sm text-foreground placeholder:text-foreground/50 outline-none focus:border-accent transition-colors w-full shadow-sm"
                   />
                 </div>
 
@@ -113,7 +113,7 @@ export default async function ProductsPage({
                     name="maxPrice"
                     defaultValue={maxPrice || ""}
                     placeholder="e.g. 100"
-                    className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-sm text-foreground placeholder:opacity-40 outline-none focus:border-accent transition-colors w-full"
+                    className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-secondary text-sm text-foreground placeholder:text-foreground/50 outline-none focus:border-accent transition-colors w-full shadow-sm"
                   />
                 </div>
 
@@ -158,11 +158,11 @@ export default async function ProductsPage({
                     id="sort"
                     name="ordering"
                     defaultValue={ordering || ""}
-                    className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-sm text-foreground outline-none focus:border-accent transition-colors w-full cursor-pointer"
+                    className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-secondary text-sm text-foreground outline-none focus:border-accent transition-colors w-full cursor-pointer shadow-sm"
                   >
-                    <option value="">Default</option>
-                    <option value="unit_price">Price: Low to High</option>
-                    <option value="-unit_price">Price: High to Low</option>
+                    <option value="" className="bg-secondary text-foreground">Default</option>
+                    <option value="unit_price" className="bg-secondary text-foreground">Price: Low to High</option>
+                    <option value="-unit_price" className="bg-secondary text-foreground">Price: High to Low</option>
                   </select>
                 </div>
 
@@ -210,7 +210,7 @@ export default async function ProductsPage({
                 name="search"
                 defaultValue={search || ""}
                 placeholder="Search products by title or description..."
-                className="flex-1 px-5 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-sm text-foreground placeholder:opacity-40 outline-none focus:border-accent transition-colors shadow-sm"
+                className="flex-1 px-5 py-3 border border-foreground/15 rounded-2xl bg-secondary text-sm text-foreground placeholder:text-foreground/50 outline-none focus:border-accent transition-colors shadow-sm"
               />
               <button
                 type="submit"

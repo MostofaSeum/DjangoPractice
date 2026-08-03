@@ -154,7 +154,7 @@ export default function RegisterPage() {
                 value={formData.first_name}
                 onChange={handleChange}
                 placeholder="JOHN"
-                className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground placeholder:opacity-40 outline-none focus:ring-2 focus:ring-accent transition-all"
+                className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
               />
             </div>
 
@@ -168,7 +168,7 @@ export default function RegisterPage() {
                 value={formData.last_name}
                 onChange={handleChange}
                 placeholder="DOE"
-                className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground placeholder:opacity-40 outline-none focus:ring-2 focus:ring-accent transition-all"
+                className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
               />
             </div>
           </div>
@@ -184,7 +184,7 @@ export default function RegisterPage() {
               value={formData.username}
               onChange={handleChange}
               placeholder="CHOOSE A USERNAME"
-              className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground placeholder:opacity-40 outline-none focus:ring-2 focus:ring-accent transition-all"
+              className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
             />
           </div>
 
@@ -199,7 +199,7 @@ export default function RegisterPage() {
               value={formData.email}
               onChange={handleChange}
               placeholder="YOU@EXAMPLE.COM"
-              className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground placeholder:opacity-40 outline-none focus:ring-2 focus:ring-accent transition-all"
+              className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
             />
           </div>
 
@@ -215,7 +215,7 @@ export default function RegisterPage() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="••••••••"
-                className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground placeholder:opacity-40 outline-none focus:ring-2 focus:ring-accent transition-all"
+                className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
               />
             </div>
 
@@ -230,7 +230,7 @@ export default function RegisterPage() {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 placeholder="••••••••"
-                className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground placeholder:opacity-40 outline-none focus:ring-2 focus:ring-accent transition-all"
+                className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
               />
             </div>
           </div>

@@ -36,10 +36,10 @@ export default function Header() {
   }
 
   return (
-    <header className="w-full z-50 py-5 px-8 md:px-12 bg-primary text-background dark:text-foreground sticky top-0 shadow-md border-b border-white/5 transition-colors duration-300">
+    <header className="w-full z-50 py-5 px-8 md:px-12 bg-primary text-background sticky top-0 shadow-md border-b border-white/5 transition-colors duration-300">
       <div className="max-w-[1400px] mx-auto flex items-center justify-between">
         {/* Brand Logo */}
-        <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter uppercase text-background dark:text-foreground hover:opacity-90 transition-opacity">
+        <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter uppercase text-background hover:opacity-90 transition-opacity">
           VIBEMART
         </Link>
 
@@ -53,8 +53,8 @@ export default function Header() {
                 href={link.href}
                 className={`transition-colors py-1 ${
                   isActive
-                    ? "text-white border-b-2 border-white font-extrabold"
-                    : "text-background/70 dark:text-foreground/70 hover:text-white font-bold"
+                    ? "text-background border-b-2 border-background font-extrabold"
+                    : "text-background/70 hover:text-background font-bold"
                 }`}
               >
                 {link.name}
@@ -73,7 +73,7 @@ export default function Header() {
             <div className="flex items-center gap-3 ml-2">
               <Link
                 href="/profile"
-                className="text-background/80 dark:text-foreground/80 hover:text-white hover:underline transition-all text-[10px]"
+                className="text-background/80 hover:text-background hover:underline transition-all text-[10px]"
               >
                 Hi, {user.first_name || user.username}
               </Link>
@@ -88,8 +88,8 @@ export default function Header() {
               ) : null}
 
               <button
-                onClick={logout}
-                className="text-background dark:text-foreground hover:text-white transition-all bg-white/10 px-4 py-2 rounded-full border border-white/20 hover:bg-white/20"
+                onClick={handleLogout}
+                className="text-background hover:bg-white/20 transition-all bg-white/10 px-4 py-2 rounded-full border border-white/20"
               >
                 Sign Out
               </button>
@@ -97,7 +97,7 @@ export default function Header() {
           ) : (
             <Link
               href="/login"
-              className="text-background dark:text-foreground hover:text-white transition-all bg-white/10 px-4 py-2 rounded-full border border-white/20 hover:bg-white/20"
+              className="text-background hover:bg-white/20 transition-all bg-white/10 px-4 py-2 rounded-full border border-white/20"
             >
               Sign In
             </Link>

@@ -163,7 +163,7 @@ export default function EmailOTPModal({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@example.com"
-                className="w-full px-4 py-3 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-sm text-foreground font-semibold outline-none focus:ring-2 focus:ring-accent transition-all"
+                className="w-full px-4 py-3 border border-foreground/15 rounded-xl bg-background text-sm text-foreground font-semibold outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
               />
             </div>
 
@@ -188,7 +188,7 @@ export default function EmailOTPModal({
                 value={otpCode}
                 onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
                 placeholder="123456"
-                className="w-full px-4 py-3 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-center text-xl tracking-[0.4em] font-black text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+                className="w-full px-4 py-3 border border-foreground/15 rounded-xl bg-background text-center text-xl tracking-[0.4em] font-black text-foreground outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
               />
             </div>
 
