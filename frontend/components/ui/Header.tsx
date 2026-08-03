@@ -96,7 +96,7 @@ export default function Header() {
             </div>
           ) : (
             <Link
-              href="/login"
+              href={pathname && pathname !== "/" ? `/login?redirect=${encodeURIComponent(pathname)}` : "/login"}
               className="text-background hover:bg-white/25 transition-all bg-white/15 px-4 py-2 rounded-full border border-white/30 font-bold"
             >
               Sign In

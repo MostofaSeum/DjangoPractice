@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Swal from "sweetalert2";
 import EmailOTPModal from "@/features/auth/components/EmailOTPModal";
 
-export default function RegisterPage() {
+function RegisterForm() {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -22,8 +22,11 @@ export default function RegisterPage() {
 
   const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
 
-  const { user, token, loading: authLoading, register, login } = useAuth();
+  const { user, token, loading: authLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const redirectUrl = searchParams.get("redirect") || searchParams.get("next") || "/";
 
   // Redirect if already logged in
   useEffect(() => {
@@ -32,10 +35,10 @@ export default function RegisterPage() {
       if (user?.is_staff) {
         router.push("/admin");
       } else {
-        router.push("/");
+        router.push(redirectUrl);
       }
     }
-  }, [token, user, authLoading, router]);
+  }, [token, user, authLoading, router, redirectUrl]);
 
   if (authLoading || token) {
     return null;
@@ -115,7 +118,7 @@ export default function RegisterPage() {
       timer: 2000,
       toast: true,
     });
-    router.push("/login");
+    router.push(`/login${redirectUrl !== "/" ? `?redirect=${encodeURIComponent(redirectUrl)}` : ""}`);
   };
 
   return (
@@ -263,7 +266,7 @@ export default function RegisterPage() {
           <p className="text-xs opacity-70 font-medium">
             Already have an account?{" "}
             <Link
-              href="/login"
+              href={`/login${redirectUrl !== "/" ? `?redirect=${encodeURIComponent(redirectUrl)}` : ""}`}
               className="font-bold underline hover:text-accent transition-colors"
             >
               Sign In
@@ -272,5 +275,13 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={null}>
+      <RegisterForm />
+    </Suspense>
   );
 }

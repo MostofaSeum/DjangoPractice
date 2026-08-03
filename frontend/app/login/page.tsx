@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Swal from "sweetalert2";
 
-export default function LoginPage() {
+function LoginForm() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -14,6 +14,9 @@ export default function LoginPage() {
 
   const { user, token, loading: authLoading, login } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const redirectUrl = searchParams.get("redirect") || searchParams.get("next") || "/";
 
   // Redirect if already logged in
   useEffect(() => {
@@ -22,10 +25,10 @@ export default function LoginPage() {
       if (user?.is_staff) {
         router.push("/admin");
       } else {
-        router.push("/");
+        router.push(redirectUrl);
       }
     }
-  }, [token, user, authLoading, router]);
+  }, [token, user, authLoading, router, redirectUrl]);
 
   if (authLoading || token) {
     return null;
@@ -51,7 +54,7 @@ export default function LoginPage() {
         if (loggedInUser.is_staff) {
           router.push("/admin");
         } else {
-          router.push("/");
+          router.push(redirectUrl);
         }
       } else {
         setError("Invalid username or password. Please try again.");
@@ -131,7 +134,7 @@ export default function LoginPage() {
           <p className="text-xs opacity-70 font-medium">
             Don&apos;t have an account?{" "}
             <Link
-              href="/register"
+              href={`/register${redirectUrl !== "/" ? `?redirect=${encodeURIComponent(redirectUrl)}` : ""}`}
               className="font-bold underline hover:text-accent transition-colors"
             >
               Sign Up
@@ -140,5 +143,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }
