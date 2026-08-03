@@ -62,7 +62,7 @@ export default function ProductInteractive({
 
   return (
     <div className="flex items-center gap-4 my-6">
-      <div className="flex items-center border border-foreground/15 rounded-xl overflow-hidden bg-primary/5 dark:bg-primary/30">
+      <div className="flex items-center border border-foreground/15 rounded-xl overflow-hidden bg-background shadow-sm">
         <button
           onClick={handleDecrement}
           className="px-4 py-2 hover:bg-secondary text-foreground font-black transition-colors"

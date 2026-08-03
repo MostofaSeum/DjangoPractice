@@ -38,7 +38,7 @@ export default function ProductGallery({ title, images = [] }: ProductGalleryPro
   return (
     <div className="space-y-4">
       {/* Main Image Display Box */}
-      <div className="aspect-[4/5] w-full rounded-2xl border border-foreground/10 bg-primary/5 dark:bg-primary/40 flex items-center justify-center relative overflow-hidden shadow-sm">
+      <div className="aspect-[4/5] w-full rounded-2xl border border-foreground/10 bg-secondary flex items-center justify-center relative overflow-hidden shadow-sm">
         <ProductImage title={title} images={mainImage} alt={title} />
       </div>
 
@@ -51,7 +51,7 @@ export default function ProductGallery({ title, images = [] }: ProductGalleryPro
             <div
               key={i}
               onClick={imgObj ? () => handleSwap(i) : undefined}
-              className={`aspect-square w-full rounded-xl bg-primary/5 dark:bg-primary/40 flex items-center justify-center text-center text-[10px] text-foreground/30 font-bold relative overflow-hidden shadow-sm transition-all ${
+              className={`aspect-square w-full rounded-xl bg-secondary flex items-center justify-center text-center text-[10px] text-foreground/30 font-bold relative overflow-hidden shadow-sm transition-all ${
                 imgObj ? 'cursor-pointer hover:opacity-85 hover:scale-98 active:scale-95 border-2 border-transparent hover:border-accent/30' : 'border border-foreground/5'
               }`}
             >

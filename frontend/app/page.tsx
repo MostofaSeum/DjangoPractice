@@ -117,14 +117,14 @@ export default async function Home() {
             <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[0.9] tracking-tighter mb-6 uppercase z-10">
               Elevate <br /> Your <AnimatedWord />
             </h1>
-            <p className="text-base opacity-70 max-w-sm mb-10 font-medium leading-relaxed z-10">
+            <p className="text-base font-semibold opacity-90 max-w-sm mb-10 text-foreground leading-relaxed z-10">
               Experience the intersection of high-end streetwear and premium
               digital aesthetics.
             </p>
             <div className="flex gap-4 z-10">
               <Link
                 href="/collections"
-                className="bg-primary text-secondary px-6 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2 duration-300"
+                className="bg-primary text-secondary px-6 py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2 duration-300"
               >
                 Explore Collection
               </Link>
@@ -137,14 +137,14 @@ export default async function Home() {
               src="/HomePage/Fashion.jpg"
               alt="Discover"
               fill
-              className="object-cover opacity-20 mix-blend-overlay group-hover:opacity-40 group-hover:scale-105 transition-all duration-700"
+              className="object-cover opacity-15 mix-blend-overlay group-hover:opacity-30 group-hover:scale-105 transition-all duration-700"
               unoptimized
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/20 pointer-events-none opacity-50"></div>
-            <h2 className="text-3xl font-black mb-3 uppercase tracking-tight relative z-10">
+            <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent pointer-events-none"></div>
+            <h2 className="text-3xl md:text-4xl font-black mb-3 uppercase tracking-tight relative z-10 text-background">
               Discover the Vibe
             </h2>
-            <p className="text-sm opacity-80 mb-8 leading-relaxed relative z-10 max-w-md">
+            <p className="text-sm font-semibold opacity-95 mb-8 leading-relaxed relative z-10 max-w-md text-background">
               Collect exclusive pieces and immerse yourself in the next wave of
               streetwear.
             </p>

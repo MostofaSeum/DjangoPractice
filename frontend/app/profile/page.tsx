@@ -197,7 +197,7 @@ export default function ProfilePage() {
                     value={formData.first_name}
                     onChange={handleChange}
                     placeholder="FIRST NAME"
-                    className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+                    className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
                   />
                 </div>
 
@@ -211,7 +211,7 @@ export default function ProfilePage() {
                     value={formData.last_name}
                     onChange={handleChange}
                     placeholder="LAST NAME"
-                    className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+                    className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
                   />
                 </div>
               </div>
@@ -226,7 +226,7 @@ export default function ProfilePage() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="YOU@EXAMPLE.COM"
-                  className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+                  className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
                 />
               </div>
 
@@ -240,7 +240,7 @@ export default function ProfilePage() {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="+1 234 567 8900"
-                  className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+                  className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
                 />
               </div>
 
@@ -253,7 +253,7 @@ export default function ProfilePage() {
                   name="birth_date"
                   value={formData.birth_date}
                   onChange={handleChange}
-                  className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+                  className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
                 />
               </div>
 
@@ -280,7 +280,7 @@ export default function ProfilePage() {
               </div>
               <Link
                 href="/products"
-                className="px-4 py-2 bg-primary/5 dark:bg-primary/30 text-foreground hover:bg-primary hover:text-secondary rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
+                className="px-4 py-2 border border-foreground/15 bg-background text-foreground hover:bg-primary hover:text-secondary rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
               >
                 Shop Now
               </Link>
@@ -296,7 +296,7 @@ export default function ProfilePage() {
                   return (
                     <div
                       key={ord.id}
-                      className="p-6 rounded-3xl bg-primary/5 dark:bg-primary/30 border border-foreground/15 space-y-4"
+                      className="p-6 rounded-3xl bg-background border border-foreground/15 space-y-4 shadow-sm"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-foreground/15 pb-3">
                         <div>

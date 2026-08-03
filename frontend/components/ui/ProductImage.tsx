@@ -50,7 +50,7 @@ export default function ProductImage({
 
   // 2. Default stylized fallback if no photo exists
   return (
-    <div className="w-full h-full bg-primary/5 dark:bg-primary/40 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
+    <div className="w-full h-full bg-secondary group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
       <span className="text-foreground/20 font-black text-lg uppercase tracking-widest text-center px-2">
         {title ? title.split(" ")[0] : "PRODUCT"}
       </span>

@@ -51,10 +51,10 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`transition-colors py-1 ${
+                className={`transition-all py-1 ${
                   isActive
-                    ? "text-background border-b-2 border-background font-extrabold"
-                    : "text-background/70 hover:text-background font-bold"
+                    ? "text-background border-b-2 border-background font-black"
+                    : "text-background/90 hover:text-background font-extrabold"
                 }`}
               >
                 {link.name}
@@ -73,7 +73,7 @@ export default function Header() {
             <div className="flex items-center gap-3 ml-2">
               <Link
                 href="/profile"
-                className="text-background/80 hover:text-background hover:underline transition-all text-[10px]"
+                className="text-background font-bold hover:underline transition-all text-[10px]"
               >
                 Hi, {user.first_name || user.username}
               </Link>
@@ -89,7 +89,7 @@ export default function Header() {
 
               <button
                 onClick={handleLogout}
-                className="text-background hover:bg-white/20 transition-all bg-white/10 px-4 py-2 rounded-full border border-white/20"
+                className="text-background hover:bg-white/25 transition-all bg-white/15 px-4 py-2 rounded-full border border-white/30 font-bold"
               >
                 Sign Out
               </button>
@@ -97,7 +97,7 @@ export default function Header() {
           ) : (
             <Link
               href="/login"
-              className="text-background hover:bg-white/20 transition-all bg-white/10 px-4 py-2 rounded-full border border-white/20"
+              className="text-background hover:bg-white/25 transition-all bg-white/15 px-4 py-2 rounded-full border border-white/30 font-bold"
             >
               Sign In
             </Link>
