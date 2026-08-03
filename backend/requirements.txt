@@ -7,6 +7,7 @@ django-cors-headers
 django-filter
 dj-database-url
 psycopg2-binary
+celery
 gunicorn
 whitenoise
 Pillow
