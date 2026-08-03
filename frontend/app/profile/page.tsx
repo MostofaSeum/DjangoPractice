@@ -158,14 +158,14 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex items-center justify-center p-8 font-bold uppercase tracking-widest text-xs transition-colors duration-300">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-8 font-bold uppercase tracking-widest text-xs transition-colors duration-300">
         Loading profile...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans py-12 transition-colors duration-300">
+    <div className="min-h-screen bg-background text-foreground font-sans py-12 transition-colors duration-300">
       <main className="max-w-[1400px] mx-auto px-8 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
           {/* Account Profile Form (1 Column) */}

@@ -17,7 +17,7 @@ export default async function CollectionsPage() {
  
   if (!res.ok) {
     return (
-      <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] p-8 text-center font-bold">
+      <div className="min-h-screen bg-background text-foreground p-8 text-center font-bold">
         Failed to load collections.
       </div>
     );
@@ -27,10 +27,10 @@ export default async function CollectionsPage() {
   const collections: Collection[] = Array.isArray(data) ? data : data.results || [];
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans antialiased pb-24 transition-colors duration-300">
+    <div className="min-h-screen bg-background text-foreground font-sans antialiased pb-24 transition-colors duration-300">
 
       {/* Breadcrumbs */}
-      <div className="bg-primary text-[var(--background)] dark:text-foreground border-b border-foreground/10 py-4 transition-colors duration-300">
+      <div className="bg-primary text-background dark:text-foreground border-b border-foreground/10 py-4 transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2 font-bold uppercase tracking-wider opacity-90">
           <Link href="/" className="hover:underline">
             Home

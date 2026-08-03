@@ -37,7 +37,7 @@ export default async function CollectionDetailPage({ params }: PageProps) {
 
   if (!res.ok) {
     return (
-      <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col items-center justify-center p-8 text-center">
+      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-8 text-center">
         <p className="text-red-500 mb-6 font-bold uppercase tracking-widest">Collection not found.</p>
         <Link href="/collections" className="inline-block text-[10px] font-bold tracking-widest uppercase border-b-2 border-current pb-1 hover:opacity-70 transition-opacity">
            Back to Collections
@@ -49,10 +49,10 @@ export default async function CollectionDetailPage({ params }: PageProps) {
   const collection: Collection = await res.json();
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans antialiased pb-24 transition-colors duration-300">
+    <div className="min-h-screen bg-background text-foreground font-sans antialiased pb-24 transition-colors duration-300">
 
       {/* Breadcrumbs */} 
-      <div className="bg-primary text-[var(--background)] dark:text-foreground border-b border-foreground/10 py-4 transition-colors duration-300">
+      <div className="bg-primary text-background dark:text-foreground border-b border-foreground/10 py-4 transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2 font-bold uppercase tracking-wider opacity-90">
           <Link href="/" className="hover:underline">Home</Link>
           <span>/</span>

@@ -88,7 +88,7 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen pb-24 bg-[var(--background)] text-[var(--foreground)] font-sans transition-colors duration-300">
+    <div className="min-h-screen pb-24 bg-background text-foreground font-sans transition-colors duration-300">
       {/* Bento Box Hero Section */}
       <section className="relative w-full min-h-screen pt-32 pb-12 px-4 md:px-8 max-w-[1400px] mx-auto flex items-center justify-center">
         <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-3 gap-4 md:gap-6 w-full h-full">
@@ -132,7 +132,7 @@ export default async function Home() {
           </div>
 
           {/* Top Right Bento Item (Discover the Vibe) */}
-          <div className="md:col-span-2 md:row-span-1 bg-primary rounded-[2rem] p-8 md:p-10 text-[var(--background)] dark:text-[var(--foreground)] relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500 min-h-[220px] md:min-h-0">
+          <div className="md:col-span-2 md:row-span-1 bg-primary rounded-[2rem] p-8 md:p-10 text-background dark:text-foreground relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500 min-h-[220px] md:min-h-0">
             <Image
               src="/HomePage/Fashion.jpg"
               alt="Discover"

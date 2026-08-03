@@ -629,19 +629,19 @@ export default function AdminDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#e6e0d4] text-[#3a3532] flex items-center justify-center font-bold text-xs uppercase tracking-widest">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center font-bold text-xs uppercase tracking-widest">
         Loading Admin Dashboard...
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans pb-24 transition-colors duration-300">
+    <div className="min-h-screen bg-background text-foreground font-sans pb-24 transition-colors duration-300">
       {/* Top Banner */}
-      <div className="bg-[var(--header-bg)] text-[var(--header-text)] py-10 px-8 md:px-12 border-b border-white/10 shadow-md transition-colors duration-300">
+      <div className="bg-primary text-background dark:text-foreground py-10 px-8 md:px-12 border-b border-white/10 shadow-md transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <span className="bg-[var(--brand-accent)] text-white text-[10px] font-black px-3 py-1 uppercase tracking-widest rounded-md mb-2 inline-block">
+            <span className="bg-accent text-white text-[10px] font-black px-3 py-1 uppercase tracking-widest rounded-md mb-2 inline-block">
               Staff Portal
             </span>
             <div className="flex items-center gap-4">
@@ -659,13 +659,13 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Navigation Tabs */}
-          <div className="flex gap-2 bg-[#252220] p-1.5 rounded-2xl border border-white/10">
+          <div className="flex gap-2 bg-primary/40 p-1.5 rounded-2xl border border-white/10">
             <button
               onClick={() => setActiveTab("products")}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
                 activeTab === "products"
-                  ? "bg-[#e6e0d4] text-[#3a3532] shadow-md"
-                  : "text-[#e6e0d4]/70 hover:text-white"
+                  ? "bg-secondary text-foreground shadow-md"
+                  : "text-background/70 dark:text-foreground/70 hover:text-white"
               }`}
             >
               Products ({totalProductsCount})
@@ -674,8 +674,8 @@ export default function AdminDashboardPage() {
               onClick={() => setActiveTab("collections")}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
                 activeTab === "collections"
-                  ? "bg-[#e6e0d4] text-[#3a3532] shadow-md"
-                  : "text-[#e6e0d4]/70 hover:text-white"
+                  ? "bg-secondary text-foreground shadow-md"
+                  : "text-background/70 dark:text-foreground/70 hover:text-white"
               }`}
             >
               Collections ({collections.length})
@@ -684,8 +684,8 @@ export default function AdminDashboardPage() {
               onClick={() => setActiveTab("orders")}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
                 activeTab === "orders"
-                  ? "bg-[#e6e0d4] text-[#3a3532] shadow-md"
-                  : "text-[#e6e0d4]/70 hover:text-white"
+                  ? "bg-secondary text-foreground shadow-md"
+                  : "text-background/70 dark:text-foreground/70 hover:text-white"
               }`}
             >
               Orders ({orders.length})
@@ -694,8 +694,8 @@ export default function AdminDashboardPage() {
               onClick={() => setActiveTab("customers")}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
                 activeTab === "customers"
-                  ? "bg-[#e6e0d4] text-[#3a3532] shadow-md"
-                  : "text-[#e6e0d4]/70 hover:text-white"
+                  ? "bg-secondary text-foreground shadow-md"
+                  : "text-background/70 dark:text-foreground/70 hover:text-white"
               }`}
             >
               Customers ({customers.length})
@@ -710,9 +710,9 @@ export default function AdminDashboardPage() {
         {activeTab === "products" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {/* Add/Edit Product Form (1 Column) */}
-            <div className="bg-[var(--card-bg)] text-[var(--foreground)] p-8 rounded-3xl border border-[var(--card-border)] shadow-sm h-fit transition-colors duration-300">
-              <div className="flex justify-between items-center mb-6 pb-2 border-b border-[var(--card-border)]">
-                <h2 className="text-xs font-black uppercase tracking-widest text-[var(--foreground)]">
+            <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm h-fit transition-colors duration-300">
+              <div className="flex justify-between items-center mb-6 pb-2 border-b border-foreground/10">
+                <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
                   {editingProductId
                     ? `Edit Product #${editingProductId}`
                     : "Add New Product"}
@@ -742,7 +742,7 @@ export default function AdminDashboardPage() {
                       setProductForm({ ...productForm, title: e.target.value })
                     }
                     placeholder="e.g. Neon Void Hoodie"
-                    className="px-4 py-2.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                    className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
                   />
                 </div>
 
@@ -763,7 +763,7 @@ export default function AdminDashboardPage() {
                         })
                       }
                       placeholder="99.99"
-                      className="px-4 py-2.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                      className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
                     />
                   </div>
 
@@ -782,7 +782,7 @@ export default function AdminDashboardPage() {
                         })
                       }
                       placeholder="10"
-                      className="px-4 py-2.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                      className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
                     />
                   </div>
                 </div>
@@ -799,10 +799,10 @@ export default function AdminDashboardPage() {
                         collection: e.target.value,
                       })
                     }
-                    className="px-4 py-2.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none cursor-pointer focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                    className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none cursor-pointer focus:ring-2 focus:ring-accent transition-all"
                   >
                     {collections.map((col) => (
-                      <option key={col.id} value={col.id} className="bg-[var(--card-bg)] text-[var(--foreground)]">
+                      <option key={col.id} value={col.id} className="bg-secondary text-foreground">
                         {col.title} (ID: {col.id})
                       </option>
                     ))}
@@ -823,13 +823,13 @@ export default function AdminDashboardPage() {
                       })
                     }
                     placeholder="Short product description..."
-                    className="px-4 py-2.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                    className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full mt-2 py-3 bg-[var(--button-bg)] text-[var(--button-text)] rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md"
+                  className="w-full mt-2 py-3 bg-primary text-secondary rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md"
                 >
                   {editingProductId ? "Update Product" : "Create Product"}
                 </button>
@@ -837,16 +837,16 @@ export default function AdminDashboardPage() {
 
               {/* Photo Upload Section when editing a product */}
               {editingProductId && (
-                <div className="mt-4 pt-4 border-t border-[var(--card-border)]">
+                <div className="mt-4 pt-4 border-t border-foreground/10">
                   <ImageUploadModal productId={editingProductId} onSuccess={fetchAdminData} />
                 </div>
               )}
             </div>
 
             {/* Products Table (2 Columns) */}
-            <div className="lg:col-span-2 bg-[var(--card-bg)] text-[var(--foreground)] p-8 rounded-3xl border border-[var(--card-border)] shadow-sm overflow-x-auto transition-colors duration-300">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-[var(--card-border)]">
-                <h2 className="text-xs font-black uppercase tracking-widest text-[var(--foreground)]">
+            <div className="lg:col-span-2 bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm overflow-x-auto transition-colors duration-300">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
+                <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
                   All Products ({totalProductsCount || products.length})
                 </h2>
                 <form
@@ -862,11 +862,11 @@ export default function AdminDashboardPage() {
                     value={productSearch}
                     onChange={(e) => setProductSearch(e.target.value)}
                     placeholder="Search product..."
-                    className="px-3.5 py-1.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none w-full sm:w-48 focus:ring-2 focus:ring-[var(--brand-accent)]"
+                    className="px-3.5 py-1.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full sm:w-48 focus:ring-2 focus:ring-accent"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-1.5 bg-[var(--button-bg)] text-[var(--button-text)] hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                    className="px-4 py-1.5 bg-primary text-secondary hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
                   >
                     Search
                   </button>
@@ -887,7 +887,7 @@ export default function AdminDashboardPage() {
               </div>
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-[var(--card-border)] text-[10px] font-black uppercase tracking-wider opacity-60">
+                  <tr className="border-b border-foreground/10 text-[10px] font-black uppercase tracking-wider opacity-60">
                     <th className="py-3 px-2">ID</th>
                     <th className="py-3 px-2">Title</th>
                     <th className="py-3 px-2">Price</th>
@@ -895,15 +895,15 @@ export default function AdminDashboardPage() {
                     <th className="py-3 px-2 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--card-border)] text-xs font-bold">
+                <tbody className="divide-y divide-foreground/10 text-xs font-bold">
                   {products.map((prod) => (
                     <tr
                       key={prod.id}
                       onClick={() => handleSelectProduct(prod)}
                       className={`cursor-pointer transition-colors ${
                         editingProductId === prod.id
-                          ? "bg-[var(--brand-accent)]/20"
-                          : "hover:bg-[var(--input-bg)]"
+                          ? "bg-accent/20"
+                          : "hover:bg-primary/5 dark:hover:bg-primary/30"
                       }`}
                     >
                       <td className="py-2.5 px-2 opacity-50 align-middle">
@@ -911,13 +911,13 @@ export default function AdminDashboardPage() {
                       </td>
                       <td className="py-2.5 px-2 font-black align-middle">
                         <div className="flex items-center gap-3">
-                          <div className="relative w-10 h-10 shrink-0 rounded-xl overflow-hidden border border-[var(--card-border)] bg-[var(--input-bg)] shadow-sm">
+                          <div className="relative w-10 h-10 shrink-0 rounded-xl overflow-hidden border border-foreground/10 bg-primary/5 dark:bg-primary/30 shadow-sm">
                             <ProductImage title={prod.title} images={prod.images} />
                           </div>
                           <span className="truncate max-w-[220px] sm:max-w-xs">{prod.title}</span>
                         </div>
                       </td>
-                      <td className="py-2.5 px-2 text-[var(--price-color)] font-extrabold align-middle">
+                      <td className="py-2.5 px-2 text-accent font-extrabold align-middle">
                         ${Number(prod.unit_price).toFixed(2)}
                       </td>
                       <td className="py-2.5 px-2 align-middle">{prod.inventory}</td>
@@ -939,11 +939,11 @@ export default function AdminDashboardPage() {
 
               {/* Pagination Controls (Matching Shop Page) */}
               {Math.ceil(totalProductsCount / 9) > 1 && (
-                <div className="flex justify-between items-center mt-6 pt-4 border-t border-[var(--card-border)] text-xs font-bold">
+                <div className="flex justify-between items-center mt-6 pt-4 border-t border-foreground/10 text-xs font-bold">
                   <button
                     onClick={() => setProdPage((prev) => Math.max(prev - 1, 1))}
                     disabled={prodPage === 1}
-                    className="px-5 py-2.5 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--foreground)] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[var(--button-bg)] hover:text-[var(--button-text)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="px-5 py-2.5 border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-secondary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
                     Previous
                   </button>
@@ -959,7 +959,7 @@ export default function AdminDashboardPage() {
                       )
                     }
                     disabled={prodPage >= Math.ceil(totalProductsCount / 9)}
-                    className="px-5 py-2.5 border border-[var(--input-border)] bg-[var(--input-bg)] text-[var(--foreground)] rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-[var(--button-bg)] hover:text-[var(--button-text)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="px-5 py-2.5 border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-secondary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
                     Next
                   </button>
@@ -973,9 +973,9 @@ export default function AdminDashboardPage() {
         {activeTab === "collections" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {/* Create Collection Form */}
-            <div className="bg-[var(--card-bg)] text-[var(--foreground)] p-8 rounded-3xl border border-[var(--card-border)] shadow-sm h-fit transition-colors duration-300">
-              <div className="flex justify-between items-center mb-6 pb-2 border-b border-[var(--card-border)]">
-                <h2 className="text-xs font-black uppercase tracking-widest text-[var(--foreground)]">
+            <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm h-fit transition-colors duration-300">
+              <div className="flex justify-between items-center mb-6 pb-2 border-b border-foreground/10">
+                <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
                   {editingCollectionId
                     ? `Edit Collection #${editingCollectionId}`
                     : "Create Collection"}
@@ -1003,7 +1003,7 @@ export default function AdminDashboardPage() {
                     value={newCollectionTitle}
                     onChange={(e) => setNewCollectionTitle(e.target.value)}
                     placeholder="e.g. Summer Drop"
-                    className="px-4 py-2.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[var(--brand-accent)] transition-all"
+                    className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
                   />
                 </div>
                 <div className="flex flex-col gap-1">
@@ -1020,11 +1020,11 @@ export default function AdminDashboardPage() {
                         setCollectionImagePreview(URL.createObjectURL(file));
                       }
                     }}
-                    className="block w-full text-xs text-[var(--foreground)] file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[var(--button-bg)] file:text-[var(--button-text)] hover:file:opacity-90 cursor-pointer"
+                    className="block w-full text-xs text-foreground file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-primary file:text-secondary hover:file:opacity-90 cursor-pointer"
                   />
                   {collectionImagePreview && (
                     <div className="mt-3 flex justify-center w-full">
-                      <div className="relative group w-36 h-36 rounded-2xl overflow-hidden border border-[var(--card-border)] shadow-md bg-[var(--input-bg)]">
+                      <div className="relative group w-36 h-36 rounded-2xl overflow-hidden border border-foreground/10 shadow-md bg-primary/5 dark:bg-primary/30">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={collectionImagePreview.startsWith("http") || collectionImagePreview.startsWith("blob") ? collectionImagePreview : `${API_BASE}${collectionImagePreview}`}
@@ -1045,7 +1045,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3 bg-[var(--button-bg)] text-[var(--button-text)] rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md"
+                  className="w-full py-3 bg-primary text-secondary rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md"
                 >
                   {editingCollectionId ? "Update Collection" : "Save Collection"}
                 </button>
@@ -1053,9 +1053,9 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Collections List */}
-            <div className="lg:col-span-2 bg-[var(--card-bg)] text-[var(--foreground)] p-8 rounded-3xl border border-[var(--card-border)] shadow-sm transition-colors duration-300">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-[var(--card-border)]">
-                <h2 className="text-xs font-black uppercase tracking-widest text-[var(--foreground)]">
+            <div className="lg:col-span-2 bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
+                <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
                   Existing Collections ({filteredCollections.length})
                 </h2>
                 <form
@@ -1070,11 +1070,11 @@ export default function AdminDashboardPage() {
                     value={collectionSearch}
                     onChange={(e) => setCollectionSearch(e.target.value)}
                     placeholder="Search collection..."
-                    className="px-3.5 py-1.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none w-full sm:w-48 focus:ring-2 focus:ring-[var(--brand-accent)]"
+                    className="px-3.5 py-1.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full sm:w-48 focus:ring-2 focus:ring-accent"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-1.5 bg-[var(--button-bg)] text-[var(--button-text)] hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                    className="px-4 py-1.5 bg-primary text-secondary hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
                   >
                     Search
                   </button>
@@ -1099,19 +1099,19 @@ export default function AdminDashboardPage() {
                     onClick={() => handleSelectCollection(col)}
                     className={`p-4 rounded-2xl border transition-all flex justify-between items-center cursor-pointer ${
                       editingCollectionId === col.id
-                        ? "bg-[var(--brand-accent)]/20 border-[var(--brand-accent)]"
-                        : "bg-[var(--input-bg)] border-[var(--card-border)] hover:border-[var(--brand-accent)]/50"
+                        ? "bg-accent/20 border-accent"
+                        : "bg-primary/5 dark:bg-primary/30 border-foreground/10 hover:border-accent/50"
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       {col.image && (
-                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-[var(--card-border)] flex-shrink-0 bg-[var(--card-bg)]">
+                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-foreground/10 flex-shrink-0 bg-secondary">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={col.image.startsWith("http") ? col.image : `${API_BASE}${col.image}`} alt={col.title} className="w-full h-full object-cover" />
                         </div>
                       )}
                       <div>
-                        <h3 className="font-bold text-sm text-[var(--foreground)]">
+                        <h3 className="font-bold text-sm text-foreground">
                           {col.title}
                         </h3>
                         <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">
@@ -1136,9 +1136,9 @@ export default function AdminDashboardPage() {
 
         {/* ORDERS TAB */}
         {activeTab === "orders" && (
-          <div className="bg-[var(--card-bg)] text-[var(--foreground)] p-8 rounded-3xl border border-[var(--card-border)] shadow-sm transition-colors duration-300">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-[var(--card-border)]">
-              <h2 className="text-xs font-black uppercase tracking-widest text-[var(--foreground)]">
+          <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
+              <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
                 Customer Orders ({filteredOrders.length})
               </h2>
               <form
@@ -1153,11 +1153,11 @@ export default function AdminDashboardPage() {
                   value={orderSearch}
                   onChange={(e) => setOrderSearch(e.target.value)}
                   placeholder="Search order ID..."
-                  className="px-3.5 py-1.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none w-full sm:w-48 focus:ring-2 focus:ring-[var(--brand-accent)]"
+                  className="px-3.5 py-1.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full sm:w-48 focus:ring-2 focus:ring-accent"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-[var(--button-bg)] text-[var(--button-text)] hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                  className="px-4 py-1.5 bg-primary text-secondary hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
                 >
                   Search
                 </button>
@@ -1179,7 +1179,7 @@ export default function AdminDashboardPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-[var(--card-border)] text-[10px] font-black uppercase tracking-wider opacity-60">
+                    <tr className="border-b border-foreground/10 text-[10px] font-black uppercase tracking-wider opacity-60">
                       <th className="py-3 px-2">Order ID</th>
                       <th className="py-3 px-2">Customer</th>
                       <th className="py-3 px-2">Date Placed</th>
@@ -1188,14 +1188,14 @@ export default function AdminDashboardPage() {
                       <th className="py-3 px-2 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[var(--card-border)] text-xs font-bold">
+                  <tbody className="divide-y divide-foreground/10 text-xs font-bold">
                     {filteredOrders.map((order) => {
                       const itemCount = order.items ? order.items.reduce((sum, i) => sum + i.quantity, 0) : 0;
 
                       return (
                         <tr
                           key={order.id}
-                          className="hover:bg-[var(--input-bg)] transition-colors"
+                          className="hover:bg-primary/5 dark:hover:bg-primary/30 transition-colors"
                         >
                           <td className="py-3.5 px-2 font-black">Order #{order.id}</td>
                           <td className="py-3.5 px-2 opacity-90 font-bold">
@@ -1219,15 +1219,15 @@ export default function AdminDashboardPage() {
                                   : "bg-yellow-500/20 text-yellow-500 border-yellow-500/30"
                               }`}
                             >
-                              <option value="P" className="bg-[var(--card-bg)] text-[var(--foreground)]">Pending (P)</option>
-                              <option value="C" className="bg-[var(--card-bg)] text-[var(--foreground)]">Complete (C)</option>
-                              <option value="F" className="bg-[var(--card-bg)] text-[var(--foreground)]">Failed (F)</option>
+                              <option value="P" className="bg-secondary text-foreground">Pending (P)</option>
+                              <option value="C" className="bg-secondary text-foreground">Complete (C)</option>
+                              <option value="F" className="bg-secondary text-foreground">Failed (F)</option>
                             </select>
                           </td>
                           <td className="py-3.5 px-2 text-right flex justify-end gap-2">
                             <button
                               onClick={() => setSelectedOrderDetails(order)}
-                              className="px-3 py-1.5 bg-[var(--button-bg)] text-[var(--button-text)] hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                              className="px-3 py-1.5 bg-primary text-secondary hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
                             >
                               View Details
                             </button>
@@ -1255,8 +1255,8 @@ export default function AdminDashboardPage() {
         {/* Order Details Modal */}
         {selectedOrderDetails && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-            <div className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-3xl p-8 max-w-xl w-full shadow-2xl border border-[var(--card-border)] relative">
-              <div className="flex justify-between items-center pb-4 border-b border-[var(--card-border)] mb-6">
+            <div className="bg-secondary text-foreground rounded-3xl p-8 max-w-xl w-full shadow-2xl border border-foreground/10 relative">
+              <div className="flex justify-between items-center pb-4 border-b border-foreground/10 mb-6">
                 <div>
                   <h3 className="text-lg font-black uppercase tracking-tight">
                     Order #{selectedOrderDetails.id}
@@ -1267,14 +1267,14 @@ export default function AdminDashboardPage() {
                 </div>
                 <button
                   onClick={() => setSelectedOrderDetails(null)}
-                  className="text-xs font-bold bg-[var(--input-bg)] hover:bg-[var(--button-bg)] hover:text-[var(--button-text)] px-3 py-1.5 rounded-xl transition-colors uppercase"
+                  className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-primary hover:text-secondary px-3 py-1.5 rounded-xl transition-colors uppercase"
                 >
                   Close ✕
                 </button>
               </div>
 
               {/* Customer Contact & Address Info */}
-              <div className="bg-[var(--input-bg)] p-4 rounded-2xl mb-6 text-xs space-y-1">
+              <div className="bg-primary/5 dark:bg-primary/30 p-4 rounded-2xl mb-6 text-xs space-y-1">
                 <p><strong>Phone:</strong> {selectedOrderDetails.phone || "N/A"}</p>
                 <p><strong>Shipping Address:</strong> {selectedOrderDetails.shipping_address || "N/A"}</p>
                 <p>
@@ -1286,7 +1286,7 @@ export default function AdminDashboardPage() {
                   )}
                 </p>
                 {selectedOrderDetails.payment_method === "O" && (
-                  <p><strong>bKash TrxID:</strong> <code className="bg-[var(--card-bg)] px-2 py-0.5 rounded font-mono font-bold text-[#e2136e]">{selectedOrderDetails.transaction_id || "N/A"}</code></p>
+                  <p><strong>bKash TrxID:</strong> <code className="bg-secondary px-2 py-0.5 rounded font-mono font-bold text-[#e2136e]">{selectedOrderDetails.transaction_id || "N/A"}</code></p>
                 )}
               </div>
 
@@ -1294,21 +1294,21 @@ export default function AdminDashboardPage() {
               <div className="max-h-60 overflow-y-auto mb-6">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="border-b border-[var(--card-border)] text-[10px] font-black uppercase opacity-60">
+                    <tr className="border-b border-foreground/10 text-[10px] font-black uppercase opacity-60">
                       <th className="py-2 px-1">Product</th>
                       <th className="py-2 px-1">Qty</th>
                       <th className="py-2 px-1">Unit Price</th>
                       <th className="py-2 px-1 text-right">Subtotal</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[var(--card-border)]">
+                  <tbody className="divide-y divide-foreground/10">
                     {selectedOrderDetails.items && selectedOrderDetails.items.length > 0 ? (
                       selectedOrderDetails.items.map((item) => (
                         <tr key={item.id}>
                           <td className="py-2 px-1 font-bold">{item.product?.title || `Product #${item.product}`}</td>
                           <td className="py-2 px-1">{item.quantity}</td>
                           <td className="py-2 px-1">${Number(item.unit_price).toFixed(2)}</td>
-                          <td className="py-2 px-1 text-right font-black text-[var(--brand-accent)]">
+                          <td className="py-2 px-1 text-right font-black text-accent">
                             ${(item.quantity * Number(item.unit_price)).toFixed(2)}
                           </td>
                         </tr>
@@ -1324,11 +1324,11 @@ export default function AdminDashboardPage() {
                 </table>
               </div>
 
-              <div className="flex justify-between items-center pt-4 border-t border-[var(--card-border)]">
+              <div className="flex justify-between items-center pt-4 border-t border-foreground/10">
                 <span className="text-xs font-bold opacity-70 uppercase">
-                  Payment Status: <strong className="uppercase font-black text-[var(--foreground)]">{selectedOrderDetails.payment_status === "C" ? "Complete" : selectedOrderDetails.payment_status === "F" ? "Failed" : "Pending"}</strong>
+                  Payment Status: <strong className="uppercase font-black text-foreground">{selectedOrderDetails.payment_status === "C" ? "Complete" : selectedOrderDetails.payment_status === "F" ? "Failed" : "Pending"}</strong>
                 </span>
-                <span className="text-base font-black text-[var(--foreground)]">
+                <span className="text-base font-black text-foreground">
                   Total: ${selectedOrderDetails.items ? selectedOrderDetails.items.reduce((sum, i) => sum + (i.quantity * Number(i.unit_price)), 0).toFixed(2) : "0.00"}
                 </span>
               </div>
@@ -1338,9 +1338,9 @@ export default function AdminDashboardPage() {
 
         {/* CUSTOMERS TAB */}
         {activeTab === "customers" && (
-          <div className="bg-[var(--card-bg)] text-[var(--foreground)] p-8 rounded-3xl border border-[var(--card-border)] shadow-sm transition-colors duration-300">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-[var(--card-border)]">
-              <h2 className="text-xs font-black uppercase tracking-widest text-[var(--foreground)]">
+          <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
+              <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
                 Registered Customers ({filteredCustomers.length})
               </h2>
               <form
@@ -1355,11 +1355,11 @@ export default function AdminDashboardPage() {
                   value={customerSearch}
                   onChange={(e) => setCustomerSearch(e.target.value)}
                   placeholder="Search customer..."
-                  className="px-3.5 py-1.5 border border-[var(--input-border)] rounded-xl bg-[var(--input-bg)] text-xs font-bold text-[var(--foreground)] outline-none w-full sm:w-48 focus:ring-2 focus:ring-[var(--brand-accent)]"
+                  className="px-3.5 py-1.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full sm:w-48 focus:ring-2 focus:ring-accent"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-[var(--button-bg)] text-[var(--button-text)] hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                  className="px-4 py-1.5 bg-primary text-secondary hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
                 >
                   Search
                 </button>
@@ -1381,18 +1381,18 @@ export default function AdminDashboardPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-[var(--card-border)] text-[10px] font-black uppercase tracking-wider opacity-60">
+                    <tr className="border-b border-foreground/10 text-[10px] font-black uppercase tracking-wider opacity-60">
                       <th className="py-3 px-2">Customer Name</th>
                       <th className="py-3 px-2">Phone</th>
                       <th className="py-3 px-2">Membership</th>
                       <th className="py-3 px-2 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[var(--card-border)] text-xs font-bold">
+                  <tbody className="divide-y divide-foreground/10 text-xs font-bold">
                     {filteredCustomers.map((cust) => (
                       <tr
                         key={cust.id}
-                        className="hover:bg-[var(--input-bg)] transition-colors"
+                        className="hover:bg-primary/5 dark:hover:bg-primary/30 transition-colors"
                       >
                         <td className="py-3.5 px-2 font-black">
                           {cust.customer_name || `Customer #${cust.id}`}
@@ -1408,7 +1408,7 @@ export default function AdminDashboardPage() {
                         <td className="py-3.5 px-2 text-right">
                           <button
                             onClick={() => handleViewCustomerHistory(cust.id)}
-                            className="px-3.5 py-1.5 bg-[var(--button-bg)] text-[var(--button-text)] hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors shadow-sm"
+                            className="px-3.5 py-1.5 bg-primary text-secondary hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors shadow-sm"
                           >
                             View Order History
                           </button>
@@ -1429,8 +1429,8 @@ export default function AdminDashboardPage() {
         {/* Customer Order History Modal */}
         {customerHistoryModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-            <div className="bg-[var(--card-bg)] text-[var(--foreground)] rounded-3xl p-8 max-w-2xl w-full shadow-2xl border border-[var(--card-border)] relative max-h-[80vh] overflow-y-auto">
-              <div className="flex justify-between items-center pb-4 border-b border-[var(--card-border)] mb-6">
+            <div className="bg-secondary text-foreground rounded-3xl p-8 max-w-2xl w-full shadow-2xl border border-foreground/10 relative max-h-[80vh] overflow-y-auto">
+              <div className="flex justify-between items-center pb-4 border-b border-foreground/10 mb-6">
                 <div>
                   <h3 className="text-lg font-black uppercase tracking-tight">
                     Order History - Customer #{customerHistoryModal.customerId}
@@ -1441,7 +1441,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <button
                   onClick={() => setCustomerHistoryModal(null)}
-                  className="text-xs font-bold bg-[var(--input-bg)] hover:bg-[var(--button-bg)] hover:text-[var(--button-text)] px-3 py-1.5 rounded-xl transition-colors uppercase"
+                  className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-primary hover:text-secondary px-3 py-1.5 rounded-xl transition-colors uppercase"
                 >
                   Close ✕
                 </button>
@@ -1452,7 +1452,7 @@ export default function AdminDashboardPage() {
                   {customerHistoryModal.orders.map((ord) => (
                     <div
                       key={ord.id}
-                      className="p-4 rounded-2xl bg-[var(--input-bg)] border border-[var(--card-border)] space-y-2 text-xs"
+                      className="p-4 rounded-2xl bg-primary/5 dark:bg-primary/30 border border-foreground/10 space-y-2 text-xs"
                     >
                       <div className="flex justify-between items-center font-bold">
                         <span className="font-black text-sm">Order #{ord.id}</span>
@@ -1473,7 +1473,7 @@ export default function AdminDashboardPage() {
                       </p>
                       
                       {ord.items && ord.items.length > 0 && (
-                        <div className="mt-2 pt-2 border-t border-[var(--card-border)] space-y-1">
+                        <div className="mt-2 pt-2 border-t border-foreground/10 space-y-1">
                           <p className="text-[10px] font-black uppercase opacity-60">Items:</p>
                           {ord.items.map((it) => (
                             <div key={it.id} className="flex justify-between text-[11px]">

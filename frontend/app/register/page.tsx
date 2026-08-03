@@ -119,7 +119,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans flex items-center justify-center px-4 py-16 transition-colors duration-300">
+    <div className="min-h-screen bg-background text-foreground font-sans flex items-center justify-center px-4 py-16 transition-colors duration-300">
       <div className="w-full max-w-lg bg-secondary text-foreground rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-foreground/10 relative overflow-hidden transition-colors duration-300">
         {/* Header */}
         <div className="text-center mb-8">

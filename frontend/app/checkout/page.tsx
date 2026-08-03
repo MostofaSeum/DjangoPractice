@@ -127,7 +127,7 @@ export default function CheckoutPage() {
 
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex items-center justify-center p-8 font-bold text-xs uppercase tracking-widest transition-colors duration-300">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-8 font-bold text-xs uppercase tracking-widest transition-colors duration-300">
         Loading Checkout...
       </div>
     );
@@ -135,7 +135,7 @@ export default function CheckoutPage() {
 
   if (isCartEmpty) {
     return (
-      <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex flex-col items-center justify-center p-8 text-center transition-colors duration-300">
+      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-8 text-center transition-colors duration-300">
         <h2 className="text-2xl font-black uppercase tracking-tight mb-4">
           Your Cart is Empty
         </h2>
@@ -153,9 +153,9 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans antialiased pb-24 transition-colors duration-300">
+    <div className="min-h-screen bg-background text-foreground font-sans antialiased pb-24 transition-colors duration-300">
       {/* Breadcrumb */}
-      <div className="bg-primary text-[var(--background)] dark:text-foreground border-b border-foreground/10 py-4 transition-colors duration-300">
+      <div className="bg-primary text-background dark:text-foreground border-b border-foreground/10 py-4 transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2 font-bold uppercase tracking-wider opacity-90">
           <Link href="/" className="hover:underline">
             Home

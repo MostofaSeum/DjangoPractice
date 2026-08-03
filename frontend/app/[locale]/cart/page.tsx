@@ -36,7 +36,7 @@ export default function CartPage() {
   const isCartEmpty = !cart || cart.items.length === 0;
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans transition-colors duration-300">
+    <div className="min-h-screen bg-background text-foreground font-sans transition-colors duration-300">
       {/* Main Content */}
       <main className="max-w-[1400px] mx-auto px-4 md:px-12 py-16">
         {isCartEmpty ? (
