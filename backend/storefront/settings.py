@@ -13,6 +13,7 @@ from django.conf.global_settings import EMAIL_BACKEND
 import os
 from pathlib import Path
 from datetime import timedelta
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -254,3 +255,10 @@ CORS_ALLOW_HEADERS = [
 
 
 CELERY_BROKER_URL = 'redis://localhost:6379/1'
+CELERY_BEAT_SCHEDULE = {
+    'notify customers':{
+        'task': 'playground.task.notify_customers',
+        'schedule': 5,
+        'args': ['Hello from Celery Beat'],
+    }
+}
