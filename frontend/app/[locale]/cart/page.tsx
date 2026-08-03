@@ -16,7 +16,7 @@ export default function CartPage() {
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#cc5555",
-      cancelButtonColor: "#3a3532",
+      cancelButtonColor: "var(--primary)",
       confirmButtonText: "Yes, Remove",
     });
 

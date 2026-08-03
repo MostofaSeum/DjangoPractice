@@ -101,7 +101,7 @@ export default function CheckoutPage() {
           icon: "success",
           title: "Order Placed Successfully!",
           text: `Your Order #${orderData.id} has been received. Thank you for shopping with VibeMart!`,
-          confirmButtonColor: "var(--button-bg)",
+          confirmButtonColor: "var(--primary)",
         });
 
         router.push("/profile");

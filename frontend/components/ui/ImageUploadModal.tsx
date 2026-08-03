@@ -96,7 +96,7 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#cc5555',
-      cancelButtonColor: '#3a3532',
+      cancelButtonColor: 'var(--primary)',
       confirmButtonText: 'Yes, delete it!'
     });
 
