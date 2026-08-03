@@ -1,3 +1,4 @@
+import Link from "next/link";
 import ProductImage from "@/components/ui/ProductImage";
 import AddToCartButton from "./AddToCartButton";
 import { Product } from "@/types";
@@ -10,7 +11,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="bg-secondary text-foreground rounded-3xl p-5 shadow-sm border border-foreground/10 hover:border-accent/40 hover:shadow-md transition-all flex flex-col justify-between group">
       <div>
-        <div className="relative w-full aspect-square rounded-2xl overflow-hidden mb-4 bg-primary/5 dark:bg-primary/40">
+        <div className="relative w-full aspect-square rounded-2xl overflow-hidden mb-4 bg-secondary border border-foreground/10">
           <ProductImage title={product.title} images={product.images} />
         </div>
         <h3 className="font-bold text-base text-foreground line-clamp-1">{product.title}</h3>
@@ -22,7 +23,22 @@ export default function ProductCard({ product }: ProductCardProps) {
           <span className="text-xs font-semibold uppercase tracking-wider opacity-60">Price</span>
           <span className="text-lg font-black text-foreground">${Number(product.unit_price).toFixed(2)}</span>
         </div>
-        <AddToCartButton productId={product.id} productTitle={product.title} inventory={product.inventory} />
+        <div className="flex gap-2.5 items-center">
+          <Link
+            href={`/products/${product.id}`}
+            className="flex-1 py-3 px-2 border border-foreground/30 text-foreground rounded-2xl font-bold text-[10px] sm:text-xs uppercase tracking-wider hover:bg-primary/5 transition-colors flex items-center justify-center text-center truncate"
+          >
+            View Details
+          </Link>
+          <div className="flex-1">
+            <AddToCartButton
+              productId={product.id}
+              productTitle={product.title}
+              inventory={product.inventory}
+              className="w-full py-3 px-2 bg-primary text-secondary rounded-2xl font-bold text-[10px] sm:text-xs uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1.5 shadow-sm truncate"
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

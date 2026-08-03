@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import ProductImage from '@/components/ui/ProductImage';
+import AddToCartButton from '@/features/products/components/AddToCartButton';
 
 interface Product {
   id: number;
@@ -10,6 +11,7 @@ interface Product {
   inventory: number;
   unit_price: string;
   price_with_tax: number;
+  images?: Array<{ id?: number; image: string }>;
 }
 
 interface Collection {
@@ -22,10 +24,6 @@ interface Collection {
 interface PageProps {
   params: Promise<{ id: string }>;
 }
-
-const CartIcon = () => (
-  <Image src="/shopping-cart-white-icon.webp" width={23} height={23} alt="Cart" />
-);
 
 export default async function CollectionDetailPage({ params }: PageProps) {
   const { id } = await params;
@@ -52,13 +50,13 @@ export default async function CollectionDetailPage({ params }: PageProps) {
     <div className="min-h-screen bg-background text-foreground font-sans antialiased pb-24 transition-colors duration-300">
 
       {/* Breadcrumbs */} 
-      <div className="bg-primary text-background dark:text-foreground border-b border-foreground/10 py-4 transition-colors duration-300">
-        <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2 font-bold uppercase tracking-wider opacity-90">
-          <Link href="/" className="hover:underline">Home</Link>
-          <span>/</span>
-          <Link href="/collections" className="hover:underline">Collections</Link>
-          <span>/</span>
-          <span>{collection.title}</span>
+      <div className="bg-primary text-background border-b border-white/5 py-4 transition-colors duration-300">
+        <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2.5 font-bold uppercase tracking-wider">
+          <Link href="/" className="text-background hover:underline">Home</Link>
+          <span className="text-background/50">/</span>
+          <Link href="/collections" className="text-background hover:underline">Collections</Link>
+          <span className="text-background/50">/</span>
+          <span className="text-background/60">{collection.title}</span>
         </div>
       </div>
 
@@ -72,25 +70,35 @@ export default async function CollectionDetailPage({ params }: PageProps) {
         {collection.products && collection.products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {collection.products.map((product) => (
-              <div key={product.id} className="bg-secondary text-foreground rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between">
+              <div key={product.id} className="bg-secondary text-foreground rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl transition-shadow duration-300 group flex flex-col justify-between">
                 <div>
-                  <div className="aspect-square bg-primary/5 dark:bg-primary/40 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                    <ProductImage title={product.title} />
+                  <div className="aspect-square bg-secondary rounded-xl mb-6 flex items-center justify-center overflow-hidden relative border border-foreground/10">
+                    <ProductImage title={product.title} images={product.images} />
                   </div>
                   <h3 className="font-bold text-lg text-foreground mb-1 line-clamp-1">{product.title}</h3>
                   <p className="opacity-70 text-xs line-clamp-2 mb-4 leading-relaxed">{product.description || 'No description available'}</p>
                 </div>
                 <div>
-                  <div className="flex justify-between items-center mb-6">
+                  <div className="flex justify-between items-center mb-5 pt-3 border-t border-foreground/10">
                     <span className="text-accent font-extrabold text-lg">${Number(product.unit_price).toFixed(2)}</span>
                     <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Qty: {product.inventory}</span>
                   </div>
-                  <Link 
-                    href={`/products/${product.id}`}
-                    className="w-full py-3 border border-current rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-primary hover:text-secondary transition-colors flex items-center justify-center gap-2"
-                  >
-                    <CartIcon /> View Details
-                  </Link>
+                  <div className="flex gap-2.5 items-center">
+                    <Link 
+                      href={`/products/${product.id}`}
+                      className="flex-1 py-3 px-2 border border-foreground/30 text-foreground rounded-2xl font-bold text-[10px] sm:text-xs uppercase tracking-wider hover:bg-primary/5 transition-colors flex items-center justify-center text-center truncate"
+                    >
+                      View Details
+                    </Link>
+                    <div className="flex-1">
+                      <AddToCartButton
+                        productId={product.id}
+                        productTitle={product.title}
+                        inventory={product.inventory}
+                        className="w-full py-3 px-2 bg-primary text-secondary rounded-2xl font-bold text-[10px] sm:text-xs uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1.5 shadow-sm truncate"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}

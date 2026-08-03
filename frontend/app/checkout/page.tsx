@@ -155,17 +155,17 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-background text-foreground font-sans antialiased pb-24 transition-colors duration-300">
       {/* Breadcrumb */}
-      <div className="bg-primary text-background dark:text-foreground border-b border-foreground/10 py-4 transition-colors duration-300">
-        <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2 font-bold uppercase tracking-wider opacity-90">
-          <Link href="/" className="hover:underline">
+      <div className="bg-primary text-background border-b border-white/5 py-4 transition-colors duration-300">
+        <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2.5 font-bold uppercase tracking-wider">
+          <Link href="/" className="text-background hover:underline">
             Home
           </Link>
-          <span>/</span>
-          <Link href="/cart" className="hover:underline">
+          <span className="text-background/50">/</span>
+          <Link href="/cart" className="text-background hover:underline">
             Cart
           </Link>
-          <span>/</span>
-          <span className="opacity-60">Checkout</span>
+          <span className="text-background/50">/</span>
+          <span className="text-background/60">Checkout</span>
         </div>
       </div>
 
@@ -197,7 +197,7 @@ export default function CheckoutPage() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="e.g. 01700000000"
-                    className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+                    className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
                   />
                 </div>
 
@@ -211,7 +211,7 @@ export default function CheckoutPage() {
                     value={shippingAddress}
                     onChange={(e) => setShippingAddress(e.target.value)}
                     placeholder="e.g. House 12, Road 5, Block B, Dhanmondi, Dhaka"
-                    className="px-4 py-3 border border-foreground/15 rounded-2xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+                    className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
                   />
                 </div>
               </div>
@@ -232,7 +232,7 @@ export default function CheckoutPage() {
                   onClick={() => setPaymentMethod("C")}
                   className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
                     paymentMethod === "C"
-                      ? "border-foreground bg-primary/5 dark:bg-primary/30"
+                      ? "border-accent bg-accent/10 shadow-sm"
                       : "border-foreground/10 bg-secondary hover:border-foreground/50"
                   }`}
                 >
@@ -245,7 +245,7 @@ export default function CheckoutPage() {
                       name="payment_method"
                       checked={paymentMethod === "C"}
                       onChange={() => setPaymentMethod("C")}
-                      className="w-4 h-4 accent-foreground"
+                      className="w-4 h-4 accent-accent"
                     />
                   </div>
                   <p className="text-xs opacity-70 font-medium">
@@ -258,7 +258,7 @@ export default function CheckoutPage() {
                   onClick={() => setPaymentMethod("O")}
                   className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
                     paymentMethod === "O"
-                      ? "border-[#e2136e] bg-[#e2136e]/10"
+                      ? "border-[#e2136e] bg-[#e2136e]/10 shadow-sm"
                       : "border-foreground/10 bg-secondary hover:border-[#e2136e]/50"
                   }`}
                 >
@@ -303,7 +303,7 @@ export default function CheckoutPage() {
                       value={transactionId}
                       onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
                       placeholder="e.g. 9B7X2K1L8M"
-                      className="px-4 py-3 border border-[#e2136e]/40 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground uppercase outline-none focus:ring-2 focus:ring-[#e2136e]"
+                      className="px-4 py-3 border border-[#e2136e]/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-[#e2136e] shadow-sm"
                     />
                     {!transactionId.trim() && (
                       <p className="text-[10px] text-red-500 font-bold uppercase">

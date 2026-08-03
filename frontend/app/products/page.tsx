@@ -58,13 +58,13 @@ export default async function ProductsPage({
     <div className="min-h-screen bg-background text-foreground font-sans antialiased pb-24 transition-colors duration-300">
 
       {/* Breadcrumbs */}
-      <div className="bg-primary text-background dark:text-foreground border-b border-foreground/10 py-4 transition-colors duration-300">
-        <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2 font-bold uppercase tracking-wider opacity-90">
-          <Link href="/" className="hover:underline">
+      <div className="bg-primary text-background border-b border-white/5 py-4 transition-colors duration-300">
+        <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2.5 font-bold uppercase tracking-wider">
+          <Link href="/" className="text-background hover:underline">
             Home
           </Link>
-          <span>/</span>
-          <span>Shop</span>
+          <span className="text-background/50">/</span>
+          <span className="text-background/60">Shop</span>
         </div>
       </div>
 

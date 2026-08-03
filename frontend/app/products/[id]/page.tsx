@@ -91,26 +91,26 @@ export default async function ProductDetailPage({ params }: PageProps) {
     <div className="min-h-screen bg-background text-foreground font-sans antialiased pb-24 transition-colors duration-300">
 
       {/* Breadcrumbs */}
-      <div className="bg-primary text-background dark:text-foreground border-b border-foreground/10 py-4 transition-colors duration-300">
-        <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2 font-bold uppercase tracking-wider opacity-90">
-          <Link href="/" className="hover:underline">
+      <div className="bg-primary text-background border-b border-white/5 py-4 transition-colors duration-300">
+        <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2.5 font-bold uppercase tracking-wider">
+          <Link href="/" className="text-background hover:underline">
             Home
           </Link>
-          <span>/</span>
-          <Link href="/products" className="hover:underline">
+          <span className="text-background/50">/</span>
+          <Link href="/products" className="text-background hover:underline">
             Shop
           </Link>
-          <span>/</span>
+          <span className="text-background/50">/</span>
           <span>
             <Link
               href={`/collections/${collectionId}`}
-              className="py-2 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:underline transition-colors"
+              className="text-background hover:underline transition-colors"
             >
               {collectionTitle}
             </Link>
           </span>
-          <span>/</span>
-          <span className="text-accent font-bold truncate max-w-[200px] sm:max-w-none">
+          <span className="text-background/50">/</span>
+          <span className="text-background/60 font-bold truncate max-w-[200px] sm:max-w-none">
             {product.title}
           </span>
         </div>
