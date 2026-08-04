@@ -829,7 +829,7 @@ export default function AdminDashboardPage() {
 
                 <button
                   type="submit"
-                  className="w-full mt-2 py-3 bg-primary text-secondary rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md"
+                  className="w-full mt-2 py-3 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md"
                 >
                   {editingProductId ? "Update Product" : "Create Product"}
                 </button>
@@ -866,7 +866,7 @@ export default function AdminDashboardPage() {
                   />
                   <button
                     type="submit"
-                    className="px-4 py-1.5 bg-primary text-secondary hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                    className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
                   >
                     Search
                   </button>
@@ -943,7 +943,7 @@ export default function AdminDashboardPage() {
                   <button
                     onClick={() => setProdPage((prev) => Math.max(prev - 1, 1))}
                     disabled={prodPage === 1}
-                    className="px-5 py-2.5 border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-secondary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="px-5 py-2.5 border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-button-bg hover:text-button-fg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
                     Previous
                   </button>
@@ -959,7 +959,7 @@ export default function AdminDashboardPage() {
                       )
                     }
                     disabled={prodPage >= Math.ceil(totalProductsCount / 9)}
-                    className="px-5 py-2.5 border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-primary hover:text-secondary disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="px-5 py-2.5 border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-button-bg hover:text-button-fg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                   >
                     Next
                   </button>
@@ -1020,7 +1020,7 @@ export default function AdminDashboardPage() {
                         setCollectionImagePreview(URL.createObjectURL(file));
                       }
                     }}
-                    className="block w-full text-xs text-foreground file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-primary file:text-secondary hover:file:opacity-90 cursor-pointer"
+                    className="block w-full text-xs text-foreground file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-button-bg file:text-button-fg hover:file:opacity-90 cursor-pointer"
                   />
                   {collectionImagePreview && (
                     <div className="mt-3 flex justify-center w-full">
@@ -1045,7 +1045,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3 bg-primary text-secondary rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md"
+                  className="w-full py-3 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md"
                 >
                   {editingCollectionId ? "Update Collection" : "Save Collection"}
                 </button>
@@ -1074,7 +1074,7 @@ export default function AdminDashboardPage() {
                   />
                   <button
                     type="submit"
-                    className="px-4 py-1.5 bg-primary text-secondary hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                    className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
                   >
                     Search
                   </button>
@@ -1157,7 +1157,7 @@ export default function AdminDashboardPage() {
                 />
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-primary text-secondary hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                  className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
                 >
                   Search
                 </button>
@@ -1227,7 +1227,7 @@ export default function AdminDashboardPage() {
                           <td className="py-3.5 px-2 text-right flex justify-end gap-2">
                             <button
                               onClick={() => setSelectedOrderDetails(order)}
-                              className="px-3 py-1.5 bg-primary text-secondary hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                              className="px-3 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
                             >
                               View Details
                             </button>
@@ -1267,7 +1267,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <button
                   onClick={() => setSelectedOrderDetails(null)}
-                  className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-primary hover:text-secondary px-3 py-1.5 rounded-xl transition-colors uppercase"
+                  className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3 py-1.5 rounded-xl transition-colors uppercase"
                 >
                   Close ✕
                 </button>
@@ -1359,7 +1359,7 @@ export default function AdminDashboardPage() {
                 />
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-primary text-secondary hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                  className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
                 >
                   Search
                 </button>
@@ -1408,7 +1408,7 @@ export default function AdminDashboardPage() {
                         <td className="py-3.5 px-2 text-right">
                           <button
                             onClick={() => handleViewCustomerHistory(cust.id)}
-                            className="px-3.5 py-1.5 bg-primary text-secondary hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors shadow-sm"
+                            className="px-3.5 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors shadow-sm"
                           >
                             View Order History
                           </button>
@@ -1441,7 +1441,7 @@ export default function AdminDashboardPage() {
                 </div>
                 <button
                   onClick={() => setCustomerHistoryModal(null)}
-                  className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-primary hover:text-secondary px-3 py-1.5 rounded-xl transition-colors uppercase"
+                  className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3 py-1.5 rounded-xl transition-colors uppercase"
                 >
                   Close ✕
                 </button>
