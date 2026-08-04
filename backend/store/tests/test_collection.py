@@ -1,6 +1,7 @@
 import pytest
 from rest_framework import status
 from django.contrib.auth.models import User
+from store.models import Collection
 
 @pytest.fixture
 def create_collection(api_client):
@@ -20,7 +21,7 @@ class TestCreateCollection:
         authenticate()
 
         response = create_collection({'title': 'a'})
-        
+
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
     def test_if_data_is_invalid_returns_400(self, api_client,create_collection,authenticate):
@@ -34,4 +35,11 @@ class TestCreateCollection:
         response = create_collection({'title': 'a'})
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data['id'] > 0
-    
+
+
+class TestRetriveCollcetion:
+    @pytest.mark.django_db
+    def test_if_collection_exist_return_200(self, api_client):
+        collection = Collection.objects.create(title = 'a')
+        response = api_client.get(f'/store/collections/{collection.id}')
+        assert response.status_code == status.HTTP_200_OK
