@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import { useCart } from "@/hooks/useCart";
 import { useRouter, useSearchParams } from "next/navigation";
 import Swal from "sweetalert2";
 
@@ -13,6 +14,7 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
 
   const { user, token, loading: authLoading, login } = useAuth();
+  const { syncCart } = useCart();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -20,13 +22,8 @@ function LoginForm() {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (authLoading) return;
-    if (token) {
-      if (user?.is_staff) {
-        router.push("/admin");
-      } else {
-        router.push(redirectUrl);
-      }
+    if (!authLoading && (token || user)) {
+      router.replace(redirectUrl);
     }
   }, [token, user, authLoading, router, redirectUrl]);
 
@@ -42,6 +39,7 @@ function LoginForm() {
     try {
       const loggedInUser = await login(username, password);
       if (loggedInUser) {
+        await syncCart();
         Swal.fire({
           position: "top-end",
           icon: "success",

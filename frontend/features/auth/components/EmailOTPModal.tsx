@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { siteConfig } from "@/config/siteConfig";
+import { useCart } from "@/hooks/useCart";
+import { useRouter } from "next/navigation";
 
 interface EmailOTPModalProps {
   isOpen: boolean;
@@ -20,6 +22,8 @@ export default function EmailOTPModal({
   initialStep = 1,
   extraPayload = {},
 }: EmailOTPModalProps) {
+  const { syncCart } = useCart();
+  const router = useRouter();
   const [email, setEmail] = useState(initialEmail);
   const [otpCode, setOtpCode] = useState("");
   const [step, setStep] = useState<1 | 2>(initialStep);
@@ -108,11 +112,14 @@ export default function EmailOTPModal({
           if (data.refresh) localStorage.setItem("refresh_token", data.refresh);
         }
 
+        await syncCart(data.access);
+
         if (onSuccess) {
           onSuccess();
           onClose();
         } else {
-          window.location.href = "/";
+          onClose();
+          router.push("/");
         }
       } else {
         throw new Error(data.error || "Invalid or expired verification code.");
