@@ -132,7 +132,7 @@ export default async function Home() {
           </div>
 
           {/* Top Right Bento Item (Discover the Vibe) */}
-          <div className="md:col-span-2 md:row-span-1 bg-primary rounded-[2rem] p-8 md:p-10 text-background relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500 min-h-[220px] md:min-h-0">
+          <div className="md:col-span-2 md:row-span-1 bg-primary rounded-[2rem] p-8 md:p-10 relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500 min-h-[220px] md:min-h-0">
             <Image
               src="/HomePage/Fashion.jpg"
               alt="Discover"
@@ -141,17 +141,17 @@ export default async function Home() {
               unoptimized
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent pointer-events-none"></div>
-            <h2 className="text-3xl md:text-4xl font-black mb-3 uppercase tracking-tight relative z-10 text-background">
+            <h2 className="text-3xl md:text-4xl font-black mb-3 uppercase tracking-tight relative z-10 text-background dark:text-foreground">
               Discover the Vibe
             </h2>
-            <p className="text-sm font-semibold opacity-95 mb-8 leading-relaxed relative z-10 max-w-md text-background">
+            <p className="text-sm font-semibold opacity-95 mb-8 leading-relaxed relative z-10 max-w-md text-background dark:text-foreground">
               Collect exclusive pieces and immerse yourself in the next wave of
               streetwear.
             </p>
             <div className="flex gap-4 relative z-10">
               <Link
                 href="/products"
-                className="bg-accent text-white px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:opacity-90 transition-all hover:-translate-y-0.5 duration-300 inline-flex justify-center items-center shadow-lg"
+                className="bg-background text-primary dark:bg-accent dark:text-foreground px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:opacity-90 transition-all hover:-translate-y-0.5 duration-300 inline-flex justify-center items-center shadow-lg"
               >
                 View Exclusives
               </Link>

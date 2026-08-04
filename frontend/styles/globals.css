@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
 
 :root {
   /* Light Theme */
@@ -17,7 +18,7 @@ html[data-theme="dark"],
 .dark {
   /* Dark Theme */
   --logo-color: #f3efe6;
-  --background: #181716;
+  --background: #5b5046;
   --foreground: #f3efe6;
   --primary: #11100f;
   --secondary: #262422;
@@ -38,9 +39,9 @@ html[data-theme="dark"],
 
 html,
 body {
-  background-color: var(--background) !important;
-  color: var(--foreground) !important;
-  font-family: var(--font-sans) !important;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
