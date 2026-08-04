@@ -2,18 +2,21 @@
 
 :root {
   /* Light Theme */
+  --logo-color: #f3efe6;
   --background: #e6e0d4;
   --foreground: #3a3532;
   --primary: #3a3532;
   --secondary: #ffffff;
   --accent: #8b7a66;
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans:
+    var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
 html[data-theme="dark"],
 .dark {
   /* Dark Theme */
+  --logo-color: #f3efe6;
   --background: #181716;
   --foreground: #f3efe6;
   --primary: #11100f;
@@ -22,12 +25,14 @@ html[data-theme="dark"],
 }
 
 @theme {
+  --color-logo: var(--logo-color);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
   --color-accent: var(--accent);
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans:
+    var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
@@ -40,4 +45,3 @@ body {
     background-color 0.3s ease,
     color 0.3s ease;
 }
-
