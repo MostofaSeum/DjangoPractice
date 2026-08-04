@@ -50,13 +50,13 @@ export default async function CollectionDetailPage({ params }: PageProps) {
     <div className="min-h-screen bg-background text-foreground font-sans antialiased pb-24 transition-colors duration-300">
 
       {/* Breadcrumbs */} 
-      <div className="bg-primary text-background border-b border-white/5 py-4 transition-colors duration-300">
+      <div className="bg-primary text-background dark:text-foreground border-b border-white/5 py-4 transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2.5 font-bold uppercase tracking-wider">
-          <Link href="/" className="text-background hover:underline">Home</Link>
-          <span className="text-background/50">/</span>
-          <Link href="/collections" className="text-background hover:underline">Collections</Link>
-          <span className="text-background/50">/</span>
-          <span className="text-background/60">{collection.title}</span>
+          <Link href="/" className="hover:underline">Home</Link>
+          <span className="opacity-50">/</span>
+          <Link href="/collections" className="hover:underline">Collections</Link>
+          <span className="opacity-50">/</span>
+          <span className="opacity-80">{collection.title}</span>
         </div>
       </div>
 

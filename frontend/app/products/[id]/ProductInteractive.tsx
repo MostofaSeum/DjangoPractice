@@ -84,7 +84,7 @@ export default function ProductInteractive({
       <button
         onClick={handleAddToCart}
         disabled={loading}
-        className="px-8 py-3 bg-primary text-secondary hover:opacity-90 font-bold rounded-xl text-sm tracking-widest uppercase transition-colors shadow-md disabled:opacity-50"
+        className="px-8 py-3 bg-button-bg text-button-fg hover:opacity-90 font-bold rounded-xl text-sm tracking-widest uppercase transition-colors shadow-md disabled:opacity-50"
       >
         {loading ? "Adding..." : "Add to Cart"}
       </button>
