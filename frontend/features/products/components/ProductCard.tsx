@@ -30,7 +30,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="grid grid-cols-2 gap-2">
           <Link
             href={`/products/${product.id}`}
-            className="py-2.5 px-2 border border-current text-foreground rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-primary hover:text-secondary transition-colors flex items-center justify-center text-center"
+            className="py-2.5 px-2 border border-current text-foreground rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-button-bg hover:text-button-fg transition-colors flex items-center justify-center text-center"
           >
             View Details
           </Link>
@@ -38,7 +38,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             productId={product.id}
             productTitle={product.title}
             inventory={product.inventory}
-            className="py-2.5 px-2 bg-primary text-secondary rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center"
+            className="py-2.5 px-2 bg-button-bg text-button-fg rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center"
           />
         </div>
       </div>

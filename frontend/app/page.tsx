@@ -124,7 +124,7 @@ export default async function Home() {
             <div className="flex gap-4 z-10">
               <Link
                 href="/collections"
-                className="bg-primary text-secondary px-6 py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2 duration-300"
+                className="bg-button-bg text-button-fg px-6 py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2 duration-300"
               >
                 Explore Collection
               </Link>
@@ -385,6 +385,7 @@ export default async function Home() {
                       productId={product.id}
                       productTitle={product.title}
                       inventory={product.inventory}
+                      className="w-full py-3 bg-button-bg text-button-fg rounded-xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center gap-2"
                     />
                   </div>
                 </div>
@@ -477,7 +478,7 @@ export default async function Home() {
             placeholder="ENTER YOUR EMAIL"
             className="flex-1 bg-secondary border border-foreground/15 rounded-2xl px-6 py-4 text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
           />
-          <button className="bg-primary text-secondary px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-0.5 duration-300">
+          <button className="bg-button-bg text-button-fg px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-0.5 duration-300">
             Subscribe
           </button>
         </div>

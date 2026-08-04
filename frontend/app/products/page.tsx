@@ -120,7 +120,7 @@ export default async function ProductsPage({
                 <div className="flex flex-col gap-2 pt-2">
                   <button
                     type="submit"
-                    className="w-full py-2.5 bg-primary text-secondary rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors"
+                    className="w-full py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors"
                   >
                     Apply Price
                   </button>
@@ -168,7 +168,7 @@ export default async function ProductsPage({
 
                 <button
                   type="submit"
-                  className="w-full py-2.5 bg-primary text-secondary rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors pt-2"
+                  className="w-full py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors pt-2"
                 >
                   Apply Ordering
                 </button>
@@ -214,7 +214,7 @@ export default async function ProductsPage({
               />
               <button
                 type="submit"
-                className="px-6 py-3 bg-primary text-secondary rounded-2xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors"
+                className="px-6 py-3 bg-button-bg text-button-fg rounded-2xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors"
               >
                 Search
               </button>
@@ -245,7 +245,7 @@ export default async function ProductsPage({
                       <div className="grid grid-cols-2 gap-2">
                         <Link
                           href={`/products/${product.id}`}
-                          className="py-2.5 px-2 border border-current text-foreground rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-primary hover:text-secondary transition-colors flex items-center justify-center text-center"
+                          className="py-2.5 px-2 border border-current text-foreground rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-button-bg hover:text-button-fg transition-colors flex items-center justify-center text-center"
                         >
                           View Details
                         </Link>
@@ -253,7 +253,7 @@ export default async function ProductsPage({
                           productId={product.id}
                           productTitle={product.title}
                           inventory={product.inventory ?? 999}
-                          className="py-2.5 px-2 bg-primary text-secondary rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center"
+                          className="py-2.5 px-2 bg-button-bg text-button-fg rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center"
                         />
                       </div>
                     </div>
