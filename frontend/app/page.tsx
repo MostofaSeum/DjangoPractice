@@ -185,6 +185,7 @@ export default async function Home() {
               fill
               className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
             />
+            <div className="absolute inset-0 bg-black/5 dark:bg-black/25 pointer-events-none transition-colors duration-500"></div>
           </div>
 
           {/* Bottom Row Item 1 (Fast Delivery) */}

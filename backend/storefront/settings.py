@@ -71,6 +71,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.common.CommonMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -81,9 +82,7 @@ MIDDLEWARE = [
 ]
 
 INTERNAL_IPS = [
-    # ...
     '127.0.0.1',
-    # ...
 ]
 ROOT_URLCONF = 'storefront.urls'
 
