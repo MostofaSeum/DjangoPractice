@@ -180,7 +180,7 @@ export default function CheckoutPage() {
             {/* Contact & Address Section */}
             <div className="bg-secondary text-foreground rounded-3xl p-8 border border-foreground/10 shadow-sm space-y-6 transition-colors duration-300">
               <h2 className="text-xl font-black uppercase tracking-tight pb-3 border-b border-foreground/10 flex items-center gap-3">
-                <span className="w-8 h-8 rounded-full bg-primary text-secondary flex items-center justify-center text-xs">
+                <span className="w-8 h-8 rounded-full bg-button-bg text-button-fg font-black flex items-center justify-center text-xs">
                   1
                 </span>
                 Shipping Information
@@ -220,7 +220,7 @@ export default function CheckoutPage() {
             {/* Payment Method Section */}
             <div className="bg-secondary text-foreground rounded-3xl p-8 border border-foreground/10 shadow-sm space-y-6 transition-colors duration-300">
               <h2 className="text-xl font-black uppercase tracking-tight pb-3 border-b border-foreground/10 flex items-center gap-3">
-                <span className="w-8 h-8 rounded-full bg-primary text-secondary flex items-center justify-center text-xs">
+                <span className="w-8 h-8 rounded-full bg-button-bg text-button-fg font-black flex items-center justify-center text-xs">
                   2
                 </span>
                 Payment Options
@@ -358,8 +358,8 @@ export default function CheckoutPage() {
 
             <button
               type="submit"
-              disabled={!isOrderValid || submitting}
-              className="w-full py-4 bg-primary text-secondary rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              disabled={loading || !isOrderValid}
+              className="w-full py-4 bg-button-bg text-button-fg rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {submitting ? "Processing Order..." : "Confirm & Place Order"}
             </button>

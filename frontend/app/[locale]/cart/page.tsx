@@ -174,7 +174,7 @@ export default function CartPage() {
 
               <Link
                 href="/checkout"
-                className="w-full bg-primary text-secondary py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2 text-center"
+                className="w-full bg-button-bg text-button-fg py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2 text-center"
               >
                 Proceed to Checkout
               </Link>

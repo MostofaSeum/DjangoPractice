@@ -260,7 +260,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full mt-4 py-4 bg-primary text-secondary rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center"
+                className="w-full mt-4 py-4 bg-button-bg text-button-fg rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center"
               >
                 {saving ? "Saving Changes..." : "Save Profile Changes"}
               </button>
@@ -280,7 +280,7 @@ export default function ProfilePage() {
               </div>
               <Link
                 href="/products"
-                className="px-4 py-2 border border-foreground/15 bg-background text-foreground hover:bg-primary hover:text-secondary rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                className="px-4 py-2 border border-foreground/15 bg-background text-foreground hover:bg-button-bg hover:text-button-fg rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
               >
                 Shop Now
               </Link>

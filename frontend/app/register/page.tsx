@@ -241,7 +241,7 @@ function RegisterForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-4 py-4 bg-primary text-secondary rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center"
+            className="w-full mt-4 py-4 bg-button-bg text-button-fg rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center"
           >
             {loading ? "Sending Verification..." : "Create Account"}
           </button>

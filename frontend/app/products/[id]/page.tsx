@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import ProductInteractive from "./ProductInteractive";
 import ProductGallery from "./ProductGallery";
+import AddToCartButton from "@/features/products/components/AddToCartButton";
+import ProductImage from "@/components/ui/ProductImage";
 
 interface Product {
   id: number;
@@ -203,34 +205,38 @@ export default async function ProductDetailPage({ params }: PageProps) {
               <div className="w-12 h-1 bg-accent mx-auto mt-3 rounded"></div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               {relatedProducts.map((item) => (
                 <div
                   key={item.id}
                   className="bg-secondary text-foreground rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between"
                 >
                   <div>
-                    <div className="aspect-square bg-primary/5 dark:bg-primary/40 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                      <div className="w-full h-full bg-primary/5 dark:bg-primary/40 group-hover:scale-105 transition-transform duration-500 flex items-center justify-center">
-                        <span className="opacity-40 font-black text-lg uppercase tracking-widest">
-                          {item.title.split(" ")[0]}
-                        </span>
-                      </div>
+                    <div className="aspect-square bg-primary/5 dark:bg-primary/40 rounded-xl mb-4 flex items-center justify-center overflow-hidden relative">
+                      <ProductImage title={item.title} images={item.images} />
                     </div>
-                    <h3 className="font-bold text-sm mb-1 line-clamp-1">
+                    <h3 className="font-bold text-sm text-foreground mb-1 line-clamp-1 group-hover:text-accent transition-colors">
                       {item.title}
                     </h3>
                   </div>
                   <div className="mt-4">
-                    <p className="text-accent font-bold text-sm mb-4">
+                    <p className="text-accent font-extrabold text-sm mb-4">
                       ${Number(item.unit_price).toFixed(2)}
                     </p>
-                    <Link
-                      href={`/products/${item.id}`}
-                      className="w-full py-2 border border-current rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-primary hover:text-secondary transition-colors flex items-center justify-center gap-2"
-                    >
-                       Details
-                    </Link>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Link
+                        href={`/products/${item.id}`}
+                        className="py-2.5 px-2 border border-current text-foreground rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-button-bg hover:text-button-fg transition-colors flex items-center justify-center text-center"
+                      >
+                        View Details
+                      </Link>
+                      <AddToCartButton
+                        productId={item.id}
+                        productTitle={item.title}
+                        inventory={item.inventory ?? 999}
+                        className="py-2.5 px-2 bg-button-bg text-button-fg rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center"
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
