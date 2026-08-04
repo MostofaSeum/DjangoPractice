@@ -36,10 +36,10 @@ export default function Header() {
   }
 
   return (
-    <header className="w-full z-50 py-5 px-8 md:px-12 bg-primary text-background sticky top-0 shadow-md border-b border-white/5 transition-colors duration-300">
+    <header className="w-full z-50 py-5 px-8 md:px-12 bg-primary text-logo sticky top-0 shadow-md border-b border-white/5 transition-colors duration-300">
       <div className="max-w-[1400px] mx-auto flex items-center justify-between">
         {/* Brand Logo */}
-        <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter uppercase text-background hover:opacity-90 transition-opacity">
+        <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter uppercase hover:opacity-90 transition-opacity">
           VIBEMART
         </Link>
 
@@ -53,8 +53,8 @@ export default function Header() {
                 href={link.href}
                 className={`transition-all py-1 ${
                   isActive
-                    ? "text-background border-b-2 border-background font-black"
-                    : "text-background/90 hover:text-background font-extrabold"
+                    ? "border-b-2 border-current font-black"
+                    : "opacity-90 hover:opacity-100 font-extrabold"
                 }`}
               >
                 {link.name}
@@ -73,7 +73,7 @@ export default function Header() {
             <div className="flex items-center gap-3 ml-2">
               <Link
                 href="/profile"
-                className="text-background font-bold hover:underline transition-all text-[10px]"
+                className="font-bold hover:underline transition-all text-[10px]"
               >
                 Hi, {user.first_name || user.username}
               </Link>
@@ -89,7 +89,7 @@ export default function Header() {
 
               <button
                 onClick={handleLogout}
-                className="text-background hover:bg-white/25 transition-all bg-white/15 px-4 py-2 rounded-full border border-white/30 font-bold"
+                className="hover:bg-white/25 transition-all bg-white/15 px-4 py-2 rounded-full border border-white/30 font-bold"
               >
                 Sign Out
               </button>
@@ -97,7 +97,7 @@ export default function Header() {
           ) : (
             <Link
               href={pathname && pathname !== "/" ? `/login?redirect=${encodeURIComponent(pathname)}` : "/login"}
-              className="text-background hover:bg-white/25 transition-all bg-white/15 px-4 py-2 rounded-full border border-white/30 font-bold"
+              className="hover:bg-white/25 transition-all bg-white/15 px-4 py-2 rounded-full border border-white/30 font-bold"
             >
               Sign In
             </Link>
