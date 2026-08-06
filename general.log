@@ -102,3 +102,8 @@ redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. No c
 2026-08-06 15:40:40,900 (INFO) - django.utils.autoreload - Watching for file changes with StatReloader
 2026-08-06 16:12:15,694 (INFO) - django.utils.autoreload - D:\Brainicon Technology\storefront\backend\manage.py changed, reloading.
 2026-08-06 16:12:18,022 (INFO) - django.utils.autoreload - Watching for file changes with StatReloader
+2026-08-06 17:05:13,355 (WARNING) - django.request - Unauthorized: /store/carts/sync/
+2026-08-06 17:05:13,408 (WARNING) - django.request - Unauthorized: /store/carts/sync/
+2026-08-06 17:05:13,416 (WARNING) - django.request - Unauthorized: /auth/users/me/
+2026-08-06 17:07:44,813 (INFO) - django.utils.autoreload - D:\Brainicon Technology\storefront\backend\storefront\settings\__init__.py changed, reloading.
+2026-08-06 17:07:54,406 (INFO) - django.utils.autoreload - Watching for file changes with StatReloader

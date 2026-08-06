@@ -2,16 +2,23 @@ import os
 import dj_database_url
 from .common import *
 
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-prod-key-fallback-change-in-env')
 
-DEBUG = False
+DEBUG = os.environ.get('DEBUG', 'False').lower() in ['true', '1']
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost 127.0.0.1 vibemart-n9og.onrender.com').split()
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split()
 
-# Production Database via DATABASE_URL
+# Production Database via DATABASE_URL or fallback to sqlite
 if os.environ.get('DATABASE_URL'):
     DATABASES = {
         'default': dj_database_url.config(conn_max_age=600, ssl_require=False)
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
 
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/1')
