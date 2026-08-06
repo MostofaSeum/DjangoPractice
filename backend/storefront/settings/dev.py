@@ -26,16 +26,25 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
-# Development Database (MySQL local with fallback)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'storefront2',
-        'HOST': 'localhost',
-        'USER': 'root',
-        'PASSWORD': 'Mseum017?',
+# Development Database (MySQL local with fallback to SQLite if MySQLdb driver is unavailable)
+try:
+    import MySQLdb
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'storefront2',
+            'HOST': 'localhost',
+            'USER': 'root',
+            'PASSWORD': 'Mseum017?',
+        }
     }
-}
+except Exception:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 CELERY_BROKER_URL = 'redis://localhost:6379/1'
 CELERY_BEAT_SCHEDULE = {
