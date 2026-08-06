@@ -13,7 +13,13 @@ class HelloView(APIView):
     
     @method_decorator(cache_page(60 * 15))
     def get(self, request):
-        response = requests.get("https://httpbin.org/delay/2")
-        data = response.json
-        return render(request, 'hello.html', {'name': 'Seum',})
+        try:
+            logger.info('Calling httpbin...')
+            response = requests.get("https://httpbin.org/delay/2")
+            logger.info('Received response from httpbin')
+            data = response.json()
+        except requests.ConnectionError:
+            logger.error('httpbin is offline')
+        return render(request, 'hello.html', {'name': 'Seum'})
+
     

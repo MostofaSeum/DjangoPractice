@@ -93,3 +93,10 @@ Traceback (most recent call last):
   File "C:\Users\DELL\.virtualenvs\storefront-u4_PwDYI\Lib\site-packages\redis\connection.py", line 1077, in connect_check_health
     raise e
 redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. No connection could be made because the target machine actively refused it.
+2026-08-06 15:35:38,628 (INFO) - django.utils.autoreload - Watching for file changes with StatReloader
+2026-08-06 15:36:32,366 (INFO) - django.utils.autoreload - Watching for file changes with StatReloader
+2026-08-06 15:40:01,783 (INFO) - django.utils.autoreload - D:\Brainicon Technology\storefront\backend\playground\views.py changed, reloading.
+2026-08-06 15:40:05,580 (INFO) - django.utils.autoreload - Watching for file changes with StatReloader
+2026-08-06 15:40:10,307 (INFO) - django.utils.autoreload - D:\Brainicon Technology\storefront\backend\storefront\settings.py changed, reloading.
+2026-08-06 15:40:12,307 (INFO) - django.utils.autoreload - Watching for file changes with StatReloader
+2026-08-06 15:40:40,900 (INFO) - django.utils.autoreload - Watching for file changes with StatReloader
