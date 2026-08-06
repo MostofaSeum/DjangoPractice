@@ -269,3 +269,10 @@ CELERY_BEAT_SCHEDULE = {
         'args': ['Hello from Celery Beat'],
     }
 }
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/2",
+    }
+}
