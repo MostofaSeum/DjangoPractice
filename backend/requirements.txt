@@ -8,6 +8,8 @@ django-filter
 dj-database-url
 psycopg2-binary
 celery
+redis
+django-redis
 gunicorn
 whitenoise
 Pillow

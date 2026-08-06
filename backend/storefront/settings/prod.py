@@ -24,12 +24,20 @@ else:
 REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/1')
 CELERY_BROKER_URL = REDIS_URL
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.environ.get('REDIS_CACHE_URL', REDIS_URL),
+try:
+    import django_redis
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": os.environ.get('REDIS_CACHE_URL', REDIS_URL),
+        }
     }
-}
+except ImportError:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        }
+    }
 
 # Production Email
 EMAIL_HOST = os.environ.get('EMAIL_HOST')
