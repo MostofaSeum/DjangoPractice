@@ -115,3 +115,7 @@ redis.exceptions.ConnectionError: Error 10061 connecting to 127.0.0.1:6379. No c
 2026-08-06 17:13:17,863 (INFO) - django.utils.autoreload - Watching for file changes with StatReloader
 2026-08-06 17:16:26,015 (INFO) - django.utils.autoreload - D:\Brainicon Technology\storefront\backend\storefront\settings\dev.py changed, reloading.
 2026-08-06 17:16:31,581 (INFO) - django.utils.autoreload - Watching for file changes with StatReloader
+2026-08-06 17:47:37,465 (INFO) - django.utils.autoreload - D:\Brainicon Technology\storefront\backend\core\views.py changed, reloading.
+2026-08-06 17:47:42,519 (INFO) - django.utils.autoreload - Watching for file changes with StatReloader
+2026-08-06 17:47:45,619 (INFO) - django.utils.autoreload - D:\Brainicon Technology\storefront\backend\core\views.py changed, reloading.
+2026-08-06 17:47:48,633 (INFO) - django.utils.autoreload - Watching for file changes with StatReloader
