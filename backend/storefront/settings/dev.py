@@ -7,17 +7,20 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-# Development apps & middleware
-INSTALLED_APPS += [
-    'debug_toolbar',
-    'silk',
-]
+# Development apps & middleware safely included
+try:
+    import debug_toolbar
+    INSTALLED_APPS.append('debug_toolbar')
+    MIDDLEWARE.insert(1, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+except ImportError:
+    pass
 
-MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'silk.middleware.SilkyMiddleware',
-] + [m for m in MIDDLEWARE if m not in ('corsheaders.middleware.CorsMiddleware', 'debug_toolbar.middleware.DebugToolbarMiddleware', 'silk.middleware.SilkyMiddleware')]
+try:
+    import silk
+    INSTALLED_APPS.append('silk')
+    MIDDLEWARE.insert(2, 'silk.middleware.SilkyMiddleware')
+except ImportError:
+    pass
 
 INTERNAL_IPS = [
     '127.0.0.1',
