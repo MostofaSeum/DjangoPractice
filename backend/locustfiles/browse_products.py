@@ -16,7 +16,7 @@ class WebsiteUser(HttpUser):
         response.raise_for_status()
     
 
-    @task(4)
+    @task(1)
     def add_to_cart(self):
         product_id = randint(1,10)
         response = self.client.post(f"/store/carts/{self.cart_id}/items/",name="/store/carts/items", json = {"product_id": product_id,"quantity":1})
