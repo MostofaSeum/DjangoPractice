@@ -81,8 +81,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.OTPCleanupMiddleware',
-    'silk.middleware.SilkyMiddleware',
+
 ]
+
+if DEBUG:
+    MIDDLEWARE += [
+        'silk.middleware.SilkyMiddleware',
+    ]
 
 INTERNAL_IPS = [
     '127.0.0.1',
