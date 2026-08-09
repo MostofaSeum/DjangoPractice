@@ -202,4 +202,4 @@ class GiftCardSerializer(serializers.ModelSerializer):
     code = GiftCardCodeSerializer(read_only=True)
     class Meta:
         model = GiftCard
-        fields = ['id', 'code', 'card', 'amount']
+        fields = ['id', 'code', 'card', 'amount','created_at']
