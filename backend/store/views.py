@@ -209,3 +209,14 @@ class GiftCardViewSet(ModelViewSet):
 
     def get_queryset(self):
         return GiftCard.objects.all()
+
+
+class GiftCardCodeViewSet(ModelViewSet):
+    queryset = GiftCardCode.objects.all()
+    serializer_class = GiftCardCodeSerializer
+    permission_classes = [IsAdminUser]
+
+    def get_queryset(self):
+        return GiftCardCode.objects.all()
+
+    
