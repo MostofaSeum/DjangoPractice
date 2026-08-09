@@ -198,4 +198,8 @@ class GiftCardCodeSerializer(serializers.ModelSerializer):
         model = GiftCardCode
         fields = ['code', 'balance']
 
-
+class GiftCardSerializer(serializers.ModelSerializer):
+    code = GiftCardCodeSerializer(read_only=True)
+    class Meta:
+        model = GiftCard
+        fields = ['id', 'code', 'card', 'amount']
