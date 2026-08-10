@@ -2,7 +2,7 @@ from .signals import order_created
 from django.db.models import UUIDField
 from django.db import transaction
 from rest_framework import serializers 
-from .models import Product,Collection,Cart,Review,CartItem,Customer,Order,OrderItem,ProductImage,GiftCard,GiftCardCode
+from .models import Product,Collection,Cart,Review,CartItem,Customer,Order,OrderItem,ProductImage
 from decimal import Decimal
 
 # class ProductSerializers(serializers.Serializer):
@@ -191,15 +191,4 @@ class CreateOrderSerializer(serializers.Serializer):
             Cart.objects.filter(pk=cart_id).delete()
 
             order_created.send_robust(self.__class__, order=order)
-            return order 
-
-class GiftCardCodeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GiftCardCode
-        fields = ['code', 'balance']
-
-class GiftCardSerializer(serializers.ModelSerializer):
-    code = GiftCardCodeSerializer(read_only=True)
-    class Meta:
-        model = GiftCard
-        fields = ['id', 'code', 'card', 'amount','created_at']
+            return order
