@@ -27,6 +27,9 @@ export default function GiftCardsPage() {
   const { user } = useAuth();
   const [selectedCard, setSelectedCard] = useState<GiftCardOption | null>(null);
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"B" | "C">("B");
+  const [transactionId, setTransactionId] = useState("");
   const [loading, setLoading] = useState(false);
   const [successResult, setSuccessResult] = useState<{ card_code: string; price: number; expiry_date: string } | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
@@ -46,6 +49,9 @@ export default function GiftCardsPage() {
 
     setSelectedCard(card);
     setEmail(user.email || "");
+    setPhone("");
+    setTransactionId("");
+    setPaymentMethod("B");
     setErrorMessage("");
     setSuccessResult(null);
     setCopied(false);
@@ -54,6 +60,11 @@ export default function GiftCardsPage() {
   const handleCreateGiftCard = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedCard || !email) return;
+
+    if (paymentMethod === "B" && !transactionId.trim()) {
+      setErrorMessage("Please enter your bKash Transaction ID (TrxID).");
+      return;
+    }
 
     setLoading(true);
     setErrorMessage("");
@@ -75,6 +86,9 @@ export default function GiftCardsPage() {
         body: JSON.stringify({
           user_email: email,
           price: selectedCard.price,
+          phone: phone,
+          transaction_id: transactionId,
+          payment_method: paymentMethod,
         }),
       });
 
@@ -88,18 +102,20 @@ export default function GiftCardsPage() {
           expiry_date: expiryFormatted,
         });
 
-        // Trigger SweetAlert2 Success Popup as well
+        // SweetAlert2 Success Notification
         Swal.fire({
-          title: "Gift Card Issued!",
+          title: "Gift Card Purchased & Order Placed!",
           html: `
             <div style="text-align: left; font-size: 13px; margin-top: 10px;">
               <p style="margin-bottom: 4px;"><strong>Recipient:</strong> ${email}</p>
+              <p style="margin-bottom: 4px;"><strong>Payment Method:</strong> ${paymentMethod === 'B' ? 'bKash' : 'Card'}</p>
+              ${transactionId ? `<p style="margin-bottom: 8px;"><strong>bKash TrxID:</strong> ${transactionId}</p>` : ''}
               <p style="margin-bottom: 12px;"><strong>Value:</strong> $${Number(data.price).toLocaleString()} USD</p>
               <p style="margin-bottom: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">16-Digit Card Code:</p>
               <div style="background: #11100f; color: #f3efe6; padding: 12px; border-radius: 12px; font-family: monospace; font-size: 18px; font-weight: 900; letter-spacing: 2px; text-align: center;">
                 ${data.card_code}
               </div>
-              <p style="font-size: 11px; opacity: 0.6; margin-top: 10px; text-align: center;">Valid for 365 days (Expires: ${expiryFormatted})</p>
+              <p style="font-size: 11px; opacity: 0.6; margin-top: 10px; text-align: center;">Order logged under your account. Code valid for 365 days.</p>
             </div>
           `,
           icon: "success",
@@ -118,7 +134,7 @@ export default function GiftCardsPage() {
         setErrorMessage(errText);
 
         Swal.fire({
-          title: "Error Generating Card",
+          title: "Order Failed",
           text: errText,
           icon: "error",
           confirmButtonColor: "#ef4444",
@@ -247,7 +263,7 @@ export default function GiftCardsPage() {
       {/* Modal Dialog for Purchasing / Issuing Card */}
       {selectedCard && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-secondary text-foreground rounded-3xl p-8 max-w-md w-full border border-foreground/15 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-secondary text-foreground rounded-3xl p-8 max-w-lg w-full border border-foreground/15 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setSelectedCard(null)}
               className="absolute top-6 right-6 text-foreground/50 hover:text-foreground text-xl font-bold p-1"
@@ -259,13 +275,13 @@ export default function GiftCardsPage() {
               <form onSubmit={handleCreateGiftCard} className="space-y-6">
                 <div>
                   <span className="text-[10px] font-black tracking-widest uppercase text-accent block mb-1">
-                    ISSUE GIFT CARD
+                    ORDER GIFT CARD & CHECKOUT
                   </span>
                   <h3 className="text-2xl font-black uppercase tracking-tight text-foreground">
                     {selectedCard.title}
                   </h3>
                   <p className="opacity-70 text-xs font-bold uppercase tracking-wider mt-1 text-foreground">
-                    Value: ${selectedCard.price.toLocaleString()} USD
+                    Total Amount: ${selectedCard.price.toLocaleString()} USD
                   </p>
                 </div>
 
@@ -275,21 +291,87 @@ export default function GiftCardsPage() {
                   </div>
                 )}
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
-                    Recipient Email Address
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter email address (e.g. friend@example.com)"
-                    className="w-full px-4 py-3 rounded-xl border border-foreground/15 bg-background text-sm text-foreground placeholder:text-foreground/40 outline-none focus:border-accent transition-colors"
-                  />
+                {/* Recipient & Phone inputs */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
+                      Recipient Email *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="e.g. recipient@example.com"
+                      className="w-full px-4 py-3 rounded-xl border border-foreground/15 bg-background text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:border-accent transition-colors"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
+                      Contact / Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="e.g. 017XXXXXXXX"
+                      className="w-full px-4 py-3 rounded-xl border border-foreground/15 bg-background text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:border-accent transition-colors"
+                    />
+                  </div>
                 </div>
 
-                <div className="flex justify-end gap-3 pt-2">
+                {/* Payment Method Selector */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
+                    Payment Method *
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("B")}
+                      className={`p-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+                        paymentMethod === "B"
+                          ? "border-[#e2136e] bg-[#e2136e]/10 text-[#e2136e]"
+                          : "border-foreground/15 bg-background text-foreground/70"
+                      }`}
+                    >
+                      bKash / Online
+                    </button>
+                  </div>
+                </div>
+
+                {/* bKash Payment Instructions & TrxID Field */}
+                {paymentMethod === "B" && (
+                  <div className="p-5 rounded-2xl bg-[#e2136e]/10 border border-[#e2136e]/30 space-y-3">
+                    <div className="text-[11px] font-bold text-[#e2136e] space-y-1">
+                      <p className="font-black uppercase tracking-wider">
+                        bKash Payment Instructions:
+                      </p>
+                      <p>1. Open your bKash Mobile App or Dial *247#</p>
+                      <p>2. Select <strong>Send Money</strong> or <strong>Payment</strong> to <strong>01700000000</strong></p>
+                      <p>3. Pay total amount: <strong>${selectedCard.price.toLocaleString()} USD</strong></p>
+                      <p>4. Copy and paste the 8-10 digit <strong>TrxID</strong> below:</p>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5 pt-1">
+                      <label className="text-xs font-bold uppercase tracking-wider text-foreground">
+                        bKash Transaction ID (TrxID) *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={transactionId}
+                        onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
+                        placeholder="e.g. 9B7X2K1L8M"
+                        className="px-4 py-3 border border-[#e2136e]/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase placeholder:text-foreground/40 outline-none focus:ring-2 focus:ring-[#e2136e]"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Modal Footer Actions */}
+                <div className="flex justify-end gap-3 pt-2 border-t border-foreground/10">
                   <button
                     type="button"
                     onClick={() => setSelectedCard(null)}
@@ -302,7 +384,7 @@ export default function GiftCardsPage() {
                     disabled={loading}
                     className="py-3 px-6 bg-button-bg text-button-fg rounded-xl text-xs font-black uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50"
                   >
-                    {loading ? "Generating..." : "Confirm & Issue"}
+                    {loading ? "Processing Order..." : "Place Order & Get Code"}
                   </button>
                 </div>
               </form>
@@ -315,7 +397,7 @@ export default function GiftCardsPage() {
 
                 <div>
                   <h3 className="text-2xl font-black uppercase tracking-tight text-foreground">
-                    Gift Card Issued!
+                    Order Successful!
                   </h3>
                   <p className="opacity-70 text-xs font-bold uppercase tracking-wider mt-1 text-foreground">
                     ${successResult.price.toLocaleString()} USD issued to {email}

@@ -196,11 +196,14 @@ class CreateOrderSerializer(serializers.Serializer):
 
 class GiftCardSerializer(serializers.ModelSerializer):
     card_code = serializers.CharField(max_length=50, read_only=True)
+    phone = serializers.CharField(max_length=255, write_only=True, required=False, allow_blank=True)
+    transaction_id = serializers.CharField(max_length=255, write_only=True, required=False, allow_blank=True)
+    payment_method = serializers.CharField(max_length=1, write_only=True, required=False, default='C')
     ALLOWED_PRICES = [500, 1000, 1500, 2000, 2500, 3000]
 
     class Meta:
         model = GiftCard
-        fields = ['id', 'user_email', 'card_code', 'price', 'created_at', 'expiry_date', 'is_used']
+        fields = ['id', 'user_email', 'card_code', 'price', 'created_at', 'expiry_date', 'is_used', 'phone', 'transaction_id', 'payment_method']
         read_only_fields = ['id', 'card_code', 'created_at', 'expiry_date']
 
     def validate_price(self, value):
@@ -209,3 +212,33 @@ class GiftCardSerializer(serializers.ModelSerializer):
                 f"Invalid gift card price. Please select one of: {', '.join(str(p) for p in self.ALLOWED_PRICES)}."
             )
         return value
+
+    def create(self, validated_data):
+        phone = validated_data.pop('phone', '')
+        transaction_id = validated_data.pop('transaction_id', '')
+        payment_method = validated_data.pop('payment_method', 'C')
+        
+        request = self.context.get('request')
+        user = request.user if request else None
+
+        with transaction.atomic():
+            gift_card = super().create(validated_data)
+
+            if user and user.is_authenticated:
+                customer, _ = Customer.objects.get_or_create(user=user)
+                order = Order.objects.create(
+                    customer=customer,
+                    shipping_address="Gift Card",
+                    phone=phone,
+                    payment_method=payment_method,
+                    transaction_id=transaction_id,
+                    payment_status='P',
+                )
+                OrderItem.objects.create(
+                    order=order,
+                    product=None,
+                    quantity=1,
+                    unit_price=gift_card.price,
+                )
+
+            return gift_card
