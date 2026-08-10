@@ -26,27 +26,34 @@ INTERNAL_IPS = [
     '127.0.0.1',
 ]
 
-# Development Database (MySQL local with fallback to SQLite if MySQLdb driver is unavailable)
-try:
-    import MySQLdb
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'storefront2',
-            'HOST': 'localhost',
-            'USER': 'root',
-            'PASSWORD': 'Mseum017?',
-        }
-    }
-except Exception:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+import dj_database_url
 
-CELERY_BROKER_URL = 'redis://localhost:6379/1'
+# Development Database (Supports DATABASE_URL, MySQL, or fallback SQLite)
+if os.environ.get('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.config(conn_max_age=600, ssl_require=False)
+    }
+else:
+    try:
+        import MySQLdb
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME': 'storefront2',
+                'HOST': 'localhost',
+                'USER': 'root',
+                'PASSWORD': 'Mseum017?',
+            }
+        }
+    except Exception:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
+
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/1')
 CELERY_BEAT_SCHEDULE = {
     'notify customers': {
         'task': 'playground.task.notify_customers',
@@ -58,7 +65,7 @@ CELERY_BEAT_SCHEDULE = {
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/2",
+        "LOCATION": os.environ.get('REDIS_CACHE_URL', 'redis://127.0.0.1:6379/2'),
     }
 }
 

@@ -1,3 +1,12 @@
+export function getApiBaseUrl(): string {
+  if (typeof window === "undefined") {
+    // Running on Next.js Server inside Docker container
+    return (process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://backend:8000").replace(/\/+$/, "");
+  }
+  // Running in User's Browser
+  return (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/+$/, "");
+}
+
 export const siteConfig = {
   name: "VibeMart",
   description: "Your modern multi-category ecommerce store",
