@@ -239,6 +239,6 @@ class GiftCardViewSet(ModelViewSet):
                 'message': 'Congratulations! Your gift card is valid and ready to use.'
             })
         except GiftCard.DoesNotExist:
-            return Response({'error': 'Invalid gift card code. Not found in database.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Invalid gift card code. Please try again.'}, status=status.HTTP_404_NOT_FOUND)
 
     
