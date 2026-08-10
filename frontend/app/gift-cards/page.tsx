@@ -60,6 +60,77 @@ export default function GiftCardsPage() {
     setCopied(false);
   };
 
+  const handleRedeemGiftCard = async () => {
+    const { value: cardCode } = await Swal.fire({
+      title: "Redeem Gift Card",
+      text: "Enter your 16-digit Gift Card code below:",
+      input: "text",
+      inputPlaceholder: "e.g. A1B2C3D4E5F67890",
+      showCancelButton: true,
+      confirmButtonText: "Verify & Redeem",
+      confirmButtonColor: "var(--button-bg)",
+      inputAttributes: {
+        maxlength: "16",
+        style: "text-transform: uppercase; font-family: var(--font-mono); letter-spacing: 2px; text-align: center;",
+      },
+      inputValidator: (value) => {
+        if (!value || value.trim().length === 0) {
+          return "Please enter a valid 16-digit Gift Card code.";
+        }
+      },
+    });
+
+    if (cardCode) {
+      try {
+        const apiBaseUrl = getApiBaseUrl();
+        const res = await fetch(`${apiBaseUrl}/store/gift-cards/redeem/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ card_code: cardCode.trim().toUpperCase() }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          Swal.fire({
+            title: "🎉 Congratulations!",
+            html: `
+              <div style="text-align: center; margin-top: 10px;">
+                <p style="font-size: 14px; font-weight: bold; color: var(--foreground); margin-bottom: 8px;">Your Gift Card is <strong>Valid & Active</strong> in database!</p>
+                <div style="background: var(--primary); color: var(--logo-color); padding: 14px; border-radius: 14px; font-family: var(--font-mono); font-size: 20px; font-weight: 900; letter-spacing: 2px; margin: 15px 0;">
+                  Value: $${Number(data.price).toLocaleString()} USD
+                </div>
+                <p style="font-size: 12px; opacity: 0.8; margin-bottom: 4px;">Code: <strong>${data.card_code}</strong></p>
+                <p style="font-size: 11px; opacity: 0.6;">Expires on: ${data.expiry_date}</p>
+              </div>
+            `,
+            icon: "success",
+            confirmButtonText: "Awesome!",
+            confirmButtonColor: "var(--button-bg)",
+            customClass: {
+              popup: "rounded-3xl p-6",
+              confirmButton: "rounded-xl font-bold uppercase tracking-wider px-6 py-2.5 text-xs",
+            },
+          });
+        } else {
+          Swal.fire({
+            title: "Redemption Failed",
+            text: data.error || "Invalid Gift Card code.",
+            icon: "error",
+            confirmButtonColor: "var(--button-bg)",
+          });
+        }
+      } catch (err: any) {
+        Swal.fire({
+          title: "Network Error",
+          text: err.message,
+          icon: "error",
+          confirmButtonColor: "var(--button-bg)",
+        });
+      }
+    }
+  };
+
   const handleCreateGiftCard = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedCard || !email) return;
@@ -192,15 +263,18 @@ export default function GiftCardsPage() {
 
       <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-12">
         {/* Header Title Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-4">
           <div>
             <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground">
               VibeMart Gift Cards
             </h1>
           </div>
-          <p className="opacity-70 text-xs font-bold uppercase tracking-wider max-w-md">
-            Select a card tier below. Gift cards are valid for 1 full year from issuance and can be redeemed at checkout.
-          </p>
+          <button
+            onClick={handleRedeemGiftCard}
+            className="py-3 px-6 bg-button-bg text-button-fg rounded-xl text-xs font-black uppercase tracking-widest hover:opacity-90 transition-all shadow-md active:scale-95 border border-foreground/20"
+          >
+            Redeem Gift Card
+          </button>
         </div>
 
         {/* 6 Preset Gift Card Grid */}
@@ -394,7 +468,7 @@ export default function GiftCardsPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                       <div>
                         <label className="text-xs font-bold uppercase tracking-wider text-foreground block mb-1">
-                          Sender bKash Mobile*
+                          Sender bKash Mobile *
                         </label>
                         <input
                           type="tel"
@@ -435,13 +509,13 @@ export default function GiftCardsPage() {
                       <p>1. Open your Nagad Mobile App or Dial *167#</p>
                       <p>2. Select <strong>Send Money</strong> or <strong>Merchant Pay</strong> to <strong>01700000000</strong></p>
                       <p>3. Pay total amount: <strong>${selectedCard.price.toLocaleString()} USD</strong></p>
-                      <p>4. Enter Sender Mobile Number & TrxID below (Max 11 characters):</p>
+                      <p>4. Enter Sender Mobile Number & TrxID below:</p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                       <div>
                         <label className="text-xs font-bold uppercase tracking-wider text-foreground block mb-1">
-                          Sender Nagad Mobile (11 Digits) *
+                          Sender Nagad Mobile *
                         </label>
                         <input
                           type="tel"

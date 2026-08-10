@@ -220,4 +220,25 @@ class GiftCardViewSet(ModelViewSet):
         ]
         return Response(options)
 
+    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
+    def redeem(self, request):
+        code = request.data.get('card_code', '').strip()
+        if not code:
+            return Response({'error': 'Please enter a gift card code.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            gift_card = GiftCard.objects.get(card_code=code)
+            if gift_card.is_used:
+                return Response({'error': 'This gift card has already been redeemed.', 'is_used': True}, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({
+                'valid': True,
+                'card_code': gift_card.card_code,
+                'price': str(gift_card.price),
+                'expiry_date': gift_card.expiry_date.strftime('%Y-%m-%d'),
+                'message': 'Congratulations! Your gift card is valid and ready to use.'
+            })
+        except GiftCard.DoesNotExist:
+            return Response({'error': 'Invalid gift card code. Not found in database.'}, status=status.HTTP_404_NOT_FOUND)
+
     
