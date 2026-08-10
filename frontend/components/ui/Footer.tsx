@@ -14,6 +14,9 @@ export default function Footer() {
           <Link href="/collections" className="text-background dark:text-foreground hover:underline transition-all">
             Collections
           </Link>
+          <Link href="/gift-cards" className="text-background dark:text-foreground hover:underline transition-all">
+            Gift Cards
+          </Link>
           <a href="#" className="text-background/90 dark:text-foreground/90 hover:text-background dark:hover:text-foreground hover:underline transition-all">
             Privacy Policy
           </a>

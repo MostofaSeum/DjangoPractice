@@ -29,6 +29,7 @@ export default function Header() {
     { name: "HOME", href: "/" },
     { name: "SHOP", href: "/products" },
     { name: "COLLECTIONS", href: "/collections" },
+    { name: "GIFT CARDS", href: "/gift-cards" },
   ];
 
   if (user?.is_staff) {
