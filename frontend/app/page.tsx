@@ -89,9 +89,9 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen pb-24 bg-background text-foreground font-sans transition-colors duration-300">
-      {/* Top Banner Image (Between Header & Hero Section) */}
+      {/* Top Banner Image*/}
       <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 pt-6">
-        <div className="w-full rounded-[2rem] overflow-hidden shadow-lg border border-foreground/10 group flex justify-center bg-secondary">
+        <Link href="/gift-cards" className="block w-full rounded-[2rem] overflow-hidden shadow-lg border border-foreground/10 group flex justify-center bg-secondary cursor-pointer">
           <Image
             src="/Banners/Banner.png"
             alt="Special Promotion Banner"
@@ -101,7 +101,7 @@ export default async function Home() {
             unoptimized
             className="w-full h-auto object-contain rounded-[2rem] group-hover:scale-[1.01] transition-transform duration-500"
           />
-        </div>
+        </Link>
       </div>
 
       {/* Bento Box Hero Section */}
