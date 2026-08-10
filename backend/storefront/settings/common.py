@@ -5,6 +5,16 @@ from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+# Load environment variables from .env file (Pure Python fallback)
+env_path = BASE_DIR / '.env'
+if env_path.exists():
+    with open(env_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#') and '=' in line:
+                key, val = line.split('=', 1)
+                os.environ.setdefault(key.strip(), val.strip())
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
