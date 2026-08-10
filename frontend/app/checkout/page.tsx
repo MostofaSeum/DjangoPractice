@@ -191,13 +191,14 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-bold uppercase tracking-wider opacity-80">
-                    Phone Number *
+                    Phone Number (11 Digits) *
                   </label>
                   <input
-                    type="text"
+                    type="tel"
                     required
+                    maxLength={11}
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
                     placeholder="e.g. 01700000000"
                     className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
                   />
@@ -225,7 +226,7 @@ export default function CheckoutPage() {
                 <span className="w-8 h-8 rounded-full bg-button-bg text-button-fg font-black flex items-center justify-center text-xs">
                   2
                 </span>
-                Payment Options
+                Payment Method
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -235,7 +236,7 @@ export default function CheckoutPage() {
                   className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
                     paymentMethod === "C"
                       ? "border-accent bg-accent/10 shadow-sm"
-                      : "border-foreground/10 bg-secondary hover:border-foreground/50"
+                      : "border-foreground/10 bg-secondary hover:border-accent/50"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
@@ -260,12 +261,12 @@ export default function CheckoutPage() {
                   onClick={() => setPaymentMethod("O")}
                   className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
                     paymentMethod === "O"
-                      ? "border-[#e2136e] bg-[#e2136e]/10 shadow-sm"
-                      : "border-foreground/10 bg-secondary hover:border-[#e2136e]/50"
+                      ? "border-bkash bg-bkash/10 shadow-sm"
+                      : "border-foreground/10 bg-secondary hover:border-bkash/50"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="font-black text-xs uppercase tracking-tight text-[#e2136e]">
+                    <span className="font-black text-xs uppercase tracking-tight text-bkash">
                       bKash Payment
                     </span>
                     <input
@@ -273,7 +274,7 @@ export default function CheckoutPage() {
                       name="payment_method"
                       checked={paymentMethod === "O"}
                       onChange={() => setPaymentMethod("O")}
-                      className="w-4 h-4 accent-[#e2136e]"
+                      className="w-4 h-4 accent-bkash"
                     />
                   </div>
                   <p className="text-xs opacity-70 font-medium">
@@ -286,12 +287,12 @@ export default function CheckoutPage() {
                   onClick={() => setPaymentMethod("N")}
                   className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
                     paymentMethod === "N"
-                      ? "border-[#f15a24] bg-[#f15a24]/10 shadow-sm"
-                      : "border-foreground/10 bg-secondary hover:border-[#f15a24]/50"
+                      ? "border-nagad bg-nagad/10 shadow-sm"
+                      : "border-foreground/10 bg-secondary hover:border-nagad/50"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="font-black text-xs uppercase tracking-tight text-[#f15a24]">
+                    <span className="font-black text-xs uppercase tracking-tight text-nagad">
                       Nagad Payment
                     </span>
                     <input
@@ -299,7 +300,7 @@ export default function CheckoutPage() {
                       name="payment_method"
                       checked={paymentMethod === "N"}
                       onChange={() => setPaymentMethod("N")}
-                      className="w-4 h-4 accent-[#f15a24]"
+                      className="w-4 h-4 accent-nagad"
                     />
                   </div>
                   <p className="text-xs opacity-70 font-medium">
@@ -310,8 +311,8 @@ export default function CheckoutPage() {
 
               {/* bKash Extra Fields */}
               {paymentMethod === "O" && (
-                <div className="mt-6 p-6 rounded-2xl bg-[#e2136e]/10 border border-[#e2136e]/30 space-y-4">
-                  <div className="text-xs font-bold text-[#e2136e] space-y-1">
+                <div className="mt-6 p-6 rounded-2xl bg-bkash/10 border border-bkash/30 space-y-4">
+                  <div className="text-xs font-bold text-bkash space-y-1">
                     <p className="font-black uppercase tracking-wider">
                       bKash Payment Instructions:
                     </p>
@@ -324,15 +325,16 @@ export default function CheckoutPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                     <div className="flex flex-col gap-1.5">
                       <label className="text-xs font-bold uppercase tracking-wider text-foreground">
-                        Sender bKash Mobile Number *
+                        Sender bKash Mobile*
                       </label>
                       <input
                         type="tel"
                         required
+                        maxLength={11}
                         value={transactionPhoneNo}
-                        onChange={(e) => setTransactionPhoneNo(e.target.value)}
+                        onChange={(e) => setTransactionPhoneNo(e.target.value.replace(/\D/g, "").slice(0, 11))}
                         placeholder="e.g. 01712345678"
-                        className="px-4 py-3 border border-[#e2136e]/40 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-[#e2136e] shadow-sm"
+                        className="px-4 py-3 border border-bkash/40 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-bkash shadow-sm"
                       />
                     </div>
 
@@ -343,10 +345,11 @@ export default function CheckoutPage() {
                       <input
                         type="text"
                         required
+                        maxLength={11}
                         value={transactionId}
-                        onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
+                        onChange={(e) => setTransactionId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 11))}
                         placeholder="e.g. 9B7X2K1L8M"
-                        className="px-4 py-3 border border-[#e2136e]/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase outline-none focus:ring-2 focus:ring-[#e2136e] shadow-sm"
+                        className="px-4 py-3 border border-bkash/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase outline-none focus:ring-2 focus:ring-bkash shadow-sm"
                       />
                     </div>
                   </div>
@@ -355,8 +358,8 @@ export default function CheckoutPage() {
 
               {/* Nagad Extra Fields */}
               {paymentMethod === "N" && (
-                <div className="mt-6 p-6 rounded-2xl bg-[#f15a24]/10 border border-[#f15a24]/30 space-y-4">
-                  <div className="text-xs font-bold text-[#f15a24] space-y-1">
+                <div className="mt-6 p-6 rounded-2xl bg-nagad/10 border border-nagad/30 space-y-4">
+                  <div className="text-xs font-bold text-nagad space-y-1">
                     <p className="font-black uppercase tracking-wider">
                       Nagad Payment Instructions:
                     </p>
@@ -369,15 +372,16 @@ export default function CheckoutPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                     <div className="flex flex-col gap-1.5">
                       <label className="text-xs font-bold uppercase tracking-wider text-foreground">
-                        Sender Nagad Mobile Number *
+                        Sender Nagad Mobile*
                       </label>
                       <input
                         type="tel"
                         required
+                        maxLength={11}
                         value={transactionPhoneNo}
-                        onChange={(e) => setTransactionPhoneNo(e.target.value)}
+                        onChange={(e) => setTransactionPhoneNo(e.target.value.replace(/\D/g, "").slice(0, 11))}
                         placeholder="e.g. 01712345678"
-                        className="px-4 py-3 border border-[#f15a24]/40 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-[#f15a24] shadow-sm"
+                        className="px-4 py-3 border border-nagad/40 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-nagad shadow-sm"
                       />
                     </div>
 
@@ -388,10 +392,11 @@ export default function CheckoutPage() {
                       <input
                         type="text"
                         required
+                        maxLength={11}
                         value={transactionId}
-                        onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
+                        onChange={(e) => setTransactionId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 11))}
                         placeholder="e.g. 7N3X9L2K8P"
-                        className="px-4 py-3 border border-[#f15a24]/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase outline-none focus:ring-2 focus:ring-[#f15a24] shadow-sm"
+                        className="px-4 py-3 border border-nagad/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase outline-none focus:ring-2 focus:ring-nagad shadow-sm"
                       />
                     </div>
                   </div>

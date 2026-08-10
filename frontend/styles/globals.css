@@ -11,6 +11,8 @@
   --accent: #8b7a66;
   --button-bg: #3a3532;
   --button-fg: #ffffff;
+  --bkash: #e2136e;
+  --nagad: #f15a24;
   --font-sans:
     var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
@@ -27,6 +29,8 @@ html[data-theme="dark"],
   --accent: #ab7180;
   --button-bg: #2b2f33;
   --button-fg: #f3efe6;
+  --bkash: #e2136e;
+  --nagad: #f15a24;
 }
 
 @theme {
@@ -38,6 +42,8 @@ html[data-theme="dark"],
   --color-accent: var(--accent);
   --color-button-bg: var(--button-bg);
   --color-button-fg: var(--button-fg);
+  --color-bkash: var(--bkash);
+  --color-nagad: var(--nagad);
   --font-sans:
     var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;

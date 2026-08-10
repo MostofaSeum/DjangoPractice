@@ -323,8 +323,9 @@ export default function GiftCardsPage() {
                       </label>
                       <input
                         type="tel"
+                        maxLength={11}
                         value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
+                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
                         placeholder="e.g. 017XXXXXXXX"
                         className="w-full px-4 py-3 rounded-xl border border-foreground/20 bg-background text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:border-accent transition-colors"
                       />
@@ -357,7 +358,7 @@ export default function GiftCardsPage() {
                       onClick={() => setPaymentMethod("B")}
                       className={`p-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
                         paymentMethod === "B"
-                          ? "border-accent bg-accent/10 text-accent font-black shadow-sm"
+                          ? "border-bkash bg-bkash/10 text-bkash font-black shadow-sm"
                           : "border-foreground/15 bg-background text-foreground/70"
                       }`}
                     >
@@ -368,7 +369,7 @@ export default function GiftCardsPage() {
                       onClick={() => setPaymentMethod("N")}
                       className={`p-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
                         paymentMethod === "N"
-                          ? "border-accent bg-accent/10 text-accent font-black shadow-sm"
+                          ? "border-nagad bg-nagad/10 text-nagad font-black shadow-sm"
                           : "border-foreground/15 bg-background text-foreground/70"
                       }`}
                     >
@@ -379,9 +380,9 @@ export default function GiftCardsPage() {
 
                 {/* bKash Payment Instructions & Sender Phone + TrxID Fields */}
                 {paymentMethod === "B" && (
-                  <div className="p-5 rounded-2xl bg-accent/10 border border-accent/30 space-y-3">
+                  <div className="p-5 rounded-2xl bg-bkash/10 border border-bkash/30 space-y-3">
                     <div className="text-[11px] font-bold text-foreground space-y-1">
-                      <p className="font-black text-accent uppercase tracking-wider">
+                      <p className="font-black text-bkash uppercase tracking-wider">
                         bKash Payment Instructions:
                       </p>
                       <p>1. Open your bKash Mobile App or Dial *247#</p>
@@ -393,15 +394,16 @@ export default function GiftCardsPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                       <div>
                         <label className="text-xs font-bold uppercase tracking-wider text-foreground block mb-1">
-                          Sender bKash Mobile *
+                          Sender bKash Mobile*
                         </label>
                         <input
                           type="tel"
                           required
+                          maxLength={11}
                           value={transactionPhoneNo}
-                          onChange={(e) => setTransactionPhoneNo(e.target.value)}
+                          onChange={(e) => setTransactionPhoneNo(e.target.value.replace(/\D/g, "").slice(0, 11))}
                           placeholder="e.g. 01712345678"
-                          className="w-full px-4 py-3 border border-foreground/20 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:border-accent"
+                          className="w-full px-4 py-3 border border-bkash/40 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-bkash"
                         />
                       </div>
 
@@ -412,10 +414,11 @@ export default function GiftCardsPage() {
                         <input
                           type="text"
                           required
+                          maxLength={11}
                           value={transactionId}
-                          onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
+                          onChange={(e) => setTransactionId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 11))}
                           placeholder="e.g. 9B7X2K1L8M"
-                          className="w-full px-4 py-3 border border-foreground/20 rounded-xl bg-background text-xs font-bold text-foreground uppercase outline-none focus:border-accent"
+                          className="w-full px-4 py-3 border border-bkash/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase outline-none focus:ring-2 focus:ring-bkash"
                         />
                       </div>
                     </div>
@@ -424,29 +427,30 @@ export default function GiftCardsPage() {
 
                 {/* Nagad Payment Instructions & Sender Phone + TrxID Fields */}
                 {paymentMethod === "N" && (
-                  <div className="p-5 rounded-2xl bg-accent/10 border border-accent/30 space-y-3">
+                  <div className="p-5 rounded-2xl bg-nagad/10 border border-nagad/30 space-y-3">
                     <div className="text-[11px] font-bold text-foreground space-y-1">
-                      <p className="font-black text-accent uppercase tracking-wider">
+                      <p className="font-black text-nagad uppercase tracking-wider">
                         Nagad Payment Instructions:
                       </p>
                       <p>1. Open your Nagad Mobile App or Dial *167#</p>
                       <p>2. Select <strong>Send Money</strong> or <strong>Merchant Pay</strong> to <strong>01700000000</strong></p>
                       <p>3. Pay total amount: <strong>${selectedCard.price.toLocaleString()} USD</strong></p>
-                      <p>4. Enter Sender Mobile Number & TrxID below:</p>
+                      <p>4. Enter Sender Mobile Number & TrxID below (Max 11 characters):</p>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                       <div>
                         <label className="text-xs font-bold uppercase tracking-wider text-foreground block mb-1">
-                          Sender Nagad Mobile *
+                          Sender Nagad Mobile (11 Digits) *
                         </label>
                         <input
                           type="tel"
                           required
+                          maxLength={11}
                           value={transactionPhoneNo}
-                          onChange={(e) => setTransactionPhoneNo(e.target.value)}
+                          onChange={(e) => setTransactionPhoneNo(e.target.value.replace(/\D/g, "").slice(0, 11))}
                           placeholder="e.g. 01712345678"
-                          className="w-full px-4 py-3 border border-foreground/20 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:border-accent"
+                          className="w-full px-4 py-3 border border-nagad/40 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-nagad"
                         />
                       </div>
 
@@ -457,10 +461,11 @@ export default function GiftCardsPage() {
                         <input
                           type="text"
                           required
+                          maxLength={11}
                           value={transactionId}
-                          onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
+                          onChange={(e) => setTransactionId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 11))}
                           placeholder="e.g. 7N3X9L2K8P"
-                          className="w-full px-4 py-3 border border-foreground/20 rounded-xl bg-background text-xs font-bold text-foreground uppercase outline-none focus:border-accent"
+                          className="w-full px-4 py-3 border border-nagad/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase outline-none focus:ring-2 focus:ring-nagad"
                         />
                       </div>
                     </div>
