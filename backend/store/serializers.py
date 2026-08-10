@@ -195,16 +195,17 @@ class CreateOrderSerializer(serializers.Serializer):
 
 
 class GiftCardSerializer(serializers.ModelSerializer):
-    card_code = serializers.CharField(max_length=50, required=False)
+    card_code = serializers.CharField(max_length=50, read_only=True)
+    ALLOWED_PRICES = [500, 1000, 1500, 2000, 2500, 3000]
 
     class Meta:
         model = GiftCard
-        fields = ['id', 'user_email', 'card_code', 'created_at', 'expiry_date', 'is_used']
-        read_only_fields = ['id', 'created_at', 'expiry_date']
+        fields = ['id', 'user_email', 'card_code', 'price', 'created_at', 'expiry_date', 'is_used']
+        read_only_fields = ['id', 'card_code', 'created_at', 'expiry_date']
 
-    def create(self, validated_data):
-        if 'card_code' not in validated_data or not validated_data['card_code']:
-            import random, string
-            code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
-            validated_data['card_code'] = f"GIFT-{code[:4]}-{code[4:8]}-{code[8:]}"
-        return super().create(validated_data)
+    def validate_price(self, value):
+        if int(value) not in self.ALLOWED_PRICES:
+            raise serializers.ValidationError(
+                f"Invalid gift card price. Please select one of: {', '.join(str(p) for p in self.ALLOWED_PRICES)}."
+            )
+        return value

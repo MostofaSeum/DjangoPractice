@@ -205,9 +205,19 @@ class ProductImageViewSet(ModelViewSet):
 class GiftCardViewSet(ModelViewSet):
     queryset = GiftCard.objects.all()
     serializer_class = GiftCardSerializer
+    permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['user_email', 'is_used']
     search_fields = ['card_code', 'user_email']
     ordering_fields = ['created_at', 'expiry_date']
+
+    @action(detail=False, methods=['get'], permission_classes=[AllowAny])
+    def denominations(self, request):
+        prices = [500, 1000, 1500, 2000, 2500, 3000]
+        options = [
+            {"price": p, "title": f"${p:,} Gift Card"}
+            for p in prices
+        ]
+        return Response(options)
 
     
