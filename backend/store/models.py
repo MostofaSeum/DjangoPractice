@@ -5,6 +5,8 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from uuid import uuid4
 from .validators import validate_file_size
+from django.utils import timezone
+from datetime import timedelta
 class Promotion(models.Model):
     description = models.CharField(max_length=255)
     discount = models.FloatField()
@@ -159,3 +161,24 @@ class Review(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     date = models.DateTimeField(auto_now_add=True)
+
+import random
+import string
+
+def default_gift_card_expiry():
+    return timezone.now() + timedelta(days=365)
+
+def generate_16_digit_card_code():
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=16))
+
+class GiftCard(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    user_email = models.EmailField()
+    card_code = models.CharField(max_length=50, unique=True, default=generate_16_digit_card_code)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=500.00)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expiry_date = models.DateTimeField(default=default_gift_card_expiry)
+    is_used = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.card_code} - ${self.price} ({self.user_email})"

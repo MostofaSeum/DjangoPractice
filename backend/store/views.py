@@ -2,8 +2,8 @@ from .permissions import ViewCustomerHistoryPermission
 from rest_framework.decorators import action
 from store.models import OrderItem
 from django.http import request
-from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,ProductImageSerializer
-from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage
+from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,ProductImageSerializer,GiftCardSerializer
+from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,GiftCard
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter,OrderingFilter
@@ -200,5 +200,14 @@ class ProductImageViewSet(ModelViewSet):
     
     def get_serializer_context(self):
         return {'product_id': self.kwargs['product_pk']}
+
+
+class GiftCardViewSet(ModelViewSet):
+    queryset = GiftCard.objects.all()
+    serializer_class = GiftCardSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['user_email', 'is_used']
+    search_fields = ['card_code', 'user_email']
+    ordering_fields = ['created_at', 'expiry_date']
 
     

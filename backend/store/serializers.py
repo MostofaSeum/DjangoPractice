@@ -2,7 +2,7 @@ from .signals import order_created
 from django.db.models import UUIDField
 from django.db import transaction
 from rest_framework import serializers 
-from .models import Product,Collection,Cart,Review,CartItem,Customer,Order,OrderItem,ProductImage
+from .models import Product,Collection,Cart,Review,CartItem,Customer,Order,OrderItem,ProductImage,GiftCard
 from decimal import Decimal
 
 # class ProductSerializers(serializers.Serializer):
@@ -192,3 +192,19 @@ class CreateOrderSerializer(serializers.Serializer):
 
             order_created.send_robust(self.__class__, order=order)
             return order
+
+
+class GiftCardSerializer(serializers.ModelSerializer):
+    card_code = serializers.CharField(max_length=50, required=False)
+
+    class Meta:
+        model = GiftCard
+        fields = ['id', 'user_email', 'card_code', 'created_at', 'expiry_date', 'is_used']
+        read_only_fields = ['id', 'created_at', 'expiry_date']
+
+    def create(self, validated_data):
+        if 'card_code' not in validated_data or not validated_data['card_code']:
+            import random, string
+            code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
+            validated_data['card_code'] = f"GIFT-{code[:4]}-{code[4:8]}-{code[8:]}"
+        return super().create(validated_data)
