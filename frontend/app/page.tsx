@@ -89,8 +89,23 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen pb-24 bg-background text-foreground font-sans transition-colors duration-300">
+      {/* Top Banner Image (Between Header & Hero Section) */}
+      <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 pt-6">
+        <div className="w-full rounded-[2rem] overflow-hidden shadow-lg border border-foreground/10 group flex justify-center bg-secondary">
+          <Image
+            src="/Banners/Banner.png"
+            alt="Special Promotion Banner"
+            width={1400}
+            height={500}
+            priority
+            unoptimized
+            className="w-full h-auto object-contain rounded-[2rem] group-hover:scale-[1.01] transition-transform duration-500"
+          />
+        </div>
+      </div>
+
       {/* Bento Box Hero Section */}
-      <section className="relative w-full min-h-screen pt-32 pb-12 px-4 md:px-8 max-w-[1400px] mx-auto flex items-center justify-center">
+      <section className="relative w-full pt-8 pb-12 px-4 md:px-8 max-w-[1400px] mx-auto flex items-center justify-center">
         <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-3 gap-4 md:gap-6 w-full h-full">
           {/* Main Large Bento Item (Text & Main CTA) */}
           <div className="md:col-span-2 md:row-span-2 bg-secondary rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group shadow-sm hover:shadow-xl transition-all duration-500 border border-foreground/10 min-h-[360px] md:min-h-0 text-foreground">

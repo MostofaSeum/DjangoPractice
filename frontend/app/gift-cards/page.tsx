@@ -24,7 +24,7 @@ const GIFT_CARD_OPTIONS: GiftCardOption[] = [
 
 export default function GiftCardsPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [selectedCard, setSelectedCard] = useState<GiftCardOption | null>(null);
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -49,7 +49,7 @@ export default function GiftCardsPage() {
     }
 
     setSelectedCard(card);
-    setEmail(user.email || "");
+    setEmail("");
     setPhone("");
     setTransactionId("");
     setTransactionPhoneNo("");
@@ -73,13 +73,17 @@ export default function GiftCardsPage() {
 
     try {
       const apiBaseUrl = getApiBaseUrl();
-      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const authToken =
+        token ||
+        (typeof window !== "undefined"
+          ? localStorage.getItem("access_token") || localStorage.getItem("jwt") || localStorage.getItem("token")
+          : null);
 
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
       };
-      if (token) {
-        headers["Authorization"] = `JWT ${token}`;
+      if (authToken) {
+        headers["Authorization"] = `JWT ${authToken}`;
       }
 
       const res = await fetch(`${apiBaseUrl}/store/gift-cards/`, {
@@ -307,7 +311,7 @@ export default function GiftCardsPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="e.g. recipient@example.com"
-                      className="w-full px-4 py-3 rounded-xl border border-foreground/15 bg-background text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:border-accent transition-colors"
+                      className="w-full px-4 py-3 rounded-xl border border-foreground/20 bg-background text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:border-accent transition-colors"
                     />
                   </div>
 
@@ -320,7 +324,7 @@ export default function GiftCardsPage() {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="e.g. 017XXXXXXXX"
-                      className="w-full px-4 py-3 rounded-xl border border-foreground/15 bg-background text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:border-accent transition-colors"
+                      className="w-full px-4 py-3 rounded-xl border border-foreground/20 bg-background text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:border-accent transition-colors"
                     />
                   </div>
                 </div>
