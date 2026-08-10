@@ -300,33 +300,49 @@ export default function GiftCardsPage() {
                 )}
 
                 {/* Recipient & Phone inputs */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
-                      Recipient Email *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="e.g. recipient@example.com"
-                      className="w-full px-4 py-3 rounded-xl border border-foreground/20 bg-background text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:border-accent transition-colors"
-                    />
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
+                        Recipient Email *
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="e.g. recipient@example.com"
+                        className="w-full px-4 py-3 rounded-xl border border-foreground/20 bg-background text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:border-accent transition-colors"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
+                        Recipient / Contact Phone
+                      </label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="e.g. 017XXXXXXXX"
+                        className="w-full px-4 py-3 rounded-xl border border-foreground/20 bg-background text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:border-accent transition-colors"
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
-                      Recipient / Contact Phone
-                    </label>
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="e.g. 017XXXXXXXX"
-                      className="w-full px-4 py-3 rounded-xl border border-foreground/20 bg-background text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:border-accent transition-colors"
-                    />
-                  </div>
+                  {user?.email && email.trim().toLowerCase() === user.email.trim().toLowerCase() && (
+                    <div className="w-full p-4 rounded-2xl bg-accent/10 border border-accent/30 text-foreground text-xs font-bold leading-relaxed space-y-1 animate-in fade-in slide-in-from-top-1 duration-200 shadow-sm">
+                      <p className="font-black text-accent uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                        <span>💌</span> Special Note
+                      </p>
+                      <p className="opacity-90">
+                        Hope that your favourite person gifts you this card soon! Now go and buy something for yourself.
+                      </p>
+                      <p className="text-accent font-extrabold pt-0.5">
+                        Have a Good Day ✨
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Payment Method Selector */}
