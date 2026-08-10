@@ -40,7 +40,10 @@ export default function Header() {
     <header className="w-full z-50 py-5 px-8 md:px-12 bg-primary text-logo sticky top-0 shadow-md border-b border-white/5 transition-colors duration-300">
       <div className="max-w-[1400px] mx-auto flex items-center justify-between">
         {/* Brand Logo */}
-        <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter uppercase hover:opacity-90 transition-opacity">
+        <Link
+          href="/"
+          className="text-xl md:text-2xl font-black tracking-tighter uppercase hover:opacity-90 transition-opacity"
+        >
           VIBEMART
         </Link>
 
@@ -97,7 +100,11 @@ export default function Header() {
             </div>
           ) : (
             <Link
-              href={pathname && pathname !== "/" ? `/login?redirect=${encodeURIComponent(pathname)}` : "/login"}
+              href={
+                pathname && pathname !== "/"
+                  ? `/login?redirect=${encodeURIComponent(pathname)}`
+                  : "/login"
+              }
               className="hover:bg-white/25 transition-all bg-white/15 px-4 py-2 rounded-full border border-white/30 font-bold"
             >
               Sign In
