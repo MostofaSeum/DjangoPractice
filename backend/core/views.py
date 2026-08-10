@@ -47,11 +47,6 @@ def send_otp(request):
 
         send_mail(subject, message, from_email, [email], fail_silently=False)
 
-        # Also log to console for dev environment testing
-        print(f"\n==========================================")
-        print(f" [OTP CODE] Sent to {email}: {otp_code}")
-        print(f"==========================================\n")
-
         return Response({'detail': 'Verification code sent to your email!'}, status=status.HTTP_200_OK)
 
     except Exception as e:
