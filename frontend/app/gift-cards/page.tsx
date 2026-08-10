@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 import { getApiBaseUrl } from "@/config/siteConfig";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -9,19 +11,19 @@ interface GiftCardOption {
   price: number;
   title: string;
   badge: string;
-  gradient: string;
 }
 
 const GIFT_CARD_OPTIONS: GiftCardOption[] = [
-  { price: 500, title: "$500 Gift Card", badge: "BRONZE", gradient: "from-amber-700/20 via-primary/10 to-amber-600/30" },
-  { price: 1000, title: "$1,000 Gift Card", badge: "SILVER", gradient: "from-slate-400/20 via-primary/10 to-slate-300/30" },
-  { price: 1500, title: "$1,500 Gift Card", badge: "GOLD", gradient: "from-yellow-500/20 via-primary/10 to-amber-400/30" },
-  { price: 2000, title: "$2,000 Gift Card", badge: "PLATINUM", gradient: "from-cyan-500/20 via-primary/10 to-blue-400/30" },
-  { price: 2500, title: "$2,500 Gift Card", badge: "DIAMOND", gradient: "from-purple-500/20 via-primary/10 to-pink-400/30" },
-  { price: 3000, title: "$3,000 Gift Card", badge: "VIP ELITE", gradient: "from-emerald-500/20 via-primary/10 to-teal-400/30" },
+  { price: 500, title: "$500 Gift Card", badge: "BRONZE" },
+  { price: 1000, title: "$1,000 Gift Card", badge: "SILVER" },
+  { price: 1500, title: "$1,500 Gift Card", badge: "GOLD" },
+  { price: 2000, title: "$2,000 Gift Card", badge: "PLATINUM" },
+  { price: 2500, title: "$2,500 Gift Card", badge: "DIAMOND" },
+  { price: 3000, title: "$3,000 Gift Card", badge: "VIP ELITE" },
 ];
 
 export default function GiftCardsPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const [selectedCard, setSelectedCard] = useState<GiftCardOption | null>(null);
   const [email, setEmail] = useState("");
@@ -31,8 +33,19 @@ export default function GiftCardsPage() {
   const [copied, setCopied] = useState(false);
 
   const handleOpenModal = (card: GiftCardOption) => {
+    if (!user) {
+      Swal.fire({
+        icon: "warning",
+        title: "Please Sign In",
+        text: "You must be logged in to purchase a gift card.",
+      }).then(() => {
+        router.push(`/login?redirect=${encodeURIComponent("/gift-cards")}`);
+      });
+      return;
+    }
+
     setSelectedCard(card);
-    setEmail(user?.email || "");
+    setEmail(user.email || "");
     setErrorMessage("");
     setSuccessResult(null);
     setCopied(false);
@@ -68,20 +81,58 @@ export default function GiftCardsPage() {
       const data = await res.json();
 
       if (res.ok) {
+        const expiryFormatted = new Date(data.expiry_date).toLocaleDateString();
         setSuccessResult({
           card_code: data.card_code,
           price: Number(data.price),
-          expiry_date: new Date(data.expiry_date).toLocaleDateString(),
+          expiry_date: expiryFormatted,
+        });
+
+        // Trigger SweetAlert2 Success Popup as well
+        Swal.fire({
+          title: "Gift Card Issued!",
+          html: `
+            <div style="text-align: left; font-size: 13px; margin-top: 10px;">
+              <p style="margin-bottom: 4px;"><strong>Recipient:</strong> ${email}</p>
+              <p style="margin-bottom: 12px;"><strong>Value:</strong> $${Number(data.price).toLocaleString()} USD</p>
+              <p style="margin-bottom: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">16-Digit Card Code:</p>
+              <div style="background: #11100f; color: #f3efe6; padding: 12px; border-radius: 12px; font-family: monospace; font-size: 18px; font-weight: 900; letter-spacing: 2px; text-align: center;">
+                ${data.card_code}
+              </div>
+              <p style="font-size: 11px; opacity: 0.6; margin-top: 10px; text-align: center;">Valid for 365 days (Expires: ${expiryFormatted})</p>
+            </div>
+          `,
+          icon: "success",
+          confirmButtonText: "Awesome!",
+          confirmButtonColor: "#3a3532",
+          customClass: {
+            popup: "rounded-3xl p-6",
+            confirmButton: "rounded-xl font-bold uppercase tracking-wider px-6 py-2.5 text-xs",
+          },
         });
       } else {
-        setErrorMessage(
+        const errText =
           typeof data === "object"
             ? Object.values(data).flat().join(" ")
-            : "Failed to generate Gift Card. Please make sure you are signed in."
-        );
+            : "Failed to generate Gift Card. Please make sure you are signed in.";
+        setErrorMessage(errText);
+
+        Swal.fire({
+          title: "Error Generating Card",
+          text: errText,
+          icon: "error",
+          confirmButtonColor: "#ef4444",
+        });
       }
     } catch (err: any) {
-      setErrorMessage("Network error: " + err.message);
+      const msg = "Network error: " + err.message;
+      setErrorMessage(msg);
+      Swal.fire({
+        title: "Network Error",
+        text: msg,
+        icon: "error",
+        confirmButtonColor: "#ef4444",
+      });
     } finally {
       setLoading(false);
     }
@@ -90,13 +141,21 @@ export default function GiftCardsPage() {
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code);
     setCopied(true);
+    Swal.fire({
+      toast: true,
+      position: "top-end",
+      icon: "success",
+      title: "Card code copied to clipboard!",
+      showConfirmButton: false,
+      timer: 2000,
+    });
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans antialiased pb-24 transition-colors duration-300">
       {/* Breadcrumbs */}
-      <div className="bg-primary text-background dark:text-foreground border-b border-white/5 py-4 transition-colors duration-300">
+      <div className="bg-primary text-logo border-b border-white/5 py-4 transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2.5 font-bold uppercase tracking-wider">
           <Link href="/" className="hover:underline">
             Home
@@ -110,9 +169,6 @@ export default function GiftCardsPage() {
         {/* Header Title Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
-            <span className="text-xs font-black tracking-widest uppercase text-accent mb-2 block">
-              Digital Vouchers & Rewards
-            </span>
             <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground">
               VibeMart Gift Cards
             </h1>
@@ -130,29 +186,27 @@ export default function GiftCardsPage() {
               className="bg-secondary text-foreground rounded-3xl p-6 shadow-sm border border-foreground/10 hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between"
             >
               <div>
-                {/* Gift Card Visual Artwork */}
-                <div
-                  className={`aspect-[1.6/1] bg-gradient-to-br ${card.gradient} rounded-2xl mb-6 flex flex-col justify-between p-6 relative overflow-hidden border border-foreground/15 shadow-inner group-hover:scale-[1.02] transition-transform duration-300`}
-                >
+                {/* Gift Card Visual Artwork using theme CSS variables */}
+                <div className="aspect-[1.6/1] bg-gradient-to-br from-accent/20 via-primary/10 to-accent/30 rounded-2xl mb-6 flex flex-col justify-between p-6 relative overflow-hidden border border-foreground/15 shadow-inner group-hover:scale-[1.02] transition-transform duration-300">
                   <div className="flex justify-between items-start z-10">
-                    <span className="font-black text-xs tracking-widest uppercase opacity-90">
+                    <span className="font-black text-xs tracking-widest uppercase opacity-90 text-foreground">
                       VIBEMART
                     </span>
-                    <span className="bg-foreground/10 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border border-foreground/10">
+                    <span className="bg-accent text-button-fg px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border border-foreground/10 shadow-sm">
                       {card.badge}
                     </span>
                   </div>
 
                   <div className="z-10 my-auto">
-                    <p className="text-3xl font-black tracking-tight drop-shadow-sm">
+                    <p className="text-3xl font-black tracking-tight drop-shadow-sm text-foreground">
                       ${card.price.toLocaleString()}
                     </p>
-                    <p className="text-[10px] font-bold tracking-widest uppercase opacity-70 mt-1">
+                    <p className="text-[10px] font-bold tracking-widest uppercase opacity-70 mt-1 text-foreground">
                       PREPAID GIFT VOUCHER
                     </p>
                   </div>
 
-                  <div className="flex justify-between items-end z-10 text-[9px] font-mono opacity-60 uppercase tracking-widest">
+                  <div className="flex justify-between items-end z-10 text-[9px] font-mono opacity-60 uppercase tracking-widest text-foreground">
                     <span>•••• •••• •••• ••••</span>
                     <span>1 YEAR VALIDITY</span>
                   </div>
@@ -207,10 +261,10 @@ export default function GiftCardsPage() {
                   <span className="text-[10px] font-black tracking-widest uppercase text-accent block mb-1">
                     ISSUE GIFT CARD
                   </span>
-                  <h3 className="text-2xl font-black uppercase tracking-tight">
+                  <h3 className="text-2xl font-black uppercase tracking-tight text-foreground">
                     {selectedCard.title}
                   </h3>
-                  <p className="opacity-70 text-xs font-bold uppercase tracking-wider mt-1">
+                  <p className="opacity-70 text-xs font-bold uppercase tracking-wider mt-1 text-foreground">
                     Value: ${selectedCard.price.toLocaleString()} USD
                   </p>
                 </div>
@@ -222,7 +276,7 @@ export default function GiftCardsPage() {
                 )}
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80">
+                  <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
                     Recipient Email Address
                   </label>
                   <input
@@ -239,7 +293,7 @@ export default function GiftCardsPage() {
                   <button
                     type="button"
                     onClick={() => setSelectedCard(null)}
-                    className="py-3 px-5 rounded-xl text-xs font-bold uppercase tracking-wider border border-foreground/20 hover:bg-foreground/5 transition-colors"
+                    className="py-3 px-5 rounded-xl text-xs font-bold uppercase tracking-wider border border-foreground/20 hover:bg-foreground/5 transition-colors text-foreground"
                   >
                     Cancel
                   </button>
@@ -255,21 +309,21 @@ export default function GiftCardsPage() {
             ) : (
               /* Success View showing generated 16-character code */
               <div className="space-y-6 text-center py-2">
-                <div className="w-16 h-16 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
+                <div className="w-16 h-16 bg-accent/20 text-accent rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
                   ✓
                 </div>
 
                 <div>
-                  <h3 className="text-2xl font-black uppercase tracking-tight">
+                  <h3 className="text-2xl font-black uppercase tracking-tight text-foreground">
                     Gift Card Issued!
                   </h3>
-                  <p className="opacity-70 text-xs font-bold uppercase tracking-wider mt-1">
+                  <p className="opacity-70 text-xs font-bold uppercase tracking-wider mt-1 text-foreground">
                     ${successResult.price.toLocaleString()} USD issued to {email}
                   </p>
                 </div>
 
                 <div className="bg-background p-4 rounded-2xl border border-foreground/15 text-left space-y-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider opacity-60 block">
+                  <span className="text-[10px] font-bold uppercase tracking-wider opacity-60 block text-foreground">
                     Your 16-Digit Card Code:
                   </span>
                   <div className="flex items-center justify-between gap-2">
@@ -278,12 +332,12 @@ export default function GiftCardsPage() {
                     </span>
                     <button
                       onClick={() => handleCopyCode(successResult.card_code)}
-                      className="px-3 py-1.5 bg-primary text-background dark:text-foreground text-[10px] font-black uppercase tracking-wider rounded-lg hover:opacity-80 transition-opacity"
+                      className="px-3 py-1.5 bg-button-bg text-button-fg text-[10px] font-black uppercase tracking-wider rounded-lg hover:opacity-80 transition-opacity"
                     >
                       {copied ? "Copied!" : "Copy"}
                     </button>
                   </div>
-                  <p className="text-[10px] opacity-60 font-medium pt-1">
+                  <p className="text-[10px] opacity-60 font-medium pt-1 text-foreground">
                     Expires on: {successResult.expiry_date}
                   </p>
                 </div>
