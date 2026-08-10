@@ -24,6 +24,7 @@ interface Order {
   phone?: string;
   payment_method?: string;
   transaction_id?: string;
+  transaction_phone_no?: string;
   items?: OrderItem[];
 }
 
@@ -334,8 +335,18 @@ export default function ProfilePage() {
                             Payment Method
                           </p>
                           <p className="font-bold">
-                            {ord.payment_method === "O" ? (
-                              <span className="text-[#e2136e]">bKash Payment (TrxID: {ord.transaction_id || "N/A"})</span>
+                            {ord.payment_method === "B" || ord.payment_method === "O" ? (
+                              <span className="text-bkash">
+                                bKash Payment
+                                {ord.transaction_id ? ` (TrxID: ${ord.transaction_id})` : ""}
+                                {ord.transaction_phone_no ? ` [Sender: ${ord.transaction_phone_no}]` : ""}
+                              </span>
+                            ) : ord.payment_method === "N" ? (
+                              <span className="text-nagad">
+                                Nagad Payment
+                                {ord.transaction_id ? ` (TrxID: ${ord.transaction_id})` : ""}
+                                {ord.transaction_phone_no ? ` [Sender: ${ord.transaction_phone_no}]` : ""}
+                              </span>
                             ) : (
                               "Cash on Delivery (COD)"
                             )}
