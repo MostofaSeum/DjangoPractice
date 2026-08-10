@@ -125,6 +125,7 @@ class Order(models.Model):
     payment_method = models.CharField(
         max_length=1, choices=PAYMENT_METHOD_CHOICES, default=PAYMENT_METHOD_COD)
     transaction_id = models.CharField(max_length=255, default='', blank=True)
+    transaction_phone_no = models.CharField(max_length=255, default='', blank=True)
     class Meta:
         permissions = [
             ('cancel_order', 'Can cancel order'),

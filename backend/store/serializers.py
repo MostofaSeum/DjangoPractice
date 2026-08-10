@@ -138,7 +138,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'customer_name', 'payment_status','placed_at', 'shipping_address', 'phone', 'payment_method', 'transaction_id', 'items']
+        fields = ['id', 'customer', 'customer_name', 'payment_status','placed_at', 'shipping_address', 'phone', 'payment_method', 'transaction_id', 'transaction_phone_no', 'items']
 
     def get_customer_name(self, obj):
         if obj.customer and hasattr(obj.customer, 'user') and obj.customer.user:
@@ -156,6 +156,7 @@ class CreateOrderSerializer(serializers.Serializer):
     phone = serializers.CharField(max_length=255, required=False, allow_blank=True, default='')
     payment_method = serializers.CharField(max_length=1, required=False, default='C')
     transaction_id = serializers.CharField(max_length=255, required=False, allow_blank=True, default='')
+    transaction_phone_no = serializers.CharField(max_length=255, required=False, allow_blank=True, default='')
 
     def validate_cart_id(self, cart_id):
         if not Cart.objects.filter(pk=cart_id).exists():
@@ -174,7 +175,8 @@ class CreateOrderSerializer(serializers.Serializer):
                 shipping_address=self.validated_data.get('shipping_address', ''),
                 phone=self.validated_data.get('phone', ''),
                 payment_method=self.validated_data.get('payment_method', 'C'),
-                transaction_id=self.validated_data.get('transaction_id', '')
+                transaction_id=self.validated_data.get('transaction_id', ''),
+                transaction_phone_no=self.validated_data.get('transaction_phone_no', '')
             )
 
             cart_items = CartItem.objects.select_related('product').filter(cart_id=cart_id)
@@ -198,12 +200,13 @@ class GiftCardSerializer(serializers.ModelSerializer):
     card_code = serializers.CharField(max_length=50, read_only=True)
     phone = serializers.CharField(max_length=255, write_only=True, required=False, allow_blank=True)
     transaction_id = serializers.CharField(max_length=255, write_only=True, required=False, allow_blank=True)
+    transaction_phone_no = serializers.CharField(max_length=255, write_only=True, required=False, allow_blank=True)
     payment_method = serializers.CharField(max_length=1, write_only=True, required=False, default='C')
     ALLOWED_PRICES = [500, 1000, 1500, 2000, 2500, 3000]
 
     class Meta:
         model = GiftCard
-        fields = ['id', 'user_email', 'card_code', 'price', 'created_at', 'expiry_date', 'is_used', 'phone', 'transaction_id', 'payment_method']
+        fields = ['id', 'user_email', 'card_code', 'price', 'created_at', 'expiry_date', 'is_used', 'phone', 'transaction_id', 'transaction_phone_no', 'payment_method']
         read_only_fields = ['id', 'card_code', 'created_at', 'expiry_date']
 
     def validate_price(self, value):
@@ -216,6 +219,7 @@ class GiftCardSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         phone = validated_data.pop('phone', '')
         transaction_id = validated_data.pop('transaction_id', '')
+        transaction_phone_no = validated_data.pop('transaction_phone_no', '')
         payment_method = validated_data.pop('payment_method', 'C')
         
         request = self.context.get('request')
@@ -232,6 +236,7 @@ class GiftCardSerializer(serializers.ModelSerializer):
                     phone=phone,
                     payment_method=payment_method,
                     transaction_id=transaction_id,
+                    transaction_phone_no=transaction_phone_no,
                     payment_status='P',
                 )
                 OrderItem.objects.create(

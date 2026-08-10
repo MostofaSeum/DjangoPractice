@@ -20,6 +20,7 @@ export default function CheckoutPage() {
   const [shippingAddress, setShippingAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"C" | "O" | "N">("C");
   const [transactionId, setTransactionId] = useState("");
+  const [transactionPhoneNo, setTransactionPhoneNo] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -59,12 +60,12 @@ export default function CheckoutPage() {
 
   const isCartEmpty = !cart || cart.items.length === 0;
 
-  // Validation: Online/bKash/Nagad requires TrxID
+  // Validation: Online/bKash/Nagad requires TrxID and Sender Phone
   const isOnlinePayment = paymentMethod === "O" || paymentMethod === "N";
   const isOrderValid =
     phone.trim().length > 0 &&
     shippingAddress.trim().length > 0 &&
-    (!isOnlinePayment || transactionId.trim().length > 0);
+    (!isOnlinePayment || (transactionId.trim().length > 0 && transactionPhoneNo.trim().length > 0));
 
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,6 +80,7 @@ export default function CheckoutPage() {
         phone: phone,
         payment_method: paymentMethod,
         transaction_id: isOnlinePayment ? transactionId : "",
+        transaction_phone_no: isOnlinePayment ? transactionPhoneNo : "",
       };
 
       const res = await fetch(`${API_BASE}/store/orders/`, {
@@ -316,26 +318,37 @@ export default function CheckoutPage() {
                     <p>1. Go to your bKash Mobile App or Dial *247#</p>
                     <p>2. Select <strong>Send Money</strong> or <strong>Payment</strong> to <strong>01700000000</strong></p>
                     <p>3. Complete payment for <strong>${Number(cart.total_price).toFixed(2)}</strong></p>
-                    <p>4. Copy and paste the 8-10 digit <strong>TrxID</strong> below:</p>
+                    <p>4. Enter Sender Mobile Number & TrxID below:</p>
                   </div>
 
-                  <div className="flex flex-col gap-1.5 pt-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-foreground">
-                      bKash Transaction ID (TrxID) *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={transactionId}
-                      onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
-                      placeholder="e.g. 9B7X2K1L8M"
-                      className="px-4 py-3 border border-[#e2136e]/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-[#e2136e] shadow-sm"
-                    />
-                    {!transactionId.trim() && (
-                      <p className="text-[10px] text-red-500 font-bold uppercase">
-                        * Transaction ID is required for bKash orders.
-                      </p>
-                    )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold uppercase tracking-wider text-foreground">
+                        Sender bKash Mobile Number *
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        value={transactionPhoneNo}
+                        onChange={(e) => setTransactionPhoneNo(e.target.value)}
+                        placeholder="e.g. 01712345678"
+                        className="px-4 py-3 border border-[#e2136e]/40 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-[#e2136e] shadow-sm"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold uppercase tracking-wider text-foreground">
+                        bKash Transaction ID (TrxID) *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={transactionId}
+                        onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
+                        placeholder="e.g. 9B7X2K1L8M"
+                        className="px-4 py-3 border border-[#e2136e]/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase outline-none focus:ring-2 focus:ring-[#e2136e] shadow-sm"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -350,26 +363,37 @@ export default function CheckoutPage() {
                     <p>1. Go to your Nagad Mobile App or Dial *167#</p>
                     <p>2. Select <strong>Send Money</strong> or <strong>Merchant Pay</strong> to <strong>01700000000</strong></p>
                     <p>3. Complete payment for <strong>${Number(cart.total_price).toFixed(2)}</strong></p>
-                    <p>4. Copy and paste the 8-10 digit <strong>TrxID</strong> below:</p>
+                    <p>4. Enter Sender Mobile Number & TrxID below:</p>
                   </div>
 
-                  <div className="flex flex-col gap-1.5 pt-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-foreground">
-                      Nagad Transaction ID (TrxID) *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={transactionId}
-                      onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
-                      placeholder="e.g. 7N3X9L2K8P"
-                      className="px-4 py-3 border border-[#f15a24]/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-[#f15a24] shadow-sm"
-                    />
-                    {!transactionId.trim() && (
-                      <p className="text-[10px] text-red-500 font-bold uppercase">
-                        * Transaction ID is required for Nagad orders.
-                      </p>
-                    )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold uppercase tracking-wider text-foreground">
+                        Sender Nagad Mobile Number *
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        value={transactionPhoneNo}
+                        onChange={(e) => setTransactionPhoneNo(e.target.value)}
+                        placeholder="e.g. 01712345678"
+                        className="px-4 py-3 border border-[#f15a24]/40 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-[#f15a24] shadow-sm"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-xs font-bold uppercase tracking-wider text-foreground">
+                        Nagad Transaction ID (TrxID) *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={transactionId}
+                        onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
+                        placeholder="e.g. 7N3X9L2K8P"
+                        className="px-4 py-3 border border-[#f15a24]/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase outline-none focus:ring-2 focus:ring-[#f15a24] shadow-sm"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
