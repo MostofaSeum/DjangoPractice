@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import ProductImage from "@/components/ui/ProductImage";
 import AddToCartButton from "@/features/products/components/AddToCartButton";
 import { getApiBaseUrl } from "@/config/siteConfig";
