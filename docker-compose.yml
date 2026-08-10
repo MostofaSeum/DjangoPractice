@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  # Database Service (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: storefront_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-storefront}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Redis Cache & Celery Message Broker
+  redis:
+    image: redis:7-alpine
+    container_name: storefront_redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  # Backend Service (Django REST Framework)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: storefront_backend
+    restart: always
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - REDIS_CACHE_URL=redis://redis:6379/2
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/storefront
+    depends_on:
+      - db
+      - redis
+
+  # Background Task Worker (Celery)
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: storefront_celery
+    restart: always
+    command: celery -A storefront worker -l info
+    volumes:
+      - ./backend:/app
+    environment:
+      - DEBUG=1
+      - CELERY_BROKER_URL=redis://redis:6379/1
+      - REDIS_CACHE_URL=redis://redis:6379/2
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/storefront
+    depends_on:
+      - backend
+      - redis
+
+  # Frontend Service (Next.js)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: storefront_frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
