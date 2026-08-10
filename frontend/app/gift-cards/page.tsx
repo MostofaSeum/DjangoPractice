@@ -42,6 +42,7 @@ export default function GiftCardsPage() {
         icon: "warning",
         title: "Please Sign In",
         text: "You must be logged in to purchase a gift card.",
+        confirmButtonColor: "var(--button-bg)",
       }).then(() => {
         router.push(`/login?redirect=${encodeURIComponent("/gift-cards")}`);
       });
@@ -109,7 +110,7 @@ export default function GiftCardsPage() {
           expiry_date: expiryFormatted,
         });
 
-        // SweetAlert2 Success Notification
+        // SweetAlert2 Success Notification strictly using theme colors
         Swal.fire({
           title: "Gift Card Purchased & Order Placed!",
           html: `
@@ -120,7 +121,7 @@ export default function GiftCardsPage() {
               ${transactionId ? `<p style="margin-bottom: 8px;"><strong>TrxID:</strong> ${transactionId}</p>` : ''}
               <p style="margin-bottom: 12px;"><strong>Value:</strong> $${Number(data.price).toLocaleString()} USD</p>
               <p style="margin-bottom: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">16-Digit Card Code:</p>
-              <div style="background: #11100f; color: #f3efe6; padding: 12px; border-radius: 12px; font-family: monospace; font-size: 18px; font-weight: 900; letter-spacing: 2px; text-align: center;">
+              <div style="background: var(--primary); color: var(--logo-color); padding: 12px; border-radius: 12px; font-family: var(--font-mono); font-size: 18px; font-weight: 900; letter-spacing: 2px; text-align: center;">
                 ${data.card_code}
               </div>
               <p style="font-size: 11px; opacity: 0.6; margin-top: 10px; text-align: center;">Order logged under your account. Code valid for 365 days.</p>
@@ -128,7 +129,7 @@ export default function GiftCardsPage() {
           `,
           icon: "success",
           confirmButtonText: "Awesome!",
-          confirmButtonColor: "#3a3532",
+          confirmButtonColor: "var(--button-bg)",
           customClass: {
             popup: "rounded-3xl p-6",
             confirmButton: "rounded-xl font-bold uppercase tracking-wider px-6 py-2.5 text-xs",
@@ -145,7 +146,7 @@ export default function GiftCardsPage() {
           title: "Order Failed",
           text: errText,
           icon: "error",
-          confirmButtonColor: "#ef4444",
+          confirmButtonColor: "var(--button-bg)",
         });
       }
     } catch (err: any) {
@@ -155,7 +156,7 @@ export default function GiftCardsPage() {
         title: "Network Error",
         text: msg,
         icon: "error",
-        confirmButtonColor: "#ef4444",
+        confirmButtonColor: "var(--button-bg)",
       });
     } finally {
       setLoading(false);
@@ -210,7 +211,7 @@ export default function GiftCardsPage() {
               className="bg-secondary text-foreground rounded-3xl p-6 shadow-sm border border-foreground/10 hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between"
             >
               <div>
-                {/* Gift Card Visual Artwork using theme CSS variables */}
+                {/* Gift Card Visual Artwork strictly using theme tokens */}
                 <div className="aspect-[1.6/1] bg-gradient-to-br from-accent/20 via-primary/10 to-accent/30 rounded-2xl mb-6 flex flex-col justify-between p-6 relative overflow-hidden border border-foreground/15 shadow-inner group-hover:scale-[1.02] transition-transform duration-300">
                   <div className="flex justify-between items-start z-10">
                     <span className="font-black text-xs tracking-widest uppercase opacity-90 text-foreground">
@@ -294,7 +295,7 @@ export default function GiftCardsPage() {
                 </div>
 
                 {errorMessage && (
-                  <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-500 text-xs font-bold">
+                  <div className="p-4 bg-accent/10 border border-accent/30 rounded-xl text-accent text-xs font-bold">
                     {errorMessage}
                   </div>
                 )}
@@ -331,11 +332,11 @@ export default function GiftCardsPage() {
                   </div>
 
                   {user?.email && email.trim().toLowerCase() === user.email.trim().toLowerCase() && (
-                    <div className="w-full p-4 rounded-2xl bg-accent/10 border border-accent/30 text-foreground text-xs font-bold leading-relaxed space-y-1 animate-in fade-in slide-in-from-top-1 duration-200 shadow-sm">
-                      <p className="font-black text-accent uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <div className="w-full p-4 rounded-2xl bg-accent/10 border border-accent/30 text-foreground text-xs font-bold leading-relaxed space-y-1 animate-in fade-in slide-in-from-top-1 duration-200 shadow-sm text-center flex flex-col items-center justify-center">
+                      <p className="font-black text-accent uppercase tracking-wider text-[11px] flex items-center justify-center gap-1.5">
                         <span>💌</span> Special Note
                       </p>
-                      <p className="opacity-90">
+                      <p className="opacity-90 max-w-sm">
                         Hope that your favourite person gifts you this card soon! Now go and buy something for yourself.
                       </p>
                       <p className="text-accent font-extrabold pt-0.5">
@@ -356,7 +357,7 @@ export default function GiftCardsPage() {
                       onClick={() => setPaymentMethod("B")}
                       className={`p-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
                         paymentMethod === "B"
-                          ? "border-[#e2136e] bg-[#e2136e]/10 text-[#e2136e]"
+                          ? "border-accent bg-accent/10 text-accent font-black shadow-sm"
                           : "border-foreground/15 bg-background text-foreground/70"
                       }`}
                     >
@@ -367,7 +368,7 @@ export default function GiftCardsPage() {
                       onClick={() => setPaymentMethod("N")}
                       className={`p-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
                         paymentMethod === "N"
-                          ? "border-[#f15a24] bg-[#f15a24]/10 text-[#f15a24]"
+                          ? "border-accent bg-accent/10 text-accent font-black shadow-sm"
                           : "border-foreground/15 bg-background text-foreground/70"
                       }`}
                     >
@@ -378,9 +379,9 @@ export default function GiftCardsPage() {
 
                 {/* bKash Payment Instructions & Sender Phone + TrxID Fields */}
                 {paymentMethod === "B" && (
-                  <div className="p-5 rounded-2xl bg-[#e2136e]/10 border border-[#e2136e]/30 space-y-3">
-                    <div className="text-[11px] font-bold text-[#e2136e] space-y-1">
-                      <p className="font-black uppercase tracking-wider">
+                  <div className="p-5 rounded-2xl bg-accent/10 border border-accent/30 space-y-3">
+                    <div className="text-[11px] font-bold text-foreground space-y-1">
+                      <p className="font-black text-accent uppercase tracking-wider">
                         bKash Payment Instructions:
                       </p>
                       <p>1. Open your bKash Mobile App or Dial *247#</p>
@@ -400,7 +401,7 @@ export default function GiftCardsPage() {
                           value={transactionPhoneNo}
                           onChange={(e) => setTransactionPhoneNo(e.target.value)}
                           placeholder="e.g. 01712345678"
-                          className="w-full px-4 py-3 border border-[#e2136e]/40 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-[#e2136e]"
+                          className="w-full px-4 py-3 border border-foreground/20 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:border-accent"
                         />
                       </div>
 
@@ -414,7 +415,7 @@ export default function GiftCardsPage() {
                           value={transactionId}
                           onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
                           placeholder="e.g. 9B7X2K1L8M"
-                          className="w-full px-4 py-3 border border-[#e2136e]/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase outline-none focus:ring-2 focus:ring-[#e2136e]"
+                          className="w-full px-4 py-3 border border-foreground/20 rounded-xl bg-background text-xs font-bold text-foreground uppercase outline-none focus:border-accent"
                         />
                       </div>
                     </div>
@@ -423,9 +424,9 @@ export default function GiftCardsPage() {
 
                 {/* Nagad Payment Instructions & Sender Phone + TrxID Fields */}
                 {paymentMethod === "N" && (
-                  <div className="p-5 rounded-2xl bg-[#f15a24]/10 border border-[#f15a24]/30 space-y-3">
-                    <div className="text-[11px] font-bold text-[#f15a24] space-y-1">
-                      <p className="font-black uppercase tracking-wider">
+                  <div className="p-5 rounded-2xl bg-accent/10 border border-accent/30 space-y-3">
+                    <div className="text-[11px] font-bold text-foreground space-y-1">
+                      <p className="font-black text-accent uppercase tracking-wider">
                         Nagad Payment Instructions:
                       </p>
                       <p>1. Open your Nagad Mobile App or Dial *167#</p>
@@ -445,7 +446,7 @@ export default function GiftCardsPage() {
                           value={transactionPhoneNo}
                           onChange={(e) => setTransactionPhoneNo(e.target.value)}
                           placeholder="e.g. 01712345678"
-                          className="w-full px-4 py-3 border border-[#f15a24]/40 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-[#f15a24]"
+                          className="w-full px-4 py-3 border border-foreground/20 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:border-accent"
                         />
                       </div>
 
@@ -459,7 +460,7 @@ export default function GiftCardsPage() {
                           value={transactionId}
                           onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
                           placeholder="e.g. 7N3X9L2K8P"
-                          className="w-full px-4 py-3 border border-[#f15a24]/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase outline-none focus:ring-2 focus:ring-[#f15a24]"
+                          className="w-full px-4 py-3 border border-foreground/20 rounded-xl bg-background text-xs font-bold text-foreground uppercase outline-none focus:border-accent"
                         />
                       </div>
                     </div>
