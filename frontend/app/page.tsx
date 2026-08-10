@@ -66,10 +66,10 @@ const DiamondIcon = () => (
   </svg>
 );
 
+import { getApiBaseUrl } from "@/config/siteConfig";
+
 export default async function Home() {
-  const apiBaseUrl = (
-    process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
-  ).replace(/\/+$/, "");
+  const apiBaseUrl = getApiBaseUrl();
   let trendingProducts: Product[] = [];
 
   try {

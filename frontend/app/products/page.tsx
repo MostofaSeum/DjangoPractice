@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import ProductImage from "@/components/ui/ProductImage";
 import AddToCartButton from "@/features/products/components/AddToCartButton";
+import { getApiBaseUrl } from "@/config/siteConfig";
 
 interface Product {
   id: number;
@@ -33,7 +34,7 @@ export default async function ProductsPage({
   if (search) queryParams.append("search", search);
   if (page) queryParams.append("page", page);
 
-  const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
+  const apiBaseUrl = getApiBaseUrl();
   const res = await fetch(
     `${apiBaseUrl}/store/products/?${queryParams.toString()}`,
     {

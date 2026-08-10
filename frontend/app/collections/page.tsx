@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { getApiBaseUrl } from "@/config/siteConfig";
 
 interface Collection {
   id: number;
@@ -10,7 +11,7 @@ interface Collection {
 }
 
 export default async function CollectionsPage() {
-  const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
+  const apiBaseUrl = getApiBaseUrl();
   const res = await fetch(`${apiBaseUrl}/store/collections/`, {
     cache: "no-store",
   });
