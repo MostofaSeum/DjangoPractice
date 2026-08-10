@@ -28,7 +28,7 @@ export default function GiftCardsPage() {
   const [selectedCard, setSelectedCard] = useState<GiftCardOption | null>(null);
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"B" | "C">("B");
+  const [paymentMethod, setPaymentMethod] = useState<"B" | "N">("B");
   const [transactionId, setTransactionId] = useState("");
   const [loading, setLoading] = useState(false);
   const [successResult, setSuccessResult] = useState<{ card_code: string; price: number; expiry_date: string } | null>(null);
@@ -61,8 +61,8 @@ export default function GiftCardsPage() {
     e.preventDefault();
     if (!selectedCard || !email) return;
 
-    if (paymentMethod === "B" && !transactionId.trim()) {
-      setErrorMessage("Please enter your bKash Transaction ID (TrxID).");
+    if (!transactionId.trim()) {
+      setErrorMessage(`Please enter your ${paymentMethod === 'B' ? 'bKash' : 'Nagad'} Transaction ID (TrxID).`);
       return;
     }
 
@@ -108,8 +108,8 @@ export default function GiftCardsPage() {
           html: `
             <div style="text-align: left; font-size: 13px; margin-top: 10px;">
               <p style="margin-bottom: 4px;"><strong>Recipient:</strong> ${email}</p>
-              <p style="margin-bottom: 4px;"><strong>Payment Method:</strong> ${paymentMethod === 'B' ? 'bKash' : 'Card'}</p>
-              ${transactionId ? `<p style="margin-bottom: 8px;"><strong>bKash TrxID:</strong> ${transactionId}</p>` : ''}
+              <p style="margin-bottom: 4px;"><strong>Payment Method:</strong> ${paymentMethod === 'B' ? 'bKash' : 'Nagad'}</p>
+              ${transactionId ? `<p style="margin-bottom: 8px;"><strong>TrxID:</strong> ${transactionId}</p>` : ''}
               <p style="margin-bottom: 12px;"><strong>Value:</strong> $${Number(data.price).toLocaleString()} USD</p>
               <p style="margin-bottom: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">16-Digit Card Code:</p>
               <div style="background: #11100f; color: #f3efe6; padding: 12px; border-radius: 12px; font-family: monospace; font-size: 18px; font-weight: 900; letter-spacing: 2px; text-align: center;">
@@ -336,7 +336,18 @@ export default function GiftCardsPage() {
                           : "border-foreground/15 bg-background text-foreground/70"
                       }`}
                     >
-                      bKash / Online
+                      bKash Payment
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("N")}
+                      className={`p-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+                        paymentMethod === "N"
+                          ? "border-[#f15a24] bg-[#f15a24]/10 text-[#f15a24]"
+                          : "border-foreground/15 bg-background text-foreground/70"
+                      }`}
+                    >
+                      Nagad Payment
                     </button>
                   </div>
                 </div>
@@ -365,6 +376,35 @@ export default function GiftCardsPage() {
                         onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
                         placeholder="e.g. 9B7X2K1L8M"
                         className="px-4 py-3 border border-[#e2136e]/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase placeholder:text-foreground/40 outline-none focus:ring-2 focus:ring-[#e2136e]"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Nagad Payment Instructions & TrxID Field */}
+                {paymentMethod === "N" && (
+                  <div className="p-5 rounded-2xl bg-[#f15a24]/10 border border-[#f15a24]/30 space-y-3">
+                    <div className="text-[11px] font-bold text-[#f15a24] space-y-1">
+                      <p className="font-black uppercase tracking-wider">
+                        Nagad Payment Instructions:
+                      </p>
+                      <p>1. Open your Nagad Mobile App or Dial *167#</p>
+                      <p>2. Select <strong>Send Money</strong> or <strong>Merchant Pay</strong> to <strong>01700000000</strong></p>
+                      <p>3. Pay total amount: <strong>${selectedCard.price.toLocaleString()} USD</strong></p>
+                      <p>4. Copy and paste the 8-10 digit <strong>TrxID</strong> below:</p>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5 pt-1">
+                      <label className="text-xs font-bold uppercase tracking-wider text-foreground">
+                        Nagad Transaction ID (TrxID) *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={transactionId}
+                        onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
+                        placeholder="e.g. 7N3X9L2K8P"
+                        className="px-4 py-3 border border-[#f15a24]/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase placeholder:text-foreground/40 outline-none focus:ring-2 focus:ring-[#f15a24]"
                       />
                     </div>
                   </div>

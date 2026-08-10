@@ -107,9 +107,13 @@ class Order(models.Model):
 
     PAYMENT_METHOD_COD = 'C'
     PAYMENT_METHOD_ONLINE = 'O'
+    PAYMENT_METHOD_BKASH = 'B'
+    PAYMENT_METHOD_NAGAD = 'N'
     PAYMENT_METHOD_CHOICES = [
         (PAYMENT_METHOD_COD, 'COD'),
         (PAYMENT_METHOD_ONLINE, 'Online'),
+        (PAYMENT_METHOD_BKASH, 'bKash'),
+        (PAYMENT_METHOD_NAGAD, 'Nagad'),
     ]
 
     placed_at = models.DateTimeField(auto_now_add=True)

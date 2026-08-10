@@ -18,7 +18,7 @@ export default function CheckoutPage() {
 
   const [phone, setPhone] = useState("");
   const [shippingAddress, setShippingAddress] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"C" | "O">("C");
+  const [paymentMethod, setPaymentMethod] = useState<"C" | "O" | "N">("C");
   const [transactionId, setTransactionId] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -59,8 +59,8 @@ export default function CheckoutPage() {
 
   const isCartEmpty = !cart || cart.items.length === 0;
 
-  // Validation: Online/bKash requires TrxID
-  const isOnlinePayment = paymentMethod === "O";
+  // Validation: Online/bKash/Nagad requires TrxID
+  const isOnlinePayment = paymentMethod === "O" || paymentMethod === "N";
   const isOrderValid =
     phone.trim().length > 0 &&
     shippingAddress.trim().length > 0 &&
@@ -226,7 +226,7 @@ export default function CheckoutPage() {
                 Payment Options
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {/* Cash on Delivery Option */}
                 <div
                   onClick={() => setPaymentMethod("C")}
@@ -237,7 +237,7 @@ export default function CheckoutPage() {
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="font-black text-sm uppercase tracking-tight">
+                    <span className="font-black text-xs uppercase tracking-tight">
                       Cash on Delivery (COD)
                     </span>
                     <input
@@ -249,11 +249,11 @@ export default function CheckoutPage() {
                     />
                   </div>
                   <p className="text-xs opacity-70 font-medium">
-                    Pay in cash when your order is delivered to your doorstep.
+                    Pay in cash when delivered.
                   </p>
                 </div>
 
-                {/* bKash / Online Option */}
+                {/* bKash Option */}
                 <div
                   onClick={() => setPaymentMethod("O")}
                   className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
@@ -263,8 +263,8 @@ export default function CheckoutPage() {
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="font-black text-sm uppercase tracking-tight text-[#e2136e]">
-                      bKash / Online Payment
+                    <span className="font-black text-xs uppercase tracking-tight text-[#e2136e]">
+                      bKash Payment
                     </span>
                     <input
                       type="radio"
@@ -275,7 +275,33 @@ export default function CheckoutPage() {
                     />
                   </div>
                   <p className="text-xs opacity-70 font-medium">
-                    Pay via bKash and provide the Transaction ID (TrxID).
+                    Pay via bKash TrxID.
+                  </p>
+                </div>
+
+                {/* Nagad Option */}
+                <div
+                  onClick={() => setPaymentMethod("N")}
+                  className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
+                    paymentMethod === "N"
+                      ? "border-[#f15a24] bg-[#f15a24]/10 shadow-sm"
+                      : "border-foreground/10 bg-secondary hover:border-[#f15a24]/50"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-black text-xs uppercase tracking-tight text-[#f15a24]">
+                      Nagad Payment
+                    </span>
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      checked={paymentMethod === "N"}
+                      onChange={() => setPaymentMethod("N")}
+                      className="w-4 h-4 accent-[#f15a24]"
+                    />
+                  </div>
+                  <p className="text-xs opacity-70 font-medium">
+                    Pay via Nagad TrxID.
                   </p>
                 </div>
               </div>
@@ -299,7 +325,7 @@ export default function CheckoutPage() {
                     </label>
                     <input
                       type="text"
-                      required={paymentMethod === "O"}
+                      required
                       value={transactionId}
                       onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
                       placeholder="e.g. 9B7X2K1L8M"
@@ -308,6 +334,40 @@ export default function CheckoutPage() {
                     {!transactionId.trim() && (
                       <p className="text-[10px] text-red-500 font-bold uppercase">
                         * Transaction ID is required for bKash orders.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Nagad Extra Fields */}
+              {paymentMethod === "N" && (
+                <div className="mt-6 p-6 rounded-2xl bg-[#f15a24]/10 border border-[#f15a24]/30 space-y-4">
+                  <div className="text-xs font-bold text-[#f15a24] space-y-1">
+                    <p className="font-black uppercase tracking-wider">
+                      Nagad Payment Instructions:
+                    </p>
+                    <p>1. Go to your Nagad Mobile App or Dial *167#</p>
+                    <p>2. Select <strong>Send Money</strong> or <strong>Merchant Pay</strong> to <strong>01700000000</strong></p>
+                    <p>3. Complete payment for <strong>${Number(cart.total_price).toFixed(2)}</strong></p>
+                    <p>4. Copy and paste the 8-10 digit <strong>TrxID</strong> below:</p>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5 pt-2">
+                    <label className="text-xs font-bold uppercase tracking-wider text-foreground">
+                      Nagad Transaction ID (TrxID) *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={transactionId}
+                      onChange={(e) => setTransactionId(e.target.value.toUpperCase())}
+                      placeholder="e.g. 7N3X9L2K8P"
+                      className="px-4 py-3 border border-[#f15a24]/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-[#f15a24] shadow-sm"
+                    />
+                    {!transactionId.trim() && (
+                      <p className="text-[10px] text-red-500 font-bold uppercase">
+                        * Transaction ID is required for Nagad orders.
                       </p>
                     )}
                   </div>
