@@ -28,6 +28,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: storefront-backend:1.0
     container_name: storefront_backend
     restart: always
     command: python manage.py runserver 0.0.0.0:8000
@@ -49,6 +50,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: storefront-celery:1.0
     container_name: storefront_celery
     restart: always
     command: celery -A storefront worker -l info
@@ -68,6 +70,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    image: storefront-frontend:1.0
     container_name: storefront_frontend
     restart: always
     ports:
