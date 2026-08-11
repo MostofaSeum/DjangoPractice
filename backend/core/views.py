@@ -46,14 +46,14 @@ def send_otp(request):
         # Clean from_email if it contains name like "VibeMart <email>"
         clean_from_email = from_email.split('<')[-1].replace('>', '').strip() if '<' in from_email else from_email
 
-        brevo_key = os.environ.get('BREVO_API_KEY') or getattr(settings, 'EMAIL_HOST_PASSWORD', None)
+        brevo_api_key = os.environ.get('BREVO_API_KEY')
 
-        # Send via Brevo HTTPS API on Port 443 (Fast & Bypass Cloud Firewall Blocks)
-        if brevo_key and (brevo_key.startswith('xkeysib-') or brevo_key.startswith('xsmtpsib-')):
+        # Send via Brevo HTTPS API on Port 443 if BREVO_API_KEY (xkeysib-...) is provided
+        if brevo_api_key and brevo_api_key.startswith('xkeysib-'):
             api_url = "https://api.brevo.com/v3/smtp/email"
             headers = {
                 "accept": "application/json",
-                "api-key": brevo_key,
+                "api-key": brevo_api_key,
                 "content-type": "application/json"
             }
             payload = {
