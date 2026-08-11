@@ -220,7 +220,7 @@ class GiftCardViewSet(ModelViewSet):
         ]
         return Response(options)
 
-    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
     def redeem(self, request):
         code = request.data.get('card_code', '').strip()
         if not code:
@@ -231,12 +231,33 @@ class GiftCardViewSet(ModelViewSet):
             if gift_card.is_used:
                 return Response({'error': 'This gift card has already been redeemed.', 'is_used': True}, status=status.HTTP_400_BAD_REQUEST)
 
+            # Validate that logged-in user email matches the gift card email
+            user_email = (request.user.email or '').strip().lower()
+            card_email = (gift_card.user_email or '').strip().lower()
+
+            if not user_email or user_email != card_email:
+                return Response({
+                    'error': f'Email mismatch! This gift card belongs to "{gift_card.user_email}". Your logged-in email is "{request.user.email or "N/A"}".'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Credit vibe_coin to customer profile in database
+            customer, _ = Customer.objects.get_or_create(user=request.user)
+            coin_amount = int(gift_card.price)
+            customer.vibe_coin += coin_amount
+            customer.save()
+
+            # Mark gift card as used
+            gift_card.is_used = True
+            gift_card.save()
+
             return Response({
                 'valid': True,
                 'card_code': gift_card.card_code,
                 'price': str(gift_card.price),
+                'vibe_coins_added': coin_amount,
+                'new_vibe_coin_balance': customer.vibe_coin,
                 'expiry_date': gift_card.expiry_date.strftime('%Y-%m-%d'),
-                'message': 'Congratulations! Your gift card is valid and ready to use.'
+                'message': f'Congratulations! Your gift card was successfully redeemed and {coin_amount} VibeCoins have been added to your profile.'
             })
         except GiftCard.DoesNotExist:
             return Response({'error': 'Invalid gift card code. Please try again.'}, status=status.HTTP_404_NOT_FOUND)

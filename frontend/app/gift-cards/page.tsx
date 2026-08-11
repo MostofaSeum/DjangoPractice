@@ -61,6 +61,18 @@ export default function GiftCardsPage() {
   };
 
   const handleRedeemGiftCard = async () => {
+    if (!user || !token) {
+      Swal.fire({
+        icon: "warning",
+        title: "Please Sign In",
+        text: "You must be logged in to redeem a gift card.",
+        confirmButtonColor: "var(--button-bg)",
+      }).then(() => {
+        router.push(`/login?redirect=${encodeURIComponent("/gift-cards")}`);
+      });
+      return;
+    }
+
     const { value: cardCode } = await Swal.fire({
       title: "Redeem Gift Card",
       text: "Enter your 16-digit Gift Card code below:",
@@ -85,7 +97,10 @@ export default function GiftCardsPage() {
         const apiBaseUrl = getApiBaseUrl();
         const res = await fetch(`${apiBaseUrl}/store/gift-cards/redeem/`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `JWT ${token}`,
+          },
           body: JSON.stringify({ card_code: cardCode.trim().toUpperCase() }),
         });
 
@@ -96,12 +111,12 @@ export default function GiftCardsPage() {
             title: "🎉 Congratulations!",
             html: `
               <div style="text-align: center; margin-top: 10px;">
-                <p style="font-size: 14px; font-weight: bold; color: var(--foreground); margin-bottom: 8px;">Your Gift Card is <strong>Valid & Active</strong> in database!</p>
-                <div style="background: var(--primary); color: var(--logo-color); padding: 14px; border-radius: 14px; font-family: var(--font-mono); font-size: 20px; font-weight: 900; letter-spacing: 2px; margin: 15px 0;">
-                  Value: $${Number(data.price).toLocaleString()} USD
+                <p style="font-size: 14px; font-weight: bold; color: var(--foreground); margin-bottom: 8px;">Gift Card Successfully Redeemed!</p>
+                <div style="background: var(--secondary); color: var(--foreground); padding: 14px; border-radius: 14px; font-family: var(--font-sans); font-size: 24px; font-weight: 900; letter-spacing: 1px; margin: 15px 0; border: 1px solid var(--foreground)/20;">
+                  +${data.vibe_coins_added} VibeCoins 🪙
                 </div>
-                <p style="font-size: 12px; opacity: 0.8; margin-bottom: 4px;">Code: <strong>${data.card_code}</strong></p>
-                <p style="font-size: 11px; opacity: 0.6;">Expires on: ${data.expiry_date}</p>
+                <p style="font-size: 13px; font-weight: bold; color: var(--foreground); margin-bottom: 4px;">New VibeCoin Balance: <strong>${data.new_vibe_coin_balance} VC</strong></p>
+                <p style="font-size: 11px; opacity: 0.7; margin-top: 6px;">Code: <strong>${data.card_code}</strong></p>
               </div>
             `,
             icon: "success",
