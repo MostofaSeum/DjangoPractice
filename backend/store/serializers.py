@@ -171,16 +171,34 @@ class CreateOrderSerializer(serializers.Serializer):
         with transaction.atomic():
             cart_id = self.validated_data['cart_id']
             customer = Customer.objects.get(user_id=self.context['user_id'])
+            payment_method = self.validated_data.get('payment_method', 'C')
+            
+            cart_items = list(CartItem.objects.select_related('product').filter(cart_id=cart_id))
+            if not cart_items:
+                raise serializers.ValidationError({'cart_id': 'The cart is empty.'})
+
+            payment_status = Order.PAYMENT_STATUS_PENDING
+            if payment_method == 'V':
+                order_total = sum(item.quantity * item.product.unit_price for item in cart_items)
+                coin_required = int(order_total)
+                if customer.vibe_coin < coin_required:
+                    raise serializers.ValidationError({
+                        'payment_method': f'Insufficient VibeCoin balance. Required: {coin_required} VC, Available: {customer.vibe_coin} VC.'
+                    })
+                customer.vibe_coin -= coin_required
+                customer.save()
+                payment_status = Order.PAYMENT_STATUS_COMPLETE
+
             order = Order.objects.create(
                 customer=customer,
                 shipping_address=self.validated_data.get('shipping_address', ''),
                 phone=self.validated_data.get('phone', ''),
-                payment_method=self.validated_data.get('payment_method', 'C'),
+                payment_method=payment_method,
+                payment_status=payment_status,
                 transaction_id=self.validated_data.get('transaction_id', ''),
                 transaction_phone_no=self.validated_data.get('transaction_phone_no', '')
             )
 
-            cart_items = CartItem.objects.select_related('product').filter(cart_id=cart_id)
             order_items = [
                 OrderItem(
                     order=order,

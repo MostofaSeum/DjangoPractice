@@ -369,7 +369,11 @@ export default function ProfilePage() {
                             Payment Method
                           </p>
                           <p className="font-bold">
-                            {ord.payment_method === "B" || ord.payment_method === "O" ? (
+                            {ord.payment_method === "V" ? (
+                              <span className="text-accent flex items-center gap-1">
+                                🪙 VibeCoin Payment
+                              </span>
+                            ) : ord.payment_method === "B" || ord.payment_method === "O" ? (
                               <span className="text-bkash">
                                 bKash Payment
                                 {ord.transaction_id ? ` (TrxID: ${ord.transaction_id})` : ""}

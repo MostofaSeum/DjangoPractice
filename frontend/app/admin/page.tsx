@@ -1469,7 +1469,12 @@ export default function AdminDashboardPage() {
                         <strong>Shipping:</strong> {ord.shipping_address || "N/A"} | <strong>Phone:</strong> {ord.phone || "N/A"}
                       </p>
                       <p className="text-[11px] opacity-70">
-                        <strong>Payment Method:</strong> {ord.payment_method === "O" ? `bKash (TrxID: ${ord.transaction_id || "N/A"})` : "Cash on Delivery (COD)"}
+                        <strong>Payment Method:</strong> {
+                          ord.payment_method === "V" ? "🪙 VibeCoin Payment" :
+                          ord.payment_method === "O" || ord.payment_method === "B" ? `bKash (TrxID: ${ord.transaction_id || "N/A"})` :
+                          ord.payment_method === "N" ? `Nagad (TrxID: ${ord.transaction_id || "N/A"})` :
+                          "Cash on Delivery (COD)"
+                        }
                       </p>
                       
                       {ord.items && ord.items.length > 0 && (

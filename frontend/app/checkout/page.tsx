@@ -18,7 +18,8 @@ export default function CheckoutPage() {
 
   const [phone, setPhone] = useState("");
   const [shippingAddress, setShippingAddress] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"C" | "O" | "N">("C");
+  const [paymentMethod, setPaymentMethod] = useState<"C" | "O" | "N" | "V">("C");
+  const [vibeCoin, setVibeCoin] = useState<number>(0);
   const [transactionId, setTransactionId] = useState("");
   const [transactionPhoneNo, setTransactionPhoneNo] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -47,6 +48,7 @@ export default function CheckoutPage() {
         if (res.ok) {
           const data = await res.json();
           if (data.phone) setPhone(data.phone);
+          if (data.vibe_coin !== undefined) setVibeCoin(data.vibe_coin);
         }
       } catch (err) {
         console.error("Failed to fetch customer data:", err);
@@ -60,12 +62,20 @@ export default function CheckoutPage() {
 
   const isCartEmpty = !cart || cart.items.length === 0;
 
-  // Validation: Online/bKash/Nagad requires TrxID and Sender Phone
+  const cartTotal = cart
+    ? cart.items.reduce((sum, item) => sum + item.quantity * Number(item.product.unit_price), 0)
+    : 0;
+  const requiredCoins = Math.ceil(cartTotal);
+  const hasSufficientVibeCoin = vibeCoin > 0 && vibeCoin >= requiredCoins;
+
+  // Validation: Online/bKash/Nagad requires TrxID and Sender Phone, VibeCoin requires sufficient balance
   const isOnlinePayment = paymentMethod === "O" || paymentMethod === "N";
+  const isVibeCoinPayment = paymentMethod === "V";
   const isOrderValid =
     phone.trim().length > 0 &&
     shippingAddress.trim().length > 0 &&
-    (!isOnlinePayment || (transactionId.trim().length > 0 && transactionPhoneNo.trim().length > 0));
+    (!isOnlinePayment || (transactionId.trim().length > 0 && transactionPhoneNo.trim().length > 0)) &&
+    (!isVibeCoinPayment || hasSufficientVibeCoin);
 
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -229,7 +239,7 @@ export default function CheckoutPage() {
                 Payment Method
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Cash on Delivery Option */}
                 <div
                   onClick={() => setPaymentMethod("C")}
@@ -307,7 +317,60 @@ export default function CheckoutPage() {
                     Pay via Nagad TrxID.
                   </p>
                 </div>
+
+                {/* VibeCoin Option */}
+                <div
+                  onClick={() => {
+                    if (hasSufficientVibeCoin) setPaymentMethod("V");
+                  }}
+                  className={`p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
+                    !hasSufficientVibeCoin
+                      ? "opacity-50 cursor-not-allowed border-foreground/10 bg-secondary"
+                      : paymentMethod === "V"
+                      ? "border-accent bg-accent/10 shadow-sm cursor-pointer"
+                      : "border-foreground/10 bg-secondary hover:border-accent/50 cursor-pointer"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-black text-xs uppercase tracking-tight flex items-center gap-1 text-foreground">
+                      🪙 VibeCoin
+                    </span>
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      disabled={!hasSufficientVibeCoin}
+                      checked={paymentMethod === "V"}
+                      onChange={() => {
+                        if (hasSufficientVibeCoin) setPaymentMethod("V");
+                      }}
+                      className="w-4 h-4 accent-accent"
+                    />
+                  </div>
+                  <p className="text-xs font-medium text-foreground">
+                    {!hasSufficientVibeCoin ? (
+                      <span className="opacity-70 font-bold block">
+                        Blocked (Balance: {vibeCoin} VC, Needed: {requiredCoins} VC)
+                      </span>
+                    ) : (
+                      <span className="opacity-80">
+                        Pay with VibeCoins ({vibeCoin} VC available).
+                      </span>
+                    )}
+                  </p>
+                </div>
               </div>
+
+              {/* VibeCoin Selected Instructions */}
+              {paymentMethod === "V" && (
+                <div className="mt-6 p-6 rounded-2xl bg-secondary border border-foreground/15 space-y-2">
+                  <p className="text-xs font-black uppercase tracking-wider text-accent flex items-center gap-1.5">
+                    <span>🪙</span> VibeCoin Payment Ready
+                  </p>
+                  <p className="text-xs font-semibold text-foreground opacity-80">
+                    Your order total of <strong>{requiredCoins} VC</strong> will be automatically deducted from your VibeCoin profile balance (Current: <strong>{vibeCoin} VC</strong>) upon order confirmation.
+                  </p>
+                </div>
+              )}
 
               {/* bKash Extra Fields */}
               {paymentMethod === "O" && (
