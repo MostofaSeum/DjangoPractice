@@ -237,7 +237,7 @@ class GiftCardViewSet(ModelViewSet):
 
             if not user_email or user_email != card_email:
                 return Response({
-                    'error': f'Email mismatch! This gift card belongs to "{gift_card.user_email}". Your logged-in email is "{request.user.email or "N/A"}".'
+                    'error': 'Invalid gift card code. Please try again.'
                 }, status=status.HTTP_400_BAD_REQUEST)
 
             # Credit vibe_coin to customer profile in database
