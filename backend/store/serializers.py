@@ -119,7 +119,8 @@ class CustomerSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Customer
-        fields = ['id', 'user_id', 'first_name', 'last_name', 'email', 'customer_name', 'phone', 'birth_date','membership']
+        fields = ['id', 'user_id', 'first_name', 'last_name', 'email', 'customer_name', 'phone', 'birth_date', 'membership', 'vibe_coin']
+        read_only_fields = ['vibe_coin']
 
     def get_customer_name(self, obj):
         if hasattr(obj, 'user') and obj.user:

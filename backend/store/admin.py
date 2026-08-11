@@ -91,8 +91,8 @@ class CollectionAdmin(admin.ModelAdmin):
 
 @admin.register(models.Customer)
 class CustomerAdmin(admin.ModelAdmin):
-    list_display = ['first_name', 'last_name',  'membership', 'orders']
-    list_editable = ['membership']
+    list_display = ['first_name', 'last_name',  'membership', 'vibe_coin', 'orders']
+    list_editable = ['membership', 'vibe_coin']
     list_per_page = 10
     list_select_related = ['user']
     ordering = ['user__first_name', 'user__last_name']

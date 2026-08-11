@@ -41,6 +41,7 @@ export default function ProfilePage() {
   });
 
   const [myOrders, setMyOrders] = useState<Order[]>([]);
+  const [vibeCoin, setVibeCoin] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -77,6 +78,8 @@ export default function ProfilePage() {
           const ordersData = await ordersRes.json();
           setMyOrders(Array.isArray(ordersData) ? ordersData : ordersData.results || []);
         }
+
+        setVibeCoin(customerData.vibe_coin ?? 0);
 
         setFormData({
           first_name: userData.first_name || "",
@@ -268,24 +271,58 @@ export default function ProfilePage() {
             </form>
           </div>
 
-          {/* User's Own Order History (2 Columns) */}
-          <div className="lg:col-span-2 bg-secondary text-foreground rounded-[2.5rem] p-8 shadow-md border border-foreground/10 transition-colors duration-300">
-            <div className="flex justify-between items-center pb-4 border-b border-foreground/10 mb-6">
-              <div>
-                <h2 className="text-xl font-black uppercase tracking-tight text-foreground">
-                  My Order History ({myOrders.length})
-                </h2>
-                <p className="text-xs opacity-70 font-bold uppercase tracking-wider mt-1">
-                  Track your previous orders and payment status
-                </p>
+          {/* User's Own Order History & VibeCoin (2 Columns) */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* VibeCoin Rewards Card */}
+            <div className="bg-secondary text-foreground rounded-[2.5rem] p-8 shadow-md border border-foreground/10 transition-colors duration-300 relative overflow-hidden">
+              <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center text-background font-black text-2xl shadow-lg shadow-amber-500/20 shrink-0">
+                    🪙
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg font-black uppercase tracking-tight text-foreground">
+                        VibeCoin Balance
+                      </h3>
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-amber-500/20 text-amber-500 border border-amber-500/30">
+                        Rewards
+                      </span>
+                    </div>
+                    <p className="text-xs opacity-75 font-semibold mt-0.5">
+                      Earn VibeCoins on every order & redeem for store perks & discounts
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 bg-background px-5 py-3 rounded-2xl border border-foreground/15 shadow-sm self-stretch sm:self-auto justify-between sm:justify-start">
+                  <span className="text-xs font-bold uppercase tracking-wider opacity-60">Total Coins</span>
+                  <span className="text-2xl font-black text-amber-500 tracking-tight flex items-center gap-1">
+                    <span>{vibeCoin}</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-amber-500 opacity-80">VC</span>
+                  </span>
+                </div>
               </div>
-              <Link
-                href="/products"
-                className="px-4 py-2 border border-foreground/15 bg-background text-foreground hover:bg-button-bg hover:text-button-fg rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
-              >
-                Shop Now
-              </Link>
             </div>
+
+            {/* Order History Container */}
+            <div className="bg-secondary text-foreground rounded-[2.5rem] p-8 shadow-md border border-foreground/10 transition-colors duration-300">
+              <div className="flex justify-between items-center pb-4 border-b border-foreground/10 mb-6">
+                <div>
+                  <h2 className="text-xl font-black uppercase tracking-tight text-foreground">
+                    My Order History ({myOrders.length})
+                  </h2>
+                  <p className="text-xs opacity-70 font-bold uppercase tracking-wider mt-1">
+                    Track your previous orders and payment status
+                  </p>
+                </div>
+                <Link
+                  href="/products"
+                  className="px-4 py-2 border border-foreground/15 bg-background text-foreground hover:bg-button-bg hover:text-button-fg rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                >
+                  Shop Now
+                </Link>
+              </div>
 
             {myOrders.length > 0 ? (
               <div className="space-y-6">
@@ -389,7 +426,8 @@ export default function ProfilePage() {
             )}
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
+  </div>
   );
 }
