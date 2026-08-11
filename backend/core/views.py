@@ -46,10 +46,38 @@ def send_otp(request):
         # Clean from_email if it contains name like "VibeMart <email>"
         clean_from_email = from_email.split('<')[-1].replace('>', '').strip() if '<' in from_email else from_email
 
+        sender_api_key = os.environ.get('SENDER_NET_API_KEY')
         brevo_api_key = os.environ.get('BREVO_API_KEY')
 
-        # Send via Brevo HTTPS API on Port 443 if BREVO_API_KEY (xkeysib-...) is provided
-        if brevo_api_key and brevo_api_key.startswith('xkeysib-'):
+        # 1. Send via Sender.net HTTPS API on Port 443
+        if sender_api_key:
+            api_url = "https://api.sender.net/v2/email/send"
+            headers = {
+                "Authorization": f"Bearer {sender_api_key}",
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            }
+            payload = {
+                "from": {"name": "VibeMart", "email": clean_from_email},
+                "to": [{"email": email}],
+                "subject": "Your VibeMart Verification Code",
+                "html": f"""
+                    <div style="font-family: Arial, sans-serif; padding: 24px; color: #333; max-width: 500px; margin: 0 auto; border: 1px solid #eee; border-radius: 16px;">
+                        <h2 style="color: #111; margin-top: 0;">VibeMart Verification Code</h2>
+                        <p style="font-size: 14px; color: #555;">Your one-time verification code is:</p>
+                        <div style="background: #111; color: #fff; padding: 14px; border-radius: 12px; font-family: monospace; font-size: 28px; font-weight: 900; letter-spacing: 6px; text-align: center; margin: 20px 0;">
+                            {otp_code}
+                        </div>
+                        <p style="font-size: 12px; color: #777;">This code will expire in 5 minutes. Do not share it with anyone.</p>
+                    </div>
+                """
+            }
+            res = requests.post(api_url, json=payload, headers=headers, timeout=10)
+            if res.status_code not in [200, 201, 202]:
+                raise Exception(f"Sender.net API Error ({res.status_code}): {res.text}")
+
+        # 2. Send via Brevo HTTPS API on Port 443
+        elif brevo_api_key and brevo_api_key.startswith('xkeysib-'):
             api_url = "https://api.brevo.com/v3/smtp/email"
             headers = {
                 "accept": "application/json",
