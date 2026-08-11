@@ -286,9 +286,6 @@ export default function ProfilePage() {
                       <h3 className="text-lg font-black uppercase tracking-tight text-foreground">
                         VibeCoin Balance
                       </h3>
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-amber-500/20 text-amber-500 border border-amber-500/30">
-                        Rewards
-                      </span>
                     </div>
                     <p className="text-xs opacity-75 font-semibold mt-0.5">
                       Earn VibeCoins on every order & redeem for store perks & discounts
