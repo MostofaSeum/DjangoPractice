@@ -65,8 +65,9 @@ export default function CheckoutPage() {
   const cartTotal = cart
     ? cart.items.reduce((sum, item) => sum + item.quantity * Number(item.product.unit_price), 0)
     : 0;
-  const requiredCoins = Math.ceil(cartTotal);
-  const hasSufficientVibeCoin = vibeCoin > 0 && vibeCoin >= requiredCoins;
+  const requiredCoins = Number(cartTotal.toFixed(2));
+  const userCoins = Number(Number(vibeCoin).toFixed(2));
+  const hasSufficientVibeCoin = userCoins > 0 && userCoins >= requiredCoins;
 
   // Validation: Online/bKash/Nagad requires TrxID and Sender Phone, VibeCoin requires sufficient balance
   const isOnlinePayment = paymentMethod === "O" || paymentMethod === "N";
@@ -349,11 +350,11 @@ export default function CheckoutPage() {
                   <p className="text-xs font-medium text-foreground">
                     {!hasSufficientVibeCoin ? (
                       <span className="opacity-70 font-bold block">
-                        Blocked (Balance: {vibeCoin} VC, Needed: {requiredCoins} VC)
+                        Blocked (Balance: {Number(vibeCoin).toFixed(2)} VC, Needed: {requiredCoins.toFixed(2)} VC)
                       </span>
                     ) : (
                       <span className="opacity-80">
-                        Pay with VibeCoins ({vibeCoin} VC available).
+                        Pay with VibeCoins ({Number(vibeCoin).toFixed(2)} VC available).
                       </span>
                     )}
                   </p>
@@ -367,7 +368,7 @@ export default function CheckoutPage() {
                     <span>🪙</span> VibeCoin Payment Ready
                   </p>
                   <p className="text-xs font-semibold text-foreground opacity-80">
-                    Your order total of <strong>{requiredCoins} VC</strong> will be automatically deducted from your VibeCoin profile balance (Current: <strong>{vibeCoin} VC</strong>) upon order confirmation.
+                    Your order total of <strong>{requiredCoins.toFixed(2)} VC</strong> will be automatically deducted from your VibeCoin profile balance (Current: <strong>{Number(vibeCoin).toFixed(2)} VC</strong>) upon order confirmation.
                   </p>
                 </div>
               )}

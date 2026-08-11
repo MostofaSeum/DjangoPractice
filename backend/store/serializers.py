@@ -180,12 +180,11 @@ class CreateOrderSerializer(serializers.Serializer):
             payment_status = Order.PAYMENT_STATUS_PENDING
             if payment_method == 'V':
                 order_total = sum(item.quantity * item.product.unit_price for item in cart_items)
-                coin_required = int(order_total)
-                if customer.vibe_coin < coin_required:
+                if customer.vibe_coin < order_total:
                     raise serializers.ValidationError({
-                        'payment_method': f'Insufficient VibeCoin balance. Required: {coin_required} VC, Available: {customer.vibe_coin} VC.'
+                        'payment_method': f'Insufficient VibeCoin balance. Required: {order_total:.2f} VC, Available: {customer.vibe_coin:.2f} VC.'
                     })
-                customer.vibe_coin -= coin_required
+                customer.vibe_coin -= order_total
                 customer.save()
                 payment_status = Order.PAYMENT_STATUS_COMPLETE
 

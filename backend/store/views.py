@@ -242,7 +242,7 @@ class GiftCardViewSet(ModelViewSet):
 
             # Credit vibe_coin to customer profile in database
             customer, _ = Customer.objects.get_or_create(user=request.user)
-            coin_amount = int(gift_card.price)
+            coin_amount = gift_card.price
             customer.vibe_coin += coin_amount
             customer.save()
 
@@ -254,8 +254,8 @@ class GiftCardViewSet(ModelViewSet):
                 'valid': True,
                 'card_code': gift_card.card_code,
                 'price': str(gift_card.price),
-                'vibe_coins_added': coin_amount,
-                'new_vibe_coin_balance': customer.vibe_coin,
+                'vibe_coins_added': str(coin_amount),
+                'new_vibe_coin_balance': str(customer.vibe_coin),
                 'expiry_date': gift_card.expiry_date.strftime('%Y-%m-%d'),
                 'message': f'Congratulations! Your gift card was successfully redeemed and {coin_amount} VibeCoins have been added to your profile.'
             })

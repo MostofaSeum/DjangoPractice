@@ -295,7 +295,7 @@ export default function ProfilePage() {
                 <div className="flex items-center gap-3 bg-background px-5 py-3 rounded-2xl border border-foreground/15 shadow-sm self-stretch sm:self-auto justify-between sm:justify-start">
                   <span className="text-xs font-bold uppercase tracking-wider opacity-60 text-foreground">Total Coins</span>
                   <span className="text-2xl font-black text-foreground tracking-tight flex items-center gap-1 transition-colors duration-300">
-                    <span>{vibeCoin}</span>
+                    <span>{Number(vibeCoin).toFixed(2)}</span>
                     <span className="text-xs font-bold uppercase tracking-wider text-accent opacity-90">VC</span>
                   </span>
                 </div>
