@@ -18,11 +18,15 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 import debug_toolbar
+from django.views.static import serve
+from django.urls import re_path
+from core.views import send_otp, verify_otp
+
 
 admin.site.site_header = 'Storefront Admin'
 admin.site.index_title = 'Admin'
 
-from core.views import send_otp, verify_otp
+
 
 urlpatterns = [
     path('', include("core.url")),
@@ -48,4 +52,8 @@ if settings.DEBUG:
     except ImportError:
         pass
 
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+]
