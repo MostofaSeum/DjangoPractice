@@ -1,3 +1,5 @@
+import os
+import requests
 import random
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
@@ -40,12 +42,43 @@ def send_otp(request):
         # Save new OTP
         OTPToken.objects.create(email=email, otp_code=otp_code)
 
-        # Send email
-        subject = "Your VibeMart Verification Code"
-        message = f"Your one-time verification code is: {otp_code}\n\nThis code will expire in 5 minutes. Do not share it with anyone."
-        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@vibemart.com')
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'mostofa.seum@brainicontech.com')
+        # Clean from_email if it contains name like "VibeMart <email>"
+        clean_from_email = from_email.split('<')[-1].replace('>', '').strip() if '<' in from_email else from_email
 
-        send_mail(subject, message, from_email, [email], fail_silently=False)
+        brevo_key = os.environ.get('BREVO_API_KEY') or getattr(settings, 'EMAIL_HOST_PASSWORD', None)
+
+        # Send via Brevo HTTPS API on Port 443 (Fast & Bypass Cloud Firewall Blocks)
+        if brevo_key and (brevo_key.startswith('xkeysib-') or brevo_key.startswith('xsmtpsib-')):
+            api_url = "https://api.brevo.com/v3/smtp/email"
+            headers = {
+                "accept": "application/json",
+                "api-key": brevo_key,
+                "content-type": "application/json"
+            }
+            payload = {
+                "sender": {"name": "VibeMart", "email": clean_from_email},
+                "to": [{"email": email}],
+                "subject": "Your VibeMart Verification Code",
+                "htmlContent": f"""
+                    <div style="font-family: Arial, sans-serif; padding: 24px; color: #333; max-width: 500px; margin: 0 auto; border: 1px solid #eee; border-radius: 16px;">
+                        <h2 style="color: #111; margin-top: 0;">VibeMart Verification Code</h2>
+                        <p style="font-size: 14px; color: #555;">Your one-time verification code is:</p>
+                        <div style="background: #111; color: #fff; padding: 14px; border-radius: 12px; font-family: monospace; font-size: 28px; font-weight: 900; letter-spacing: 6px; text-align: center; margin: 20px 0;">
+                            {otp_code}
+                        </div>
+                        <p style="font-size: 12px; color: #777;">This code will expire in 5 minutes. Do not share it with anyone.</p>
+                    </div>
+                """
+            }
+            res = requests.post(api_url, json=payload, headers=headers, timeout=10)
+            if res.status_code not in [200, 201, 202]:
+                raise Exception(f"Brevo API Error ({res.status_code}): {res.text}")
+        else:
+            # Fallback to standard Django SMTP send_mail
+            subject = "Your VibeMart Verification Code"
+            message = f"Your one-time verification code is: {otp_code}\n\nThis code will expire in 5 minutes. Do not share it with anyone."
+            send_mail(subject, message, clean_from_email, [email], fail_silently=False)
 
         return Response({'detail': 'Verification code sent to your email!'}, status=status.HTTP_200_OK)
 
