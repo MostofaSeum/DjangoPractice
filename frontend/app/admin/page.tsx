@@ -1470,7 +1470,11 @@ export default function AdminDashboardPage() {
                       </p>
                       <p className="text-[11px] opacity-70">
                         <strong>Payment Method:</strong> {
-                          ord.payment_method === "V" ? "🪙 VibeCoin Payment" :
+                          ord.payment_method === "V" ? (
+                            <span className="inline-flex items-center gap-1 align-middle">
+                              <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" className="w-3.5 h-3.5 object-contain inline" /> VibeCoin Payment
+                            </span>
+                          ) :
                           ord.payment_method === "O" || ord.payment_method === "B" ? `bKash (TrxID: ${ord.transaction_id || "N/A"})` :
                           ord.payment_method === "N" ? `Nagad (TrxID: ${ord.transaction_id || "N/A"})` :
                           "Cash on Delivery (COD)"

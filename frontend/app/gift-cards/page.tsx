@@ -113,7 +113,7 @@ export default function GiftCardsPage() {
               <div style="text-align: center; margin-top: 10px;">
                 <p style="font-size: 14px; font-weight: bold; color: var(--foreground); margin-bottom: 8px;">Gift Card Successfully Redeemed!</p>
                 <div style="background: var(--secondary); color: var(--foreground); padding: 14px; border-radius: 14px; font-family: var(--font-sans); font-size: 24px; font-weight: 900; letter-spacing: 1px; margin: 15px 0; border: 1px solid var(--foreground)/20;">
-                  +${data.vibe_coins_added} VibeCoins 🪙
+                  +${data.vibe_coins_added} VibeCoins <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" style="width: 26px; height: 26px; display: inline-block; vertical-align: middle; margin-left: 6px;" />
                 </div>
                 <p style="font-size: 13px; font-weight: bold; color: var(--foreground); margin-bottom: 4px;">New VibeCoin Balance: <strong>${data.new_vibe_coin_balance} VC</strong></p>
                 <p style="font-size: 11px; opacity: 0.7; margin-top: 6px;">Code: <strong>${data.card_code}</strong></p>

@@ -278,8 +278,8 @@ export default function ProfilePage() {
               <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center text-background font-black text-2xl shadow-lg shadow-amber-500/20 shrink-0">
-                    🪙
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 flex items-center justify-center p-2.5 shadow-lg shadow-amber-500/20 shrink-0">
+                    <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" className="w-full h-full object-contain" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
@@ -370,8 +370,8 @@ export default function ProfilePage() {
                           </p>
                           <p className="font-bold">
                             {ord.payment_method === "V" ? (
-                              <span className="text-accent flex items-center gap-1">
-                                🪙 VibeCoin Payment
+                              <span className="text-accent flex items-center gap-1.5">
+                                <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" className="w-4 h-4 object-contain" /> VibeCoin Payment
                               </span>
                             ) : ord.payment_method === "B" || ord.payment_method === "O" ? (
                               <span className="text-bkash">

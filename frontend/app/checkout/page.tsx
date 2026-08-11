@@ -333,8 +333,8 @@ export default function CheckoutPage() {
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="font-black text-xs uppercase tracking-tight flex items-center gap-1 text-foreground">
-                      🪙 VibeCoin
+                    <span className="font-black text-xs uppercase tracking-tight flex items-center gap-1.5 text-foreground">
+                      <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" className="w-5 h-5 object-contain" /> VIBECOIN
                     </span>
                     <input
                       type="radio"
@@ -365,7 +365,7 @@ export default function CheckoutPage() {
               {paymentMethod === "V" && (
                 <div className="mt-6 p-6 rounded-2xl bg-secondary border border-foreground/15 space-y-2">
                   <p className="text-xs font-black uppercase tracking-wider text-accent flex items-center gap-1.5">
-                    <span>🪙</span> VibeCoin Payment Ready
+                    <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" className="w-4 h-4 object-contain" /> VibeCoin Payment Ready
                   </p>
                   <p className="text-xs font-semibold text-foreground opacity-80">
                     Your order total of <strong>{requiredCoins.toFixed(2)} VC</strong> will be automatically deducted from your VibeCoin profile balance (Current: <strong>{Number(vibeCoin).toFixed(2)} VC</strong>) upon order confirmation.

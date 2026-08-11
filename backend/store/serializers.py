@@ -186,7 +186,6 @@ class CreateOrderSerializer(serializers.Serializer):
                     })
                 customer.vibe_coin -= order_total
                 customer.save()
-                payment_status = Order.PAYMENT_STATUS_COMPLETE
 
             order = Order.objects.create(
                 customer=customer,
