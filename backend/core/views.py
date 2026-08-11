@@ -46,11 +46,41 @@ def send_otp(request):
         # Clean from_email if it contains name like "VibeMart <email>"
         clean_from_email = from_email.split('<')[-1].replace('>', '').strip() if '<' in from_email else from_email
 
+        sendgrid_api_key = os.environ.get('SENDGRID_API_KEY')
         sender_api_key = os.environ.get('SENDER_NET_API_KEY')
         brevo_api_key = os.environ.get('BREVO_API_KEY')
 
-        # 1. Send via Sender.net HTTPS API on Port 443
-        if sender_api_key:
+        # 1. Send via SendGrid HTTPS API on Port 443 (Single Sender Verification - No Domain DNS Required!)
+        if sendgrid_api_key and sendgrid_api_key.startswith('SG.'):
+            api_url = "https://api.sendgrid.com/v3/mail/send"
+            headers = {
+                "Authorization": f"Bearer {sendgrid_api_key}",
+                "Content-Type": "application/json"
+            }
+            payload = {
+                "personalizations": [{"to": [{"email": email}]}],
+                "from": {"name": "VibeMart", "email": clean_from_email},
+                "subject": "Your VibeMart Verification Code",
+                "content": [{
+                    "type": "text/html",
+                    "value": f"""
+                        <div style="font-family: Arial, sans-serif; padding: 24px; color: #333; max-width: 500px; margin: 0 auto; border: 1px solid #eee; border-radius: 16px;">
+                            <h2 style="color: #111; margin-top: 0;">VibeMart Verification Code</h2>
+                            <p style="font-size: 14px; color: #555;">Your one-time verification code is:</p>
+                            <div style="background: #111; color: #fff; padding: 14px; border-radius: 12px; font-family: monospace; font-size: 28px; font-weight: 900; letter-spacing: 6px; text-align: center; margin: 20px 0;">
+                                {otp_code}
+                            </div>
+                            <p style="font-size: 12px; color: #777;">This code will expire in 5 minutes. Do not share it with anyone.</p>
+                        </div>
+                    """
+                }]
+            }
+            res = requests.post(api_url, json=payload, headers=headers, timeout=10)
+            if res.status_code not in [200, 201, 202]:
+                raise Exception(f"SendGrid API Error ({res.status_code}): {res.text}")
+
+        # 2. Send via Sender.net HTTPS API on Port 443
+        elif sender_api_key:
             api_url = "https://api.sender.net/v2/email/send"
             headers = {
                 "Authorization": f"Bearer {sender_api_key}",
