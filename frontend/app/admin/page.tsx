@@ -552,6 +552,17 @@ export default function AdminDashboardPage() {
       });
 
       if (res.ok) {
+        const createdOrUpdatedCol = await res.json().catch(() => null);
+        if (createdOrUpdatedCol && createdOrUpdatedCol.id) {
+          setCollections((prev) => {
+            const exists = prev.some((c) => c.id === createdOrUpdatedCol.id);
+            if (exists) {
+              return prev.map((c) => (c.id === createdOrUpdatedCol.id ? { ...c, ...createdOrUpdatedCol } : c));
+            }
+            return [createdOrUpdatedCol, ...prev];
+          });
+        }
+
         Swal.fire({
           position: "top-end",
           icon: "success",
@@ -566,13 +577,16 @@ export default function AdminDashboardPage() {
         setNewCollectionTitle("");
         setCollectionImageFile(null);
         setCollectionImagePreview(null);
+        if (collectionFileInputRef.current) {
+          collectionFileInputRef.current.value = "";
+        }
         fetchAdminData();
       } else {
         const errData = await res.json().catch(() => null);
         let errMsg = "Something went wrong.";
         if (typeof errData === "object" && errData !== null) {
           errMsg = Object.entries(errData)
-            .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(", ") : val}`)
+            .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(", ") : JSON.stringify(val)}`)
             .join("\n");
         } else if (res.statusText) {
           errMsg = `Server error ${res.status}: ${res.statusText}`;
@@ -886,9 +900,9 @@ export default function AdminDashboardPage() {
       <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-12">
         {/* PRODUCTS TAB */}
         {activeTab === "products" && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
             {/* Add/Edit Product Form (1 Column) */}
-            <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm h-fit transition-colors duration-300">
+            <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm h-fit lg:sticky lg:top-24 transition-colors duration-300">
               <div className="flex justify-between items-center mb-6 pb-2 border-b border-foreground/10">
                 <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
                   {editingProductId
@@ -1169,9 +1183,9 @@ export default function AdminDashboardPage() {
 
         {/* COLLECTIONS TAB */}
         {activeTab === "collections" && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
             {/* Create Collection Form */}
-            <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm h-fit transition-colors duration-300">
+            <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm h-fit lg:sticky lg:top-24 transition-colors duration-300">
               <div className="flex justify-between items-center mb-6 pb-2 border-b border-foreground/10">
                 <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
                   {editingCollectionId
