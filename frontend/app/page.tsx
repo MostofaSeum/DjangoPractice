@@ -87,8 +87,7 @@ export default async function Home() {
       const products: Product[] = Array.isArray(data)
         ? data
         : data.results || [];
-      const markedTrending = products.filter((p: any) => p.is_trending);
-      trendingProducts = markedTrending.length > 0 ? markedTrending.slice(0, 4) : products.slice(0, 4);
+      trendingProducts = products.filter((p: any) => p.is_trending).slice(0, 4);
     }
   } catch (err) {
     console.error("Failed to fetch trending products:", err);
@@ -103,8 +102,7 @@ export default async function Home() {
       const collections: Collection[] = Array.isArray(colData)
         ? colData
         : colData.results || [];
-      const markedFeatured = collections.filter((c: any) => c.is_featured);
-      featuredCollections = markedFeatured.length > 0 ? markedFeatured.slice(0, 3) : collections.slice(0, 3);
+      featuredCollections = collections.filter((c: any) => c.is_featured).slice(0, 3);
     }
   } catch (err) {
     console.error("Failed to fetch collections:", err);
