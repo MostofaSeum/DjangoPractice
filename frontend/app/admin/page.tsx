@@ -450,7 +450,7 @@ export default function AdminDashboardPage() {
     if (!token) return;
     const newStatus = !col.is_featured;
 
-    // Optimistic UI Update: change state immediately without reload/spinner
+    // Optimistic UI 
     setCollections((prev) =>
       prev.map((c) => (c.id === col.id ? { ...c, is_featured: newStatus } : c))
     );
