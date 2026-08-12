@@ -1068,11 +1068,6 @@ export default function AdminDashboardPage() {
                           </div>
                           <div className="flex items-center gap-1.5">
                             <span className="truncate max-w-[180px] sm:max-w-xs">{prod.title}</span>
-                            {prod.is_trending && (
-                              <span className="text-[9px] bg-amber-500 text-black font-black px-1.5 py-0.5 rounded uppercase tracking-wider shadow-sm">
-                                🔥 Trending
-                              </span>
-                            )}
                           </div>
                         </div>
                       </td>
@@ -1092,7 +1087,7 @@ export default function AdminDashboardPage() {
                               : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10"
                           }`}
                         >
-                          {prod.is_trending ? "🔥 Trending" : "+ Trending"}
+                          {prod.is_trending ? " Trending" : "+ Trending"}
                         </button>
                         <button
                           onClick={() => handleDeleteProduct(prod.id)}
@@ -1267,10 +1262,12 @@ export default function AdminDashboardPage() {
                     key={col.id}
                     onClick={() => handleSelectCollection(col)}
                     className={`p-4 rounded-2xl border transition-all flex justify-between items-center cursor-pointer ${
-                      editingCollectionId === col.id
+                      col.is_featured
+                        ? editingCollectionId === col.id
+                          ? "bg-amber-500/25 border-l-4 border-amber-500 font-extrabold"
+                          : "bg-amber-500/15 dark:bg-amber-500/25 border-l-4 border-amber-500 hover:bg-amber-500/20"
+                        : editingCollectionId === col.id
                         ? "bg-accent/20 border-accent"
-                        : col.is_featured
-                        ? "bg-purple-500/10 border-purple-500/40"
                         : "bg-primary/5 dark:bg-primary/30 border-foreground/10 hover:border-accent/50"
                     }`}
                   >
@@ -1284,11 +1281,6 @@ export default function AdminDashboardPage() {
                       <div>
                         <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
                           {col.title}
-                          {col.is_featured && (
-                            <span className="text-[9px] bg-purple-600 text-white font-black px-1.5 py-0.5 rounded uppercase tracking-wider shadow-sm">
-                              ★ Featured
-                            </span>
-                          )}
                         </h3>
                         <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">
                           ID: #{col.id} • {col.product_count || 0} Products
@@ -1300,11 +1292,11 @@ export default function AdminDashboardPage() {
                         onClick={() => handleToggleCollectionFeatured(col)}
                         className={`px-2.5 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all shadow-sm ${
                           col.is_featured
-                            ? "bg-purple-600 text-white border border-purple-700 shadow-purple-500/20"
+                            ? "bg-amber-500 text-black border border-amber-600 shadow-amber-500/20"
                             : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10"
                         }`}
                       >
-                        {col.is_featured ? "★ Featured" : "+ Feature"}
+                        {col.is_featured ? " Featured" : "+ Feature"}
                       </button>
                       <button
                         onClick={() => handleDeleteCollection(col)}
