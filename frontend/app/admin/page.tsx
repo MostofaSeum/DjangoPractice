@@ -1048,11 +1048,13 @@ export default function AdminDashboardPage() {
                     <tr
                       key={prod.id}
                       onClick={() => handleSelectProduct(prod)}
-                      className={`cursor-pointer transition-colors ${
-                        editingProductId === prod.id
+                      className={`cursor-pointer transition-all ${
+                        prod.is_trending
+                          ? editingProductId === prod.id
+                            ? "bg-amber-500/25 border-l-4 border-amber-500 font-extrabold"
+                            : "bg-amber-500/15 dark:bg-amber-500/25 border-l-4 border-amber-500 hover:bg-amber-500/20"
+                          : editingProductId === prod.id
                           ? "bg-accent/20"
-                          : prod.is_trending
-                          ? "bg-amber-500/10 dark:bg-amber-500/20 border-l-4 border-amber-500 hover:bg-amber-500/15"
                           : "hover:bg-primary/5 dark:hover:bg-primary/30"
                       }`}
                     >
