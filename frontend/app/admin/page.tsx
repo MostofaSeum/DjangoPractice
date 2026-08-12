@@ -1051,6 +1051,8 @@ export default function AdminDashboardPage() {
                       className={`cursor-pointer transition-colors ${
                         editingProductId === prod.id
                           ? "bg-accent/20"
+                          : prod.is_trending
+                          ? "bg-amber-500/10 dark:bg-amber-500/20 border-l-4 border-amber-500 hover:bg-amber-500/15"
                           : "hover:bg-primary/5 dark:hover:bg-primary/30"
                       }`}
                     >
@@ -1062,7 +1064,14 @@ export default function AdminDashboardPage() {
                           <div className="relative w-10 h-10 shrink-0 rounded-xl overflow-hidden border border-foreground/10 bg-primary/5 dark:bg-primary/30 shadow-sm">
                             <ProductImage title={prod.title} images={prod.images} />
                           </div>
-                          <span className="truncate max-w-[220px] sm:max-w-xs">{prod.title}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="truncate max-w-[180px] sm:max-w-xs">{prod.title}</span>
+                            {prod.is_trending && (
+                              <span className="text-[9px] bg-amber-500 text-black font-black px-1.5 py-0.5 rounded uppercase tracking-wider shadow-sm">
+                                🔥 Trending
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </td>
                       <td className="py-2.5 px-2 text-accent font-extrabold align-middle">
@@ -1075,13 +1084,13 @@ export default function AdminDashboardPage() {
                       >
                         <button
                           onClick={() => handleToggleProductTrending(prod)}
-                          className={`px-3 py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors ${
+                          className={`px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all shadow-sm ${
                             prod.is_trending
-                              ? "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border border-yellow-500/30"
+                              ? "bg-amber-500 text-black border border-amber-600 shadow-amber-500/20"
                               : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10"
                           }`}
                         >
-                          {prod.is_trending ? "Trending" : "+ Trending"}
+                          {prod.is_trending ? "🔥 Trending" : "+ Trending"}
                         </button>
                         <button
                           onClick={() => handleDeleteProduct(prod.id)}
@@ -1258,6 +1267,8 @@ export default function AdminDashboardPage() {
                     className={`p-4 rounded-2xl border transition-all flex justify-between items-center cursor-pointer ${
                       editingCollectionId === col.id
                         ? "bg-accent/20 border-accent"
+                        : col.is_featured
+                        ? "bg-purple-500/10 border-purple-500/40"
                         : "bg-primary/5 dark:bg-primary/30 border-foreground/10 hover:border-accent/50"
                     }`}
                   >
@@ -1271,6 +1282,11 @@ export default function AdminDashboardPage() {
                       <div>
                         <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
                           {col.title}
+                          {col.is_featured && (
+                            <span className="text-[9px] bg-purple-600 text-white font-black px-1.5 py-0.5 rounded uppercase tracking-wider shadow-sm">
+                              ★ Featured
+                            </span>
+                          )}
                         </h3>
                         <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">
                           ID: #{col.id} • {col.product_count || 0} Products
@@ -1280,13 +1296,13 @@ export default function AdminDashboardPage() {
                     <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => handleToggleCollectionFeatured(col)}
-                        className={`px-2.5 py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors ${
+                        className={`px-2.5 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all shadow-sm ${
                           col.is_featured
-                            ? "bg-accent/20 text-accent border border-accent/30"
+                            ? "bg-purple-600 text-white border border-purple-700 shadow-purple-500/20"
                             : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10"
                         }`}
                       >
-                        {col.is_featured ? "Featured" : "+ Feature"}
+                        {col.is_featured ? "★ Featured" : "+ Feature"}
                       </button>
                       <button
                         onClick={() => handleDeleteCollection(col)}
