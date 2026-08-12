@@ -216,29 +216,6 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
 
   return (
     <div className="space-y-4 pt-2">
-      {/* Header with Photo Count and Publish Toggle */}
-      <div className="flex items-center justify-between gap-2 border-b border-foreground/10 pb-3">
-        <div>
-          <h4 className="text-xs font-black uppercase tracking-wider text-foreground">
-            Product Photos ({totalPhotosCount}/5)
-          </h4>
-          <p className="text-[10px] font-bold text-foreground/60 mt-0.5">
-            {isPhotosPublished ? '🟢 Publicly Visible on Store' : '🔴 Draft Mode (Hidden from Store)'}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={handleTogglePublishPhotos}
-          className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-sm ${
-            isPhotosPublished
-              ? 'bg-accent/10 text-accent border border-accent/30 hover:bg-accent/20'
-              : 'bg-button-bg text-button-fg hover:opacity-90'
-          }`}
-        >
-          {isPhotosPublished ? 'Photos Published' : 'Publish Photos'}
-        </button>
-      </div>
-
       <input
         type="file"
         accept="image/*"
