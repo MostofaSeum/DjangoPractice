@@ -512,15 +512,26 @@ export default function AdminDashboardPage() {
     e.preventDefault();
     if (!token || !newCollectionTitle.trim()) return;
 
+    const isEditing = editingCollectionId !== null;
+
+    // Require an image when creating a new collection
+    if (!isEditing && !collectionImageFile) {
+      Swal.fire({
+        icon: "warning",
+        title: "Cover Image Required",
+        text: "Please select a cover image to create a new collection.",
+      });
+      return;
+    }
+
     try {
-      const isEditing = editingCollectionId !== null;
       const url = isEditing
         ? `${API_BASE}/store/collections/${editingCollectionId}/`
         : `${API_BASE}/store/collections/`;
       const method = isEditing ? "PUT" : "POST";
 
       const formData = new FormData();
-      formData.append("title", newCollectionTitle);
+      formData.append("title", newCollectionTitle.trim());
       if (collectionImageFile) {
         formData.append("image", collectionImageFile);
       }
@@ -548,10 +559,16 @@ export default function AdminDashboardPage() {
         fetchAdminData();
       } else {
         const errData = await res.json();
+        let errMsg = "Something went wrong.";
+        if (typeof errData === "object" && errData !== null) {
+          errMsg = Object.entries(errData)
+            .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(", ") : val}`)
+            .join("\n");
+        }
         Swal.fire({
           icon: "error",
           title: isEditing ? "Failed to update collection" : "Failed to create collection",
-          text: JSON.stringify(errData),
+          text: errMsg,
         });
       }
     } catch (err) {
@@ -1172,11 +1189,12 @@ export default function AdminDashboardPage() {
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Collection Cover Photo
+                    Collection Cover Photo {!editingCollectionId && "*"}
                   </label>
                   <input
                     type="file"
                     accept="image/*"
+                    required={!editingCollectionId && !collectionImagePreview}
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
