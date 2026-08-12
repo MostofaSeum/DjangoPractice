@@ -18,6 +18,7 @@ interface ImageUploadModalProps {
 export default function ImageUploadModal({ productId, onSuccess }: ImageUploadModalProps) {
   const { user } = useAuth();
   const [existingImages, setExistingImages] = useState<ProductImage[]>([]);
+  const [isPhotosPublished, setIsPhotosPublished] = useState<boolean>(true);
   const [fetchingImages, setFetchingImages] = useState(true);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -25,16 +26,33 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
 
   const apiBaseUrl = siteConfig.apiBaseUrl.replace(/\/+$/, "");
 
-  const fetchImages = async () => {
+  const getImageUrl = (path: string) => {
+    if (!path.startsWith("http://") && !path.startsWith("https://")) {
+      return `${apiBaseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
+    }
+    return path;
+  };
+
+  const fetchProductDetails = async () => {
     setFetchingImages(true);
     try {
-      const res = await fetch(`${apiBaseUrl}/store/products/${productId}/images/`, { cache: 'no-store' });
-      if (res.ok) {
-        const data = await res.json();
+      // 1. Fetch images
+      const imagesRes = await fetch(`${apiBaseUrl}/store/products/${productId}/images/`, { cache: 'no-store' });
+      if (imagesRes.ok) {
+        const data = await imagesRes.json();
         setExistingImages(Array.isArray(data) ? data : data.results || []);
       }
+
+      // 2. Fetch product info to get publish status
+      const productRes = await fetch(`${apiBaseUrl}/store/products/${productId}/`, { cache: 'no-store' });
+      if (productRes.ok) {
+        const prodData = await productRes.json();
+        if (prodData.is_photos_published !== undefined) {
+          setIsPhotosPublished(prodData.is_photos_published);
+        }
+      }
     } catch (e) {
-      console.error("Failed to load product images", e);
+      console.error("Failed to load product details", e);
     } finally {
       setFetchingImages(false);
     }
@@ -42,13 +60,39 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
 
   useEffect(() => {
     if (productId) {
-      fetchImages();
+      fetchProductDetails();
     }
   }, [productId]);
 
   const handleUploadClick = () => {
     if (existingImages.length >= 5) return;
     fileInputRef.current?.click();
+  };
+
+  const handleTogglePublishPhotos = async () => {
+    const token = localStorage.getItem('access_token') || localStorage.getItem('jwt');
+    try {
+      const newStatus = !isPhotosPublished;
+      const res = await fetch(`${apiBaseUrl}/store/products/${productId}/`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `JWT ${token}` } : {}),
+        },
+        body: JSON.stringify({ is_photos_published: newStatus }),
+      });
+
+      if (res.ok) {
+        setIsPhotosPublished(newStatus);
+        setMessage({
+          type: 'success',
+          text: newStatus ? 'Photos published! Visible on public store.' : 'Photos set to Draft mode (hidden from public).',
+        });
+        if (onSuccess) onSuccess();
+      }
+    } catch (err: any) {
+      console.error(err);
+    }
   };
 
   const handleFileChangeAndUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,7 +121,7 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
       }
 
       setMessage({ type: 'success', text: 'Photo uploaded successfully!' });
-      fetchImages();
+      fetchProductDetails();
       if (onSuccess) onSuccess();
     } catch (err: any) {
       setMessage({ type: 'error', text: err.message || 'Something went wrong.' });
@@ -113,7 +157,7 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
 
       if (res.ok || res.status === 204) {
         setMessage({ type: 'success', text: 'Photo removed!' });
-        fetchImages();
+        fetchProductDetails();
         if (onSuccess) onSuccess();
       }
     } catch (e) {
@@ -121,62 +165,29 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
     }
   };
 
-  const renderSlot = (index: number) => {
-    const isMain = index === 0;
-    const img = existingImages[index];
-
-    const getImageUrl = (path: string) => {
-      if (!path.startsWith("http://") && !path.startsWith("https://")) {
-        return `${apiBaseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
-      }
-      return path;
-    };
-
-    if (img) {
-      return (
-        <div key={img.id} className={`relative group rounded-xl overflow-hidden border border-foreground/20 shadow-sm bg-secondary ${isMain ? 'w-full aspect-[4/3]' : 'w-full aspect-square'}`}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={getImageUrl(img.image)} alt={`Slot ${index}`} className="object-cover w-full h-full" />
-          <button
-            type="button"
-            onClick={() => handleDeleteImage(img.id)}
-            title="Delete Photo"
-            className="absolute inset-0 bg-black/60 text-white text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
-          >
-            Delete
-          </button>
-        </div>
-      );
-    }
-
-    return (
-      <div 
-        key={`empty-${index}`} 
-        onClick={!loading ? handleUploadClick : undefined}
-        className={`relative rounded-xl border-2 border-dashed border-accent/50 bg-accent/5 hover:bg-accent/10 cursor-pointer flex flex-col gap-1 items-center justify-center p-1 transition-colors ${isMain ? 'w-full aspect-[4/3]' : 'w-full aspect-square'} ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-      >
-        {loading ? (
-          <span className="text-[9px] text-accent font-bold uppercase tracking-tight animate-pulse text-center">UPLOADING...</span>
-        ) : (
-          <>
-            <svg className={`${isMain ? 'w-6 h-6' : 'w-4 h-4'} text-accent`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            <span className={`${isMain ? 'text-[10px] tracking-wider' : 'text-[8.5px] sm:text-[9px] tracking-tight whitespace-nowrap'} text-accent font-bold uppercase text-center`}>
-              {isMain ? 'ADD MAIN IMAGE' : `ADD DETAIL ${index}`}
-            </span>
-          </>
-        )}
-      </div>
-    );
-  };
-
   return (
     <div className="space-y-4 pt-2">
-      <div className="flex items-center justify-between">
-        <h4 className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">
-          Product Photos ({existingImages.length}/5)
-        </h4>
+      {/* Header with Photo Count and Publish Toggle */}
+      <div className="flex items-center justify-between gap-2 border-b border-foreground/10 pb-3">
+        <div>
+          <h4 className="text-xs font-black uppercase tracking-wider text-foreground">
+            Product Photos ({existingImages.length}/5)
+          </h4>
+          <p className="text-[10px] font-bold text-foreground/60 mt-0.5">
+            {isPhotosPublished ? '🟢 Publicly Visible on Store' : '🔴 Draft Mode (Hidden from Store)'}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleTogglePublishPhotos}
+          className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all shadow-sm ${
+            isPhotosPublished
+              ? 'bg-accent/10 text-accent border border-accent/30 hover:bg-accent/20'
+              : 'bg-button-bg text-button-fg hover:opacity-90'
+          }`}
+        >
+          {isPhotosPublished ? 'Photos Published' : 'Publish Photos'}
+        </button>
       </div>
 
       <input
@@ -188,16 +199,78 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
       />
 
       {fetchingImages ? (
-        <p className="text-xs text-foreground/50 animate-pulse">Loading photos...</p>
+        <p className="text-xs text-foreground/50 animate-pulse py-4">Loading photos...</p>
       ) : (
-        <div className="flex flex-col gap-3">
-          {renderSlot(0)}
-          <div className="grid grid-cols-4 gap-2">
-            {renderSlot(1)}
-            {renderSlot(2)}
-            {renderSlot(3)}
-            {renderSlot(4)}
-          </div>
+        <div className="space-y-4">
+          {/* Main Cover Photo */}
+          {existingImages[0] ? (
+            <div className="relative group rounded-2xl overflow-hidden border border-foreground/20 shadow-sm bg-secondary aspect-[4/3] w-full">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={getImageUrl(existingImages[0].image)} alt="Main Photo" className="object-cover w-full h-full" />
+              <div className="absolute top-3 left-3 bg-background/80 backdrop-blur-md px-2.5 py-1 rounded-lg text-[9px] font-black uppercase text-accent border border-foreground/10 shadow-sm">
+                Main Cover Photo
+              </div>
+              <button
+                type="button"
+                onClick={() => handleDeleteImage(existingImages[0].id)}
+                className="absolute inset-0 bg-black/60 text-white text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+              >
+                Delete Main Photo
+              </button>
+            </div>
+          ) : (
+            <div 
+              onClick={!loading ? handleUploadClick : undefined}
+              className={`rounded-2xl border-2 border-dashed border-accent/50 bg-accent/5 hover:bg-accent/10 cursor-pointer flex flex-col gap-2 items-center justify-center p-8 aspect-[4/3] w-full transition-all ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {loading ? (
+                <span className="text-xs text-accent font-bold uppercase tracking-tight animate-pulse">UPLOADING MAIN PHOTO...</span>
+              ) : (
+                <>
+                  <svg className="w-8 h-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span className="text-xs font-black uppercase text-accent tracking-wider">
+                    Upload Main Cover Photo (Required)
+                  </span>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Detail Photos Grid (Only existing detail photos 2..5) */}
+          {existingImages.length > 1 && (
+            <div className="grid grid-cols-4 gap-3">
+              {existingImages.slice(1).map((img, idx) => (
+                <div key={img.id} className="relative group rounded-xl overflow-hidden border border-foreground/20 shadow-sm bg-secondary aspect-square w-full">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={getImageUrl(img.image)} alt={`Detail ${idx + 1}`} className="object-cover w-full h-full" />
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteImage(img.id)}
+                    className="absolute inset-0 bg-black/60 text-white text-[9px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Add Photo Slot Button (If < 5 photos) */}
+          {existingImages.length > 0 && existingImages.length < 5 && (
+            <button
+              type="button"
+              onClick={!loading ? handleUploadClick : undefined}
+              disabled={loading}
+              className="w-full py-3.5 px-4 rounded-xl border-2 border-dashed border-accent/40 bg-accent/5 hover:bg-accent/10 text-accent font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              {loading ? 'Uploading...' : `+ Add Photo Slot (Photo ${existingImages.length + 1} of 5)`}
+            </button>
+          )}
         </div>
       )}
 

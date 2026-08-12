@@ -34,6 +34,7 @@ export default function ProductGallery({ title, images = [] }: ProductGalleryPro
   };
 
   const mainImage = galleryImages[0] ? [galleryImages[0]] : [];
+  const detailImages = galleryImages.slice(1);
 
   return (
     <div className="space-y-4">
@@ -42,34 +43,28 @@ export default function ProductGallery({ title, images = [] }: ProductGalleryPro
         <ProductImage title={title} images={mainImage} alt={title} />
       </div>
 
-      {/* Detail Thumbnails (4 slots for images 1..4) */}
-      <div className="grid grid-cols-4 gap-3">
-        {[1, 2, 3, 4].map((i) => {
-          const imgObj = galleryImages[i];
+      {/* Detail Thumbnails (Only render existing photos 2..5) */}
+      {detailImages.length > 0 && (
+        <div className="grid grid-cols-4 gap-3">
+          {detailImages.map((imgObj, idx) => {
+            const realIndex = idx + 1;
 
-          return (
-            <div
-              key={i}
-              onClick={imgObj ? () => handleSwap(i) : undefined}
-              className={`aspect-square w-full rounded-xl bg-secondary flex items-center justify-center text-center text-[10px] text-foreground/30 font-bold relative overflow-hidden shadow-sm transition-all ${
-                imgObj ? 'cursor-pointer hover:opacity-85 hover:scale-98 active:scale-95 border-2 border-transparent hover:border-accent/30' : 'border border-foreground/5'
-              }`}
-            >
-              {imgObj ? (
+            return (
+              <div
+                key={imgObj.id || idx}
+                onClick={() => handleSwap(realIndex)}
+                className="aspect-square w-full rounded-xl bg-secondary flex items-center justify-center text-center text-[10px] text-foreground/30 font-bold relative overflow-hidden shadow-sm transition-all cursor-pointer hover:opacity-85 hover:scale-98 active:scale-95 border-2 border-transparent hover:border-accent/30"
+              >
                 <ProductImage
-                  title={`${title} detail ${i}`}
+                  title={`${title} detail ${realIndex}`}
                   images={[imgObj]}
-                  alt={`${title} detail ${i}`}
+                  alt={`${title} detail ${realIndex}`}
                 />
-              ) : (
-                <span className="z-10 uppercase tracking-widest text-[9px] px-2">
-                  Detail {i}
-                </span>
-              )}
-            </div>
-          );
-        })}
-      </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

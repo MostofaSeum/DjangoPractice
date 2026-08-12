@@ -21,13 +21,23 @@ class ProductImageSerializer(serializers.ModelSerializer):
         return ProductImage.objects.create(product_id=product_id, **validated_data)
         
 class ProductSerializers(serializers.ModelSerializer):
-    images = ProductImageSerializer(many=True, read_only=True)
+    images = serializers.SerializerMethodField()
+    price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax')
+
     class Meta:
         model = Product
-        fields = ['id', 'title', 'description', 'slug', 'inventory', 'unit_price', 'price_with_tax', 'collection','images']
-    price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax')
+        fields = ['id', 'title', 'description', 'slug', 'inventory', 'unit_price', 'price_with_tax', 'collection', 'images', 'is_photos_published']
+
     def calculate_tax(self, product):
         return product.unit_price * Decimal('1.1')
+
+    def get_images(self, product):
+        request = self.context.get('request')
+        is_staff = request and hasattr(request, 'user') and request.user and request.user.is_staff
+        if not product.is_photos_published and not is_staff:
+            return []
+        serializer = ProductImageSerializer(product.images.all(), many=True, context=self.context)
+        return serializer.data
 
 class CollectionSerializer(serializers.ModelSerializer):
     product_count = serializers.IntegerField(read_only=True)
@@ -52,10 +62,18 @@ class ReviewSerializer(serializers.ModelSerializer):
         return Review.objects.create(**validated_data, product_id = product_id)
 
 class SimpleProductSerializers(serializers.ModelSerializer):
-    images = ProductImageSerializer(many=True, read_only=True)
+    images = serializers.SerializerMethodField()
     class Meta:
         model = Product
-        fields = ['id', 'title', 'unit_price', 'inventory', 'images']
+        fields = ['id', 'title', 'unit_price', 'inventory', 'images', 'is_photos_published']
+
+    def get_images(self, product):
+        request = self.context.get('request')
+        is_staff = request and hasattr(request, 'user') and request.user and request.user.is_staff
+        if not product.is_photos_published and not is_staff:
+            return []
+        serializer = ProductImageSerializer(product.images.all(), many=True, context=self.context)
+        return serializer.data
 
 class CartItemSerializers(serializers.ModelSerializer):
     product = SimpleProductSerializers()
