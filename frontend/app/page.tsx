@@ -73,12 +73,6 @@ interface Collection {
   image?: string | null;
 }
 
-const defaultCategoryImages = [
-  "/HomePage/Grocery.png",
-  "/HomePage/Toysjpg.jpg",
-  "/HomePage/Magazines.jpg",
-];
-
 export default async function Home() {
   const apiBaseUrl = getApiBaseUrl();
   let trendingProducts: Product[] = [];
@@ -114,14 +108,14 @@ export default async function Home() {
     console.error("Failed to fetch collections:", err);
   }
 
-  const getCollectionImageUrl = (col: Collection, index: number) => {
+  const getCollectionImageUrl = (col: Collection) => {
     if (col.image) {
       if (col.image.startsWith("http://") || col.image.startsWith("https://")) {
         return col.image;
       }
       return `${apiBaseUrl}${col.image.startsWith("/") ? "" : "/"}${col.image}`;
     }
-    return defaultCategoryImages[index % defaultCategoryImages.length];
+    return null;
   };
 
   return (
@@ -334,54 +328,76 @@ export default async function Home() {
             {featuredCollections.length > 0 ? (
               <>
                 {/* 1st Collection: Large Card (Col Span 2) */}
-                {featuredCollections[0] && (
-                  <Link
-                    href={`/collections/${featuredCollections[0].id}`}
-                    className="lg:col-span-2 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[400px]"
-                  >
-                    <Image
-                      src={getCollectionImageUrl(featuredCollections[0], 0)}
-                      alt={featuredCollections[0].title}
-                      fill
-                      unoptimized
-                      className="object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
-                    <div className="absolute bottom-10 left-10 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-5px]">
-                      <span className="bg-accent/20 text-foreground text-xs font-bold px-3 py-1 mb-4 inline-block uppercase tracking-widest rounded-md shadow-md">
-                        FEATURED
-                      </span>
-                      <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tight drop-shadow-md">
-                        {featuredCollections[0].title}
-                      </h3>
-                    </div>
-                  </Link>
-                )}
+                {featuredCollections[0] && (() => {
+                  const imgUrl = getCollectionImageUrl(featuredCollections[0]);
+                  return (
+                    <Link
+                      href={`/collections/${featuredCollections[0].id}`}
+                      className="lg:col-span-2 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[400px] bg-secondary flex items-end p-10 border border-foreground/10"
+                    >
+                      {imgUrl ? (
+                        <>
+                          <Image
+                            src={imgUrl}
+                            alt={featuredCollections[0].title}
+                            fill
+                            unoptimized
+                            className="object-cover group-hover:scale-105 transition-transform duration-700"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
+                        </>
+                      ) : (
+                        <div className="absolute inset-0 bg-primary/10 dark:bg-primary/40 flex items-center justify-center text-foreground/40 font-black text-2xl uppercase tracking-widest p-6 text-center">
+                          {featuredCollections[0].title}
+                        </div>
+                      )}
+                      <div className="relative z-20 text-foreground transform transition-transform duration-500 group-hover:translate-y-[-5px]">
+                        <span className="bg-accent/20 text-foreground text-xs font-bold px-3 py-1 mb-4 inline-block uppercase tracking-widest rounded-md shadow-md">
+                          FEATURED
+                        </span>
+                        <h3 className={`text-4xl md:text-5xl font-black uppercase tracking-tight drop-shadow-md ${imgUrl ? 'text-white' : 'text-foreground'}`}>
+                          {featuredCollections[0].title}
+                        </h3>
+                      </div>
+                    </Link>
+                  );
+                })()}
 
                 {/* 2nd & 3rd Collections: Small Stacked Cards */}
                 {featuredCollections.length > 1 && (
                   <div className="flex flex-col gap-6">
-                    {featuredCollections.slice(1, 3).map((col, idx) => (
-                      <Link
-                        key={col.id}
-                        href={`/collections/${col.id}`}
-                        className="flex-1 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[250px]"
-                      >
-                        <Image
-                          src={getCollectionImageUrl(col, idx + 1)}
-                          alt={col.title}
-                          fill
-                          unoptimized
-                          className="object-cover group-hover:scale-105 transition-transform duration-700"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
-                        <div className="absolute bottom-8 left-8 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-3px]">
-                          <h3 className="text-2xl font-bold uppercase tracking-tight drop-shadow-md">
-                            {col.title}
-                          </h3>
-                        </div>
-                      </Link>
-                    ))}
+                    {featuredCollections.slice(1, 3).map((col) => {
+                      const imgUrl = getCollectionImageUrl(col);
+                      return (
+                        <Link
+                          key={col.id}
+                          href={`/collections/${col.id}`}
+                          className="flex-1 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[250px] bg-secondary flex items-end p-8 border border-foreground/10"
+                        >
+                          {imgUrl ? (
+                            <>
+                              <Image
+                                src={imgUrl}
+                                alt={col.title}
+                                fill
+                                unoptimized
+                                className="object-cover group-hover:scale-105 transition-transform duration-700"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
+                            </>
+                          ) : (
+                            <div className="absolute inset-0 bg-primary/10 dark:bg-primary/40 flex items-center justify-center text-foreground/40 font-black text-xl uppercase tracking-widest p-4 text-center">
+                              {col.title}
+                            </div>
+                          )}
+                          <div className="relative z-20 text-foreground transform transition-transform duration-500 group-hover:translate-y-[-3px]">
+                            <h3 className={`text-2xl font-bold uppercase tracking-tight drop-shadow-md ${imgUrl ? 'text-white' : 'text-foreground'}`}>
+                              {col.title}
+                            </h3>
+                          </div>
+                        </Link>
+                      );
+                    })}
                   </div>
                 )}
               </>
