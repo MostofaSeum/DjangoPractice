@@ -406,8 +406,14 @@ export default function AdminDashboardPage() {
 
   const handleToggleProductTrending = async (product: Product) => {
     if (!token) return;
+    const newStatus = !product.is_trending;
+
+    // Optimistic UI Update: change state immediately
+    setProducts((prev) =>
+      prev.map((p) => (p.id === product.id ? { ...p, is_trending: newStatus } : p))
+    );
+
     try {
-      const newStatus = !product.is_trending;
       const res = await fetch(`${API_BASE}/store/products/${product.id}/`, {
         method: "PATCH",
         headers: {
@@ -426,17 +432,30 @@ export default function AdminDashboardPage() {
           timer: 1500,
           toast: true,
         });
-        fetchAdminData();
+      } else {
+        // Revert on error
+        setProducts((prev) =>
+          prev.map((p) => (p.id === product.id ? { ...p, is_trending: !newStatus } : p))
+        );
       }
     } catch (err) {
       console.error(err);
+      setProducts((prev) =>
+        prev.map((p) => (p.id === product.id ? { ...p, is_trending: !newStatus } : p))
+      );
     }
   };
 
   const handleToggleCollectionFeatured = async (col: Collection) => {
     if (!token) return;
+    const newStatus = !col.is_featured;
+
+    // Optimistic UI Update: change state immediately without reload/spinner
+    setCollections((prev) =>
+      prev.map((c) => (c.id === col.id ? { ...c, is_featured: newStatus } : c))
+    );
+
     try {
-      const newStatus = !col.is_featured;
       const res = await fetch(`${API_BASE}/store/collections/${col.id}/`, {
         method: "PATCH",
         headers: {
@@ -455,10 +474,17 @@ export default function AdminDashboardPage() {
           timer: 1500,
           toast: true,
         });
-        fetchAdminData();
+      } else {
+        // Revert on error
+        setCollections((prev) =>
+          prev.map((c) => (c.id === col.id ? { ...c, is_featured: !newStatus } : c))
+        );
       }
     } catch (err) {
       console.error(err);
+      setCollections((prev) =>
+        prev.map((c) => (c.id === col.id ? { ...c, is_featured: !newStatus } : c))
+      );
     }
   };
 
@@ -1055,7 +1081,7 @@ export default function AdminDashboardPage() {
                               : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10"
                           }`}
                         >
-                          {prod.is_trending ? "🔥 Trending" : "+ Trending"}
+                          {prod.is_trending ? "Trending" : "+ Trending"}
                         </button>
                         <button
                           onClick={() => handleDeleteProduct(prod.id)}
@@ -1245,7 +1271,6 @@ export default function AdminDashboardPage() {
                       <div>
                         <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
                           {col.title}
-                          {col.is_featured && <span className="text-[9px] bg-accent/20 text-accent font-black px-1.5 py-0.5 rounded uppercase">Featured</span>}
                         </h3>
                         <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">
                           ID: #{col.id} • {col.product_count || 0} Products
