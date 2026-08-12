@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
@@ -492,12 +492,16 @@ export default function AdminDashboardPage() {
   const [editingCollectionId, setEditingCollectionId] = useState<number | null>(null);
   const [collectionImageFile, setCollectionImageFile] = useState<File | null>(null);
   const [collectionImagePreview, setCollectionImagePreview] = useState<string | null>(null);
+  const collectionFileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSelectCollection = (col: Collection) => {
     setEditingCollectionId(col.id);
     setNewCollectionTitle(col.title);
     setCollectionImageFile(null);
     setCollectionImagePreview(col.image || null);
+    if (collectionFileInputRef.current) {
+      collectionFileInputRef.current.value = "";
+    }
   };
 
   const handleCancelCollectionEdit = () => {
@@ -505,6 +509,9 @@ export default function AdminDashboardPage() {
     setNewCollectionTitle("");
     setCollectionImageFile(null);
     setCollectionImagePreview(null);
+    if (collectionFileInputRef.current) {
+      collectionFileInputRef.current.value = "";
+    }
   };
 
   // Create or Update Collection (POST or PUT /store/collections/)
@@ -555,15 +562,20 @@ export default function AdminDashboardPage() {
           timer: 1800,
           toast: true,
         });
-        handleCancelCollectionEdit();
+        setEditingCollectionId(null);
+        setNewCollectionTitle("");
+        setCollectionImageFile(null);
+        setCollectionImagePreview(null);
         fetchAdminData();
       } else {
-        const errData = await res.json();
+        const errData = await res.json().catch(() => null);
         let errMsg = "Something went wrong.";
         if (typeof errData === "object" && errData !== null) {
           errMsg = Object.entries(errData)
             .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(", ") : val}`)
             .join("\n");
+        } else if (res.statusText) {
+          errMsg = `Server error ${res.status}: ${res.statusText}`;
         }
         Swal.fire({
           icon: "error",
@@ -571,8 +583,13 @@ export default function AdminDashboardPage() {
           text: errMsg,
         });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Network Error",
+        text: err?.message || "Failed to reach the server.",
+      });
     }
   };
 
@@ -1192,6 +1209,7 @@ export default function AdminDashboardPage() {
                     Collection Cover Photo {!editingCollectionId && "*"}
                   </label>
                   <input
+                    ref={collectionFileInputRef}
                     type="file"
                     accept="image/*"
                     required={!editingCollectionId && !collectionImagePreview}
