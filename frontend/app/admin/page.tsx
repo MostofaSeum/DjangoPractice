@@ -21,6 +21,7 @@ interface Product {
   collection: number;
   description?: string;
   images?: { id?: number; image: string }[];
+  is_trending?: boolean;
 }
 
 interface Collection {
@@ -28,6 +29,7 @@ interface Collection {
   title: string;
   product_count: number;
   image?: string | null;
+  is_featured?: boolean;
 }
 
 interface OrderItem {
@@ -399,6 +401,64 @@ export default function AdminDashboardPage() {
       } catch (err) {
         console.error(err);
       }
+    }
+  };
+
+  const handleToggleProductTrending = async (product: Product) => {
+    if (!token) return;
+    try {
+      const newStatus = !product.is_trending;
+      const res = await fetch(`${API_BASE}/store/products/${product.id}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify({ is_trending: newStatus }),
+      });
+
+      if (res.ok) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: newStatus ? "Added to Trending Now!" : "Removed from Trending Now",
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+        });
+        fetchAdminData();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleToggleCollectionFeatured = async (col: Collection) => {
+    if (!token) return;
+    try {
+      const newStatus = !col.is_featured;
+      const res = await fetch(`${API_BASE}/store/collections/${col.id}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify({ is_featured: newStatus }),
+      });
+
+      if (res.ok) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: newStatus ? "Set as Featured Category!" : "Removed from Featured Categories",
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+        });
+        fetchAdminData();
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -984,9 +1044,19 @@ export default function AdminDashboardPage() {
                       </td>
                       <td className="py-2.5 px-2 align-middle">{prod.inventory}</td>
                       <td
-                        className="py-3.5 px-2 text-right flex justify-end gap-2"
+                        className="py-3.5 px-2 text-right flex justify-end items-center gap-2"
                         onClick={(e) => e.stopPropagation()}
                       >
+                        <button
+                          onClick={() => handleToggleProductTrending(prod)}
+                          className={`px-3 py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors ${
+                            prod.is_trending
+                              ? "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border border-yellow-500/30"
+                              : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10"
+                          }`}
+                        >
+                          {prod.is_trending ? "🔥 Trending" : "+ Trending"}
+                        </button>
                         <button
                           onClick={() => handleDeleteProduct(prod.id)}
                           className="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
@@ -1173,8 +1243,9 @@ export default function AdminDashboardPage() {
                         </div>
                       )}
                       <div>
-                        <h3 className="font-bold text-sm text-foreground">
+                        <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
                           {col.title}
+                          {col.is_featured && <span className="text-[9px] bg-accent/20 text-accent font-black px-1.5 py-0.5 rounded uppercase">Featured</span>}
                         </h3>
                         <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">
                           ID: #{col.id} • {col.product_count || 0} Products
@@ -1182,6 +1253,16 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
                     <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={() => handleToggleCollectionFeatured(col)}
+                        className={`px-2.5 py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors ${
+                          col.is_featured
+                            ? "bg-accent/20 text-accent border border-accent/30"
+                            : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10"
+                        }`}
+                      >
+                        {col.is_featured ? "Featured" : "+ Feature"}
+                      </button>
                       <button
                         onClick={() => handleDeleteCollection(col)}
                         className="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"

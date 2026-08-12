@@ -17,6 +17,7 @@ class Collection(models.Model):
     featured_product = models.ForeignKey(
         'Product', on_delete=models.SET_NULL, null=True, related_name='+', blank=True)
     image = models.ImageField(upload_to='store/collections/images', null=True, blank=True)
+    is_featured = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return self.title
@@ -43,6 +44,7 @@ class Product(models.Model):
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
     promotions = models.ManyToManyField(Promotion, blank=True)
     is_photos_published = models.BooleanField(default=True)
+    is_trending = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return self.title

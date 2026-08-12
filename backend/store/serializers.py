@@ -26,7 +26,7 @@ class ProductSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'title', 'description', 'slug', 'inventory', 'unit_price', 'price_with_tax', 'collection', 'images', 'is_photos_published']
+        fields = ['id', 'title', 'description', 'slug', 'inventory', 'unit_price', 'price_with_tax', 'collection', 'images', 'is_photos_published', 'is_trending']
 
     def calculate_tax(self, product):
         return product.unit_price * Decimal('1.1')
@@ -43,7 +43,7 @@ class CollectionSerializer(serializers.ModelSerializer):
     product_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Collection
-        fields = ['id', 'title', 'featured_product', 'product_count', 'image']
+        fields = ['id', 'title', 'featured_product', 'product_count', 'image', 'is_featured']
 
 class CollectionDetailSerializer(serializers.ModelSerializer):
     products = ProductSerializers(many=True, read_only=True, source='product_set')
