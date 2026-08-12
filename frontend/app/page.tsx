@@ -4,6 +4,7 @@ import Link from "next/link";
 import AnimatedWord from "@/components/ui/AnimatedWord";
 import AddToCartButton from "@/features/products/components/AddToCartButton";
 import ProductImage from "@/components/ui/ProductImage";
+import { getApiBaseUrl } from "@/config/siteConfig";
 
 interface Product {
   id: number;
@@ -66,11 +67,22 @@ const DiamondIcon = () => (
   </svg>
 );
 
-import { getApiBaseUrl } from "@/config/siteConfig";
+interface Collection {
+  id: number;
+  title: string;
+  image?: string | null;
+}
+
+const defaultCategoryImages = [
+  "/HomePage/Grocery.png",
+  "/HomePage/Toysjpg.jpg",
+  "/HomePage/Magazines.jpg",
+];
 
 export default async function Home() {
   const apiBaseUrl = getApiBaseUrl();
   let trendingProducts: Product[] = [];
+  let featuredCollections: Collection[] = [];
 
   try {
     const res = await fetch(`${apiBaseUrl}/store/products/`, {
@@ -86,6 +98,31 @@ export default async function Home() {
   } catch (err) {
     console.error("Failed to fetch trending products:", err);
   }
+
+  try {
+    const colRes = await fetch(`${apiBaseUrl}/store/collections/`, {
+      cache: "no-store",
+    });
+    if (colRes.ok) {
+      const colData = await colRes.json();
+      const collections: Collection[] = Array.isArray(colData)
+        ? colData
+        : colData.results || [];
+      featuredCollections = collections.slice(0, 3);
+    }
+  } catch (err) {
+    console.error("Failed to fetch collections:", err);
+  }
+
+  const getCollectionImageUrl = (col: Collection, index: number) => {
+    if (col.image) {
+      if (col.image.startsWith("http://") || col.image.startsWith("https://")) {
+        return col.image;
+      }
+      return `${apiBaseUrl}${col.image.startsWith("/") ? "" : "/"}${col.image}`;
+    }
+    return defaultCategoryImages[index % defaultCategoryImages.length];
+  };
 
   return (
     <div className="min-h-screen pb-24 bg-background text-foreground font-sans transition-colors duration-300">
@@ -294,68 +331,65 @@ export default async function Home() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[600px]">
-            {/* Large Card (Grocery) */}
-            <Link
-              href="/collections/2"
-              className="lg:col-span-2 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[400px]"
-            >
-              <Image
-                src="/HomePage/Grocery.png"
-                alt="Grocery"
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
-              <div className="absolute bottom-10 left-10 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-5px]">
-                <span className="bg-accent/20 text-foreground text-xs font-bold px-3 py-1 mb-4 inline-block uppercase tracking-widest rounded-md shadow-md">
-                  POPULAR
-                </span>
-                <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tight drop-shadow-md">
-                  Grocery Essentials
-                </h3>
+            {featuredCollections.length > 0 ? (
+              <>
+                {/* 1st Collection: Large Card (Col Span 2) */}
+                {featuredCollections[0] && (
+                  <Link
+                    href={`/collections/${featuredCollections[0].id}`}
+                    className="lg:col-span-2 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[400px]"
+                  >
+                    <Image
+                      src={getCollectionImageUrl(featuredCollections[0], 0)}
+                      alt={featuredCollections[0].title}
+                      fill
+                      unoptimized
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
+                    <div className="absolute bottom-10 left-10 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-5px]">
+                      <span className="bg-accent/20 text-foreground text-xs font-bold px-3 py-1 mb-4 inline-block uppercase tracking-widest rounded-md shadow-md">
+                        FEATURED
+                      </span>
+                      <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tight drop-shadow-md">
+                        {featuredCollections[0].title}
+                      </h3>
+                    </div>
+                  </Link>
+                )}
+
+                {/* 2nd & 3rd Collections: Small Stacked Cards */}
+                {featuredCollections.length > 1 && (
+                  <div className="flex flex-col gap-6">
+                    {featuredCollections.slice(1, 3).map((col, idx) => (
+                      <Link
+                        key={col.id}
+                        href={`/collections/${col.id}`}
+                        className="flex-1 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[250px]"
+                      >
+                        <Image
+                          src={getCollectionImageUrl(col, idx + 1)}
+                          alt={col.title}
+                          fill
+                          unoptimized
+                          className="object-cover group-hover:scale-105 transition-transform duration-700"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
+                        <div className="absolute bottom-8 left-8 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-3px]">
+                          <h3 className="text-2xl font-bold uppercase tracking-tight drop-shadow-md">
+                            {col.title}
+                          </h3>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="col-span-full py-12 text-center text-sm font-bold uppercase tracking-wider opacity-60">
+                No collections available.
               </div>
-            </Link>
-
-            {/* Small Stacked Cards (Toys & Magazines) */}
-            <div className="flex flex-col gap-6">
-              {/* Toys Card */}
-              <Link
-                href="/collections/9"
-                className="flex-1 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[250px]"
-              >
-                <Image
-                  src="/HomePage/Toysjpg.jpg"
-                  alt="Toys"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
-                <div className="absolute bottom-8 left-8 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-3px]">
-                  <h3 className="text-2xl font-bold uppercase tracking-tight drop-shadow-md">
-                    Toys & Fun
-                  </h3>
-                </div>
-              </Link>
-
-              {/* Magazines Card */}
-              <Link
-                href="/collections/10"
-                className="flex-1 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[250px]"
-              >
-                <Image
-                  src="/HomePage/Magazines.jpg"
-                  alt="Magazines"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
-                <div className="absolute bottom-8 left-8 z-20 text-white transform transition-transform duration-500 group-hover:translate-y-[-3px]">
-                  <h3 className="text-2xl font-bold uppercase tracking-tight drop-shadow-md">
-                    Magazines & Reads
-                  </h3>
-                </div>
-              </Link>
-            </div>
+            )}
           </div>
         </section>
 
