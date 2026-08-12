@@ -324,7 +324,7 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-auto lg:h-[600px]">
+          <div className={`grid grid-cols-1 ${featuredCollections.length > 0 ? "lg:grid-cols-3 h-auto lg:h-[600px]" : "grid-cols-1 h-auto"} gap-6`}>
             {featuredCollections.length > 0 ? (
               <>
                 {/* 1st Collection: Large Card (Col Span 2) */}
