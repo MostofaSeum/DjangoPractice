@@ -80,6 +80,7 @@ export default function AdminDashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<CustomerItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasUnsavedPhotos, setHasUnsavedPhotos] = useState(false);
 
   // Search states
   const [productSearch, setProductSearch] = useState("");
@@ -113,45 +114,13 @@ export default function AdminDashboardPage() {
     description: "",
   });
 
-  // Select Product to populate left form for editing
-  const handleSelectProduct = (prod: Product) => {
-    setEditingProductId(prod.id);
-    setProductForm({
-      title: prod.title || "",
-      slug: prod.slug || "",
-      unit_price: String(prod.unit_price || ""),
-      inventory: String(prod.inventory || 0),
-      collection: String(prod.collection || 1),
-      description: (prod as any).description || "",
-    });
-  };
-
   // New Collection Form
   const [newCollectionTitle, setNewCollectionTitle] = useState("");
 
   const [prodPage, setProdPage] = useState(1);
   const [totalProductsCount, setTotalProductsCount] = useState(0);
 
-  useEffect(() => {
-    if (authLoading) return;
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-    if (user && !user.is_staff) {
-      Swal.fire({
-        icon: "error",
-        title: "Access Denied",
-        text: "You must be an admin/staff member to view this page.",
-      });
-      router.push("/");
-      return;
-    }
-
-    fetchAdminData(prodPage, activeProductQuery);
-  }, [user, token, authLoading, router, prodPage, activeProductQuery]);
-
-  const fetchAdminData = async (pageNumber = 1, searchQuery = "") => {
+  const fetchAdminData = async (pageNumber = prodPage, searchQuery = activeProductQuery) => {
     if (!token) return;
     setLoading(true);
     try {
@@ -205,6 +174,25 @@ export default function AdminDashboardPage() {
     }
   };
 
+  useEffect(() => {
+    if (authLoading) return;
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+    if (user && !user.is_staff) {
+      Swal.fire({
+        icon: "error",
+        title: "Access Denied",
+        text: "You must be an admin/staff member to view this page.",
+      });
+      router.push("/");
+      return;
+    }
+
+    fetchAdminData(prodPage, activeProductQuery);
+  }, [user, token, authLoading, router, prodPage, activeProductQuery]);
+
   const filteredCollections = collections.filter(
     (c) =>
       c.title.toLowerCase().includes(activeCollectionQuery.toLowerCase()) ||
@@ -253,8 +241,54 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // Select Product to populate left form for editing
+  const handleSelectProduct = async (prod: Product) => {
+    if (editingProductId === prod.id) return;
+    if (hasUnsavedPhotos) {
+      const confirm = await Swal.fire({
+        title: "Photos Not Uploaded!",
+        text: "You have selected photo(s) that are not uploaded yet. Switching products will discard these un-uploaded photos.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Discard & Switch Product",
+        cancelButtonText: "Stay Here",
+      });
+
+      if (!confirm.isConfirmed) return;
+      setHasUnsavedPhotos(false);
+    }
+
+    setEditingProductId(prod.id);
+    setProductForm({
+      title: prod.title || "",
+      slug: prod.slug || "",
+      unit_price: String(prod.unit_price || ""),
+      inventory: String(prod.inventory || 0),
+      collection: String(prod.collection || 1),
+      description: (prod as any).description || "",
+    });
+  };
+
   // Reset form to Add mode
-  const handleCancelEdit = () => {
+  const handleCancelEdit = async () => {
+    if (hasUnsavedPhotos) {
+      const confirm = await Swal.fire({
+        title: "Photos Not Uploaded!",
+        text: "You have selected photo(s) that are not uploaded yet. Canceling edit will discard these un-uploaded photos.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Discard & Cancel",
+        cancelButtonText: "Stay Here",
+      });
+
+      if (!confirm.isConfirmed) return;
+      setHasUnsavedPhotos(false);
+    }
+
     setEditingProductId(null);
     setProductForm({
       title: "",
@@ -635,6 +669,30 @@ export default function AdminDashboardPage() {
     );
   }
 
+  const handleTabSwitch = async (targetTab: "products" | "collections" | "orders" | "customers") => {
+    if (activeTab === targetTab) return;
+
+    if (hasUnsavedPhotos) {
+      const confirm = await Swal.fire({
+        title: "Photos Not Uploaded!",
+        text: "You have selected photo(s) that are not uploaded yet. If you switch section now, these photos won't be saved.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Leave Without Uploading",
+        cancelButtonText: "Stay Here",
+      });
+
+      if (!confirm.isConfirmed) {
+        return;
+      }
+      setHasUnsavedPhotos(false);
+    }
+
+    setActiveTab(targetTab);
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground font-sans pb-24 transition-colors duration-300">
       {/* Top Banner */}
@@ -661,7 +719,7 @@ export default function AdminDashboardPage() {
           {/* Navigation Tabs */}
           <div className="flex gap-2 bg-primary/40 p-1.5 rounded-2xl border border-white/10">
             <button
-              onClick={() => setActiveTab("products")}
+              onClick={() => handleTabSwitch("products")}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
                 activeTab === "products"
                   ? "bg-secondary text-foreground shadow-md"
@@ -671,7 +729,7 @@ export default function AdminDashboardPage() {
               Products ({totalProductsCount})
             </button>
             <button
-              onClick={() => setActiveTab("collections")}
+              onClick={() => handleTabSwitch("collections")}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
                 activeTab === "collections"
                   ? "bg-secondary text-foreground shadow-md"
@@ -681,7 +739,7 @@ export default function AdminDashboardPage() {
               Collections ({collections.length})
             </button>
             <button
-              onClick={() => setActiveTab("orders")}
+              onClick={() => handleTabSwitch("orders")}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
                 activeTab === "orders"
                   ? "bg-secondary text-foreground shadow-md"
@@ -691,7 +749,7 @@ export default function AdminDashboardPage() {
               Orders ({orders.length})
             </button>
             <button
-              onClick={() => setActiveTab("customers")}
+              onClick={() => handleTabSwitch("customers")}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
                 activeTab === "customers"
                   ? "bg-secondary text-foreground shadow-md"
@@ -838,7 +896,11 @@ export default function AdminDashboardPage() {
               {/* Photo Upload Section when editing a product */}
               {editingProductId && (
                 <div className="mt-4 pt-4 border-t border-foreground/10">
-                  <ImageUploadModal productId={editingProductId} onSuccess={fetchAdminData} />
+                  <ImageUploadModal
+                    productId={editingProductId}
+                    onSuccess={fetchAdminData}
+                    onUnsavedChange={setHasUnsavedPhotos}
+                  />
                 </div>
               )}
             </div>

@@ -13,11 +13,14 @@ interface ProductImage {
 interface ImageUploadModalProps {
   productId: number;
   onSuccess?: () => void;
+  onUnsavedChange?: (hasUnsaved: boolean) => void;
 }
 
-export default function ImageUploadModal({ productId, onSuccess }: ImageUploadModalProps) {
+export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange }: ImageUploadModalProps) {
   const { user } = useAuth();
   const [existingImages, setExistingImages] = useState<ProductImage[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [isPhotosPublished, setIsPhotosPublished] = useState<boolean>(true);
   const [fetchingImages, setFetchingImages] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -60,13 +63,97 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
 
   useEffect(() => {
     if (productId) {
+      setSelectedFiles([]);
+      setPreviewUrls([]);
+      if (onUnsavedChange) onUnsavedChange(false);
       fetchProductDetails();
     }
   }, [productId]);
 
-  const handleUploadClick = () => {
-    if (existingImages.length >= 5) return;
+  useEffect(() => {
+    if (onUnsavedChange) {
+      onUnsavedChange(selectedFiles.length > 0);
+    }
+  }, [selectedFiles, onUnsavedChange]);
+
+  const totalPhotosCount = existingImages.length + selectedFiles.length;
+
+  const handleSelectFilesClick = () => {
+    if (totalPhotosCount >= 5) return;
     fileInputRef.current?.click();
+  };
+
+  const handleFileSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const remainingSlots = 5 - totalPhotosCount;
+    const newFiles = Array.from(files).slice(0, remainingSlots);
+
+    const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+
+    setSelectedFiles((prev) => [...prev, ...newFiles]);
+    setPreviewUrls((prev) => [...prev, ...newPreviews]);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveSelectedFile = (index: number) => {
+    URL.revokeObjectURL(previewUrls[index]);
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviewUrls((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleUploadAllSelected = async () => {
+    if (selectedFiles.length === 0) return;
+
+    setLoading(true);
+    setMessage(null);
+
+    const token = localStorage.getItem('access_token') || localStorage.getItem('jwt');
+    let successCount = 0;
+
+    try {
+      for (const file of selectedFiles) {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const response = await fetch(`${apiBaseUrl}/store/products/${productId}/images/`, {
+          method: 'POST',
+          headers: {
+            ...(token ? { Authorization: `JWT ${token}` } : {}),
+          },
+          body: formData,
+        });
+
+        if (response.ok) {
+          successCount++;
+        }
+      }
+
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
+      setSelectedFiles([]);
+      setPreviewUrls([]);
+
+      Swal.fire({
+        position: 'top-end',
+        icon: 'success',
+        title: `${successCount} photo(s) uploaded successfully!`,
+        showConfirmButton: false,
+        timer: 2000,
+        toast: true,
+      });
+
+      setMessage({ type: 'success', text: `${successCount} photo(s) uploaded successfully!` });
+      fetchProductDetails();
+      if (onSuccess) onSuccess();
+    } catch (err: any) {
+      setMessage({ type: 'error', text: err.message || 'Something went wrong during upload.' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleTogglePublishPhotos = async () => {
@@ -95,48 +182,10 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
     }
   };
 
-  const handleFileChangeAndUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (!selectedFile) return;
-
-    setLoading(true);
-    setMessage(null);
-
-    const formData = new FormData();
-    formData.append('image', selectedFile);
-
-    try {
-      const token = localStorage.getItem('access_token') || localStorage.getItem('jwt');
-      const response = await fetch(`${apiBaseUrl}/store/products/${productId}/images/`, {
-        method: 'POST',
-        headers: {
-          ...(token ? { Authorization: `JWT ${token}` } : {}),
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.image?.[0] || errData.detail || 'Upload failed.');
-      }
-
-      setMessage({ type: 'success', text: 'Photo uploaded successfully!' });
-      fetchProductDetails();
-      if (onSuccess) onSuccess();
-    } catch (err: any) {
-      setMessage({ type: 'error', text: err.message || 'Something went wrong.' });
-    } finally {
-      setLoading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
-
   const handleDeleteImage = async (imageId: number) => {
     const confirmResult = await Swal.fire({
       title: 'Delete Photo?',
-      text: "Are you sure you want to delete this photo?",
+      text: "Are you sure you want to delete this photo from the store?",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#cc5555',
@@ -171,7 +220,7 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
       <div className="flex items-center justify-between gap-2 border-b border-foreground/10 pb-3">
         <div>
           <h4 className="text-xs font-black uppercase tracking-wider text-foreground">
-            Product Photos ({existingImages.length}/5)
+            Product Photos ({totalPhotosCount}/5)
           </h4>
           <p className="text-[10px] font-bold text-foreground/60 mt-0.5">
             {isPhotosPublished ? '🟢 Publicly Visible on Store' : '🔴 Draft Mode (Hidden from Store)'}
@@ -193,8 +242,9 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
       <input
         type="file"
         accept="image/*"
+        multiple
         ref={fileInputRef}
-        onChange={handleFileChangeAndUpload}
+        onChange={handleFileSelection}
         className="hidden"
       />
 
@@ -202,83 +252,133 @@ export default function ImageUploadModal({ productId, onSuccess }: ImageUploadMo
         <p className="text-xs text-foreground/50 animate-pulse py-4">Loading photos...</p>
       ) : (
         <div className="space-y-4">
-          {/* Main Cover Photo */}
-          {existingImages[0] ? (
-            <div className="relative group rounded-2xl overflow-hidden border border-foreground/20 shadow-sm bg-secondary aspect-[4/3] w-full">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={getImageUrl(existingImages[0].image)} alt="Main Photo" className="object-cover w-full h-full" />
-              <div className="absolute top-3 left-3 bg-background/80 backdrop-blur-md px-2.5 py-1 rounded-lg text-[9px] font-black uppercase text-accent border border-foreground/10 shadow-sm">
-                Main Cover Photo
+          {/* Photos Grid */}
+          <div className="space-y-3">
+            {/* Main Cover Photo (Existing or Newly Selected #1) */}
+            {existingImages.length > 0 ? (
+              <div className="relative group rounded-2xl overflow-hidden border border-foreground/20 shadow-sm bg-secondary aspect-[4/3] w-full">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={getImageUrl(existingImages[0].image)} alt="Main Photo" className="object-cover w-full h-full" />
+                <div className="absolute top-3 left-3 bg-background/80 backdrop-blur-md px-2.5 py-1 rounded-lg text-[9px] font-black uppercase text-accent border border-foreground/10 shadow-sm">
+                  Main Cover Photo
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleDeleteImage(existingImages[0].id)}
+                  className="absolute inset-0 bg-black/60 text-white text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                >
+                  Delete Main Photo
+                </button>
               </div>
+            ) : previewUrls.length > 0 ? (
+              <div className="relative group rounded-2xl overflow-hidden border-2 border-yellow-500/80 shadow-sm bg-secondary aspect-[4/3] w-full">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={previewUrls[0]} alt="Selected Main Preview" className="object-cover w-full h-full opacity-90" />
+                <div className="absolute top-3 left-3 bg-yellow-500 text-black font-black px-2.5 py-1 rounded-lg text-[9px] uppercase shadow-sm">
+                  Pending Upload (Cover)
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveSelectedFile(0)}
+                  className="absolute inset-0 bg-black/60 text-white text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                >
+                  Remove Selected
+                </button>
+              </div>
+            ) : (
+              <div 
+                onClick={handleSelectFilesClick}
+                className="rounded-2xl border-2 border-dashed border-accent/50 bg-accent/5 hover:bg-accent/10 cursor-pointer flex flex-col gap-2 items-center justify-center p-8 aspect-[4/3] w-full transition-all"
+              >
+                <svg className="w-8 h-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span className="text-xs font-black uppercase text-accent tracking-wider">
+                  Select Main Cover Photo
+                </span>
+              </div>
+            )}
+
+            {/* Additional Photos Grid (Existing 2..5 and Selected previews) */}
+            {(existingImages.length > 1 || (existingImages.length === 0 && previewUrls.length > 1) || (existingImages.length > 0 && previewUrls.length > 0)) && (
+              <div className="grid grid-cols-4 gap-3">
+                {/* Existing Detail Photos */}
+                {existingImages.slice(1).map((img, idx) => (
+                  <div key={img.id} className="relative group rounded-xl overflow-hidden border border-foreground/20 shadow-sm bg-secondary aspect-square w-full">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={getImageUrl(img.image)} alt={`Detail ${idx + 1}`} className="object-cover w-full h-full" />
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteImage(img.id)}
+                      className="absolute inset-0 bg-black/60 text-white text-[9px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+
+                {/* Newly Selected Previews */}
+                {previewUrls.slice(existingImages.length === 0 ? 1 : 0).map((url, idx) => {
+                  const fileIdx = existingImages.length === 0 ? idx + 1 : idx;
+                  return (
+                    <div key={url} className="relative group rounded-xl overflow-hidden border-2 border-yellow-500/80 shadow-sm bg-secondary aspect-square w-full">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt={`Pending ${idx + 1}`} className="object-cover w-full h-full opacity-90" />
+                      <div className="absolute top-1 left-1 bg-yellow-500 text-black text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm">
+                        Pending
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSelectedFile(fileIdx)}
+                        className="absolute inset-0 bg-black/60 text-white text-[9px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Action Buttons: Select Photos & Save/Upload Button */}
+          <div className="flex flex-col gap-2">
+            {totalPhotosCount < 5 && (
               <button
                 type="button"
-                onClick={() => handleDeleteImage(existingImages[0].id)}
-                className="absolute inset-0 bg-black/60 text-white text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                onClick={handleSelectFilesClick}
+                className="w-full py-3 px-4 rounded-xl border-2 border-dashed border-accent/40 bg-accent/5 hover:bg-accent/10 text-accent font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
               >
-                Delete Main Photo
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                {totalPhotosCount === 0 ? "Select Photos" : `+ Select More Photos (${totalPhotosCount}/5)`}
               </button>
-            </div>
-          ) : (
-            <div 
-              onClick={!loading ? handleUploadClick : undefined}
-              className={`rounded-2xl border-2 border-dashed border-accent/50 bg-accent/5 hover:bg-accent/10 cursor-pointer flex flex-col gap-2 items-center justify-center p-8 aspect-[4/3] w-full transition-all ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              {loading ? (
-                <span className="text-xs text-accent font-bold uppercase tracking-tight animate-pulse">UPLOADING MAIN PHOTO...</span>
-              ) : (
-                <>
-                  <svg className="w-8 h-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                  <span className="text-xs font-black uppercase text-accent tracking-wider">
-                    Upload Main Cover Photo (Required)
-                  </span>
-                </>
-              )}
-            </div>
-          )}
+            )}
 
-          {/* Detail Photos Grid (Only existing detail photos 2..5) */}
-          {existingImages.length > 1 && (
-            <div className="grid grid-cols-4 gap-3">
-              {existingImages.slice(1).map((img, idx) => (
-                <div key={img.id} className="relative group rounded-xl overflow-hidden border border-foreground/20 shadow-sm bg-secondary aspect-square w-full">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={getImageUrl(img.image)} alt={`Detail ${idx + 1}`} className="object-cover w-full h-full" />
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteImage(img.id)}
-                    className="absolute inset-0 bg-black/60 text-white text-[9px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
-                  >
-                    Delete
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Add Photo Slot Button (If < 5 photos) */}
-          {existingImages.length > 0 && existingImages.length < 5 && (
-            <button
-              type="button"
-              onClick={!loading ? handleUploadClick : undefined}
-              disabled={loading}
-              className="w-full py-3.5 px-4 rounded-xl border-2 border-dashed border-accent/40 bg-accent/5 hover:bg-accent/10 text-accent font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              {loading ? 'Uploading...' : `+ Add Photo Slot (Photo ${existingImages.length + 1} of 5)`}
-            </button>
-          )}
+            {selectedFiles.length > 0 && (
+              <button
+                type="button"
+                onClick={handleUploadAllSelected}
+                disabled={loading}
+                className="w-full py-3.5 px-4 rounded-xl bg-green-600 hover:bg-green-700 text-white font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                {loading ? 'Uploading Photos...' : `Upload Selected Photos (${selectedFiles.length})`}
+              </button>
+            )}
+          </div>
         </div>
       )}
 
       {message && (
-        <p className={`text-xs font-bold ${message.type === 'success' ? 'text-green-700' : 'text-red-600'}`}>
+        <p className={`text-xs font-bold ${message.type === 'success' ? 'text-green-700 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
           {message.text}
         </p>
       )}
     </div>
   );
 }
+
