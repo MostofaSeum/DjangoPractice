@@ -62,6 +62,7 @@ export default function ProductRatingHeader({ productId }: { productId: number }
   };
 
   const scrollToReviews = () => {
+    window.dispatchEvent(new CustomEvent("open-reviews-tab"));
     const tabsElement = document.getElementById("product-tabs");
     if (tabsElement) {
       tabsElement.scrollIntoView({ behavior: "smooth" });

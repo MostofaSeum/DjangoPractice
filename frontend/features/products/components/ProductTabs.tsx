@@ -73,6 +73,18 @@ export default function ProductTabs({
     fetchReviews();
   }, [fetchReviews]);
 
+  useEffect(() => {
+    const handleOpenReviews = () => {
+      setActiveTab("reviews");
+      if (!reviewsFetched) fetchReviews();
+    };
+
+    window.addEventListener("open-reviews-tab", handleOpenReviews);
+    return () => {
+      window.removeEventListener("open-reviews-tab", handleOpenReviews);
+    };
+  }, [reviewsFetched, fetchReviews]);
+
   const handleStartEdit = (rev: Review) => {
     setEditingReviewId(rev.id);
     setReviewText(rev.description);
