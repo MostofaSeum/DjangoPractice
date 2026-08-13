@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import Link from 'next/link';
-import { getApiBaseUrl } from '@/config/siteConfig';
-import { useAuth } from '@/hooks/useAuth';
-import Swal from 'sweetalert2';
+import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
+import { getApiBaseUrl } from "@/config/siteConfig";
+import { useAuth } from "@/hooks/useAuth";
+import Swal from "sweetalert2";
 
 interface Review {
   id: number;
@@ -18,26 +18,33 @@ interface ProductTabsProps {
   description?: string;
 }
 
-export default function ProductTabs({ productId, description }: ProductTabsProps) {
+export default function ProductTabs({
+  productId,
+  description,
+}: ProductTabsProps) {
   const { user, token, loading: authLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState<'description' | 'reviews'>('description');
+  const [activeTab, setActiveTab] = useState<"description" | "reviews">(
+    "description",
+  );
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loadingReviews, setLoadingReviews] = useState<boolean>(false);
   const [reviewsFetched, setReviewsFetched] = useState<boolean>(false);
-  const [reviewText, setReviewText] = useState<string>('');
+  const [reviewText, setReviewText] = useState<string>("");
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   const fetchReviews = useCallback(async () => {
     try {
       setLoadingReviews(true);
       const apiBaseUrl = getApiBaseUrl();
-      const res = await fetch(`${apiBaseUrl}/store/products/${productId}/reviews/`);
+      const res = await fetch(
+        `${apiBaseUrl}/store/products/${productId}/reviews/`,
+      );
       if (res.ok) {
         const data = await res.json();
         setReviews(Array.isArray(data) ? data : data.results || []);
       }
     } catch (err) {
-      console.error('Failed to load reviews:', err);
+      console.error("Failed to load reviews:", err);
     } finally {
       setLoadingReviews(false);
       setReviewsFetched(true);
@@ -54,9 +61,9 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
 
     if (!token || !user) {
       Swal.fire({
-        position: 'top-end',
-        icon: 'warning',
-        title: 'You must be signed in to post a review.',
+        position: "top-end",
+        icon: "warning",
+        title: "You must be signed in to post a review.",
         showConfirmButton: false,
         timer: 2000,
         toast: true,
@@ -66,9 +73,9 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
 
     if (!reviewText.trim()) {
       Swal.fire({
-        position: 'top-end',
-        icon: 'warning',
-        title: 'Please enter your review content.',
+        position: "top-end",
+        icon: "warning",
+        title: "Please enter your review content.",
         showConfirmButton: false,
         timer: 2000,
         toast: true,
@@ -78,59 +85,62 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
 
     // Auto-generate reviewer name from user profile
     const reviewerName =
-      [user.first_name, user.last_name].filter(Boolean).join(' ') ||
+      [user.first_name, user.last_name].filter(Boolean).join(" ") ||
       user.username ||
       user.email ||
-      'Customer';
+      "Customer";
 
     try {
       setSubmitting(true);
       const apiBaseUrl = getApiBaseUrl();
       const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       };
       if (token) {
-        headers['Authorization'] = `JWT ${token}`;
+        headers["Authorization"] = `JWT ${token}`;
       }
 
-      const res = await fetch(`${apiBaseUrl}/store/products/${productId}/reviews/`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          name: reviewerName,
-          description: reviewText.trim(),
-        }),
-      });
+      const res = await fetch(
+        `${apiBaseUrl}/store/products/${productId}/reviews/`,
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            name: reviewerName,
+            description: reviewText.trim(),
+          }),
+        },
+      );
 
       if (res.ok) {
         Swal.fire({
-          position: 'top-end',
-          icon: 'success',
-          title: 'Thank you! Your review has been published.',
+          position: "top-end",
+          icon: "success",
+          title: "Thank you! Your review has been published.",
           showConfirmButton: false,
           timer: 2000,
           toast: true,
         });
-        setReviewText('');
+        setReviewText("");
         // Refresh reviews list
         await fetchReviews();
       } else {
         const errData = await res.json().catch(() => ({}));
         Swal.fire({
-          position: 'top-end',
-          icon: 'error',
-          title: errData.detail || 'Failed to submit review. Please try again.',
+          position: "top-end",
+          icon: "error",
+          title: errData.detail || "Failed to submit review. Please try again.",
           showConfirmButton: false,
           timer: 2500,
           toast: true,
         });
       }
     } catch (err) {
-      console.error('Error submitting review:', err);
+      console.error("Error submitting review:", err);
       Swal.fire({
-        position: 'top-end',
-        icon: 'error',
-        title: 'Network error. Could not post review.',
+        position: "top-end",
+        icon: "error",
+        title: "Network error. Could not post review.",
         showConfirmButton: false,
         timer: 2500,
         toast: true,
@@ -143,10 +153,10 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
   const formatDate = (dateStr: string) => {
     try {
       const d = new Date(dateStr);
-      return d.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
+      return d.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
       });
     } catch {
       return dateStr;
@@ -154,21 +164,21 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
   };
 
   const displayName = user
-    ? [user.first_name, user.last_name].filter(Boolean).join(' ') ||
+    ? [user.first_name, user.last_name].filter(Boolean).join(" ") ||
       user.username ||
       user.email
-    : '';
+    : "";
 
   return (
     <div className="mt-12 sm:mt-20 border-t border-foreground/10 pt-8 sm:pt-12 transition-colors duration-300">
       {/* Tab Navigation Header */}
-      <div className="flex justify-center items-center space-x-6 sm:space-x-12 border-b border-foreground/10 pb-4 mb-8 overflow-x-auto">
+      <div className="flex justify-center items-center space-x-3 sm:space-x-4 border-b border-foreground/10 pb-6 mb-8 overflow-x-auto">
         <button
-          onClick={() => setActiveTab('description')}
-          className={`text-xs sm:text-sm font-black uppercase tracking-widest pb-4 -mb-[18px] transition-colors whitespace-nowrap ${
-            activeTab === 'description'
-              ? 'border-b-2 border-accent text-accent font-extrabold'
-              : 'text-foreground/50 hover:text-foreground'
+          onClick={() => setActiveTab("description")}
+          className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 whitespace-nowrap ${
+            activeTab === "description"
+              ? "bg-button-bg text-button-fg shadow-md"
+              : "bg-transparent text-foreground/70 hover:text-foreground hover:bg-foreground/5"
           }`}
           type="button"
         >
@@ -177,32 +187,40 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
 
         <button
           onClick={() => {
-            setActiveTab('reviews');
+            setActiveTab("reviews");
             if (!reviewsFetched) fetchReviews();
           }}
-          className={`text-xs sm:text-sm font-black uppercase tracking-widest pb-4 -mb-[18px] transition-colors flex items-center gap-2 whitespace-nowrap ${
-            activeTab === 'reviews'
-              ? 'border-b-2 border-accent text-accent font-extrabold'
-              : 'text-foreground/50 hover:text-foreground'
+          className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 flex items-center gap-2.5 whitespace-nowrap ${
+            activeTab === "reviews"
+              ? "bg-button-bg text-button-fg shadow-md"
+              : "bg-transparent text-foreground/70 hover:text-foreground hover:bg-foreground/5"
           }`}
           type="button"
         >
           <span>Reviews</span>
-          <span className="px-2 py-0.5 text-[10px] bg-accent/20 text-accent rounded-full font-extrabold">
+          <span
+            className={`px-2 py-0.5 text-[10px] rounded-full font-black ${
+              activeTab === "reviews"
+                ? "bg-button-fg/20 text-button-fg"
+                : "bg-foreground/10 text-foreground/70"
+            }`}
+          >
             {reviews.length}
           </span>
         </button>
       </div>
 
       {/* Tab Content: Description */}
-      {activeTab === 'description' && (
+      {activeTab === "description" && (
         <div className="text-sm sm:text-base text-foreground/80 leading-relaxed max-w-3xl mx-auto text-center font-medium px-4">
-          <p className="whitespace-pre-line">{description || 'No description available for this product.'}</p>
+          <p className="whitespace-pre-line">
+            {description || "No description available for this product."}
+          </p>
         </div>
       )}
 
       {/* Tab Content: Reviews */}
-      {activeTab === 'reviews' && (
+      {activeTab === "reviews" && (
         <div className="max-w-3xl mx-auto space-y-10 sm:space-y-12 px-2 sm:px-0">
           {/* Review List Header */}
           <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-2">
@@ -217,8 +235,12 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
             </div>
           ) : reviews.length === 0 ? (
             <div className="p-6 sm:p-8 rounded-2xl bg-secondary/50 border border-foreground/10 text-center">
-              <p className="text-sm text-foreground/80 font-semibold mb-1">No reviews yet for this product.</p>
-              <p className="text-xs text-foreground/50">Be the first to share your thoughts!</p>
+              <p className="text-sm text-foreground/80 font-semibold mb-1">
+                No reviews yet for this product.
+              </p>
+              <p className="text-xs text-foreground/50">
+                Be the first to share your thoughts!
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -230,13 +252,17 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-full bg-accent/20 text-accent font-black text-sm flex items-center justify-center uppercase shrink-0">
-                        {rev.name ? rev.name.charAt(0) : 'U'}
+                        {rev.name ? rev.name.charAt(0) : "U"}
                       </div>
                       <div>
-                        <h4 className="text-sm font-bold text-foreground capitalize">{rev.name}</h4>
+                        <h4 className="text-sm font-bold text-foreground capitalize">
+                          {rev.name}
+                        </h4>
                       </div>
                     </div>
-                    <span className="text-xs text-foreground/50 font-medium self-start sm:self-auto">{formatDate(rev.date)}</span>
+                    <span className="text-xs text-foreground/50 font-medium self-start sm:self-auto">
+                      {formatDate(rev.date)}
+                    </span>
                   </div>
                   <p className="text-xs sm:text-sm text-foreground/85 leading-relaxed font-medium sm:pl-12">
                     {rev.description}
@@ -278,7 +304,8 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
                   Sign in required to post a review
                 </p>
                 <p className="text-xs text-foreground/70 font-medium max-w-sm mx-auto">
-                  Please sign in to your account to submit a review for this product.
+                  Please sign in to your account to submit a review for this
+                  product.
                 </p>
                 <div>
                   <Link
@@ -299,7 +326,8 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
                     {displayName.charAt(0)}
                   </div>
                   <div className="text-xs font-bold text-foreground">
-                    Posting as <span className="text-accent">{displayName}</span>
+                    Posting as{" "}
+                    <span className="text-accent">{displayName}</span>
                   </div>
                 </div>
 
@@ -323,7 +351,7 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
                     disabled={submitting}
                     className="w-full sm:w-auto px-8 py-3.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50 inline-flex items-center justify-center gap-2"
                   >
-                    {submitting ? 'Submitting...' : 'Submit Review'}
+                    {submitting ? "Submitting..." : "Submit Review"}
                   </button>
                 </div>
               </form>
