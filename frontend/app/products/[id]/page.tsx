@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import ProductInteractive from "./ProductInteractive";
 import ProductGallery from "./ProductGallery";
+import ProductTabs from "@/features/products/components/ProductTabs";
 import AddToCartButton from "@/features/products/components/AddToCartButton";
 import ProductImage from "@/components/ui/ProductImage";
 
@@ -182,20 +183,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* Tab section: Only description */}
-        <div className="mt-20 border-t border-foreground/10 pt-12">
-          <div className="flex space-x-8 border-b border-foreground/10 pb-4 mb-8">
-            <button className="text-xs font-black uppercase tracking-widest border-b-2 border-current pb-4 -mb-[18px]">
-              Description
-            </button>
-          </div>
-          <div className="text-sm opacity-80 leading-loose max-w-4xl font-medium">
-            <p>
-              {product.description ||
-                "No description available for this product."}
-            </p>
-          </div>
-        </div>
+        {/* Interactive Description and Reviews Tabs */}
+        <ProductTabs productId={product.id} description={product.description} />
 
         {/* Related Products Section */}
         {relatedProducts.length > 0 && (
