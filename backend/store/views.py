@@ -263,4 +263,4 @@ class GiftCardViewSet(ModelViewSet):
         except GiftCard.DoesNotExist:
             return Response({'error': 'Invalid gift card code. Please try again.'}, status=status.HTTP_404_NOT_FOUND)
 
-# Trigger Django reloader
+# Trigger Django reloader - updated with review image support

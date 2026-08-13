@@ -172,6 +172,7 @@ class Review(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     rating = models.PositiveSmallIntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(5)])
+    image = models.ImageField(upload_to='store/reviews/images', null=True, blank=True)
     date = models.DateTimeField(auto_now_add=True)
 
 import random

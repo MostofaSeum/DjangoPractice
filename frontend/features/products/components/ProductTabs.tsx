@@ -11,6 +11,7 @@ interface Review {
   name: string;
   description: string;
   rating?: number;
+  image?: string | null;
   date: string;
 }
 
@@ -33,6 +34,9 @@ export default function ProductTabs({
   const [reviewText, setReviewText] = useState<string>("");
   const [rating, setRating] = useState<number>(5);
   const [hoverRating, setHoverRating] = useState<number>(0);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [activeImageModal, setActiveImageModal] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   const fetchReviews = useCallback(async () => {
@@ -58,6 +62,33 @@ export default function ProductTabs({
     // Fetch initial reviews count on mount
     fetchReviews();
   }, [fetchReviews]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        Swal.fire({
+          position: "top-end",
+          icon: "warning",
+          title: "Image size must be less than 5MB.",
+          showConfirmButton: false,
+          timer: 2000,
+          toast: true,
+        });
+        return;
+      }
+      setSelectedImage(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeSelectedImage = () => {
+    setSelectedImage(null);
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+      setImagePreview(null);
+    }
+  };
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,11 +127,17 @@ export default function ProductTabs({
     try {
       setSubmitting(true);
       const apiBaseUrl = getApiBaseUrl();
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
+      const headers: Record<string, string> = {};
       if (token) {
         headers["Authorization"] = `JWT ${token}`;
+      }
+
+      const formData = new FormData();
+      formData.append("name", reviewerName);
+      formData.append("description", reviewText.trim());
+      formData.append("rating", String(rating));
+      if (selectedImage) {
+        formData.append("image", selectedImage);
       }
 
       const res = await fetch(
@@ -108,11 +145,7 @@ export default function ProductTabs({
         {
           method: "POST",
           headers,
-          body: JSON.stringify({
-            name: reviewerName,
-            description: reviewText.trim(),
-            rating: rating,
-          }),
+          body: formData,
         },
       );
 
@@ -127,6 +160,7 @@ export default function ProductTabs({
         });
         setReviewText("");
         setRating(5);
+        removeSelectedImage();
         // Refresh reviews list
         await fetchReviews();
       } else {
@@ -215,6 +249,15 @@ export default function ProductTabs({
         })}
       </div>
     );
+  };
+
+  const getImageUrl = (imgUrl: string) => {
+    if (!imgUrl) return "";
+    if (imgUrl.startsWith("http://") || imgUrl.startsWith("https://")) {
+      return imgUrl;
+    }
+    const baseUrl = getApiBaseUrl();
+    return `${baseUrl}${imgUrl.startsWith("/") ? "" : "/"}${imgUrl}`;
   };
 
   const displayName = user
@@ -336,9 +379,43 @@ export default function ProductTabs({
                       {formatDate(rev.date)}
                     </span>
                   </div>
+
                   <p className="text-xs sm:text-sm text-foreground/85 leading-relaxed font-medium sm:pl-12">
                     {rev.description}
                   </p>
+
+                  {/* Attached Photo Thumbnail */}
+                  {rev.image && (
+                    <div className="mt-3 sm:pl-12">
+                      <button
+                        type="button"
+                        onClick={() => setActiveImageModal(getImageUrl(rev.image!))}
+                        className="relative group overflow-hidden rounded-2xl border border-foreground/15 block"
+                      >
+                        <img
+                          src={getImageUrl(rev.image)}
+                          alt="Review Attachment"
+                          className="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            <line x1="11" y1="8" x2="11" y2="14" />
+                            <line x1="8" y1="11" x2="14" y2="11" />
+                          </svg>
+                        </div>
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -429,6 +506,66 @@ export default function ProductTabs({
                   />
                 </div>
 
+                {/* Attach Photo Option */}
+                <div>
+                  <label className="block text-xs font-extrabold uppercase tracking-widest mb-2 text-foreground/80">
+                    Attach Photo
+                  </label>
+                  {imagePreview ? (
+                    <div className="relative w-28 h-28 rounded-2xl overflow-hidden border border-foreground/20 group">
+                      <img
+                        src={imagePreview}
+                        alt="Review preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeSelectedImage}
+                        className="absolute top-1.5 right-1.5 bg-black/70 text-white rounded-full p-1.5 hover:bg-black transition-colors"
+                        title="Remove photo"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                        >
+                          <line x1="18" y1="6" x2="6" y2="18" />
+                          <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex items-center gap-2 px-4 py-2.5 bg-background border border-dashed border-foreground/25 rounded-xl cursor-pointer hover:border-accent transition-all w-fit text-xs font-bold text-foreground/70 hover:text-foreground">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                        <circle cx="9" cy="9" r="2" />
+                        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                      </svg>
+                      <span>Upload Photo</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
+
                 <div className="flex justify-end">
                   <button
                     type="submit"
@@ -440,6 +577,40 @@ export default function ProductTabs({
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Lightbox Modal for Enlarged Photo View */}
+      {activeImageModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn"
+          onClick={() => setActiveImageModal(null)}
+        >
+          <div className="relative max-w-3xl max-h-[90vh] w-full h-full flex items-center justify-center">
+            <img
+              src={activeImageModal}
+              alt="Enlarged Review Attachment"
+              className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl"
+            />
+            <button
+              type="button"
+              onClick={() => setActiveImageModal(null)}
+              className="absolute top-2 right-2 bg-black/60 text-white rounded-full p-2.5 hover:bg-black transition-colors"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
           </div>
         </div>
       )}
