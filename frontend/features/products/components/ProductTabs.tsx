@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { getApiBaseUrl } from '@/config/siteConfig';
+import { useAuth } from '@/hooks/useAuth';
 import Swal from 'sweetalert2';
 
 interface Review {
@@ -17,13 +19,13 @@ interface ProductTabsProps {
 }
 
 export default function ProductTabs({ productId, description }: ProductTabsProps) {
+  const { user, token, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<'description' | 'reviews'>('description');
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loadingReviews, setLoadingReviews] = useState<boolean>(false);
   const [reviewsFetched, setReviewsFetched] = useState<boolean>(false);
 
-  // Form State
-  const [name, setName] = useState<string>('');
+  // Form State (Only review text needed, name auto-filled from auth user)
   const [reviewText, setReviewText] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
 
@@ -51,11 +53,12 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !reviewText.trim()) {
+
+    if (!token || !user) {
       Swal.fire({
         position: 'top-end',
         icon: 'warning',
-        title: 'Please fill in both your name and review content.',
+        title: 'You must be signed in to post a review.',
         showConfirmButton: false,
         timer: 2000,
         toast: true,
@@ -63,16 +66,40 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
       return;
     }
 
+    if (!reviewText.trim()) {
+      Swal.fire({
+        position: 'top-end',
+        icon: 'warning',
+        title: 'Please enter your review content.',
+        showConfirmButton: false,
+        timer: 2000,
+        toast: true,
+      });
+      return;
+    }
+
+    // Auto-generate reviewer name from user profile
+    const reviewerName =
+      [user.first_name, user.last_name].filter(Boolean).join(' ') ||
+      user.username ||
+      user.email ||
+      'Customer';
+
     try {
       setSubmitting(true);
       const apiBaseUrl = getApiBaseUrl();
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `JWT ${token}`;
+      }
+
       const res = await fetch(`${apiBaseUrl}/store/products/${productId}/reviews/`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
-          name: name.trim(),
+          name: reviewerName,
           description: reviewText.trim(),
         }),
       });
@@ -86,7 +113,6 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
           timer: 2000,
           toast: true,
         });
-        setName('');
         setReviewText('');
         // Refresh reviews list
         await fetchReviews();
@@ -128,6 +154,12 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
       return dateStr;
     }
   };
+
+  const displayName = user
+    ? [user.first_name, user.last_name].filter(Boolean).join(' ') ||
+      user.username ||
+      user.email
+    : '';
 
   return (
     <div className="mt-20 border-t border-foreground/10 pt-12">
@@ -219,49 +251,86 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
             </div>
           )}
 
-          {/* Add Review Form */}
+          {/* Add Review Form or Auth Lock */}
           <div className="pt-8 border-t border-foreground/10">
             <h4 className="text-base font-black uppercase tracking-tight text-foreground mb-6">
               Write a Review
             </h4>
 
-            <form onSubmit={handleSubmitReview} className="space-y-4 bg-secondary/40 p-6 md:p-8 rounded-3xl border border-foreground/10 shadow-sm">
-              <div>
-                <label className="block text-xs font-extrabold uppercase tracking-widest mb-2 opacity-80">
-                  Your Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Enter your name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-semibold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
-                />
+            {authLoading ? (
+              <div className="py-4 text-xs opacity-50 font-bold uppercase tracking-wider">
+                Checking sign-in status...
               </div>
-
-              <div>
-                <label className="block text-xs font-extrabold uppercase tracking-widest mb-2 opacity-80">
-                  Your Review *
-                </label>
-                <textarea
-                  required
-                  rows={4}
-                  placeholder="Write your detailed review about this product..."
-                  value={reviewText}
-                  onChange={(e) => setReviewText(e.target.value)}
-                  className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-semibold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all resize-y"
-                />
+            ) : !user || !token ? (
+              <div className="p-8 rounded-3xl bg-secondary/40 border border-foreground/10 text-center space-y-4">
+                <div className="w-12 h-12 bg-accent/20 text-foreground rounded-2xl mx-auto flex items-center justify-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                </div>
+                <p className="text-sm font-bold text-foreground uppercase tracking-tight">
+                  Sign in required to post a review
+                </p>
+                <p className="text-xs opacity-70 font-medium max-w-sm mx-auto">
+                  Please sign in to your account to submit a review for this product.
+                </p>
+                <div>
+                  <Link
+                    href={`/login?redirect=/products/${productId}`}
+                    className="inline-block px-8 py-3 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md"
+                  >
+                    Sign In to Review
+                  </Link>
+                </div>
               </div>
-
-              <button
-                type="submit"
-                disabled={submitting}
-                className="px-8 py-3.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50 inline-flex items-center gap-2"
+            ) : (
+              <form
+                onSubmit={handleSubmitReview}
+                className="space-y-4 bg-secondary/40 p-6 md:p-8 rounded-3xl border border-foreground/10 shadow-sm"
               >
-                {submitting ? 'Submitting...' : 'Submit Review'}
-              </button>
-            </form>
+                <div className="flex items-center gap-3 pb-2 border-b border-foreground/10">
+                  <div className="w-8 h-8 rounded-full bg-accent/20 text-foreground font-black text-xs flex items-center justify-center uppercase">
+                    {displayName.charAt(0)}
+                  </div>
+                  <div className="text-xs font-bold text-foreground">
+                    Posting as <span className="text-accent">{displayName}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-extrabold uppercase tracking-widest mb-2 opacity-80">
+                    Your Review *
+                  </label>
+                  <textarea
+                    required
+                    rows={4}
+                    placeholder="Write your detailed review about this product..."
+                    value={reviewText}
+                    onChange={(e) => setReviewText(e.target.value)}
+                    className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-semibold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all resize-y"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="px-8 py-3.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50 inline-flex items-center gap-2"
+                >
+                  {submitting ? 'Submitting...' : 'Submit Review'}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       )}
