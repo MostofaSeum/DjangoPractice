@@ -474,23 +474,7 @@ export default function CheckoutPage() {
             <h2 className="text-2xl font-black uppercase tracking-tight pb-4 border-b border-foreground/10">
               Order Summary
             </h2>
-
-            {/* Items Mini List */}
-            <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
-              {cart.items.map((item) => (
-                <div key={item.id} className="flex justify-between items-center text-xs">
-                  <div>
-                    <p className="font-bold text-foreground">{item.product.title}</p>
-                    <p className="text-[10px] opacity-60 font-bold">Qty: {item.quantity}</p>
-                  </div>
-                  <span className="font-black text-accent">
-                    ${(item.quantity * Number(item.product.unit_price)).toFixed(2)}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div className="pt-4 border-t border-foreground/10 space-y-3 text-sm">
+            <div className=" space-y-3 text-sm">
               <div className="flex justify-between opacity-80 font-medium">
                 <span>Subtotal</span>
                 <span className="font-bold text-foreground">

@@ -110,9 +110,14 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class SimpleProductSerializers(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
+    discounted_price = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
-        fields = ['id', 'title', 'unit_price', 'inventory', 'images', 'is_photos_published']
+        fields = ['id', 'title', 'unit_price', 'discount_percent', 'discounted_price', 'inventory', 'images', 'is_photos_published']
+
+    def get_discounted_price(self, product):
+        return float(product.discounted_price)
 
     def get_images(self, product):
         request = self.context.get('request')
@@ -129,7 +134,7 @@ class CartItemSerializers(serializers.ModelSerializer):
         fields = ['id','product','quantity','total_price']
     total_price = serializers.SerializerMethodField()
     def get_total_price(self, cartitem):
-        return cartitem.quantity * cartitem.product.unit_price
+        return float(cartitem.quantity * cartitem.product.discounted_price)
 
 class CartSerializers(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only = True)
@@ -138,7 +143,7 @@ class CartSerializers(serializers.ModelSerializer):
     total_price = serializers.SerializerMethodField()
 
     def get_total_price(self,cart):
-       return sum([item.quantity * item.product.unit_price for item in cart.items.all()])
+       return sum([item.quantity * float(item.product.discounted_price) for item in cart.items.all()])
     class Meta:
         model = Cart
         fields = ['id', 'items', 'total_price', 'customer']

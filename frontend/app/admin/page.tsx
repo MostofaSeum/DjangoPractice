@@ -87,8 +87,6 @@ export default function AdminDashboardPage() {
   const [hasUnsavedPhotos, setHasUnsavedPhotos] = useState(false);
 
   // Promotion states
-  const [promoTargetType, setPromoTargetType] = useState<"product" | "collection">("product");
-  const [promoCollectionId, setPromoCollectionId] = useState<number | "">("");
   const [promoProductId, setPromoProductId] = useState<number | "">("");
   const [promoDiscountPercent, setPromoDiscountPercent] = useState<string>("20");
   const [promoDiscountPrice, setPromoDiscountPrice] = useState<string>("");
@@ -224,12 +222,8 @@ export default function AdminDashboardPage() {
 
   const handleApplyPromotion = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (promoTargetType === "product" && !promoProductId) {
+    if (!promoProductId) {
       Swal.fire("Error", "Please select a product.", "error");
-      return;
-    }
-    if (promoTargetType === "collection" && !promoCollectionId) {
-      Swal.fire("Error", "Please select a collection.", "error");
       return;
     }
     const pct = parseFloat(promoDiscountPercent);
@@ -244,9 +238,8 @@ export default function AdminDashboardPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          target_type: promoTargetType,
-          product_id: promoTargetType === "product" ? promoProductId : undefined,
-          collection_id: promoTargetType === "collection" ? promoCollectionId : undefined,
+          target_type: "product",
+          product_id: promoProductId,
           discount_percent: pct,
           description: promoDescription,
         }),
@@ -1894,92 +1887,37 @@ export default function AdminDashboardPage() {
               </div>
 
               <form onSubmit={handleApplyPromotion} className="space-y-5">
-                {/* Target Type Picker */}
+                {/* Product Selector */}
                 <div>
                   <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-                    Apply Promotion To
+                    Select Product
                   </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setPromoTargetType("product")}
-                      className={`py-3 px-3 rounded-xl font-bold text-xs uppercase tracking-wider border transition-all ${
-                        promoTargetType === "product"
-                          ? "bg-accent text-white border-accent shadow-md"
-                          : "bg-background text-foreground border-foreground/15 hover:border-foreground/30"
-                      }`}
-                    >
-                      Specific Product
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPromoTargetType("collection")}
-                      className={`py-3 px-3 rounded-xl font-bold text-xs uppercase tracking-wider border transition-all ${
-                        promoTargetType === "collection"
-                          ? "bg-accent text-white border-accent shadow-md"
-                          : "bg-background text-foreground border-foreground/15 hover:border-foreground/30"
-                      }`}
-                    >
-                      Whole Collection
-                    </button>
-                  </div>
+                  <select
+                    value={promoProductId}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setPromoProductId(val);
+                      const prod = products.find((p) => p.id === val);
+                      if (prod) {
+                        const pct = parseFloat(promoDiscountPercent) || 0;
+                        const calcPrice = prod.unit_price * (1 - pct / 100);
+                        setPromoDiscountPrice(calcPrice > 0 ? calcPrice.toFixed(2) : "0.00");
+                      }
+                    }}
+                    className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                    required
+                  >
+                    <option value="">-- Choose Product --</option>
+                    {products.map((prod) => (
+                      <option key={prod.id} value={prod.id}>
+                        {prod.title} - Original: ${Number(prod.unit_price).toFixed(2)}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
-                {/* Collection Selector */}
-                {promoTargetType === "collection" && (
-                  <div>
-                    <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-                      Select Collection
-                    </label>
-                    <select
-                      value={promoCollectionId}
-                      onChange={(e) => setPromoCollectionId(Number(e.target.value))}
-                      className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                      required
-                    >
-                      <option value="">-- Choose Collection --</option>
-                      {collections.map((col) => (
-                        <option key={col.id} value={col.id}>
-                          {col.title} ({products.filter((p) => p.collection === col.id).length} products)
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {/* Product Selector */}
-                {promoTargetType === "product" && (
-                  <div>
-                    <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-                      Select Product
-                    </label>
-                    <select
-                      value={promoProductId}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        setPromoProductId(val);
-                        const prod = products.find((p) => p.id === val);
-                        if (prod) {
-                          const pct = parseFloat(promoDiscountPercent) || 0;
-                          const calcPrice = prod.unit_price * (1 - pct / 100);
-                          setPromoDiscountPrice(calcPrice > 0 ? calcPrice.toFixed(2) : "0.00");
-                        }
-                      }}
-                      className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                      required
-                    >
-                      <option value="">-- Choose Product --</option>
-                      {products.map((prod) => (
-                        <option key={prod.id} value={prod.id}>
-                          {prod.title} - Original: ${Number(prod.unit_price).toFixed(2)}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
                 {/* Display Previous Price if Product Selected */}
-                {promoTargetType === "product" && selectedPromoProduct && (
+                {selectedPromoProduct && (
                   <div className="p-4 rounded-2xl bg-primary/10 border border-foreground/10 space-y-1 text-xs">
                     <p className="font-bold text-foreground opacity-70 uppercase tracking-wider text-[10px]">
                       Product Details
@@ -2021,8 +1959,7 @@ export default function AdminDashboardPage() {
                       value={promoDiscountPrice}
                       onChange={(e) => handleDiscountPriceChange(e.target.value)}
                       placeholder="New Price"
-                      disabled={promoTargetType === "collection"}
-                      className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
+                      className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                     />
                   </div>
                 </div>
