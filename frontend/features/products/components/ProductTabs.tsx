@@ -6,12 +6,18 @@ import { getApiBaseUrl } from "@/config/siteConfig";
 import { useAuth } from "@/hooks/useAuth";
 import Swal from "sweetalert2";
 
+interface ReviewImageItem {
+  id: number;
+  image: string;
+}
+
 interface Review {
   id: number;
   name: string;
   description: string;
   rating?: number;
   image?: string | null;
+  images?: ReviewImageItem[];
   date: string;
 }
 
@@ -34,8 +40,8 @@ export default function ProductTabs({
   const [reviewText, setReviewText] = useState<string>("");
   const [rating, setRating] = useState<number>(5);
   const [hoverRating, setHoverRating] = useState<number>(0);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [activeImageModal, setActiveImageModal] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
@@ -64,30 +70,70 @@ export default function ProductTabs({
   }, [fetchReviews]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    if (selectedImages.length >= 5) {
+      Swal.fire({
+        position: "top-end",
+        icon: "warning",
+        title: "Maximum 5 photos allowed per review.",
+        showConfirmButton: false,
+        timer: 2500,
+        toast: true,
+      });
+      return;
+    }
+
+    const availableSlots = 5 - selectedImages.length;
+    let selectedFiles = files;
+    if (files.length > availableSlots) {
+      Swal.fire({
+        position: "top-end",
+        icon: "warning",
+        title: `Maximum 5 photos allowed. Only ${availableSlots} photo(s) added.`,
+        showConfirmButton: false,
+        timer: 2500,
+        toast: true,
+      });
+      selectedFiles = files.slice(0, availableSlots);
+    }
+
+    const validFiles: File[] = [];
+    const newPreviews: string[] = [];
+
+    for (const file of selectedFiles) {
       if (file.size > 5 * 1024 * 1024) {
         Swal.fire({
           position: "top-end",
           icon: "warning",
-          title: "Image size must be less than 5MB.",
+          title: `${file.name} is larger than 5MB and was skipped.`,
           showConfirmButton: false,
-          timer: 2000,
+          timer: 2500,
           toast: true,
         });
-        return;
+        continue;
       }
-      setSelectedImage(file);
-      setImagePreview(URL.createObjectURL(file));
+      validFiles.push(file);
+      newPreviews.push(URL.createObjectURL(file));
     }
+
+    setSelectedImages((prev) => [...prev, ...validFiles]);
+    setImagePreviews((prev) => [...prev, ...newPreviews]);
   };
 
-  const removeSelectedImage = () => {
-    setSelectedImage(null);
-    if (imagePreview) {
-      URL.revokeObjectURL(imagePreview);
-      setImagePreview(null);
+  const removeSelectedImage = (indexToRemove: number) => {
+    if (imagePreviews[indexToRemove]) {
+      URL.revokeObjectURL(imagePreviews[indexToRemove]);
     }
+    setSelectedImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+    setImagePreviews((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  const clearAllSelectedImages = () => {
+    imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+    setSelectedImages([]);
+    setImagePreviews([]);
   };
 
   const handleSubmitReview = async (e: React.FormEvent) => {
@@ -136,9 +182,10 @@ export default function ProductTabs({
       formData.append("name", reviewerName);
       formData.append("description", reviewText.trim());
       formData.append("rating", String(rating));
-      if (selectedImage) {
-        formData.append("image", selectedImage);
-      }
+
+      selectedImages.forEach((file) => {
+        formData.append("images", file);
+      });
 
       const res = await fetch(
         `${apiBaseUrl}/store/products/${productId}/reviews/`,
@@ -160,7 +207,7 @@ export default function ProductTabs({
         });
         setReviewText("");
         setRating(5);
-        removeSelectedImage();
+        clearAllSelectedImages();
         // Refresh reviews list
         await fetchReviews();
       } else {
@@ -384,38 +431,48 @@ export default function ProductTabs({
                     {rev.description}
                   </p>
 
-                  {/* Attached Photo Thumbnail */}
-                  {rev.image && (
-                    <div className="mt-3 sm:pl-12">
-                      <button
-                        type="button"
-                        onClick={() => setActiveImageModal(getImageUrl(rev.image!))}
-                        className="relative group overflow-hidden rounded-2xl border border-foreground/15 block"
-                      >
-                        <img
-                          src={getImageUrl(rev.image)}
-                          alt="Review Attachment"
-                          className="w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
+                  {/* Attached Photos Gallery */}
+                  {(() => {
+                    const reviewImages = [
+                      ...(rev.images?.map((img) => getImageUrl(img.image)) || []),
+                      ...(rev.image ? [getImageUrl(rev.image)] : []),
+                    ];
+                    if (reviewImages.length === 0) return null;
+                    return (
+                      <div className="mt-3 sm:pl-12 flex flex-wrap gap-2.5">
+                        {reviewImages.map((imgSrc, idx) => (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setActiveImageModal(imgSrc)}
+                            className="relative group overflow-hidden rounded-2xl border border-foreground/15 block"
                           >
-                            <circle cx="11" cy="11" r="8" />
-                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                            <line x1="11" y1="8" x2="11" y2="14" />
-                            <line x1="8" y1="11" x2="14" y2="11" />
-                          </svg>
-                        </div>
-                      </button>
-                    </div>
-                  )}
+                            <img
+                              src={imgSrc}
+                              alt={`Review attachment ${idx + 1}`}
+                              className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-2xl transition-transform duration-300 group-hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              >
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                <line x1="11" y1="8" x2="11" y2="14" />
+                                <line x1="8" y1="11" x2="14" y2="11" />
+                              </svg>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
               ))}
             </div>
@@ -506,64 +563,73 @@ export default function ProductTabs({
                   />
                 </div>
 
-                {/* Attach Photo Option */}
+                {/* Attach Photos Option */}
                 <div>
                   <label className="block text-xs font-extrabold uppercase tracking-widest mb-2 text-foreground/80">
-                    Attach Photo
+                    Attach Photos (Optional)
                   </label>
-                  {imagePreview ? (
-                    <div className="relative w-28 h-28 rounded-2xl overflow-hidden border border-foreground/20 group">
-                      <img
-                        src={imagePreview}
-                        alt="Review preview"
-                        className="w-full h-full object-cover"
-                      />
-                      <button
-                        type="button"
-                        onClick={removeSelectedImage}
-                        className="absolute top-1.5 right-1.5 bg-black/70 text-white rounded-full p-1.5 hover:bg-black transition-colors"
-                        title="Remove photo"
+                  <div className="flex flex-wrap items-center gap-3">
+                    {imagePreviews.map((previewUrl, idx) => (
+                      <div
+                        key={idx}
+                        className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border border-foreground/20 group"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="3"
+                        <img
+                          src={previewUrl}
+                          alt={`Review preview ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeSelectedImage(idx)}
+                          className="absolute top-1.5 right-1.5 bg-black/70 text-white rounded-full p-1.5 hover:bg-black transition-colors"
+                          title="Remove photo"
                         >
-                          <line x1="18" y1="6" x2="6" y2="18" />
-                          <line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
-                      </button>
-                    </div>
-                  ) : (
-                    <label className="flex items-center gap-2 px-4 py-2.5 bg-background border border-dashed border-foreground/25 rounded-xl cursor-pointer hover:border-accent transition-all w-fit text-xs font-bold text-foreground/70 hover:text-foreground">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                          >
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+
+                    <label className="flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 bg-background border border-dashed border-foreground/25 rounded-2xl cursor-pointer hover:border-accent hover:bg-foreground/5 transition-all text-center p-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        width="18"
-                        height="18"
+                        width="20"
+                        height="20"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
+                        className="text-foreground/60 mb-1"
                       >
                         <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
                         <circle cx="9" cy="9" r="2" />
                         <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
                       </svg>
-                      <span>Upload Photo</span>
+                      <span className="text-[11px] font-bold text-foreground/70">
+                        {imagePreviews.length > 0 ? "Add More" : "Upload Photos"}
+                      </span>
                       <input
                         type="file"
                         accept="image/*"
+                        multiple
                         onChange={handleImageChange}
                         className="hidden"
                       />
                     </label>
-                  )}
+                  </div>
                 </div>
 
                 <div className="flex justify-end">

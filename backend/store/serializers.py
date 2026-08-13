@@ -2,7 +2,7 @@ from .signals import order_created
 from django.db.models import UUIDField
 from django.db import transaction
 from rest_framework import serializers 
-from .models import Product,Collection,Cart,Review,CartItem,Customer,Order,OrderItem,ProductImage,GiftCard
+from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,GiftCard
 from decimal import Decimal
 
 # class ProductSerializers(serializers.Serializer):
@@ -52,14 +52,28 @@ class CollectionDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'featured_product', 'products', 'image']
 
 
+class ReviewImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReviewImage
+        fields = ['id', 'image']
+
+
 class ReviewSerializer(serializers.ModelSerializer):
+    images = ReviewImageSerializer(many=True, read_only=True)
+
     class Meta:
         model = Review
-        fields = ['id', 'name', 'rating', 'description', 'image', 'date']
+        fields = ['id', 'name', 'rating', 'description', 'image', 'images', 'date']
 
     def create (self,validated_data):
         product_id = self.context['product_id']
-        return Review.objects.create(**validated_data, product_id = product_id)
+        review = Review.objects.create(**validated_data, product_id = product_id)
+        request = self.context.get('request')
+        if request and request.FILES:
+            uploaded_images = request.FILES.getlist('images') or request.FILES.getlist('image')
+            for img in uploaded_images[:5]:
+                ReviewImage.objects.create(review=review, image=img)
+        return review
 
 class SimpleProductSerializers(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
