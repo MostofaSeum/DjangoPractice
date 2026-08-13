@@ -432,11 +432,6 @@ export default function ProductTabs({
     return `${baseUrl}${imgUrl.startsWith("/") ? "" : "/"}${imgUrl}`;
   };
 
-  const displayName = user
-    ? [user.first_name, user.last_name].filter(Boolean).join(" ") ||
-      user.username ||
-      user.email
-    : "";
 
   const avgRating =
     reviews.length > 0
@@ -736,15 +731,6 @@ export default function ProductTabs({
                 onSubmit={handleSubmitReview}
                 className="space-y-4 bg-secondary/40 p-5 sm:p-8 rounded-3xl border border-foreground/10 shadow-sm"
               >
-                <div className="flex items-center gap-3 pb-2 border-b border-foreground/10">
-                  <div className="w-8 h-8 rounded-full bg-accent/20 text-accent font-black text-xs flex items-center justify-center uppercase shrink-0">
-                    {displayName.charAt(0)}
-                  </div>
-                  <div className="text-xs font-bold text-foreground">
-                    Posting as{" "}
-                    <span className="text-accent">{displayName}</span>
-                  </div>
-                </div>
 
                 <div>
                   <label className="block text-xs font-extrabold uppercase tracking-widest mb-2 text-foreground/80">
