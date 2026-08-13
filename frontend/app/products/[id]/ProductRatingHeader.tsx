@@ -16,7 +16,9 @@ export default function ProductRatingHeader({ productId }: { productId: number }
     async function loadReviews() {
       try {
         const apiBaseUrl = getApiBaseUrl();
-        const res = await fetch(`${apiBaseUrl}/store/products/${productId}/reviews/`);
+        const res = await fetch(`${apiBaseUrl}/store/products/${productId}/reviews/`, {
+          next: { revalidate: 30 },
+        });
         if (res.ok) {
           const data = await res.json();
           setReviews(Array.isArray(data) ? data : data.results || []);

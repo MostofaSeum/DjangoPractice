@@ -37,9 +37,14 @@ class ProductViewSet(ModelViewSet):
 
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.annotate(product_count=Count('product')).all()
-    serializer_class = CollectionSerializer
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = None
+
+    def get_queryset(self):
+        if self.action == 'retrieve':
+            return Collection.objects.prefetch_related('product_set__images').all()
+        return Collection.objects.annotate(product_count=Count('product')).all()
+
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return CollectionDetailSerializer
