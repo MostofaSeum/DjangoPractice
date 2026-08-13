@@ -566,7 +566,7 @@ export default function ProductTabs({
                 {/* Attach Photos Option */}
                 <div>
                   <label className="block text-xs font-extrabold uppercase tracking-widest mb-2 text-foreground/80">
-                    Attach Photos (Optional)
+                    Attach Photos ({selectedImages.length}/5)
                   </label>
                   <div className="flex flex-wrap items-center gap-3">
                     {imagePreviews.map((previewUrl, idx) => (
@@ -601,34 +601,36 @@ export default function ProductTabs({
                       </div>
                     ))}
 
-                    <label className="flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 bg-background border border-dashed border-foreground/25 rounded-2xl cursor-pointer hover:border-accent hover:bg-foreground/5 transition-all text-center p-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="text-foreground/60 mb-1"
-                      >
-                        <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                        <circle cx="9" cy="9" r="2" />
-                        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-                      </svg>
-                      <span className="text-[11px] font-bold text-foreground/70">
-                        {imagePreviews.length > 0 ? "Add More" : "Upload Photos"}
-                      </span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleImageChange}
-                        className="hidden"
-                      />
-                    </label>
+                    {selectedImages.length < 5 && (
+                      <label className="flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 bg-background border border-dashed border-foreground/25 rounded-2xl cursor-pointer hover:border-accent hover:bg-foreground/5 transition-all text-center p-2">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-foreground/60 mb-1"
+                        >
+                          <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                          <circle cx="9" cy="9" r="2" />
+                          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                        </svg>
+                        <span className="text-[11px] font-bold text-foreground/70">
+                          {imagePreviews.length > 0 ? "Add More" : "Upload Photos"}
+                        </span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleImageChange}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
                   </div>
                 </div>
 
