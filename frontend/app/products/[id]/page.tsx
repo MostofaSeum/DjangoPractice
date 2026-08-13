@@ -95,7 +95,6 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans antialiased pb-24 transition-colors duration-300">
-
       {/* Breadcrumbs */}
       <div className="bg-primary text-background dark:text-foreground border-b border-white/5 py-4 transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2.5 font-bold uppercase tracking-wider">
@@ -123,14 +122,14 @@ export default async function ProductDetailPage({ params }: PageProps) {
       </div>
 
       <main className="max-w-[1400px] mx-auto px-8 md:px-12 py-12">
-        {/* Product Area Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 bg-secondary text-foreground rounded-3xl p-8 md:p-12 shadow-sm border border-foreground/10 transition-colors duration-300">
+        {/* Product Area Grid (Compact Showcase Box) */}
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 bg-secondary text-foreground rounded-2xl p-5 md:p-6 shadow-sm border border-foreground/10 transition-colors duration-300 items-start">
           {/* Left Column: Product Images (Interactive Gallery) */}
           <ProductGallery title={product.title} images={product.images} />
 
           {/* Right Column: Product Info */}
           <div className="flex flex-col justify-start">
-            <h1 className="text-3xl sm:text-4xl font-black text-foreground tracking-tighter leading-tight uppercase">
+            <h1 className="text-xl sm:text-2xl font-black text-foreground tracking-tighter leading-tight uppercase mb-1">
               {product.title}
             </h1>
 
@@ -138,17 +137,17 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <ProductRatingHeader productId={product.id} />
 
             {/* Price */}
-            <p className="text-3xl font-black text-accent mb-8">
+            <p className="text-xl sm:text-2xl font-black text-accent mb-3 mt-1">
               ${Number(product.unit_price).toFixed(2)}
             </p>
 
             {/* Short Description */}
-            <p className="opacity-80 leading-relaxed text-sm mb-8 font-medium">
+            <p className="opacity-80 leading-relaxed text-xs mb-3 font-medium">
               {product.description ||
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}
             </p>
 
-            <hr className="border-foreground/10 my-4" />
+            <hr className="border-foreground/10 my-2" />
 
             {/* Quantity Selector & Add to Cart Client Area */}
             <ProductInteractive
@@ -157,10 +156,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
               inventory={product.inventory}
             />
 
-            <hr className="border-foreground/10 my-4" />
+            <hr className="border-foreground/10 my-2" />
 
             {/* Additional details */}
-            <div className="space-y-3 mt-4 text-[10px] font-bold tracking-widest uppercase opacity-70">
+            <div className="space-y-2 mt-2 text-[10px] font-bold tracking-widest uppercase opacity-70">
               <div>
                 <span className="opacity-60 font-semibold mr-2">
                   Categories:
@@ -182,7 +181,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
         {/* Interactive Description and Reviews Tabs */}
         <div id="product-tabs">
-          <ProductTabs productId={product.id} description={product.description} />
+          <ProductTabs
+            productId={product.id}
+            description={product.description}
+          />
         </div>
 
         {/* Related Products Section */}

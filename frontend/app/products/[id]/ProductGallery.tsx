@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import ProductImage from '@/components/ui/ProductImage';
+import { useState, useEffect } from "react";
+import ProductImage from "@/components/ui/ProductImage";
 
 interface ProductImageItem {
   id?: number;
@@ -13,8 +13,12 @@ interface ProductGalleryProps {
   images?: ProductImageItem[];
 }
 
-export default function ProductGallery({ title, images = [] }: ProductGalleryProps) {
-  const [galleryImages, setGalleryImages] = useState<ProductImageItem[]>(images);
+export default function ProductGallery({
+  title,
+  images = [],
+}: ProductGalleryProps) {
+  const [galleryImages, setGalleryImages] =
+    useState<ProductImageItem[]>(images);
 
   useEffect(() => {
     setGalleryImages(images);

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useCart } from '@/hooks/useCart';
-import { useWishlist } from '@/hooks/useWishlist';
-import Swal from 'sweetalert2';
+import { useState } from "react";
+import { useCart } from "@/hooks/useCart";
+import { useWishlist } from "@/hooks/useWishlist";
+import Swal from "sweetalert2";
 
 export default function ProductInteractive({
   productId,
@@ -23,8 +23,10 @@ export default function ProductInteractive({
   const isSaved = isInWishlist(productId);
   const isOutOfStock = inventory <= 0;
 
-  const handleIncrement = () => setQuantity((prev) => (prev < inventory ? prev + 1 : prev));
-  const handleDecrement = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+  const handleIncrement = () =>
+    setQuantity((prev) => (prev < inventory ? prev + 1 : prev));
+  const handleDecrement = () =>
+    setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
   const handleAddToCart = async () => {
     if (isOutOfStock) return;
@@ -32,8 +34,8 @@ export default function ProductInteractive({
       setLoading(true);
       await addToCart(productId, quantity);
       Swal.fire({
-        position: 'top-end',
-        icon: 'success',
+        position: "top-end",
+        icon: "success",
         title: `Added ${quantity} of "${productTitle}" to cart!`,
         showConfirmButton: false,
         timer: 1800,
@@ -42,9 +44,9 @@ export default function ProductInteractive({
     } catch (err) {
       console.error("Failed to add to cart:", err);
       Swal.fire({
-        position: 'top-end',
-        icon: 'error',
-        title: 'Could not add item to cart.',
+        position: "top-end",
+        icon: "error",
+        title: "Could not add item to cart.",
         showConfirmButton: false,
         timer: 1800,
         toast: true,
@@ -72,7 +74,9 @@ export default function ProductInteractive({
             >
               -
             </button>
-            <span className="w-12 text-center font-bold text-foreground">{quantity}</span>
+            <span className="w-12 text-center font-bold text-foreground">
+              {quantity}
+            </span>
             <button
               onClick={handleIncrement}
               disabled={quantity >= inventory}
@@ -122,8 +126,8 @@ export default function ProductInteractive({
             {wishlistLoading
               ? "Processing..."
               : isSaved
-              ? "Saved in Wishlist"
-              : "Add to Wishlist"}
+                ? "Saved in Wishlist"
+                : "Add to Wishlist"}
           </span>
         </button>
       </div>
