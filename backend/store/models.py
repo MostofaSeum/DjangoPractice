@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.conf import settings
 from django.db.models import Model
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from uuid import uuid4
 from .validators import validate_file_size
@@ -171,6 +171,7 @@ class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
     name = models.CharField(max_length=255)
     description = models.TextField()
+    rating = models.PositiveSmallIntegerField(default=5, validators=[MinValueValidator(1), MaxValueValidator(5)])
     date = models.DateTimeField(auto_now_add=True)
 
 import random

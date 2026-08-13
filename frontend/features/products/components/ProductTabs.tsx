@@ -10,6 +10,7 @@ interface Review {
   id: number;
   name: string;
   description: string;
+  rating?: number;
   date: string;
 }
 
@@ -30,6 +31,8 @@ export default function ProductTabs({
   const [loadingReviews, setLoadingReviews] = useState<boolean>(false);
   const [reviewsFetched, setReviewsFetched] = useState<boolean>(false);
   const [reviewText, setReviewText] = useState<string>("");
+  const [rating, setRating] = useState<number>(5);
+  const [hoverRating, setHoverRating] = useState<number>(0);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   const fetchReviews = useCallback(async () => {
@@ -108,6 +111,7 @@ export default function ProductTabs({
           body: JSON.stringify({
             name: reviewerName,
             description: reviewText.trim(),
+            rating: rating,
           }),
         },
       );
@@ -122,6 +126,7 @@ export default function ProductTabs({
           toast: true,
         });
         setReviewText("");
+        setRating(5);
         // Refresh reviews list
         await fetchReviews();
       } else {
@@ -163,11 +168,60 @@ export default function ProductTabs({
     }
   };
 
+  const renderStars = (starRating: number = 5, interactive = false) => {
+    return (
+      <div className="flex items-center gap-1">
+        {[1, 2, 3, 4, 5].map((star) => {
+          const isFilled = interactive
+            ? star <= (hoverRating || rating)
+            : star <= starRating;
+          return (
+            <button
+              key={star}
+              type={interactive ? "button" : undefined}
+              disabled={!interactive}
+              onClick={() => interactive && setRating(star)}
+              onMouseEnter={() => interactive && setHoverRating(star)}
+              onMouseLeave={() => interactive && setHoverRating(0)}
+              className={`${
+                interactive
+                  ? "cursor-pointer hover:scale-110 transition-transform focus:outline-none"
+                  : "cursor-default"
+              }`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill={isFilled ? "currentColor" : "none"}
+                stroke="currentColor"
+                strokeWidth="1.5"
+                className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                  isFilled
+                    ? "text-amber-400 fill-amber-400"
+                    : "text-foreground/25"
+                }`}
+              >
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
   const displayName = user
     ? [user.first_name, user.last_name].filter(Boolean).join(" ") ||
       user.username ||
       user.email
     : "";
+
+  const avgRating =
+    reviews.length > 0
+      ? (
+          reviews.reduce((acc, r) => acc + (r.rating || 5), 0) / reviews.length
+        ).toFixed(1)
+      : null;
 
   return (
     <div className="mt-12 sm:mt-20 border-t border-foreground/10 pt-8 sm:pt-12 transition-colors duration-300">
@@ -223,10 +277,18 @@ export default function ProductTabs({
       {activeTab === "reviews" && (
         <div className="max-w-3xl mx-auto space-y-10 sm:space-y-12 px-2 sm:px-0">
           {/* Review List Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-2">
+          <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-2 border-b border-foreground/10 pb-4">
             <h3 className="text-base sm:text-lg font-black uppercase tracking-tight text-foreground">
               Customer Reviews ({reviews.length})
             </h3>
+            {avgRating && (
+              <div className="flex items-center gap-2">
+                {renderStars(Math.round(Number(avgRating)))}
+                <span className="text-xs sm:text-sm font-extrabold text-foreground">
+                  {avgRating} / 5.0
+                </span>
+              </div>
+            )}
           </div>
 
           {loadingReviews && reviews.length === 0 ? (
@@ -258,6 +320,9 @@ export default function ProductTabs({
                         <h4 className="text-sm font-bold text-foreground capitalize">
                           {rev.name}
                         </h4>
+                        <div className="mt-0.5">
+                          {renderStars(rev.rating || 5)}
+                        </div>
                       </div>
                     </div>
                     <span className="text-xs text-foreground/50 font-medium self-start sm:self-auto">
@@ -328,6 +393,15 @@ export default function ProductTabs({
                   <div className="text-xs font-bold text-foreground">
                     Posting as{" "}
                     <span className="text-accent">{displayName}</span>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-3 bg-background border border-foreground/15 rounded-xl px-4 py-2.5 w-fit">
+                    {renderStars(rating, true)}
+                    <span className="text-xs font-extrabold text-amber-500">
+                      {hoverRating || rating} / 5 Stars
+                    </span>
                   </div>
                 </div>
 
