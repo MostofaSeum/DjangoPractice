@@ -59,16 +59,18 @@ class ReviewImageSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
     images = ReviewImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = Review
-        fields = ['id', 'name', 'rating', 'description', 'image', 'images', 'date']
+        fields = ['id', 'user_id', 'name', 'rating', 'description', 'image', 'images', 'date']
 
     def create (self,validated_data):
         product_id = self.context['product_id']
-        review = Review.objects.create(**validated_data, product_id = product_id)
         request = self.context.get('request')
+        user = request.user if (request and hasattr(request, 'user') and request.user and request.user.is_authenticated) else None
+        review = Review.objects.create(**validated_data, product_id = product_id, user = user)
         if request and request.FILES:
             uploaded_images = request.FILES.getlist('images') or request.FILES.getlist('image')
             for img in uploaded_images[:5]:

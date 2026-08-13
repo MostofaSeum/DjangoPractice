@@ -13,6 +13,7 @@ interface ReviewImageItem {
 
 interface Review {
   id: number;
+  user_id?: number | null;
   name: string;
   description: string;
   rating?: number;
@@ -68,6 +69,69 @@ export default function ProductTabs({
     // Fetch initial reviews count on mount
     fetchReviews();
   }, [fetchReviews]);
+
+  const handleDeleteReview = async (reviewId: number) => {
+    const result = await Swal.fire({
+      title: "Delete Review?",
+      text: "Are you sure you want to delete your review? This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, delete it",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const apiBaseUrl = getApiBaseUrl();
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `JWT ${token}`;
+      }
+
+      const res = await fetch(
+        `${apiBaseUrl}/store/products/${productId}/reviews/${reviewId}/`,
+        {
+          method: "DELETE",
+          headers,
+        },
+      );
+
+      if (res.ok || res.status === 204) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Your review has been deleted.",
+          showConfirmButton: false,
+          timer: 2000,
+          toast: true,
+        });
+        await fetchReviews();
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        Swal.fire({
+          position: "top-end",
+          icon: "error",
+          title: errData.error || errData.detail || "Could not delete review.",
+          showConfirmButton: false,
+          timer: 2500,
+          toast: true,
+        });
+      }
+    } catch (err) {
+      console.error("Error deleting review:", err);
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Network error. Could not delete review.",
+        showConfirmButton: false,
+        timer: 2500,
+        toast: true,
+      });
+    }
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -403,29 +467,78 @@ export default function ProductTabs({
             </div>
           ) : (
             <div className="space-y-4">
-              {reviews.map((rev) => (
-                <div
-                  key={rev.id}
-                  className="p-5 sm:p-6 rounded-2xl bg-secondary border border-foreground/10 shadow-sm transition-all hover:shadow-md"
-                >
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-accent/20 text-accent font-black text-sm flex items-center justify-center uppercase shrink-0">
-                        {rev.name ? rev.name.charAt(0) : "U"}
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-bold text-foreground capitalize">
-                          {rev.name}
-                        </h4>
-                        <div className="mt-0.5">
-                          {renderStars(rev.rating || 5)}
+              {[...reviews]
+                .sort((a, b) => {
+                  const aIsUser = Boolean(user && a.user_id && user.id === a.user_id);
+                  const bIsUser = Boolean(user && b.user_id && user.id === b.user_id);
+                  if (aIsUser && !bIsUser) return -1;
+                  if (!aIsUser && bIsUser) return 1;
+                  return 0;
+                })
+                .map((rev) => {
+                  const isOwner = Boolean(user && rev.user_id && user.id === rev.user_id);
+                  const canDelete = isOwner || Boolean(user?.is_staff);
+
+                  return (
+                    <div
+                      key={rev.id}
+                      className={`p-5 sm:p-6 rounded-2xl bg-secondary border shadow-sm transition-all hover:shadow-md ${
+                        isOwner ? "border-accent/40 ring-1 ring-accent/20" : "border-foreground/10"
+                      }`}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-accent/20 text-accent font-black text-sm flex items-center justify-center uppercase shrink-0">
+                            {rev.name ? rev.name.charAt(0) : "U"}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-sm font-bold text-foreground capitalize">
+                                {rev.name}
+                              </h4>
+                              {isOwner && (
+                                <span className="px-2 py-0.5 text-[9px] bg-accent/20 text-accent rounded-full font-black uppercase tracking-wider">
+                                  Your Review
+                                </span>
+                              )}
+                            </div>
+                            <div className="mt-0.5">
+                              {renderStars(rev.rating || 5)}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 self-start sm:self-auto">
+                          <span className="text-xs text-foreground/50 font-medium">
+                            {formatDate(rev.date)}
+                          </span>
+                          {canDelete && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteReview(rev.id)}
+                              className="text-foreground/40 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-500/10"
+                              title="Delete Review"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <path d="M3 6h18" />
+                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                                <line x1="10" y1="11" x2="10" y2="17" />
+                                <line x1="14" y1="11" x2="14" y2="17" />
+                              </svg>
+                            </button>
+                          )}
                         </div>
                       </div>
-                    </div>
-                    <span className="text-xs text-foreground/50 font-medium self-start sm:self-auto">
-                      {formatDate(rev.date)}
-                    </span>
-                  </div>
 
                   <p className="text-xs sm:text-sm text-foreground/85 leading-relaxed font-medium sm:pl-12">
                     {rev.description}

@@ -59,6 +59,12 @@ class ReviewViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {'product_id' : self.kwargs['product_pk'], 'request': self.request}
 
+    def destroy(self, request, *args, **kwargs):
+        review = self.get_object()
+        if request.user.is_authenticated and (review.user == request.user or request.user.is_staff):
+            return super().destroy(request, *args, **kwargs)
+        return Response({'error': 'You can only delete your own reviews.'}, status=status.HTTP_403_FORBIDDEN)
+
 
 class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyModelMixin):
     queryset = Cart.objects.prefetch_related('items__product').all()
@@ -263,4 +269,4 @@ class GiftCardViewSet(ModelViewSet):
         except GiftCard.DoesNotExist:
             return Response({'error': 'Invalid gift card code. Please try again.'}, status=status.HTTP_404_NOT_FOUND)
 
-# Trigger Django reloader - updated with review image support
+# Trigger Django reloader - updated with review ownership & deletion support
