@@ -7,6 +7,7 @@ import CartButton from "@/features/cart/components/CartButton";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
+import Swal from "sweetalert2";
 
 export default function Header() {
   const pathname = usePathname();
@@ -37,6 +38,15 @@ export default function Header() {
     setDropdownOpen(false);
     logout();
     await clearCart();
+    Swal.fire({
+      position: "top-end",
+      icon: "success",
+      title: "Signed out successfully",
+      showConfirmButton: false,
+      timer: 1800,
+      toast: true,
+    });
+    router.push("/");
   };
 
   const navLinks = [
