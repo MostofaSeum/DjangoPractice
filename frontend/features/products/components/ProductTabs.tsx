@@ -178,16 +178,23 @@ export default function ProductTabs({
           return (
             <button
               key={star}
-              type={interactive ? "button" : undefined}
+              type="button"
               disabled={!interactive}
-              onClick={() => interactive && setRating(star)}
+              onClick={(e) => {
+                if (interactive) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setRating(star);
+                }
+              }}
               onMouseEnter={() => interactive && setHoverRating(star)}
               onMouseLeave={() => interactive && setHoverRating(0)}
               className={`${
                 interactive
-                  ? "cursor-pointer hover:scale-110 transition-transform focus:outline-none"
+                  ? "cursor-pointer hover:scale-110 transition-transform focus:outline-none p-1"
                   : "cursor-default"
               }`}
+              aria-label={interactive ? `Rate ${star} star${star > 1 ? "s" : ""}` : undefined}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -195,7 +202,7 @@ export default function ProductTabs({
                 fill={isFilled ? "currentColor" : "none"}
                 stroke="currentColor"
                 strokeWidth="1.5"
-                className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                className={`w-5 h-5 ${
                   isFilled
                     ? "text-amber-400 fill-amber-400"
                     : "text-foreground/25"
@@ -397,9 +404,12 @@ export default function ProductTabs({
                 </div>
 
                 <div>
+                  <label className="block text-xs font-extrabold uppercase tracking-widest mb-2 text-foreground/80">
+                    Your Rating *
+                  </label>
                   <div className="flex items-center gap-3 bg-background border border-foreground/15 rounded-xl px-4 py-2.5 w-fit">
                     {renderStars(rating, true)}
-                    <span className="text-xs font-extrabold text-amber-500">
+                    <span className="text-xs font-extrabold text-amber-500 min-w-[75px]">
                       {hoverRating || rating} / 5 Stars
                     </span>
                   </div>
