@@ -112,7 +112,7 @@ export default function ProductInteractive({
           }`}
         >
           <img
-            src="/love.png"
+            src={isSaved ? "/favorite.png" : "/love.png"}
             alt="Wishlist"
             className={`w-4 h-4 object-contain transition-transform duration-200 ${
               isSaved ? "scale-110" : "opacity-80"
