@@ -210,3 +210,12 @@ class WishlistItem(models.Model):
 
     class Meta:
         unique_together = ['user', 'product']
+
+
+class Subscriber(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    email = models.EmailField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.email} ({self.created_at})"

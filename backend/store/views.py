@@ -2,8 +2,8 @@ from .permissions import ViewCustomerHistoryPermission
 from rest_framework.decorators import action
 from store.models import OrderItem
 from django.http import request
-from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,ProductImageSerializer,GiftCardSerializer,WishlistItemSerializer
-from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,GiftCard,WishlistItem
+from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,ProductImageSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer
+from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,GiftCard,WishlistItem,Subscriber
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter,OrderingFilter
@@ -300,4 +300,28 @@ class WishlistViewSet(ModelViewSet):
             WishlistItem.objects.create(user=request.user, product_id=product_id)
             return Response({'in_wishlist': True, 'message': 'Added to wishlist'})
 
-# Trigger Django reloader - updated with WishlistViewSet support
+
+class SubscriberViewSet(ModelViewSet):
+    queryset = Subscriber.objects.all()
+    serializer_class = SubscriberSerializer
+    permission_classes = [AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        email = request.data.get('email', '').strip().lower()
+        if not email:
+            return Response({'error': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if Subscriber.objects.filter(email__iexact=email).exists():
+            return Response(
+                {'error': 'We already have you! No duplicate entries allowed.', 'is_duplicate': True},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        subscriber = Subscriber.objects.create(email=email)
+        serializer = self.get_serializer(subscriber)
+        return Response(
+            {'message': 'The mail is added. We will reach you soon.', 'data': serializer.data},
+            status=status.HTTP_201_CREATED
+        )
+
+# Trigger Django reloader - updated with SubscriberViewSet support
