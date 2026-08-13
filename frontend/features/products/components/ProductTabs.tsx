@@ -160,15 +160,15 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
     : '';
 
   return (
-    <div className="mt-20 border-t border-foreground/10 pt-12">
+    <div className="mt-12 sm:mt-20 border-t border-foreground/10 pt-8 sm:pt-12 transition-colors duration-300">
       {/* Tab Navigation Header */}
-      <div className="flex justify-center space-x-8 border-b border-foreground/10 pb-4 mb-8">
+      <div className="flex justify-center items-center space-x-6 sm:space-x-12 border-b border-foreground/10 pb-4 mb-8 overflow-x-auto">
         <button
           onClick={() => setActiveTab('description')}
-          className={`text-xs font-black uppercase tracking-widest pb-4 -mb-[18px] transition-colors ${
+          className={`text-xs sm:text-sm font-black uppercase tracking-widest pb-4 -mb-[18px] transition-colors whitespace-nowrap ${
             activeTab === 'description'
-              ? 'border-b-2 border-current text-foreground'
-              : 'text-foreground/40 hover:text-foreground'
+              ? 'border-b-2 border-accent text-accent font-extrabold'
+              : 'text-foreground/50 hover:text-foreground'
           }`}
           type="button"
         >
@@ -180,15 +180,15 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
             setActiveTab('reviews');
             if (!reviewsFetched) fetchReviews();
           }}
-          className={`text-xs font-black uppercase tracking-widest pb-4 -mb-[18px] transition-colors flex items-center gap-2 ${
+          className={`text-xs sm:text-sm font-black uppercase tracking-widest pb-4 -mb-[18px] transition-colors flex items-center gap-2 whitespace-nowrap ${
             activeTab === 'reviews'
-              ? 'border-b-2 border-current text-foreground'
-              : 'text-foreground/40 hover:text-foreground'
+              ? 'border-b-2 border-accent text-accent font-extrabold'
+              : 'text-foreground/50 hover:text-foreground'
           }`}
           type="button"
         >
           <span>Reviews</span>
-          <span className="px-2 py-0.5 text-[10px] bg-accent/20 text-foreground rounded-full font-extrabold">
+          <span className="px-2 py-0.5 text-[10px] bg-accent/20 text-accent rounded-full font-extrabold">
             {reviews.length}
           </span>
         </button>
@@ -196,52 +196,49 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
 
       {/* Tab Content: Description */}
       {activeTab === 'description' && (
-        <div className="text-sm opacity-80 leading-loose max-w-4xl mx-auto text-center font-medium">
-          <p>{description || 'No description available for this product.'}</p>
+        <div className="text-sm sm:text-base text-foreground/80 leading-relaxed max-w-3xl mx-auto text-center font-medium px-4">
+          <p className="whitespace-pre-line">{description || 'No description available for this product.'}</p>
         </div>
       )}
 
       {/* Tab Content: Reviews */}
       {activeTab === 'reviews' && (
-        <div className="max-w-4xl mx-auto space-y-12">
+        <div className="max-w-3xl mx-auto space-y-10 sm:space-y-12 px-2 sm:px-0">
           {/* Review List Header */}
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-black uppercase tracking-tight text-foreground">
+          <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-2">
+            <h3 className="text-base sm:text-lg font-black uppercase tracking-tight text-foreground">
               Customer Reviews ({reviews.length})
             </h3>
           </div>
 
           {loadingReviews && reviews.length === 0 ? (
-            <div className="py-8 text-center text-sm opacity-60 uppercase font-bold tracking-wider">
+            <div className="py-8 text-center text-xs sm:text-sm text-foreground/60 uppercase font-bold tracking-wider">
               Loading reviews...
             </div>
           ) : reviews.length === 0 ? (
-            <div className="p-8 rounded-2xl bg-secondary/50 border border-foreground/10 text-center">
-              <p className="text-sm opacity-70 font-semibold mb-2">No reviews yet for this product.</p>
-              <p className="text-xs opacity-50">Be the first to share your thoughts!</p>
+            <div className="p-6 sm:p-8 rounded-2xl bg-secondary/50 border border-foreground/10 text-center">
+              <p className="text-sm text-foreground/80 font-semibold mb-1">No reviews yet for this product.</p>
+              <p className="text-xs text-foreground/50">Be the first to share your thoughts!</p>
             </div>
           ) : (
             <div className="space-y-4">
               {reviews.map((rev) => (
                 <div
                   key={rev.id}
-                  className="p-6 rounded-2xl bg-secondary border border-foreground/10 shadow-sm transition-all hover:shadow-md"
+                  className="p-5 sm:p-6 rounded-2xl bg-secondary border border-foreground/10 shadow-sm transition-all hover:shadow-md"
                 >
-                  <div className="flex justify-between items-start mb-3">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-accent/20 text-foreground font-black text-sm flex items-center justify-center uppercase">
+                      <div className="w-9 h-9 rounded-full bg-accent/20 text-accent font-black text-sm flex items-center justify-center uppercase shrink-0">
                         {rev.name ? rev.name.charAt(0) : 'U'}
                       </div>
                       <div>
                         <h4 className="text-sm font-bold text-foreground capitalize">{rev.name}</h4>
-                        <span className="text-[10px] opacity-50 font-bold uppercase tracking-wider">
-                          Verified Buyer
-                        </span>
                       </div>
                     </div>
-                    <span className="text-xs opacity-50 font-medium">{formatDate(rev.date)}</span>
+                    <span className="text-xs text-foreground/50 font-medium self-start sm:self-auto">{formatDate(rev.date)}</span>
                   </div>
-                  <p className="text-sm opacity-85 leading-relaxed font-medium pl-12">
+                  <p className="text-xs sm:text-sm text-foreground/85 leading-relaxed font-medium sm:pl-12">
                     {rev.description}
                   </p>
                 </div>
@@ -251,17 +248,17 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
 
           {/* Add Review Form or Auth Lock */}
           <div className="pt-8 border-t border-foreground/10">
-            <h4 className="text-base font-black uppercase tracking-tight text-foreground mb-6">
+            <h4 className="text-sm sm:text-base font-black uppercase tracking-tight text-foreground mb-6 text-center sm:text-left">
               Write a Review
             </h4>
 
             {authLoading ? (
-              <div className="py-4 text-xs opacity-50 font-bold uppercase tracking-wider">
+              <div className="py-4 text-xs text-foreground/50 font-bold uppercase tracking-wider text-center sm:text-left">
                 Checking sign-in status...
               </div>
             ) : !user || !token ? (
-              <div className="p-8 rounded-3xl bg-secondary/40 border border-foreground/10 text-center space-y-4">
-                <div className="w-12 h-12 bg-accent/20 text-foreground rounded-2xl mx-auto flex items-center justify-center">
+              <div className="p-6 sm:p-8 rounded-3xl bg-secondary/40 border border-foreground/10 text-center space-y-4">
+                <div className="w-12 h-12 bg-accent/20 text-accent rounded-2xl mx-auto flex items-center justify-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -277,16 +274,16 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
                     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                   </svg>
                 </div>
-                <p className="text-sm font-bold text-foreground uppercase tracking-tight">
+                <p className="text-xs sm:text-sm font-bold text-foreground uppercase tracking-tight">
                   Sign in required to post a review
                 </p>
-                <p className="text-xs opacity-70 font-medium max-w-sm mx-auto">
+                <p className="text-xs text-foreground/70 font-medium max-w-sm mx-auto">
                   Please sign in to your account to submit a review for this product.
                 </p>
                 <div>
                   <Link
                     href={`/login?redirect=/products/${productId}`}
-                    className="inline-block px-8 py-3 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md"
+                    className="inline-block px-6 sm:px-8 py-3 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md"
                   >
                     Sign In to Review
                   </Link>
@@ -295,10 +292,10 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
             ) : (
               <form
                 onSubmit={handleSubmitReview}
-                className="space-y-4 bg-secondary/40 p-6 md:p-8 rounded-3xl border border-foreground/10 shadow-sm"
+                className="space-y-4 bg-secondary/40 p-5 sm:p-8 rounded-3xl border border-foreground/10 shadow-sm"
               >
                 <div className="flex items-center gap-3 pb-2 border-b border-foreground/10">
-                  <div className="w-8 h-8 rounded-full bg-accent/20 text-foreground font-black text-xs flex items-center justify-center uppercase">
+                  <div className="w-8 h-8 rounded-full bg-accent/20 text-accent font-black text-xs flex items-center justify-center uppercase shrink-0">
                     {displayName.charAt(0)}
                   </div>
                   <div className="text-xs font-bold text-foreground">
@@ -307,7 +304,7 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
                 </div>
 
                 <div>
-                  <label className="block text-xs font-extrabold uppercase tracking-widest mb-2 opacity-80">
+                  <label className="block text-xs font-extrabold uppercase tracking-widest mb-2 text-foreground/80">
                     Your Review *
                   </label>
                   <textarea
@@ -316,17 +313,19 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
                     placeholder="Write your detailed review about this product..."
                     value={reviewText}
                     onChange={(e) => setReviewText(e.target.value)}
-                    className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-semibold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all resize-y"
+                    className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-semibold text-foreground placeholder:text-foreground/40 outline-none focus:ring-2 focus:ring-accent transition-all resize-y"
                   />
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="px-8 py-3.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50 inline-flex items-center gap-2"
-                >
-                  {submitting ? 'Submitting...' : 'Submit Review'}
-                </button>
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="w-full sm:w-auto px-8 py-3.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                  >
+                    {submitting ? 'Submitting...' : 'Submit Review'}
+                  </button>
+                </div>
               </form>
             )}
           </div>
