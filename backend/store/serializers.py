@@ -77,6 +77,28 @@ class ReviewSerializer(serializers.ModelSerializer):
                 ReviewImage.objects.create(review=review, image=img)
         return review
 
+    def update(self, instance, validated_data):
+        instance.description = validated_data.get('description', instance.description)
+        instance.rating = validated_data.get('rating', instance.rating)
+        instance.save()
+
+        request = self.context.get('request')
+        if request:
+            deleted_ids = request.data.getlist('deleted_image_ids') if hasattr(request.data, 'getlist') else request.data.get('deleted_image_ids', [])
+            if deleted_ids:
+                if isinstance(deleted_ids, str):
+                    deleted_ids = [int(i.strip()) for i in deleted_ids.split(',') if i.strip().isdigit()]
+                ReviewImage.objects.filter(review=instance, id__in=deleted_ids).delete()
+
+            if request.FILES:
+                new_images = request.FILES.getlist('images') or request.FILES.getlist('image')
+                existing_count = instance.images.count()
+                allowed_slots = max(0, 5 - existing_count)
+                for img in new_images[:allowed_slots]:
+                    ReviewImage.objects.create(review=instance, image=img)
+
+        return instance
+
 class SimpleProductSerializers(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
     class Meta:

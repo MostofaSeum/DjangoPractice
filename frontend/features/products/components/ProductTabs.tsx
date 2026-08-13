@@ -41,6 +41,9 @@ export default function ProductTabs({
   const [reviewText, setReviewText] = useState<string>("");
   const [rating, setRating] = useState<number>(5);
   const [hoverRating, setHoverRating] = useState<number>(0);
+  const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
+  const [existingImages, setExistingImages] = useState<ReviewImageItem[]>([]);
+  const [deletedImageIds, setDeletedImageIds] = useState<number[]>([]);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [activeImageModal, setActiveImageModal] = useState<string | null>(null);
@@ -69,6 +72,36 @@ export default function ProductTabs({
     // Fetch initial reviews count on mount
     fetchReviews();
   }, [fetchReviews]);
+
+  const handleStartEdit = (rev: Review) => {
+    setEditingReviewId(rev.id);
+    setReviewText(rev.description);
+    setRating(rev.rating || 5);
+    setExistingImages(rev.images || []);
+    setDeletedImageIds([]);
+    imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+    setSelectedImages([]);
+    setImagePreviews([]);
+    document
+      .getElementById("write-review-section")
+      ?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingReviewId(null);
+    setReviewText("");
+    setRating(5);
+    setExistingImages([]);
+    setDeletedImageIds([]);
+    imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+    setSelectedImages([]);
+    setImagePreviews([]);
+  };
+
+  const handleRemoveExistingImage = (imageId: number) => {
+    setDeletedImageIds((prev) => [...prev, imageId]);
+    setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
+  };
 
   const handleDeleteReview = async (reviewId: number) => {
     const result = await Swal.fire({
@@ -108,6 +141,9 @@ export default function ProductTabs({
           timer: 2000,
           toast: true,
         });
+        if (editingReviewId === reviewId) {
+          handleCancelEdit();
+        }
         await fetchReviews();
       } else {
         const errData = await res.json().catch(() => ({}));
@@ -137,7 +173,8 @@ export default function ProductTabs({
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    if (selectedImages.length >= 5) {
+    const totalCurrentCount = existingImages.length + selectedImages.length;
+    if (totalCurrentCount >= 5) {
       Swal.fire({
         position: "top-end",
         icon: "warning",
@@ -149,7 +186,7 @@ export default function ProductTabs({
       return;
     }
 
-    const availableSlots = 5 - selectedImages.length;
+    const availableSlots = 5 - totalCurrentCount;
     let selectedFiles = files;
     if (files.length > availableSlots) {
       Swal.fire({
@@ -207,7 +244,7 @@ export default function ProductTabs({
       Swal.fire({
         position: "top-end",
         icon: "warning",
-        title: "You must be signed in to post a review.",
+        title: "You must be signed in to post or edit a review.",
         showConfirmButton: false,
         timer: 2000,
         toast: true,
@@ -242,36 +279,45 @@ export default function ProductTabs({
         headers["Authorization"] = `JWT ${token}`;
       }
 
+      const isEditing = editingReviewId !== null;
+      const url = isEditing
+        ? `${apiBaseUrl}/store/products/${productId}/reviews/${editingReviewId}/`
+        : `${apiBaseUrl}/store/products/${productId}/reviews/`;
+      const method = isEditing ? "PATCH" : "POST";
+
       const formData = new FormData();
       formData.append("name", reviewerName);
       formData.append("description", reviewText.trim());
       formData.append("rating", String(rating));
 
+      if (deletedImageIds.length > 0) {
+        deletedImageIds.forEach((id) =>
+          formData.append("deleted_image_ids", String(id)),
+        );
+      }
+
       selectedImages.forEach((file) => {
         formData.append("images", file);
       });
 
-      const res = await fetch(
-        `${apiBaseUrl}/store/products/${productId}/reviews/`,
-        {
-          method: "POST",
-          headers,
-          body: formData,
-        },
-      );
+      const res = await fetch(url, {
+        method,
+        headers,
+        body: formData,
+      });
 
       if (res.ok) {
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: "Thank you! Your review has been published.",
+          title: isEditing
+            ? "Your review has been updated!"
+            : "Thank you! Your review has been published.",
           showConfirmButton: false,
           timer: 2000,
           toast: true,
         });
-        setReviewText("");
-        setRating(5);
-        clearAllSelectedImages();
+        handleCancelEdit();
         // Refresh reviews list
         await fetchReviews();
       } else {
@@ -279,18 +325,21 @@ export default function ProductTabs({
         Swal.fire({
           position: "top-end",
           icon: "error",
-          title: errData.detail || "Failed to submit review. Please try again.",
+          title:
+            errData.error ||
+            errData.detail ||
+            "Failed to save review. Please try again.",
           showConfirmButton: false,
           timer: 2500,
           toast: true,
         });
       }
     } catch (err) {
-      console.error("Error submitting review:", err);
+      console.error("Error saving review:", err);
       Swal.fire({
         position: "top-end",
         icon: "error",
-        title: "Network error. Could not post review.",
+        title: "Network error. Could not save review.",
         showConfirmButton: false,
         timer: 2500,
         toast: true,
@@ -507,10 +556,33 @@ export default function ProductTabs({
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-3 self-start sm:self-auto">
-                          <span className="text-xs text-foreground/50 font-medium">
+                        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+                          <span className="text-xs text-foreground/50 font-medium mr-1">
                             {formatDate(rev.date)}
                           </span>
+                          {isOwner && (
+                            <button
+                              type="button"
+                              onClick={() => handleStartEdit(rev)}
+                              className="text-foreground/40 hover:text-accent transition-colors p-1.5 rounded-lg hover:bg-accent/10"
+                              title="Edit Review"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <path d="M12 20h9" />
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                              </svg>
+                            </button>
+                          )}
                           {canDelete && (
                             <button
                               type="button"
@@ -587,15 +659,27 @@ export default function ProductTabs({
                     );
                   })()}
                 </div>
-              ))}
+              );
+            })}
             </div>
           )}
 
           {/* Add Review Form or Auth Lock */}
-          <div className="pt-8 border-t border-foreground/10">
-            <h4 className="text-sm sm:text-base font-black uppercase tracking-tight text-foreground mb-6 text-center sm:text-left">
-              Write a Review
-            </h4>
+          <div id="write-review-section" className="pt-8 border-t border-foreground/10">
+            <div className="flex items-center justify-between mb-6">
+              <h4 className="text-sm sm:text-base font-black uppercase tracking-tight text-foreground text-center sm:text-left">
+                {editingReviewId ? "Edit Your Review" : "Write a Review"}
+              </h4>
+              {editingReviewId && (
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="px-3 py-1.5 rounded-lg border border-foreground/20 text-xs font-bold text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-all"
+                >
+                  Cancel Edit
+                </button>
+              )}
+            </div>
 
             {authLoading ? (
               <div className="py-4 text-xs text-foreground/50 font-bold uppercase tracking-wider text-center sm:text-left">
@@ -679,9 +763,43 @@ export default function ProductTabs({
                 {/* Attach Photos Option */}
                 <div>
                   <label className="block text-xs font-extrabold uppercase tracking-widest mb-2 text-foreground/80">
-                    Attach Photos ({selectedImages.length}/5)
+                    Attach Photos ({existingImages.length + selectedImages.length}/5)
                   </label>
                   <div className="flex flex-wrap items-center gap-3">
+                    {/* Render Existing Saved Photos */}
+                    {existingImages.map((img) => (
+                      <div
+                        key={img.id}
+                        className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden border border-foreground/20 group"
+                      >
+                        <img
+                          src={getImageUrl(img.image)}
+                          alt="Existing review photo"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveExistingImage(img.id)}
+                          className="absolute top-1.5 right-1.5 bg-black/70 text-white rounded-full p-1.5 hover:bg-black transition-colors"
+                          title="Delete photo"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                          >
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+
+                    {/* Render Newly Selected Previews */}
                     {imagePreviews.map((previewUrl, idx) => (
                       <div
                         key={idx}
@@ -714,7 +832,7 @@ export default function ProductTabs({
                       </div>
                     ))}
 
-                    {selectedImages.length < 5 && (
+                    {existingImages.length + selectedImages.length < 5 && (
                       <label className="flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 bg-background border border-dashed border-foreground/25 rounded-2xl cursor-pointer hover:border-accent hover:bg-foreground/5 transition-all text-center p-2">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -733,7 +851,9 @@ export default function ProductTabs({
                           <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
                         </svg>
                         <span className="text-[11px] font-bold text-foreground/70">
-                          {imagePreviews.length > 0 ? "Add More" : "Upload Photos"}
+                          {existingImages.length + imagePreviews.length > 0
+                            ? "Add More"
+                            : "Upload Photos"}
                         </span>
                         <input
                           type="file"
@@ -747,13 +867,28 @@ export default function ProductTabs({
                   </div>
                 </div>
 
-                <div className="flex justify-end">
+                <div className="flex justify-end gap-3 pt-2">
+                  {editingReviewId && (
+                    <button
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="px-6 py-3.5 border border-foreground/20 rounded-xl font-extrabold text-xs uppercase tracking-widest hover:bg-foreground/5 transition-all"
+                    >
+                      Cancel
+                    </button>
+                  )}
                   <button
                     type="submit"
                     disabled={submitting}
                     className="w-full sm:w-auto px-8 py-3.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50 inline-flex items-center justify-center gap-2"
                   >
-                    {submitting ? "Submitting..." : "Submit Review"}
+                    {submitting
+                      ? editingReviewId
+                        ? "Updating..."
+                        : "Submitting..."
+                      : editingReviewId
+                      ? "Update Review"
+                      : "Submit Review"}
                   </button>
                 </div>
               </form>

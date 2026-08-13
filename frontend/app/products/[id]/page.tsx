@@ -5,6 +5,7 @@ import ProductGallery from "./ProductGallery";
 import ProductTabs from "@/features/products/components/ProductTabs";
 import AddToCartButton from "@/features/products/components/AddToCartButton";
 import ProductImage from "@/components/ui/ProductImage";
+import ProductRatingHeader from "./ProductRatingHeader";
 
 interface Product {
   id: number;
@@ -133,12 +134,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
               {product.title}
             </h1>
 
-            {/* Reviews Placeholder */}
-            <div className="flex items-center space-x-1 mt-3 mb-6">
-              <span className="text-[10px] opacity-60 font-bold uppercase tracking-wider">
-                (0 Customer Reviews)
-              </span>
-            </div>
+            {/* Dynamic Customer Rating & Review Count Header */}
+            <ProductRatingHeader productId={product.id} />
 
             {/* Price */}
             <p className="text-3xl font-black text-accent mb-8">
@@ -184,7 +181,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
         </div>
 
         {/* Interactive Description and Reviews Tabs */}
-        <ProductTabs productId={product.id} description={product.description} />
+        <div id="product-tabs">
+          <ProductTabs productId={product.id} description={product.description} />
+        </div>
 
         {/* Related Products Section */}
         {relatedProducts.length > 0 && (

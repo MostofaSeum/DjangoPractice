@@ -59,6 +59,12 @@ class ReviewViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {'product_id' : self.kwargs['product_pk'], 'request': self.request}
 
+    def update(self, request, *args, **kwargs):
+        review = self.get_object()
+        if request.user.is_authenticated and (review.user == request.user or request.user.is_staff):
+            return super().update(request, *args, **kwargs)
+        return Response({'error': 'You can only edit your own reviews.'}, status=status.HTTP_403_FORBIDDEN)
+
     def destroy(self, request, *args, **kwargs):
         review = self.get_object()
         if request.user.is_authenticated and (review.user == request.user or request.user.is_staff):
@@ -269,4 +275,4 @@ class GiftCardViewSet(ModelViewSet):
         except GiftCard.DoesNotExist:
             return Response({'error': 'Invalid gift card code. Please try again.'}, status=status.HTTP_404_NOT_FOUND)
 
-# Trigger Django reloader - updated with review ownership & deletion support
+# Trigger Django reloader - updated with review edit and update support
