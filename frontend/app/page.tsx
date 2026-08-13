@@ -11,6 +11,8 @@ interface Product {
   id: number;
   title: string;
   unit_price: number;
+  discount_percent?: number;
+  discounted_price?: number;
   inventory: number;
   description?: string;
   images?: { id?: number; image: string }[];
@@ -426,36 +428,56 @@ export default async function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {trendingProducts.length > 0 ? (
-              trendingProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="bg-secondary rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between"
-                >
-                  <Link href={`/products/${product.id}`} className="block">
-                    <div className="aspect-square bg-primary/5 dark:bg-primary/40 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                      <ProductImage
-                        title={product.title}
-                        images={product.images}
+              trendingProducts.map((product) => {
+                const discountPercent = Number(product.discount_percent || 0);
+                const hasDiscount = discountPercent > 0;
+                const effectivePrice = product.discounted_price !== undefined 
+                  ? product.discounted_price 
+                  : (hasDiscount ? product.unit_price * (1 - discountPercent / 100) : product.unit_price);
+
+                return (
+                  <div
+                    key={product.id}
+                    className="bg-secondary rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between"
+                  >
+                    <Link href={`/products/${product.id}`} className="block">
+                      <div className="aspect-square bg-primary/5 dark:bg-primary/40 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
+                        {hasDiscount && (
+                          <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-red-600 text-white font-extrabold text-[9px] uppercase tracking-wider shadow-md z-10 flex items-center gap-1">
+                            🏷️ -{Math.round(discountPercent)}% OFF
+                          </span>
+                        )}
+                        <ProductImage
+                          title={product.title}
+                          images={product.images}
+                        />
+                      </div>
+                      <h4 className="font-bold text-lg text-foreground mb-1 line-clamp-1 group-hover:text-accent transition-colors">
+                        {product.title}
+                      </h4>
+                    </Link>
+
+                    <div>
+                      <div className="flex items-baseline gap-2 mb-6">
+                        <span className="text-accent font-bold text-lg">
+                          ${Number(effectivePrice).toFixed(2)}
+                        </span>
+                        {hasDiscount && (
+                          <span className="text-xs line-through opacity-50 font-bold">
+                            ${Number(product.unit_price).toFixed(2)}
+                          </span>
+                        )}
+                      </div>
+                      <AddToCartButton
+                        productId={product.id}
+                        productTitle={product.title}
+                        inventory={product.inventory}
+                        className="w-full py-3 bg-button-bg text-button-fg rounded-xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center gap-2"
                       />
                     </div>
-                    <h4 className="font-bold text-lg text-foreground mb-1 line-clamp-1 group-hover:text-accent transition-colors">
-                      {product.title}
-                    </h4>
-                  </Link>
-
-                  <div>
-                    <p className="text-accent font-bold text-lg mb-6">
-                      ${Number(product.unit_price).toFixed(2)}
-                    </p>
-                    <AddToCartButton
-                      productId={product.id}
-                      productTitle={product.title}
-                      inventory={product.inventory}
-                      className="w-full py-3 bg-button-bg text-button-fg rounded-xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center gap-2"
-                    />
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="col-span-full py-12 text-center text-sm font-bold uppercase tracking-wider opacity-60">
                 No trending products available.

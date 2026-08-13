@@ -9,7 +9,9 @@ interface Product {
   description: string | null;
   slug: string;
   inventory: number;
-  unit_price: string;
+  unit_price: string | number;
+  discount_percent?: number;
+  discounted_price?: number;
   price_with_tax: number;
   images?: Array<{ id?: number; image: string }>;
 }
@@ -71,37 +73,56 @@ export default async function CollectionDetailPage({ params }: PageProps) {
         <h2 className="text-2xl font-black mb-8 uppercase tracking-tighter">Products in this Collection</h2>
         {collection.products && collection.products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {collection.products.map((product) => (
-              <div key={product.id} className="bg-secondary text-foreground rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col justify-between">
-                <div>
-                  <div className="aspect-square bg-secondary rounded-xl mb-6 flex items-center justify-center overflow-hidden relative border border-foreground/10 group-hover:scale-[1.02] transition-transform duration-300">
-                    <ProductImage title={product.title} images={product.images} />
+            {collection.products.map((product) => {
+              const discountPercent = Number(product.discount_percent || 0);
+              const hasDiscount = discountPercent > 0;
+              const unitPriceNum = Number(product.unit_price);
+              const effectivePrice = product.discounted_price !== undefined 
+                ? product.discounted_price 
+                : (hasDiscount ? unitPriceNum * (1 - discountPercent / 100) : unitPriceNum);
+
+              return (
+                <div key={product.id} className="bg-secondary text-foreground rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col justify-between">
+                  <div>
+                    <div className="aspect-square bg-secondary rounded-xl mb-6 flex items-center justify-center overflow-hidden relative border border-foreground/10 group-hover:scale-[1.02] transition-transform duration-300">
+                      {hasDiscount && (
+                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-red-600 text-white font-extrabold text-[9px] uppercase tracking-wider shadow-md z-10 flex items-center gap-1">
+                          🏷️ -{Math.round(discountPercent)}% OFF
+                        </span>
+                      )}
+                      <ProductImage title={product.title} images={product.images} />
+                    </div>
+                    <h3 className="font-bold text-lg text-foreground mb-1 line-clamp-1 group-hover:text-accent transition-colors">{product.title}</h3>
+                    <p className="opacity-70 text-xs line-clamp-2 mb-4 leading-relaxed">{product.description || 'No description available'}</p>
                   </div>
-                  <h3 className="font-bold text-lg text-foreground mb-1 line-clamp-1 group-hover:text-accent transition-colors">{product.title}</h3>
-                  <p className="opacity-70 text-xs line-clamp-2 mb-4 leading-relaxed">{product.description || 'No description available'}</p>
+                  <div>
+                    <div className="flex justify-between items-center mb-4">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-accent font-extrabold text-lg">${Number(effectivePrice).toFixed(2)}</span>
+                        {hasDiscount && (
+                          <span className="text-xs line-through opacity-50 font-bold">${unitPriceNum.toFixed(2)}</span>
+                        )}
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Qty: {product.inventory}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Link 
+                        href={`/products/${product.id}`}
+                        className="py-2.5 px-2 border border-current text-foreground rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-button-bg hover:text-button-fg transition-colors flex items-center justify-center text-center"
+                      >
+                        View Details
+                      </Link>
+                      <AddToCartButton
+                        productId={product.id}
+                        productTitle={product.title}
+                        inventory={product.inventory}
+                        className="py-2.5 px-2 bg-button-bg text-button-fg rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-accent font-extrabold text-lg">${Number(product.unit_price).toFixed(2)}</span>
-                    <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Qty: {product.inventory}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Link 
-                      href={`/products/${product.id}`}
-                      className="py-2.5 px-2 border border-current text-foreground rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-button-bg hover:text-button-fg transition-colors flex items-center justify-center text-center"
-                    >
-                      View Details
-                    </Link>
-                    <AddToCartButton
-                      productId={product.id}
-                      productTitle={product.title}
-                      inventory={product.inventory}
-                      className="py-2.5 px-2 bg-button-bg text-button-fg rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center"
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <p className="opacity-60 font-bold uppercase tracking-wider text-sm">No products found in this collection.</p>

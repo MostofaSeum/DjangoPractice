@@ -7,6 +7,8 @@ interface Product {
   id: number;
   title: string;
   unit_price: number;
+  discount_percent?: number;
+  discounted_price?: number;
   description: string;
   inventory?: number;
   images?: { id: number; image: string }[];
@@ -222,43 +224,63 @@ export default async function ProductsPage({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.length > 0 ? (
-                products.map((product) => (
-                  <div
-                    key={product.id}
-                    className="bg-secondary text-foreground rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="aspect-square bg-primary/5 dark:bg-primary/40 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-                        <ProductImage title={product.title} images={product.images} />
+                products.map((product) => {
+                  const discountPercent = Number(product.discount_percent || 0);
+                  const hasDiscount = discountPercent > 0;
+                  const effectivePrice = product.discounted_price !== undefined 
+                    ? product.discounted_price 
+                    : (hasDiscount ? product.unit_price * (1 - discountPercent / 100) : product.unit_price);
+
+                  return (
+                    <div
+                      key={product.id}
+                      className="bg-secondary text-foreground rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="aspect-square bg-primary/5 dark:bg-primary/40 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
+                          {hasDiscount && (
+                            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-red-600 text-white font-extrabold text-[9px] uppercase tracking-wider shadow-md z-10 flex items-center gap-1">
+                              🏷️ -{Math.round(discountPercent)}% OFF
+                            </span>
+                          )}
+                          <ProductImage title={product.title} images={product.images} />
+                        </div>
+                        <h2 className="font-bold text-lg text-foreground mb-1 line-clamp-1 group-hover:text-accent transition-colors">
+                          {product.title}
+                        </h2>
+                        <p className="opacity-70 text-xs line-clamp-2 mb-4 leading-relaxed">
+                          {product.description || "No description available"}
+                        </p>
                       </div>
-                      <h2 className="font-bold text-lg text-foreground mb-1 line-clamp-1 group-hover:text-accent transition-colors">
-                        {product.title}
-                      </h2>
-                      <p className="opacity-70 text-xs line-clamp-2 mb-4 leading-relaxed">
-                        {product.description || "No description available"}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-accent font-extrabold text-lg mb-4">
-                        ${Number(product.unit_price).toFixed(2)}
-                      </p>
-                      <div className="grid grid-cols-2 gap-2">
-                        <Link
-                          href={`/products/${product.id}`}
-                          className="py-2.5 px-2 border border-current text-foreground rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-button-bg hover:text-button-fg transition-colors flex items-center justify-center text-center"
-                        >
-                          View Details
-                        </Link>
-                        <AddToCartButton
-                          productId={product.id}
-                          productTitle={product.title}
-                          inventory={product.inventory ?? 999}
-                          className="py-2.5 px-2 bg-button-bg text-button-fg rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center"
-                        />
+                      <div>
+                        <div className="flex items-baseline gap-2 mb-4">
+                          <span className="text-accent font-extrabold text-lg">
+                            ${Number(effectivePrice).toFixed(2)}
+                          </span>
+                          {hasDiscount && (
+                            <span className="text-xs line-through opacity-50 font-bold">
+                              ${Number(product.unit_price).toFixed(2)}
+                            </span>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Link
+                            href={`/products/${product.id}`}
+                            className="py-2.5 px-2 border border-current text-foreground rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-button-bg hover:text-button-fg transition-colors flex items-center justify-center text-center"
+                          >
+                            View Details
+                          </Link>
+                          <AddToCartButton
+                            productId={product.id}
+                            productTitle={product.title}
+                            inventory={product.inventory ?? 999}
+                            className="py-2.5 px-2 bg-button-bg text-button-fg rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center"
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="col-span-full py-16 text-center text-sm font-bold uppercase tracking-wider opacity-60">
                   No products found matching the criteria.

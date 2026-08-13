@@ -11,6 +11,8 @@ interface Product {
   id: number;
   title: string;
   unit_price: number;
+  discount_percent?: number;
+  discounted_price?: number;
   inventory: number;
   description: string;
   collection: number | { id: number; title: string };

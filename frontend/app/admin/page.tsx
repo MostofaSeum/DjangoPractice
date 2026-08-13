@@ -273,8 +273,8 @@ export default function AdminDashboardPage() {
       text: "Are you sure you want to remove this promotion discount?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
+      confirmButtonColor: "var(--accent)",
+      cancelButtonColor: "var(--button-bg)",
       confirmButtonText: "Yes, Remove",
       cancelButtonText: "Cancel",
     });
@@ -388,8 +388,8 @@ export default function AdminDashboardPage() {
         text: "You have selected photo(s) that are not uploaded yet. Switching products will discard these un-uploaded photos.",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
+        confirmButtonColor: "var(--accent)",
+        cancelButtonColor: "var(--button-bg)",
         confirmButtonText: "Discard & Switch Product",
         cancelButtonText: "Stay Here",
       });
@@ -417,8 +417,8 @@ export default function AdminDashboardPage() {
         text: "You have selected photo(s) that are not uploaded yet. Canceling edit will discard these un-uploaded photos.",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
+        confirmButtonColor: "var(--accent)",
+        cancelButtonColor: "var(--button-bg)",
         confirmButtonText: "Discard & Cancel",
         cancelButtonText: "Stay Here",
       });
@@ -507,7 +507,8 @@ export default function AdminDashboardPage() {
       text: "This action cannot be undone.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#cc5555",
+      confirmButtonColor: "var(--accent)",
+      cancelButtonColor: "var(--button-bg)",
       confirmButtonText: "Yes, Delete",
     });
 
@@ -758,7 +759,8 @@ export default function AdminDashboardPage() {
       text: "Are you sure you want to remove the cover photo from this collection?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#cc5555",
+      confirmButtonColor: "var(--accent)",
+      cancelButtonColor: "var(--button-bg)",
       confirmButtonText: "Yes, Delete",
     });
 
@@ -810,7 +812,8 @@ export default function AdminDashboardPage() {
       text: "This action cannot be undone.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#cc5555",
+      confirmButtonColor: "var(--accent)",
+      cancelButtonColor: "var(--button-bg)",
       confirmButtonText: "Yes, Delete",
     });
 
@@ -895,7 +898,8 @@ export default function AdminDashboardPage() {
       text: "This action cannot be undone.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#cc5555",
+      confirmButtonColor: "var(--accent)",
+      cancelButtonColor: "var(--button-bg)",
       confirmButtonText: "Yes, Delete",
     });
 
@@ -948,8 +952,8 @@ export default function AdminDashboardPage() {
         text: "You have selected photo(s) that are not uploaded yet. If you switch section now, these photos won't be saved.",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
+        confirmButtonColor: "var(--accent)",
+        cancelButtonColor: "var(--button-bg)",
         confirmButtonText: "Leave Without Uploading",
         cancelButtonText: "Stay Here",
       });
@@ -978,7 +982,7 @@ export default function AdminDashboardPage() {
               </h1>
               <button
                 onClick={handleLogout}
-                className="bg-red-500/20 text-red-300 hover:bg-red-500/30 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border border-red-500/20 transition-colors"
+                className="bg-accent/20 text-accent hover:bg-accent/30 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border border-accent/20 transition-colors"
               >
                 Logout
               </button>
@@ -2023,48 +2027,6 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
 
-                {/* Live Preview Card */}
-                {selectedPromoProduct && (
-                  <div className="p-4 rounded-2xl bg-secondary/80 border border-foreground/10 space-y-2">
-                    <p className="text-[10px] font-black uppercase tracking-wider opacity-60">
-                      Live Customer Preview
-                    </p>
-                    <div className="flex items-center gap-3">
-                      <div className="relative w-12 h-12 rounded-lg bg-background flex items-center justify-center overflow-hidden border border-foreground/10">
-                        <span className="absolute top-0 left-0 px-1 py-0.5 bg-red-600 text-white font-extrabold text-[7px]">
-                          -{Math.round(parseFloat(promoDiscountPercent) || 0)}%
-                        </span>
-                        <ProductImage title={selectedPromoProduct.title} images={selectedPromoProduct.images} />
-                      </div>
-                      <div>
-                        <p className="font-bold text-xs line-clamp-1">{selectedPromoProduct.title}</p>
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-accent font-black text-sm">
-                            ${Number(promoDiscountPrice || selectedPromoProduct.unit_price).toFixed(2)}
-                          </span>
-                          <span className="line-through text-xs opacity-50 font-bold">
-                            ${Number(selectedPromoProduct.unit_price).toFixed(2)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Optional Note / Campaign Title */}
-                <div>
-                  <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-                    Campaign Note (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={promoDescription}
-                    onChange={(e) => setPromoDescription(e.target.value)}
-                    placeholder="e.g. Summer Flash Sale 20% OFF"
-                    className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                  />
-                </div>
-
                 <button
                   type="submit"
                   disabled={promoApplying}
@@ -2102,7 +2064,7 @@ export default function AdminDashboardPage() {
                           >
                             <div className="flex items-center gap-3">
                               <div className="relative w-14 h-14 rounded-xl bg-secondary flex items-center justify-center overflow-hidden border border-foreground/10 shrink-0">
-                                <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-red-600 text-white font-black text-[8px] uppercase">
+                                <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-accent text-button-fg font-black text-[8px] uppercase">
                                   -{Math.round(pct)}%
                                 </span>
                                 <ProductImage title={prod.title} images={prod.images} />
@@ -2123,7 +2085,7 @@ export default function AdminDashboardPage() {
                             <button
                               type="button"
                               onClick={() => handleRemovePromotion("product", prod.id)}
-                              className="px-3 py-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shrink-0"
+                              className="px-3 py-2 bg-accent/15 text-accent hover:bg-accent hover:text-button-fg rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shrink-0"
                             >
                               Remove
                             </button>
