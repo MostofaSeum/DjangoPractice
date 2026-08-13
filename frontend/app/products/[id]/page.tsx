@@ -148,8 +148,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   <span className="text-base line-through opacity-50 font-bold">
                     ${Number(product.unit_price).toFixed(2)}
                   </span>
-                  <span className="px-2 py-0.5 rounded-md bg-red-600 text-white font-extrabold text-[10px] uppercase tracking-wider shadow-sm">
-                    🏷️ -{Math.round(product.discount_percent!)}% OFF
+                  <span className="px-2 py-0.5 rounded-md bg-red-600 text-white font-extrabold text-[10px] uppercase tracking-wider shadow-sm flex items-center gap-1">
+                    <img src="/discount.png" alt="Discount" className="w-3.5 h-3.5 object-contain brightness-0 invert" />
+                    -{Math.round(product.discount_percent!)}% OFF
                   </span>
                 </>
               )}

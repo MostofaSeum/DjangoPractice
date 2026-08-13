@@ -26,7 +26,8 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-3 bg-secondary border border-foreground/10 group-hover:scale-[1.01] transition-transform duration-300">
           {hasDiscount && (
             <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-red-600 text-white font-extrabold text-[9px] uppercase tracking-wider shadow-md z-10 flex items-center gap-1">
-              🏷️ -{Math.round(discountPercent)}% OFF
+              <img src="/discount.png" alt="Discount" className="w-3.5 h-3.5 object-contain brightness-0 invert" />
+              -{Math.round(discountPercent)}% OFF
             </span>
           )}
           <ProductImage title={product.title} images={product.images} />
