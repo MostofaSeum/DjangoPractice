@@ -162,7 +162,7 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
   return (
     <div className="mt-20 border-t border-foreground/10 pt-12">
       {/* Tab Navigation Header */}
-      <div className="flex space-x-8 border-b border-foreground/10 pb-4 mb-8">
+      <div className="flex justify-center space-x-8 border-b border-foreground/10 pb-4 mb-8">
         <button
           onClick={() => setActiveTab('description')}
           className={`text-xs font-black uppercase tracking-widest pb-4 -mb-[18px] transition-colors ${
@@ -196,14 +196,14 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
 
       {/* Tab Content: Description */}
       {activeTab === 'description' && (
-        <div className="text-sm opacity-80 leading-loose max-w-4xl font-medium">
+        <div className="text-sm opacity-80 leading-loose max-w-4xl mx-auto text-center font-medium">
           <p>{description || 'No description available for this product.'}</p>
         </div>
       )}
 
       {/* Tab Content: Reviews */}
       {activeTab === 'reviews' && (
-        <div className="max-w-4xl space-y-12">
+        <div className="max-w-4xl mx-auto space-y-12">
           {/* Review List Header */}
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-black uppercase tracking-tight text-foreground">
