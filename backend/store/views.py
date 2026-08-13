@@ -2,8 +2,8 @@ from .permissions import ViewCustomerHistoryPermission
 from rest_framework.decorators import action
 from store.models import OrderItem
 from django.http import request
-from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,ProductImageSerializer,GiftCardSerializer
-from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,GiftCard
+from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,ProductImageSerializer,GiftCardSerializer,WishlistItemSerializer
+from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,GiftCard,WishlistItem
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter,OrderingFilter
@@ -275,4 +275,29 @@ class GiftCardViewSet(ModelViewSet):
         except GiftCard.DoesNotExist:
             return Response({'error': 'Invalid gift card code. Please try again.'}, status=status.HTTP_404_NOT_FOUND)
 
-# Trigger Django reloader - updated with review edit and update support
+
+class WishlistViewSet(ModelViewSet):
+    serializer_class = WishlistItemSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return WishlistItem.objects.filter(user=self.request.user).select_related('product').prefetch_related('product__images')
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    @action(detail=False, methods=['delete', 'post'])
+    def toggle(self, request):
+        product_id = request.data.get('product_id')
+        if not product_id:
+            return Response({'error': 'product_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        existing = WishlistItem.objects.filter(user=request.user, product_id=product_id)
+        if existing.exists():
+            existing.delete()
+            return Response({'in_wishlist': False, 'message': 'Removed from wishlist'})
+        else:
+            WishlistItem.objects.create(user=request.user, product_id=product_id)
+            return Response({'in_wishlist': True, 'message': 'Added to wishlist'})
+
+# Trigger Django reloader - updated with WishlistViewSet support

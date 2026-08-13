@@ -2,7 +2,7 @@ from .signals import order_created
 from django.db.models import UUIDField
 from django.db import transaction
 from rest_framework import serializers 
-from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,GiftCard
+from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,GiftCard,WishlistItem
 from decimal import Decimal
 
 # class ProductSerializers(serializers.Serializer):
@@ -320,3 +320,18 @@ class GiftCardSerializer(serializers.ModelSerializer):
                 )
 
             return gift_card
+
+
+class WishlistItemSerializer(serializers.ModelSerializer):
+    product = SimpleProductSerializers(read_only=True)
+    product_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = WishlistItem
+        fields = ['id', 'product', 'product_id', 'created_at']
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        product_id = validated_data['product_id']
+        wishlist_item, _ = WishlistItem.objects.get_or_create(user=user, product_id=product_id)
+        return wishlist_item

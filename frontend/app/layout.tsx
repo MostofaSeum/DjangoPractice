@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import { CartProvider } from "@/store/CartContext";
 import { AuthProvider } from "@/store/AuthContext";
+import { WishlistProvider } from "@/store/WishlistContext";
 import Header from "@/components/ui/Header";
 import Footer from "@/components/ui/Footer";
 
@@ -38,9 +39,11 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <CartProvider>
-              <Header />
-              <div className="flex-1">{children}</div>
-              <Footer />
+              <WishlistProvider>
+                <Header />
+                <div className="flex-1">{children}</div>
+                <Footer />
+              </WishlistProvider>
             </CartProvider>
           </AuthProvider>
         </ThemeProvider>
