@@ -376,7 +376,7 @@ export default function ProductTabs({
           {/* Review List Header */}
           <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-2 border-b border-foreground/10 pb-4">
             <h3 className="text-base sm:text-lg font-black uppercase tracking-tight text-foreground">
-              Customer Reviews ({reviews.length})
+              Customer Reviews
             </h3>
             {avgRating && (
               <div className="flex items-center gap-2">
