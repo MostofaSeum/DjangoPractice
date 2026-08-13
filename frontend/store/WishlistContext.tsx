@@ -95,7 +95,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       const isSaved = wishlistProductIds.has(productId);
 
       if (isSaved) {
-        // Toggle OFF (Remove)
+        // Toggle OFF 
         const res = await fetch(`${apiBaseUrl}/store/wishlist/toggle/`, {
           method: "POST",
           headers: {
@@ -118,7 +118,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
           return false;
         }
       } else {
-        // Toggle ON (Add)
+        // Toggle ON
         const res = await fetch(`${apiBaseUrl}/store/wishlist/`, {
           method: "POST",
           headers: {
