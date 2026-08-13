@@ -137,9 +137,21 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <ProductRatingHeader productId={product.id} />
 
             {/* Price */}
-            <p className="text-xl sm:text-2xl font-black text-accent mb-3 mt-1">
-              ${Number(product.unit_price).toFixed(2)}
-            </p>
+            <div className="flex flex-wrap items-baseline gap-2.5 mb-3 mt-1">
+              <span className="text-xl sm:text-2xl font-black text-accent">
+                ${Number(product.discounted_price || (product.discount_percent ? product.unit_price * (1 - product.discount_percent / 100) : product.unit_price)).toFixed(2)}
+              </span>
+              {Boolean(product.discount_percent && product.discount_percent > 0) && (
+                <>
+                  <span className="text-base line-through opacity-50 font-bold">
+                    ${Number(product.unit_price).toFixed(2)}
+                  </span>
+                  <span className="px-2 py-0.5 rounded-md bg-red-600 text-white font-extrabold text-[10px] uppercase tracking-wider shadow-sm">
+                    🏷️ -{Math.round(product.discount_percent!)}% OFF
+                  </span>
+                </>
+              )}
+            </div>
 
             {/* Short Description */}
             <p className="opacity-80 leading-relaxed text-xs mb-3 font-medium">

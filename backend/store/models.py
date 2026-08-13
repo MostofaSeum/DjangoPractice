@@ -4,12 +4,17 @@ from django.db.models import Model
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from uuid import uuid4
+from decimal import Decimal
 from .validators import validate_file_size
 from django.utils import timezone
 from datetime import timedelta
 class Promotion(models.Model):
     description = models.CharField(max_length=255)
     discount = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+    def __str__(self) -> str:
+        return f"{self.description} ({self.discount}%)"
 
 
 class Collection(models.Model):
@@ -39,12 +44,24 @@ class Product(models.Model):
         max_digits=6,
         decimal_places=2,
         validators=[MinValueValidator(1)])
+    discount_percent = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0.00,
+        validators=[MinValueValidator(0), MaxValueValidator(100)])
     inventory = models.IntegerField(validators=[MinValueValidator(0)])
     last_update = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
     promotions = models.ManyToManyField(Promotion, blank=True)
     is_photos_published = models.BooleanField(default=True)
     is_trending = models.BooleanField(default=False)
+
+    @property
+    def discounted_price(self):
+        if self.discount_percent and self.discount_percent > 0:
+            discount_amount = (self.unit_price * Decimal(str(self.discount_percent))) / Decimal('100')
+            return round(self.unit_price - discount_amount, 2)
+        return self.unit_price
 
     def __str__(self) -> str:
         return self.title

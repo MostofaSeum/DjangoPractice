@@ -14,10 +14,21 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { isInWishlist, toggleWishlist } = useWishlist();
   const isSaved = isInWishlist(product.id);
 
+  const discountPercent = Number(product.discount_percent || 0);
+  const hasDiscount = discountPercent > 0;
+  const effectivePrice = product.discounted_price !== undefined 
+    ? product.discounted_price 
+    : (hasDiscount ? product.unit_price * (1 - discountPercent / 100) : product.unit_price);
+
   return (
     <div className="bg-secondary text-foreground rounded-xl p-3.5 shadow-sm border border-foreground/10 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group flex flex-col justify-between relative">
       <div>
         <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-3 bg-secondary border border-foreground/10 group-hover:scale-[1.01] transition-transform duration-300">
+          {hasDiscount && (
+            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-red-600 text-white font-extrabold text-[9px] uppercase tracking-wider shadow-md z-10 flex items-center gap-1">
+              🏷️ -{Math.round(discountPercent)}% OFF
+            </span>
+          )}
           <ProductImage title={product.title} images={product.images} />
           <button
             type="button"
@@ -26,7 +37,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               e.stopPropagation();
               toggleWishlist(product.id);
             }}
-            className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-md border transition-all duration-200 shadow-sm ${
+            className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-md border transition-all duration-200 shadow-sm z-10 ${
               isSaved
                 ? "bg-red-500/20 border-red-500/40 scale-105"
                 : "bg-black/30 border-white/20 hover:bg-black/50"
@@ -52,7 +63,16 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       <div>
         <div className="flex justify-between items-center mb-3 pt-2.5 border-t border-foreground/10">
-          <span className="text-accent font-extrabold text-sm sm:text-base">${Number(product.unit_price).toFixed(2)}</span>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-accent font-extrabold text-sm sm:text-base">
+              ${Number(effectivePrice).toFixed(2)}
+            </span>
+            {hasDiscount && (
+              <span className="text-[10px] line-through opacity-50 font-bold">
+                ${Number(product.unit_price).toFixed(2)}
+              </span>
+            )}
+          </div>
           <span className="text-[9px] font-bold uppercase tracking-wider opacity-60">Qty: {product.inventory}</span>
         </div>
         <div className="grid grid-cols-2 gap-1.5">

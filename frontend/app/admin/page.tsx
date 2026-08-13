@@ -16,6 +16,8 @@ interface Product {
   id: number;
   title: string;
   unit_price: number;
+  discount_percent?: number;
+  discounted_price?: number;
   inventory: number;
   slug: string;
   collection: number;
@@ -63,18 +65,18 @@ interface CustomerItem {
   customer_name?: string;
 }
 
+type Tab = "products" | "collections" | "orders" | "customers" | "promotions";
+
 export default function AdminDashboardPage() {
   const { user, token, logout, loading: authLoading } = useAuth();
+  const router = useRouter();
 
   const handleLogout = async () => {
     logout();
     router.push("/login");
   };
-  const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState<
-    "products" | "collections" | "orders" | "customers"
-  >("products");
+  const [activeTab, setActiveTab] = useState<Tab>("products");
 
   // State data
   const [products, setProducts] = useState<Product[]>([]);
@@ -83,6 +85,16 @@ export default function AdminDashboardPage() {
   const [customers, setCustomers] = useState<CustomerItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasUnsavedPhotos, setHasUnsavedPhotos] = useState(false);
+
+  // Promotion states
+  const [promoTargetType, setPromoTargetType] = useState<"product" | "collection">("product");
+  const [promoCollectionId, setPromoCollectionId] = useState<number | "">("");
+  const [promoProductId, setPromoProductId] = useState<number | "">("");
+  const [promoDiscountPercent, setPromoDiscountPercent] = useState<string>("20");
+  const [promoDiscountPrice, setPromoDiscountPrice] = useState<string>("");
+  const [promoDescription, setPromoDescription] = useState<string>("");
+  const [promoApplying, setPromoApplying] = useState<boolean>(false);
+  const [promotionsList, setPromotionsList] = useState<{ id: number; description: string; discount: number; created_at: string }[]>([]);
 
   // Search states
   const [productSearch, setProductSearch] = useState("");
@@ -169,10 +181,134 @@ export default function AdminDashboardPage() {
           Array.isArray(custData) ? custData : custData.results || [],
         );
       }
+      // Fetch Promotions
+      fetchPromotions();
     } catch (err) {
       console.error("Failed to fetch admin data:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPromotions = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/store/promotions/`);
+      if (res.ok) {
+        const data = await res.json();
+        setPromotionsList(Array.isArray(data) ? data : data.results || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch promotions:", err);
+    }
+  };
+
+  const selectedPromoProduct = products.find((p) => p.id === Number(promoProductId));
+
+  const handleDiscountPercentChange = (percentStr: string) => {
+    setPromoDiscountPercent(percentStr);
+    if (selectedPromoProduct) {
+      const pct = parseFloat(percentStr) || 0;
+      const calcPrice = selectedPromoProduct.unit_price * (1 - pct / 100);
+      setPromoDiscountPrice(calcPrice > 0 ? calcPrice.toFixed(2) : "0.00");
+    }
+  };
+
+  const handleDiscountPriceChange = (priceStr: string) => {
+    setPromoDiscountPrice(priceStr);
+    if (selectedPromoProduct && selectedPromoProduct.unit_price > 0) {
+      const newPrice = parseFloat(priceStr) || 0;
+      const pct = ((selectedPromoProduct.unit_price - newPrice) / selectedPromoProduct.unit_price) * 100;
+      setPromoDiscountPercent(pct > 0 ? pct.toFixed(1) : "0");
+    }
+  };
+
+  const handleApplyPromotion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (promoTargetType === "product" && !promoProductId) {
+      Swal.fire("Error", "Please select a product.", "error");
+      return;
+    }
+    if (promoTargetType === "collection" && !promoCollectionId) {
+      Swal.fire("Error", "Please select a collection.", "error");
+      return;
+    }
+    const pct = parseFloat(promoDiscountPercent);
+    if (isNaN(pct) || pct < 0 || pct > 100) {
+      Swal.fire("Error", "Please enter a valid discount percentage (0-100).", "error");
+      return;
+    }
+
+    try {
+      setPromoApplying(true);
+      const res = await fetch(`${API_BASE}/store/promotions/apply/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          target_type: promoTargetType,
+          product_id: promoTargetType === "product" ? promoProductId : undefined,
+          collection_id: promoTargetType === "collection" ? promoCollectionId : undefined,
+          discount_percent: pct,
+          description: promoDescription,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        Swal.fire("Success!", data.message || "Promotion applied successfully!", "success");
+        fetchAdminData();
+        fetchPromotions();
+      } else {
+        Swal.fire("Error", data.error || "Failed to apply promotion.", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", "Network error.", "error");
+    } finally {
+      setPromoApplying(false);
+    }
+  };
+
+  const handleRemovePromotion = async (targetType: "product" | "collection", targetId: number) => {
+    const confirm = await Swal.fire({
+      title: "Remove Promotion?",
+      text: "Are you sure you want to remove this promotion discount?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, Remove",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/store/promotions/remove/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          target_type: targetType,
+          product_id: targetType === "product" ? targetId : undefined,
+          collection_id: targetType === "collection" ? targetId : undefined,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: data.message || "Promotion removed.",
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+        });
+        fetchAdminData();
+        fetchPromotions();
+      } else {
+        Swal.fire("Error", data.error || "Failed to remove promotion.", "error");
+      }
+    } catch (err) {
+      console.error("Failed to remove promotion", err);
+      Swal.fire("Error", "Network error while removing promotion.", "error");
     }
   };
 
@@ -803,7 +939,7 @@ export default function AdminDashboardPage() {
     );
   }
 
-  const handleTabSwitch = async (targetTab: "products" | "collections" | "orders" | "customers") => {
+  const handleTabSwitch = async (targetTab: Tab) => {
     if (activeTab === targetTab) return;
 
     if (hasUnsavedPhotos) {
@@ -891,6 +1027,16 @@ export default function AdminDashboardPage() {
               }`}
             >
               Customers ({customers.length})
+            </button>
+            <button
+              onClick={() => handleTabSwitch("promotions")}
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                activeTab === "promotions"
+                  ? "bg-secondary text-foreground shadow-md"
+                  : "text-background/70 dark:text-foreground/70 hover:text-white"
+              }`}
+            >
+             Manage Promotions ({products.filter(p => Number(p.discount_percent || 0) > 0).length})
             </button>
           </div>
         </div>
@@ -1726,6 +1872,296 @@ export default function AdminDashboardPage() {
               ) : (
                 <div className="py-8 text-center text-xs font-bold uppercase tracking-wider opacity-50">
                   This customer has not placed any orders yet.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* MANAGE PROMOTIONS TAB */}
+        {activeTab === "promotions" && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
+            {/* Create & Apply Promotion Form */}
+            <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm h-fit lg:sticky lg:top-24 transition-colors duration-300">
+              <div className="flex justify-between items-center mb-6 pb-2 border-b border-foreground/10">
+                <h2 className="text-xs font-black uppercase tracking-widest text-foreground flex items-center gap-2">
+                  Apply New Promotion
+                </h2>
+              </div>
+
+              <form onSubmit={handleApplyPromotion} className="space-y-5">
+                {/* Target Type Picker */}
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+                    Apply Promotion To
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setPromoTargetType("product")}
+                      className={`py-3 px-3 rounded-xl font-bold text-xs uppercase tracking-wider border transition-all ${
+                        promoTargetType === "product"
+                          ? "bg-accent text-white border-accent shadow-md"
+                          : "bg-background text-foreground border-foreground/15 hover:border-foreground/30"
+                      }`}
+                    >
+                      Specific Product
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPromoTargetType("collection")}
+                      className={`py-3 px-3 rounded-xl font-bold text-xs uppercase tracking-wider border transition-all ${
+                        promoTargetType === "collection"
+                          ? "bg-accent text-white border-accent shadow-md"
+                          : "bg-background text-foreground border-foreground/15 hover:border-foreground/30"
+                      }`}
+                    >
+                      Whole Collection
+                    </button>
+                  </div>
+                </div>
+
+                {/* Collection Selector */}
+                {promoTargetType === "collection" && (
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+                      Select Collection
+                    </label>
+                    <select
+                      value={promoCollectionId}
+                      onChange={(e) => setPromoCollectionId(Number(e.target.value))}
+                      className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                      required
+                    >
+                      <option value="">-- Choose Collection --</option>
+                      {collections.map((col) => (
+                        <option key={col.id} value={col.id}>
+                          {col.title} ({products.filter((p) => p.collection === col.id).length} products)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {/* Product Selector */}
+                {promoTargetType === "product" && (
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+                      Select Product
+                    </label>
+                    <select
+                      value={promoProductId}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        setPromoProductId(val);
+                        const prod = products.find((p) => p.id === val);
+                        if (prod) {
+                          const pct = parseFloat(promoDiscountPercent) || 0;
+                          const calcPrice = prod.unit_price * (1 - pct / 100);
+                          setPromoDiscountPrice(calcPrice > 0 ? calcPrice.toFixed(2) : "0.00");
+                        }
+                      }}
+                      className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                      required
+                    >
+                      <option value="">-- Choose Product --</option>
+                      {products.map((prod) => (
+                        <option key={prod.id} value={prod.id}>
+                          {prod.title} - Original: ${Number(prod.unit_price).toFixed(2)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {/* Display Previous Price if Product Selected */}
+                {promoTargetType === "product" && selectedPromoProduct && (
+                  <div className="p-4 rounded-2xl bg-primary/10 border border-foreground/10 space-y-1 text-xs">
+                    <p className="font-bold text-foreground opacity-70 uppercase tracking-wider text-[10px]">
+                      Product Details
+                    </p>
+                    <div className="flex justify-between items-center font-black">
+                      <span>{selectedPromoProduct.title}</span>
+                      <span className="text-accent text-sm">Original: ${Number(selectedPromoProduct.unit_price).toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Inputs for Discount % and New Price */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+                      Discount %
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      value={promoDiscountPercent}
+                      onChange={(e) => handleDiscountPercentChange(e.target.value)}
+                      placeholder="e.g. 20"
+                      className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+                      New Price ($)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={promoDiscountPrice}
+                      onChange={(e) => handleDiscountPriceChange(e.target.value)}
+                      placeholder="New Price"
+                      disabled={promoTargetType === "collection"}
+                      className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
+                    />
+                  </div>
+                </div>
+
+                {/* Live Preview Card */}
+                {selectedPromoProduct && (
+                  <div className="p-4 rounded-2xl bg-secondary/80 border border-foreground/10 space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-wider opacity-60">
+                      Live Customer Preview
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <div className="relative w-12 h-12 rounded-lg bg-background flex items-center justify-center overflow-hidden border border-foreground/10">
+                        <span className="absolute top-0 left-0 px-1 py-0.5 bg-red-600 text-white font-extrabold text-[7px]">
+                          -{Math.round(parseFloat(promoDiscountPercent) || 0)}%
+                        </span>
+                        <ProductImage title={selectedPromoProduct.title} images={selectedPromoProduct.images} />
+                      </div>
+                      <div>
+                        <p className="font-bold text-xs line-clamp-1">{selectedPromoProduct.title}</p>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-accent font-black text-sm">
+                            ${Number(promoDiscountPrice || selectedPromoProduct.unit_price).toFixed(2)}
+                          </span>
+                          <span className="line-through text-xs opacity-50 font-bold">
+                            ${Number(selectedPromoProduct.unit_price).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Optional Note / Campaign Title */}
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+                    Campaign Note (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={promoDescription}
+                    onChange={(e) => setPromoDescription(e.target.value)}
+                    placeholder="e.g. Summer Flash Sale 20% OFF"
+                    className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={promoApplying}
+                  className="w-full py-4 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50"
+                >
+                  {promoApplying ? "Applying Promotion..." : "Apply Promotion Now"}
+                </button>
+              </form>
+            </div>
+
+            {/* Right Column: Currently On-Sale Products & Collections (2 Columns) */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm">
+                <div className="flex justify-between items-center mb-6 pb-2 border-b border-foreground/10">
+                  <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
+                    Products Currently On Sale ({products.filter((p) => Number(p.discount_percent || 0) > 0).length})
+                  </h2>
+                </div>
+
+                {products.filter((p) => Number(p.discount_percent || 0) > 0).length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {products
+                      .filter((p) => Number(p.discount_percent || 0) > 0)
+                      .map((prod) => {
+                        const original = Number(prod.unit_price);
+                        const pct = Number(prod.discount_percent);
+                        const discounted = prod.discounted_price !== undefined
+                          ? Number(prod.discounted_price)
+                          : original * (1 - pct / 100);
+
+                        return (
+                          <div
+                            key={prod.id}
+                            className="p-4 rounded-2xl bg-background border border-foreground/10 flex items-center justify-between gap-4 shadow-sm"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="relative w-14 h-14 rounded-xl bg-secondary flex items-center justify-center overflow-hidden border border-foreground/10 shrink-0">
+                                <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-red-600 text-white font-black text-[8px] uppercase">
+                                  -{Math.round(pct)}%
+                                </span>
+                                <ProductImage title={prod.title} images={prod.images} />
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-xs text-foreground line-clamp-1">{prod.title}</h4>
+                                <div className="flex items-baseline gap-2 mt-1">
+                                  <span className="text-accent font-extrabold text-xs">
+                                    ${discounted.toFixed(2)}
+                                  </span>
+                                  <span className="line-through text-[10px] opacity-50 font-bold">
+                                    ${original.toFixed(2)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleRemovePromotion("product", prod.id)}
+                              className="px-3 py-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shrink-0"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        );
+                      })}
+                  </div>
+                ) : (
+                  <div className="py-12 text-center text-xs font-bold uppercase tracking-wider opacity-50">
+                    No products currently have active promotions. Use the form on the left to add discounts!
+                  </div>
+                )}
+              </div>
+
+              {/* Created Promotions Log */}
+              {promotionsList.length > 0 && (
+                <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm space-y-4">
+                  <h3 className="text-xs font-black uppercase tracking-widest text-foreground">
+                    Promotion History Log ({promotionsList.length})
+                  </h3>
+                  <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                    {promotionsList.map((promo) => (
+                      <div
+                        key={promo.id}
+                        className="p-3 rounded-xl bg-background border border-foreground/10 flex justify-between items-center text-xs"
+                      >
+                        <div>
+                          <p className="font-bold text-foreground">{promo.description}</p>
+                          <p className="text-[10px] opacity-60">
+                            Created: {promo.created_at ? new Date(promo.created_at).toLocaleString() : "N/A"}
+                          </p>
+                        </div>
+                        <span className="px-2.5 py-1 rounded-full bg-accent/20 text-accent font-extrabold text-[10px]">
+                          {promo.discount}% OFF
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

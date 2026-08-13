@@ -2,8 +2,8 @@ from .permissions import ViewCustomerHistoryPermission
 from rest_framework.decorators import action
 from store.models import OrderItem
 from django.http import request
-from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,ProductImageSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer
-from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,GiftCard,WishlistItem,Subscriber
+from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,ProductImageSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer
+from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,GiftCard,WishlistItem,Subscriber,Promotion
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter,OrderingFilter
@@ -324,4 +324,75 @@ class SubscriberViewSet(ModelViewSet):
             status=status.HTTP_201_CREATED
         )
 
-# Trigger Django reloader - updated with SubscriberViewSet support
+
+class PromotionViewSet(ModelViewSet):
+    queryset = Promotion.objects.all()
+    serializer_class = PromotionSerializer
+    permission_classes = [AllowAny]
+
+    @action(detail=False, methods=['post'])
+    def apply(self, request):
+        target_type = request.data.get('target_type')
+        discount_percent = request.data.get('discount_percent')
+        description = request.data.get('description', '')
+
+        if discount_percent is None:
+            return Response({'error': 'discount_percent is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            discount_val = float(discount_percent)
+            if discount_val < 0 or discount_val > 100:
+                return Response({'error': 'discount_percent must be between 0 and 100.'}, status=status.HTTP_400_BAD_REQUEST)
+        except ValueError:
+            return Response({'error': 'Invalid discount percentage.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        updated_count = 0
+        if target_type == 'collection':
+            collection_id = request.data.get('collection_id')
+            if not collection_id:
+                return Response({'error': 'collection_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+            updated_count = Product.objects.filter(collection_id=collection_id).update(discount_percent=discount_val)
+            if not description:
+                try:
+                    col = Collection.objects.get(pk=collection_id)
+                    description = f"Collection '{col.title}' ({discount_val}% OFF)"
+                except Collection.DoesNotExist:
+                    description = f"Collection #{collection_id} ({discount_val}% OFF)"
+
+        elif target_type == 'product':
+            product_id = request.data.get('product_id')
+            if not product_id:
+                return Response({'error': 'product_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
+            updated_count = Product.objects.filter(pk=product_id).update(discount_percent=discount_val)
+            if not description:
+                try:
+                    prod = Product.objects.get(pk=product_id)
+                    description = f"Product '{prod.title}' ({discount_val}% OFF)"
+                except Product.DoesNotExist:
+                    description = f"Product #{product_id} ({discount_val}% OFF)"
+        else:
+            return Response({'error': 'Invalid target_type. Must be "product" or "collection".'}, status=status.HTTP_400_BAD_REQUEST)
+
+        promotion = Promotion.objects.create(description=description, discount=discount_val)
+
+        return Response({
+            'message': f'Successfully applied {discount_val}% discount to {updated_count} product(s).',
+            'promotion': PromotionSerializer(promotion).data,
+            'updated_count': updated_count
+        }, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'])
+    def remove(self, request):
+        target_type = request.data.get('target_type')
+        if target_type == 'collection':
+            collection_id = request.data.get('collection_id')
+            updated_count = Product.objects.filter(collection_id=collection_id).update(discount_percent=0.00)
+        elif target_type == 'product':
+            product_id = request.data.get('product_id')
+            updated_count = Product.objects.filter(pk=product_id).update(discount_percent=0.00)
+        else:
+            return Response({'error': 'Invalid target_type.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'message': f'Removed promotion from {updated_count} product(s).', 'updated_count': updated_count})
+
+# Trigger Django reloader - updated with PromotionViewSet support

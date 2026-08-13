@@ -2,7 +2,7 @@ from .signals import order_created
 from django.db.models import UUIDField
 from django.db import transaction
 from rest_framework import serializers 
-from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,GiftCard,WishlistItem,Subscriber
+from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,GiftCard,WishlistItem,Subscriber,Promotion
 from decimal import Decimal
 
 # class ProductSerializers(serializers.Serializer):
@@ -23,13 +23,17 @@ class ProductImageSerializer(serializers.ModelSerializer):
 class ProductSerializers(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
     price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax')
+    discounted_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
-        fields = ['id', 'title', 'description', 'slug', 'inventory', 'unit_price', 'price_with_tax', 'collection', 'images', 'is_photos_published', 'is_trending']
+        fields = ['id', 'title', 'description', 'slug', 'inventory', 'unit_price', 'discount_percent', 'discounted_price', 'price_with_tax', 'collection', 'images', 'is_photos_published', 'is_trending']
 
     def calculate_tax(self, product):
-        return product.unit_price * Decimal('1.1')
+        return product.discounted_price * Decimal('1.1')
+
+    def get_discounted_price(self, product):
+        return float(product.discounted_price)
 
     def get_images(self, product):
         request = self.context.get('request')
@@ -38,6 +42,11 @@ class ProductSerializers(serializers.ModelSerializer):
             return []
         serializer = ProductImageSerializer(product.images.all(), many=True, context=self.context)
         return serializer.data
+
+class PromotionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Promotion
+        fields = ['id', 'description', 'discount', 'created_at']
 
 class CollectionSerializer(serializers.ModelSerializer):
     product_count = serializers.IntegerField(read_only=True)

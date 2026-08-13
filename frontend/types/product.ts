@@ -15,6 +15,8 @@ export interface Product {
   slug: string;
   description: string;
   unit_price: number;
+  discount_percent?: number;
+  discounted_price?: number;
   inventory: number;
   collection: number | Collection;
   images?: ProductImage[];
