@@ -133,20 +133,11 @@ export default function Header() {
                     onClick={() => setDropdownOpen(false)}
                     className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/15 transition-colors font-bold text-[11px] uppercase tracking-wider"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="15"
-                      height="15"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
+                    <img
+                      src="/user.png"
+                      alt="Profile"
+                      className="w-4 h-4 object-contain brightness-0 invert"
+                    />
                     Profile
                   </Link>
 
@@ -155,45 +146,13 @@ export default function Header() {
                     onClick={() => setDropdownOpen(false)}
                     className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/15 transition-colors font-bold text-[11px] uppercase tracking-wider"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="15"
-                      height="15"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="text-red-400"
-                    >
-                      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
-                    </svg>
+                    <img
+                      src="/love.png"
+                      alt="Wishlist"
+                      className="w-4 h-4 object-contain"
+                    />
                     My Wishlist
                   </Link>
-
-                  {user.is_staff && (
-                    <Link
-                      href="/admin"
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/15 transition-colors font-bold text-[11px] uppercase tracking-wider text-accent"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="15"
-                        height="15"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                      </svg>
-                      Admin Dashboard
-                    </Link>
-                  )}
 
                   <div className="my-1.5 border-t border-white/15" />
 
@@ -202,21 +161,11 @@ export default function Header() {
                     onClick={handleLogout}
                     className="w-full text-left flex items-center gap-3 px-4 py-2.5 hover:bg-red-500/20 text-red-300 transition-colors font-bold text-[11px] uppercase tracking-wider"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="15"
-                      height="15"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                      <polyline points="16 17 21 12 16 7" />
-                      <line x1="21" y1="12" x2="9" y2="12" />
-                    </svg>
+                    <img
+                      src="/logout.png"
+                      alt="Sign Out"
+                      className="w-4 h-4 object-contain"
+                    />
                     Sign Out
                   </button>
                 </div>
