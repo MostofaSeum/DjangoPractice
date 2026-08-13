@@ -443,7 +443,7 @@ export default async function Home() {
                     <Link href={`/products/${product.id}`} className="block">
                       <div className="aspect-square bg-primary/5 dark:bg-primary/40 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
                         {hasDiscount && (
-                          <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-red-600 text-white font-extrabold text-[9px] uppercase tracking-wider shadow-md z-10 flex items-center gap-1">
+                          <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-accent text-button-fg font-extrabold text-[9px] uppercase tracking-wider shadow-md z-10 flex items-center gap-1">
                             <img src="/discount.png" alt="Discount" className="w-3.5 h-3.5 object-contain brightness-0 invert" />
                             -{Math.round(discountPercent)}% OFF
                           </span>

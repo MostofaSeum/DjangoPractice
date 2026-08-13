@@ -141,7 +141,7 @@ export default function CartPage() {
                     <div className="flex items-center gap-6 w-full sm:w-auto">
                       <div className="w-20 h-20 bg-primary/5 dark:bg-primary/40 rounded-2xl flex items-center justify-center flex-shrink-0 relative overflow-hidden">
                         {hasDiscount && (
-                          <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-red-600 text-white font-extrabold text-[8px] uppercase tracking-wider shadow-md z-10 flex items-center gap-0.5">
+                          <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-accent text-button-fg font-extrabold text-[8px] uppercase tracking-wider shadow-md z-10 flex items-center gap-0.5">
                             <img src="/discount.png" alt="Discount" className="w-2.5 h-2.5 object-contain brightness-0 invert" />
                             -{Math.round(discountPercent)}%
                           </span>
@@ -249,7 +249,7 @@ export default function CartPage() {
                 </div>
 
                 {productDiscountSavings > 0 && (
-                  <div className="flex justify-between text-green-500 font-bold">
+                  <div className="flex justify-between text-accent font-bold">
                     <span className="flex items-center gap-1">
                      Product Discounts
                     </span>
@@ -280,7 +280,7 @@ export default function CartPage() {
                       />
                       <button
                         type="submit"
-                        className="px-4 py-2.5 bg-accent text-white rounded-xl font-extrabold text-xs uppercase tracking-wider hover:opacity-90 transition-all shadow-sm"
+                        className="px-4 py-2.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-wider hover:opacity-90 transition-all shadow-sm"
                       >
                         Apply
                       </button>
@@ -291,26 +291,26 @@ export default function CartPage() {
                         <span className="text-xs font-black text-accent uppercase tracking-wider block">
                           🎟️ {appliedCoupon.code} ({appliedCoupon.discountPercent}% OFF)
                         </span>
-                        <span className="text-[10px] text-green-500 font-bold">
+                        <span className="text-[10px] text-accent font-bold">
                           Saved ${couponSavings.toFixed(2)}
                         </span>
                       </div>
                       <button
                         type="button"
                         onClick={handleRemoveCoupon}
-                        className="text-xs font-bold text-red-500 hover:underline px-2 py-1"
+                        className="text-xs font-bold opacity-60 hover:opacity-100 hover:underline px-2 py-1"
                       >
                         Remove
                       </button>
                     </div>
                   )}
                   {couponError && (
-                    <p className="text-[10px] text-red-500 font-bold mt-1.5">{couponError}</p>
+                    <p className="text-[10px] text-accent font-bold mt-1.5">{couponError}</p>
                   )}
                 </div>
 
                 {appliedCoupon && (
-                  <div className="flex justify-between text-green-500 font-bold">
+                  <div className="flex justify-between text-accent font-bold">
                     <span>Coupon Discount</span>
                     <span>-${couponSavings.toFixed(2)}</span>
                   </div>

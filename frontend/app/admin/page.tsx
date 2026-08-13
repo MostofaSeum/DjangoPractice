@@ -232,6 +232,24 @@ export default function AdminDashboardPage() {
       return;
     }
 
+    const currentDiscount = Number(selectedPromoProduct?.discount_percent || 0);
+    if (currentDiscount > 0) {
+      const confirm = await Swal.fire({
+        title: "Product Already Discounted!",
+        text: `"${selectedPromoProduct?.title}" currently has an active ${currentDiscount}% discount. Do you want to change it to ${pct}%?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "var(--accent)",
+        cancelButtonColor: "var(--button-bg)",
+        confirmButtonText: "Yes, Change Discount",
+        cancelButtonText: "No, Keep Existing",
+      });
+
+      if (!confirm.isConfirmed) {
+        return;
+      }
+    }
+
     try {
       setPromoApplying(true);
       const res = await fetch(`${API_BASE}/store/promotions/apply/`, {
