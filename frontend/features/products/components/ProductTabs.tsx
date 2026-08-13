@@ -24,8 +24,6 @@ export default function ProductTabs({ productId, description }: ProductTabsProps
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loadingReviews, setLoadingReviews] = useState<boolean>(false);
   const [reviewsFetched, setReviewsFetched] = useState<boolean>(false);
-
-  // Form State (Only review text needed, name auto-filled from auth user)
   const [reviewText, setReviewText] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
 
