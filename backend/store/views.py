@@ -51,6 +51,9 @@ class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.annotate(product_count=Count('product')).all()
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = None
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    search_fields = ['title']
+    ordering_fields = ['title', 'product_count']
 
     def get_queryset(self):
         if self.action == 'retrieve':
@@ -163,6 +166,9 @@ class CustomerViewSet(ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializers
     permission_classes = [IsAdminUser]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    search_fields = ['user__first_name', 'user__last_name', 'user__email', 'user__username', 'phone']
+    pagination_class = None
 
     def get_queryset(self):
         return Customer.objects.select_related('user').filter(user__is_staff=False)

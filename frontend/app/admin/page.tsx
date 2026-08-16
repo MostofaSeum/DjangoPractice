@@ -7,6 +7,9 @@ import Swal from "sweetalert2";
 import ImageUploadModal from "@/components/ui/ImageUploadModal";
 import ProductImage from "@/components/ui/ProductImage";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import ProductSearchBar from "@/features/products/components/ProductSearchBar";
+import CollectionSearchBar from "@/features/collections/components/CollectionSearchBar";
+import CustomerSearchBar from "@/features/customers/components/CustomerSearchBar";
 
 const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
@@ -134,10 +137,7 @@ export default function AdminDashboardPage() {
   const [couponFilterSearch, setCouponFilterSearch] = useState<string>("");
 
   // Search states
-  const [productSearch, setProductSearch] = useState("");
-  const [collectionSearch, setCollectionSearch] = useState("");
   const [orderSearch, setOrderSearch] = useState("");
-  const [customerSearch, setCustomerSearch] = useState("");
 
   const [activeProductQuery, setActiveProductQuery] = useState("");
   const [activeCollectionQuery, setActiveCollectionQuery] = useState("");
@@ -1547,41 +1547,19 @@ export default function AdminDashboardPage() {
                 <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
                   All Products ({totalProductsCount || products.length})
                 </h2>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    setActiveProductQuery(productSearch);
+                <ProductSearchBar
+                  mode="admin"
+                  initialSearch={activeProductQuery}
+                  onSelectProduct={(prod) => handleSelectProduct(prod as any)}
+                  onSearchSubmit={(q) => {
+                    setActiveProductQuery(q);
                     setProdPage(1);
                   }}
-                  className="flex items-center gap-2 w-full sm:w-auto"
-                >
-                  <input
-                    type="text"
-                    value={productSearch}
-                    onChange={(e) => setProductSearch(e.target.value)}
-                    placeholder="Search product..."
-                    className="px-3.5 py-1.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full sm:w-48 focus:ring-2 focus:ring-accent"
-                  />
-                  <button
-                    type="submit"
-                    className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
-                  >
-                    Search
-                  </button>
-                  {activeProductQuery && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setProductSearch("");
-                        setActiveProductQuery("");
-                        setProdPage(1);
-                      }}
-                      className="text-[10px] font-bold text-red-500 hover:underline uppercase"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </form>
+                  onClear={() => {
+                    setActiveProductQuery("");
+                    setProdPage(1);
+                  }}
+                />
               </div>
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -1774,39 +1752,18 @@ export default function AdminDashboardPage() {
                 <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
                   Existing Collections ({filteredCollections.length})
                 </h2>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    setActiveCollectionQuery(collectionSearch);
+                <CollectionSearchBar
+                  initialSearch={activeCollectionQuery}
+                  onSelectCollection={(col) => {
+                    handleSelectCollection(col as any);
                   }}
-                  className="flex items-center gap-2 w-full sm:w-auto"
-                >
-                  <input
-                    type="text"
-                    value={collectionSearch}
-                    onChange={(e) => setCollectionSearch(e.target.value)}
-                    placeholder="Search collection..."
-                    className="px-3.5 py-1.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full sm:w-48 focus:ring-2 focus:ring-accent"
-                  />
-                  <button
-                    type="submit"
-                    className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
-                  >
-                    Search
-                  </button>
-                  {activeCollectionQuery && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCollectionSearch("");
-                        setActiveCollectionQuery("");
-                      }}
-                      className="text-[10px] font-bold text-red-500 hover:underline uppercase"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </form>
+                  onSearchSubmit={(q) => {
+                    setActiveCollectionQuery(q);
+                  }}
+                  onClear={() => {
+                    setActiveCollectionQuery("");
+                  }}
+                />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {filteredCollections.map((col) => (
@@ -2096,39 +2053,19 @@ export default function AdminDashboardPage() {
               <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
                 Registered Customers ({filteredCustomers.length})
               </h2>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setActiveCustomerQuery(customerSearch);
+              <CustomerSearchBar
+                token={token}
+                initialSearch={activeCustomerQuery}
+                onSelectCustomer={(cust) => {
+                  handleViewCustomerHistory(cust.id);
                 }}
-                className="flex items-center gap-2 w-full sm:w-auto"
-              >
-                <input
-                  type="text"
-                  value={customerSearch}
-                  onChange={(e) => setCustomerSearch(e.target.value)}
-                  placeholder="Search customer..."
-                  className="px-3.5 py-1.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full sm:w-48 focus:ring-2 focus:ring-accent"
-                />
-                <button
-                  type="submit"
-                  className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
-                >
-                  Search
-                </button>
-                {activeCustomerQuery && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCustomerSearch("");
-                      setActiveCustomerQuery("");
-                    }}
-                    className="text-[10px] font-bold text-red-500 hover:underline uppercase"
-                  >
-                    Clear
-                  </button>
-                )}
-              </form>
+                onSearchSubmit={(q) => {
+                  setActiveCustomerQuery(q);
+                }}
+                onClear={() => {
+                  setActiveCustomerQuery("");
+                }}
+              />
             </div>
             {filteredCustomers.length > 0 ? (
               <div className="overflow-x-auto">

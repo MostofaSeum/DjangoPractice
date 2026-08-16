@@ -4,13 +4,18 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-interface ProductSuggestion {
+export interface ProductSuggestion {
   id: number;
   title: string;
   unit_price: number;
   discount_percent?: number;
   discounted_price?: number;
+  inventory?: number;
   short_description?: string;
+  description?: string;
+  slug?: string;
+  collection?: number;
+  is_trending?: boolean;
   images?: { id?: number; image: string }[];
 }
 
@@ -19,6 +24,12 @@ interface ProductSearchBarProps {
   minPrice?: string;
   maxPrice?: string;
   ordering?: string;
+  mode?: "customer" | "admin";
+  placeholder?: string;
+  onSelectProduct?: (product: ProductSuggestion) => void;
+  onSearchSubmit?: (query: string) => void;
+  onClear?: () => void;
+  className?: string;
 }
 
 export default function ProductSearchBar({
@@ -26,6 +37,12 @@ export default function ProductSearchBar({
   minPrice,
   maxPrice,
   ordering,
+  mode = "customer",
+  placeholder,
+  onSelectProduct,
+  onSearchSubmit,
+  onClear,
+  className = "",
 }: ProductSearchBarProps) {
   const router = useRouter();
   const [query, setQuery] = useState(initialSearch);
@@ -40,6 +57,11 @@ export default function ProductSearchBar({
   const API_BASE = (
     process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
   ).replace(/\/+$/, "");
+
+  // Sync external search value changes if provided
+  useEffect(() => {
+    setQuery(initialSearch);
+  }, [initialSearch]);
 
   // Fetch suggestions when query changes (min 1 character)
   useEffect(() => {
@@ -104,10 +126,15 @@ export default function ProductSearchBar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Keyboard navigation & Submission
+  // Submit search query
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setIsOpen(false);
+
+    if (onSearchSubmit) {
+      onSearchSubmit(query.trim());
+      return;
+    }
 
     const params = new URLSearchParams();
     if (query.trim()) params.set("search", query.trim());
@@ -116,6 +143,17 @@ export default function ProductSearchBar({
     if (ordering) params.set("ordering", ordering);
 
     router.push(`/products?${params.toString()}`);
+  };
+
+  const handleClear = () => {
+    setQuery("");
+    setSuggestions([]);
+    setIsOpen(false);
+    if (onClear) {
+      onClear();
+    } else if (onSearchSubmit) {
+      onSearchSubmit("");
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -141,7 +179,11 @@ export default function ProductSearchBar({
       if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
         const selected = suggestions[selectedIndex];
         setIsOpen(false);
-        router.push(`/products/${selected.id}`);
+        if (mode === "admin" && onSelectProduct) {
+          onSelectProduct(selected);
+        } else {
+          router.push(`/products/${selected.id}`);
+        }
       } else {
         handleSubmit();
       }
@@ -151,7 +193,8 @@ export default function ProductSearchBar({
   };
 
   // Helper to render product image
-  const renderProductImage = (item: ProductSuggestion) => {
+  const renderProductImage = (item: ProductSuggestion, size: "sm" | "md" = "md") => {
+    const sizeClass = size === "sm" ? "w-8 h-8 rounded-lg" : "w-10 h-10 rounded-xl";
     if (item.images && item.images.length > 0 && item.images[0].image) {
       let src = item.images[0].image;
       if (!src.startsWith("http://") && !src.startsWith("https://")) {
@@ -161,14 +204,14 @@ export default function ProductSearchBar({
         <img
           src={src}
           alt={item.title}
-          className="w-10 h-10 object-cover rounded-xl border border-foreground/10 bg-primary/5 flex-shrink-0"
+          className={`${sizeClass} object-cover border border-foreground/10 bg-primary/5 flex-shrink-0`}
         />
       );
     }
     return (
-      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-foreground/10 flex-shrink-0">
+      <div className={`${sizeClass} bg-primary/10 flex items-center justify-center border border-foreground/10 flex-shrink-0`}>
         <svg
-          className="w-5 h-5 opacity-40"
+          className={size === "sm" ? "w-4 h-4 opacity-40" : "w-5 h-5 opacity-40"}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -200,15 +243,22 @@ export default function ProductSearchBar({
     );
   };
 
-  return (
-    <div ref={containerRef} className="relative w-full max-w-3xl mb-8 z-30">
-      <form onSubmit={handleSubmit} className="flex gap-2 w-full">
-        {/* Hidden inputs to preserve existing filters */}
-        {minPrice && <input type="hidden" name="minPrice" value={minPrice} />}
-        {maxPrice && <input type="hidden" name="maxPrice" value={maxPrice} />}
-        {ordering && <input type="hidden" name="ordering" value={ordering} />}
+  const isAdmin = mode === "admin";
 
-        <div className="relative flex-1">
+  return (
+    <div
+      ref={containerRef}
+      className={`relative ${
+        isAdmin ? "w-full sm:w-auto" : "w-full max-w-3xl mb-8 z-30"
+      } ${className}`}
+    >
+      <form onSubmit={handleSubmit} className="flex items-center gap-2 w-full sm:w-auto">
+        {/* Hidden inputs to preserve existing filters (customer mode) */}
+        {!isAdmin && minPrice && <input type="hidden" name="minPrice" value={minPrice} />}
+        {!isAdmin && maxPrice && <input type="hidden" name="maxPrice" value={maxPrice} />}
+        {!isAdmin && ordering && <input type="hidden" name="ordering" value={ordering} />}
+
+        <div className={`relative ${isAdmin ? "w-full sm:w-60" : "flex-1"}`}>
           <input
             type="text"
             name="search"
@@ -223,24 +273,36 @@ export default function ProductSearchBar({
               }
             }}
             onKeyDown={handleKeyDown}
-            placeholder="Search products by title or description..."
+            placeholder={
+              placeholder ||
+              (isAdmin
+                ? "Search product..."
+                : "Search products by title or description...")
+            }
             autoComplete="off"
-            className="w-full px-5 py-3 pr-10 border border-foreground/15 rounded-2xl bg-secondary text-sm text-foreground placeholder:text-foreground/50 outline-none focus:border-accent transition-colors shadow-sm"
+            className={
+              isAdmin
+                ? "px-3.5 py-1.5 pr-8 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full focus:ring-2 focus:ring-accent"
+                : "w-full px-5 py-3 pr-10 border border-foreground/15 rounded-2xl bg-secondary text-sm text-foreground placeholder:text-foreground/50 outline-none focus:border-accent transition-colors shadow-sm"
+            }
           />
 
           {/* Clear button */}
           {query.length > 0 && (
             <button
               type="button"
-              onClick={() => {
-                setQuery("");
-                setSuggestions([]);
-                setIsOpen(false);
-              }}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground p-1 transition-colors"
+              onClick={handleClear}
+              className={`absolute ${
+                isAdmin ? "right-2" : "right-3.5"
+              } top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground p-0.5 transition-colors`}
               aria-label="Clear search"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className={isAdmin ? "w-3.5 h-3.5" : "w-4 h-4"}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -248,39 +310,67 @@ export default function ProductSearchBar({
 
           {/* Loading indicator */}
           {loading && (
-            <div className="absolute right-10 top-1/2 -translate-y-1/2">
-              <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
+            <div
+              className={`absolute ${
+                isAdmin ? "right-7" : "right-10"
+              } top-1/2 -translate-y-1/2`}
+            >
+              <div
+                className={`${
+                  isAdmin ? "w-3 h-3" : "w-4 h-4"
+                } border-2 border-accent border-t-transparent rounded-full animate-spin`}
+              ></div>
             </div>
           )}
         </div>
 
         <button
           type="submit"
-          className="px-6 py-3 bg-button-bg text-button-fg rounded-2xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-sm hover:shadow flex items-center justify-center gap-2 cursor-pointer"
+          className={
+            isAdmin
+              ? "px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm cursor-pointer whitespace-nowrap"
+              : "px-6 py-3 bg-button-bg text-button-fg rounded-2xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-sm hover:shadow flex items-center justify-center gap-2 cursor-pointer"
+          }
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
+          {!isAdmin && (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          )}
           Search
         </button>
+
+        {isAdmin && initialSearch && (
+          <button
+            type="button"
+            onClick={handleClear}
+            className="text-[10px] font-bold text-red-500 hover:underline uppercase whitespace-nowrap"
+          >
+            Clear
+          </button>
+        )}
       </form>
 
       {/* Suggestions Dropdown */}
       {isOpen && query.trim().length >= 1 && (
-        <div className="absolute left-0 right-0 top-full mt-2 bg-secondary border border-foreground/15 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+        <div
+          className={`absolute left-0 right-0 ${
+            isAdmin ? "sm:right-auto sm:w-80" : ""
+          } top-full mt-2 bg-secondary border border-foreground/15 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150`}
+        >
           {suggestions.length > 0 ? (
-            <div className="py-2">
-              <div className="px-4 py-2 text-[10px] font-black uppercase tracking-wider opacity-60 flex justify-between border-b border-foreground/10 mb-1">
+            <div className="py-1.5">
+              <div className="px-3.5 py-1.5 text-[9px] font-black uppercase tracking-wider opacity-60 flex justify-between border-b border-foreground/10 mb-1">
                 <span>Product Suggestions</span>
                 <span>{totalCount} found</span>
               </div>
 
-              <div className="max-h-[380px] overflow-y-auto divide-y divide-foreground/5">
+              <div className="max-h-[340px] overflow-y-auto divide-y divide-foreground/5">
                 {suggestions.map((item, idx) => {
                   const discountPercent = Number(item.discount_percent || 0);
                   const effectivePrice =
@@ -292,6 +382,36 @@ export default function ProductSearchBar({
 
                   const isSelected = selectedIndex === idx;
 
+                  if (isAdmin) {
+                    return (
+                      <div
+                        key={item.id}
+                        onClick={() => {
+                          setIsOpen(false);
+                          if (onSelectProduct) onSelectProduct(item);
+                        }}
+                        onMouseEnter={() => setSelectedIndex(idx)}
+                        className={`flex items-center gap-2.5 px-3 py-2 cursor-pointer hover:bg-primary/10 transition-colors ${
+                          isSelected ? "bg-primary/15" : ""
+                        }`}
+                      >
+                        {renderProductImage(item, "sm")}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-bold text-foreground truncate">
+                            {highlightMatch(item.title, query.trim())}
+                          </div>
+                          <div className="text-[10px] opacity-60 flex items-center gap-2">
+                            <span>#{item.id}</span>
+                            <span>Stock: {item.inventory ?? 0}</span>
+                            <span className="text-accent font-bold">
+                              ${Number(item.unit_price).toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                     <Link
                       key={item.id}
@@ -302,7 +422,7 @@ export default function ProductSearchBar({
                         isSelected ? "bg-primary/15" : ""
                       }`}
                     >
-                      {renderProductImage(item)}
+                      {renderProductImage(item, "md")}
 
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-bold text-foreground truncate">
@@ -331,23 +451,25 @@ export default function ProductSearchBar({
               </div>
 
               {/* View all results button */}
-              <div className="p-2 border-t border-foreground/10 bg-primary/5">
+              <div className="p-1.5 border-t border-foreground/10 bg-primary/5">
                 <button
                   type="button"
                   onClick={() => handleSubmit()}
-                  className="w-full py-2 px-4 rounded-xl bg-button-bg text-button-fg text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity text-center flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-1.5 px-3 rounded-xl bg-button-bg text-button-fg text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity text-center flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  View all {totalCount} result{totalCount !== 1 ? "s" : ""} for &quot;{query.trim()}&quot;
+                  {isAdmin
+                    ? `Filter table for "${query.trim()}"`
+                    : `View all ${totalCount} results for "${query.trim()}"`}
                 </button>
               </div>
             </div>
           ) : (
             !loading && (
-              <div className="py-8 px-4 text-center">
-                <p className="text-sm opacity-70 font-semibold mb-1">
+              <div className="py-6 px-4 text-center">
+                <p className="text-xs opacity-70 font-semibold mb-0.5">
                   No products found matching &quot;{query.trim()}&quot;
                 </p>
-                <p className="text-xs opacity-50">
+                <p className="text-[10px] opacity-50">
                   Try checking your spelling or using different keywords
                 </p>
               </div>
