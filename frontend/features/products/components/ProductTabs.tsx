@@ -483,8 +483,8 @@ export default function ProductTabs({
 
       {/* Tab Content: Description */}
       {activeTab === "description" && (
-        <div className="text-sm sm:text-base text-foreground/80 leading-relaxed max-w-3xl mx-auto text-center font-medium px-4">
-          <p className="whitespace-pre-line">
+        <div className="text-sm sm:text-base text-foreground/80 leading-relaxed max-w-3xl mx-auto text-center font-medium px-4 break-words break-all [overflow-wrap:anywhere]">
+          <p className="whitespace-pre-line break-words [overflow-wrap:anywhere]">
             {description || "No description available for this product."}
           </p>
         </div>

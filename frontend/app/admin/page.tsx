@@ -703,6 +703,33 @@ export default function AdminDashboardPage() {
       return;
     }
 
+    const shortWordCount = productForm.short_description.trim()
+      ? productForm.short_description.trim().split(/\s+/).length
+      : 0;
+    const detailWordCount = productForm.description.trim()
+      ? productForm.description.trim().split(/\s+/).length
+      : 0;
+
+    if (shortWordCount > 150) {
+      Swal.fire({
+        icon: "warning",
+        title: "Short Description Limit Exceeded",
+        text: `Short description cannot exceed 150 words (currently ${shortWordCount} words).`,
+        confirmButtonColor: "#ef4444",
+      });
+      return;
+    }
+
+    if (detailWordCount > 500) {
+      Swal.fire({
+        icon: "warning",
+        title: "Details Description Limit Exceeded",
+        text: `Details description cannot exceed 500 words (currently ${detailWordCount} words).`,
+        confirmButtonColor: "#ef4444",
+      });
+      return;
+    }
+
     const selectedCollectionId =
       parseInt(productForm.collection) ||
       (collections.length > 0 ? collections[0].id : null);
@@ -1418,43 +1445,81 @@ export default function AdminDashboardPage() {
                   </select>
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Short Description <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    rows={2}
-                    required
-                    value={productForm.short_description}
-                    onChange={(e) =>
-                      setProductForm({
-                        ...productForm,
-                        short_description: e.target.value,
-                      })
-                    }
-                    placeholder="Brief summarize your product"
-                    className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
-                  />
-                </div>
+                {(() => {
+                  const shortWords = productForm.short_description.trim()
+                    ? productForm.short_description.trim().split(/\s+/).length
+                    : 0;
+                  const detailWords = productForm.description.trim()
+                    ? productForm.description.trim().split(/\s+/).length
+                    : 0;
+                  return (
+                    <>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                            Short Description <span className="text-red-500">*</span>
+                          </label>
+                          <span
+                            className={`text-[10px] font-bold ${
+                              shortWords > 150 ? "text-red-500" : "opacity-60"
+                            }`}
+                          >
+                            {shortWords}/150 words
+                          </span>
+                        </div>
+                        <textarea
+                          rows={2}
+                          required
+                          value={productForm.short_description}
+                          onChange={(e) =>
+                            setProductForm({
+                              ...productForm,
+                              short_description: e.target.value,
+                            })
+                          }
+                          placeholder="Brief summarize your product"
+                          className={`px-4 py-2.5 border rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none transition-all ${
+                            shortWords > 150
+                              ? "border-red-500 ring-1 ring-red-500"
+                              : "border-foreground/15 focus:ring-2 focus:ring-accent"
+                          }`}
+                        />
+                      </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Details Description <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    rows={4}
-                    required
-                    value={productForm.description}
-                    onChange={(e) =>
-                      setProductForm({
-                        ...productForm,
-                        description: e.target.value,
-                      })
-                    }
-                    placeholder="Full product details, materials, sizing, specifications"
-                    className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
-                  />
-                </div>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex justify-between items-center">
+                          <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                            Details Description <span className="text-red-500">*</span>
+                          </label>
+                          <span
+                            className={`text-[10px] font-bold ${
+                              detailWords > 500 ? "text-red-500" : "opacity-60"
+                            }`}
+                          >
+                            {detailWords}/500 words
+                          </span>
+                        </div>
+                        <textarea
+                          rows={4}
+                          required
+                          value={productForm.description}
+                          onChange={(e) =>
+                            setProductForm({
+                              ...productForm,
+                              description: e.target.value,
+                            })
+                          }
+                          placeholder="Full product details, materials, sizing, specifications"
+                          className={`px-4 py-2.5 border rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none transition-all ${
+                            detailWords > 500
+                              ? "border-red-500 ring-1 ring-red-500"
+                              : "border-foreground/15 focus:ring-2 focus:ring-accent"
+                          }`}
+                        />
+                      </div>
+                    </>
+                  );
+                })()}
 
                 <button
                   type="submit"

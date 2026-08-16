@@ -29,6 +29,20 @@ class ProductSerializers(serializers.ModelSerializer):
         model = Product
         fields = ['id', 'title', 'short_description', 'description', 'slug', 'inventory', 'unit_price', 'discount_percent', 'discounted_price', 'price_with_tax', 'collection', 'images', 'is_photos_published', 'is_trending']
 
+    def validate_short_description(self, value):
+        if value:
+            word_count = len(value.strip().split())
+            if word_count > 150:
+                raise serializers.ValidationError(f'Short description cannot exceed 150 words (currently {word_count} words).')
+        return value
+
+    def validate_description(self, value):
+        if value:
+            word_count = len(value.strip().split())
+            if word_count > 500:
+                raise serializers.ValidationError(f'Details description cannot exceed 500 words (currently {word_count} words).')
+        return value
+
     def calculate_tax(self, product):
         return product.discounted_price * Decimal('1.1')
 

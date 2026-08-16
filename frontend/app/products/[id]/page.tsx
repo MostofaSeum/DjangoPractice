@@ -158,7 +158,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
 
             {/* Short Description */}
-            <p className="opacity-80 leading-relaxed text-xs mb-3 font-medium whitespace-pre-line">
+            <p className="opacity-80 leading-relaxed text-xs mb-3 font-medium whitespace-pre-line break-words [overflow-wrap:anywhere]">
               {product.short_description || "Short Description"}
             </p>
 
