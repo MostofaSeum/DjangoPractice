@@ -89,6 +89,8 @@ export default function AdminDashboardPage() {
   // Promotion states
   const [allProductsForPromo, setAllProductsForPromo] = useState<Product[]>([]);
   const [promoProductId, setPromoProductId] = useState<number | "">("");
+  const [promoSearchInput, setPromoSearchInput] = useState<string>("");
+  const [isPromoDropdownOpen, setIsPromoDropdownOpen] = useState<boolean>(false);
   const [promoDiscountPercent, setPromoDiscountPercent] = useState<string>("20");
   const [promoDiscountPrice, setPromoDiscountPrice] = useState<string>("");
   const [promoDescription, setPromoDescription] = useState<string>("");
@@ -97,7 +99,6 @@ export default function AdminDashboardPage() {
   const [promoSearch, setPromoSearch] = useState("");
   const [activePromoSearch, setActivePromoSearch] = useState("");
   const [promoPage, setPromoPage] = useState(1);
-  const [promoDropdownSearch, setPromoDropdownSearch] = useState("");
 
   // Search states
   const [productSearch, setProductSearch] = useState("");
@@ -291,6 +292,10 @@ export default function AdminDashboardPage() {
       const data = await res.json();
       if (res.ok) {
         Swal.fire("Success!", data.message || "Promotion applied successfully!", "success");
+        setPromoProductId("");
+        setPromoSearchInput("");
+        setPromoDiscountPrice("");
+        setPromoDescription("");
         fetchAdminData();
         fetchPromotions();
         fetchAllProductsForPromo();
@@ -1952,50 +1957,126 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <form onSubmit={handleApplyPromotion} className="space-y-5">
-                  {/* Product Selector with Filter */}
-                  <div>
-                    <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-                      Select Product ({promoProductsCatalog.length} available)
+                  {/* Live Product Search & Autocomplete Combobox */}
+                  <div className="relative">
+                    <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70 flex justify-between items-center">
+                      <span>Select Product ({promoProductsCatalog.length} available)</span>
+                      {selectedPromoProduct && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPromoProductId("");
+                            setPromoSearchInput("");
+                            setPromoDiscountPrice("");
+                            setIsPromoDropdownOpen(false);
+                          }}
+                          className="text-[9px] font-bold text-red-500 hover:underline uppercase"
+                        >
+                          Clear Selection
+                        </button>
+                      )}
                     </label>
-                    <input
-                      type="text"
-                      value={promoDropdownSearch}
-                      onChange={(e) => setPromoDropdownSearch(e.target.value)}
-                      placeholder="Filter product dropdown..."
-                      className="w-full mb-2 bg-background border border-foreground/15 rounded-xl px-3 py-2 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                    />
-                    <select
-                      value={promoProductId}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        setPromoProductId(val);
-                        const prod = promoProductsCatalog.find((p) => p.id === val);
-                        if (prod) {
-                          const pct = parseFloat(promoDiscountPercent) || 0;
-                          const calcPrice = prod.unit_price * (1 - pct / 100);
-                          setPromoDiscountPrice(calcPrice > 0 ? calcPrice.toFixed(2) : "0.00");
-                        }
-                      }}
-                      className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                      required
-                    >
-                      <option value="">-- Choose Product --</option>
-                      {promoProductsCatalog
-                        .filter(
-                          (prod) =>
-                            !promoDropdownSearch ||
-                            prod.title.toLowerCase().includes(promoDropdownSearch.toLowerCase()) ||
-                            String(prod.id).includes(promoDropdownSearch)
-                        )
-                        .map((prod) => (
-                          <option key={prod.id} value={prod.id}>
-                            #{prod.id} {prod.title} - Original: ${Number(prod.unit_price).toFixed(2)}
-                            {Number(prod.discount_percent || 0) > 0
-                              ? ` (-${Math.round(Number(prod.discount_percent || 0))}% on sale)`
-                              : ""}
-                          </option>
-                        ))}
-                    </select>
+
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={promoSearchInput}
+                        onFocus={() => setIsPromoDropdownOpen(true)}
+                        onChange={(e) => {
+                          setPromoSearchInput(e.target.value);
+                          setIsPromoDropdownOpen(true);
+                          if (!e.target.value) {
+                            setPromoProductId("");
+                          }
+                        }}
+                        placeholder="Type product name or ID..."
+                        className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent placeholder:font-normal shadow-inner"
+                        required={!promoProductId}
+                      />
+                      {selectedPromoProduct && (
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md bg-accent/20 text-accent font-black text-[10px] uppercase">
+                          #{selectedPromoProduct.id} Selected
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Floating Suggestions List */}
+                    {isPromoDropdownOpen && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-20"
+                          onClick={() => setIsPromoDropdownOpen(false)}
+                        />
+                        <div className="absolute left-0 right-0 top-full mt-1.5 z-30 bg-secondary border border-foreground/15 rounded-2xl shadow-2xl max-h-64 overflow-y-auto divide-y divide-foreground/10 p-1.5 backdrop-blur-md">
+                          {(() => {
+                            const query = promoSearchInput.toLowerCase().trim();
+                            const matches = promoProductsCatalog.filter(
+                              (prod) =>
+                                !query ||
+                                prod.title.toLowerCase().includes(query) ||
+                                String(prod.id).includes(query)
+                            );
+
+                            if (matches.length === 0) {
+                              return (
+                                <div className="p-4 text-center text-xs font-bold opacity-50">
+                                  No products found matching &ldquo;{promoSearchInput}&rdquo;
+                                </div>
+                              );
+                            }
+
+                            return matches.map((prod) => {
+                              const isSelected = prod.id === promoProductId;
+                              const isOnSale = Number(prod.discount_percent || 0) > 0;
+                              return (
+                                <div
+                                  key={prod.id}
+                                  onClick={() => {
+                                    setPromoProductId(prod.id);
+                                    setPromoSearchInput(prod.title);
+                                    setIsPromoDropdownOpen(false);
+                                    const pct = parseFloat(promoDiscountPercent) || 0;
+                                    const calcPrice = prod.unit_price * (1 - pct / 100);
+                                    setPromoDiscountPrice(
+                                      calcPrice > 0 ? calcPrice.toFixed(2) : "0.00"
+                                    );
+                                  }}
+                                  className={`p-2.5 rounded-xl cursor-pointer flex items-center justify-between gap-3 transition-all ${
+                                    isSelected
+                                      ? "bg-accent/20 border border-accent/40"
+                                      : "hover:bg-primary/5 dark:hover:bg-primary/30"
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2.5 min-w-0">
+                                    <div className="w-8 h-8 rounded-lg bg-background border border-foreground/10 flex items-center justify-center overflow-hidden shrink-0">
+                                      <ProductImage title={prod.title} images={prod.images} />
+                                    </div>
+                                    <div className="min-w-0">
+                                      <p className="text-xs font-bold text-foreground truncate">
+                                        #{prod.id} {prod.title}
+                                      </p>
+                                      <p className="text-[10px] text-foreground/60 font-semibold">
+                                        Original: ${Number(prod.unit_price).toFixed(2)}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  {isOnSale ? (
+                                    <span className="px-2 py-0.5 rounded bg-accent/15 text-accent font-black text-[9px] uppercase shrink-0">
+                                      -{Math.round(Number(prod.discount_percent || 0))}%
+                                    </span>
+                                  ) : (
+                                    <span className="text-[10px] font-bold text-foreground/40 shrink-0">
+                                      Select
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            });
+                          })()}
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   {/* Display Previous Price if Product Selected */}
