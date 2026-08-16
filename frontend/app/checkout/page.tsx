@@ -20,7 +20,9 @@ export default function CheckoutPage() {
 
   const [phone, setPhone] = useState("");
   const [shippingAddress, setShippingAddress] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"C" | "O" | "N" | "V">("C");
+  const [paymentMethod, setPaymentMethod] = useState<"C" | "O" | "N" | "V">(
+    "C",
+  );
   const [vibeCoin, setVibeCoin] = useState<number>(0);
   const [transactionId, setTransactionId] = useState("");
   const [transactionPhoneNo, setTransactionPhoneNo] = useState("");
@@ -87,7 +89,7 @@ export default function CheckoutPage() {
     }
 
     const hasMatchingProduct = cart.items.some((item) =>
-      appliedCoupon.applicableProductIds.includes(item.product.id)
+      appliedCoupon.applicableProductIds.includes(item.product.id),
     );
 
     if (!hasMatchingProduct) {
@@ -107,33 +109,45 @@ export default function CheckoutPage() {
   const isCartEmpty = !cart || cart.items.length === 0;
 
   // Calculate Subtotals, Product Discounts, and Coupon Savings
-  const originalSubtotal = cart?.items.reduce((sum, item) => {
-    const unitPrice = Number(item.product.unit_price || 0);
-    return sum + unitPrice * item.quantity;
-  }, 0) || 0;
+  const originalSubtotal =
+    cart?.items.reduce((sum, item) => {
+      const unitPrice = Number(item.product.unit_price || 0);
+      return sum + unitPrice * item.quantity;
+    }, 0) || 0;
 
-  const discountedSubtotal = cart?.items.reduce((sum, item) => {
-    const unitPrice = Number(item.product.unit_price || 0);
-    const discountPercent = Number((item.product as any).discount_percent || 0);
-    const effectiveUnitPrice = (item.product as any).discounted_price !== undefined 
-      ? Number((item.product as any).discounted_price)
-      : (discountPercent > 0 ? unitPrice * (1 - discountPercent / 100) : unitPrice);
-    return sum + effectiveUnitPrice * item.quantity;
-  }, 0) || 0;
+  const discountedSubtotal =
+    cart?.items.reduce((sum, item) => {
+      const unitPrice = Number(item.product.unit_price || 0);
+      const discountPercent = Number(
+        (item.product as any).discount_percent || 0,
+      );
+      const effectiveUnitPrice =
+        (item.product as any).discounted_price !== undefined
+          ? Number((item.product as any).discounted_price)
+          : discountPercent > 0
+            ? unitPrice * (1 - discountPercent / 100)
+            : unitPrice;
+      return sum + effectiveUnitPrice * item.quantity;
+    }, 0) || 0;
 
-  const productDiscountSavings = Math.max(0, originalSubtotal - discountedSubtotal);
+  const productDiscountSavings = Math.max(
+    0,
+    originalSubtotal - discountedSubtotal,
+  );
 
   const couponSavings = appliedCoupon
     ? cart?.items.reduce((sum, item) => {
         if (appliedCoupon.applicableProductIds.includes(item.product.id)) {
           const unitPrice = Number(item.product.unit_price || 0);
-          const discountPercent = Number((item.product as any).discount_percent || 0);
+          const discountPercent = Number(
+            (item.product as any).discount_percent || 0,
+          );
           const effectiveUnitPrice =
             (item.product as any).discounted_price !== undefined
               ? Number((item.product as any).discounted_price)
               : discountPercent > 0
-              ? unitPrice * (1 - discountPercent / 100)
-              : unitPrice;
+                ? unitPrice * (1 - discountPercent / 100)
+                : unitPrice;
           return (
             sum +
             ((effectiveUnitPrice * appliedCoupon.discountPercent) / 100) *
@@ -155,7 +169,9 @@ export default function CheckoutPage() {
   const isOrderValid =
     phone.trim().length > 0 &&
     shippingAddress.trim().length > 0 &&
-    (!isOnlinePayment || (transactionId.trim().length > 0 && transactionPhoneNo.trim().length > 0)) &&
+    (!isOnlinePayment ||
+      (transactionId.trim().length > 0 &&
+        transactionPhoneNo.trim().length > 0)) &&
     (!isVibeCoinPayment || hasSufficientVibeCoin);
 
   const handleSubmitOrder = async (e: React.FormEvent) => {
@@ -186,7 +202,7 @@ export default function CheckoutPage() {
 
       if (res.ok) {
         const orderData = await res.json();
-        
+
         // Reset local cart storage & coupon storage
         localStorage.removeItem("cart_id");
         localStorage.removeItem("applied_coupon");
@@ -271,7 +287,10 @@ export default function CheckoutPage() {
           Checkout & Shipping
         </h1>
 
-        <form onSubmit={handleSubmitOrder} className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
+        <form
+          onSubmit={handleSubmitOrder}
+          className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start"
+        >
           {/* Shipping & Payment Info (2 Columns) */}
           <div className="lg:col-span-2 space-y-8">
             {/* Contact & Address Section */}
@@ -293,7 +312,9 @@ export default function CheckoutPage() {
                     required
                     maxLength={11}
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                    onChange={(e) =>
+                      setPhone(e.target.value.replace(/\D/g, "").slice(0, 11))
+                    }
                     placeholder="e.g. 01700000000"
                     className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
                   />
@@ -412,13 +433,18 @@ export default function CheckoutPage() {
                     !hasSufficientVibeCoin
                       ? "opacity-50 cursor-not-allowed border-foreground/10 bg-secondary"
                       : paymentMethod === "V"
-                      ? "border-accent bg-accent/10 shadow-sm cursor-pointer"
-                      : "border-foreground/10 bg-secondary hover:border-accent/50 cursor-pointer"
+                        ? "border-accent bg-accent/10 shadow-sm cursor-pointer"
+                        : "border-foreground/10 bg-secondary hover:border-accent/50 cursor-pointer"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-black text-xs uppercase tracking-tight flex items-center gap-1.5 text-foreground">
-                      <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" className="w-5 h-5 object-contain" /> VIBECOIN
+                      <img
+                        src="/VibeCoin/VibeCoin.png"
+                        alt="VibeCoin"
+                        className="w-5 h-5 object-contain"
+                      />{" "}
+                      VIBECOIN
                     </span>
                     <input
                       type="radio"
@@ -434,11 +460,13 @@ export default function CheckoutPage() {
                   <p className="text-xs font-medium text-foreground">
                     {!hasSufficientVibeCoin ? (
                       <span className="opacity-70 font-bold block">
-                        Blocked (Balance: {Number(vibeCoin).toFixed(2)} VC, Needed: {requiredCoins.toFixed(2)} VC)
+                        Blocked (Balance: {Number(vibeCoin).toFixed(2)} VC,
+                        Needed: {requiredCoins.toFixed(2)} VC)
                       </span>
                     ) : (
                       <span className="opacity-80">
-                        Pay with VibeCoins ({Number(vibeCoin).toFixed(2)} VC available).
+                        Pay with VibeCoins ({Number(vibeCoin).toFixed(2)} VC
+                        available).
                       </span>
                     )}
                   </p>
@@ -449,10 +477,19 @@ export default function CheckoutPage() {
               {paymentMethod === "V" && (
                 <div className="mt-6 p-6 rounded-2xl bg-secondary border border-foreground/15 space-y-2">
                   <p className="text-xs font-black uppercase tracking-wider text-accent flex items-center gap-1.5">
-                    <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" className="w-4 h-4 object-contain" /> VibeCoin Payment Ready
+                    <img
+                      src="/VibeCoin/VibeCoin.png"
+                      alt="VibeCoin"
+                      className="w-4 h-4 object-contain"
+                    />{" "}
+                    VibeCoin Payment Ready
                   </p>
                   <p className="text-xs font-semibold text-foreground opacity-80">
-                    Your order total of <strong>{requiredCoins.toFixed(2)} VC</strong> will be automatically deducted from your VibeCoin profile balance (Current: <strong>{Number(vibeCoin).toFixed(2)} VC</strong>) upon order confirmation.
+                    Your order total of{" "}
+                    <strong>{requiredCoins.toFixed(2)} VC</strong> will be
+                    automatically deducted from your VibeCoin profile balance
+                    (Current: <strong>{Number(vibeCoin).toFixed(2)} VC</strong>)
+                    upon order confirmation.
                   </p>
                 </div>
               )}
@@ -494,7 +531,11 @@ export default function CheckoutPage() {
             </h2>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between opacity-80 font-medium">
-                <span>{productDiscountSavings > 0 ? "Original Subtotal" : "Subtotal"}</span>
+                <span>
+                  {productDiscountSavings > 0
+                    ? "Original Subtotal"
+                    : "Subtotal"}
+                </span>
                 <span className="font-bold text-foreground">
                   ${originalSubtotal.toFixed(2)}
                 </span>
@@ -510,7 +551,8 @@ export default function CheckoutPage() {
               {appliedCoupon && couponSavings > 0 && (
                 <div className="flex justify-between text-accent font-bold">
                   <span>
-                    Coupon ({appliedCoupon.code} - {appliedCoupon.discountPercent}% OFF)
+                    Coupon ({appliedCoupon.code} -{" "}
+                    {appliedCoupon.discountPercent}% OFF)
                   </span>
                   <span>-${couponSavings.toFixed(2)}</span>
                 </div>
@@ -518,7 +560,9 @@ export default function CheckoutPage() {
 
               <div className="flex justify-between opacity-80 font-medium">
                 <span>Shipping</span>
-                <span className="font-bold text-green-500 uppercase text-xs">Free</span>
+                <span className="font-bold text-green-500 uppercase text-xs">
+                  Free
+                </span>
               </div>
               <div className="pt-3 border-t border-foreground/10 flex justify-between items-center text-base font-black">
                 <span>Total Amount</span>

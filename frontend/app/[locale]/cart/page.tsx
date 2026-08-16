@@ -44,7 +44,7 @@ export default function CartPage() {
     }
 
     const hasMatchingProduct = cart.items.some((item) =>
-      appliedCoupon.applicableProductIds.includes(item.product.id)
+      appliedCoupon.applicableProductIds.includes(item.product.id),
     );
 
     if (!hasMatchingProduct) {
@@ -88,21 +88,31 @@ export default function CartPage() {
   const isCartEmpty = !cart || cart.items.length === 0;
 
   // Calculate Subtotals & Product Discounts
-  const originalSubtotal = cart?.items.reduce((sum, item) => {
-    const unitPrice = Number(item.product.unit_price || 0);
-    return sum + unitPrice * item.quantity;
-  }, 0) || 0;
+  const originalSubtotal =
+    cart?.items.reduce((sum, item) => {
+      const unitPrice = Number(item.product.unit_price || 0);
+      return sum + unitPrice * item.quantity;
+    }, 0) || 0;
 
-  const discountedSubtotal = cart?.items.reduce((sum, item) => {
-    const unitPrice = Number(item.product.unit_price || 0);
-    const discountPercent = Number((item.product as any).discount_percent || 0);
-    const effectiveUnitPrice = (item.product as any).discounted_price !== undefined 
-      ? Number((item.product as any).discounted_price)
-      : (discountPercent > 0 ? unitPrice * (1 - discountPercent / 100) : unitPrice);
-    return sum + effectiveUnitPrice * item.quantity;
-  }, 0) || 0;
+  const discountedSubtotal =
+    cart?.items.reduce((sum, item) => {
+      const unitPrice = Number(item.product.unit_price || 0);
+      const discountPercent = Number(
+        (item.product as any).discount_percent || 0,
+      );
+      const effectiveUnitPrice =
+        (item.product as any).discounted_price !== undefined
+          ? Number((item.product as any).discounted_price)
+          : discountPercent > 0
+            ? unitPrice * (1 - discountPercent / 100)
+            : unitPrice;
+      return sum + effectiveUnitPrice * item.quantity;
+    }, 0) || 0;
 
-  const productDiscountSavings = Math.max(0, originalSubtotal - discountedSubtotal);
+  const productDiscountSavings = Math.max(
+    0,
+    originalSubtotal - discountedSubtotal,
+  );
 
   // Handle Coupon Application via Backend Validation
   const handleApplyCoupon = async (e: React.FormEvent) => {
@@ -198,13 +208,15 @@ export default function CartPage() {
     ? cart?.items.reduce((sum, item) => {
         if (appliedCoupon.applicableProductIds.includes(item.product.id)) {
           const unitPrice = Number(item.product.unit_price || 0);
-          const discountPercent = Number((item.product as any).discount_percent || 0);
+          const discountPercent = Number(
+            (item.product as any).discount_percent || 0,
+          );
           const effectiveUnitPrice =
             (item.product as any).discounted_price !== undefined
               ? Number((item.product as any).discounted_price)
               : discountPercent > 0
-              ? unitPrice * (1 - discountPercent / 100)
-              : unitPrice;
+                ? unitPrice * (1 - discountPercent / 100)
+                : unitPrice;
           return (
             sum +
             ((effectiveUnitPrice * appliedCoupon.discountPercent) / 100) *
@@ -251,11 +263,16 @@ export default function CartPage() {
             <div className="lg:col-span-2 space-y-4">
               {cart.items.map((item) => {
                 const unitPrice = Number(item.product.unit_price || 0);
-                const discountPercent = Number((item.product as any).discount_percent || 0);
+                const discountPercent = Number(
+                  (item.product as any).discount_percent || 0,
+                );
                 const hasDiscount = discountPercent > 0;
-                const effectiveUnitPrice = (item.product as any).discounted_price !== undefined 
-                  ? Number((item.product as any).discounted_price)
-                  : (hasDiscount ? unitPrice * (1 - discountPercent / 100) : unitPrice);
+                const effectiveUnitPrice =
+                  (item.product as any).discounted_price !== undefined
+                    ? Number((item.product as any).discounted_price)
+                    : hasDiscount
+                      ? unitPrice * (1 - discountPercent / 100)
+                      : unitPrice;
                 const itemTotal = effectiveUnitPrice * item.quantity;
                 const originalItemTotal = unitPrice * item.quantity;
 
@@ -268,11 +285,18 @@ export default function CartPage() {
                       <div className="w-20 h-20 bg-primary/5 dark:bg-primary/40 rounded-2xl flex items-center justify-center flex-shrink-0 relative overflow-hidden">
                         {hasDiscount && (
                           <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-accent text-button-fg font-extrabold text-[8px] uppercase tracking-wider shadow-md z-10 flex items-center gap-0.5">
-                            <img src="/discount.png" alt="Discount" className="w-2.5 h-2.5 object-contain brightness-0 invert" />
+                            <img
+                              src="/discount.png"
+                              alt="Discount"
+                              className="w-2.5 h-2.5 object-contain brightness-0 invert"
+                            />
                             -{Math.round(discountPercent)}%
                           </span>
                         )}
-                        <ProductImage title={item.product.title} images={(item.product as any).images} />
+                        <ProductImage
+                          title={item.product.title}
+                          images={(item.product as any).images}
+                        />
                       </div>
                       <div>
                         <h3 className="font-black text-lg uppercase tracking-tight">
@@ -335,7 +359,9 @@ export default function CartPage() {
 
                       {/* Delete Button */}
                       <button
-                        onClick={() => handleRemoveItem(item.id, item.product.title)}
+                        onClick={() =>
+                          handleRemoveItem(item.id, item.product.title)
+                        }
                         className="opacity-50 hover:text-red-500 transition-colors p-2"
                         title="Remove item"
                         type="button"
@@ -368,7 +394,11 @@ export default function CartPage() {
 
               <div className="space-y-3.5 text-sm font-medium mb-6">
                 <div className="flex justify-between opacity-80">
-                  <span>{productDiscountSavings > 0 ? "Original Subtotal" : "Subtotal"}</span>
+                  <span>
+                    {productDiscountSavings > 0
+                      ? "Original Subtotal"
+                      : "Subtotal"}
+                  </span>
                   <span className="font-bold">
                     ${originalSubtotal.toFixed(2)}
                   </span>
@@ -378,7 +408,7 @@ export default function CartPage() {
                   <>
                     <div className="flex justify-between text-accent font-bold">
                       <span className="flex items-center gap-1">
-                       Product Discounts
+                        Product Discounts
                       </span>
                       <span>-${productDiscountSavings.toFixed(2)}</span>
                     </div>
@@ -419,7 +449,8 @@ export default function CartPage() {
                     <div className="flex items-center justify-between p-3 rounded-xl bg-accent/15 border border-accent/30">
                       <div>
                         <span className="text-xs font-black text-accent uppercase tracking-wider block">
-                          {appliedCoupon.code} ({appliedCoupon.discountPercent}% OFF)
+                          {appliedCoupon.code} ({appliedCoupon.discountPercent}%
+                          OFF)
                         </span>
                         <span className="text-[10px] text-accent font-bold">
                           Saved ${couponSavings.toFixed(2)}
