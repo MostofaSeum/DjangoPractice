@@ -400,14 +400,18 @@ class PromotionViewSet(ModelViewSet):
     @action(detail=False, methods=['post'])
     def remove(self, request):
         target_type = request.data.get('target_type')
-        if target_type == 'collection':
+        if target_type == 'all':
+            updated_count = Product.objects.filter(discount_percent__gt=0).update(discount_percent=0.00)
+            Promotion.objects.all().delete()
+            return Response({'message': f'Successfully removed all active promotions from {updated_count} product(s).', 'updated_count': updated_count})
+        elif target_type == 'collection':
             collection_id = request.data.get('collection_id')
             updated_count = Product.objects.filter(collection_id=collection_id).update(discount_percent=0.00)
         elif target_type == 'product':
             product_id = request.data.get('product_id')
             updated_count = Product.objects.filter(pk=product_id).update(discount_percent=0.00)
         else:
-            return Response({'error': 'Invalid target_type.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Invalid target_type. Must be "all", "product", or "collection".'}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'message': f'Removed promotion from {updated_count} product(s).', 'updated_count': updated_count})
 

@@ -304,15 +304,18 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleRemovePromotion = async (targetType: "product" | "collection", targetId: number) => {
+  const handleRemovePromotion = async (targetType: "product" | "collection" | "all", targetId?: number) => {
+    const isAll = targetType === "all";
     const confirm = await Swal.fire({
-      title: "Remove Promotion?",
-      text: "Are you sure you want to remove this promotion discount?",
+      title: isAll ? "Remove All Discounts?" : "Remove Promotion?",
+      text: isAll
+        ? "Are you sure you want to remove discounts from ALL products across the entire store?"
+        : "Are you sure you want to remove this promotion discount?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "var(--accent)",
+      confirmButtonColor: isAll ? "#ef4444" : "var(--accent)",
       cancelButtonColor: "var(--button-bg)",
-      confirmButtonText: "Yes, Remove",
+      confirmButtonText: isAll ? "Yes, Remove All" : "Yes, Remove",
       cancelButtonText: "Cancel",
     });
 
@@ -2059,9 +2062,20 @@ export default function AdminDashboardPage() {
               <div className="lg:col-span-2 space-y-6">
                 <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
-                    <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-                      Products Currently On Sale ({filteredOnSaleProducts.length})
-                    </h2>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
+                        Products Currently On Sale ({filteredOnSaleProducts.length})
+                      </h2>
+                      {onSaleProducts.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePromotion("all")}
+                          className="px-3 py-1 bg-red-500/15 text-red-500 hover:bg-red-500 hover:text-white rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all shadow-xs"
+                        >
+                          Remove All Discounts
+                        </button>
+                      )}
+                    </div>
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
