@@ -21,6 +21,7 @@ interface Product {
   inventory: number;
   slug: string;
   collection: number;
+  short_description?: string;
   description?: string;
   images?: { id?: number; image: string }[];
   is_trending?: boolean;
@@ -158,6 +159,7 @@ export default function AdminDashboardPage() {
     unit_price: "",
     inventory: "10",
     collection: "1",
+    short_description: "",
     description: "",
   });
 
@@ -643,6 +645,7 @@ export default function AdminDashboardPage() {
       unit_price: String(prod.unit_price || ""),
       inventory: String(prod.inventory || 0),
       collection: String(prod.collection || 1),
+      short_description: (prod as any).short_description || "",
       description: (prod as any).description || "",
     });
   };
@@ -672,6 +675,7 @@ export default function AdminDashboardPage() {
       unit_price: "",
       inventory: "10",
       collection: "1",
+      short_description: "",
       description: "",
     });
   };
@@ -680,6 +684,16 @@ export default function AdminDashboardPage() {
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
+
+    if (!productForm.short_description.trim() || !productForm.description.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "Descriptions Required",
+        text: "Please enter both a Short Description and a Details Description for the product.",
+        confirmButtonColor: "#ef4444",
+      });
+      return;
+    }
 
     try {
       const payload = {
@@ -690,6 +704,7 @@ export default function AdminDashboardPage() {
         unit_price: parseFloat(productForm.unit_price),
         inventory: parseInt(productForm.inventory),
         collection: parseInt(productForm.collection),
+        short_description: productForm.short_description,
         description: productForm.description,
       };
 
@@ -1383,10 +1398,30 @@ export default function AdminDashboardPage() {
 
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Description
+                    Short Description <span className="text-red-500">*</span>
                   </label>
                   <textarea
-                    rows={3}
+                    rows={2}
+                    required
+                    value={productForm.short_description}
+                    onChange={(e) =>
+                      setProductForm({
+                        ...productForm,
+                        short_description: e.target.value,
+                      })
+                    }
+                    placeholder="Brief summarize your product"
+                    className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                    Details Description <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    rows={4}
+                    required
                     value={productForm.description}
                     onChange={(e) =>
                       setProductForm({
@@ -1394,7 +1429,7 @@ export default function AdminDashboardPage() {
                         description: e.target.value,
                       })
                     }
-                    placeholder="Short product description..."
+                    placeholder="Full product details, materials, sizing, specifications"
                     className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
                   />
                 </div>

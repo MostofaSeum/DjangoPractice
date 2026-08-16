@@ -6,6 +6,7 @@ import AddToCartButton from '@/features/products/components/AddToCartButton';
 interface Product {
   id: number;
   title: string;
+  short_description?: string | null;
   description: string | null;
   slug: string;
   inventory: number;
@@ -94,7 +95,7 @@ export default async function CollectionDetailPage({ params }: PageProps) {
                       <ProductImage title={product.title} images={product.images} />
                     </div>
                     <h3 className="font-bold text-lg text-foreground mb-1 line-clamp-1 group-hover:text-accent transition-colors">{product.title}</h3>
-                    <p className="opacity-70 text-xs line-clamp-2 mb-4 leading-relaxed">{product.description || 'No description available'}</p>
+                    <p className="opacity-70 text-xs line-clamp-2 mb-4 leading-relaxed">{product.short_description || product.description || 'No description available'}</p>
                   </div>
                   <div>
                     <div className="flex justify-between items-center mb-4">

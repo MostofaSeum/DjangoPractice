@@ -9,6 +9,7 @@ interface Product {
   unit_price: number;
   discount_percent?: number;
   discounted_price?: number;
+  short_description?: string;
   description: string;
   inventory?: number;
   images?: { id: number; image: string }[];
@@ -250,7 +251,7 @@ export default async function ProductsPage({
                           {product.title}
                         </h2>
                         <p className="opacity-70 text-xs line-clamp-2 mb-4 leading-relaxed">
-                          {product.description || "No description available"}
+                          {product.short_description || product.description || "No description available"}
                         </p>
                       </div>
                       <div>

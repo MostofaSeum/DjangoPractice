@@ -14,6 +14,7 @@ interface Product {
   discount_percent?: number;
   discounted_price?: number;
   inventory: number;
+  short_description?: string;
   description: string;
   collection: number | { id: number; title: string };
   images?: { id: number; image: string }[];
@@ -157,9 +158,8 @@ export default async function ProductDetailPage({ params }: PageProps) {
             </div>
 
             {/* Short Description */}
-            <p className="opacity-80 leading-relaxed text-xs mb-3 font-medium">
-              {product.description ||
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}
+            <p className="opacity-80 leading-relaxed text-xs mb-3 font-medium whitespace-pre-line">
+              {product.short_description || "Short Description"}
             </p>
 
             <hr className="border-foreground/10 my-2" />
