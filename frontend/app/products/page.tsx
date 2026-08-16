@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ProductImage from "@/components/ui/ProductImage";
 import AddToCartButton from "@/features/products/components/AddToCartButton";
+import ProductSearchBar from "@/features/products/components/ProductSearchBar";
 import { getApiBaseUrl } from "@/config/siteConfig";
 
 interface Product {
@@ -191,37 +192,13 @@ export default async function ProductsPage({
 
           {/* Right Panel*/}
           <div className="flex-1 w-full">
-            {/* Search Bar Form */}
-            <form
-              method="GET"
-              action="/products"
-              className="flex gap-2 mb-8 w-full max-w-3xl"
-            >
-              {/* Preserve other active parameters */}
-              {minPrice && (
-                <input type="hidden" name="minPrice" value={minPrice} />
-              )}
-              {maxPrice && (
-                <input type="hidden" name="maxPrice" value={maxPrice} />
-              )}
-              {ordering && (
-                <input type="hidden" name="ordering" value={ordering} />
-              )}
-
-              <input
-                type="text"
-                name="search"
-                defaultValue={search || ""}
-                placeholder="Search products by title or description..."
-                className="flex-1 px-5 py-3 border border-foreground/15 rounded-2xl bg-secondary text-sm text-foreground placeholder:text-foreground/50 outline-none focus:border-accent transition-colors shadow-sm"
-              />
-              <button
-                type="submit"
-                className="px-6 py-3 bg-button-bg text-button-fg rounded-2xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors"
-              >
-                Search
-              </button>
-            </form>
+            {/* Search Bar with Live Suggestions Dropdown */}
+            <ProductSearchBar
+              initialSearch={search || ""}
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              ordering={ordering}
+            />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.length > 0 ? (

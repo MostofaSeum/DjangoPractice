@@ -28,7 +28,7 @@ class ProductViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend,SearchFilter,OrderingFilter]
     pagination_class = ProductPagination
     filterset_class = ProductFilter
-    search_fields = ['title','description']
+    search_fields = ['title', 'short_description', 'description']
     ordering_fields = ['unit_price','last_update']
     permission_classes = [IsAdminOrReadOnly]
     def get_serializer_context(self):
