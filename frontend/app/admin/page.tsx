@@ -92,9 +92,7 @@ export default function AdminDashboardPage() {
   const [promoSearchInput, setPromoSearchInput] = useState<string>("");
   const [isPromoDropdownOpen, setIsPromoDropdownOpen] = useState<boolean>(false);
   const [promoDiscountPercent, setPromoDiscountPercent] = useState<string>("20");
-  const [promoDescription, setPromoDescription] = useState<string>("");
   const [promoApplying, setPromoApplying] = useState<boolean>(false);
-  const [promotionsList, setPromotionsList] = useState<{ id: number; description: string; discount: number; created_at: string }[]>([]);
   const [promoSearch, setPromoSearch] = useState("");
   const [activePromoSearch, setActivePromoSearch] = useState("");
   const [promoPage, setPromoPage] = useState(1);
@@ -114,9 +112,6 @@ export default function AdminDashboardPage() {
     customerId: number;
     orders: Order[];
   } | null>(null);
-
-  // Pagination State for Admin Products Table
-  const itemsPerPage = 8;
 
   // Selected Product for Edit
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
@@ -184,8 +179,7 @@ export default function AdminDashboardPage() {
           Array.isArray(custData) ? custData : custData.results || [],
         );
       }
-      // Fetch Promotions & All Products For Promo
-      fetchPromotions();
+      // Fetch All Products For Promo
       fetchAllProductsForPromo();
     } catch (err) {
       console.error("Failed to fetch admin data:", err);
@@ -212,18 +206,6 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const fetchPromotions = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/store/promotions/`);
-      if (res.ok) {
-        const data = await res.json();
-        setPromotionsList(Array.isArray(data) ? data : data.results || []);
-      }
-    } catch (err) {
-      console.error("Failed to fetch promotions:", err);
-    }
-  };
-
   const promoProductsCatalog = allProductsForPromo.length > 0 ? allProductsForPromo : products;
   const selectedPromoProducts = promoProductsCatalog.filter((p) => promoSelectedProductIds.includes(p.id));
 
@@ -239,6 +221,21 @@ export default function AdminDashboardPage() {
       return;
     }
 
+    const confirm = await Swal.fire({
+      title: "Apply Discount?",
+      text: `Are you sure you want to apply a ${pct}% discount to ${promoSelectedProductIds.length} selected product(s)?`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "var(--accent)",
+      cancelButtonColor: "var(--button-bg)",
+      confirmButtonText: `Yes, Apply ${pct}% OFF`,
+      cancelButtonText: "Cancel",
+    });
+
+    if (!confirm.isConfirmed) {
+      return;
+    }
+
     try {
       setPromoApplying(true);
       const res = await fetch(`${API_BASE}/store/promotions/apply/`, {
@@ -248,7 +245,6 @@ export default function AdminDashboardPage() {
           target_type: "product",
           product_ids: promoSelectedProductIds,
           discount_percent: pct,
-          description: promoDescription,
         }),
       });
 
@@ -257,9 +253,7 @@ export default function AdminDashboardPage() {
         Swal.fire("Success!", data.message || "Promotion applied successfully!", "success");
         setPromoSelectedProductIds([]);
         setPromoSearchInput("");
-        setPromoDescription("");
         fetchAdminData();
-        fetchPromotions();
         fetchAllProductsForPromo();
       } else {
         Swal.fire("Error", data.error || "Failed to apply promotion.", "error");
@@ -280,7 +274,7 @@ export default function AdminDashboardPage() {
         : "Are you sure you want to remove this promotion discount?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: isAll ? "#ef4444" : "var(--accent)",
+      confirmButtonColor: "var(--accent)",
       cancelButtonColor: "var(--button-bg)",
       confirmButtonText: isAll ? "Yes, Remove All" : "Yes, Remove",
       cancelButtonText: "Cancel",
@@ -309,7 +303,6 @@ export default function AdminDashboardPage() {
           toast: true,
         });
         fetchAdminData();
-        fetchPromotions();
         fetchAllProductsForPromo();
       } else {
         Swal.fire("Error", data.error || "Failed to remove promotion.", "error");
@@ -1666,13 +1659,13 @@ export default function AdminDashboardPage() {
                 <p>
                   <strong>Payment Method:</strong>{" "}
                   {selectedOrderDetails.payment_method === "O" ? (
-                    <span className="text-[#e2136e] font-black uppercase">Online / bKash</span>
+                    <span className="text-bkash font-black uppercase">Online / bKash</span>
                   ) : (
                     <span className="font-black uppercase">Cash on Delivery (COD)</span>
                   )}
                 </p>
                 {selectedOrderDetails.payment_method === "O" && (
-                  <p><strong>bKash TrxID:</strong> <code className="bg-secondary px-2 py-0.5 rounded font-mono font-bold text-[#e2136e]">{selectedOrderDetails.transaction_id || "N/A"}</code></p>
+                  <p><strong>bKash TrxID:</strong> <code className="bg-secondary px-2 py-0.5 rounded font-mono font-bold text-bkash">{selectedOrderDetails.transaction_id || "N/A"}</code></p>
                 )}
               </div>
 
@@ -2103,12 +2096,12 @@ export default function AdminDashboardPage() {
                         value={promoDiscountPercent}
                         onChange={(e) => setPromoDiscountPercent(e.target.value)}
                         placeholder="e.g. 20"
-                        className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                        className="w-full bg-background border border-foreground/15 rounded-xl px-4 pr-20 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shadow-inner"
                         required
                       />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-xs text-foreground/50">
+                      <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none px-2 py-1 rounded-lg bg-accent/20 text-accent font-extrabold text-[10px] uppercase tracking-wider">
                         % OFF
-                      </span>
+                      </div>
                     </div>
                   </div>
 
@@ -2270,36 +2263,6 @@ export default function AdminDashboardPage() {
                     </div>
                   )}
                 </div>
-
-                {/* Created Promotions Log */}
-                {promotionsList.length > 0 && (
-                  <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm space-y-4">
-                    <h3 className="text-xs font-black uppercase tracking-widest text-foreground">
-                      Promotion History Log ({promotionsList.length})
-                    </h3>
-                    <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                      {promotionsList.map((promo) => (
-                        <div
-                          key={promo.id}
-                          className="p-3 rounded-xl bg-background border border-foreground/10 flex justify-between items-center text-xs"
-                        >
-                          <div>
-                            <p className="font-bold text-foreground">{promo.description}</p>
-                            <p className="text-[10px] opacity-60">
-                              Created:{" "}
-                              {promo.created_at
-                                ? new Date(promo.created_at).toLocaleString()
-                                : "N/A"}
-                            </p>
-                          </div>
-                          <span className="px-2.5 py-1 rounded-full bg-accent/20 text-accent font-extrabold text-[10px]">
-                            {promo.discount}% OFF
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           );
