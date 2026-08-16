@@ -6,6 +6,7 @@ import { useCart } from "@/hooks/useCart";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Swal from "sweetalert2";
+import BkashPaymentUI from "@/components/BkashPaymentUI";
 
 const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
@@ -375,48 +376,15 @@ export default function CheckoutPage() {
 
               {/* bKash Extra Fields */}
               {paymentMethod === "O" && (
-                <div className="mt-6 p-6 rounded-2xl bg-bkash/10 border border-bkash/30 space-y-4">
-                  <div className="text-xs font-bold text-bkash space-y-1">
-                    <p className="font-black uppercase tracking-wider">
-                      bKash Payment Instructions:
-                    </p>
-                    <p>1. Go to your bKash Mobile App or Dial *247#</p>
-                    <p>2. Select <strong>Send Money</strong> or <strong>Payment</strong> to <strong>01700000000</strong></p>
-                    <p>3. Complete payment for <strong>${Number(cart.total_price).toFixed(2)}</strong></p>
-                    <p>4. Enter Sender Mobile Number & TrxID below:</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-bold uppercase tracking-wider text-foreground">
-                        Sender bKash Mobile*
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        maxLength={11}
-                        value={transactionPhoneNo}
-                        onChange={(e) => setTransactionPhoneNo(e.target.value.replace(/\D/g, "").slice(0, 11))}
-                        placeholder="e.g. 01712345678"
-                        className="px-4 py-3 border border-bkash/40 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-bkash shadow-sm"
-                      />
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-bold uppercase tracking-wider text-foreground">
-                        bKash Transaction ID (TrxID) *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        maxLength={11}
-                        value={transactionId}
-                        onChange={(e) => setTransactionId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 11))}
-                        placeholder="e.g. 9B7X2K1L8M"
-                        className="px-4 py-3 border border-bkash/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase outline-none focus:ring-2 focus:ring-bkash shadow-sm"
-                      />
-                    </div>
-                  </div>
+                <div className="mt-6">
+                  <BkashPaymentUI
+                    amount={cart ? Number(cart.total_price).toFixed(2) : "0.00"}
+                    currency="BDT"
+                    transactionPhoneNo={transactionPhoneNo}
+                    setTransactionPhoneNo={setTransactionPhoneNo}
+                    transactionId={transactionId}
+                    setTransactionId={setTransactionId}
+                  />
                 </div>
               )}
 
