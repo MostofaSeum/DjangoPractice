@@ -375,17 +375,28 @@ class PromotionViewSet(ModelViewSet):
                 except Collection.DoesNotExist:
                     description = f"Collection #{collection_id} ({discount_val}% OFF)"
 
-        elif target_type == 'product':
-            product_id = request.data.get('product_id')
-            if not product_id:
-                return Response({'error': 'product_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
-            updated_count = Product.objects.filter(pk=product_id).update(discount_percent=discount_val)
+        elif target_type in ['product', 'products']:
+            product_ids = request.data.get('product_ids')
+            if not product_ids:
+                single_id = request.data.get('product_id')
+                if single_id:
+                    product_ids = [single_id]
+                else:
+                    return Response({'error': 'product_ids is required.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if isinstance(product_ids, (int, str)):
+                product_ids = [product_ids]
+
+            updated_count = Product.objects.filter(pk__in=product_ids).update(discount_percent=discount_val)
             if not description:
-                try:
-                    prod = Product.objects.get(pk=product_id)
-                    description = f"Product '{prod.title}' ({discount_val}% OFF)"
-                except Product.DoesNotExist:
-                    description = f"Product #{product_id} ({discount_val}% OFF)"
+                if len(product_ids) == 1:
+                    try:
+                        prod = Product.objects.get(pk=product_ids[0])
+                        description = f"Product '{prod.title}' ({discount_val}% OFF)"
+                    except Product.DoesNotExist:
+                        description = f"Product #{product_ids[0]} ({discount_val}% OFF)"
+                else:
+                    description = f"{updated_count} Products ({discount_val}% OFF)"
         else:
             return Response({'error': 'Invalid target_type. Must be "product" or "collection".'}, status=status.HTTP_400_BAD_REQUEST)
 

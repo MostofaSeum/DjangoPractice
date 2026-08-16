@@ -88,11 +88,10 @@ export default function AdminDashboardPage() {
 
   // Promotion states
   const [allProductsForPromo, setAllProductsForPromo] = useState<Product[]>([]);
-  const [promoProductId, setPromoProductId] = useState<number | "">("");
+  const [promoSelectedProductIds, setPromoSelectedProductIds] = useState<number[]>([]);
   const [promoSearchInput, setPromoSearchInput] = useState<string>("");
   const [isPromoDropdownOpen, setIsPromoDropdownOpen] = useState<boolean>(false);
   const [promoDiscountPercent, setPromoDiscountPercent] = useState<string>("20");
-  const [promoDiscountPrice, setPromoDiscountPrice] = useState<string>("");
   const [promoDescription, setPromoDescription] = useState<string>("");
   const [promoApplying, setPromoApplying] = useState<boolean>(false);
   const [promotionsList, setPromotionsList] = useState<{ id: number; description: string; discount: number; created_at: string }[]>([]);
@@ -226,54 +225,18 @@ export default function AdminDashboardPage() {
   };
 
   const promoProductsCatalog = allProductsForPromo.length > 0 ? allProductsForPromo : products;
-  const selectedPromoProduct = promoProductsCatalog.find((p) => p.id === Number(promoProductId));
-
-  const handleDiscountPercentChange = (percentStr: string) => {
-    setPromoDiscountPercent(percentStr);
-    if (selectedPromoProduct) {
-      const pct = parseFloat(percentStr) || 0;
-      const calcPrice = selectedPromoProduct.unit_price * (1 - pct / 100);
-      setPromoDiscountPrice(calcPrice > 0 ? calcPrice.toFixed(2) : "0.00");
-    }
-  };
-
-  const handleDiscountPriceChange = (priceStr: string) => {
-    setPromoDiscountPrice(priceStr);
-    if (selectedPromoProduct && selectedPromoProduct.unit_price > 0) {
-      const newPrice = parseFloat(priceStr) || 0;
-      const pct = ((selectedPromoProduct.unit_price - newPrice) / selectedPromoProduct.unit_price) * 100;
-      setPromoDiscountPercent(pct > 0 ? pct.toFixed(1) : "0");
-    }
-  };
+  const selectedPromoProducts = promoProductsCatalog.filter((p) => promoSelectedProductIds.includes(p.id));
 
   const handleApplyPromotion = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!promoProductId) {
-      Swal.fire("Error", "Please select a product.", "error");
+    if (promoSelectedProductIds.length === 0) {
+      Swal.fire("Error", "Please select at least one product.", "error");
       return;
     }
     const pct = parseFloat(promoDiscountPercent);
     if (isNaN(pct) || pct < 0 || pct > 100) {
       Swal.fire("Error", "Please enter a valid discount percentage (0-100).", "error");
       return;
-    }
-
-    const currentDiscount = Number(selectedPromoProduct?.discount_percent || 0);
-    if (currentDiscount > 0) {
-      const confirm = await Swal.fire({
-        title: "Product Already Discounted!",
-        text: `"${selectedPromoProduct?.title}" currently has an active ${currentDiscount}% discount. Do you want to change it to ${pct}%?`,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "var(--accent)",
-        cancelButtonColor: "var(--button-bg)",
-        confirmButtonText: "Yes, Change Discount",
-        cancelButtonText: "No, Keep Existing",
-      });
-
-      if (!confirm.isConfirmed) {
-        return;
-      }
     }
 
     try {
@@ -283,7 +246,7 @@ export default function AdminDashboardPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           target_type: "product",
-          product_id: promoProductId,
+          product_ids: promoSelectedProductIds,
           discount_percent: pct,
           description: promoDescription,
         }),
@@ -292,9 +255,8 @@ export default function AdminDashboardPage() {
       const data = await res.json();
       if (res.ok) {
         Swal.fire("Success!", data.message || "Promotion applied successfully!", "success");
-        setPromoProductId("");
+        setPromoSelectedProductIds([]);
         setPromoSearchInput("");
-        setPromoDiscountPrice("");
         setPromoDescription("");
         fetchAdminData();
         fetchPromotions();
@@ -1957,25 +1919,51 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <form onSubmit={handleApplyPromotion} className="space-y-5">
-                  {/* Live Product Search & Autocomplete Combobox */}
+                  {/* Multi-Product Live Search & Selector */}
                   <div className="relative">
-                    <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70 flex justify-between items-center">
-                      <span>Select Product ({promoProductsCatalog.length} available)</span>
-                      {selectedPromoProduct && (
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="block text-[10px] font-extrabold uppercase tracking-wider opacity-70">
+                        Select Products ({promoProductsCatalog.length} available)
+                      </label>
+                      {promoSelectedProductIds.length > 0 && (
                         <button
                           type="button"
                           onClick={() => {
-                            setPromoProductId("");
+                            setPromoSelectedProductIds([]);
                             setPromoSearchInput("");
-                            setPromoDiscountPrice("");
-                            setIsPromoDropdownOpen(false);
                           }}
                           className="text-[9px] font-bold text-red-500 hover:underline uppercase"
                         >
-                          Clear Selection
+                          Clear All ({promoSelectedProductIds.length})
                         </button>
                       )}
-                    </label>
+                    </div>
+
+                    {/* Selected Products Chips */}
+                    {selectedPromoProducts.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mb-3 p-2.5 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 max-h-36 overflow-y-auto">
+                        {selectedPromoProducts.map((p) => (
+                          <span
+                            key={p.id}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary text-foreground border border-foreground/15 text-[11px] font-bold shadow-2xs"
+                          >
+                            <span className="truncate max-w-[130px]">#{p.id} {p.title}</span>
+                            <span className="text-accent text-[10px] font-mono">${Number(p.unit_price).toFixed(2)}</span>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setPromoSelectedProductIds((prev) =>
+                                  prev.filter((id) => id !== p.id)
+                                )
+                              }
+                              className="text-foreground/50 hover:text-red-500 font-black ml-0.5 text-xs"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
 
                     <div className="relative">
                       <input
@@ -1985,17 +1973,13 @@ export default function AdminDashboardPage() {
                         onChange={(e) => {
                           setPromoSearchInput(e.target.value);
                           setIsPromoDropdownOpen(true);
-                          if (!e.target.value) {
-                            setPromoProductId("");
-                          }
                         }}
-                        placeholder="Type product name or ID..."
+                        placeholder="Search product to add to selection..."
                         className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent placeholder:font-normal shadow-inner"
-                        required={!promoProductId}
                       />
-                      {selectedPromoProduct && (
+                      {promoSelectedProductIds.length > 0 && (
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md bg-accent/20 text-accent font-black text-[10px] uppercase">
-                          #{selectedPromoProduct.id} Selected
+                          {promoSelectedProductIds.length} Selected
                         </span>
                       )}
                     </div>
@@ -2025,116 +2009,119 @@ export default function AdminDashboardPage() {
                               );
                             }
 
-                            return matches.map((prod) => {
-                              const isSelected = prod.id === promoProductId;
-                              const isOnSale = Number(prod.discount_percent || 0) > 0;
-                              return (
-                                <div
-                                  key={prod.id}
-                                  onClick={() => {
-                                    setPromoProductId(prod.id);
-                                    setPromoSearchInput(prod.title);
-                                    setIsPromoDropdownOpen(false);
-                                    const pct = parseFloat(promoDiscountPercent) || 0;
-                                    const calcPrice = prod.unit_price * (1 - pct / 100);
-                                    setPromoDiscountPrice(
-                                      calcPrice > 0 ? calcPrice.toFixed(2) : "0.00"
-                                    );
-                                  }}
-                                  className={`p-2.5 rounded-xl cursor-pointer flex items-center justify-between gap-3 transition-all ${
-                                    isSelected
-                                      ? "bg-accent/20 border border-accent/40"
-                                      : "hover:bg-primary/5 dark:hover:bg-primary/30"
-                                  }`}
-                                >
-                                  <div className="flex items-center gap-2.5 min-w-0">
-                                    <div className="w-8 h-8 rounded-lg bg-background border border-foreground/10 flex items-center justify-center overflow-hidden shrink-0">
-                                      <ProductImage title={prod.title} images={prod.images} />
-                                    </div>
-                                    <div className="min-w-0">
-                                      <p className="text-xs font-bold text-foreground truncate">
-                                        #{prod.id} {prod.title}
-                                      </p>
-                                      <p className="text-[10px] text-foreground/60 font-semibold">
-                                        Original: ${Number(prod.unit_price).toFixed(2)}
-                                      </p>
-                                    </div>
-                                  </div>
-
-                                  {isOnSale ? (
-                                    <span className="px-2 py-0.5 rounded bg-accent/15 text-accent font-black text-[9px] uppercase shrink-0">
-                                      -{Math.round(Number(prod.discount_percent || 0))}%
-                                    </span>
-                                  ) : (
-                                    <span className="text-[10px] font-bold text-foreground/40 shrink-0">
-                                      Select
-                                    </span>
-                                  )}
+                            return (
+                              <>
+                                <div className="p-2 flex justify-between items-center text-[10px] font-bold text-foreground/60">
+                                  <span>{matches.length} matching products</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const matchIds = matches.map((m) => m.id);
+                                      setPromoSelectedProductIds((prev) =>
+                                        Array.from(new Set([...prev, ...matchIds]))
+                                      );
+                                    }}
+                                    className="text-accent hover:underline uppercase"
+                                  >
+                                    + Select All ({matches.length})
+                                  </button>
                                 </div>
-                              );
-                            });
+                                {matches.map((prod) => {
+                                  const isSelected = promoSelectedProductIds.includes(prod.id);
+                                  const isOnSale = Number(prod.discount_percent || 0) > 0;
+                                  return (
+                                    <div
+                                      key={prod.id}
+                                      onClick={() => {
+                                        setPromoSelectedProductIds((prev) =>
+                                          prev.includes(prod.id)
+                                            ? prev.filter((id) => id !== prod.id)
+                                            : [...prev, prod.id]
+                                        );
+                                      }}
+                                      className={`p-2.5 rounded-xl cursor-pointer flex items-center justify-between gap-3 transition-all ${
+                                        isSelected
+                                          ? "bg-accent/20 border border-accent/40"
+                                          : "hover:bg-primary/5 dark:hover:bg-primary/30"
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-2.5 min-w-0">
+                                        <input
+                                          type="checkbox"
+                                          checked={isSelected}
+                                          onChange={() => {}}
+                                          className="w-4 h-4 rounded accent-accent shrink-0 cursor-pointer pointer-events-none"
+                                        />
+                                        <div className="relative w-9 h-9 rounded-lg bg-background border border-foreground/10 flex items-center justify-center overflow-hidden shrink-0">
+                                          <ProductImage title={prod.title} images={prod.images} />
+                                        </div>
+                                        <div className="min-w-0">
+                                          <p className="text-xs font-bold text-foreground truncate">
+                                            #{prod.id} {prod.title}
+                                          </p>
+                                          <p className="text-[10px] text-foreground/60 font-semibold">
+                                            Original: ${Number(prod.unit_price).toFixed(2)}
+                                          </p>
+                                        </div>
+                                      </div>
+
+                                      {isOnSale ? (
+                                        <span className="px-2 py-0.5 rounded bg-accent/15 text-accent font-black text-[9px] uppercase shrink-0">
+                                          -{Math.round(Number(prod.discount_percent || 0))}%
+                                        </span>
+                                      ) : (
+                                        <span
+                                          className={`text-[10px] font-bold shrink-0 ${
+                                            isSelected ? "text-accent" : "text-foreground/40"
+                                          }`}
+                                        >
+                                          {isSelected ? "Selected" : "+ Add"}
+                                        </span>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </>
+                            );
                           })()}
                         </div>
                       </>
                     )}
                   </div>
 
-                  {/* Display Previous Price if Product Selected */}
-                  {selectedPromoProduct && (
-                    <div className="p-4 rounded-2xl bg-primary/10 border border-foreground/10 space-y-1 text-xs">
-                      <p className="font-bold text-foreground opacity-70 uppercase tracking-wider text-[10px]">
-                        Product Details
-                      </p>
-                      <div className="flex justify-between items-center font-black">
-                        <span>{selectedPromoProduct.title}</span>
-                        <span className="text-accent text-sm">
-                          Original: ${Number(selectedPromoProduct.unit_price).toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Inputs for Discount % and New Price */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-                        Discount %
-                      </label>
+                  {/* Input for Discount % */}
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+                      Discount Percentage (%)
+                    </label>
+                    <div className="relative">
                       <input
                         type="number"
                         step="0.1"
-                        min="0"
+                        min="1"
                         max="100"
                         value={promoDiscountPercent}
-                        onChange={(e) => handleDiscountPercentChange(e.target.value)}
+                        onChange={(e) => setPromoDiscountPercent(e.target.value)}
                         placeholder="e.g. 20"
                         className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                         required
                       />
-                    </div>
-
-                    <div>
-                      <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-                        New Price ($)
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={promoDiscountPrice}
-                        onChange={(e) => handleDiscountPriceChange(e.target.value)}
-                        placeholder="New Price"
-                        className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 font-black text-xs text-foreground/50">
+                        % OFF
+                      </span>
                     </div>
                   </div>
 
                   <button
                     type="submit"
-                    disabled={promoApplying}
+                    disabled={promoApplying || promoSelectedProductIds.length === 0}
                     className="w-full py-4 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50"
                   >
-                    {promoApplying ? "Applying Promotion..." : "Apply Promotion Now"}
+                    {promoApplying
+                      ? "Applying Promotion..."
+                      : promoSelectedProductIds.length > 0
+                      ? `Apply ${promoDiscountPercent}% Discount (${promoSelectedProductIds.length} Products)`
+                      : "Select Products to Apply Discount"}
                   </button>
                 </form>
               </div>
