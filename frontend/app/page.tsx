@@ -82,7 +82,7 @@ export default async function Home() {
   let featuredCollections: Collection[] = [];
 
   try {
-    const res = await fetch(`${apiBaseUrl}/store/products/`, {
+    const res = await fetch(`${apiBaseUrl}/store/products/?is_trending=true&page_size=8`, {
       cache: "no-store",
     });
     if (res.ok) {
@@ -90,7 +90,7 @@ export default async function Home() {
       const products: Product[] = Array.isArray(data)
         ? data
         : data.results || [];
-      trendingProducts = products.filter((p: any) => p.is_trending).slice(0, 4);
+      trendingProducts = products.filter((p: any) => p.is_trending).slice(0, 8);
     }
   } catch (err) {
     console.error("Failed to fetch trending products:", err);
