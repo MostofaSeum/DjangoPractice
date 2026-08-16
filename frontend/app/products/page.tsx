@@ -2,6 +2,7 @@ import Link from "next/link";
 import ProductImage from "@/components/ui/ProductImage";
 import AddToCartButton from "@/features/products/components/AddToCartButton";
 import ProductSearchBar from "@/features/products/components/ProductSearchBar";
+import ProductSortSelect from "@/features/products/components/ProductSortSelect";
 import { getApiBaseUrl } from "@/config/siteConfig";
 
 interface Product {
@@ -132,51 +133,17 @@ export default async function ProductsPage({
               </form>
             </aside>
 
-            {/* Sort by Price*/}
+            {/* Sort Ordering */}
             <section className="bg-secondary p-6 rounded-2xl border border-foreground/10 shadow-sm text-foreground transition-colors duration-300">
               <h2 className="text-xs font-black uppercase tracking-widest mb-6 pb-2 border-b border-foreground/10">
                 Sort Ordering
               </h2>
-              <form
-                method="GET"
-                action="/products"
-                className="flex flex-col gap-5"
-              >
-                {/* Keep active price filters and search parameters */}
-                {minPrice && (
-                  <input type="hidden" name="minPrice" value={minPrice} />
-                )}
-                {maxPrice && (
-                  <input type="hidden" name="maxPrice" value={maxPrice} />
-                )}
-                {search && <input type="hidden" name="search" value={search} />}
-
-                <div className="flex flex-col gap-1.5">
-                  <label
-                    htmlFor="sort"
-                    className="text-[10px] font-bold uppercase tracking-wider opacity-70"
-                  >
-                    Sort Ordering
-                  </label>
-                  <select
-                    id="sort"
-                    name="ordering"
-                    defaultValue={ordering || ""}
-                    className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-secondary text-sm text-foreground outline-none focus:border-accent transition-colors w-full cursor-pointer shadow-sm"
-                  >
-                    <option value="" className="bg-secondary text-foreground">Default</option>
-                    <option value="unit_price" className="bg-secondary text-foreground">Price: Low to High</option>
-                    <option value="-unit_price" className="bg-secondary text-foreground">Price: High to Low</option>
-                  </select>
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors pt-2"
-                >
-                  Apply Ordering
-                </button>
-              </form>
+              <ProductSortSelect
+                currentOrdering={ordering}
+                minPrice={minPrice}
+                maxPrice={maxPrice}
+                search={search}
+              />
             </section>
 
             {/* Clear All Filters Button */}

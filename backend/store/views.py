@@ -23,13 +23,13 @@ class ProductPagination(PageNumberPagination):
 
 # Create your views here.
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.prefetch_related('images').all()
+    queryset = Product.objects.prefetch_related('images').annotate(popularity=Count('orderitem')).all()
     serializer_class = ProductSerializers
     filter_backends = [DjangoFilterBackend,SearchFilter,OrderingFilter]
     pagination_class = ProductPagination
     filterset_class = ProductFilter
     search_fields = ['title', 'short_description', 'description']
-    ordering_fields = ['unit_price','last_update']
+    ordering_fields = ['unit_price', 'last_update', 'id', 'popularity']
     permission_classes = [IsAdminOrReadOnly]
     def get_serializer_context(self):
         return {'request': self.request}
