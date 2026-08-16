@@ -158,7 +158,7 @@ export default function AdminDashboardPage() {
     slug: "",
     unit_price: "",
     inventory: "10",
-    collection: "1",
+    collection: "",
     short_description: "",
     description: "",
   });
@@ -190,9 +190,17 @@ export default function AdminDashboardPage() {
       });
       if (colRes.ok) {
         const colData = await colRes.json();
-        setCollections(
-          Array.isArray(colData) ? colData : colData.results || [],
-        );
+        const fetchedCols = Array.isArray(colData) ? colData : colData.results || [];
+        setCollections(fetchedCols);
+        setProductForm((prev) => ({
+          ...prev,
+          collection:
+            prev.collection && fetchedCols.some((c: any) => String(c.id) === String(prev.collection))
+              ? prev.collection
+              : fetchedCols.length > 0
+              ? String(fetchedCols[0].id)
+              : "",
+        }));
       }
 
       // Fetch Orders
@@ -674,7 +682,7 @@ export default function AdminDashboardPage() {
       slug: "",
       unit_price: "",
       inventory: "10",
-      collection: "1",
+      collection: collections.length > 0 ? String(collections[0].id) : "",
       short_description: "",
       description: "",
     });
@@ -695,6 +703,20 @@ export default function AdminDashboardPage() {
       return;
     }
 
+    const selectedCollectionId =
+      parseInt(productForm.collection) ||
+      (collections.length > 0 ? collections[0].id : null);
+
+    if (!selectedCollectionId) {
+      Swal.fire({
+        icon: "warning",
+        title: "Collection Required",
+        text: "Please select a valid collection for the product.",
+        confirmButtonColor: "#ef4444",
+      });
+      return;
+    }
+
     try {
       const payload = {
         title: productForm.title,
@@ -703,7 +725,7 @@ export default function AdminDashboardPage() {
           productForm.title.toLowerCase().replace(/\s+/g, "-"),
         unit_price: parseFloat(productForm.unit_price),
         inventory: parseInt(productForm.inventory),
-        collection: parseInt(productForm.collection),
+        collection: selectedCollectionId,
         short_description: productForm.short_description,
         description: productForm.description,
       };
@@ -1379,7 +1401,7 @@ export default function AdminDashboardPage() {
                     Collection *
                   </label>
                   <select
-                    value={productForm.collection}
+                    value={productForm.collection || (collections.length > 0 ? String(collections[0].id) : "")}
                     onChange={(e) =>
                       setProductForm({
                         ...productForm,
@@ -1390,7 +1412,7 @@ export default function AdminDashboardPage() {
                   >
                     {collections.map((col) => (
                       <option key={col.id} value={col.id} className="bg-secondary text-foreground">
-                        {col.title} (ID: {col.id})
+                        {col.title}
                       </option>
                     ))}
                   </select>
