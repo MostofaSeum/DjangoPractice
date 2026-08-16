@@ -235,4 +235,36 @@ class Subscriber(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.email} ({self.created_at})"
+        return f"{self.email} ({self.created_at})"
+
+
+def default_coupon_expiry():
+    return timezone.now() + timedelta(days=30)
+
+
+class Coupon(models.Model):
+    TARGET_PRODUCT = 'product'
+    TARGET_COLLECTION = 'collection'
+    TARGET_CHOICES = [
+        (TARGET_PRODUCT, 'Specific Products'),
+        (TARGET_COLLECTION, 'Collection'),
+    ]
+
+    code = models.CharField(max_length=50, unique=True)
+    discount_percent = models.DecimalField(
+        max_digits=5, decimal_places=2,
+        validators=[MinValueValidator(0), MaxValueValidator(100)]
+    )
+    valid_from = models.DateTimeField(default=timezone.now)
+    valid_to = models.DateTimeField(default=default_coupon_expiry)
+    target_type = models.CharField(max_length=20, choices=TARGET_CHOICES, default=TARGET_PRODUCT)
+    products = models.ManyToManyField(Product, blank=True, related_name='coupons')
+    collection = models.ForeignKey(Collection, on_delete=models.SET_NULL, null=True, blank=True, related_name='coupons')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.code} ({self.discount_percent}%)"
+
+    class Meta:
+        ordering = ['-created_at']

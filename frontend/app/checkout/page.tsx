@@ -26,9 +26,23 @@ export default function CheckoutPage() {
   const [transactionPhoneNo, setTransactionPhoneNo] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discountPercent: number;
+    applicableProductIds: number[];
+  } | null>(null);
 
-  // Prefill phone/customer info on load
+  // Prefill phone/customer info and load applied coupon
   useEffect(() => {
+    try {
+      const savedCoupon = localStorage.getItem("applied_coupon");
+      if (savedCoupon) {
+        setAppliedCoupon(JSON.parse(savedCoupon));
+      }
+    } catch (e) {
+      console.error("Failed to load applied coupon:", e);
+    }
+
     if (authLoading) return;
 
     if (!token) {
@@ -62,12 +76,76 @@ export default function CheckoutPage() {
     fetchCustomerInfo();
   }, [token, authLoading, router]);
 
+  // Automatically remove coupon if no eligible items remain in cart
+  useEffect(() => {
+    if (!appliedCoupon || !cart) return;
+
+    if (cart.items.length === 0) {
+      setAppliedCoupon(null);
+      localStorage.removeItem("applied_coupon");
+      return;
+    }
+
+    const hasMatchingProduct = cart.items.some((item) =>
+      appliedCoupon.applicableProductIds.includes(item.product.id)
+    );
+
+    if (!hasMatchingProduct) {
+      setAppliedCoupon(null);
+      localStorage.removeItem("applied_coupon");
+      Swal.fire({
+        position: "top-end",
+        icon: "info",
+        title: `Coupon "${appliedCoupon.code}" was removed because eligible items are no longer in your cart.`,
+        showConfirmButton: false,
+        timer: 3000,
+        toast: true,
+      });
+    }
+  }, [cart, appliedCoupon]);
+
   const isCartEmpty = !cart || cart.items.length === 0;
 
-  const cartTotal = cart
-    ? cart.items.reduce((sum, item) => sum + item.quantity * Number(item.product.unit_price), 0)
+  // Calculate Subtotals, Product Discounts, and Coupon Savings
+  const originalSubtotal = cart?.items.reduce((sum, item) => {
+    const unitPrice = Number(item.product.unit_price || 0);
+    return sum + unitPrice * item.quantity;
+  }, 0) || 0;
+
+  const discountedSubtotal = cart?.items.reduce((sum, item) => {
+    const unitPrice = Number(item.product.unit_price || 0);
+    const discountPercent = Number((item.product as any).discount_percent || 0);
+    const effectiveUnitPrice = (item.product as any).discounted_price !== undefined 
+      ? Number((item.product as any).discounted_price)
+      : (discountPercent > 0 ? unitPrice * (1 - discountPercent / 100) : unitPrice);
+    return sum + effectiveUnitPrice * item.quantity;
+  }, 0) || 0;
+
+  const productDiscountSavings = Math.max(0, originalSubtotal - discountedSubtotal);
+
+  const couponSavings = appliedCoupon
+    ? cart?.items.reduce((sum, item) => {
+        if (appliedCoupon.applicableProductIds.includes(item.product.id)) {
+          const unitPrice = Number(item.product.unit_price || 0);
+          const discountPercent = Number((item.product as any).discount_percent || 0);
+          const effectiveUnitPrice =
+            (item.product as any).discounted_price !== undefined
+              ? Number((item.product as any).discounted_price)
+              : discountPercent > 0
+              ? unitPrice * (1 - discountPercent / 100)
+              : unitPrice;
+          return (
+            sum +
+            ((effectiveUnitPrice * appliedCoupon.discountPercent) / 100) *
+              item.quantity
+          );
+        }
+        return sum;
+      }, 0) || 0
     : 0;
-  const requiredCoins = Number(cartTotal.toFixed(2));
+
+  const finalTotal = Math.max(0, discountedSubtotal - couponSavings);
+  const requiredCoins = Number(finalTotal.toFixed(2));
   const userCoins = Number(Number(vibeCoin).toFixed(2));
   const hasSufficientVibeCoin = userCoins > 0 && userCoins >= requiredCoins;
 
@@ -94,6 +172,7 @@ export default function CheckoutPage() {
         payment_method: paymentMethod,
         transaction_id: isOnlinePayment ? transactionId : "",
         transaction_phone_no: isOnlinePayment ? transactionPhoneNo : "",
+        coupon_code: appliedCoupon?.code || "",
       };
 
       const res = await fetch(`${API_BASE}/store/orders/`, {
@@ -108,8 +187,9 @@ export default function CheckoutPage() {
       if (res.ok) {
         const orderData = await res.json();
         
-        // Reset local cart storage
+        // Reset local cart storage & coupon storage
         localStorage.removeItem("cart_id");
+        localStorage.removeItem("applied_coupon");
         await clearCart();
 
         await Swal.fire({
@@ -379,7 +459,7 @@ export default function CheckoutPage() {
               {paymentMethod === "O" && (
                 <div className="mt-6">
                   <BkashPaymentUI
-                    amount={cart ? Number(cart.total_price).toFixed(2) : "0.00"}
+                    amount={finalTotal.toFixed(2)}
                     currency="BDT"
                     transactionPhoneNo={transactionPhoneNo}
                     setTransactionPhoneNo={setTransactionPhoneNo}
@@ -393,7 +473,7 @@ export default function CheckoutPage() {
               {paymentMethod === "N" && (
                 <div className="mt-6">
                   <NagadPaymentUI
-                    amount={cart ? Number(cart.total_price).toFixed(2) : "0.00"}
+                    amount={finalTotal.toFixed(2)}
                     currency="BDT"
                     transactionPhoneNo={transactionPhoneNo}
                     setTransactionPhoneNo={setTransactionPhoneNo}
@@ -410,13 +490,30 @@ export default function CheckoutPage() {
             <h2 className="text-2xl font-black uppercase tracking-tight pb-4 border-b border-foreground/10">
               Order Summary
             </h2>
-            <div className=" space-y-3 text-sm">
+            <div className="space-y-3 text-sm">
               <div className="flex justify-between opacity-80 font-medium">
-                <span>Subtotal</span>
+                <span>Original Subtotal</span>
                 <span className="font-bold text-foreground">
-                  ${Number(cart.total_price).toFixed(2)}
+                  ${originalSubtotal.toFixed(2)}
                 </span>
               </div>
+
+              {productDiscountSavings > 0 && (
+                <div className="flex justify-between text-accent font-bold">
+                  <span>Product Discounts</span>
+                  <span>-${productDiscountSavings.toFixed(2)}</span>
+                </div>
+              )}
+
+              {appliedCoupon && couponSavings > 0 && (
+                <div className="flex justify-between text-accent font-bold">
+                  <span>
+                    Coupon ({appliedCoupon.code} - {appliedCoupon.discountPercent}% OFF)
+                  </span>
+                  <span>-${couponSavings.toFixed(2)}</span>
+                </div>
+              )}
+
               <div className="flex justify-between opacity-80 font-medium">
                 <span>Shipping</span>
                 <span className="font-bold text-green-500 uppercase text-xs">Free</span>
@@ -424,7 +521,7 @@ export default function CheckoutPage() {
               <div className="pt-3 border-t border-foreground/10 flex justify-between items-center text-base font-black">
                 <span>Total Amount</span>
                 <span className="text-2xl text-accent">
-                  ${Number(cart.total_price).toFixed(2)}
+                  ${finalTotal.toFixed(2)}
                 </span>
               </div>
             </div>

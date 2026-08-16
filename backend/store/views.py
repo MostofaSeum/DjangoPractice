@@ -2,8 +2,9 @@ from .permissions import ViewCustomerHistoryPermission
 from rest_framework.decorators import action
 from store.models import OrderItem
 from django.http import request
-from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,ProductImageSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer
-from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,GiftCard,WishlistItem,Subscriber,Promotion
+from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,ProductImageSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer
+from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,GiftCard,WishlistItem,Subscriber,Promotion,Coupon
+from django.utils import timezone
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter,OrderingFilter
@@ -426,4 +427,81 @@ class PromotionViewSet(ModelViewSet):
 
         return Response({'message': f'Removed promotion from {updated_count} product(s).', 'updated_count': updated_count})
 
-# Trigger Django reloader - updated with PromotionViewSet support
+
+class CouponViewSet(ModelViewSet):
+    queryset = Coupon.objects.prefetch_related('products').select_related('collection').all()
+    serializer_class = CouponSerializer
+    pagination_class = None
+    permission_classes = [AllowAny]
+
+    @action(detail=False, methods=['post'])
+    def validate(self, request):
+        raw_code = request.data.get('code', '')
+        code = str(raw_code).strip().upper()
+        cart_items = request.data.get('cart_items', [])
+
+        if not code:
+            return Response({'valid': False, 'error': 'Coupon code is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            coupon = Coupon.objects.prefetch_related('products').select_related('collection').get(code__iexact=code)
+        except Coupon.DoesNotExist:
+            return Response({'valid': False, 'error': f'Coupon "{code}" does not exist.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if not coupon.is_active:
+            return Response({'valid': False, 'error': f'Coupon "{coupon.code}" is currently disabled.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        now = timezone.now()
+        if coupon.valid_to and now > coupon.valid_to:
+            formatted_date = coupon.valid_to.strftime('%b %d, %Y')
+            return Response({'valid': False, 'error': f'Coupon "{coupon.code}" expired on {formatted_date}.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if coupon.valid_from and now < coupon.valid_from:
+            return Response({'valid': False, 'error': f'Coupon "{coupon.code}" is not active yet.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not cart_items or not isinstance(cart_items, list):
+            return Response({'valid': False, 'error': 'Cart items are required to validate this coupon.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Extract product IDs and check applicability
+        applicable_product_ids = []
+        discount_percent = float(coupon.discount_percent)
+
+        if coupon.target_type == 'product':
+            valid_product_ids = set(coupon.products.values_list('id', flat=True))
+            for item in cart_items:
+                p_id = item.get('product_id') or (item.get('product') and item.get('product', {}).get('id'))
+                if p_id and int(p_id) in valid_product_ids:
+                    applicable_product_ids.append(int(p_id))
+
+            if not applicable_product_ids:
+                return Response({
+                    'valid': False,
+                    'error': f'Coupon "{coupon.code}" is only valid for specific products not currently in your cart.'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+        elif coupon.target_type == 'collection':
+            collection_id = coupon.collection_id
+            product_ids_in_cart = []
+            for item in cart_items:
+                p_id = item.get('product_id') or (item.get('product') and item.get('product', {}).get('id'))
+                if p_id:
+                    product_ids_in_cart.append(int(p_id))
+
+            matching_products = Product.objects.filter(id__in=product_ids_in_cart, collection_id=collection_id).values_list('id', flat=True)
+            applicable_product_ids = list(matching_products)
+
+            if not applicable_product_ids:
+                col_name = coupon.collection.title if coupon.collection else f"Collection #{collection_id}"
+                return Response({
+                    'valid': False,
+                    'error': f'Coupon "{coupon.code}" is only valid for items in the "{col_name}" collection.'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({
+            'valid': True,
+            'code': coupon.code,
+            'discount_percent': discount_percent,
+            'target_type': coupon.target_type,
+            'applicable_product_ids': applicable_product_ids,
+            'message': f'Coupon "{coupon.code}" applied! {discount_percent}% discount applied on eligible item(s).'
+        }, status=status.HTTP_200_OK)

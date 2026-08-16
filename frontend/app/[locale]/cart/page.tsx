@@ -1,17 +1,65 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/hooks/useCart";
 import ProductImage from "@/components/ui/ProductImage";
 import Swal from "sweetalert2";
 
+const API_BASE = (
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
+).replace(/\/+$/, "");
+
 export default function CartPage() {
   const { cart, updateQuantity, removeFromCart } = useCart();
   const [couponInput, setCouponInput] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discountPercent: number } | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discountPercent: number;
+    applicableProductIds: number[];
+  } | null>(null);
   const [couponError, setCouponError] = useState("");
+  const [couponValidating, setCouponValidating] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("applied_coupon");
+      if (saved) {
+        setAppliedCoupon(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error("Failed to load saved coupon:", e);
+    }
+  }, []);
+
+  // Automatically remove coupon if no eligible items remain in cart
+  useEffect(() => {
+    if (!appliedCoupon || !cart) return;
+
+    if (cart.items.length === 0) {
+      setAppliedCoupon(null);
+      localStorage.removeItem("applied_coupon");
+      return;
+    }
+
+    const hasMatchingProduct = cart.items.some((item) =>
+      appliedCoupon.applicableProductIds.includes(item.product.id)
+    );
+
+    if (!hasMatchingProduct) {
+      setAppliedCoupon(null);
+      localStorage.removeItem("applied_coupon");
+      Swal.fire({
+        position: "top-end",
+        icon: "info",
+        title: `Coupon "${appliedCoupon.code}" was removed because eligible items are no longer in your cart.`,
+        showConfirmButton: false,
+        timer: 3000,
+        toast: true,
+      });
+    }
+  }, [cart, appliedCoupon]);
 
   const handleRemoveItem = async (itemId: number, itemTitle: string) => {
     const confirm = await Swal.fire({
@@ -19,8 +67,8 @@ export default function CartPage() {
       text: `Are you sure you want to remove "${itemTitle}" from your cart?`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#cc5555",
-      cancelButtonColor: "var(--primary)",
+      confirmButtonColor: "var(--accent)",
+      cancelButtonColor: "var(--button-bg)",
       confirmButtonText: "Yes, Remove",
     });
 
@@ -56,8 +104,8 @@ export default function CartPage() {
 
   const productDiscountSavings = Math.max(0, originalSubtotal - discountedSubtotal);
 
-  // Handle Coupon Application
-  const handleApplyCoupon = (e: React.FormEvent) => {
+  // Handle Coupon Application via Backend Validation
+  const handleApplyCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
     setCouponError("");
     const cleanCode = couponInput.trim().toUpperCase();
@@ -67,28 +115,106 @@ export default function CartPage() {
       return;
     }
 
-    if (cleanCode === "SAVE10" || cleanCode === "VIBE10" || cleanCode === "OFF10") {
-      setAppliedCoupon({ code: cleanCode, discountPercent: 10 });
-      Swal.fire({ position: "top-end", icon: "success", title: "10% Coupon Applied!", showConfirmButton: false, timer: 1500, toast: true });
-    } else if (cleanCode === "SAVE20" || cleanCode === "VIBE20" || cleanCode === "OFF20") {
-      setAppliedCoupon({ code: cleanCode, discountPercent: 20 });
-      Swal.fire({ position: "top-end", icon: "success", title: "20% Coupon Applied!", showConfirmButton: false, timer: 1500, toast: true });
-    } else if (cleanCode === "WELCOME" || cleanCode === "WELCOME5") {
-      setAppliedCoupon({ code: cleanCode, discountPercent: 5 });
-      Swal.fire({ position: "top-end", icon: "success", title: "5% Welcome Discount Applied!", showConfirmButton: false, timer: 1500, toast: true });
-    } else {
-      setAppliedCoupon({ code: cleanCode, discountPercent: 10 });
-      Swal.fire({ position: "top-end", icon: "success", title: `Coupon ${cleanCode} Applied (10% OFF)!`, showConfirmButton: false, timer: 1500, toast: true });
+    if (!cart || cart.items.length === 0) {
+      Swal.fire({
+        icon: "info",
+        title: "Cart is Empty",
+        text: "Please add products to your cart before applying a coupon.",
+        confirmButtonColor: "var(--accent)",
+      });
+      return;
+    }
+
+    try {
+      setCouponValidating(true);
+      const res = await fetch(`${API_BASE}/store/coupons/validate/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: cleanCode,
+          cart_items: cart.items.map((item) => ({
+            product_id: item.product.id,
+            quantity: item.quantity,
+            unit_price: item.product.unit_price,
+          })),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.valid) {
+        const couponData = {
+          code: data.code,
+          discountPercent: data.discount_percent,
+          applicableProductIds: data.applicable_product_ids || [],
+        };
+        setAppliedCoupon(couponData);
+        try {
+          localStorage.setItem("applied_coupon", JSON.stringify(couponData));
+        } catch (e) {}
+        setCouponError("");
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: `Coupon "${data.code}" Applied! (${data.discount_percent}% OFF)`,
+          showConfirmButton: false,
+          timer: 2000,
+          toast: true,
+        });
+      } else {
+        const errorMsg = data.error || "This coupon code is invalid.";
+        setCouponError(errorMsg);
+        Swal.fire({
+          icon: "error",
+          title: "Coupon Error",
+          text: errorMsg,
+          confirmButtonColor: "var(--accent)",
+        });
+      }
+    } catch (err) {
+      console.error("Coupon validation error:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Validation Error",
+        text: "Failed to validate coupon. Please check your network and try again.",
+        confirmButtonColor: "var(--accent)",
+      });
+    } finally {
+      setCouponValidating(false);
     }
   };
 
   const handleRemoveCoupon = () => {
     setAppliedCoupon(null);
+    try {
+      localStorage.removeItem("applied_coupon");
+    } catch (e) {}
     setCouponInput("");
     setCouponError("");
   };
 
-  const couponSavings = appliedCoupon ? (discountedSubtotal * appliedCoupon.discountPercent) / 100 : 0;
+  // Calculate savings on eligible products
+  const couponSavings = appliedCoupon
+    ? cart?.items.reduce((sum, item) => {
+        if (appliedCoupon.applicableProductIds.includes(item.product.id)) {
+          const unitPrice = Number(item.product.unit_price || 0);
+          const discountPercent = Number((item.product as any).discount_percent || 0);
+          const effectiveUnitPrice =
+            (item.product as any).discounted_price !== undefined
+              ? Number((item.product as any).discounted_price)
+              : discountPercent > 0
+              ? unitPrice * (1 - discountPercent / 100)
+              : unitPrice;
+          return (
+            sum +
+            ((effectiveUnitPrice * appliedCoupon.discountPercent) / 100) *
+              item.quantity
+          );
+        }
+        return sum;
+      }, 0) || 0
+    : 0;
+
   const finalTotal = Math.max(0, discountedSubtotal - couponSavings);
 
   return (
@@ -275,21 +401,23 @@ export default function CartPage() {
                         type="text"
                         value={couponInput}
                         onChange={(e) => setCouponInput(e.target.value)}
-                        placeholder="e.g. SAVE10"
+                        placeholder="e.g. SUMMER25"
+                        disabled={couponValidating}
                         className="flex-1 bg-background border border-foreground/15 rounded-xl px-3.5 py-2.5 text-xs font-bold uppercase text-foreground outline-none focus:ring-2 focus:ring-accent"
                       />
                       <button
                         type="submit"
-                        className="px-4 py-2.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-wider hover:opacity-90 transition-all shadow-sm"
+                        disabled={couponValidating || !couponInput.trim()}
+                        className="px-4 py-2.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-wider hover:opacity-90 transition-all shadow-sm disabled:opacity-50"
                       >
-                        Apply
+                        {couponValidating ? "Checking..." : "Apply"}
                       </button>
                     </form>
                   ) : (
                     <div className="flex items-center justify-between p-3 rounded-xl bg-accent/15 border border-accent/30">
                       <div>
                         <span className="text-xs font-black text-accent uppercase tracking-wider block">
-                          🎟️ {appliedCoupon.code} ({appliedCoupon.discountPercent}% OFF)
+                          {appliedCoupon.code} ({appliedCoupon.discountPercent}% OFF)
                         </span>
                         <span className="text-[10px] text-accent font-bold">
                           Saved ${couponSavings.toFixed(2)}

@@ -1,8 +1,8 @@
-from .signals import order_created
-from django.db.models import UUIDField
 from django.db import transaction
-from rest_framework import serializers 
-from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,GiftCard,WishlistItem,Subscriber,Promotion
+from django.utils import timezone
+from .signals import order_created
+from rest_framework import serializers
+from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,GiftCard,WishlistItem,Subscriber,Promotion,Coupon
 from decimal import Decimal
 
 # class ProductSerializers(serializers.Serializer):
@@ -228,6 +228,7 @@ class CreateOrderSerializer(serializers.Serializer):
     payment_method = serializers.CharField(max_length=1, required=False, default='C')
     transaction_id = serializers.CharField(max_length=255, required=False, allow_blank=True, default='')
     transaction_phone_no = serializers.CharField(max_length=255, required=False, allow_blank=True, default='')
+    coupon_code = serializers.CharField(max_length=50, required=False, allow_blank=True, default='')
 
     def validate_cart_id(self, cart_id):
         if not Cart.objects.filter(pk=cart_id).exists():
@@ -235,21 +236,68 @@ class CreateOrderSerializer(serializers.Serializer):
         if CartItem.objects.filter(cart_id=cart_id).count() == 0:
             raise serializers.ValidationError('This cart is empty.')
         return cart_id
-        
 
     def save(self, **kwargs):
         with transaction.atomic():
             cart_id = self.validated_data['cart_id']
             customer = Customer.objects.get(user_id=self.context['user_id'])
             payment_method = self.validated_data.get('payment_method', 'C')
+            raw_coupon_code = self.validated_data.get('coupon_code', '')
+            coupon_code = str(raw_coupon_code).strip().upper() if raw_coupon_code else ''
             
             cart_items = list(CartItem.objects.select_related('product').filter(cart_id=cart_id))
             if not cart_items:
                 raise serializers.ValidationError({'cart_id': 'The cart is empty.'})
 
+            # Check for valid coupon
+            active_coupon = None
+            if coupon_code:
+                try:
+                    c = Coupon.objects.prefetch_related('products').select_related('collection').get(code__iexact=coupon_code)
+                    now = timezone.now()
+                    if c.is_active and (not c.valid_from or now >= c.valid_from) and (not c.valid_to or now <= c.valid_to):
+                        active_coupon = c
+                except Coupon.DoesNotExist:
+                    pass
+
+            # Calculate effective price per item considering both product discount and coupon discount
+            order_items_data = []
+            for item in cart_items:
+                prod = item.product
+                unit_price = prod.unit_price
+                prod_discount = Decimal(str(prod.discount_percent or 0))
+                
+                # Base price after product-level promotion
+                if prod_discount > 0:
+                    effective_price = unit_price * (Decimal('1') - (prod_discount / Decimal('100')))
+                else:
+                    effective_price = unit_price
+
+                # Additional coupon discount if eligible
+                if active_coupon:
+                    is_eligible = False
+                    if active_coupon.target_type == 'product':
+                        is_eligible = active_coupon.products.filter(pk=prod.pk).exists()
+                    elif active_coupon.target_type == 'collection':
+                        is_eligible = (prod.collection_id == active_coupon.collection_id)
+                    
+                    if is_eligible:
+                        coupon_disc = Decimal(str(active_coupon.discount_percent or 0))
+                        if coupon_disc > 0:
+                            effective_price = effective_price * (Decimal('1') - (coupon_disc / Decimal('100')))
+
+                # Round to 2 decimals
+                effective_price = round(effective_price, 2)
+                order_items_data.append({
+                    'product': prod,
+                    'quantity': item.quantity,
+                    'unit_price': effective_price
+                })
+
             payment_status = Order.PAYMENT_STATUS_PENDING
+            order_total = sum(d['quantity'] * d['unit_price'] for d in order_items_data)
+
             if payment_method == 'V':
-                order_total = sum(item.quantity * item.product.unit_price for item in cart_items)
                 if customer.vibe_coin < order_total:
                     raise serializers.ValidationError({
                         'payment_method': f'Insufficient VibeCoin balance. Required: {order_total:.2f} VC, Available: {customer.vibe_coin:.2f} VC.'
@@ -270,10 +318,10 @@ class CreateOrderSerializer(serializers.Serializer):
             order_items = [
                 OrderItem(
                     order=order,
-                    product=item.product,
-                    quantity=item.quantity,
-                    unit_price=item.product.unit_price
-                ) for item in cart_items
+                    product=d['product'],
+                    quantity=d['quantity'],
+                    unit_price=d['unit_price']
+                ) for d in order_items_data
             ]
 
             OrderItem.objects.bulk_create(order_items)
@@ -356,4 +404,62 @@ class SubscriberSerializer(serializers.ModelSerializer):
         model = Subscriber
         fields = ['id', 'email', 'created_at']
         read_only_fields = ['id', 'created_at']
+
+
+class CouponSerializer(serializers.ModelSerializer):
+    product_ids = serializers.ListField(
+        child=serializers.IntegerField(), write_only=True, required=False, default=[]
+    )
+    product_count = serializers.SerializerMethodField()
+    collection_title = serializers.SerializerMethodField()
+    products_details = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Coupon
+        fields = [
+            'id', 'code', 'discount_percent', 'valid_from', 'valid_to',
+            'target_type', 'collection', 'collection_title', 'product_ids',
+            'product_count', 'products_details', 'is_active', 'created_at'
+        ]
+        read_only_fields = ['id', 'created_at']
+
+    def get_product_count(self, obj):
+        if obj.target_type == 'product':
+            return obj.products.count()
+        return 0
+
+    def get_collection_title(self, obj):
+        if obj.collection:
+            return obj.collection.title
+        return None
+
+    def get_products_details(self, obj):
+        if obj.target_type == 'product':
+            return list(obj.products.values('id', 'title', 'unit_price'))
+        return []
+
+    def create(self, validated_data):
+        product_ids = validated_data.pop('product_ids', [])
+        if 'code' in validated_data:
+            validated_data['code'] = validated_data['code'].strip().upper()
+
+        coupon = Coupon.objects.create(**validated_data)
+        if coupon.target_type == 'product' and product_ids:
+            coupon.products.set(product_ids)
+        return coupon
+
+    def update(self, instance, validated_data):
+        product_ids = validated_data.pop('product_ids', None)
+        if 'code' in validated_data:
+            validated_data['code'] = validated_data['code'].strip().upper()
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        if instance.target_type == 'product' and product_ids is not None:
+            instance.products.set(product_ids)
+        elif instance.target_type == 'collection':
+            instance.products.clear()
+        return instance
 

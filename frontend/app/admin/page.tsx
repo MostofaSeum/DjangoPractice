@@ -65,7 +65,22 @@ interface CustomerItem {
   customer_name?: string;
 }
 
-type Tab = "products" | "collections" | "orders" | "customers" | "promotions";
+interface CouponItem {
+  id: number;
+  code: string;
+  discount_percent: number;
+  valid_from: string;
+  valid_to: string;
+  target_type: "product" | "collection";
+  collection?: number | null;
+  collection_title?: string | null;
+  product_count?: number;
+  products_details?: { id: number; title: string; unit_price: number }[];
+  is_active: boolean;
+  created_at: string;
+}
+
+type Tab = "products" | "collections" | "orders" | "customers" | "promotions" | "coupons";
 
 export default function AdminDashboardPage() {
   const { user, token, logout, loading: authLoading } = useAuth();
@@ -96,6 +111,25 @@ export default function AdminDashboardPage() {
   const [promoSearch, setPromoSearch] = useState("");
   const [activePromoSearch, setActivePromoSearch] = useState("");
   const [promoPage, setPromoPage] = useState(1);
+
+  // Coupon states
+  const [editingCouponId, setEditingCouponId] = useState<number | null>(null);
+  const [couponsList, setCouponsList] = useState<CouponItem[]>([]);
+  const [couponCode, setCouponCode] = useState<string>("");
+  const [couponDiscountPercent, setCouponDiscountPercent] = useState<string>("20");
+  const [couponValidTo, setCouponValidTo] = useState<string>(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 30);
+    return d.toISOString().slice(0, 16);
+  });
+  const [couponTargetType, setCouponTargetType] = useState<"product" | "collection">("product");
+  const [couponSelectedProductIds, setCouponSelectedProductIds] = useState<number[]>([]);
+  const [couponCollectionId, setCouponCollectionId] = useState<number | "">("");
+  const [couponIsActive, setCouponIsActive] = useState<boolean>(true);
+  const [couponSearchInput, setCouponSearchInput] = useState<string>("");
+  const [isCouponDropdownOpen, setIsCouponDropdownOpen] = useState<boolean>(false);
+  const [couponCreating, setCouponCreating] = useState<boolean>(false);
+  const [couponFilterSearch, setCouponFilterSearch] = useState<string>("");
 
   // Search states
   const [productSearch, setProductSearch] = useState("");
@@ -179,12 +213,213 @@ export default function AdminDashboardPage() {
           Array.isArray(custData) ? custData : custData.results || [],
         );
       }
-      // Fetch All Products For Promo
+      // Fetch All Products For Promo & Coupons
       fetchAllProductsForPromo();
+      fetchCoupons();
     } catch (err) {
       console.error("Failed to fetch admin data:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCoupons = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/store/coupons/`, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        setCouponsList(Array.isArray(data) ? data : data.results || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch coupons:", err);
+    }
+  };
+
+  const handleEditCoupon = (coupon: CouponItem) => {
+    setEditingCouponId(coupon.id);
+    setCouponCode(coupon.code);
+    setCouponDiscountPercent(String(coupon.discount_percent));
+    setCouponValidTo(
+      coupon.valid_to
+        ? new Date(coupon.valid_to).toISOString().slice(0, 16)
+        : ""
+    );
+    setCouponTargetType(coupon.target_type);
+    setCouponCollectionId(coupon.collection || "");
+    setCouponIsActive(coupon.is_active);
+    if (coupon.target_type === "product" && coupon.products_details) {
+      setCouponSelectedProductIds(coupon.products_details.map((p) => p.id));
+    } else {
+      setCouponSelectedProductIds([]);
+    }
+    setCouponSearchInput("");
+  };
+
+  const handleCancelEditCoupon = () => {
+    setEditingCouponId(null);
+    setCouponCode("");
+    setCouponDiscountPercent("20");
+    const d = new Date();
+    d.setDate(d.getDate() + 30);
+    setCouponValidTo(d.toISOString().slice(0, 16));
+    setCouponTargetType("product");
+    setCouponSelectedProductIds([]);
+    setCouponCollectionId("");
+    setCouponIsActive(true);
+    setCouponSearchInput("");
+  };
+
+  const handleToggleCouponActive = async (coupon: CouponItem, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const nextStatus = !coupon.is_active;
+    try {
+      const res = await fetch(`${API_BASE}/store/coupons/${coupon.id}/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_active: nextStatus }),
+      });
+      if (res.ok) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: `Coupon "${coupon.code}" is now ${nextStatus ? "Active" : "Disabled"}`,
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+        });
+        fetchCoupons();
+        if (editingCouponId === coupon.id) {
+          setCouponIsActive(nextStatus);
+        }
+      } else {
+        Swal.fire("Error", "Failed to update coupon status.", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", "Network error while updating status.", "error");
+    }
+  };
+
+  const handleSaveCoupon = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanCode = couponCode.trim().toUpperCase();
+    if (!cleanCode) {
+      Swal.fire("Error", "Please enter a coupon code.", "error");
+      return;
+    }
+    const pct = parseFloat(couponDiscountPercent);
+    if (isNaN(pct) || pct <= 0 || pct > 100) {
+      Swal.fire("Error", "Please enter a valid discount percentage (1-100).", "error");
+      return;
+    }
+    if (!couponValidTo) {
+      Swal.fire("Error", "Please select an expiration date and time.", "error");
+      return;
+    }
+    if (couponTargetType === "product" && couponSelectedProductIds.length === 0) {
+      Swal.fire("Error", "Please select at least one product for this coupon.", "error");
+      return;
+    }
+    if (couponTargetType === "collection" && !couponCollectionId) {
+      Swal.fire("Error", "Please select a collection for this coupon.", "error");
+      return;
+    }
+
+    const targetDesc = couponTargetType === "product"
+      ? `${couponSelectedProductIds.length} product(s)`
+      : `Collection "${collections.find((c) => c.id === Number(couponCollectionId))?.title || couponCollectionId}"`;
+
+    const isEdit = editingCouponId !== null;
+    const confirm = await Swal.fire({
+      title: isEdit ? `Update Coupon ${cleanCode}?` : `Create Coupon ${cleanCode}?`,
+      text: `Are you sure you want to ${isEdit ? "update" : "create"} coupon "${cleanCode}" with a ${pct}% discount for ${targetDesc}? Status: ${couponIsActive ? "ACTIVE" : "DISABLED"}.`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "var(--accent)",
+      cancelButtonColor: "var(--button-bg)",
+      confirmButtonText: isEdit ? "Yes, Update Coupon" : "Yes, Create Coupon",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      setCouponCreating(true);
+      const url = isEdit ? `${API_BASE}/store/coupons/${editingCouponId}/` : `${API_BASE}/store/coupons/`;
+      const method = isEdit ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: cleanCode,
+          discount_percent: pct,
+          valid_to: new Date(couponValidTo).toISOString(),
+          target_type: couponTargetType,
+          product_ids: couponTargetType === "product" ? couponSelectedProductIds : [],
+          collection: couponTargetType === "collection" ? Number(couponCollectionId) : null,
+          is_active: couponIsActive,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: isEdit ? `Coupon "${cleanCode}" updated!` : `Coupon "${cleanCode}" created!`,
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+        });
+        handleCancelEditCoupon();
+        fetchCoupons();
+      } else {
+        const errorMsg = data.code ? `Code Error: ${data.code.join(" ")}` : data.error || `Failed to ${isEdit ? "update" : "create"} coupon.`;
+        Swal.fire("Error", errorMsg, "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", `Network error while ${isEdit ? "updating" : "creating"} coupon.`, "error");
+    } finally {
+      setCouponCreating(false);
+    }
+  };
+
+  const handleDeleteCoupon = async (couponId: number, code: string) => {
+    const confirm = await Swal.fire({
+      title: "Delete Coupon?",
+      text: `Are you sure you want to permanently delete coupon "${code}"?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "var(--accent)",
+      cancelButtonColor: "var(--button-bg)",
+      confirmButtonText: "Yes, Delete",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/store/coupons/${couponId}/`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: `Coupon "${code}" deleted.`,
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+        });
+        if (editingCouponId === couponId) {
+          handleCancelEditCoupon();
+        }
+        fetchCoupons();
+      } else {
+        Swal.fire("Error", "Failed to delete coupon.", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", "Network error while deleting coupon.", "error");
     }
   };
 
@@ -208,6 +443,7 @@ export default function AdminDashboardPage() {
 
   const promoProductsCatalog = allProductsForPromo.length > 0 ? allProductsForPromo : products;
   const selectedPromoProducts = promoProductsCatalog.filter((p) => promoSelectedProductIds.includes(p.id));
+  const selectedCouponProducts = promoProductsCatalog.filter((p) => couponSelectedProductIds.includes(p.id));
 
   const handleApplyPromotion = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -971,78 +1207,70 @@ export default function AdminDashboardPage() {
   return (
     <div className="min-h-screen bg-background text-foreground font-sans pb-24 transition-colors duration-300">
       {/* Top Banner */}
-      <div className="bg-primary text-background dark:text-foreground py-10 px-8 md:px-12 border-b border-white/10 shadow-md transition-colors duration-300">
-        <div className="max-w-[1400px] mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <span className="bg-accent text-white text-[10px] font-black px-3 py-1 uppercase tracking-widest rounded-md mb-2 inline-block">
-              Staff Portal
-            </span>
-            <div className="flex items-center gap-4">
-              <h1 className="text-3xl font-black uppercase tracking-tighter">
+      <div className="bg-primary text-background dark:text-foreground pt-8 pb-6 px-6 md:px-12 border-b border-white/10 shadow-md transition-colors duration-300">
+        <div className="max-w-[1400px] mx-auto space-y-6">
+          {/* Header Top Row: Title, Staff Badge, Actions */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="bg-accent text-white text-[9px] font-black px-2.5 py-0.5 uppercase tracking-widest rounded-md">
+                  Staff Portal
+                </span>
+              </div>
+              <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight">
                 Admin Dashboard
               </h1>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
               <button
                 onClick={handleLogout}
                 className="bg-accent/20 text-accent hover:bg-accent/30 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border border-accent/20 transition-colors"
               >
                 Logout
               </button>
-              <ThemeToggle />
             </div>
           </div>
 
-          {/* Navigation Tabs */}
-          <div className="flex gap-2 bg-primary/40 p-1.5 rounded-2xl border border-white/10">
-            <button
-              onClick={() => handleTabSwitch("products")}
-              className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
-                activeTab === "products"
-                  ? "bg-secondary text-foreground shadow-md"
-                  : "text-background/70 dark:text-foreground/70 hover:text-white"
-              }`}
-            >
-              Products ({totalProductsCount})
-            </button>
-            <button
-              onClick={() => handleTabSwitch("collections")}
-              className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
-                activeTab === "collections"
-                  ? "bg-secondary text-foreground shadow-md"
-                  : "text-background/70 dark:text-foreground/70 hover:text-white"
-              }`}
-            >
-              Collections ({collections.length})
-            </button>
-            <button
-              onClick={() => handleTabSwitch("orders")}
-              className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
-                activeTab === "orders"
-                  ? "bg-secondary text-foreground shadow-md"
-                  : "text-background/70 dark:text-foreground/70 hover:text-white"
-              }`}
-            >
-              Orders ({orders.length})
-            </button>
-            <button
-              onClick={() => handleTabSwitch("customers")}
-              className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
-                activeTab === "customers"
-                  ? "bg-secondary text-foreground shadow-md"
-                  : "text-background/70 dark:text-foreground/70 hover:text-white"
-              }`}
-            >
-              Customers ({customers.length})
-            </button>
-            <button
-              onClick={() => handleTabSwitch("promotions")}
-              className={`px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
-                activeTab === "promotions"
-                  ? "bg-secondary text-foreground shadow-md"
-                  : "text-background/70 dark:text-foreground/70 hover:text-white"
-              }`}
-            >
-             Manage Promotions ({promoProductsCatalog.filter(p => Number(p.discount_percent || 0) > 0).length})
-            </button>
+          {/* Navigation Tabs (Scrollable Segmented Control with Clean Count Pills) */}
+          <div className="flex items-center gap-1.5 p-1.5 bg-primary/60 dark:bg-black/30 backdrop-blur-md rounded-2xl border border-white/10 overflow-x-auto">
+            {[
+              { id: "products" as Tab, label: "Products", count: totalProductsCount },
+              { id: "collections" as Tab, label: "Collections", count: collections.length },
+              { id: "orders" as Tab, label: "Orders", count: orders.length },
+              { id: "customers" as Tab, label: "Customers", count: customers.length },
+              {
+                id: "promotions" as Tab,
+                label: "Promotions",
+                count: promoProductsCatalog.filter((p) => Number(p.discount_percent || 0) > 0).length,
+              },
+              { id: "coupons" as Tab, label: "Coupons", count: couponsList.length },
+            ].map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabSwitch(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 ${
+                    isActive
+                      ? "bg-secondary text-foreground shadow-sm scale-[1.02]"
+                      : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-black transition-colors ${
+                      isActive
+                        ? "bg-accent/20 text-accent"
+                        : "bg-white/10 text-background/80 dark:text-foreground/80"
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -1648,7 +1876,7 @@ export default function AdminDashboardPage() {
                   onClick={() => setSelectedOrderDetails(null)}
                   className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3 py-1.5 rounded-xl transition-colors uppercase"
                 >
-                  Close ✕
+                  Close
                 </button>
               </div>
 
@@ -1822,7 +2050,7 @@ export default function AdminDashboardPage() {
                   onClick={() => setCustomerHistoryModal(null)}
                   className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3 py-1.5 rounded-xl transition-colors uppercase"
                 >
-                  Close ✕
+                  Close
                 </button>
               </div>
 
@@ -2267,6 +2495,495 @@ export default function AdminDashboardPage() {
             </div>
           );
         })()}
+
+        {/* MANAGE COUPONS TAB */}
+        {activeTab === "coupons" && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
+            {/* Left Column: Create/Edit Coupon Form (1 Column) */}
+            <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm h-fit lg:sticky lg:top-24 transition-colors duration-300">
+              <div className="flex justify-between items-center mb-6 pb-2 border-b border-foreground/10">
+                <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
+                  {editingCouponId ? `Edit Coupon #${editingCouponId}` : "Create New Coupon"}
+                </h2>
+                {editingCouponId && (
+                  <button
+                    type="button"
+                    onClick={handleCancelEditCoupon}
+                    className="text-[10px] font-bold uppercase tracking-wider text-red-500 hover:underline"
+                  >
+                    Cancel Edit
+                  </button>
+                )}
+              </div>
+
+              <form onSubmit={handleSaveCoupon} className="space-y-5">
+                {/* Coupon Code Input */}
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+                    Coupon Code *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    placeholder="e.g. SUMMER25, VIP50"
+                    className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-sm font-black uppercase tracking-wider text-foreground outline-none focus:ring-2 focus:ring-accent shadow-inner"
+                  />
+                </div>
+
+                {/* Discount Percentage */}
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+                    Discount Percentage (%) *
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="1"
+                      max="100"
+                      required
+                      value={couponDiscountPercent}
+                      onChange={(e) => setCouponDiscountPercent(e.target.value)}
+                      placeholder="e.g. 20"
+                      className="w-full bg-background border border-foreground/15 rounded-xl px-4 pr-20 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shadow-inner"
+                    />
+                    <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none px-2 py-1 rounded-lg bg-accent/20 text-accent font-extrabold text-[10px] uppercase tracking-wider">
+                      % OFF
+                    </div>
+                  </div>
+                </div>
+
+                {/* Expiry Date & Time */}
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+                    Valid Until (Expiration Date & Time) *
+                  </label>
+                  <input
+                    type="datetime-local"
+                    required
+                    value={couponValidTo}
+                    onChange={(e) => setCouponValidTo(e.target.value)}
+                    className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent shadow-inner"
+                  />
+                </div>
+
+                {/* Status On/Off Toggle */}
+                <div className="flex items-center justify-between p-3.5 rounded-xl bg-background border border-foreground/15">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-wider text-foreground">
+                      Status: {couponIsActive ? "Active" : "Disabled"}
+                    </p>
+                    <p className="text-[10px] opacity-60 font-medium">
+                      {couponIsActive
+                        ? "Customers can redeem this coupon."
+                        : "Coupon is disabled and cannot be redeemed."}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCouponIsActive(!couponIsActive)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      couponIsActive ? "bg-accent" : "bg-foreground/20"
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                        couponIsActive ? "translate-x-5" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Target Scope Switcher */}
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+                    Apply Coupon To *
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 p-1 bg-primary/5 dark:bg-primary/20 rounded-xl border border-foreground/10">
+                    <button
+                      type="button"
+                      onClick={() => setCouponTargetType("product")}
+                      className={`py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
+                        couponTargetType === "product"
+                          ? "bg-secondary text-foreground shadow-sm"
+                          : "text-foreground/60 hover:text-foreground"
+                      }`}
+                    >
+                      Specific Products
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCouponTargetType("collection")}
+                      className={`py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
+                        couponTargetType === "collection"
+                          ? "bg-secondary text-foreground shadow-sm"
+                          : "text-foreground/60 hover:text-foreground"
+                      }`}
+                    >
+                      Collection
+                    </button>
+                  </div>
+                </div>
+
+                {/* If Target is Products: Live Search & Multi-Selector */}
+                {couponTargetType === "product" && (
+                  <div className="relative">
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="block text-[10px] font-extrabold uppercase tracking-wider opacity-70">
+                        Select Eligible Products ({promoProductsCatalog.length} available)
+                      </label>
+                      {couponSelectedProductIds.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCouponSelectedProductIds([]);
+                            setCouponSearchInput("");
+                          }}
+                          className="text-[9px] font-bold text-red-500 hover:underline uppercase"
+                        >
+                          Clear All ({couponSelectedProductIds.length})
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Selected Products Chips */}
+                    {selectedCouponProducts.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 mb-3 p-2.5 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 max-h-36 overflow-y-auto">
+                        {selectedCouponProducts.map((p) => (
+                          <span
+                            key={p.id}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary text-foreground border border-foreground/15 text-[11px] font-bold shadow-2xs"
+                          >
+                            <span className="truncate max-w-[130px]">#{p.id} {p.title}</span>
+                            <span className="text-accent text-[10px] font-mono">${Number(p.unit_price).toFixed(2)}</span>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setCouponSelectedProductIds((prev) =>
+                                  prev.filter((id) => id !== p.id)
+                                )
+                              }
+                              className="text-foreground/50 hover:text-red-500 font-black ml-0.5 text-xs"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={couponSearchInput}
+                        onFocus={() => setIsCouponDropdownOpen(true)}
+                        onChange={(e) => {
+                          setCouponSearchInput(e.target.value);
+                          setIsCouponDropdownOpen(true);
+                        }}
+                        placeholder="Search product to add to coupon..."
+                        className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent placeholder:font-normal shadow-inner"
+                      />
+                      {couponSelectedProductIds.length > 0 && (
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md bg-accent/20 text-accent font-black text-[10px] uppercase">
+                          {couponSelectedProductIds.length} Selected
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Floating Suggestions List */}
+                    {isCouponDropdownOpen && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-20"
+                          onClick={() => setIsCouponDropdownOpen(false)}
+                        />
+                        <div className="absolute left-0 right-0 top-full mt-1.5 z-30 bg-secondary border border-foreground/15 rounded-2xl shadow-2xl max-h-64 overflow-y-auto divide-y divide-foreground/10 p-1.5 backdrop-blur-md">
+                          {(() => {
+                            const query = couponSearchInput.toLowerCase().trim();
+                            const matches = promoProductsCatalog.filter(
+                              (prod) =>
+                                !query ||
+                                prod.title.toLowerCase().includes(query) ||
+                                String(prod.id).includes(query)
+                            );
+
+                            if (matches.length === 0) {
+                              return (
+                                <div className="p-4 text-center text-xs font-bold opacity-50">
+                                  No products found matching &ldquo;{couponSearchInput}&rdquo;
+                                </div>
+                              );
+                            }
+
+                            return (
+                              <>
+                                <div className="p-2 flex justify-between items-center text-[10px] font-bold text-foreground/60">
+                                  <span>{matches.length} matching products</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const matchIds = matches.map((m) => m.id);
+                                      setCouponSelectedProductIds((prev) =>
+                                        Array.from(new Set([...prev, ...matchIds]))
+                                      );
+                                    }}
+                                    className="text-accent hover:underline uppercase"
+                                  >
+                                    + Select All ({matches.length})
+                                  </button>
+                                </div>
+                                {matches.map((prod) => {
+                                  const isSelected = couponSelectedProductIds.includes(prod.id);
+                                  return (
+                                    <div
+                                      key={prod.id}
+                                      onClick={() => {
+                                        setCouponSelectedProductIds((prev) =>
+                                          prev.includes(prod.id)
+                                            ? prev.filter((id) => id !== prod.id)
+                                            : [...prev, prod.id]
+                                        );
+                                      }}
+                                      className={`p-2.5 rounded-xl cursor-pointer flex items-center justify-between gap-3 transition-all ${
+                                        isSelected
+                                          ? "bg-accent/20 border border-accent/40"
+                                          : "hover:bg-primary/5 dark:hover:bg-primary/30"
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-2.5 min-w-0">
+                                        <input
+                                          type="checkbox"
+                                          checked={isSelected}
+                                          onChange={() => {}}
+                                          className="w-4 h-4 rounded accent-accent shrink-0 cursor-pointer pointer-events-none"
+                                        />
+                                        <div className="relative w-9 h-9 rounded-lg bg-background border border-foreground/10 flex items-center justify-center overflow-hidden shrink-0">
+                                          <ProductImage title={prod.title} images={prod.images} />
+                                        </div>
+                                        <div className="min-w-0">
+                                          <p className="text-xs font-bold text-foreground truncate">
+                                            #{prod.id} {prod.title}
+                                          </p>
+                                          <p className="text-[10px] text-foreground/60 font-semibold">
+                                            Price: ${Number(prod.unit_price).toFixed(2)}
+                                          </p>
+                                        </div>
+                                      </div>
+
+                                      <span
+                                        className={`text-[10px] font-bold shrink-0 ${
+                                          isSelected ? "text-accent" : "text-foreground/40"
+                                        }`}
+                                      >
+                                        {isSelected ? "Selected" : "+ Add"}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </>
+                            );
+                          })()}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {/* If Target is Collection: Collection Dropdown */}
+                {couponTargetType === "collection" && (
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+                      Select Collection *
+                    </label>
+                    <select
+                      value={couponCollectionId}
+                      onChange={(e) => setCouponCollectionId(e.target.value ? Number(e.target.value) : "")}
+                      required
+                      className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                    >
+                      <option value="">-- Choose Collection --</option>
+                      {collections.map((col) => (
+                        <option key={col.id} value={col.id}>
+                          #{col.id} {col.title} ({col.product_count || 0} products)
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={
+                    couponCreating ||
+                    !couponCode.trim() ||
+                    (couponTargetType === "product" && couponSelectedProductIds.length === 0) ||
+                    (couponTargetType === "collection" && !couponCollectionId)
+                  }
+                  className="w-full py-4 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50"
+                >
+                  {editingCouponId
+                    ? (couponCreating ? "Updating Coupon..." : "Update Coupon")
+                    : (couponCreating ? "Creating Coupon..." : "Create Coupon Now")}
+                </button>
+              </form>
+            </div>
+
+            {/* Right Column: Existing Coupons List (2 Columns) */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
+                  <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
+                    Store Coupons ({couponsList.length})
+                  </h2>
+                  <input
+                    type="text"
+                    value={couponFilterSearch}
+                    onChange={(e) => setCouponFilterSearch(e.target.value)}
+                    placeholder="Search coupons by code..."
+                    className="px-3.5 py-1.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full sm:w-56 focus:ring-2 focus:ring-accent"
+                  />
+                </div>
+
+                {(() => {
+                  const filteredCoupons = couponsList.filter(
+                    (c) =>
+                      !couponFilterSearch.trim() ||
+                      c.code.toLowerCase().includes(couponFilterSearch.toLowerCase().trim()) ||
+                      (c.collection_title && c.collection_title.toLowerCase().includes(couponFilterSearch.toLowerCase().trim()))
+                  );
+
+                  if (filteredCoupons.length === 0) {
+                    return (
+                      <div className="py-12 text-center text-xs font-bold uppercase tracking-wider opacity-50">
+                        {couponFilterSearch
+                          ? `No coupons found matching "${couponFilterSearch}".`
+                          : "No coupons created yet. Use the form on the left to create your first coupon!"}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {filteredCoupons.map((coupon) => {
+                        const isExpired = coupon.valid_to && new Date(coupon.valid_to) < new Date();
+                        const formattedExpiry = coupon.valid_to
+                          ? new Date(coupon.valid_to).toLocaleDateString(undefined, {
+                              year: "numeric",
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : "No Expiry";
+                        const isBeingEdited = editingCouponId === coupon.id;
+
+                        return (
+                          <div
+                            key={coupon.id}
+                            onClick={() => handleEditCoupon(coupon)}
+                            className={`p-5 rounded-2xl bg-background border flex flex-col justify-between gap-4 shadow-xs relative overflow-hidden group cursor-pointer transition-all ${
+                              isBeingEdited
+                                ? "border-accent ring-2 ring-accent shadow-md bg-accent/5"
+                                : "border-foreground/10 hover:border-accent/40"
+                            }`}
+                          >
+                            <div className="space-y-3">
+                              {/* Header: Code, Active Toggle, & Discount Badge */}
+                              <div className="flex justify-between items-start gap-2">
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-mono font-black text-sm uppercase px-3 py-1 rounded-lg bg-accent/15 text-accent border border-accent/30 tracking-wider">
+                                      {coupon.code}
+                                    </span>
+                                    {/* On/Off Toggle Button */}
+                                    <button
+                                      type="button"
+                                      onClick={(e) => handleToggleCouponActive(coupon, e)}
+                                      className={`px-2 py-0.5 rounded text-[9px] font-black uppercase transition-all flex items-center gap-1 ${
+                                        coupon.is_active
+                                          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25"
+                                          : "bg-foreground/15 text-foreground/60 hover:bg-foreground/25"
+                                      }`}
+                                    >
+                                      <span
+                                        className={`w-1.5 h-1.5 rounded-full ${
+                                          coupon.is_active ? "bg-emerald-500" : "bg-foreground/50"
+                                        }`}
+                                      />
+                                      {coupon.is_active ? "Active" : "Disabled"}
+                                    </button>
+                                    {isExpired && (
+                                      <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-red-500/15 text-red-500">
+                                        Expired
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                <span className="font-black text-lg text-accent">
+                                  {Number(coupon.discount_percent)}% OFF
+                                </span>
+                              </div>
+
+                              {/* Target Details */}
+                              <div className="p-3 rounded-xl bg-secondary/80 border border-foreground/5 text-xs space-y-1">
+                                <p className="text-[10px] font-extrabold uppercase tracking-wider opacity-60">
+                                  Scope: {coupon.target_type === "product" ? "Specific Products" : "Collection"}
+                                </p>
+                                {coupon.target_type === "product" ? (
+                                  <p className="font-bold text-foreground truncate">
+                                    {coupon.product_count || (coupon.products_details ? coupon.products_details.length : 0)} Product(s) Selected
+                                    {coupon.products_details && coupon.products_details.length > 0 && (
+                                      <span className="block text-[10px] opacity-70 font-normal truncate mt-0.5">
+                                        {coupon.products_details.map((p) => p.title).join(", ")}
+                                      </span>
+                                    )}
+                                  </p>
+                                ) : (
+                                  <p className="font-bold text-foreground">
+                                    Collection: {coupon.collection_title || `#${coupon.collection}`}
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Expiry Timestamp */}
+                              <div className="flex justify-between items-center text-[10px] opacity-60 font-semibold pt-1">
+                                <span>Expires: {formattedExpiry}</span>
+                              </div>
+                            </div>
+
+                            {/* Card Footer Actions */}
+                            <div className="pt-2 border-t border-foreground/10 flex justify-between items-center">
+                              <button
+                                type="button"
+                                onClick={() => handleEditCoupon(coupon)}
+                                className="text-[10px] font-extrabold text-accent hover:underline uppercase tracking-wider"
+                              >
+                                {isBeingEdited ? "Editing Now..." : "Edit"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteCoupon(coupon.id, coupon.code);
+                                }}
+                                className="text-[10px] font-extrabold text-red-500 hover:underline uppercase tracking-wider"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
