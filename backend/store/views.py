@@ -15,18 +15,29 @@ from rest_framework.viewsets import ModelViewSet,GenericViewSet
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from .filters import ProductFilter
 from .permissions import IsAdminOrReadOnly
+class ProductPagination(PageNumberPagination):
+    page_size = 9
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
+
 # Create your views here.
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.prefetch_related('images').all()
     serializer_class = ProductSerializers
     filter_backends = [DjangoFilterBackend,SearchFilter,OrderingFilter]
-    pagination_class = PageNumberPagination
+    pagination_class = ProductPagination
     filterset_class = ProductFilter
     search_fields = ['title','description']
     ordering_fields = ['unit_price','last_update']
     permission_classes = [IsAdminOrReadOnly]
     def get_serializer_context(self):
         return {'request': self.request}
+    
+    @action(detail=False, methods=['get'], pagination_class=None)
+    def all(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
     
     def destroy(self, request, *args, **kwargs):
         if OrderItem.objects.filter(product_id=kwargs['pk']).count() > 0:

@@ -87,12 +87,17 @@ export default function AdminDashboardPage() {
   const [hasUnsavedPhotos, setHasUnsavedPhotos] = useState(false);
 
   // Promotion states
+  const [allProductsForPromo, setAllProductsForPromo] = useState<Product[]>([]);
   const [promoProductId, setPromoProductId] = useState<number | "">("");
   const [promoDiscountPercent, setPromoDiscountPercent] = useState<string>("20");
   const [promoDiscountPrice, setPromoDiscountPrice] = useState<string>("");
   const [promoDescription, setPromoDescription] = useState<string>("");
   const [promoApplying, setPromoApplying] = useState<boolean>(false);
   const [promotionsList, setPromotionsList] = useState<{ id: number; description: string; discount: number; created_at: string }[]>([]);
+  const [promoSearch, setPromoSearch] = useState("");
+  const [activePromoSearch, setActivePromoSearch] = useState("");
+  const [promoPage, setPromoPage] = useState(1);
+  const [promoDropdownSearch, setPromoDropdownSearch] = useState("");
 
   // Search states
   const [productSearch, setProductSearch] = useState("");
@@ -179,12 +184,31 @@ export default function AdminDashboardPage() {
           Array.isArray(custData) ? custData : custData.results || [],
         );
       }
-      // Fetch Promotions
+      // Fetch Promotions & All Products For Promo
       fetchPromotions();
+      fetchAllProductsForPromo();
     } catch (err) {
       console.error("Failed to fetch admin data:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAllProductsForPromo = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/store/products/all/`, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        setAllProductsForPromo(Array.isArray(data) ? data : data.results || []);
+      } else {
+        const fallbackRes = await fetch(`${API_BASE}/store/products/?page_size=1000`, { cache: "no-store" });
+        if (fallbackRes.ok) {
+          const fallbackData = await fallbackRes.json();
+          setAllProductsForPromo(Array.isArray(fallbackData) ? fallbackData : fallbackData.results || []);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch all products for promo:", err);
     }
   };
 
@@ -200,7 +224,8 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const selectedPromoProduct = products.find((p) => p.id === Number(promoProductId));
+  const promoProductsCatalog = allProductsForPromo.length > 0 ? allProductsForPromo : products;
+  const selectedPromoProduct = promoProductsCatalog.find((p) => p.id === Number(promoProductId));
 
   const handleDiscountPercentChange = (percentStr: string) => {
     setPromoDiscountPercent(percentStr);
@@ -268,6 +293,7 @@ export default function AdminDashboardPage() {
         Swal.fire("Success!", data.message || "Promotion applied successfully!", "success");
         fetchAdminData();
         fetchPromotions();
+        fetchAllProductsForPromo();
       } else {
         Swal.fire("Error", data.error || "Failed to apply promotion.", "error");
       }
@@ -314,6 +340,7 @@ export default function AdminDashboardPage() {
         });
         fetchAdminData();
         fetchPromotions();
+        fetchAllProductsForPromo();
       } else {
         Swal.fire("Error", data.error || "Failed to remove promotion.", "error");
       }
@@ -1051,7 +1078,7 @@ export default function AdminDashboardPage() {
                   : "text-background/70 dark:text-foreground/70 hover:text-white"
               }`}
             >
-             Manage Promotions ({products.filter(p => Number(p.discount_percent || 0) > 0).length})
+             Manage Promotions ({promoProductsCatalog.filter(p => Number(p.discount_percent || 0) > 0).length})
             </button>
           </div>
         </div>
@@ -1894,196 +1921,307 @@ export default function AdminDashboardPage() {
         )}
 
         {/* MANAGE PROMOTIONS TAB */}
-        {activeTab === "promotions" && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
-            {/* Create & Apply Promotion Form */}
-            <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm h-fit lg:sticky lg:top-24 transition-colors duration-300">
-              <div className="flex justify-between items-center mb-6 pb-2 border-b border-foreground/10">
-                <h2 className="text-xs font-black uppercase tracking-widest text-foreground flex items-center gap-2">
-                  Apply New Promotion
-                </h2>
-              </div>
+        {activeTab === "promotions" && (() => {
+          const onSaleProducts = promoProductsCatalog.filter(
+            (p) => Number(p.discount_percent || 0) > 0
+          );
+          const filteredOnSaleProducts = onSaleProducts.filter(
+            (p) =>
+              !activePromoSearch ||
+              p.title.toLowerCase().includes(activePromoSearch.toLowerCase()) ||
+              String(p.id).includes(activePromoSearch)
+          );
+          const promoItemsPerPage = 8;
+          const totalPromoPages = Math.ceil(filteredOnSaleProducts.length / promoItemsPerPage);
+          const paginatedOnSaleProducts = filteredOnSaleProducts.slice(
+            (promoPage - 1) * promoItemsPerPage,
+            promoPage * promoItemsPerPage
+          );
 
-              <form onSubmit={handleApplyPromotion} className="space-y-5">
-                {/* Product Selector */}
-                <div>
-                  <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-                    Select Product
-                  </label>
-                  <select
-                    value={promoProductId}
-                    onChange={(e) => {
-                      const val = Number(e.target.value);
-                      setPromoProductId(val);
-                      const prod = products.find((p) => p.id === val);
-                      if (prod) {
-                        const pct = parseFloat(promoDiscountPercent) || 0;
-                        const calcPrice = prod.unit_price * (1 - pct / 100);
-                        setPromoDiscountPrice(calcPrice > 0 ? calcPrice.toFixed(2) : "0.00");
-                      }
-                    }}
-                    className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                    required
-                  >
-                    <option value="">-- Choose Product --</option>
-                    {products.map((prod) => (
-                      <option key={prod.id} value={prod.id}>
-                        {prod.title} - Original: ${Number(prod.unit_price).toFixed(2)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Display Previous Price if Product Selected */}
-                {selectedPromoProduct && (
-                  <div className="p-4 rounded-2xl bg-primary/10 border border-foreground/10 space-y-1 text-xs">
-                    <p className="font-bold text-foreground opacity-70 uppercase tracking-wider text-[10px]">
-                      Product Details
-                    </p>
-                    <div className="flex justify-between items-center font-black">
-                      <span>{selectedPromoProduct.title}</span>
-                      <span className="text-accent text-sm">Original: ${Number(selectedPromoProduct.unit_price).toFixed(2)}</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Inputs for Discount % and New Price */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-                      Discount %
-                    </label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="100"
-                      value={promoDiscountPercent}
-                      onChange={(e) => handleDiscountPercentChange(e.target.value)}
-                      placeholder="e.g. 20"
-                      className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-                      New Price ($)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={promoDiscountPrice}
-                      onChange={(e) => handleDiscountPriceChange(e.target.value)}
-                      placeholder="New Price"
-                      className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={promoApplying}
-                  className="w-full py-4 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50"
-                >
-                  {promoApplying ? "Applying Promotion..." : "Apply Promotion Now"}
-                </button>
-              </form>
-            </div>
-
-            {/* Right Column: Currently On-Sale Products & Collections (2 Columns) */}
-            <div className="lg:col-span-2 space-y-6">
-              <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm">
+          return (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
+              {/* Create & Apply Promotion Form */}
+              <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm h-fit lg:sticky lg:top-24 transition-colors duration-300">
                 <div className="flex justify-between items-center mb-6 pb-2 border-b border-foreground/10">
-                  <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-                    Products Currently On Sale ({products.filter((p) => Number(p.discount_percent || 0) > 0).length})
+                  <h2 className="text-xs font-black uppercase tracking-widest text-foreground flex items-center gap-2">
+                    Apply New Promotion
                   </h2>
                 </div>
 
-                {products.filter((p) => Number(p.discount_percent || 0) > 0).length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {products
-                      .filter((p) => Number(p.discount_percent || 0) > 0)
-                      .map((prod) => {
-                        const original = Number(prod.unit_price);
-                        const pct = Number(prod.discount_percent);
-                        const discounted = prod.discounted_price !== undefined
-                          ? Number(prod.discounted_price)
-                          : original * (1 - pct / 100);
+                <form onSubmit={handleApplyPromotion} className="space-y-5">
+                  {/* Product Selector with Filter */}
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+                      Select Product ({promoProductsCatalog.length} available)
+                    </label>
+                    <input
+                      type="text"
+                      value={promoDropdownSearch}
+                      onChange={(e) => setPromoDropdownSearch(e.target.value)}
+                      placeholder="Filter product dropdown..."
+                      className="w-full mb-2 bg-background border border-foreground/15 rounded-xl px-3 py-2 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                    />
+                    <select
+                      value={promoProductId}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        setPromoProductId(val);
+                        const prod = promoProductsCatalog.find((p) => p.id === val);
+                        if (prod) {
+                          const pct = parseFloat(promoDiscountPercent) || 0;
+                          const calcPrice = prod.unit_price * (1 - pct / 100);
+                          setPromoDiscountPrice(calcPrice > 0 ? calcPrice.toFixed(2) : "0.00");
+                        }
+                      }}
+                      className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                      required
+                    >
+                      <option value="">-- Choose Product --</option>
+                      {promoProductsCatalog
+                        .filter(
+                          (prod) =>
+                            !promoDropdownSearch ||
+                            prod.title.toLowerCase().includes(promoDropdownSearch.toLowerCase()) ||
+                            String(prod.id).includes(promoDropdownSearch)
+                        )
+                        .map((prod) => (
+                          <option key={prod.id} value={prod.id}>
+                            #{prod.id} {prod.title} - Original: ${Number(prod.unit_price).toFixed(2)}
+                            {Number(prod.discount_percent || 0) > 0
+                              ? ` (-${Math.round(Number(prod.discount_percent || 0))}% on sale)`
+                              : ""}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
 
-                        return (
-                          <div
-                            key={prod.id}
-                            className="p-4 rounded-2xl bg-background border border-foreground/10 flex items-center justify-between gap-4 shadow-sm"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="relative w-14 h-14 rounded-xl bg-secondary flex items-center justify-center overflow-hidden border border-foreground/10 shrink-0">
-                                <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-accent text-button-fg font-black text-[8px] uppercase">
-                                  -{Math.round(pct)}%
-                                </span>
-                                <ProductImage title={prod.title} images={prod.images} />
-                              </div>
-                              <div>
-                                <h4 className="font-bold text-xs text-foreground line-clamp-1">{prod.title}</h4>
-                                <div className="flex items-baseline gap-2 mt-1">
-                                  <span className="text-accent font-extrabold text-xs">
-                                    ${discounted.toFixed(2)}
+                  {/* Display Previous Price if Product Selected */}
+                  {selectedPromoProduct && (
+                    <div className="p-4 rounded-2xl bg-primary/10 border border-foreground/10 space-y-1 text-xs">
+                      <p className="font-bold text-foreground opacity-70 uppercase tracking-wider text-[10px]">
+                        Product Details
+                      </p>
+                      <div className="flex justify-between items-center font-black">
+                        <span>{selectedPromoProduct.title}</span>
+                        <span className="text-accent text-sm">
+                          Original: ${Number(selectedPromoProduct.unit_price).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Inputs for Discount % and New Price */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+                        Discount %
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        max="100"
+                        value={promoDiscountPercent}
+                        onChange={(e) => handleDiscountPercentChange(e.target.value)}
+                        placeholder="e.g. 20"
+                        className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+                        New Price ($)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={promoDiscountPrice}
+                        onChange={(e) => handleDiscountPriceChange(e.target.value)}
+                        placeholder="New Price"
+                        className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={promoApplying}
+                    className="w-full py-4 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50"
+                  >
+                    {promoApplying ? "Applying Promotion..." : "Apply Promotion Now"}
+                  </button>
+                </form>
+              </div>
+
+              {/* Right Column: Currently On-Sale Products with Search & Pagination (2 Columns) */}
+              <div className="lg:col-span-2 space-y-6">
+                <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
+                    <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
+                      Products Currently On Sale ({filteredOnSaleProducts.length})
+                    </h2>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        setActivePromoSearch(promoSearch);
+                        setPromoPage(1);
+                      }}
+                      className="flex items-center gap-2 w-full sm:w-auto"
+                    >
+                      <input
+                        type="text"
+                        value={promoSearch}
+                        onChange={(e) => setPromoSearch(e.target.value)}
+                        placeholder="Search on-sale products..."
+                        className="px-3.5 py-1.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full sm:w-48 focus:ring-2 focus:ring-accent"
+                      />
+                      <button
+                        type="submit"
+                        className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                      >
+                        Search
+                      </button>
+                      {activePromoSearch && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPromoSearch("");
+                            setActivePromoSearch("");
+                            setPromoPage(1);
+                          }}
+                          className="text-[10px] font-bold text-red-500 hover:underline uppercase"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </form>
+                  </div>
+
+                  {filteredOnSaleProducts.length > 0 ? (
+                    <>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {paginatedOnSaleProducts.map((prod) => {
+                          const original = Number(prod.unit_price);
+                          const pct = Number(prod.discount_percent);
+                          const discounted =
+                            prod.discounted_price !== undefined
+                              ? Number(prod.discounted_price)
+                              : original * (1 - pct / 100);
+
+                          return (
+                            <div
+                              key={prod.id}
+                              className="p-4 rounded-2xl bg-background border border-foreground/10 flex items-center justify-between gap-4 shadow-sm"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="relative w-14 h-14 rounded-xl bg-secondary flex items-center justify-center overflow-hidden border border-foreground/10 shrink-0">
+                                  <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-accent text-button-fg font-black text-[8px] uppercase">
+                                    -{Math.round(pct)}%
                                   </span>
-                                  <span className="line-through text-[10px] opacity-50 font-bold">
-                                    ${original.toFixed(2)}
-                                  </span>
+                                  <ProductImage title={prod.title} images={prod.images} />
+                                </div>
+                                <div>
+                                  <h4 className="font-bold text-xs text-foreground line-clamp-1">
+                                    {prod.title}
+                                  </h4>
+                                  <div className="flex items-baseline gap-2 mt-1">
+                                    <span className="text-accent font-extrabold text-xs">
+                                      ${discounted.toFixed(2)}
+                                    </span>
+                                    <span className="line-through text-[10px] opacity-50 font-bold">
+                                      ${original.toFixed(2)}
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
 
-                            <button
-                              type="button"
-                              onClick={() => handleRemovePromotion("product", prod.id)}
-                              className="px-3 py-2 bg-accent/15 text-accent hover:bg-accent hover:text-button-fg rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shrink-0"
-                            >
-                              Remove
-                            </button>
+                              <button
+                                type="button"
+                                onClick={() => handleRemovePromotion("product", prod.id)}
+                                className="px-3 py-2 bg-accent/15 text-accent hover:bg-accent hover:text-button-fg rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shrink-0"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Pagination Controls (Matching Product List Table) */}
+                      {totalPromoPages > 1 && (
+                        <div className="flex justify-between items-center mt-6 pt-4 border-t border-foreground/10 text-xs font-bold">
+                          <button
+                            type="button"
+                            onClick={() => setPromoPage((prev) => Math.max(prev - 1, 1))}
+                            disabled={promoPage === 1}
+                            className="px-5 py-2.5 border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-button-bg hover:text-button-fg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                          >
+                            Previous
+                          </button>
+
+                          <span className="text-xs font-bold opacity-60 uppercase tracking-wider">
+                            Page {promoPage} of {totalPromoPages}
+                          </span>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setPromoPage((prev) =>
+                                Math.min(prev + 1, totalPromoPages)
+                              )
+                            }
+                            disabled={promoPage >= totalPromoPages}
+                            className="px-5 py-2.5 border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-button-bg hover:text-button-fg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                          >
+                            Next
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="py-12 text-center text-xs font-bold uppercase tracking-wider opacity-50">
+                      {activePromoSearch
+                        ? `No on-sale products found matching "${activePromoSearch}".`
+                        : "No products currently have active promotions. Use the form on the left to add discounts!"}
+                    </div>
+                  )}
+                </div>
+
+                {/* Created Promotions Log */}
+                {promotionsList.length > 0 && (
+                  <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm space-y-4">
+                    <h3 className="text-xs font-black uppercase tracking-widest text-foreground">
+                      Promotion History Log ({promotionsList.length})
+                    </h3>
+                    <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                      {promotionsList.map((promo) => (
+                        <div
+                          key={promo.id}
+                          className="p-3 rounded-xl bg-background border border-foreground/10 flex justify-between items-center text-xs"
+                        >
+                          <div>
+                            <p className="font-bold text-foreground">{promo.description}</p>
+                            <p className="text-[10px] opacity-60">
+                              Created:{" "}
+                              {promo.created_at
+                                ? new Date(promo.created_at).toLocaleString()
+                                : "N/A"}
+                            </p>
                           </div>
-                        );
-                      })}
-                  </div>
-                ) : (
-                  <div className="py-12 text-center text-xs font-bold uppercase tracking-wider opacity-50">
-                    No products currently have active promotions. Use the form on the left to add discounts!
+                          <span className="px-2.5 py-1 rounded-full bg-accent/20 text-accent font-extrabold text-[10px]">
+                            {promo.discount}% OFF
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
-
-              {/* Created Promotions Log */}
-              {promotionsList.length > 0 && (
-                <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm space-y-4">
-                  <h3 className="text-xs font-black uppercase tracking-widest text-foreground">
-                    Promotion History Log ({promotionsList.length})
-                  </h3>
-                  <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-                    {promotionsList.map((promo) => (
-                      <div
-                        key={promo.id}
-                        className="p-3 rounded-xl bg-background border border-foreground/10 flex justify-between items-center text-xs"
-                      >
-                        <div>
-                          <p className="font-bold text-foreground">{promo.description}</p>
-                          <p className="text-[10px] opacity-60">
-                            Created: {promo.created_at ? new Date(promo.created_at).toLocaleString() : "N/A"}
-                          </p>
-                        </div>
-                        <span className="px-2.5 py-1 rounded-full bg-accent/20 text-accent font-extrabold text-[10px]">
-                          {promo.discount}% OFF
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
-          </div>
-        )}
+          );
+        })()}
       </main>
     </div>
   );
