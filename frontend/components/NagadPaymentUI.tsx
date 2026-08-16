@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 
 interface NagadPaymentUIProps {
   amount: number | string;
@@ -46,23 +47,14 @@ export default function NagadPaymentUI({
         {/* Nagad Logo Badge */}
         <div className="flex items-center gap-3">
           <div className="bg-secondary p-1.5 rounded-xl border border-foreground/10 flex items-center justify-center shadow-xs">
-            <div className="flex items-center gap-2 px-2 py-1">
-              <svg
-                className="w-7 h-7 text-nagad fill-current"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z" />
-              </svg>
-              <div className="flex flex-col">
-                <span className="text-xl font-black text-nagad tracking-tight leading-none">
-                  Nagad
-                </span>
-                <span className="text-[9px] font-bold text-foreground/60 uppercase tracking-widest">
-                  Merchant Pay
-                </span>
-              </div>
-            </div>
+            <Image
+              src="/nagad.webp"
+              alt="Nagad"
+              width={140}
+              height={50}
+              className="h-10 sm:h-12 w-auto object-contain"
+              priority
+            />
           </div>
         </div>
 
