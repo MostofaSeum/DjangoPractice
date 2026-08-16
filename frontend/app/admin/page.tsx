@@ -597,6 +597,10 @@ export default function AdminDashboardPage() {
     (c) =>
       String(c.id).includes(activeCustomerQuery) ||
       (c.customer_name && c.customer_name.toLowerCase().includes(activeCustomerQuery.toLowerCase())) ||
+      (c.first_name && c.first_name.toLowerCase().includes(activeCustomerQuery.toLowerCase())) ||
+      (c.last_name && c.last_name.toLowerCase().includes(activeCustomerQuery.toLowerCase())) ||
+      (`${c.first_name || ""} ${c.last_name || ""}`.toLowerCase().includes(activeCustomerQuery.toLowerCase())) ||
+      (c.email && c.email.toLowerCase().includes(activeCustomerQuery.toLowerCase())) ||
       (c.phone && c.phone.includes(activeCustomerQuery)) ||
       (c.membership && c.membership.toLowerCase().includes(activeCustomerQuery.toLowerCase()))
   );
@@ -2084,8 +2088,23 @@ export default function AdminDashboardPage() {
                         key={cust.id}
                         className="hover:bg-primary/5 dark:hover:bg-primary/30 transition-colors"
                       >
-                        <td className="py-3.5 px-2 font-black">
-                          {cust.customer_name || `Customer #${cust.id}`}
+                        <td className="py-3.5 px-2">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-accent/15 text-accent font-black text-xs flex items-center justify-center flex-shrink-0 border border-accent/20">
+                              {((cust.first_name ? cust.first_name[0] : "") + (cust.last_name ? cust.last_name[0] : "") || cust.customer_name?.[0] || "U").toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="font-black text-foreground">
+                                {cust.first_name || cust.last_name
+                                  ? `${cust.first_name || ""} ${cust.last_name || ""}`.trim()
+                                  : cust.customer_name || `Customer #${cust.id}`}
+                              </div>
+                              <div className="text-[10px] opacity-60 flex items-center gap-1.5 font-medium">
+                                <span>@{cust.customer_name}</span>
+                                {cust.email && <span>• {cust.email}</span>}
+                              </div>
+                            </div>
+                          </div>
                         </td>
                         <td className="py-3.5 px-2 opacity-80">
                           {cust.phone || "No Phone Registered"}
