@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 
 interface BkashPaymentUIProps {
   amount: number | string;
@@ -44,23 +45,16 @@ export default function BkashPaymentUI({
       {/* 1. Header Bar: bKash Logo + Amount */}
       <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl p-4 flex items-center justify-between shadow-sm">
         {/* bKash Logo Badge */}
-        <div className="flex items-center gap-2">
-          <div className="bg-[#e2136e] text-white p-2 rounded-xl flex items-center justify-center shadow-xs">
-            <svg
-              className="w-6 h-6 fill-current"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M12 2L2 19.5h8.5L12 16.5l1.5 3H22L12 2zm-1.5 13L12 8.5l1.5 6.5h-3z" />
-            </svg>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xl font-black text-[#e2136e] tracking-tight leading-none">
-              bKash
-            </span>
-            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-              Payment Gateway
-            </span>
+        <div className="flex items-center gap-3">
+          <div className="bg-white p-1.5 rounded-xl border border-gray-100 dark:border-zinc-800 flex items-center justify-center shadow-xs">
+            <Image
+              src="/bKash.png"
+              alt="bKash"
+              width={140}
+              height={50}
+              className="h-10 sm:h-12 w-auto object-contain"
+              priority
+            />
           </div>
         </div>
 
