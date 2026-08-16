@@ -507,7 +507,7 @@ export default function GiftCardsPage() {
                     disabled={loading}
                     className="py-3 px-6 bg-button-bg text-button-fg rounded-xl text-xs font-black uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50"
                   >
-                    {loading ? "Processing Order..." : "Place Order & Get Code"}
+                    {loading ? "Processing Order..." : "Place Order"}
                   </button>
                 </div>
               </form>

@@ -168,7 +168,7 @@ export default function CartPage() {
           icon: "error",
           title: "Coupon Error",
           text: errorMsg,
-          confirmButtonColor: "var(--accent)",
+          confirmButtonColor: "#ef4444",
         });
       }
     } catch (err) {
@@ -177,7 +177,7 @@ export default function CartPage() {
         icon: "error",
         title: "Validation Error",
         text: "Failed to validate coupon. Please check your network and try again.",
-        confirmButtonColor: "var(--accent)",
+        confirmButtonColor: "#ef4444",
       });
     } finally {
       setCouponValidating(false);
@@ -435,7 +435,9 @@ export default function CartPage() {
                     </div>
                   )}
                   {couponError && (
-                    <p className="text-[10px] text-accent font-bold mt-1.5">{couponError}</p>
+                    <div className="p-2.5 mt-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold">
+                      {couponError}
+                    </div>
                   )}
                 </div>
 

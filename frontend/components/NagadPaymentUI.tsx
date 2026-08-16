@@ -66,14 +66,8 @@ export default function NagadPaymentUI({
         </div>
       </div>
 
-      {/* 2. Yellow Warning Banner */}
-      <div className="bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-xl text-center">
-        <p className="text-xs font-bold text-amber-700 dark:text-amber-400">
-          <span className="font-extrabold">Note:</span> Please verify 5-10 seconds after sending money.
-        </p>
-      </div>
 
-      {/* 3. Main Orange Nagad Container */}
+      {/* 2. Main Orange Nagad Container */}
       <div className="bg-nagad rounded-2xl p-5 sm:p-6 text-white shadow-xl space-y-5">
         {/* Title */}
         <div className="text-center">
@@ -182,14 +176,14 @@ export default function NagadPaymentUI({
             <li className="flex items-start gap-2 pt-2 border-t border-white/10">
               <span className="font-bold">•</span>
               <span>
-                Now enter your <strong className="font-extrabold text-white">Transaction ID</strong> in the box above and click <strong className="font-extrabold text-white">VERIFY</strong>.
+                Now enter your <strong className="font-extrabold text-white">Sender Number</strong> and <strong className="font-extrabold text-white">Transaction ID</strong> in the box above and click <strong className="font-extrabold text-white">PLACE ORDER</strong>.
               </span>
             </li>
           </ul>
         </div>
       </div>
 
-      {/* 4. Bottom Verify Button */}
+      {/* 3. Bottom Verify Button */}
       {showVerifyButton && (
         <button
           type="button"

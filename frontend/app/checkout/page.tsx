@@ -206,6 +206,7 @@ export default function CheckoutPage() {
           icon: "error",
           title: "Order Placement Failed",
           text: JSON.stringify(errData),
+          confirmButtonColor: "#ef4444",
         });
       }
     } catch (err) {
@@ -214,6 +215,7 @@ export default function CheckoutPage() {
         icon: "error",
         title: "An Error Occurred",
         text: "Could not submit your order. Please try again.",
+        confirmButtonColor: "#ef4444",
       });
     } finally {
       setSubmitting(false);
