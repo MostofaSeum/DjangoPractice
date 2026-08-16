@@ -51,6 +51,7 @@ interface Order {
   phone?: string;
   payment_method?: string;
   transaction_id?: string;
+  transaction_phone_no?: string;
   items?: OrderItem[];
 }
 interface CustomerItem {
@@ -1790,6 +1791,7 @@ export default function AdminDashboardPage() {
                       <th className="py-3 px-2">Order ID</th>
                       <th className="py-3 px-2">Customer</th>
                       <th className="py-3 px-2">Date Placed</th>
+                      <th className="py-3 px-2">Method</th>
                       <th className="py-3 px-2">Items Count</th>
                       <th className="py-3 px-2">Payment Status</th>
                       <th className="py-3 px-2 text-right">Actions</th>
@@ -1810,6 +1812,19 @@ export default function AdminDashboardPage() {
                           </td>
                           <td className="py-3.5 px-2 opacity-60 text-[11px]">
                             {order.placed_at ? new Date(order.placed_at).toLocaleDateString() : "N/A"}
+                          </td>
+                          <td className="py-3.5 px-2">
+                            {order.payment_method === "V" ? (
+                              <span className="text-accent font-black uppercase inline-flex items-center gap-1 text-[11px]">
+                                <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" className="w-3.5 h-3.5 object-contain" /> VibeCoin
+                              </span>
+                            ) : order.payment_method === "B" || order.payment_method === "O" ? (
+                              <span className="text-bkash font-black uppercase text-[11px]">bKash</span>
+                            ) : order.payment_method === "N" ? (
+                              <span className="text-nagad font-black uppercase text-[11px]">Nagad</span>
+                            ) : (
+                              <span className="opacity-80 font-bold uppercase text-[11px]">COD</span>
+                            )}
                           </td>
                           <td className="py-3.5 px-2">
                             {itemCount} item(s)
@@ -1886,14 +1901,23 @@ export default function AdminDashboardPage() {
                 <p><strong>Shipping Address:</strong> {selectedOrderDetails.shipping_address || "N/A"}</p>
                 <p>
                   <strong>Payment Method:</strong>{" "}
-                  {selectedOrderDetails.payment_method === "O" ? (
-                    <span className="text-bkash font-black uppercase">Online / bKash</span>
+                  {selectedOrderDetails.payment_method === "V" ? (
+                    <span className="text-accent font-black uppercase inline-flex items-center gap-1">
+                      <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" className="w-3.5 h-3.5 object-contain" /> VibeCoin Payment
+                    </span>
+                  ) : selectedOrderDetails.payment_method === "O" || selectedOrderDetails.payment_method === "B" ? (
+                    <span className="text-bkash font-black uppercase">Online / bKash Payment</span>
+                  ) : selectedOrderDetails.payment_method === "N" ? (
+                    <span className="text-nagad font-black uppercase">Nagad Payment</span>
                   ) : (
                     <span className="font-black uppercase">Cash on Delivery (COD)</span>
                   )}
                 </p>
-                {selectedOrderDetails.payment_method === "O" && (
-                  <p><strong>bKash TrxID:</strong> <code className="bg-secondary px-2 py-0.5 rounded font-mono font-bold text-bkash">{selectedOrderDetails.transaction_id || "N/A"}</code></p>
+                {(selectedOrderDetails.payment_method === "O" || selectedOrderDetails.payment_method === "B") && (
+                  <p><strong>bKash TrxID:</strong> <code className="bg-secondary px-2 py-0.5 rounded font-mono font-bold text-bkash">{selectedOrderDetails.transaction_id || "N/A"}</code> {selectedOrderDetails.transaction_phone_no ? `[Sender: ${selectedOrderDetails.transaction_phone_no}]` : ""}</p>
+                )}
+                {selectedOrderDetails.payment_method === "N" && (
+                  <p><strong>Nagad TrxID:</strong> <code className="bg-secondary px-2 py-0.5 rounded font-mono font-bold text-nagad">{selectedOrderDetails.transaction_id || "N/A"}</code> {selectedOrderDetails.transaction_phone_no ? `[Sender: ${selectedOrderDetails.transaction_phone_no}]` : ""}</p>
                 )}
               </div>
 

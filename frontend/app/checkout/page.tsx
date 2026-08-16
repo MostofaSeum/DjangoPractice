@@ -492,7 +492,7 @@ export default function CheckoutPage() {
             </h2>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between opacity-80 font-medium">
-                <span>Original Subtotal</span>
+                <span>{productDiscountSavings > 0 ? "Original Subtotal" : "Subtotal"}</span>
                 <span className="font-bold text-foreground">
                   ${originalSubtotal.toFixed(2)}
                 </span>

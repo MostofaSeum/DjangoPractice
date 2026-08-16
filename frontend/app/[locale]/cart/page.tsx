@@ -368,27 +368,29 @@ export default function CartPage() {
 
               <div className="space-y-3.5 text-sm font-medium mb-6">
                 <div className="flex justify-between opacity-80">
-                  <span>Original Subtotal</span>
+                  <span>{productDiscountSavings > 0 ? "Original Subtotal" : "Subtotal"}</span>
                   <span className="font-bold">
                     ${originalSubtotal.toFixed(2)}
                   </span>
                 </div>
 
                 {productDiscountSavings > 0 && (
-                  <div className="flex justify-between text-accent font-bold">
-                    <span className="flex items-center gap-1">
-                     Product Discounts
-                    </span>
-                    <span>-${productDiscountSavings.toFixed(2)}</span>
-                  </div>
-                )}
+                  <>
+                    <div className="flex justify-between text-accent font-bold">
+                      <span className="flex items-center gap-1">
+                       Product Discounts
+                      </span>
+                      <span>-${productDiscountSavings.toFixed(2)}</span>
+                    </div>
 
-                <div className="flex justify-between opacity-80 pt-1 border-t border-foreground/10">
-                  <span>Discounted Subtotal</span>
-                  <span className="font-bold">
-                    ${discountedSubtotal.toFixed(2)}
-                  </span>
-                </div>
+                    <div className="flex justify-between opacity-80 pt-1 border-t border-foreground/10">
+                      <span>Discounted Subtotal</span>
+                      <span className="font-bold">
+                        ${discountedSubtotal.toFixed(2)}
+                      </span>
+                    </div>
+                  </>
+                )}
 
                 {/* Coupon Input Form */}
                 <div className="pt-3 border-t border-foreground/10">
