@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useCart } from "@/hooks/useCart";
 import ProductImage from "@/components/ui/ProductImage";
 import Swal from "sweetalert2";
@@ -12,6 +13,7 @@ const API_BASE = (
 ).replace(/\/+$/, "");
 
 export default function CartPage() {
+  const router = useRouter();
   const { cart, updateQuantity, removeFromCart } = useCart();
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{
@@ -21,6 +23,7 @@ export default function CartPage() {
   } | null>(null);
   const [couponError, setCouponError] = useState("");
   const [couponValidating, setCouponValidating] = useState(false);
+  const [checkingOut, setCheckingOut] = useState(false);
 
   useEffect(() => {
     try {
@@ -228,6 +231,67 @@ export default function CartPage() {
     : 0;
 
   const finalTotal = Math.max(0, discountedSubtotal - couponSavings);
+
+  const handleProceedToCheckout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!cart || cart.items.length === 0) return;
+
+    if (appliedCoupon) {
+      try {
+        setCheckingOut(true);
+        const res = await fetch(`${API_BASE}/store/coupons/validate/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            code: appliedCoupon.code,
+            cart_items: cart.items.map((item) => ({
+              product_id: item.product.id,
+              quantity: item.quantity,
+              unit_price: item.product.unit_price,
+            })),
+          }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.valid) {
+          const errorMsg =
+            data.error ||
+            `Coupon "${appliedCoupon.code}" is no longer active or valid. Please review your order total.`;
+          setAppliedCoupon(null);
+          try {
+            localStorage.removeItem("applied_coupon");
+          } catch (e) {}
+          setCouponError(errorMsg);
+
+          await Swal.fire({
+            icon: "error",
+            title: "Coupon No Longer Valid",
+            text: errorMsg,
+            confirmButtonColor: "#ef4444",
+          });
+          return;
+        }
+
+        // Save latest verified coupon data
+        const couponData = {
+          code: data.code,
+          discountPercent: data.discount_percent,
+          applicableProductIds: data.applicable_product_ids || [],
+        };
+        setAppliedCoupon(couponData);
+        try {
+          localStorage.setItem("applied_coupon", JSON.stringify(couponData));
+        } catch (e) {}
+      } catch (err) {
+        console.error("Coupon re-validation error on proceed to checkout:", err);
+      } finally {
+        setCheckingOut(false);
+      }
+    }
+
+    router.push("/checkout");
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans transition-colors duration-300">
@@ -492,12 +556,14 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <Link
-                href="/checkout"
-                className="w-full bg-button-bg text-button-fg py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2 text-center"
+              <button
+                type="button"
+                onClick={handleProceedToCheckout}
+                disabled={checkingOut}
+                className="w-full bg-button-bg text-button-fg py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2 text-center disabled:opacity-50 cursor-pointer"
               >
-                Proceed to Checkout
-              </Link>
+                {checkingOut ? "Verifying Cart..." : "Proceed to Checkout"}
+              </button>
             </div>
           </div>
         )}

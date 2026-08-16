@@ -181,6 +181,43 @@ export default function CheckoutPage() {
     setSubmitting(true);
 
     try {
+      // 1. Verify if coupon is still valid & active before placing order
+      if (appliedCoupon) {
+        const couponRes = await fetch(`${API_BASE}/store/coupons/validate/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            code: appliedCoupon.code,
+            cart_items: cart.items.map((item) => ({
+              product_id: item.product.id,
+              quantity: item.quantity,
+              unit_price: item.product.unit_price,
+            })),
+          }),
+        });
+
+        const couponData = await couponRes.json();
+        if (!couponRes.ok || !couponData.valid) {
+          const errorMsg =
+            couponData.error ||
+            `Coupon "${appliedCoupon.code}" is no longer active or valid. Please review your order total.`;
+          setAppliedCoupon(null);
+          try {
+            localStorage.removeItem("applied_coupon");
+          } catch (e) {}
+
+          await Swal.fire({
+            icon: "error",
+            title: "Coupon No Longer Valid",
+            text: errorMsg,
+            confirmButtonColor: "#ef4444",
+          });
+          setSubmitting(false);
+          return;
+        }
+      }
+
+      // 2. Submit order to backend
       const payload = {
         cart_id: cart.id,
         shipping_address: shippingAddress,
