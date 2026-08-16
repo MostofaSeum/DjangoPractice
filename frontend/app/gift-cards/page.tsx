@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import { getApiBaseUrl } from "@/config/siteConfig";
 import { useAuth } from "@/hooks/useAuth";
 import BkashPaymentUI from "@/components/BkashPaymentUI";
+import NagadPaymentUI from "@/components/NagadPaymentUI";
 
 interface GiftCardOption {
   price: number;
@@ -482,49 +483,14 @@ export default function GiftCardsPage() {
 
                 {/* Nagad Payment Instructions & Sender Phone + TrxID Fields */}
                 {paymentMethod === "N" && (
-                  <div className="p-5 rounded-2xl bg-nagad/10 border border-nagad/30 space-y-3">
-                    <div className="text-[11px] font-bold text-foreground space-y-1">
-                      <p className="font-black text-nagad uppercase tracking-wider">
-                        Nagad Payment Instructions:
-                      </p>
-                      <p>1. Open your Nagad Mobile App or Dial *167#</p>
-                      <p>2. Select <strong>Send Money</strong> or <strong>Merchant Pay</strong> to <strong>01700000000</strong></p>
-                      <p>3. Pay total amount: <strong>${selectedCard.price.toLocaleString()} USD</strong></p>
-                      <p>4. Enter Sender Mobile Number & TrxID below:</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                      <div>
-                        <label className="text-xs font-bold uppercase tracking-wider text-foreground block mb-1">
-                          Sender Nagad Mobile *
-                        </label>
-                        <input
-                          type="tel"
-                          required
-                          maxLength={11}
-                          value={transactionPhoneNo}
-                          onChange={(e) => setTransactionPhoneNo(e.target.value.replace(/\D/g, "").slice(0, 11))}
-                          placeholder="e.g. 01712345678"
-                          className="w-full px-4 py-3 border border-nagad/40 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-nagad"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-xs font-bold uppercase tracking-wider text-foreground block mb-1">
-                          Transaction ID (TrxID) *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          maxLength={11}
-                          value={transactionId}
-                          onChange={(e) => setTransactionId(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 11))}
-                          placeholder="e.g. 7N3X9L2K8P"
-                          className="w-full px-4 py-3 border border-nagad/40 rounded-xl bg-background text-xs font-bold text-foreground uppercase outline-none focus:ring-2 focus:ring-nagad"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  <NagadPaymentUI
+                    amount={selectedCard ? selectedCard.price : 0}
+                    currency="BDT"
+                    transactionPhoneNo={transactionPhoneNo}
+                    setTransactionPhoneNo={setTransactionPhoneNo}
+                    transactionId={transactionId}
+                    setTransactionId={setTransactionId}
+                  />
                 )}
 
                 {/* Modal Footer Actions */}
