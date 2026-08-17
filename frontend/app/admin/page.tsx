@@ -139,6 +139,7 @@ export default function AdminDashboardPage() {
 
   // Search states
   const [orderSearch, setOrderSearch] = useState("");
+  const [orderStatusFilter, setOrderStatusFilter] = useState<"ALL" | "P" | "F" | "C">("ALL");
 
   const [activeProductQuery, setActiveProductQuery] = useState("");
   const [activeCollectionQuery, setActiveCollectionQuery] = useState("");
@@ -586,13 +587,22 @@ export default function AdminDashboardPage() {
       String(c.id).includes(activeCollectionQuery)
   );
 
-  const filteredOrders = orders.filter(
-    (o) =>
+  const filteredOrders = orders.filter((o) => {
+    const matchesStatus =
+      orderStatusFilter === "ALL" || o.payment_status === orderStatusFilter;
+    if (!matchesStatus) return false;
+
+    if (!activeOrderQuery) return true;
+    return (
       String(o.id).includes(activeOrderQuery) ||
-      (o.customer_name && o.customer_name.toLowerCase().includes(activeOrderQuery.toLowerCase())) ||
+      (o.customer_name &&
+        o.customer_name.toLowerCase().includes(activeOrderQuery.toLowerCase())) ||
       String(o.customer).includes(activeOrderQuery) ||
-      (o.payment_status && o.payment_status.toLowerCase().includes(activeOrderQuery.toLowerCase()))
-  );
+      (o.phone && o.phone.includes(activeOrderQuery)) ||
+      (o.shipping_address &&
+        o.shipping_address.toLowerCase().includes(activeOrderQuery.toLowerCase()))
+    );
+  });
 
   const filteredCustomers = customers.filter(
     (c) =>
@@ -1839,10 +1849,60 @@ export default function AdminDashboardPage() {
         {/* ORDERS TAB */}
         {activeTab === "orders" && (
           <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
-              <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-                Customer Orders ({filteredOrders.length})
-              </h2>
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 pb-4 border-b border-foreground/10">
+              <div className="flex flex-wrap items-center gap-4">
+
+                {/* Status Filter Buttons (All, Pending, Complete, Failed) */}
+                <div className="flex items-center gap-1.5 p-1 bg-primary/5 dark:bg-primary/30 rounded-xl border border-foreground/10">
+                  {[
+                    { id: "ALL" as const, label: "All Orders", count: orders.length },
+                    {
+                      id: "P" as const,
+                      label: "Pending",
+                      count: orders.filter((o) => o.payment_status === "P").length,
+                      color: "text-amber-500",
+                    },
+                    {
+                      id: "C" as const,
+                      label: "Complete",
+                      count: orders.filter((o) => o.payment_status === "C").length,
+                      color: "text-emerald-500",
+                    },
+                    {
+                      id: "F" as const,
+                      label: "Failed",
+                      count: orders.filter((o) => o.payment_status === "F").length,
+                      color: "text-red-500",
+                    },
+                  ].map((statusBtn) => {
+                    const isSelected = orderStatusFilter === statusBtn.id;
+                    return (
+                      <button
+                        key={statusBtn.id}
+                        type="button"
+                        onClick={() => setOrderStatusFilter(statusBtn.id)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                          isSelected
+                            ? "bg-button-bg text-button-fg shadow-xs scale-102"
+                            : "hover:bg-primary/10 text-foreground/70 hover:text-foreground"
+                        }`}
+                      >
+                        <span>{statusBtn.label}</span>
+                        <span
+                          className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                            isSelected
+                              ? "bg-white/20 text-button-fg"
+                              : "bg-foreground/10 text-foreground/80"
+                          }`}
+                        >
+                          {statusBtn.count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -1854,23 +1914,23 @@ export default function AdminDashboardPage() {
                   type="text"
                   value={orderSearch}
                   onChange={(e) => setOrderSearch(e.target.value)}
-                  placeholder="Search order ID..."
+                  placeholder="Search orders..."
                   className="px-3.5 py-1.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full sm:w-48 focus:ring-2 focus:ring-accent"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                  className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
                 >
                   Search
                 </button>
-                {activeOrderQuery && (
+                {(activeOrderQuery || orderSearch) && (
                   <button
                     type="button"
                     onClick={() => {
                       setOrderSearch("");
                       setActiveOrderQuery("");
                     }}
-                    className="text-[10px] font-bold text-red-500 hover:underline uppercase"
+                    className="text-[10px] font-bold text-red-500 hover:underline uppercase cursor-pointer"
                   >
                     Clear
                   </button>

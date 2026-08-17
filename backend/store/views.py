@@ -221,6 +221,12 @@ class CustomerViewSet(ModelViewSet):
 
 class OrderViewSet(ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
+    pagination_class = None
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['payment_status', 'payment_method']
+    search_fields = ['id', 'customer__user__first_name', 'customer__user__last_name', 'customer__user__email', 'phone', 'shipping_address']
+    ordering_fields = ['placed_at', 'id', 'payment_status']
+    ordering = ['-placed_at']
 
     def get_permissions(self):
         if self.request.method in ['PATCH', 'DELETE']:
@@ -245,9 +251,9 @@ class OrderViewSet(ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
-            return Order.objects.select_related('customer__user').all()
+            return Order.objects.select_related('customer__user').prefetch_related('items__product', 'items__variant').all()
         customer_id = Customer.objects.only('id').get(user_id = user.id)
-        return Order.objects.select_related('customer__user').filter(customer_id=customer_id)
+        return Order.objects.select_related('customer__user').prefetch_related('items__product', 'items__variant').filter(customer_id=customer_id)
 
     def destroy(self, request, *args, **kwargs):
         order = self.get_object()

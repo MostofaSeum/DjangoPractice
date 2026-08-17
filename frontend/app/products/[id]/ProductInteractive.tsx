@@ -254,11 +254,6 @@ export default function ProductInteractive({
                   <label className="text-xs font-black uppercase tracking-wider text-foreground">
                     Select Size:
                   </label>
-                  {selectedVariant?.size && (
-                    <span className="text-xs font-bold text-accent">
-                      {selectedVariant.size}
-                    </span>
-                  )}
                 </div>
 
                 <div className="relative">
