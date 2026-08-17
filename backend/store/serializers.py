@@ -40,10 +40,11 @@ class ProductSerializers(serializers.ModelSerializer):
     variants = ProductVariantSerializer(many=True, read_only=True)
     price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax')
     discounted_price = serializers.SerializerMethodField()
+    units_sold = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Product
-        fields = ['id', 'title', 'short_description', 'description', 'slug', 'inventory', 'unit_price', 'discount_percent', 'discounted_price', 'price_with_tax', 'collection', 'images', 'variants', 'is_photos_published', 'is_trending']
+        fields = ['id', 'title', 'short_description', 'description', 'slug', 'inventory', 'unit_price', 'discount_percent', 'discounted_price', 'price_with_tax', 'collection', 'images', 'variants', 'is_photos_published', 'is_trending', 'units_sold']
 
     def validate_short_description(self, value):
         if value:

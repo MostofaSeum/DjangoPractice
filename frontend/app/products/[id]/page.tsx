@@ -18,6 +18,7 @@ interface Product {
   description: string;
   collection: number | { id: number; title: string };
   images?: { id: number; image: string }[];
+  units_sold?: number;
 }
 
 interface CollectionDetail {
@@ -153,21 +154,29 @@ export default async function ProductDetailPage({ params }: PageProps) {
             <hr className="border-foreground/10 my-2" />
 
             {/* Additional details */}
-            <div className="space-y-2 mt-2 text-[10px] font-bold tracking-widest uppercase opacity-70">
-              <div>
-                <span className="opacity-60 font-semibold mr-2">
+            <div className="space-y-2 mt-3 pt-1 text-xs uppercase tracking-wider text-foreground">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-foreground/80">
                   Categories:
                 </span>
                 {collectionId ? (
                   <Link
                     href={`/collections/${collectionId}`}
-                    className="hover:text-accent cursor-pointer transition-colors"
+                    className="font-black text-foreground hover:text-accent cursor-pointer transition-colors"
                   >
                     {collectionTitle}
                   </Link>
                 ) : (
-                  <span>{collectionTitle}</span>
+                  <span className="font-black text-foreground">{collectionTitle}</span>
                 )}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-foreground/80">
+                  Items Sold:
+                </span>
+                <span className="text-accent font-black text-sm">
+                  {product.units_sold || 0}
+                </span>
               </div>
             </div>
           </div>

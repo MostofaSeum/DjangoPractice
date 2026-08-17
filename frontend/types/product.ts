@@ -39,4 +39,5 @@ export interface Product {
   variants?: ProductVariant[];
   is_photos_published?: boolean;
   is_trending?: boolean;
+  units_sold?: number;
 }

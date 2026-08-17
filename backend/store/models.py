@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.conf import settings
-from django.db.models import Model
+from django.db.models import Sum
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from uuid import uuid4
@@ -56,6 +56,11 @@ class Product(models.Model):
     promotions = models.ManyToManyField(Promotion, blank=True)
     is_photos_published = models.BooleanField(default=True)
     is_trending = models.BooleanField(default=False)
+
+    @property
+    def units_sold(self):
+        result = self.orderitem_set.aggregate(total=Sum('quantity'))['total']
+        return int(result or 0)
 
     @property
     def discounted_price(self):
@@ -313,4 +318,4 @@ class Coupon(models.Model):
         return f"{self.code} ({self.discount_percent}%)"
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-created_at']
