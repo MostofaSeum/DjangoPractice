@@ -116,6 +116,14 @@ export default function AdminDashboardPage() {
     cod_active: true,
     vibecoin_active: true,
   });
+  const [initialPaymentSettings, setInitialPaymentSettings] = useState({
+    bkash_number: "01711111111",
+    bkash_active: true,
+    nagad_number: "01711111111",
+    nagad_active: true,
+    cod_active: true,
+    vibecoin_active: true,
+  });
   const [savingPaymentSettings, setSavingPaymentSettings] = useState(false);
 
   // Promotion states
@@ -253,14 +261,16 @@ export default function AdminDashboardPage() {
       const res = await fetch(`${API_BASE}/store/payment-settings/`, { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
-        setPaymentSettings({
+        const settingsObj = {
           bkash_number: data.bkash_number || "01711111111",
           bkash_active: data.bkash_active ?? true,
           nagad_number: data.nagad_number || "01711111111",
           nagad_active: data.nagad_active ?? true,
           cod_active: data.cod_active ?? true,
           vibecoin_active: data.vibecoin_active ?? true,
-        });
+        };
+        setPaymentSettings(settingsObj);
+        setInitialPaymentSettings(settingsObj);
       }
     } catch (err) {
       console.error("Failed to fetch payment settings:", err);
@@ -284,14 +294,16 @@ export default function AdminDashboardPage() {
 
       if (res.ok) {
         const data = await res.json();
-        setPaymentSettings({
+        const updatedObj = {
           bkash_number: data.bkash_number,
           bkash_active: data.bkash_active,
           nagad_number: data.nagad_number,
           nagad_active: data.nagad_active,
           cod_active: data.cod_active,
           vibecoin_active: data.vibecoin_active,
-        });
+        };
+        setPaymentSettings(updatedObj);
+        setInitialPaymentSettings(updatedObj);
         Swal.fire({
           position: "top-end",
           icon: "success",
@@ -3258,7 +3270,16 @@ export default function AdminDashboardPage() {
         )}
 
         {/* PAYMENT SETTINGS TAB */}
-        {activeTab === "payments" && (
+        {activeTab === "payments" && (() => {
+          const hasPaymentChanges =
+            paymentSettings.bkash_number !== initialPaymentSettings.bkash_number ||
+            paymentSettings.bkash_active !== initialPaymentSettings.bkash_active ||
+            paymentSettings.nagad_number !== initialPaymentSettings.nagad_number ||
+            paymentSettings.nagad_active !== initialPaymentSettings.nagad_active ||
+            paymentSettings.cod_active !== initialPaymentSettings.cod_active ||
+            paymentSettings.vibecoin_active !== initialPaymentSettings.vibecoin_active;
+
+          return (
           <div className="max-w-4xl mx-auto space-y-8">
             <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-foreground/10">
@@ -3274,10 +3295,18 @@ export default function AdminDashboardPage() {
                 <button
                   type="button"
                   onClick={() => handleSavePaymentSettings()}
-                  disabled={savingPaymentSettings}
-                  className="px-6 py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-black uppercase tracking-wider hover:opacity-90 transition-all shadow-md flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  disabled={savingPaymentSettings || !hasPaymentChanges}
+                  className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center gap-2 ${
+                    hasPaymentChanges && !savingPaymentSettings
+                      ? "bg-button-bg text-button-fg hover:opacity-90 cursor-pointer scale-102"
+                      : "bg-foreground/10 text-foreground/40 cursor-not-allowed shadow-none border border-foreground/10"
+                  }`}
                 >
-                  {savingPaymentSettings ? "Saving..." : "Save Settings"}
+                  {savingPaymentSettings
+                    ? "Saving..."
+                    : hasPaymentChanges
+                    ? "Save Changes"
+                    : "No Changes"}
                 </button>
               </div>
 
@@ -3292,7 +3321,7 @@ export default function AdminDashboardPage() {
                       <div>
                         <h3 className="font-black text-sm text-foreground">bKash Payment</h3>
                         <span className={`text-[10px] font-bold uppercase tracking-wider ${paymentSettings.bkash_active ? "text-emerald-500" : "text-red-500"}`}>
-                          {paymentSettings.bkash_active ? "Active & Visible" : "Disabled (Hidden)"}
+                          {paymentSettings.bkash_active ? "Active" : "Disabled"}
                         </span>
                       </div>
                     </div>
@@ -3351,7 +3380,7 @@ export default function AdminDashboardPage() {
                       <div>
                         <h3 className="font-black text-sm text-foreground">Nagad Payment</h3>
                         <span className={`text-[10px] font-bold uppercase tracking-wider ${paymentSettings.nagad_active ? "text-emerald-500" : "text-red-500"}`}>
-                          {paymentSettings.nagad_active ? "Active & Visible" : "Disabled (Hidden)"}
+                          {paymentSettings.nagad_active ? "Active" : "Disabled"}
                         </span>
                       </div>
                     </div>
@@ -3409,7 +3438,7 @@ export default function AdminDashboardPage() {
                     <div>
                       <h3 className="font-black text-sm text-foreground">Cash On Delivery (COD)</h3>
                       <span className={`text-[10px] font-bold uppercase tracking-wider ${paymentSettings.cod_active ? "text-emerald-500" : "text-red-500"}`}>
-                        {paymentSettings.cod_active ? "Active & Visible" : "Disabled (Hidden)"}
+                        {paymentSettings.cod_active ? "Active" : "Disabled"}
                       </span>
                     </div>
                   </div>
@@ -3443,7 +3472,7 @@ export default function AdminDashboardPage() {
                     <div>
                       <h3 className="font-black text-sm text-foreground">VibeCoin Balance Payment</h3>
                       <span className={`text-[10px] font-bold uppercase tracking-wider ${paymentSettings.vibecoin_active ? "text-emerald-500" : "text-red-500"}`}>
-                        {paymentSettings.vibecoin_active ? "Active & Visible" : "Disabled (Hidden)"}
+                        {paymentSettings.vibecoin_active ? "Active" : "Disabled"}
                       </span>
                     </div>
                   </div>
@@ -3470,7 +3499,8 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           </div>
-        )}
+          );
+        })()}
       </main>
     </div>
   );
