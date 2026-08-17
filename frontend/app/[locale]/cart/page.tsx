@@ -93,22 +93,30 @@ export default function CartPage() {
   // Calculate Subtotals & Product Discounts
   const originalSubtotal =
     cart?.items.reduce((sum, item) => {
-      const unitPrice = Number(item.product.unit_price || 0);
+      const variant = (item as any).variant;
+      const unitPrice = variant?.price_override
+        ? Number(variant.price_override)
+        : Number(item.product.unit_price || 0);
       return sum + unitPrice * item.quantity;
     }, 0) || 0;
 
   const discountedSubtotal =
     cart?.items.reduce((sum, item) => {
-      const unitPrice = Number(item.product.unit_price || 0);
+      const variant = (item as any).variant;
+      const unitPrice = variant?.price_override
+        ? Number(variant.price_override)
+        : Number(item.product.unit_price || 0);
       const discountPercent = Number(
         (item.product as any).discount_percent || 0,
       );
       const effectiveUnitPrice =
-        (item.product as any).discounted_price !== undefined
-          ? Number((item.product as any).discounted_price)
-          : discountPercent > 0
-            ? unitPrice * (1 - discountPercent / 100)
-            : unitPrice;
+        variant?.discounted_price !== undefined
+          ? Number(variant.discounted_price)
+          : (item.product as any).discounted_price !== undefined
+            ? Number((item.product as any).discounted_price)
+            : discountPercent > 0
+              ? unitPrice * (1 - discountPercent / 100)
+              : unitPrice;
       return sum + effectiveUnitPrice * item.quantity;
     }, 0) || 0;
 
@@ -145,11 +153,17 @@ export default function CartPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code: cleanCode,
-          cart_items: cart.items.map((item) => ({
-            product_id: item.product.id,
-            quantity: item.quantity,
-            unit_price: item.product.unit_price,
-          })),
+          cart_items: cart.items.map((item) => {
+            const variant = (item as any).variant;
+            const unitPrice = variant?.price_override
+              ? Number(variant.price_override)
+              : Number(item.product.unit_price || 0);
+            return {
+              product_id: item.product.id,
+              quantity: item.quantity,
+              unit_price: unitPrice,
+            };
+          }),
         }),
       });
 
@@ -210,16 +224,21 @@ export default function CartPage() {
   const couponSavings = appliedCoupon
     ? cart?.items.reduce((sum, item) => {
         if (appliedCoupon.applicableProductIds.includes(item.product.id)) {
-          const unitPrice = Number(item.product.unit_price || 0);
+          const variant = (item as any).variant;
+          const unitPrice = variant?.price_override
+            ? Number(variant.price_override)
+            : Number(item.product.unit_price || 0);
           const discountPercent = Number(
             (item.product as any).discount_percent || 0,
           );
           const effectiveUnitPrice =
-            (item.product as any).discounted_price !== undefined
-              ? Number((item.product as any).discounted_price)
-              : discountPercent > 0
-                ? unitPrice * (1 - discountPercent / 100)
-                : unitPrice;
+            variant?.discounted_price !== undefined
+              ? Number(variant.discounted_price)
+              : (item.product as any).discounted_price !== undefined
+                ? Number((item.product as any).discounted_price)
+                : discountPercent > 0
+                  ? unitPrice * (1 - discountPercent / 100)
+                  : unitPrice;
           return (
             sum +
             ((effectiveUnitPrice * appliedCoupon.discountPercent) / 100) *
@@ -244,11 +263,17 @@ export default function CartPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             code: appliedCoupon.code,
-            cart_items: cart.items.map((item) => ({
-              product_id: item.product.id,
-              quantity: item.quantity,
-              unit_price: item.product.unit_price,
-            })),
+            cart_items: cart.items.map((item) => {
+              const variant = (item as any).variant;
+              const unitPrice = variant?.price_override
+                ? Number(variant.price_override)
+                : Number(item.product.unit_price || 0);
+              return {
+                product_id: item.product.id,
+                quantity: item.quantity,
+                unit_price: unitPrice,
+              };
+            }),
           }),
         });
 
