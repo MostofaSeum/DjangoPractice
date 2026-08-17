@@ -2797,8 +2797,9 @@ export default function AdminDashboardPage() {
                   <input
                     type="text"
                     required
+                    maxLength={20}
                     value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase().slice(0, 20))}
                     placeholder="e.g. SUMMER25, VIP50"
                     className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-sm font-black uppercase tracking-wider text-foreground outline-none focus:ring-2 focus:ring-accent shadow-inner"
                   />
