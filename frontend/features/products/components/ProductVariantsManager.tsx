@@ -38,7 +38,7 @@ export default function ProductVariantsManager({
   const [variantForm, setVariantForm] = useState({
     name: "",
     color_name: "",
-    color_code: "#C84248",
+    color_code: "",
     size: "",
     price_override: "",
     inventory: "10",
@@ -74,7 +74,7 @@ export default function ProductVariantsManager({
     setVariantForm({
       name: "",
       color_name: "",
-      color_code: "#C84248",
+      color_code: "",
       size: "",
       price_override: "",
       inventory: "10",
@@ -88,7 +88,7 @@ export default function ProductVariantsManager({
     setVariantForm({
       name: v.name || "",
       color_name: v.color_name || "",
-      color_code: v.color_code || "#C84248",
+      color_code: v.color_code || "",
       size: v.size || "",
       price_override: v.price_override ? String(v.price_override) : "",
       inventory: String(v.inventory ?? 0),
@@ -332,29 +332,40 @@ export default function ProductVariantsManager({
                   />
                 </div>
 
-                {/* Color Settings (Shades) */}
+                {/* Color Settings (Optional Shades) */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
                     <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                      Shade / Color Name
+                      Shade / Color Name <span className="opacity-40 lowercase">(optional)</span>
                     </label>
                     <input
                       type="text"
                       value={variantForm.color_name}
                       onChange={(e) => setVariantForm({ ...variantForm, color_name: e.target.value })}
-                      placeholder="e.g. Velvet Rose"
+                      placeholder="e.g. Velvet Rose (leave blank if N/A)"
                       className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                     />
                   </div>
 
                   <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                      Color Swatch Hex
-                    </label>
+                    <div className="flex justify-between items-center">
+                      <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                        Color Hex <span className="opacity-40 lowercase">(optional)</span>
+                      </label>
+                      {variantForm.color_code && (
+                        <button
+                          type="button"
+                          onClick={() => setVariantForm({ ...variantForm, color_code: "" })}
+                          className="text-[9px] font-bold text-red-500 hover:underline cursor-pointer"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
                     <div className="flex items-center gap-2">
                       <input
                         type="color"
-                        value={variantForm.color_code || "#C84248"}
+                        value={variantForm.color_code || "#000000"}
                         onChange={(e) => setVariantForm({ ...variantForm, color_code: e.target.value })}
                         className="w-8 h-8 rounded-lg cursor-pointer border border-foreground/15 bg-transparent p-0 flex-shrink-0"
                       />
@@ -362,7 +373,7 @@ export default function ProductVariantsManager({
                         type="text"
                         value={variantForm.color_code}
                         onChange={(e) => setVariantForm({ ...variantForm, color_code: e.target.value })}
-                        placeholder="#C84248"
+                        placeholder="e.g. #C84248 or leave blank"
                         className="w-full px-2.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                       />
                     </div>
