@@ -91,7 +91,7 @@ export default function GiftCardsPage() {
     setPhone("");
     setTransactionId("");
     setTransactionPhoneNo("");
-    setPaymentMethod("B");
+    setPaymentMethod(paymentSettings.bkash_active ? "B" : paymentSettings.nagad_active ? "N" : "B");
     setErrorMessage("");
     setSuccessResult(null);
     setCopied(false);
