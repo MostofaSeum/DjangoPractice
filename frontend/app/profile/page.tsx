@@ -351,7 +351,7 @@ export default function ProfilePage() {
                               : "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
                           }`}
                         >
-                          Order Status: {ord.payment_status === "C" ? "Complete" : ord.payment_status === "F" ? "Failed" : "Pending"}
+                          Payment Status: {ord.payment_status === "C" ? "Complete" : ord.payment_status === "F" ? "Failed" : "Pending"}
                         </span>
                       </div>
 
