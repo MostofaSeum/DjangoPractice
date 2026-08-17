@@ -152,7 +152,7 @@ export default function ProductInteractive({
             <div className="flex items-center gap-2 text-xs font-semibold text-foreground opacity-90">
               <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
               <span>
-                In stock (<span className="text-emerald-500 font-bold">{currentStock}</span> available)
+                In stock
               </span>
             </div>
           )
