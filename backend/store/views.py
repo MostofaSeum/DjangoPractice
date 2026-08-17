@@ -107,16 +107,16 @@ class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyMo
         else:
             serializer.save()
 
-    @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['GET', 'POST'], permission_classes=[IsAuthenticated])
     def sync(self, request):
-        guest_cart_id = request.data.get('cart_id')
+        guest_cart_id = request.data.get('cart_id') if request.method == 'POST' else request.query_params.get('cart_id')
         customer, _ = Customer.objects.get_or_create(user_id=request.user.id)
 
-        user_cart = Cart.objects.filter(customer=customer).prefetch_related('items__product').first()
+        user_cart = Cart.objects.filter(customer=customer).prefetch_related('items__product', 'items__variant').first()
 
         if guest_cart_id:
             try:
-                guest_cart = Cart.objects.filter(id=guest_cart_id).prefetch_related('items__product').first()
+                guest_cart = Cart.objects.filter(id=guest_cart_id).prefetch_related('items__product', 'items__variant').first()
                 if guest_cart:
                     if not user_cart:
                         guest_cart.customer = customer
@@ -140,6 +140,7 @@ class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyMo
         if not user_cart:
             user_cart, _ = Cart.objects.get_or_create(customer=customer)
 
+        user_cart = Cart.objects.prefetch_related('items__product', 'items__variant').get(id=user_cart.id)
         serializer = CartSerializers(user_cart)
         return Response(serializer.data)
 
