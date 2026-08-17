@@ -288,14 +288,10 @@ export default function ProductInteractive({
                       Choose a size...
                     </option>
                     {uniqueSizes.map((sz) => {
-                      // Find price info for this size if applicable
-                      const sampleVariant = activeVariants.find((v) => v.size === sz);
-                      const priceText = sampleVariant
-                        ? ` - $${Number(sampleVariant.effective_price || basePrice).toFixed(2)}`
-                        : "";
+                      const displaySize = /^\d+(\.\d+)?$/.test(sz.trim()) ? `${sz.trim()}ml` : sz;
                       return (
                         <option key={sz} value={sz} className="bg-secondary text-foreground font-semibold">
-                          {sz} {priceText}
+                          {displaySize}
                         </option>
                       );
                     })}
