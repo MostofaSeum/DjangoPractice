@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Swal from "sweetalert2";
 import { ProductVariant } from "@/types/product";
 
@@ -27,6 +28,11 @@ export default function ProductVariantsManager({
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingVariant, setEditingVariant] = useState<ProductVariant | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Form State
   const [variantForm, setVariantForm] = useState({
@@ -291,142 +297,145 @@ export default function ProductVariantsManager({
         </div>
       )}
 
-      {/* Add / Edit Variant Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="bg-secondary text-foreground rounded-3xl p-6 max-w-md w-full shadow-2xl border border-foreground/10 relative max-h-[90vh] overflow-y-auto overflow-x-hidden">
-            <div className="flex justify-between items-center pb-3 border-b border-foreground/10 mb-4">
-              <h4 className="text-sm font-black uppercase tracking-tight">
-                {editingVariant ? "Edit Product Variant" : "Add New Product Variant"}
-              </h4>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(false)}
-                className="w-7 h-7 flex items-center justify-center rounded-full bg-primary/10 hover:bg-primary/20 text-xs font-bold transition-colors"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveVariant} className="space-y-3.5">
-              {/* Variant Name */}
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  Variant Title / Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={variantForm.name}
-                  onChange={(e) => setVariantForm({ ...variantForm, name: e.target.value })}
-                  placeholder="e.g. 01 Velvet Rose, 50ml, Medium Beige"
-                  className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                />
-              </div>
-
-              {/* Color Settings (Shades) */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Shade / Color Name
-                  </label>
-                  <input
-                    type="text"
-                    value={variantForm.color_name}
-                    onChange={(e) => setVariantForm({ ...variantForm, color_name: e.target.value })}
-                    placeholder="e.g. Velvet Rose"
-                    className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Color Swatch Hex
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={variantForm.color_code || "#C84248"}
-                      onChange={(e) => setVariantForm({ ...variantForm, color_code: e.target.value })}
-                      className="w-8 h-8 rounded-lg cursor-pointer border border-foreground/15 bg-transparent p-0 flex-shrink-0"
-                    />
-                    <input
-                      type="text"
-                      value={variantForm.color_code}
-                      onChange={(e) => setVariantForm({ ...variantForm, color_code: e.target.value })}
-                      placeholder="#C84248"
-                      className="w-full px-2.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Size / Volume */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Size / Volume
-                  </label>
-                  <input
-                    type="text"
-                    value={variantForm.size}
-                    onChange={(e) => setVariantForm({ ...variantForm, size: e.target.value })}
-                    placeholder="e.g. 30ml, 50ml"
-                    className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                  />
-                </div>
-
-                {/* Inventory */}
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Stock Quantity <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    required
-                    value={variantForm.inventory}
-                    onChange={(e) => setVariantForm({ ...variantForm, inventory: e.target.value })}
-                    className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                  />
-                </div>
-              </div>
-
-              {/* Price Override */}
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  Custom Price Override ($) <span className="opacity-50 lowercase">(leave blank to use base price ${Number(basePrice).toFixed(2)})</span>
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  value={variantForm.price_override}
-                  onChange={(e) => setVariantForm({ ...variantForm, price_override: e.target.value })}
-                  placeholder={`Base Price: $${Number(basePrice).toFixed(2)}`}
-                  className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t border-foreground/10">
+      {/* Add / Edit Variant Modal (Portaled to document.body to prevent any stacking context issues) */}
+      {mounted &&
+        isModalOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+            <div className="bg-secondary text-foreground rounded-3xl p-6 max-w-md w-full shadow-2xl border border-foreground/10 relative max-h-[90vh] overflow-y-auto overflow-x-hidden">
+              <div className="flex justify-between items-center pb-3 border-b border-foreground/10 mb-4">
+                <h4 className="text-sm font-black uppercase tracking-tight">
+                  {editingVariant ? "Edit Product Variant" : "Add New Product Variant"}
+                </h4>
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-primary/10 text-xs font-bold uppercase hover:bg-primary/20 transition-colors cursor-pointer"
+                  className="w-7 h-7 flex items-center justify-center rounded-full bg-primary/10 hover:bg-primary/20 text-xs font-bold transition-colors cursor-pointer"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-button-bg text-button-fg text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity shadow-sm cursor-pointer"
-                >
-                  {editingVariant ? "Save Changes" : "Create Variant"}
+                  ✕
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+
+              <form onSubmit={handleSaveVariant} className="space-y-3.5">
+                {/* Variant Name */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                    Variant Title / Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={variantForm.name}
+                    onChange={(e) => setVariantForm({ ...variantForm, name: e.target.value })}
+                    placeholder="e.g. 01 Velvet Rose, 50ml, Medium Beige"
+                    className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                  />
+                </div>
+
+                {/* Color Settings (Shades) */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                      Shade / Color Name
+                    </label>
+                    <input
+                      type="text"
+                      value={variantForm.color_name}
+                      onChange={(e) => setVariantForm({ ...variantForm, color_name: e.target.value })}
+                      placeholder="e.g. Velvet Rose"
+                      className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                      Color Swatch Hex
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={variantForm.color_code || "#C84248"}
+                        onChange={(e) => setVariantForm({ ...variantForm, color_code: e.target.value })}
+                        className="w-8 h-8 rounded-lg cursor-pointer border border-foreground/15 bg-transparent p-0 flex-shrink-0"
+                      />
+                      <input
+                        type="text"
+                        value={variantForm.color_code}
+                        onChange={(e) => setVariantForm({ ...variantForm, color_code: e.target.value })}
+                        placeholder="#C84248"
+                        className="w-full px-2.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Size / Volume */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                      Size / Volume
+                    </label>
+                    <input
+                      type="text"
+                      value={variantForm.size}
+                      onChange={(e) => setVariantForm({ ...variantForm, size: e.target.value })}
+                      placeholder="e.g. 30ml, 50ml"
+                      className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                    />
+                  </div>
+
+                  {/* Inventory */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                      Stock Quantity <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      required
+                      value={variantForm.inventory}
+                      onChange={(e) => setVariantForm({ ...variantForm, inventory: e.target.value })}
+                      className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                    />
+                  </div>
+                </div>
+
+                {/* Price Override */}
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                    Custom Price Override ($) <span className="opacity-50 lowercase">(leave blank to use base price ${Number(basePrice).toFixed(2)})</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={variantForm.price_override}
+                    onChange={(e) => setVariantForm({ ...variantForm, price_override: e.target.value })}
+                    placeholder={`Base Price: $${Number(basePrice).toFixed(2)}`}
+                    className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-2 pt-3 border-t border-foreground/10">
+                  <button
+                    type="button"
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-4 py-2 rounded-xl bg-primary/10 text-xs font-bold uppercase hover:bg-primary/20 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 rounded-xl bg-button-bg text-button-fg text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity shadow-sm cursor-pointer"
+                  >
+                    {editingVariant ? "Save Changes" : "Create Variant"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
