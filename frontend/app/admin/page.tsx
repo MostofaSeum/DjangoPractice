@@ -3147,7 +3147,6 @@ export default function AdminDashboardPage() {
                                 onClick={() => handleEditCoupon(coupon)}
                                 className="text-[10px] font-extrabold text-accent hover:underline uppercase tracking-wider"
                               >
-                                {isBeingEdited ? "Editing Now..." : "Edit"}
                               </button>
                               <button
                                 type="button"
