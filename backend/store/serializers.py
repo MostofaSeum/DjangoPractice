@@ -1,4 +1,6 @@
 from django.db import transaction
+from django.db.models import F, Value
+from django.db.models.functions import Greatest
 from django.utils import timezone
 from .signals import order_created
 from rest_framework import serializers
@@ -294,6 +296,48 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['payment_status']
+
+    def update(self, instance, validated_data):
+        new_status = validated_data.get('payment_status')
+        old_status = instance.payment_status
+
+        with transaction.atomic():
+            instance.payment_status = new_status
+            instance.save()
+
+            # When order is transitioned to COMPLETE from another status (e.g. PENDING or FAILED)
+            if new_status == Order.PAYMENT_STATUS_COMPLETE and old_status != Order.PAYMENT_STATUS_COMPLETE:
+                for item in instance.items.select_related('product', 'variant').all():
+                    qty = item.quantity
+
+                    # Reduce product inventory safely (never below 0)
+                    if item.product_id:
+                        Product.objects.filter(pk=item.product_id).update(
+                            inventory=Greatest(F('inventory') - qty, Value(0))
+                        )
+
+                    # Also reduce variant inventory if a variant was selected
+                    if item.variant_id:
+                        ProductVariant.objects.filter(pk=item.variant_id).update(
+                            inventory=Greatest(F('inventory') - qty, Value(0))
+                        )
+
+            # If order was previously COMPLETE and is reverted back to PENDING/FAILED, restore inventory
+            elif old_status == Order.PAYMENT_STATUS_COMPLETE and new_status != Order.PAYMENT_STATUS_COMPLETE:
+                for item in instance.items.select_related('product', 'variant').all():
+                    qty = item.quantity
+
+                    if item.product_id:
+                        Product.objects.filter(pk=item.product_id).update(
+                            inventory=F('inventory') + qty
+                        )
+
+                    if item.variant_id:
+                        ProductVariant.objects.filter(pk=item.variant_id).update(
+                            inventory=F('inventory') + qty
+                        )
+
+        return instance
 
 class CreateOrderSerializer(serializers.Serializer):
     cart_id = serializers.UUIDField()
