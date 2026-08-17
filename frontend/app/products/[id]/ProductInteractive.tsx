@@ -171,77 +171,184 @@ export default function ProductInteractive({
         </p>
       )}
 
-      {/* Product Variants Section (Colors / Shades & Sizes) */}
-      {activeVariants.length > 0 && (
-        <div className="p-4 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 space-y-3.5 my-3">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <label className="text-xs font-black uppercase tracking-wider text-foreground">
-              Choose Shade / Option:
-            </label>
-            {selectedVariant && (
-              <span className="text-xs font-bold text-accent">
-                {selectedVariant.name}
-              </span>
+      {/* Product Variants Section (Separate Color Swatches & Size Dropdown) */}
+      {activeVariants.length > 0 && (() => {
+        // Collect unique color variants (variants with color_code or distinct color_name)
+        const colorVariants = activeVariants.filter((v) => Boolean(v.color_code || v.color_name));
+        // Collect unique sizes available
+        const sizeVariants = activeVariants.filter((v) => Boolean(v.size));
+        const uniqueSizes = Array.from(new Set(sizeVariants.map((v) => v.size!).filter(Boolean)));
+
+        // If no explicit color or size attributes were filled, fall back to standard list
+        const hasSpecificColors = colorVariants.length > 0;
+        const hasSpecificSizes = uniqueSizes.length > 0;
+
+        return (
+          <div className="p-4 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 space-y-4 my-3">
+            {/* 1. COLOR / SHADE SELECTION */}
+            {hasSpecificColors && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black uppercase tracking-wider text-foreground">
+                    Color / Shade:
+                  </label>
+                  {selectedVariant && (selectedVariant.color_name || selectedVariant.name) && (
+                    <span className="text-xs font-bold text-accent">
+                      {selectedVariant.color_name || selectedVariant.name}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap gap-2.5 items-center">
+                  {colorVariants.map((v) => {
+                    const isSelected =
+                      selectedVariant?.id === v.id ||
+                      (selectedVariant?.color_name && selectedVariant.color_name === v.color_name) ||
+                      (selectedVariant?.color_code && selectedVariant.color_code === v.color_code);
+
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={() => {
+                          // If current size exists, try to find a variant matching both new color and current size
+                          if (selectedVariant?.size) {
+                            const match = activeVariants.find(
+                              (item) =>
+                                (item.color_name === v.color_name || item.color_code === v.color_code) &&
+                                item.size === selectedVariant.size
+                            );
+                            if (match) {
+                              setSelectedVariant(match);
+                              setQuantity(1);
+                              return;
+                            }
+                          }
+                          setSelectedVariant(v);
+                          setQuantity(1);
+                        }}
+                        title={`${v.color_name || v.name} - $${Number(v.effective_price || basePrice).toFixed(2)}`}
+                        className={`group relative p-0.5 rounded-full transition-all cursor-pointer ${
+                          isSelected
+                            ? "ring-2 ring-accent ring-offset-2 ring-offset-secondary scale-110"
+                            : "hover:scale-105 opacity-80 hover:opacity-100"
+                        }`}
+                      >
+                        <div
+                          className="w-7 h-7 rounded-full border border-black/20 shadow-xs flex items-center justify-center"
+                          style={{ backgroundColor: v.color_code || "#C84248" }}
+                        >
+                          {isSelected && <div className="w-2 h-2 rounded-full bg-white shadow-xs" />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* 2. SIZE DROPDOWN SELECTION */}
+            {hasSpecificSizes && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black uppercase tracking-wider text-foreground">
+                    Select Size:
+                  </label>
+                  {selectedVariant?.size && (
+                    <span className="text-xs font-bold text-accent">
+                      {selectedVariant.size}
+                    </span>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <select
+                    value={selectedVariant?.size || ""}
+                    onChange={(e) => {
+                      const newSize = e.target.value;
+                      // Match variant with newSize and current color if possible
+                      const match = activeVariants.find((item) => {
+                        if (selectedVariant?.color_name && item.color_name === selectedVariant.color_name) {
+                          return item.size === newSize;
+                        }
+                        if (selectedVariant?.color_code && item.color_code === selectedVariant.color_code) {
+                          return item.size === newSize;
+                        }
+                        return item.size === newSize;
+                      }) || activeVariants.find((item) => item.size === newSize);
+
+                      if (match) {
+                        setSelectedVariant(match);
+                        setQuantity(1);
+                      }
+                    }}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-foreground/15 bg-secondary text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent cursor-pointer transition-all appearance-none"
+                  >
+                    <option value="" disabled>
+                      Choose a size...
+                    </option>
+                    {uniqueSizes.map((sz) => {
+                      // Find price info for this size if applicable
+                      const sampleVariant = activeVariants.find((v) => v.size === sz);
+                      const priceText = sampleVariant
+                        ? ` - $${Number(sampleVariant.effective_price || basePrice).toFixed(2)}`
+                        : "";
+                      return (
+                        <option key={sz} value={sz} className="bg-secondary text-foreground font-semibold">
+                          {sz} {priceText}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-foreground opacity-60">
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                      <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Fallback if variant only has name and no explicit color/size field */}
+            {!hasSpecificColors && !hasSpecificSizes && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black uppercase tracking-wider text-foreground">
+                    Choose Option:
+                  </label>
+                  {selectedVariant && (
+                    <span className="text-xs font-bold text-accent">
+                      {selectedVariant.name}
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2.5 items-center">
+                  {activeVariants.map((v) => {
+                    const isSelected = selectedVariant?.id === v.id;
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedVariant(v);
+                          setQuantity(1);
+                        }}
+                        className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                          isSelected
+                            ? "bg-accent text-button-fg border-accent shadow-sm scale-105"
+                            : "bg-secondary text-foreground border-foreground/15 hover:border-foreground/40"
+                        }`}
+                      >
+                        {v.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             )}
           </div>
-
-          {/* Color Swatches Grid */}
-          <div className="flex flex-wrap gap-2.5 items-center">
-            {activeVariants.map((v) => {
-              const isSelected = selectedVariant?.id === v.id;
-              const hasColor = Boolean(v.color_code);
-
-              if (hasColor) {
-                return (
-                  <button
-                    key={v.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedVariant(v);
-                      setQuantity(1);
-                    }}
-                    title={`${v.name} - $${Number(v.effective_price || basePrice).toFixed(2)}`}
-                    className={`group relative p-0.5 rounded-full transition-all cursor-pointer ${
-                      isSelected
-                        ? "ring-2 ring-accent ring-offset-2 ring-offset-secondary scale-110"
-                        : "hover:scale-105 opacity-80 hover:opacity-100"
-                    }`}
-                  >
-                    <div
-                      className="w-7 h-7 rounded-full border border-black/20 shadow-xs flex items-center justify-center"
-                      style={{ backgroundColor: v.color_code! }}
-                    >
-                      {isSelected && (
-                        <div className="w-2 h-2 rounded-full bg-white shadow-xs" />
-                      )}
-                    </div>
-                  </button>
-                );
-              }
-
-              // Text/Size pill fallback
-              return (
-                <button
-                  key={v.id}
-                  type="button"
-                  onClick={() => {
-                    setSelectedVariant(v);
-                    setQuantity(1);
-                  }}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
-                    isSelected
-                      ? "bg-accent text-button-fg border-accent shadow-sm scale-105"
-                      : "bg-secondary text-foreground border-foreground/15 hover:border-foreground/40"
-                  }`}
-                >
-                  {v.name}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       <hr className="border-foreground/10 my-3" />
 
