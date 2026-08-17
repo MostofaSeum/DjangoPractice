@@ -3319,18 +3319,19 @@ export default function AdminDashboardPage() {
 
                   <div className="space-y-1.5 pt-2">
                     <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                      bKash Receiver / Merchant Number
+                      bKash Receiver / Merchant Number 
                     </label>
                     <input
-                      type="text"
+                      type="tel"
+                      maxLength={11}
                       value={paymentSettings.bkash_number}
                       onChange={(e) =>
                         setPaymentSettings({
                           ...paymentSettings,
-                          bkash_number: e.target.value,
+                          bkash_number: e.target.value.replace(/\D/g, "").slice(0, 11),
                         })
                       }
-                      placeholder="e.g. 017XXXXXXXX"
+                      placeholder="e.g. 01700000000"
                       className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-secondary text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
                     />
                     <p className="text-[10px] opacity-50 font-medium">
@@ -3380,15 +3381,16 @@ export default function AdminDashboardPage() {
                       Nagad Receiver / Merchant Number
                     </label>
                     <input
-                      type="text"
+                      type="tel"
+                      maxLength={11}
                       value={paymentSettings.nagad_number}
                       onChange={(e) =>
                         setPaymentSettings({
                           ...paymentSettings,
-                          nagad_number: e.target.value,
+                          nagad_number: e.target.value.replace(/\D/g, "").slice(0, 11),
                         })
                       }
-                      placeholder="e.g. 018XXXXXXXX"
+                      placeholder="e.g. 01800000000"
                       className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-secondary text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
                     />
                     <p className="text-[10px] opacity-50 font-medium">
