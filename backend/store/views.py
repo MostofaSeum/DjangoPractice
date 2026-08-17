@@ -2,8 +2,8 @@ from .permissions import ViewCustomerHistoryPermission
 from rest_framework.decorators import action
 from store.models import OrderItem
 from django.http import request
-from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,ProductImageSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer
-from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,GiftCard,WishlistItem,Subscriber,Promotion,Coupon
+from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer
+from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon
 from django.utils import timezone
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
@@ -23,7 +23,7 @@ class ProductPagination(PageNumberPagination):
 
 # Create your views here.
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.prefetch_related('images').annotate(popularity=Count('orderitem')).all()
+    queryset = Product.objects.prefetch_related('images', 'variants').annotate(popularity=Count('orderitem')).all()
     serializer_class = ProductSerializers
     filter_backends = [DjangoFilterBackend,SearchFilter,OrderingFilter]
     pagination_class = ProductPagination
@@ -93,7 +93,7 @@ class ReviewViewSet(ModelViewSet):
 
 
 class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyModelMixin):
-    queryset = Cart.objects.prefetch_related('items__product').all()
+    queryset = Cart.objects.prefetch_related('items__product', 'items__variant').all()
     serializer_class = CartSerializers
 
     def perform_create(self, serializer):
@@ -108,13 +108,6 @@ class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyMo
             serializer.save()
 
     @action(detail=False, methods=['GET'], permission_classes=[IsAuthenticated])
-    def me(self, request):
-        customer = Customer.objects.get(user_id=request.user.id)
-        (cart, _) = Cart.objects.prefetch_related('items__product').get_or_create(customer=customer)
-        serializer = CartSerializers(cart)
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['POST'], permission_classes=[IsAuthenticated])
     def sync(self, request):
         guest_cart_id = request.data.get('cart_id')
         customer, _ = Customer.objects.get_or_create(user_id=request.user.id)
@@ -134,6 +127,7 @@ class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyMo
                             cart_item, created = CartItem.objects.get_or_create(
                                 cart=user_cart,
                                 product=item.product,
+                                variant=item.variant,
                                 defaults={'quantity': item.quantity}
                             )
                             if not created:
@@ -160,7 +154,40 @@ class CartItemViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {'cart_id' : self.kwargs['cart_pk']}
     def get_queryset(self):
-        return CartItem.objects.filter(cart_id=self.kwargs['cart_pk']).select_related('product')
+        return CartItem.objects.filter(cart_id=self.kwargs['cart_pk']).select_related('product', 'variant')
+
+class ProductVariantViewSet(ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly]
+    serializer_class = ProductVariantSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        product_pk = self.kwargs.get('product_pk')
+        if product_pk:
+            return ProductVariant.objects.filter(product_id=product_pk)
+        return ProductVariant.objects.all()
+
+    def get_serializer_context(self):
+        return {
+            'product_id': self.kwargs.get('product_pk'),
+            'request': self.request,
+            'view': self
+        }
+
+class ProductImageViewSet(ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly]
+    serializer_class = ProductImageSerializer
+    
+    def get_queryset(self):
+        return ProductImage.objects.filter(product_id=self.kwargs['product_pk'])
+    
+    def get_serializer_context(self):
+        return {'product_id': self.kwargs['product_pk']}
+
+class GiftCardViewSet(ModelViewSet):
+    queryset = GiftCard.objects.all()
+    serializer_class = GiftCardSerializer
+    permission_classes = [AllowAny]
 
 class CustomerViewSet(ModelViewSet):
     queryset = Customer.objects.all()

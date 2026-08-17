@@ -13,12 +13,15 @@ router.register('wishlist', views.WishlistViewSet, basename='wishlist')
 router.register('subscribers', views.SubscriberViewSet, basename='subscribers')
 router.register('promotions', views.PromotionViewSet, basename='promotions')
 router.register('coupons', views.CouponViewSet, basename='coupons')
+router.register('variants', views.ProductVariantViewSet, basename='variants')
 
 
 products_router = routers.NestedDefaultRouter(router, 'products', lookup='product')
 products_router.register('reviews', views.ReviewViewSet, basename='product-reviews')
 products_router.register('images', views.ProductImageViewSet,
                          basename='product-images')
+products_router.register('variants', views.ProductVariantViewSet,
+                         basename='product-variants')
 
 carts_router = routers.NestedDefaultRouter(router, 'carts', lookup='cart')
 carts_router.register('items', views.CartItemViewSet, basename='cart-items')

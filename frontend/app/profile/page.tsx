@@ -399,11 +399,24 @@ export default function ProfilePage() {
                             Items Ordered ({ord.items.reduce((s, i) => s + i.quantity, 0)})
                           </p>
                           <div className="space-y-1">
-                            {ord.items.map((it) => (
+                            {ord.items.map((it: any) => (
                               <div key={it.id} className="flex justify-between items-center text-xs">
-                                <span className="font-bold text-foreground">
-                                  {it.product?.title || `Product #${it.product}`} <span className="opacity-50 font-normal">x {it.quantity}</span>
-                                </span>
+                                <div className="flex flex-col">
+                                  <span className="font-bold text-foreground">
+                                    {it.product?.title || `Product #${it.product}`} <span className="opacity-50 font-normal">x {it.quantity}</span>
+                                  </span>
+                                  {(it.variant || it.variant_title) && (
+                                    <span className="text-[10px] text-accent font-semibold flex items-center gap-1">
+                                      {it.variant?.color_code && (
+                                        <span
+                                          className="w-2.5 h-2.5 rounded-full border border-black/20 inline-block shrink-0"
+                                          style={{ backgroundColor: it.variant.color_code }}
+                                        />
+                                      )}
+                                      <span>Option: {it.variant?.name || it.variant_title}</span>
+                                    </span>
+                                  )}
+                                </div>
                                 <span className="font-black text-accent">
                                   ${(it.quantity * Number(it.unit_price)).toFixed(2)}
                                 </span>

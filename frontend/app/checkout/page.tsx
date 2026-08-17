@@ -111,22 +111,30 @@ export default function CheckoutPage() {
   // Calculate Subtotals, Product Discounts, and Coupon Savings
   const originalSubtotal =
     cart?.items.reduce((sum, item) => {
-      const unitPrice = Number(item.product.unit_price || 0);
+      const variant = (item as any).variant;
+      const unitPrice = variant?.price_override
+        ? Number(variant.price_override)
+        : Number(item.product.unit_price || 0);
       return sum + unitPrice * item.quantity;
     }, 0) || 0;
 
   const discountedSubtotal =
     cart?.items.reduce((sum, item) => {
-      const unitPrice = Number(item.product.unit_price || 0);
+      const variant = (item as any).variant;
+      const unitPrice = variant?.price_override
+        ? Number(variant.price_override)
+        : Number(item.product.unit_price || 0);
       const discountPercent = Number(
         (item.product as any).discount_percent || 0,
       );
       const effectiveUnitPrice =
-        (item.product as any).discounted_price !== undefined
+        variant?.discounted_price !== undefined
+          ? Number(variant.discounted_price)
+          : (item.product as any).discounted_price !== undefined
           ? Number((item.product as any).discounted_price)
           : discountPercent > 0
-            ? unitPrice * (1 - discountPercent / 100)
-            : unitPrice;
+          ? unitPrice * (1 - discountPercent / 100)
+          : unitPrice;
       return sum + effectiveUnitPrice * item.quantity;
     }, 0) || 0;
 
@@ -138,16 +146,21 @@ export default function CheckoutPage() {
   const couponSavings = appliedCoupon
     ? cart?.items.reduce((sum, item) => {
         if (appliedCoupon.applicableProductIds.includes(item.product.id)) {
-          const unitPrice = Number(item.product.unit_price || 0);
+          const variant = (item as any).variant;
+          const unitPrice = variant?.price_override
+            ? Number(variant.price_override)
+            : Number(item.product.unit_price || 0);
           const discountPercent = Number(
             (item.product as any).discount_percent || 0,
           );
           const effectiveUnitPrice =
-            (item.product as any).discounted_price !== undefined
+            variant?.discounted_price !== undefined
+              ? Number(variant.discounted_price)
+              : (item.product as any).discounted_price !== undefined
               ? Number((item.product as any).discounted_price)
               : discountPercent > 0
-                ? unitPrice * (1 - discountPercent / 100)
-                : unitPrice;
+              ? unitPrice * (1 - discountPercent / 100)
+              : unitPrice;
           return (
             sum +
             ((effectiveUnitPrice * appliedCoupon.discountPercent) / 100) *

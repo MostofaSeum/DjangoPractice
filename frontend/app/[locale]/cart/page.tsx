@@ -326,13 +326,17 @@ export default function CartPage() {
             {/* Cart Items List */}
             <div className="lg:col-span-2 space-y-4">
               {cart.items.map((item) => {
-                const unitPrice = Number(item.product.unit_price || 0);
+                const variant = (item as any).variant;
+                const unitPrice = variant?.price_override
+                  ? Number(variant.price_override)
+                  : Number(item.product.unit_price || 0);
                 const discountPercent = Number(
                   (item.product as any).discount_percent || 0,
                 );
                 const hasDiscount = discountPercent > 0;
-                const effectiveUnitPrice =
-                  (item.product as any).discounted_price !== undefined
+                const effectiveUnitPrice = variant?.discounted_price !== undefined
+                  ? Number(variant.discounted_price)
+                  : (item.product as any).discounted_price !== undefined
                     ? Number((item.product as any).discounted_price)
                     : hasDiscount
                       ? unitPrice * (1 - discountPercent / 100)
@@ -366,6 +370,28 @@ export default function CartPage() {
                         <h3 className="font-black text-lg uppercase tracking-tight">
                           {item.product.title}
                         </h3>
+
+                        {/* Variant Badge / Swatch */}
+                        {variant && (
+                          <div className="flex items-center gap-2 mt-1 mb-1">
+                            {variant.color_code && (
+                              <span
+                                className="w-3.5 h-3.5 rounded-full border border-black/20 shadow-xs inline-block shrink-0"
+                                style={{ backgroundColor: variant.color_code }}
+                                title={variant.color_name || variant.name}
+                              />
+                            )}
+                            <span className="text-xs font-bold opacity-80">
+                              {variant.name}
+                            </span>
+                            {variant.size && (
+                              <span className="px-1.5 py-0.5 rounded bg-primary/10 text-[9px] font-black uppercase opacity-75">
+                                {variant.size}
+                              </span>
+                            )}
+                          </div>
+                        )}
+
                         <div className="flex items-baseline gap-2 mt-1">
                           <span className="text-accent font-extrabold text-sm">
                             ${effectiveUnitPrice.toFixed(2)}

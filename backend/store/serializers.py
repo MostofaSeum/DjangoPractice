@@ -2,15 +2,9 @@ from django.db import transaction
 from django.utils import timezone
 from .signals import order_created
 from rest_framework import serializers
-from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,GiftCard,WishlistItem,Subscriber,Promotion,Coupon
+from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon
 from decimal import Decimal
 
-# class ProductSerializers(serializers.Serializer):
-#     id = serializers.IntegerField()   
-#     title = serializers.CharField(max_length=255)
-#     price = serializers.DecimalField(max_digits=6,decimal_places=2,source = 'unit_price')
-#     price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax')
-#     collection = serializers.StringRelatedField()
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
@@ -19,15 +13,37 @@ class ProductImageSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         product_id = self.context['product_id']
         return ProductImage.objects.create(product_id=product_id, **validated_data)
-        
+
+class ProductVariantSerializer(serializers.ModelSerializer):
+    effective_price = serializers.DecimalField(max_digits=6, decimal_places=2, read_only=True)
+    discounted_price = serializers.DecimalField(max_digits=6, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = ProductVariant
+        fields = [
+            'id', 'product', 'name', 'color_name', 'color_code', 'size',
+            'price_override', 'effective_price', 'discounted_price',
+            'inventory', 'image', 'is_active'
+        ]
+        read_only_fields = ['product']
+
+    def create(self, validated_data):
+        product_id = self.context.get('product_id')
+        if not product_id and 'view' in self.context and hasattr(self.context['view'], 'kwargs'):
+            product_id = self.context['view'].kwargs.get('product_pk')
+        if product_id:
+            validated_data['product_id'] = product_id
+        return super().create(validated_data)
+
 class ProductSerializers(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
+    variants = ProductVariantSerializer(many=True, read_only=True)
     price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax')
     discounted_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
-        fields = ['id', 'title', 'short_description', 'description', 'slug', 'inventory', 'unit_price', 'discount_percent', 'discounted_price', 'price_with_tax', 'collection', 'images', 'is_photos_published', 'is_trending']
+        fields = ['id', 'title', 'short_description', 'description', 'slug', 'inventory', 'unit_price', 'discount_percent', 'discounted_price', 'price_with_tax', 'collection', 'images', 'variants', 'is_photos_published', 'is_trending']
 
     def validate_short_description(self, value):
         if value:
@@ -141,53 +157,94 @@ class SimpleProductSerializers(serializers.ModelSerializer):
         serializer = ProductImageSerializer(product.images.all(), many=True, context=self.context)
         return serializer.data
 
+class SimpleProductVariantSerializer(serializers.ModelSerializer):
+    effective_price = serializers.DecimalField(max_digits=6, decimal_places=2, read_only=True)
+    discounted_price = serializers.DecimalField(max_digits=6, decimal_places=2, read_only=True)
+
+    class Meta:
+        model = ProductVariant
+        fields = [
+            'id', 'name', 'color_name', 'color_code', 'size',
+            'price_override', 'effective_price', 'discounted_price',
+            'inventory', 'image', 'is_active'
+        ]
+
 class CartItemSerializers(serializers.ModelSerializer):
     product = SimpleProductSerializers()
+    variant = SimpleProductVariantSerializer(read_only=True)
+    total_price = serializers.SerializerMethodField()
+
     class Meta:
         model = CartItem
-        fields = ['id','product','quantity','total_price']
-    total_price = serializers.SerializerMethodField()
+        fields = ['id', 'product', 'variant', 'quantity', 'total_price']
+
     def get_total_price(self, cartitem):
-        return float(cartitem.quantity * cartitem.product.discounted_price)
+        if cartitem.variant:
+            unit_val = cartitem.variant.discounted_price
+        else:
+            unit_val = cartitem.product.discounted_price
+        return float(cartitem.quantity * unit_val)
 
 class CartSerializers(serializers.ModelSerializer):
-    id = serializers.UUIDField(read_only = True)
+    id = serializers.UUIDField(read_only=True)
     customer = serializers.PrimaryKeyRelatedField(read_only=True)
-    items = CartItemSerializers(many=True, read_only = True)
+    items = CartItemSerializers(many=True, read_only=True)
     total_price = serializers.SerializerMethodField()
 
-    def get_total_price(self,cart):
-       return sum([item.quantity * float(item.product.discounted_price) for item in cart.items.all()])
+    def get_total_price(self, cart):
+        total = Decimal('0.00')
+        for item in cart.items.all():
+            if item.variant:
+                unit_val = Decimal(str(item.variant.discounted_price))
+            else:
+                unit_val = Decimal(str(item.product.discounted_price))
+            total += Decimal(item.quantity) * unit_val
+        return float(total)
+
     class Meta:
         model = Cart
         fields = ['id', 'items', 'total_price', 'customer']
 
 class AddCartItemSerializers(serializers.ModelSerializer):
     product_id = serializers.IntegerField()
+    variant_id = serializers.IntegerField(required=False, allow_null=True, default=None)
     quantity = serializers.IntegerField(min_value=1, max_value=100)
-
 
     def validate_product_id(self, value):
         if not Product.objects.filter(pk=value).exists():
             raise serializers.ValidationError('No product with this ID exists.')
         return value
 
+    def validate(self, attrs):
+        product_id = attrs.get('product_id')
+        variant_id = attrs.get('variant_id')
+        if variant_id:
+            if not ProductVariant.objects.filter(pk=variant_id, product_id=product_id).exists():
+                raise serializers.ValidationError({'variant_id': 'Selected variant does not belong to this product or does not exist.'})
+        return attrs
+
     def save(self, **kwargs):
         product_id = self.validated_data['product_id']
+        variant_id = self.validated_data.get('variant_id')
         quantity = self.validated_data['quantity']
         cart_id = self.context['cart_id']
         try:
-            cart_item = CartItem.objects.get(cart_id = cart_id, product_id = product_id)
+            cart_item = CartItem.objects.get(cart_id=cart_id, product_id=product_id, variant_id=variant_id)
             cart_item.quantity += quantity
             cart_item.save()
             self.instance = cart_item
         except CartItem.DoesNotExist:
-            self.instance = CartItem.objects.create(cart_id = cart_id, **self.validated_data)
+            self.instance = CartItem.objects.create(
+                cart_id=cart_id,
+                product_id=product_id,
+                variant_id=variant_id,
+                quantity=quantity
+            )
         return self.instance
 
     class Meta:
         model = CartItem
-        fields = ['product_id','quantity']
+        fields = ['product_id', 'variant_id', 'quantity']
 
 class UpdateCartItemSerializers(serializers.ModelSerializer):
     class Meta:
@@ -213,17 +270,19 @@ class CustomerSerializers(serializers.ModelSerializer):
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product = SimpleProductSerializers()
+    variant = SimpleProductVariantSerializer(read_only=True)
+
     class Meta:
         model = OrderItem
-        fields = ['id','product', 'quantity', 'unit_price']
+        fields = ['id', 'product', 'variant', 'variant_title', 'quantity', 'unit_price']
 
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many =True)
+    items = OrderItemSerializer(many=True)
     customer_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'customer_name', 'payment_status','placed_at', 'shipping_address', 'phone', 'payment_method', 'transaction_id', 'transaction_phone_no', 'items']
+        fields = ['id', 'customer', 'customer_name', 'payment_status', 'placed_at', 'shipping_address', 'phone', 'payment_method', 'transaction_id', 'transaction_phone_no', 'items']
 
     def get_customer_name(self, obj):
         if obj.customer and hasattr(obj.customer, 'user') and obj.customer.user:
@@ -259,7 +318,7 @@ class CreateOrderSerializer(serializers.Serializer):
             raw_coupon_code = self.validated_data.get('coupon_code', '')
             coupon_code = str(raw_coupon_code).strip().upper() if raw_coupon_code else ''
             
-            cart_items = list(CartItem.objects.select_related('product').filter(cart_id=cart_id))
+            cart_items = list(CartItem.objects.select_related('product', 'variant').filter(cart_id=cart_id))
             if not cart_items:
                 raise serializers.ValidationError({'cart_id': 'The cart is empty.'})
 
@@ -274,11 +333,19 @@ class CreateOrderSerializer(serializers.Serializer):
                 except Coupon.DoesNotExist:
                     pass
 
-            # Calculate effective price per item considering both product discount and coupon discount
+            # Calculate effective price per item considering variant price, product discount, and coupon discount
             order_items_data = []
             for item in cart_items:
                 prod = item.product
-                unit_price = prod.unit_price
+                variant = item.variant
+
+                if variant:
+                    unit_price = variant.effective_price
+                    variant_title = variant.name
+                else:
+                    unit_price = prod.unit_price
+                    variant_title = ''
+
                 prod_discount = Decimal(str(prod.discount_percent or 0))
                 
                 # Base price after product-level promotion
@@ -304,6 +371,8 @@ class CreateOrderSerializer(serializers.Serializer):
                 effective_price = round(effective_price, 2)
                 order_items_data.append({
                     'product': prod,
+                    'variant': variant,
+                    'variant_title': variant_title,
                     'quantity': item.quantity,
                     'unit_price': effective_price
                 })
@@ -333,6 +402,8 @@ class CreateOrderSerializer(serializers.Serializer):
                 OrderItem(
                     order=order,
                     product=d['product'],
+                    variant=d['variant'],
+                    variant_title=d['variant_title'],
                     quantity=d['quantity'],
                     unit_price=d['unit_price']
                 ) for d in order_items_data

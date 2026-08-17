@@ -139,90 +139,15 @@ export default async function ProductDetailPage({ params }: PageProps) {
             {/* Dynamic Customer Rating & Review Count Header */}
             <ProductRatingHeader productId={product.id} />
 
-            {/* Price */}
-            {(() => {
-              const originalPrice = Number(product.unit_price);
-              const discountPercent = Number(product.discount_percent || 0);
-              const currentPrice = Number(
-                product.discounted_price !== undefined
-                  ? product.discounted_price
-                  : discountPercent > 0
-                  ? originalPrice * (1 - discountPercent / 100)
-                  : originalPrice
-              );
-              const isOnSale =
-                discountPercent > 0 ||
-                (product.discounted_price !== undefined &&
-                  product.discounted_price < originalPrice);
-              const savedAmount = Math.max(0, originalPrice - currentPrice);
-
-              return (
-                <div className="flex flex-wrap items-center gap-2.5 mb-3 mt-1">
-                  <span className="text-xl sm:text-2xl font-black text-accent">
-                    ${currentPrice.toFixed(2)}
-                  </span>
-                  {isOnSale && (
-                    <>
-                      <span className="text-base line-through opacity-50 font-bold">
-                        ${originalPrice.toFixed(2)}
-                      </span>
-                      {discountPercent > 0 && (
-                        <span className="px-2 py-0.5 rounded-md bg-accent text-button-fg font-extrabold text-[10px] uppercase tracking-wider shadow-sm flex items-center gap-1">
-                          <img
-                            src="/discount.png"
-                            alt="Discount"
-                            className="w-3.5 h-3.5 object-contain brightness-0 invert"
-                          />
-                          -{Math.round(discountPercent)}% OFF
-                        </span>
-                      )}
-                      <span className="px-2.5 py-0.5 rounded-md bg-accent/15 text-accent font-bold text-xs border border-accent/20">
-                        Save ${savedAmount.toFixed(2)}
-                      </span>
-                    </>
-                  )}
-                </div>
-              );
-            })()}
-
-            {/* Stock Status Urgency Indicator */}
-            <div className="flex items-center gap-2 mb-3 mt-1">
-              {product.inventory > 0 ? (
-                product.inventory <= 10 ? (
-                  <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                    <span className="text-rose-500 text-base leading-none select-none">🔥</span>
-                    <span>
-                      Only <span className="text-rose-500 font-black">{product.inventory}</span> items left in stock
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-xs font-semibold text-foreground opacity-90">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
-                    <span>
-                      In stock 
-                    </span>
-                  </div>
-                )
-              ) : (
-                <div className="flex items-center gap-1.5 text-xs font-bold text-red-500">
-                  <span className="w-2 h-2 rounded-full bg-red-500 inline-block"></span>
-                  <span>Out of stock</span>
-                </div>
-              )}
-            </div>
-
-            {/* Short Description */}
-            <p className="opacity-80 leading-relaxed text-xs mb-3 font-medium whitespace-pre-line break-words [overflow-wrap:anywhere]">
-              {product.short_description || "Short Description"}
-            </p>
-
-            <hr className="border-foreground/10 my-2" />
-
-            {/* Quantity Selector & Add to Cart Client Area */}
+            {/* Interactive Pricing, Variant Selection, Stock, and Cart Area */}
             <ProductInteractive
               productId={product.id}
               productTitle={product.title}
+              basePrice={Number(product.unit_price)}
+              discountPercent={Number(product.discount_percent || 0)}
               inventory={product.inventory}
+              variants={(product as any).variants || []}
+              shortDescription={product.short_description || "Short Description"}
             />
 
             <hr className="border-foreground/10 my-2" />

@@ -4,9 +4,30 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { useAuth } from "./AuthContext";
 import { siteConfig } from "@/config/siteConfig";
 
-interface CartItem {
+export interface CartVariant {
   id: number;
-  product: { id: number; title: string; unit_price: number };
+  name: string;
+  color_name?: string | null;
+  color_code?: string | null;
+  size?: string | null;
+  price_override?: number | string | null;
+  effective_price?: number;
+  discounted_price?: number;
+  inventory?: number;
+  image?: string | null;
+}
+
+export interface CartItem {
+  id: number;
+  product: {
+    id: number;
+    title: string;
+    unit_price: number;
+    discount_percent?: number;
+    discounted_price?: number;
+    images?: { id?: number; image: string }[];
+  };
+  variant?: CartVariant | null;
   quantity: number;
   total_price: number;
 }
@@ -20,7 +41,7 @@ interface Cart {
 interface CartContextType {
   cart: Cart | null;
   itemCount: number;
-  addToCart: (productId: number, quantity?: number) => Promise<void>;
+  addToCart: (productId: number, quantity?: number, variantId?: number | null) => Promise<void>;
   updateQuantity: (itemId: number, quantity: number) => Promise<void>;
   removeFromCart: (itemId: number) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -120,12 +141,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [token]);
 
   // Add Item to Cart 
-  const addToCart = async (productId: number, quantity = 1) => {
+  const addToCart = async (productId: number, quantity = 1, variantId?: number | null) => {
     let cartId = await getOrCreateCartId();
+    const payload: any = { product_id: productId, quantity };
+    if (variantId) {
+      payload.variant_id = variantId;
+    }
+
     let res = await fetch(`${API_BASE}/store/carts/${cartId}/items/`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ product_id: productId, quantity }),
+      body: JSON.stringify(payload),
     });
 
     if (res.status === 404) {
@@ -134,7 +160,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       res = await fetch(`${API_BASE}/store/carts/${cartId}/items/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ product_id: productId, quantity }),
+        body: JSON.stringify(payload),
       });
     }
 

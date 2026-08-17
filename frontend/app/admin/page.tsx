@@ -10,6 +10,7 @@ import ThemeToggle from "@/components/ui/ThemeToggle";
 import ProductSearchBar from "@/features/products/components/ProductSearchBar";
 import CollectionSearchBar from "@/features/collections/components/CollectionSearchBar";
 import CustomerSearchBar from "@/features/customers/components/CustomerSearchBar";
+import ProductVariantsManager from "@/features/products/components/ProductVariantsManager";
 
 const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
@@ -1533,15 +1534,25 @@ export default function AdminDashboardPage() {
                 </button>
               </form>
 
-              {/* Photo Upload Section when editing a product */}
+              {/* Photo Upload & Variants Section when editing a product */}
               {editingProductId && (
-                <div className="mt-4 pt-4 border-t border-foreground/10">
-                  <ImageUploadModal
+                <>
+                  <div className="mt-4 pt-4 border-t border-foreground/10">
+                    <ImageUploadModal
+                      productId={editingProductId}
+                      onSuccess={fetchAdminData}
+                      onUnsavedChange={setHasUnsavedPhotos}
+                    />
+                  </div>
+
+                  <ProductVariantsManager
                     productId={editingProductId}
-                    onSuccess={fetchAdminData}
-                    onUnsavedChange={setHasUnsavedPhotos}
+                    productTitle={productForm.title}
+                    basePrice={parseFloat(productForm.unit_price) || 0}
+                    token={token}
+                    onVariantsUpdated={fetchAdminData}
                   />
-                </div>
+                </>
               )}
             </div>
 
@@ -2019,7 +2030,20 @@ export default function AdminDashboardPage() {
                     {selectedOrderDetails.items && selectedOrderDetails.items.length > 0 ? (
                       selectedOrderDetails.items.map((item) => (
                         <tr key={item.id}>
-                          <td className="py-2 px-1 font-bold">{item.product?.title || `Product #${item.product}`}</td>
+                          <td className="py-2 px-1 font-bold">
+                            <div>{item.product?.title || `Product #${item.product}`}</div>
+                            {((item as any).variant || (item as any).variant_title) && (
+                              <div className="text-[10px] text-accent font-semibold flex items-center gap-1 mt-0.5">
+                                {(item as any).variant?.color_code && (
+                                  <span
+                                    className="w-2.5 h-2.5 rounded-full border border-black/20 inline-block shrink-0"
+                                    style={{ backgroundColor: (item as any).variant.color_code }}
+                                  />
+                                )}
+                                <span>Option: {(item as any).variant?.name || (item as any).variant_title}</span>
+                              </div>
+                            )}
+                          </td>
                           <td className="py-2 px-1">{item.quantity}</td>
                           <td className="py-2 px-1">${Number(item.unit_price).toFixed(2)}</td>
                           <td className="py-2 px-1 text-right font-black text-accent">
