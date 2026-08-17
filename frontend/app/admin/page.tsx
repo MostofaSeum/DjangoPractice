@@ -1322,7 +1322,7 @@ export default function AdminDashboardPage() {
               { id: "customers" as Tab, label: "Customers", count: customers.length },
               {
                 id: "promotions" as Tab,
-                label: "Promotions",
+                label: "Sales",
                 count: promoProductsCatalog.filter((p) => Number(p.discount_percent || 0) > 0).length,
               },
               { id: "coupons" as Tab, label: "Coupons", count: couponsList.length },
@@ -2539,7 +2539,7 @@ export default function AdminDashboardPage() {
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
                     <div className="flex items-center gap-3 flex-wrap">
                       <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-                        Products Currently On Sale ({filteredOnSaleProducts.length})
+                        Products Currently On Sale
                       </h2>
                       {onSaleProducts.length > 0 && (
                         <button
