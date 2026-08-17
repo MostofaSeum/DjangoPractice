@@ -41,3 +41,14 @@ export interface Product {
   is_trending?: boolean;
   units_sold?: number;
 }
+
+export interface PaymentSetting {
+  id: number;
+  bkash_number: string;
+  bkash_active: boolean;
+  nagad_number: string;
+  nagad_active: boolean;
+  cod_active: boolean;
+  vibecoin_active: boolean;
+  last_updated?: string;
+}

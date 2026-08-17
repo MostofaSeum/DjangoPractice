@@ -34,7 +34,23 @@ export default function CheckoutPage() {
     applicableProductIds: number[];
   } | null>(null);
 
-  // Prefill phone/customer info and load applied coupon
+  const [paymentSettings, setPaymentSettings] = useState<{
+    bkash_number: string;
+    bkash_active: boolean;
+    nagad_number: string;
+    nagad_active: boolean;
+    cod_active: boolean;
+    vibecoin_active: boolean;
+  }>({
+    bkash_number: "01711111111",
+    bkash_active: true,
+    nagad_number: "01711111111",
+    nagad_active: true,
+    cod_active: true,
+    vibecoin_active: true,
+  });
+
+  // Prefill phone/customer info, payment settings, and load applied coupon
   useEffect(() => {
     try {
       const savedCoupon = localStorage.getItem("applied_coupon");
@@ -44,6 +60,34 @@ export default function CheckoutPage() {
     } catch (e) {
       console.error("Failed to load applied coupon:", e);
     }
+
+    // Fetch Payment Settings
+    const fetchPaymentSettings = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/store/payment-settings/`, { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          setPaymentSettings({
+            bkash_number: data.bkash_number || "01711111111",
+            bkash_active: data.bkash_active ?? true,
+            nagad_number: data.nagad_number || "01711111111",
+            nagad_active: data.nagad_active ?? true,
+            cod_active: data.cod_active ?? true,
+            vibecoin_active: data.vibecoin_active ?? true,
+          });
+
+          // Auto-select first available payment method if default COD is disabled
+          if (data.cod_active === false) {
+            if (data.bkash_active) setPaymentMethod("O");
+            else if (data.nagad_active) setPaymentMethod("N");
+            else if (data.vibecoin_active) setPaymentMethod("V");
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch payment settings:", err);
+      }
+    };
+    fetchPaymentSettings();
 
     if (authLoading) return;
 
@@ -397,134 +441,142 @@ export default function CheckoutPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {/* Cash on Delivery Option */}
-                <div
-                  onClick={() => setPaymentMethod("C")}
-                  className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
-                    paymentMethod === "C"
-                      ? "border-accent bg-accent/10 shadow-sm"
-                      : "border-foreground/10 bg-secondary hover:border-accent/50"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-black text-xs uppercase tracking-tight">
-                      Cash on Delivery (COD)
-                    </span>
-                    <input
-                      type="radio"
-                      name="payment_method"
-                      checked={paymentMethod === "C"}
-                      onChange={() => setPaymentMethod("C")}
-                      className="w-4 h-4 accent-accent"
-                    />
+                {paymentSettings.cod_active && (
+                  <div
+                    onClick={() => setPaymentMethod("C")}
+                    className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
+                      paymentMethod === "C"
+                        ? "border-accent bg-accent/10 shadow-sm"
+                        : "border-foreground/10 bg-secondary hover:border-accent/50"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-black text-xs uppercase tracking-tight">
+                        Cash on Delivery (COD)
+                      </span>
+                      <input
+                        type="radio"
+                        name="payment_method"
+                        checked={paymentMethod === "C"}
+                        onChange={() => setPaymentMethod("C")}
+                        className="w-4 h-4 accent-accent cursor-pointer"
+                      />
+                    </div>
+                    <p className="text-xs opacity-70 font-medium">
+                      Pay in cash when delivered.
+                    </p>
                   </div>
-                  <p className="text-xs opacity-70 font-medium">
-                    Pay in cash when delivered.
-                  </p>
-                </div>
+                )}
 
                 {/* bKash Option */}
-                <div
-                  onClick={() => setPaymentMethod("O")}
-                  className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
-                    paymentMethod === "O"
-                      ? "border-bkash bg-bkash/10 shadow-sm"
-                      : "border-foreground/10 bg-secondary hover:border-bkash/50"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-black text-xs uppercase tracking-tight text-bkash">
-                      bKash Payment
-                    </span>
-                    <input
-                      type="radio"
-                      name="payment_method"
-                      checked={paymentMethod === "O"}
-                      onChange={() => setPaymentMethod("O")}
-                      className="w-4 h-4 accent-bkash"
-                    />
+                {paymentSettings.bkash_active && (
+                  <div
+                    onClick={() => setPaymentMethod("O")}
+                    className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
+                      paymentMethod === "O"
+                        ? "border-bkash bg-bkash/10 shadow-sm"
+                        : "border-foreground/10 bg-secondary hover:border-bkash/50"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-black text-xs uppercase tracking-tight text-bkash">
+                        bKash Payment
+                      </span>
+                      <input
+                        type="radio"
+                        name="payment_method"
+                        checked={paymentMethod === "O"}
+                        onChange={() => setPaymentMethod("O")}
+                        className="w-4 h-4 accent-bkash cursor-pointer"
+                      />
+                    </div>
+                    <p className="text-xs opacity-70 font-medium">
+                      Pay via bKash TrxID.
+                    </p>
                   </div>
-                  <p className="text-xs opacity-70 font-medium">
-                    Pay via bKash TrxID.
-                  </p>
-                </div>
+                )}
 
                 {/* Nagad Option */}
-                <div
-                  onClick={() => setPaymentMethod("N")}
-                  className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
-                    paymentMethod === "N"
-                      ? "border-nagad bg-nagad/10 shadow-sm"
-                      : "border-foreground/10 bg-secondary hover:border-nagad/50"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-black text-xs uppercase tracking-tight text-nagad">
-                      Nagad Payment
-                    </span>
-                    <input
-                      type="radio"
-                      name="payment_method"
-                      checked={paymentMethod === "N"}
-                      onChange={() => setPaymentMethod("N")}
-                      className="w-4 h-4 accent-nagad"
-                    />
+                {paymentSettings.nagad_active && (
+                  <div
+                    onClick={() => setPaymentMethod("N")}
+                    className={`p-6 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
+                      paymentMethod === "N"
+                        ? "border-nagad bg-nagad/10 shadow-sm"
+                        : "border-foreground/10 bg-secondary hover:border-nagad/50"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-black text-xs uppercase tracking-tight text-nagad">
+                        Nagad Payment
+                      </span>
+                      <input
+                        type="radio"
+                        name="payment_method"
+                        checked={paymentMethod === "N"}
+                        onChange={() => setPaymentMethod("N")}
+                        className="w-4 h-4 accent-nagad cursor-pointer"
+                      />
+                    </div>
+                    <p className="text-xs opacity-70 font-medium">
+                      Pay via Nagad TrxID.
+                    </p>
                   </div>
-                  <p className="text-xs opacity-70 font-medium">
-                    Pay via Nagad TrxID.
-                  </p>
-                </div>
+                )}
 
                 {/* VibeCoin Option */}
-                <div
-                  onClick={() => {
-                    if (hasSufficientVibeCoin) setPaymentMethod("V");
-                  }}
-                  className={`p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
-                    !hasSufficientVibeCoin
-                      ? "opacity-50 cursor-not-allowed border-foreground/10 bg-secondary"
-                      : paymentMethod === "V"
-                        ? "border-accent bg-accent/10 shadow-sm cursor-pointer"
-                        : "border-foreground/10 bg-secondary hover:border-accent/50 cursor-pointer"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="font-black text-xs uppercase tracking-tight flex items-center gap-1.5 text-foreground">
-                      <img
-                        src="/VibeCoin/VibeCoin.png"
-                        alt="VibeCoin"
-                        className="w-5 h-5 object-contain"
-                      />{" "}
-                      VIBECOIN
-                    </span>
-                    <input
-                      type="radio"
-                      name="payment_method"
-                      disabled={!hasSufficientVibeCoin}
-                      checked={paymentMethod === "V"}
-                      onChange={() => {
-                        if (hasSufficientVibeCoin) setPaymentMethod("V");
-                      }}
-                      className="w-4 h-4 accent-accent"
-                    />
+                {paymentSettings.vibecoin_active && (
+                  <div
+                    onClick={() => {
+                      if (hasSufficientVibeCoin) setPaymentMethod("V");
+                    }}
+                    className={`p-6 rounded-2xl border-2 transition-all flex flex-col justify-between ${
+                      !hasSufficientVibeCoin
+                        ? "opacity-50 cursor-not-allowed border-foreground/10 bg-secondary"
+                        : paymentMethod === "V"
+                          ? "border-accent bg-accent/10 shadow-sm cursor-pointer"
+                          : "border-foreground/10 bg-secondary hover:border-accent/50 cursor-pointer"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-black text-xs uppercase tracking-tight flex items-center gap-1.5 text-foreground">
+                        <img
+                          src="/VibeCoin/VibeCoin.png"
+                          alt="VibeCoin"
+                          className="w-5 h-5 object-contain"
+                        />{" "}
+                        VIBECOIN
+                      </span>
+                      <input
+                        type="radio"
+                        name="payment_method"
+                        disabled={!hasSufficientVibeCoin}
+                        checked={paymentMethod === "V"}
+                        onChange={() => {
+                          if (hasSufficientVibeCoin) setPaymentMethod("V");
+                        }}
+                        className="w-4 h-4 accent-accent cursor-pointer"
+                      />
+                    </div>
+                    <p className="text-xs font-medium text-foreground">
+                      {!hasSufficientVibeCoin ? (
+                        <span className="opacity-70 font-bold block">
+                          Blocked (Balance: {Number(vibeCoin).toFixed(2)} VC,
+                          Needed: {requiredCoins.toFixed(2)} VC)
+                        </span>
+                      ) : (
+                        <span className="opacity-80">
+                          Pay with VibeCoins ({Number(vibeCoin).toFixed(2)} VC
+                          available).
+                        </span>
+                      )}
+                    </p>
                   </div>
-                  <p className="text-xs font-medium text-foreground">
-                    {!hasSufficientVibeCoin ? (
-                      <span className="opacity-70 font-bold block">
-                        Blocked (Balance: {Number(vibeCoin).toFixed(2)} VC,
-                        Needed: {requiredCoins.toFixed(2)} VC)
-                      </span>
-                    ) : (
-                      <span className="opacity-80">
-                        Pay with VibeCoins ({Number(vibeCoin).toFixed(2)} VC
-                        available).
-                      </span>
-                    )}
-                  </p>
-                </div>
+                )}
               </div>
 
               {/* VibeCoin Selected Instructions */}
-              {paymentMethod === "V" && (
+              {paymentMethod === "V" && paymentSettings.vibecoin_active && (
                 <div className="mt-6 p-6 rounded-2xl bg-secondary border border-foreground/15 space-y-2">
                   <p className="text-xs font-black uppercase tracking-wider text-accent flex items-center gap-1.5">
                     <img
@@ -545,11 +597,12 @@ export default function CheckoutPage() {
               )}
 
               {/* bKash Extra Fields */}
-              {paymentMethod === "O" && (
+              {paymentMethod === "O" && paymentSettings.bkash_active && (
                 <div className="mt-6">
                   <BkashPaymentUI
                     amount={finalTotal.toFixed(2)}
                     currency="BDT"
+                    receiverNumber={paymentSettings.bkash_number}
                     transactionPhoneNo={transactionPhoneNo}
                     setTransactionPhoneNo={setTransactionPhoneNo}
                     transactionId={transactionId}
@@ -559,11 +612,12 @@ export default function CheckoutPage() {
               )}
 
               {/* Nagad Extra Fields */}
-              {paymentMethod === "N" && (
+              {paymentMethod === "N" && paymentSettings.nagad_active && (
                 <div className="mt-6">
                   <NagadPaymentUI
                     amount={finalTotal.toFixed(2)}
                     currency="BDT"
+                    receiverNumber={paymentSettings.nagad_number}
                     transactionPhoneNo={transactionPhoneNo}
                     setTransactionPhoneNo={setTransactionPhoneNo}
                     transactionId={transactionId}

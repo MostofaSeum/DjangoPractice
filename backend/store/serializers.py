@@ -2,7 +2,7 @@ from django.db import transaction
 from django.utils import timezone
 from .signals import order_created
 from rest_framework import serializers
-from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon
+from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting
 from decimal import Decimal
 
 class ProductImageSerializer(serializers.ModelSerializer):
@@ -548,4 +548,15 @@ class CouponSerializer(serializers.ModelSerializer):
         elif instance.target_type == 'collection':
             instance.products.clear()
         return instance
+
+
+class PaymentSettingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentSetting
+        fields = [
+            'id', 'bkash_number', 'bkash_active',
+            'nagad_number', 'nagad_active',
+            'cod_active', 'vibecoin_active',
+            'last_updated'
+        ]
 

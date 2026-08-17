@@ -319,3 +319,21 @@ class Coupon(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class PaymentSetting(models.Model):
+    bkash_number = models.CharField(max_length=20, default="01711111111")
+    bkash_active = models.BooleanField(default=True)
+    nagad_number = models.CharField(max_length=20, default="01711111111")
+    nagad_active = models.BooleanField(default=True)
+    cod_active = models.BooleanField(default=True)
+    vibecoin_active = models.BooleanField(default=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return "Payment Settings (bKash, Nagad, COD, VibeCoin)"
+
+    @classmethod
+    def get_settings(cls):
+        obj, created = cls.objects.get_or_create(id=1)
+        return obj

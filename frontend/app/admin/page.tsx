@@ -86,7 +86,7 @@ interface CouponItem {
   created_at: string;
 }
 
-type Tab = "products" | "collections" | "orders" | "customers" | "promotions" | "coupons";
+type Tab = "products" | "collections" | "orders" | "customers" | "promotions" | "coupons" | "payments";
 
 export default function AdminDashboardPage() {
   const { user, token, logout, loading: authLoading } = useAuth();
@@ -106,6 +106,17 @@ export default function AdminDashboardPage() {
   const [customers, setCustomers] = useState<CustomerItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasUnsavedPhotos, setHasUnsavedPhotos] = useState(false);
+
+  // Payment Settings State
+  const [paymentSettings, setPaymentSettings] = useState({
+    bkash_number: "01711111111",
+    bkash_active: true,
+    nagad_number: "01711111111",
+    nagad_active: true,
+    cod_active: true,
+    vibecoin_active: true,
+  });
+  const [savingPaymentSettings, setSavingPaymentSettings] = useState(false);
 
   // Promotion states
   const [allProductsForPromo, setAllProductsForPromo] = useState<Product[]>([]);
@@ -229,10 +240,82 @@ export default function AdminDashboardPage() {
       // Fetch All Products For Promo & Coupons
       fetchAllProductsForPromo();
       fetchCoupons();
+      fetchPaymentSettings();
     } catch (err) {
       console.error("Failed to fetch admin data:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPaymentSettings = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/store/payment-settings/`, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        setPaymentSettings({
+          bkash_number: data.bkash_number || "01711111111",
+          bkash_active: data.bkash_active ?? true,
+          nagad_number: data.nagad_number || "01711111111",
+          nagad_active: data.nagad_active ?? true,
+          cod_active: data.cod_active ?? true,
+          vibecoin_active: data.vibecoin_active ?? true,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to fetch payment settings:", err);
+    }
+  };
+
+  const handleSavePaymentSettings = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!token) return;
+
+    try {
+      setSavingPaymentSettings(true);
+      const res = await fetch(`${API_BASE}/store/payment-settings/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify(paymentSettings),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setPaymentSettings({
+          bkash_number: data.bkash_number,
+          bkash_active: data.bkash_active,
+          nagad_number: data.nagad_number,
+          nagad_active: data.nagad_active,
+          cod_active: data.cod_active,
+          vibecoin_active: data.vibecoin_active,
+        });
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Payment settings updated!",
+          showConfirmButton: false,
+          timer: 1800,
+          toast: true,
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed to update",
+          text: "Could not save payment settings. Please try again.",
+        });
+      }
+    } catch (err) {
+      console.error("Error saving payment settings:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to connect to the server.",
+      });
+    } finally {
+      setSavingPaymentSettings(false);
     }
   };
 
@@ -1313,7 +1396,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          {/* Navigation Tabs (Scrollable Segmented Control with Clean Count Pills) */}
+          {/* Navigation Tabs */}
           <div className="flex items-center gap-1.5 p-1.5 bg-primary/60 dark:bg-black/30 backdrop-blur-md rounded-2xl border border-white/10 overflow-x-auto">
             {[
               { id: "products" as Tab, label: "Products", count: totalProductsCount },
@@ -1326,6 +1409,7 @@ export default function AdminDashboardPage() {
                 count: promoProductsCatalog.filter((p) => Number(p.discount_percent || 0) > 0).length,
               },
               { id: "coupons" as Tab, label: "Coupons", count: couponsList.length },
+              { id: "payments" as Tab, label: "Payment Settings" },
             ].map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -3165,6 +3249,219 @@ export default function AdminDashboardPage() {
                     </div>
                   );
                 })()}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* PAYMENT SETTINGS TAB */}
+        {activeTab === "payments" && (
+          <div className="max-w-4xl mx-auto space-y-8">
+            <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-foreground/10">
+                <div>
+                  <h2 className="text-sm font-black uppercase tracking-widest text-foreground flex items-center gap-2">
+                    Payment Gateway & Merchant Settings
+                  </h2>
+                  <p className="text-xs opacity-60 mt-1">
+                    Manage receiver mobile numbers and enable or disable payment options across checkout and gift cards in real time.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => handleSavePaymentSettings()}
+                  disabled={savingPaymentSettings}
+                  className="px-6 py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-black uppercase tracking-wider hover:opacity-90 transition-all shadow-md flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {savingPaymentSettings ? "Saving..." : "Save Settings"}
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* 1. bKash Settings */}
+                <div className="p-6 rounded-3xl bg-primary/5 dark:bg-primary/30 border border-foreground/10 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-secondary border border-foreground/10 p-1 flex items-center justify-center shadow-xs">
+                        <img src="/bKash.png" alt="bKash" className="h-6 w-auto object-contain" />
+                      </div>
+                      <div>
+                        <h3 className="font-black text-sm text-foreground">bKash Payment</h3>
+                        <span className={`text-[10px] font-bold uppercase tracking-wider ${paymentSettings.bkash_active ? "text-emerald-500" : "text-red-500"}`}>
+                          {paymentSettings.bkash_active ? "Active & Visible" : "Disabled (Hidden)"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Toggle Button */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPaymentSettings({
+                          ...paymentSettings,
+                          bkash_active: !paymentSettings.bkash_active,
+                        })
+                      }
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                        paymentSettings.bkash_active ? "bg-emerald-500" : "bg-foreground/20"
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                          paymentSettings.bkash_active ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  <div className="space-y-1.5 pt-2">
+                    <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                      bKash Receiver / Merchant Number
+                    </label>
+                    <input
+                      type="text"
+                      value={paymentSettings.bkash_number}
+                      onChange={(e) =>
+                        setPaymentSettings({
+                          ...paymentSettings,
+                          bkash_number: e.target.value,
+                        })
+                      }
+                      placeholder="e.g. 017XXXXXXXX"
+                      className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-secondary text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
+                    />
+                    <p className="text-[10px] opacity-50 font-medium">
+                      This number is displayed to customers to send money during bKash checkout.
+                    </p>
+                  </div>
+                </div>
+
+                {/* 2. Nagad Settings */}
+                <div className="p-6 rounded-3xl bg-primary/5 dark:bg-primary/30 border border-foreground/10 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-secondary border border-foreground/10 p-1 flex items-center justify-center shadow-xs">
+                        <img src="/nagad.webp" alt="Nagad" className="h-6 w-auto object-contain" />
+                      </div>
+                      <div>
+                        <h3 className="font-black text-sm text-foreground">Nagad Payment</h3>
+                        <span className={`text-[10px] font-bold uppercase tracking-wider ${paymentSettings.nagad_active ? "text-emerald-500" : "text-red-500"}`}>
+                          {paymentSettings.nagad_active ? "Active & Visible" : "Disabled (Hidden)"}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Toggle Button */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setPaymentSettings({
+                          ...paymentSettings,
+                          nagad_active: !paymentSettings.nagad_active,
+                        })
+                      }
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                        paymentSettings.nagad_active ? "bg-emerald-500" : "bg-foreground/20"
+                      }`}
+                    >
+                      <span
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                          paymentSettings.nagad_active ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
+
+                  <div className="space-y-1.5 pt-2">
+                    <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                      Nagad Receiver / Merchant Number
+                    </label>
+                    <input
+                      type="text"
+                      value={paymentSettings.nagad_number}
+                      onChange={(e) =>
+                        setPaymentSettings({
+                          ...paymentSettings,
+                          nagad_number: e.target.value,
+                        })
+                      }
+                      placeholder="e.g. 018XXXXXXXX"
+                      className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-secondary text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
+                    />
+                    <p className="text-[10px] opacity-50 font-medium">
+                      This number is displayed to customers to send money during Nagad checkout.
+                    </p>
+                  </div>
+                </div>
+
+                {/* 3. Cash on Delivery (COD) Settings */}
+                <div className="p-6 rounded-3xl bg-primary/5 dark:bg-primary/30 border border-foreground/10 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-secondary border border-foreground/10 flex items-center justify-center font-black text-sm shadow-xs">
+                      💵
+                    </div>
+                    <div>
+                      <h3 className="font-black text-sm text-foreground">Cash On Delivery (COD)</h3>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider ${paymentSettings.cod_active ? "text-emerald-500" : "text-red-500"}`}>
+                        {paymentSettings.cod_active ? "Active & Visible" : "Disabled (Hidden)"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPaymentSettings({
+                        ...paymentSettings,
+                        cod_active: !paymentSettings.cod_active,
+                      })
+                    }
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      paymentSettings.cod_active ? "bg-emerald-500" : "bg-foreground/20"
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                        paymentSettings.cod_active ? "translate-x-5" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* 4. VibeCoin Settings */}
+                <div className="p-6 rounded-3xl bg-primary/5 dark:bg-primary/30 border border-foreground/10 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-secondary border border-foreground/10 flex items-center justify-center p-2 shadow-xs">
+                      <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" className="w-6 h-6 object-contain" />
+                    </div>
+                    <div>
+                      <h3 className="font-black text-sm text-foreground">VibeCoin Balance Payment</h3>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider ${paymentSettings.vibecoin_active ? "text-emerald-500" : "text-red-500"}`}>
+                        {paymentSettings.vibecoin_active ? "Active & Visible" : "Disabled (Hidden)"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPaymentSettings({
+                        ...paymentSettings,
+                        vibecoin_active: !paymentSettings.vibecoin_active,
+                      })
+                    }
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      paymentSettings.vibecoin_active ? "bg-emerald-500" : "bg-foreground/20"
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                        paymentSettings.vibecoin_active ? "translate-x-5" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

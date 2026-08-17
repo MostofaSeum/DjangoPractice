@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
@@ -31,12 +31,47 @@ export default function GiftCardsPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"B" | "N">("B");
+  const [paymentSettings, setPaymentSettings] = useState<{
+    bkash_number: string;
+    bkash_active: boolean;
+    nagad_number: string;
+    nagad_active: boolean;
+  }>({
+    bkash_number: "01711111111",
+    bkash_active: true,
+    nagad_number: "01711111111",
+    nagad_active: true,
+  });
   const [transactionId, setTransactionId] = useState("");
   const [transactionPhoneNo, setTransactionPhoneNo] = useState("");
   const [loading, setLoading] = useState(false);
   const [successResult, setSuccessResult] = useState<{ card_code: string; price: number; expiry_date: string } | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const fetchPaymentSettings = async () => {
+      try {
+        const apiBaseUrl = getApiBaseUrl();
+        const res = await fetch(`${apiBaseUrl}/store/payment-settings/`, { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          setPaymentSettings({
+            bkash_number: data.bkash_number || "01711111111",
+            bkash_active: data.bkash_active ?? true,
+            nagad_number: data.nagad_number || "01711111111",
+            nagad_active: data.nagad_active ?? true,
+          });
+          if (data.bkash_active === false && data.nagad_active) {
+            setPaymentMethod("N");
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load payment settings:", err);
+      }
+    };
+    fetchPaymentSettings();
+  }, []);
 
   const handleOpenModal = (card: GiftCardOption) => {
     if (!user) {
@@ -439,41 +474,48 @@ export default function GiftCardsPage() {
                 </div>
 
                 {/* Payment Method Selector */}
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
-                    Payment Method *
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod("B")}
-                      className={`p-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
-                        paymentMethod === "B"
-                          ? "border-bkash bg-bkash/10 text-bkash font-black shadow-sm"
-                          : "border-foreground/15 bg-background text-foreground/70"
-                      }`}
-                    >
-                      bKash Payment
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod("N")}
-                      className={`p-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
-                        paymentMethod === "N"
-                          ? "border-nagad bg-nagad/10 text-nagad font-black shadow-sm"
-                          : "border-foreground/15 bg-background text-foreground/70"
-                      }`}
-                    >
-                      Nagad Payment
-                    </button>
+                {(paymentSettings.bkash_active || paymentSettings.nagad_active) && (
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
+                      Payment Method *
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {paymentSettings.bkash_active && (
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod("B")}
+                          className={`p-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                            paymentMethod === "B"
+                              ? "border-bkash bg-bkash/10 text-bkash font-black shadow-sm"
+                              : "border-foreground/15 bg-background text-foreground/70"
+                          }`}
+                        >
+                          bKash Payment
+                        </button>
+                      )}
+                      {paymentSettings.nagad_active && (
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod("N")}
+                          className={`p-3 rounded-xl border text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                            paymentMethod === "N"
+                              ? "border-nagad bg-nagad/10 text-nagad font-black shadow-sm"
+                              : "border-foreground/15 bg-background text-foreground/70"
+                          }`}
+                        >
+                          Nagad Payment
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* bKash Payment Instructions*/}
-                {paymentMethod === "B" && (
+                {paymentMethod === "B" && paymentSettings.bkash_active && (
                   <BkashPaymentUI
                     amount={selectedCard ? selectedCard.price : 0}
                     currency="BDT"
+                    receiverNumber={paymentSettings.bkash_number}
                     transactionPhoneNo={transactionPhoneNo}
                     setTransactionPhoneNo={setTransactionPhoneNo}
                     transactionId={transactionId}
@@ -482,10 +524,11 @@ export default function GiftCardsPage() {
                 )}
 
                 {/* Nagad Payment Instructions & Sender Phone + TrxID Fields */}
-                {paymentMethod === "N" && (
+                {paymentMethod === "N" && paymentSettings.nagad_active && (
                   <NagadPaymentUI
                     amount={selectedCard ? selectedCard.price : 0}
                     currency="BDT"
+                    receiverNumber={paymentSettings.nagad_number}
                     transactionPhoneNo={transactionPhoneNo}
                     setTransactionPhoneNo={setTransactionPhoneNo}
                     transactionId={transactionId}
