@@ -483,6 +483,9 @@ class CouponViewSet(ModelViewSet):
         if not code:
             return Response({'valid': False, 'error': 'Coupon code is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        if len(code) > 20:
+            return Response({'valid': False, 'error': 'Coupon code cannot exceed 20 characters.'}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             coupon = Coupon.objects.prefetch_related('products').select_related('collection').get(code__iexact=code)
         except Coupon.DoesNotExist:

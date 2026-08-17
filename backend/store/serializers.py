@@ -500,6 +500,14 @@ class CouponSerializer(serializers.ModelSerializer):
     collection_title = serializers.SerializerMethodField()
     products_details = serializers.SerializerMethodField()
 
+    def validate_code(self, value):
+        cleaned_code = value.strip().upper()
+        if len(cleaned_code) > 20:
+            raise serializers.ValidationError("Coupon code cannot exceed 20 characters.")
+        if len(cleaned_code) == 0:
+            raise serializers.ValidationError("Coupon code cannot be empty.")
+        return cleaned_code
+
     class Meta:
         model = Coupon
         fields = [

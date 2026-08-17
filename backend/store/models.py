@@ -301,7 +301,7 @@ class Coupon(models.Model):
         (TARGET_COLLECTION, 'Collection'),
     ]
 
-    code = models.CharField(max_length=50, unique=True)
+    code = models.CharField(max_length=20, unique=True)
     discount_percent = models.DecimalField(
         max_digits=5, decimal_places=2,
         validators=[MinValueValidator(0), MaxValueValidator(100)]
