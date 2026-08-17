@@ -1423,15 +1423,17 @@ export default function AdminDashboardPage() {
                   }`}
                 >
                   <span>{tab.label}</span>
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-black transition-colors ${
-                      isActive
-                        ? "bg-accent/20 text-accent"
-                        : "bg-white/10 text-background/80 dark:text-foreground/80"
-                    }`}
-                  >
-                    {tab.count}
-                  </span>
+                  {typeof tab.count !== "undefined" && (
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-black transition-colors ${
+                        isActive
+                          ? "bg-accent/20 text-accent"
+                          : "bg-white/10 text-background/80 dark:text-foreground/80"
+                      }`}
+                    >
+                      {tab.count}
+                    </span>
+                  )}
                 </button>
               );
             })}
