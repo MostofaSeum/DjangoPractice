@@ -1989,7 +1989,7 @@ export default function AdminDashboardPage() {
     },
     {
       id: "collections" as Tab,
-      label: "Collections",
+      label: "Categories",
       icon: "/admin/collections.png",
       count: collections.length,
     },

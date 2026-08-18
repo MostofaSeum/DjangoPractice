@@ -37,13 +37,13 @@ export default async function CollectionsPage() {
             Home
           </Link>
           <span className="opacity-50">/</span>
-          <span className="opacity-80">Collections</span>
+          <span className="opacity-80">Categories</span>
         </div>
       </div>
 
       <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-16">
         <h1 className="text-4xl font-black mb-10 uppercase tracking-tighter text-foreground">
-          Product Collections
+          Product Categories
         </h1>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

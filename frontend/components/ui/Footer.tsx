@@ -12,7 +12,7 @@ export default function Footer() {
             Shop
           </Link>
           <Link href="/collections" className="text-background dark:text-foreground hover:underline transition-all">
-            Collections
+            Categories
           </Link>
           <Link href="/gift-cards" className="text-background dark:text-foreground hover:underline transition-all">
             Gift Cards

@@ -52,7 +52,7 @@ export default function Header() {
   const navLinks = [
     { name: "HOME", href: "/" },
     { name: "SHOP", href: "/products" },
-    { name: "COLLECTIONS", href: "/collections" },
+    { name: "CATEGORIES", href: "/collections" },
     { name: "GIFT CARDS", href: "/gift-cards" },
   ];
 
