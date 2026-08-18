@@ -565,7 +565,7 @@ export default function AdminDashboardPage() {
     const benefitDesc =
       deliveryRuleType === "free"
         ? "Free Delivery (৳0)"
-        : `Reduced Delivery (Inside: ৳${insideCharge}, Outside: ৳${outsideCharge})`;
+        : `Custom Charge (Inside: ৳${insideCharge}, Outside: ৳${outsideCharge})`;
 
     const confirm = await Swal.fire({
       title: isEdit ? `Update Delivery Rule?` : `Create Delivery Rule?`,
@@ -5230,7 +5230,7 @@ export default function AdminDashboardPage() {
                                             <div className="space-y-1">
                                               <div className="flex items-center gap-2 flex-wrap">
                                                 <span className="font-mono font-black text-sm uppercase px-3 py-1 rounded-lg bg-accent/15 text-accent border border-accent/30 tracking-wider">
-                                                  {isFree ? "FREE DELIVERY (৳0)" : "REDUCED DELIVERY"}
+                                                  {isFree ? "FREE DELIVERY (৳0)" : "CUSTOM CHARGE"}
                                                 </span>
                                                 {/* On/Off Toggle Button */}
                                                 <button

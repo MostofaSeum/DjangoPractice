@@ -285,10 +285,11 @@ export default function CheckoutPage() {
   let matchingOutsideRule: DeliveryRuleItem | null = null;
 
   if (cart && cart.items && cart.items.length > 0 && deliveryRules.length > 0) {
-    // Check if every item in cart has a free delivery rule
-    const allItemsHaveFreeDelivery = cart.items.every((item) => {
-      return deliveryRules.some((rule) => {
-        if (!rule.is_active || rule.rule_type !== "free") return false;
+    // For each cart item, determine its specific inside & outside charges
+    const itemCharges = cart.items.map((item) => {
+      // Find rules matching this item
+      const matchedRules = deliveryRules.filter((rule) => {
+        if (!rule.is_active) return false;
         if (rule.target_type === "product") {
           if (rule.products && Array.isArray(rule.products)) {
             return rule.products.includes(item.product.id);
@@ -296,19 +297,69 @@ export default function CheckoutPage() {
             return rule.products_details.some((p) => p.id === item.product.id);
           }
         } else if (rule.target_type === "collection") {
-          return (item.product as any).collection === rule.collection ||
-                 (item.product as any).collection_id === rule.collection;
+          return (
+            (item.product as any).collection === rule.collection ||
+            (item.product as any).collection_id === rule.collection
+          );
         }
         return false;
       });
+
+      if (matchedRules.length === 0) {
+        // Standard base charges
+        return {
+          inside: baseInsideCharge,
+          outside: baseOutsideCharge,
+          rule: null,
+        };
+      }
+
+      // If item matches a rule, take the lowest charge among its matched rules
+      let itemInside = baseInsideCharge;
+      let itemOutside = baseOutsideCharge;
+      let itemRule: DeliveryRuleItem | null = null;
+
+      for (const rule of matchedRules) {
+        const rInside = rule.rule_type === "free" ? 0 : Number(rule.inside_dhaka_charge ?? 0);
+        const rOutside = rule.rule_type === "free" ? 0 : Number(rule.outside_dhaka_charge ?? 0);
+        if (rInside <= itemInside) {
+          itemInside = rInside;
+          itemRule = rule;
+        }
+        if (rOutside <= itemOutside) {
+          itemOutside = rOutside;
+          itemRule = rule;
+        }
+      }
+
+      return {
+        inside: itemInside,
+        outside: itemOutside,
+        rule: itemRule,
+      };
     });
 
-    if (allItemsHaveFreeDelivery) {
-      effectiveInsideCharge = 0;
-      effectiveOutsideCharge = 0;
-      matchingInsideRule = deliveryRules.find((r) => r.is_active && r.rule_type === "free") || null;
-      matchingOutsideRule = matchingInsideRule;
-    }
+    // Across all items in cart, the parcel delivery charge is the HIGHEST charge among all products
+    let maxInside = 0;
+    let maxOutside = 0;
+    let maxInsideRule: DeliveryRuleItem | null = null;
+    let maxOutsideRule: DeliveryRuleItem | null = null;
+
+    itemCharges.forEach((ic) => {
+      if (ic.inside >= maxInside) {
+        maxInside = ic.inside;
+        maxInsideRule = ic.rule;
+      }
+      if (ic.outside >= maxOutside) {
+        maxOutside = ic.outside;
+        maxOutsideRule = ic.rule;
+      }
+    });
+
+    effectiveInsideCharge = maxInside;
+    effectiveOutsideCharge = maxOutside;
+    matchingInsideRule = maxInsideRule;
+    matchingOutsideRule = maxOutsideRule;
   }
 
   const deliveryCharge =
@@ -566,7 +617,7 @@ export default function CheckoutPage() {
                             </span>
                             {matchingInsideRule && (
                               <span className="px-1.5 py-0.2 rounded bg-accent/20 text-accent text-[9px] font-black uppercase">
-                                {matchingInsideRule.rule_type === "free" ? "Free" : "Reduced"}
+                                {(matchingInsideRule as DeliveryRuleItem).rule_type === "free" ? "Free" : "Custom"}
                               </span>
                             )}
                           </div>
@@ -611,7 +662,7 @@ export default function CheckoutPage() {
                             </span>
                             {matchingOutsideRule && (
                               <span className="px-1.5 py-0.2 rounded bg-accent/20 text-accent text-[9px] font-black uppercase">
-                                {matchingOutsideRule.rule_type === "free" ? "Free" : "Reduced"}
+                                {(matchingOutsideRule as DeliveryRuleItem).rule_type === "free" ? "Free" : "Custom"}
                               </span>
                             )}
                           </div>
@@ -875,7 +926,7 @@ export default function CheckoutPage() {
                   </span>
                   {currentAppliedRule && (
                     <span className="ml-1.5 px-1.5 py-0.2 rounded bg-accent/20 text-accent text-[9px] font-black uppercase inline-block">
-                      {currentAppliedRule.rule_type === "free" ? "Free Delivery Offer" : "Reduced Delivery Offer"}
+                      {(currentAppliedRule as DeliveryRuleItem).rule_type === "free" ? "Free Delivery Offer" : "Custom Delivery Offer"}
                     </span>
                   )}
                 </div>
