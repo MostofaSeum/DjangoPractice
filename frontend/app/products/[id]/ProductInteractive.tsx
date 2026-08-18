@@ -583,24 +583,26 @@ export default function ProductInteractive({
                 {/* Inside Dhaka */}
                 <span className="inline-flex items-center gap-1 bg-primary/5 dark:bg-primary/20 px-2 py-1 rounded-lg border border-foreground/10">
                   <span className="text-[11px] text-foreground font-semibold">Inside Dhaka:</span>
-                  {matchedDeliveryRule?.rule_type === "free" ? (
-                    <span className="flex items-center gap-1 font-bold">
-                      <span className="line-through opacity-50 text-[10px]">
-                        ৳{deliverySettings.inside_dhaka_charge}
+                  {isQualified ? (
+                    matchedDeliveryRule?.rule_type === "free" ? (
+                      <span className="flex items-center gap-1 font-bold">
+                        <span className="line-through opacity-50 text-[10px]">
+                          ৳{deliverySettings.inside_dhaka_charge}
+                        </span>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-extrabold uppercase text-[11px]">
+                          Free
+                        </span>
                       </span>
-                      <span className="text-emerald-600 dark:text-emerald-400 font-extrabold uppercase text-[11px]">
-                        {isQualified ? "Free" : "Free (on qualified qty)"}
+                    ) : (
+                      <span className="flex items-center gap-1 font-bold">
+                        <span className="line-through opacity-50 text-[10px]">
+                          ৳{deliverySettings.inside_dhaka_charge}
+                        </span>
+                        <span className="text-accent font-extrabold text-[11px]">
+                          ৳{matchedDeliveryRule?.inside_dhaka_charge}
+                        </span>
                       </span>
-                    </span>
-                  ) : matchedDeliveryRule?.rule_type === "reduced" ? (
-                    <span className="flex items-center gap-1 font-bold">
-                      <span className="line-through opacity-50 text-[10px]">
-                        ৳{deliverySettings.inside_dhaka_charge}
-                      </span>
-                      <span className="text-accent font-extrabold text-[11px]">
-                        ৳{matchedDeliveryRule.inside_dhaka_charge}
-                      </span>
-                    </span>
+                    )
                   ) : (
                     <span className="text-accent font-extrabold text-[11px]">
                       ৳{deliverySettings.inside_dhaka_charge}
@@ -611,24 +613,26 @@ export default function ProductInteractive({
                 {/* Outside Dhaka */}
                 <span className="inline-flex items-center gap-1 bg-primary/5 dark:bg-primary/20 px-2 py-1 rounded-lg border border-foreground/10">
                   <span className="text-[11px] text-foreground font-semibold">Outside Dhaka:</span>
-                  {matchedDeliveryRule?.rule_type === "free" ? (
-                    <span className="flex items-center gap-1 font-bold">
-                      <span className="line-through opacity-50 text-[10px]">
-                        ৳{deliverySettings.outside_dhaka_charge}
+                  {isQualified ? (
+                    matchedDeliveryRule?.rule_type === "free" ? (
+                      <span className="flex items-center gap-1 font-bold">
+                        <span className="line-through opacity-50 text-[10px]">
+                          ৳{deliverySettings.outside_dhaka_charge}
+                        </span>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-extrabold uppercase text-[11px]">
+                          Free
+                        </span>
                       </span>
-                      <span className="text-emerald-600 dark:text-emerald-400 font-extrabold uppercase text-[11px]">
-                        {isQualified ? "Free" : "Free (on qualified qty)"}
+                    ) : (
+                      <span className="flex items-center gap-1 font-bold">
+                        <span className="line-through opacity-50 text-[10px]">
+                          ৳{deliverySettings.outside_dhaka_charge}
+                        </span>
+                        <span className="text-accent font-extrabold text-[11px]">
+                          ৳{matchedDeliveryRule?.outside_dhaka_charge}
+                        </span>
                       </span>
-                    </span>
-                  ) : matchedDeliveryRule?.rule_type === "reduced" ? (
-                    <span className="flex items-center gap-1 font-bold">
-                      <span className="line-through opacity-50 text-[10px]">
-                        ৳{deliverySettings.outside_dhaka_charge}
-                      </span>
-                      <span className="text-accent font-extrabold text-[11px]">
-                        ৳{matchedDeliveryRule.outside_dhaka_charge}
-                      </span>
-                    </span>
+                    )
                   ) : (
                     <span className="text-accent font-extrabold text-[11px]">
                       ৳{deliverySettings.outside_dhaka_charge}
