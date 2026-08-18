@@ -13,6 +13,19 @@ const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
 ).replace(/\/+$/, "");
 
+interface DeliveryRuleItem {
+  id: number;
+  title: string;
+  target_type: "product" | "collection";
+  rule_type: "free" | "reduced";
+  inside_dhaka_charge: number | string;
+  outside_dhaka_charge: number | string;
+  collection?: number | null;
+  products?: number[];
+  products_details?: { id: number; title: string; unit_price: number }[];
+  is_active: boolean;
+}
+
 export default function CheckoutPage() {
   const { user, token, loading: authLoading } = useAuth();
   const { cart, clearCart } = useCart();
@@ -62,9 +75,11 @@ export default function CheckoutPage() {
     estimated_days_outside: "3-5 Days",
   });
 
+  const [deliveryRules, setDeliveryRules] = useState<DeliveryRuleItem[]>([]);
+
   const [deliveryArea, setDeliveryArea] = useState<"inside_dhaka" | "outside_dhaka">("inside_dhaka");
 
-  // Prefill phone/customer info, payment settings, delivery settings, and load applied coupon
+  // Prefill phone/customer info, payment settings, delivery settings, delivery rules, and load applied coupon
   useEffect(() => {
     try {
       const savedCoupon = localStorage.getItem("applied_coupon");
@@ -75,12 +90,16 @@ export default function CheckoutPage() {
       console.error("Failed to load applied coupon:", e);
     }
 
-    // Fetch Delivery Settings
-    const fetchDeliverySettings = async () => {
+    // Fetch Delivery Settings & Rules
+    const fetchDeliveryData = async () => {
       try {
-        const res = await fetch(`${API_BASE}/store/delivery-settings/`, { cache: "no-store" });
-        if (res.ok) {
-          const data = await res.json();
+        const [settingsRes, rulesRes] = await Promise.all([
+          fetch(`${API_BASE}/store/delivery-settings/`, { cache: "no-store" }),
+          fetch(`${API_BASE}/store/delivery-rules/`, { cache: "no-store" }),
+        ]);
+
+        if (settingsRes.ok) {
+          const data = await settingsRes.json();
           setDeliverySettings({
             inside_dhaka_charge: Number(data.inside_dhaka_charge ?? 60),
             outside_dhaka_charge: Number(data.outside_dhaka_charge ?? 130),
@@ -88,11 +107,17 @@ export default function CheckoutPage() {
             estimated_days_outside: data.estimated_days_outside || "3-5 Days",
           });
         }
+
+        if (rulesRes.ok) {
+          const rulesData = await rulesRes.json();
+          const list = Array.isArray(rulesData) ? rulesData : rulesData.results || [];
+          setDeliveryRules(list.filter((r: DeliveryRuleItem) => r.is_active));
+        }
       } catch (err) {
-        console.error("Failed to fetch delivery settings:", err);
+        console.error("Failed to fetch delivery settings/rules:", err);
       }
     };
-    fetchDeliverySettings();
+    fetchDeliveryData();
 
     // Fetch Payment Settings
     const fetchPaymentSettings = async () => {
@@ -249,10 +274,58 @@ export default function CheckoutPage() {
     : 0;
 
   const itemsTotal = Math.max(0, discountedSubtotal - couponSavings);
+
+  // Compute best matching delivery charge based on Delivery Rules for cart items
+  const baseInsideCharge = Number(deliverySettings.inside_dhaka_charge ?? 60);
+  const baseOutsideCharge = Number(deliverySettings.outside_dhaka_charge ?? 130);
+
+  let effectiveInsideCharge = baseInsideCharge;
+  let effectiveOutsideCharge = baseOutsideCharge;
+  let matchingInsideRule: DeliveryRuleItem | null = null;
+  let matchingOutsideRule: DeliveryRuleItem | null = null;
+
+  if (cart && cart.items && cart.items.length > 0 && deliveryRules.length > 0) {
+    for (const item of cart.items) {
+      for (const rule of deliveryRules) {
+        if (!rule.is_active) continue;
+
+        let isMatch = false;
+        if (rule.target_type === "product") {
+          if (rule.products && Array.isArray(rule.products)) {
+            isMatch = rule.products.includes(item.product.id);
+          } else if (rule.products_details && Array.isArray(rule.products_details)) {
+            isMatch = rule.products_details.some((p) => p.id === item.product.id);
+          }
+        } else if (rule.target_type === "collection") {
+          isMatch = (item.product as any).collection === rule.collection ||
+                    (item.product as any).collection_id === rule.collection;
+        }
+
+        if (isMatch) {
+          const ruleInside = rule.rule_type === "free" ? 0 : Number(rule.inside_dhaka_charge ?? 0);
+          const ruleOutside = rule.rule_type === "free" ? 0 : Number(rule.outside_dhaka_charge ?? 0);
+
+          if (ruleInside < effectiveInsideCharge) {
+            effectiveInsideCharge = ruleInside;
+            matchingInsideRule = rule;
+          }
+          if (ruleOutside < effectiveOutsideCharge) {
+            effectiveOutsideCharge = ruleOutside;
+            matchingOutsideRule = rule;
+          }
+        }
+      }
+    }
+  }
+
   const deliveryCharge =
     deliveryArea === "outside_dhaka"
-      ? Number(deliverySettings.outside_dhaka_charge || 130)
-      : Number(deliverySettings.inside_dhaka_charge || 60);
+      ? effectiveOutsideCharge
+      : effectiveInsideCharge;
+
+  const currentAppliedRule =
+    deliveryArea === "outside_dhaka" ? matchingOutsideRule : matchingInsideRule;
+
   const finalTotal = itemsTotal + deliveryCharge;
   const requiredCoins = Number(finalTotal.toFixed(2));
   const userCoins = Number(Number(vibeCoin).toFixed(2));
@@ -494,16 +567,30 @@ export default function CheckoutPage() {
                           className="w-4 h-4 accent-accent cursor-pointer"
                         />
                         <div>
-                          <span className="font-black text-xs uppercase tracking-tight block text-foreground">
-                            In Side Dhaka
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-black text-xs uppercase tracking-tight block text-foreground">
+                              In Side Dhaka
+                            </span>
+                            {matchingInsideRule && (
+                              <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase">
+                                {matchingInsideRule.rule_type === "free" ? "Free" : "Reduced"}
+                              </span>
+                            )}
+                          </div>
                           <span className="text-[10px] opacity-70 font-medium block">
                             Est. {deliverySettings.estimated_days_inside || "1-2 Days"}
                           </span>
                         </div>
                       </div>
-                      <div className="text-sm font-black text-accent">
-                        ৳{deliverySettings.inside_dhaka_charge}
+                      <div className="text-right">
+                        <div className="text-sm font-black text-accent">
+                          {effectiveInsideCharge === 0 ? "FREE" : `৳${effectiveInsideCharge}`}
+                        </div>
+                        {matchingInsideRule && effectiveInsideCharge < baseInsideCharge && (
+                          <div className="text-[10px] line-through opacity-50">
+                            ৳{baseInsideCharge}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -525,16 +612,30 @@ export default function CheckoutPage() {
                           className="w-4 h-4 accent-accent cursor-pointer"
                         />
                         <div>
-                          <span className="font-black text-xs uppercase tracking-tight block text-foreground">
-                            Out Side Dhaka
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-black text-xs uppercase tracking-tight block text-foreground">
+                              Out Side Dhaka
+                            </span>
+                            {matchingOutsideRule && (
+                              <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase">
+                                {matchingOutsideRule.rule_type === "free" ? "Free" : "Reduced"}
+                              </span>
+                            )}
+                          </div>
                           <span className="text-[10px] opacity-70 font-medium block">
                             Est. {deliverySettings.estimated_days_outside || "3-5 Days"}
                           </span>
                         </div>
                       </div>
-                      <div className="text-sm font-black text-accent">
-                        ৳{deliverySettings.outside_dhaka_charge}
+                      <div className="text-right">
+                        <div className="text-sm font-black text-accent">
+                          {effectiveOutsideCharge === 0 ? "FREE" : `৳${effectiveOutsideCharge}`}
+                        </div>
+                        {matchingOutsideRule && effectiveOutsideCharge < baseOutsideCharge && (
+                          <div className="text-[10px] line-through opacity-50">
+                            ৳{baseOutsideCharge}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -774,12 +875,19 @@ export default function CheckoutPage() {
                 </div>
               )}
 
-              <div className="flex justify-between opacity-80 font-medium">
-                <span>
-                  Delivery Charge ({deliveryArea === "outside_dhaka" ? "Outside Dhaka" : "Inside Dhaka"})
-                </span>
+              <div className="flex justify-between items-center opacity-80 font-medium">
+                <div>
+                  <span>
+                    Delivery Charge ({deliveryArea === "outside_dhaka" ? "Outside Dhaka" : "Inside Dhaka"})
+                  </span>
+                  {currentAppliedRule && (
+                    <span className="ml-1.5 px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase inline-block">
+                      {currentAppliedRule.rule_type === "free" ? "Free Delivery Offer" : "Reduced Delivery Offer"}
+                    </span>
+                  )}
+                </div>
                 <span className="font-bold text-accent">
-                  +৳{deliveryCharge.toFixed(2)}
+                  {deliveryCharge === 0 ? "FREE (৳0.00)" : `+৳${deliveryCharge.toFixed(2)}`}
                 </span>
               </div>
               <div className="pt-3 border-t border-foreground/10 flex justify-between items-center text-base font-black">

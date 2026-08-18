@@ -376,3 +376,45 @@ class DeliverySetting(models.Model):
         obj, created = cls.objects.get_or_create(id=1)
         return obj
 
+
+class DeliveryRule(models.Model):
+    TARGET_PRODUCT = 'product'
+    TARGET_COLLECTION = 'collection'
+    TARGET_CHOICES = [
+        (TARGET_PRODUCT, 'Specific Products'),
+        (TARGET_COLLECTION, 'Collection'),
+    ]
+
+    RULE_FREE = 'free'
+    RULE_REDUCED = 'reduced'
+    RULE_CHOICES = [
+        (RULE_FREE, 'Free Delivery (৳0)'),
+        (RULE_REDUCED, 'Reduced Delivery Charge'),
+    ]
+
+    title = models.CharField(max_length=255)
+    target_type = models.CharField(max_length=20, choices=TARGET_CHOICES, default=TARGET_PRODUCT)
+    rule_type = models.CharField(max_length=20, choices=RULE_CHOICES, default=RULE_FREE)
+    inside_dhaka_charge = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
+        validators=[MinValueValidator(0)]
+    )
+    outside_dhaka_charge = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
+        validators=[MinValueValidator(0)]
+    )
+    products = models.ManyToManyField(Product, blank=True, related_name='delivery_rules')
+    collection = models.ForeignKey(Collection, on_delete=models.SET_NULL, null=True, blank=True, related_name='delivery_rules')
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} ({self.get_rule_type_display()})"
+
+    class Meta:
+        ordering = ['-created_at']
+

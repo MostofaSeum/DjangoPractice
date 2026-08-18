@@ -135,6 +135,14 @@ class DeliverySettingAdmin(admin.ModelAdmin):
     list_display = ['inside_dhaka_charge', 'outside_dhaka_charge', 'estimated_days_inside', 'estimated_days_outside', 'is_active', 'last_updated']
 
 
+@admin.register(models.DeliveryRule)
+class DeliveryRuleAdmin(admin.ModelAdmin):
+    list_display = ['title', 'target_type', 'rule_type', 'inside_dhaka_charge', 'outside_dhaka_charge', 'is_active', 'created_at']
+    list_filter = ['target_type', 'rule_type', 'is_active']
+    search_fields = ['title']
+    autocomplete_fields = ['products', 'collection']
+
+
 @admin.register(models.Subscriber)
 class SubscriberAdmin(admin.ModelAdmin):
     list_display = ['id', 'email', 'created_at']

@@ -4,7 +4,7 @@ from django.db.models.functions import Greatest
 from django.utils import timezone
 from .signals import order_created
 from rest_framework import serializers
-from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting
+from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule
 from decimal import Decimal
 
 class ProductImageSerializer(serializers.ModelSerializer):
@@ -370,13 +370,38 @@ class CreateOrderSerializer(serializers.Serializer):
             # Fetch active delivery settings
             delivery_settings = DeliverySetting.get_settings()
             if delivery_area == Order.DELIVERY_AREA_OUTSIDE_DHAKA:
-                delivery_charge = delivery_settings.outside_dhaka_charge
+                base_delivery_charge = delivery_settings.outside_dhaka_charge
             else:
-                delivery_charge = delivery_settings.inside_dhaka_charge
+                base_delivery_charge = delivery_settings.inside_dhaka_charge
             
             cart_items = list(CartItem.objects.select_related('product', 'variant').filter(cart_id=cart_id))
             if not cart_items:
                 raise serializers.ValidationError({'cart_id': 'The cart is empty.'})
+
+            # Check for applicable DeliveryRule (Free or Reduced Delivery)
+            # Find the best (lowest) delivery fee for the customer across all qualifying cart items
+            delivery_charge = Decimal(str(base_delivery_charge))
+            active_delivery_rules = list(DeliveryRule.objects.filter(is_active=True).prefetch_related('products'))
+            if active_delivery_rules:
+                for item in cart_items:
+                    for rule in active_delivery_rules:
+                        is_rule_match = False
+                        if rule.target_type == DeliveryRule.TARGET_PRODUCT:
+                            is_rule_match = rule.products.filter(pk=item.product_id).exists()
+                        elif rule.target_type == DeliveryRule.TARGET_COLLECTION:
+                            is_rule_match = (item.product.collection_id == rule.collection_id)
+
+                        if is_rule_match:
+                            if rule.rule_type == DeliveryRule.RULE_FREE:
+                                rule_charge = Decimal('0.00')
+                            else:
+                                if delivery_area == Order.DELIVERY_AREA_OUTSIDE_DHAKA:
+                                    rule_charge = Decimal(str(rule.outside_dhaka_charge))
+                                else:
+                                    rule_charge = Decimal(str(rule.inside_dhaka_charge))
+
+                            if rule_charge < delivery_charge:
+                                delivery_charge = rule_charge
 
             # Check for valid coupon
             active_coupon = None
@@ -635,5 +660,36 @@ class DeliverySettingSerializer(serializers.ModelSerializer):
             'estimated_days_inside', 'estimated_days_outside',
             'is_active', 'last_updated'
         ]
+
+
+class DeliveryRuleSerializer(serializers.ModelSerializer):
+    collection_title = serializers.SerializerMethodField(read_only=True)
+    product_count = serializers.SerializerMethodField(read_only=True)
+    products_details = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = DeliveryRule
+        fields = [
+            'id', 'title', 'target_type', 'rule_type',
+            'inside_dhaka_charge', 'outside_dhaka_charge',
+            'products', 'collection', 'collection_title',
+            'product_count', 'products_details',
+            'is_active', 'created_at'
+        ]
+
+    def get_collection_title(self, rule):
+        return rule.collection.title if rule.collection else None
+
+    def get_product_count(self, rule):
+        if rule.target_type == DeliveryRule.TARGET_PRODUCT:
+            return rule.products.count()
+        elif rule.target_type == DeliveryRule.TARGET_COLLECTION and rule.collection:
+            return rule.collection.product_set.count()
+        return 0
+
+    def get_products_details(self, rule):
+        if rule.target_type == DeliveryRule.TARGET_PRODUCT:
+            return list(rule.products.values('id', 'title', 'unit_price'))
+        return []
 
 
