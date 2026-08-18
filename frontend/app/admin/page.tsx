@@ -2037,30 +2037,6 @@ export default function AdminDashboardPage() {
       <header className="bg-primary text-background dark:text-foreground py-4 px-6 md:px-10 border-b border-white/10 shadow-sm transition-colors duration-300 sticky top-0 z-40">
         <div className="flex justify-between items-center gap-4">
           <div className="flex items-center gap-3">
-            {/* Collapse / Expand Toggle Button on Top Left */}
-            <button
-              type="button"
-              onClick={() => setIsSidebarCollapsed((prev) => !prev)}
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-background dark:text-foreground transition-all flex items-center justify-center cursor-pointer shadow-xs"
-              title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
-            >
-              <svg
-                className={`w-5 h-5 transition-transform duration-300 ${
-                  isSidebarCollapsed ? "rotate-180" : ""
-                }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2.5"
-                  d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
-                />
-              </svg>
-            </button>
-
             <div>
               <div className="flex items-center gap-2">
                 <span className="bg-accent text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest rounded-md">
@@ -2089,25 +2065,38 @@ export default function AdminDashboardPage() {
       <div className="flex flex-1 relative min-h-[calc(100vh-65px)]">
         {/* Left Sidebar Navigation */}
         <aside
-          className={`bg-primary/95 dark:bg-black/40 border-r border-foreground/10 flex flex-col py-6 transition-all duration-300 ease-in-out shrink-0 sticky top-[65px] h-[calc(100vh-65px)] z-30 select-none ${
+          className={`bg-primary/95 dark:bg-black/40 border-r border-foreground/10 flex flex-col py-4 transition-all duration-300 ease-in-out shrink-0 sticky top-[65px] h-[calc(100vh-65px)] z-30 select-none ${
             isSidebarCollapsed ? "w-20 px-2" : "w-64 md:w-72 px-4"
           }`}
         >
-          {/* Top of Sidebar: Header Label and Collapse Indicator */}
+          {/* Top of Sidebar: Toggle Collapse/Expand Button */}
           <div
-            className={`flex items-center justify-between mb-6 pb-3 border-b border-white/10 ${
-              isSidebarCollapsed ? "justify-center" : "px-2"
+            className={`flex items-center mb-5 pb-3 border-b border-white/10 ${
+              isSidebarCollapsed ? "justify-center" : "justify-between px-1"
             }`}
           >
-            {!isSidebarCollapsed ? (
-              <span className="text-[10px] font-black uppercase tracking-widest text-background/60 dark:text-foreground/60">
-                Navigation
-              </span>
-            ) : (
-              <span className="text-[10px] font-black text-background/60 dark:text-foreground/60">
-                •••
-              </span>
-            )}
+            <button
+              type="button"
+              onClick={() => setIsSidebarCollapsed((prev) => !prev)}
+              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-background dark:text-foreground transition-all flex items-center justify-center cursor-pointer shadow-xs"
+              title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            >
+              <svg
+                className={`w-5 h-5 transition-transform duration-300 ${
+                  isSidebarCollapsed ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2.5"
+                  d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                />
+              </svg>
+            </button>
           </div>
 
           {/* Nav Tab Items */}
@@ -2140,7 +2129,9 @@ export default function AdminDashboardPage() {
                         alt={tab.label}
                         width={24}
                         height={24}
-                        className="object-contain w-full h-full"
+                        className={`object-contain w-full h-full brightness-0 ${
+                          isActive ? "" : "invert"
+                        }`}
                       />
                     </div>
 
