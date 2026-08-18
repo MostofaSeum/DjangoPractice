@@ -572,7 +572,7 @@ export default function CheckoutPage() {
                               In Side Dhaka
                             </span>
                             {matchingInsideRule && (
-                              <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase">
+                              <span className="px-1.5 py-0.2 rounded bg-accent/20 text-accent text-[9px] font-black uppercase">
                                 {matchingInsideRule.rule_type === "free" ? "Free" : "Reduced"}
                               </span>
                             )}
@@ -617,7 +617,7 @@ export default function CheckoutPage() {
                               Out Side Dhaka
                             </span>
                             {matchingOutsideRule && (
-                              <span className="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase">
+                              <span className="px-1.5 py-0.2 rounded bg-accent/20 text-accent text-[9px] font-black uppercase">
                                 {matchingOutsideRule.rule_type === "free" ? "Free" : "Reduced"}
                               </span>
                             )}
@@ -881,7 +881,7 @@ export default function CheckoutPage() {
                     Delivery Charge ({deliveryArea === "outside_dhaka" ? "Outside Dhaka" : "Inside Dhaka"})
                   </span>
                   {currentAppliedRule && (
-                    <span className="ml-1.5 px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[9px] font-black uppercase inline-block">
+                    <span className="ml-1.5 px-1.5 py-0.2 rounded bg-accent/20 text-accent text-[9px] font-black uppercase inline-block">
                       {currentAppliedRule.rule_type === "free" ? "Free Delivery Offer" : "Reduced Delivery Offer"}
                     </span>
                   )}

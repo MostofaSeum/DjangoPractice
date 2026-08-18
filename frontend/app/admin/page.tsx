@@ -4498,8 +4498,8 @@ export default function AdminDashboardPage() {
                                         <span
                                           className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider ${
                                             isFree
-                                              ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
-                                              : "bg-blue-500/20 text-blue-600 dark:text-blue-400"
+                                              ? "bg-accent/20 text-accent"
+                                              : "bg-primary/10 text-foreground border border-foreground/15"
                                           }`}
                                         >
                                           {isFree ? "Free Delivery (৳0)" : "Reduced Delivery"}
@@ -4507,8 +4507,8 @@ export default function AdminDashboardPage() {
                                         <span
                                           className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider ${
                                             rule.target_type === "product"
-                                              ? "bg-accent/15 text-accent"
-                                              : "bg-purple-500/15 text-purple-600 dark:text-purple-400"
+                                              ? "bg-foreground/10 text-foreground"
+                                              : "bg-accent/15 text-accent"
                                           }`}
                                         >
                                           {rule.target_type === "product"
@@ -4554,7 +4554,7 @@ export default function AdminDashboardPage() {
                                         onClick={() => handleToggleDeliveryRule(rule)}
                                         className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition-all ${
                                           rule.is_active
-                                            ? "bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20"
+                                            ? "bg-accent/20 text-accent hover:bg-accent/30"
                                             : "bg-foreground/10 text-foreground/60 hover:bg-foreground/20"
                                         }`}
                                       >
@@ -4570,7 +4570,7 @@ export default function AdminDashboardPage() {
                                       <button
                                         type="button"
                                         onClick={() => handleDeleteDeliveryRule(rule.id, rule.title)}
-                                        className="px-2.5 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 text-[10px] font-bold uppercase"
+                                        className="px-2.5 py-1 rounded-lg bg-foreground/10 hover:bg-foreground/20 text-foreground/80 text-[10px] font-bold uppercase"
                                       >
                                         Delete
                                       </button>
