@@ -54,7 +54,6 @@ interface ProductDeliveryOfferBadgeProps {
 export default function ProductDeliveryOfferBadge({
   productId,
   collectionId,
-  className = "",
 }: ProductDeliveryOfferBadgeProps) {
   const [badgeText, setBadgeText] = useState<string | null>(null);
 
@@ -100,15 +99,4 @@ export default function ProductDeliveryOfferBadge({
       isMounted = false;
     };
   }, [productId, collectionId]);
-
-  if (!badgeText) return null;
-
-  return (
-    <div
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent/15 text-accent text-[9px] font-black uppercase tracking-wider border border-accent/25 ${className}`}
-    >
-      <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-      <span>{badgeText}</span>
-    </div>
-  );
 }

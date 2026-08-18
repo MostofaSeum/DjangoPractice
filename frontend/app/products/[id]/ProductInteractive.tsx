@@ -451,7 +451,7 @@ export default function ProductInteractive({
             }`}
           >
             <div className="flex items-center gap-2">
-              <span className="text-base">{isQualified ? "🎉" : "📦"}</span>
+              <span className="text-base">{isQualified ? "🎉" : ""}</span>
               <div>
                 {isQualified ? (
                   <p className="font-extrabold uppercase tracking-tight text-emerald-600 dark:text-emerald-400">
@@ -466,19 +466,8 @@ export default function ProductInteractive({
                     Buy <span className="text-accent font-black">{requiredQty} items</span> to get {offerName}!
                   </p>
                 )}
-                {!isQualified && (
-                  <p className="text-[10px] opacity-70 font-normal mt-0.5">
-                    {inCartQty} of {requiredQty} added to cart
-                  </p>
-                )}
               </div>
             </div>
-
-            {requiredQty > 1 && (
-              <span className="px-2 py-0.5 rounded-lg text-[9px] font-black uppercase bg-primary/10 tracking-wider">
-                {isQualified ? "Applied" : `${inCartQty}/${requiredQty}`}
-              </span>
-            )}
           </div>
         );
       })()}
