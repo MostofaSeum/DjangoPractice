@@ -14,7 +14,7 @@ const API_BASE = (
 
 export default function CartPage() {
   const router = useRouter();
-  const { cart, updateQuantity, removeFromCart } = useCart();
+  const { cart, addToCart, updateQuantity, removeFromCart } = useCart();
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string;
@@ -24,6 +24,61 @@ export default function CartPage() {
   const [couponError, setCouponError] = useState("");
   const [couponValidating, setCouponValidating] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+
+  // Fetch related products from the collections of items in the cart
+  useEffect(() => {
+    if (!cart?.items || cart.items.length === 0) {
+      setRelatedProducts([]);
+      return;
+    }
+
+    const cartProductIds = new Set(cart.items.map((i) => i.product.id));
+    const collectionIds = Array.from(
+      new Set(
+        cart.items
+          .map((i) => {
+            const col = i.product.collection;
+            if (typeof col === "object" && col !== null) return (col as any).id;
+            if (typeof col === "number") return col;
+            return null;
+          })
+          .filter(Boolean),
+      ),
+    );
+
+    if (collectionIds.length === 0) {
+      // If no explicit collection, fetch popular products not already in cart
+      fetch(`${API_BASE}/store/products/?page_size=6`)
+        .then((res) => res.json())
+        .then((data) => {
+          const list = Array.isArray(data) ? data : data.results || [];
+          setRelatedProducts(
+            list.filter((p: any) => !cartProductIds.has(p.id)).slice(0, 4),
+          );
+        })
+        .catch((e) => console.error("Failed to fetch related products:", e));
+      return;
+    }
+
+    Promise.all(
+      collectionIds.map((cid) =>
+        fetch(`${API_BASE}/store/products/?collection_id=${cid}&page_size=6`)
+          .then((res) => res.json())
+          .then((data) => (Array.isArray(data) ? data : data.results || []))
+          .catch(() => []),
+      ),
+    ).then((results) => {
+      const flattened = results.flat();
+      const unique = new Map<number, any>();
+      for (const p of flattened) {
+        if (!cartProductIds.has(p.id) && !unique.has(p.id)) {
+          unique.set(p.id, p);
+        }
+      }
+      setRelatedProducts(Array.from(unique.values()).slice(0, 4));
+    });
+  }, [cart?.items]);
 
   useEffect(() => {
     try {
@@ -499,7 +554,10 @@ export default function CartPage() {
                     className="bg-secondary text-foreground rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm border border-foreground/10 group hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-center gap-6 w-full sm:w-auto">
-                      <div className="w-20 h-20 bg-primary/5 dark:bg-primary/40 rounded-2xl flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                      <Link
+                        href={`/products/${item.product.id}`}
+                        className="w-20 h-20 bg-primary/5 dark:bg-primary/40 rounded-2xl flex items-center justify-center flex-shrink-0 relative overflow-hidden group/img hover:opacity-90 transition-opacity"
+                      >
                         {hasDiscount && (
                           <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-accent text-button-fg font-extrabold text-[8px] uppercase tracking-wider shadow-md z-10 flex items-center gap-0.5">
                             <img
@@ -514,11 +572,14 @@ export default function CartPage() {
                           title={item.product.title}
                           images={(item.product as any).images}
                         />
-                      </div>
+                      </Link>
                       <div>
-                        <h3 className="font-black text-lg uppercase tracking-tight">
+                        <Link
+                          href={`/products/${item.product.id}`}
+                          className="font-black text-lg uppercase tracking-tight hover:text-accent transition-colors block"
+                        >
                           {item.product.title}
-                        </h3>
+                        </Link>
 
                         {/* Variant Badge / Swatch */}
                         {variant && (
@@ -618,6 +679,94 @@ export default function CartPage() {
                   </div>
                 );
               })}
+
+              {/* Related Products From Same Collection */}
+              {relatedProducts.length > 0 && (
+                <div className="mt-12 pt-8 border-t border-foreground/10">
+                  <div className="flex items-center justify-between mb-6">
+                    <div>
+                      <h3 className="text-xl font-black uppercase tracking-tight text-foreground">
+                        You May Also Like
+                      </h3>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {relatedProducts.map((p) => {
+                      const discountPercent = Number(p.discount_percent || 0);
+                      const hasDiscount = discountPercent > 0;
+                      const unitPrice = Number(p.unit_price || 0);
+                      const effectivePrice =
+                        p.discounted_price !== undefined
+                          ? Number(p.discounted_price)
+                          : hasDiscount
+                          ? unitPrice * (1 - discountPercent / 100)
+                          : unitPrice;
+
+                      return (
+                        <div
+                          key={p.id}
+                          className="bg-secondary rounded-2xl p-4 border border-foreground/10 flex items-center justify-between gap-4 hover:shadow-md transition-shadow group"
+                        >
+                          <Link
+                            href={`/products/${p.id}`}
+                            className="flex items-center gap-3 min-w-0"
+                          >
+                            <div className="w-16 h-16 bg-primary/5 dark:bg-primary/40 rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden">
+                              {hasDiscount && (
+                                <span className="absolute top-1 left-1 px-1 py-0.5 rounded bg-accent text-button-fg font-extrabold text-[7px] uppercase tracking-wider shadow-xs z-10">
+                                  -{Math.round(discountPercent)}%
+                                </span>
+                              )}
+                              <ProductImage
+                                title={p.title}
+                                images={p.images}
+                              />
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="font-bold text-sm line-clamp-1 group-hover:text-accent transition-colors">
+                                {p.title}
+                              </h4>
+                              <div className="flex items-baseline gap-1.5 mt-0.5">
+                                <span className="text-accent font-extrabold text-sm">
+                                  ৳{effectivePrice.toFixed(2)}
+                                </span>
+                                {hasDiscount && (
+                                  <span className="text-[10px] line-through opacity-50 font-bold">
+                                    ৳{unitPrice.toFixed(2)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </Link>
+
+                          <button
+                            onClick={async () => {
+                              try {
+                                await addToCart(p.id, 1);
+                                Swal.fire({
+                                  position: "top-end",
+                                  icon: "success",
+                                  title: `Added "${p.title}" to cart`,
+                                  showConfirmButton: false,
+                                  timer: 1500,
+                                  toast: true,
+                                });
+                              } catch (e) {
+                                console.error("Failed to add to cart:", e);
+                              }
+                            }}
+                            className="px-3 py-2 bg-button-bg text-button-fg rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-opacity shrink-0 flex items-center gap-1 shadow-sm"
+                            type="button"
+                          >
+                            + Add
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Order Summary Side Card */}
