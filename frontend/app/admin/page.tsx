@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -126,6 +127,11 @@ export default function AdminDashboardPage() {
 
   const [activeTab, setActiveTab] = useState<Tab>("products");
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // State data
   const [products, setProducts] = useState<Product[]>([]);
@@ -2438,26 +2444,15 @@ export default function AdminDashboardPage() {
                   );
                 })()}
 
-                {/* In Creation Mode: Add Photos & Variants directly */}
+                {/* In Creation Mode: Add Photos & Variants directly (Identical styling to edit mode) */}
                 {!editingProductId && (
-                  <div className="space-y-4 pt-4 border-t border-foreground/10">
+                  <div className="space-y-6 pt-4 border-t border-foreground/10">
                     {/* 1. Photos Section */}
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
                         <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                           Product Photos ({newProductPhotos.length}/5)
                         </label>
-                        {newProductPhotos.length < 5 && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              newProductFileInputRef.current?.click()
-                            }
-                            className="text-[10px] font-bold text-accent hover:underline uppercase tracking-wider cursor-pointer"
-                          >
-                            + Add Photos
-                          </button>
-                        )}
                       </div>
 
                       <input
@@ -2491,48 +2486,74 @@ export default function AdminDashboardPage() {
                         }}
                       />
 
-                      {newProductPhotos.length > 0 ? (
-                        <div className="grid grid-cols-5 gap-2 p-2 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10">
-                          {newProductPhotoPreviews.map((url, idx) => (
-                            <div
-                              key={idx}
-                              className="relative aspect-square rounded-xl overflow-hidden border border-foreground/15 group bg-background"
-                            >
-                              <img
-                                src={url}
-                                alt={`New photo ${idx + 1}`}
-                                className="w-full h-full object-cover"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  URL.revokeObjectURL(
-                                    newProductPhotoPreviews[idx],
-                                  );
-                                  setNewProductPhotos((prev) =>
-                                    prev.filter((_, i) => i !== idx),
-                                  );
-                                  setNewProductPhotoPreviews((prev) =>
-                                    prev.filter((_, i) => i !== idx),
-                                  );
-                                }}
-                                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] font-black shadow-md hover:bg-red-600 cursor-pointer"
-                                title="Remove photo"
-                              >
-                                ×
-                              </button>
+                      {/* Main Cover Photo Preview (Hero) */}
+                      {newProductPhotoPreviews.length > 0 ? (
+                        <div className="space-y-3">
+                          <div className="relative group rounded-2xl overflow-hidden border-2 border-yellow-500/80 shadow-sm bg-secondary aspect-[4/3] w-full">
+                            <img
+                              src={newProductPhotoPreviews[0]}
+                              alt="Main Cover Preview"
+                              className="object-cover w-full h-full opacity-90"
+                            />
+                            <div className="absolute top-3 left-3 bg-yellow-500 text-black font-black px-2.5 py-1 rounded-lg text-[9px] uppercase shadow-sm">
+                              Pending Upload (Cover)
                             </div>
-                          ))}
-                          {newProductPhotos.length < 5 && (
                             <button
                               type="button"
-                              onClick={() =>
-                                newProductFileInputRef.current?.click()
-                              }
-                              className="aspect-square rounded-xl border-2 border-dashed border-foreground/20 hover:border-accent/50 flex flex-col items-center justify-center text-[10px] font-bold opacity-60 hover:opacity-100 transition-all cursor-pointer"
+                              onClick={() => {
+                                URL.revokeObjectURL(newProductPhotoPreviews[0]);
+                                setNewProductPhotos((prev) =>
+                                  prev.filter((_, i) => i !== 0),
+                                );
+                                setNewProductPhotoPreviews((prev) =>
+                                  prev.filter((_, i) => i !== 0),
+                                );
+                              }}
+                              className="absolute inset-0 bg-black/60 text-white text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
                             >
-                              <span>+</span>
+                              Remove Selected
                             </button>
+                          </div>
+
+                          {/* Thumbnails for Detail Photos */}
+                          {newProductPhotoPreviews.length > 1 && (
+                            <div className="grid grid-cols-4 gap-3">
+                              {newProductPhotoPreviews
+                                .slice(1)
+                                .map((url, idx) => {
+                                  const realIdx = idx + 1;
+                                  return (
+                                    <div
+                                      key={url}
+                                      className="relative group rounded-xl overflow-hidden border-2 border-yellow-500/80 shadow-sm bg-secondary aspect-square w-full"
+                                    >
+                                      <img
+                                        src={url}
+                                        alt={`Pending ${realIdx + 1}`}
+                                        className="object-cover w-full h-full opacity-90"
+                                      />
+                                      <div className="absolute top-1 left-1 bg-yellow-500 text-black text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm">
+                                        Pending
+                                      </div>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          URL.revokeObjectURL(url);
+                                          setNewProductPhotos((prev) =>
+                                            prev.filter((_, i) => i !== realIdx),
+                                          );
+                                          setNewProductPhotoPreviews((prev) =>
+                                            prev.filter((_, i) => i !== realIdx),
+                                          );
+                                        }}
+                                        className="absolute inset-0 bg-black/60 text-white text-[9px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
+                                      >
+                                        Remove
+                                      </button>
+                                    </div>
+                                  );
+                                })}
+                            </div>
                           )}
                         </div>
                       ) : (
@@ -2540,24 +2561,73 @@ export default function AdminDashboardPage() {
                           onClick={() =>
                             newProductFileInputRef.current?.click()
                           }
-                          className="border-2 border-dashed border-foreground/20 hover:border-accent/40 rounded-2xl p-4 text-center cursor-pointer transition-colors"
+                          className="rounded-2xl border-2 border-dashed border-accent/50 bg-accent/5 hover:bg-accent/10 cursor-pointer flex flex-col gap-2 items-center justify-center p-8 aspect-[4/3] w-full transition-all"
                         >
-                          <p className="text-xs font-bold text-foreground opacity-80">
-                            Upload Photos
-                          </p>
-                          <p className="text-[10px] opacity-50 mt-0.5">
-                            Upload up to 5 photos for this product
-                          </p>
+                          <svg
+                            className="w-8 h-8 text-accent"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 4v16m8-8H4"
+                            />
+                          </svg>
+                          <span className="text-xs font-black uppercase text-accent tracking-wider">
+                            Select Main Cover Photo
+                          </span>
                         </div>
                       )}
+
+                      {/* Select More Button */}
+                      {newProductPhotos.length > 0 &&
+                        newProductPhotos.length < 5 && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              newProductFileInputRef.current?.click()
+                            }
+                            className="w-full py-2.5 px-4 rounded-xl border-2 border-dashed border-accent/40 bg-accent/5 hover:bg-accent/10 text-accent font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 4v16m8-8H4"
+                              />
+                            </svg>
+                            <span>
+                              + Select More Photos (
+                              {newProductPhotos.length}/5)
+                            </span>
+                          </button>
+                        )}
                     </div>
 
-                    {/* 2. Variants Section */}
-                    <div>
-                      <div className="flex justify-between items-center mb-2">
-                        <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                          Product Variants ({newProductVariants.length})
-                        </label>
+                    {/* 2. Variants Section (Matching ProductVariantsManager Style) */}
+                    <div className="mt-4 pt-4 border-t border-foreground/10">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h3 className="text-xs font-black uppercase tracking-widest text-foreground flex items-center gap-2">
+                            <span>
+                              Product Variants ({newProductVariants.length})
+                            </span>
+                          </h3>
+                          <p className="text-[10px] opacity-60">
+                            Add colors, shades, sizes, or custom pricing options
+                            for this product.
+                          </p>
+                        </div>
+
                         <button
                           type="button"
                           onClick={() => {
@@ -2573,43 +2643,61 @@ export default function AdminDashboardPage() {
                             });
                             setIsNewVariantModalOpen(true);
                           }}
-                          className="text-[10px] font-bold text-accent hover:underline uppercase tracking-wider cursor-pointer"
+                          className="px-3 py-1.5 bg-accent text-button-fg rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity shadow-sm flex items-center gap-1 cursor-pointer"
                         >
-                          + Add Variant
+                          <span>+ Add Variant</span>
                         </button>
                       </div>
 
+                      {/* Variants List */}
                       {newProductVariants.length > 0 ? (
-                        <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                        <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
                           {newProductVariants.map((v, vIdx) => (
                             <div
                               key={vIdx}
-                              className="flex items-center justify-between p-2.5 rounded-xl bg-background border border-foreground/10 shadow-2xs text-xs"
+                              className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 hover:border-foreground/20 transition-all text-xs"
                             >
-                              <div className="flex items-center gap-2 min-w-0">
-                                {v.color_code && (
-                                  <span
-                                    className="w-3.5 h-3.5 rounded-full border border-foreground/20 shrink-0"
+                              <div className="flex items-center gap-3 min-w-0">
+                                {v.color_code ? (
+                                  <div
+                                    className="w-6 h-6 rounded-full border border-white/30 shadow-xs shrink-0"
                                     style={{ backgroundColor: v.color_code }}
+                                    title={v.color_name || v.color_code}
                                   />
+                                ) : (
+                                  <div className="w-6 h-6 rounded-full bg-primary/20 border border-foreground/10 flex items-center justify-center text-[9px] font-bold opacity-60 shrink-0">
+                                    N/A
+                                  </div>
                                 )}
-                                <span className="font-bold truncate">
-                                  {v.name}
-                                </span>
-                                {v.size && (
-                                  <span className="px-1.5 py-0.5 rounded bg-primary/10 text-[9px] font-extrabold uppercase">
-                                    {v.size}
-                                  </span>
-                                )}
-                                <span className="text-[10px] opacity-60">
-                                  Stock: {v.inventory}
-                                </span>
-                                {v.price_override && (
-                                  <span className="text-accent text-[10px] font-mono">
-                                    ৳{parseFloat(v.price_override).toFixed(2)}
-                                  </span>
-                                )}
+
+                                <div className="truncate">
+                                  <div className="font-bold text-foreground truncate flex items-center gap-1.5">
+                                    <span>{v.name}</span>
+                                    {v.size && (
+                                      <span className="px-1.5 py-0.5 rounded bg-primary/10 text-[9px] font-black uppercase text-foreground/80">
+                                        {v.size}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-[10px] opacity-60 flex items-center gap-2">
+                                    {v.color_name && (
+                                      <span>Color: {v.color_name}</span>
+                                    )}
+                                    <span>Stock: {v.inventory}</span>
+                                    <span className="text-accent font-bold">
+                                      ৳
+                                      {v.price_override
+                                        ? Number(v.price_override).toFixed(2)
+                                        : Number(
+                                            parseFloat(productForm.unit_price) ||
+                                              0,
+                                          ).toFixed(2)}
+                                      {v.price_override && " (Override)"}
+                                    </span>
+                                  </div>
+                                </div>
                               </div>
+
                               <div className="flex items-center gap-1.5 shrink-0">
                                 <button
                                   type="button"
@@ -2618,7 +2706,7 @@ export default function AdminDashboardPage() {
                                     setNewVariantForm({ ...v });
                                     setIsNewVariantModalOpen(true);
                                   }}
-                                  className="text-[10px] font-bold text-accent hover:underline uppercase px-1 cursor-pointer"
+                                  className="px-2.5 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-[10px] font-bold uppercase transition-colors cursor-pointer"
                                 >
                                   Edit
                                 </button>
@@ -2629,7 +2717,7 @@ export default function AdminDashboardPage() {
                                       prev.filter((_, i) => i !== vIdx),
                                     )
                                   }
-                                  className="text-[10px] font-bold text-red-500 hover:underline uppercase px-1 cursor-pointer"
+                                  className="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-500 text-[10px] font-bold uppercase transition-colors cursor-pointer"
                                 >
                                   Delete
                                 </button>
@@ -2638,25 +2726,13 @@ export default function AdminDashboardPage() {
                           ))}
                         </div>
                       ) : (
-                        <div
-                          onClick={() => {
-                            setEditingNewVariantIndex(null);
-                            setNewVariantForm({
-                              name: "",
-                              color_name: "",
-                              color_code: "",
-                              size: "",
-                              price_override: "",
-                              inventory: "10",
-                              is_active: true,
-                            });
-                            setIsNewVariantModalOpen(true);
-                          }}
-                          className="border border-foreground/15 rounded-xl p-3 text-center cursor-pointer hover:bg-primary/5 transition-colors"
-                        >
-                          <p className="text-[11px] font-bold opacity-70">
-                            + Add Color, Size, or Style Variants (Optional)
-                          </p>
+                        <div className="p-4 rounded-2xl border border-dashed border-foreground/20 text-center text-xs opacity-60 bg-primary/5">
+                          No variants added yet. This product will use its base
+                          price (৳
+                          {Number(
+                            parseFloat(productForm.unit_price) || 0,
+                          ).toFixed(2)}
+                          ) and default inventory.
                         </div>
                       )}
                     </div>
@@ -2672,196 +2748,232 @@ export default function AdminDashboardPage() {
               </form>
 
               {/* Modal for adding/editing variant during creation */}
-              {isNewVariantModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-                  <div className="bg-secondary text-foreground p-6 rounded-3xl border border-foreground/15 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-200">
-                    <div className="flex justify-between items-center pb-2 border-b border-foreground/10">
-                      <h3 className="text-xs font-black uppercase tracking-wider">
-                        {editingNewVariantIndex !== null
-                          ? "Edit Variant"
-                          : "Add Variant"}
-                      </h3>
-                      <button
-                        type="button"
-                        onClick={() => setIsNewVariantModalOpen(false)}
-                        className="text-foreground/50 hover:text-foreground font-black text-sm"
-                      >
-                        ✕
-                      </button>
-                    </div>
-
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        if (!newVariantForm.name.trim()) return;
-
-                        if (editingNewVariantIndex !== null) {
-                          setNewProductVariants((prev) =>
-                            prev.map((item, idx) =>
-                              idx === editingNewVariantIndex
-                                ? { ...newVariantForm }
-                                : item,
-                            ),
-                          );
-                        } else {
-                          setNewProductVariants((prev) => [
-                            ...prev,
-                            { ...newVariantForm },
-                          ]);
-                        }
-                        setIsNewVariantModalOpen(false);
-                      }}
-                      className="space-y-3 text-xs"
-                    >
-                      <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-wider mb-1 opacity-70">
-                          Variant Name *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={newVariantForm.name}
-                          onChange={(e) =>
-                            setNewVariantForm({
-                              ...newVariantForm,
-                              name: e.target.value,
-                            })
-                          }
-                          placeholder="e.g. Midnight Black - L"
-                          className="w-full bg-background border border-foreground/15 rounded-xl px-3 py-2 font-bold outline-none focus:ring-2 focus:ring-accent"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-[10px] font-bold uppercase tracking-wider mb-1 opacity-70">
-                            Color Name
-                          </label>
-                          <input
-                            type="text"
-                            value={newVariantForm.color_name}
-                            onChange={(e) =>
-                              setNewVariantForm({
-                                ...newVariantForm,
-                                color_name: e.target.value,
-                              })
-                            }
-                            placeholder="e.g. Midnight Black"
-                            className="w-full bg-background border border-foreground/15 rounded-xl px-3 py-2 font-bold outline-none focus:ring-2 focus:ring-accent"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-bold uppercase tracking-wider mb-1 opacity-70">
-                            Color Code / Hex
-                          </label>
-                          <div className="flex gap-2 items-center">
-                            <input
-                              type="color"
-                              value={newVariantForm.color_code || "#000000"}
-                              onChange={(e) =>
-                                setNewVariantForm({
-                                  ...newVariantForm,
-                                  color_code: e.target.value,
-                                })
-                              }
-                              className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-0 p-0"
-                            />
-                            <input
-                              type="text"
-                              value={newVariantForm.color_code}
-                              onChange={(e) =>
-                                setNewVariantForm({
-                                  ...newVariantForm,
-                                  color_code: e.target.value,
-                                })
-                              }
-                              placeholder="#000000"
-                              className="flex-1 bg-background border border-foreground/15 rounded-xl px-3 py-2 font-mono text-xs outline-none focus:ring-2 focus:ring-accent"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-3">
-                        <div>
-                          <label className="block text-[10px] font-bold uppercase tracking-wider mb-1 opacity-70">
-                            Size
-                          </label>
-                          <input
-                            type="text"
-                            value={newVariantForm.size}
-                            onChange={(e) =>
-                              setNewVariantForm({
-                                ...newVariantForm,
-                                size: e.target.value,
-                              })
-                            }
-                            placeholder="e.g. XL, 42, 250ml"
-                            className="w-full bg-background border border-foreground/15 rounded-xl px-3 py-2 font-bold outline-none focus:ring-2 focus:ring-accent"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-bold uppercase tracking-wider mb-1 opacity-70">
-                            Price (Optional)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={newVariantForm.price_override}
-                            onChange={(e) =>
-                              setNewVariantForm({
-                                ...newVariantForm,
-                                price_override: e.target.value,
-                              })
-                            }
-                            placeholder="Override ৳"
-                            className="w-full bg-background border border-foreground/15 rounded-xl px-3 py-2 font-bold outline-none focus:ring-2 focus:ring-accent"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-[10px] font-bold uppercase tracking-wider mb-1 opacity-70">
-                            Inventory *
-                          </label>
-                          <input
-                            type="number"
-                            required
-                            value={newVariantForm.inventory}
-                            onChange={(e) =>
-                              setNewVariantForm({
-                                ...newVariantForm,
-                                inventory: e.target.value,
-                              })
-                            }
-                            placeholder="10"
-                            className="w-full bg-background border border-foreground/15 rounded-xl px-3 py-2 font-bold outline-none focus:ring-2 focus:ring-accent"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex justify-end gap-2 pt-3 border-t border-foreground/10">
+              {mounted &&
+                isNewVariantModalOpen &&
+                createPortal(
+                  <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+                    <div className="bg-secondary text-foreground rounded-3xl p-6 max-w-md w-full shadow-2xl border border-foreground/10 relative max-h-[90vh] overflow-y-auto overflow-x-hidden">
+                      <div className="flex justify-between items-center pb-3 border-b border-foreground/10 mb-4">
+                        <h4 className="text-sm font-black uppercase tracking-tight">
+                          {editingNewVariantIndex !== null
+                            ? "Edit Product Variant"
+                            : "Add New Product Variant"}
+                        </h4>
                         <button
                           type="button"
                           onClick={() => setIsNewVariantModalOpen(false)}
-                          className="px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider hover:bg-foreground/10"
+                          className="w-7 h-7 flex items-center justify-center rounded-full bg-primary/10 hover:bg-primary/20 text-xs font-bold transition-colors cursor-pointer"
                         >
-                          Cancel
-                        </button>
-                        <button
-                          type="submit"
-                          className="px-5 py-2 rounded-xl bg-button-bg text-button-fg text-[10px] font-bold uppercase tracking-wider shadow-md hover:opacity-90"
-                        >
-                          {editingNewVariantIndex !== null
-                            ? "Save Changes"
-                            : "Add Variant"}
+                          ✕
                         </button>
                       </div>
-                    </form>
-                  </div>
-                </div>
-              )}
+
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          if (!newVariantForm.name.trim()) return;
+
+                          if (editingNewVariantIndex !== null) {
+                            setNewProductVariants((prev) =>
+                              prev.map((item, idx) =>
+                                idx === editingNewVariantIndex
+                                ? { ...newVariantForm }
+                                : item,
+                              ),
+                            );
+                          } else {
+                            setNewProductVariants((prev) => [
+                              ...prev,
+                              { ...newVariantForm },
+                            ]);
+                          }
+                          setIsNewVariantModalOpen(false);
+                        }}
+                        className="space-y-3.5"
+                      >
+                        {/* Variant Name */}
+                        <div className="flex flex-col gap-1">
+                          <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                            Variant Title / Name{" "}
+                            <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={newVariantForm.name}
+                            onChange={(e) =>
+                              setNewVariantForm({
+                                ...newVariantForm,
+                                name: e.target.value,
+                              })
+                            }
+                            placeholder="e.g. 01 Velvet Rose, 50ml, Medium Beige"
+                            className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                          />
+                        </div>
+
+                        {/* Color Settings (Optional Shades) */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                              Shade / Color Name{" "}
+                              <span className="opacity-40 lowercase">
+                                (optional)
+                              </span>
+                            </label>
+                            <input
+                              type="text"
+                              value={newVariantForm.color_name}
+                              onChange={(e) =>
+                                setNewVariantForm({
+                                  ...newVariantForm,
+                                  color_name: e.target.value,
+                                })
+                              }
+                              placeholder="e.g. Velvet Rose (leave blank if N/A)"
+                              className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-1">
+                            <div className="flex justify-between items-center">
+                              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                                Color Hex{" "}
+                                <span className="opacity-40 lowercase">
+                                  (optional)
+                                </span>
+                              </label>
+                              {newVariantForm.color_code && (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setNewVariantForm({
+                                      ...newVariantForm,
+                                      color_code: "",
+                                    })
+                                  }
+                                  className="text-[9px] font-bold text-red-500 hover:underline cursor-pointer"
+                                >
+                                  Clear
+                                </button>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={newVariantForm.color_code || "#000000"}
+                                onChange={(e) =>
+                                  setNewVariantForm({
+                                    ...newVariantForm,
+                                    color_code: e.target.value,
+                                  })
+                                }
+                                className="w-9 h-8 rounded-lg cursor-pointer bg-transparent border-0 p-0 shrink-0"
+                              />
+                              <input
+                                type="text"
+                                value={newVariantForm.color_code}
+                                onChange={(e) =>
+                                  setNewVariantForm({
+                                    ...newVariantForm,
+                                    color_code: e.target.value,
+                                  })
+                                }
+                                placeholder="#000000"
+                                className="w-full px-3 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent font-mono uppercase"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Size, Price, Inventory Grid */}
+                        <div className="grid grid-cols-3 gap-2.5">
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                              Size / Volume{" "}
+                              <span className="opacity-40 lowercase">
+                                (opt)
+                              </span>
+                            </label>
+                            <input
+                              type="text"
+                              value={newVariantForm.size}
+                              onChange={(e) =>
+                                setNewVariantForm({
+                                  ...newVariantForm,
+                                  size: e.target.value,
+                                })
+                              }
+                              placeholder="e.g. 50ml, L"
+                              className="w-full px-3 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                              Price (৳){" "}
+                              <span className="opacity-40 lowercase">
+                                (opt)
+                              </span>
+                            </label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={newVariantForm.price_override}
+                              onChange={(e) =>
+                                setNewVariantForm({
+                                  ...newVariantForm,
+                                  price_override: e.target.value,
+                                })
+                              }
+                              placeholder={productForm.unit_price || "Base"}
+                              className="w-full px-3 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-1">
+                            <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                              Stock *
+                            </label>
+                            <input
+                              type="number"
+                              required
+                              value={newVariantForm.inventory}
+                              onChange={(e) =>
+                                setNewVariantForm({
+                                  ...newVariantForm,
+                                  inventory: e.target.value,
+                                })
+                              }
+                              placeholder="10"
+                              className="w-full px-3 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="flex justify-end gap-2 pt-3 border-t border-foreground/10">
+                          <button
+                            type="button"
+                            onClick={() => setIsNewVariantModalOpen(false)}
+                            className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-primary/10 transition-colors cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            className="px-5 py-2 rounded-xl bg-button-bg text-button-fg text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity shadow-md cursor-pointer"
+                          >
+                            {editingNewVariantIndex !== null
+                              ? "Save Changes"
+                              : "Add Variant"}
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>,
+                  document.body,
+                )}
 
               {/* Photo Upload & Variants Section when editing an existing product */}
               {editingProductId && (
