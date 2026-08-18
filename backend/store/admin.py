@@ -126,7 +126,13 @@ class OrderItemInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     autocomplete_fields = ['customer']
     inlines = [OrderItemInline]
-    list_display = ['id', 'placed_at', 'customer', 'payment_status', 'payment_method', 'transaction_id', 'phone']
+    list_display = ['id', 'placed_at', 'customer', 'delivery_area', 'delivery_charge', 'payment_status', 'payment_method', 'transaction_id', 'phone']
+    list_filter = ['delivery_area', 'payment_status', 'payment_method']
+
+
+@admin.register(models.DeliverySetting)
+class DeliverySettingAdmin(admin.ModelAdmin):
+    list_display = ['inside_dhaka_charge', 'outside_dhaka_charge', 'estimated_days_inside', 'estimated_days_outside', 'is_active', 'last_updated']
 
 
 @admin.register(models.Subscriber)
@@ -134,4 +140,5 @@ class SubscriberAdmin(admin.ModelAdmin):
     list_display = ['id', 'email', 'created_at']
     search_fields = ['email']
     ordering = ['-created_at']
+
 

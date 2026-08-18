@@ -2,8 +2,8 @@ from .permissions import ViewCustomerHistoryPermission
 from rest_framework.decorators import action
 from store.models import OrderItem
 from django.http import request
-from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer,PaymentSettingSerializer
-from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting
+from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer,PaymentSettingSerializer,DeliverySettingSerializer
+from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting
 from django.utils import timezone
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
@@ -570,3 +570,25 @@ class PaymentSettingViewSet(GenericViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+
+
+class DeliverySettingViewSet(GenericViewSet):
+    serializer_class = DeliverySettingSerializer
+    pagination_class = None
+
+    def get_permissions(self):
+        if self.request.method in ['POST', 'PUT', 'PATCH']:
+            return [IsAdminUser()]
+        return [AllowAny()]
+
+    def list(self, request):
+        settings = DeliverySetting.get_settings()
+        serializer = self.get_serializer(settings)
+        return Response(serializer.data)
+
+    def create(self, request):
+        settings = DeliverySetting.get_settings()
+        serializer = self.get_serializer(settings, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)

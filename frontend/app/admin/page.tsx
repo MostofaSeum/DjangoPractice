@@ -57,6 +57,8 @@ interface Order {
   payment_method?: string;
   transaction_id?: string;
   transaction_phone_no?: string;
+  delivery_area?: string;
+  delivery_charge?: number | string;
   items?: OrderItem[];
 }
 interface CustomerItem {
@@ -86,7 +88,7 @@ interface CouponItem {
   created_at: string;
 }
 
-type Tab = "products" | "collections" | "orders" | "customers" | "promotions" | "coupons" | "payments";
+type Tab = "products" | "collections" | "orders" | "customers" | "promotions" | "coupons" | "payments" | "delivery";
 
 export default function AdminDashboardPage() {
   const { user, token, logout, loading: authLoading } = useAuth();
@@ -125,6 +127,23 @@ export default function AdminDashboardPage() {
     vibecoin_active: true,
   });
   const [savingPaymentSettings, setSavingPaymentSettings] = useState(false);
+
+  // Delivery Settings State
+  const [deliverySettings, setDeliverySettings] = useState({
+    inside_dhaka_charge: "60",
+    outside_dhaka_charge: "130",
+    estimated_days_inside: "1-2 Days",
+    estimated_days_outside: "3-5 Days",
+    is_active: true,
+  });
+  const [initialDeliverySettings, setInitialDeliverySettings] = useState({
+    inside_dhaka_charge: "60",
+    outside_dhaka_charge: "130",
+    estimated_days_inside: "1-2 Days",
+    estimated_days_outside: "3-5 Days",
+    is_active: true,
+  });
+  const [savingDeliverySettings, setSavingDeliverySettings] = useState(false);
 
   // Promotion states
   const [allProductsForPromo, setAllProductsForPromo] = useState<Product[]>([]);
@@ -249,10 +268,102 @@ export default function AdminDashboardPage() {
       fetchAllProductsForPromo();
       fetchCoupons();
       fetchPaymentSettings();
+      fetchDeliverySettings();
     } catch (err) {
       console.error("Failed to fetch admin data:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDeliverySettings = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/store/delivery-settings/`, { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        const settingsObj = {
+          inside_dhaka_charge: String(data.inside_dhaka_charge ?? "60"),
+          outside_dhaka_charge: String(data.outside_dhaka_charge ?? "130"),
+          estimated_days_inside: data.estimated_days_inside || "1-2 Days",
+          estimated_days_outside: data.estimated_days_outside || "3-5 Days",
+          is_active: data.is_active ?? true,
+        };
+        setDeliverySettings(settingsObj);
+        setInitialDeliverySettings(settingsObj);
+      }
+    } catch (err) {
+      console.error("Failed to fetch delivery settings:", err);
+    }
+  };
+
+  const handleSaveDeliverySettings = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!token) return;
+
+    const insideCharge = parseFloat(deliverySettings.inside_dhaka_charge);
+    const outsideCharge = parseFloat(deliverySettings.outside_dhaka_charge);
+
+    if (isNaN(insideCharge) || insideCharge < 0) {
+      Swal.fire("Error", "Please enter a valid Inside Dhaka delivery charge.", "error");
+      return;
+    }
+    if (isNaN(outsideCharge) || outsideCharge < 0) {
+      Swal.fire("Error", "Please enter a valid Outside Dhaka delivery charge.", "error");
+      return;
+    }
+
+    try {
+      setSavingDeliverySettings(true);
+      const res = await fetch(`${API_BASE}/store/delivery-settings/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify({
+          inside_dhaka_charge: insideCharge,
+          outside_dhaka_charge: outsideCharge,
+          estimated_days_inside: deliverySettings.estimated_days_inside,
+          estimated_days_outside: deliverySettings.estimated_days_outside,
+          is_active: deliverySettings.is_active,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const updatedObj = {
+          inside_dhaka_charge: String(data.inside_dhaka_charge),
+          outside_dhaka_charge: String(data.outside_dhaka_charge),
+          estimated_days_inside: data.estimated_days_inside || "1-2 Days",
+          estimated_days_outside: data.estimated_days_outside || "3-5 Days",
+          is_active: data.is_active ?? true,
+        };
+        setDeliverySettings(updatedObj);
+        setInitialDeliverySettings(updatedObj);
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Delivery settings updated!",
+          showConfirmButton: false,
+          timer: 1800,
+          toast: true,
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Failed to update",
+          text: "Could not save delivery settings. Please try again.",
+        });
+      }
+    } catch (err) {
+      console.error("Error saving delivery settings:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to connect to the server.",
+      });
+    } finally {
+      setSavingDeliverySettings(false);
     }
   };
 
@@ -1422,6 +1533,7 @@ export default function AdminDashboardPage() {
               },
               { id: "coupons" as Tab, label: "Coupons", count: couponsList.length },
               { id: "payments" as Tab, label: "Payment Settings" },
+              { id: "delivery" as Tab, label: "Manage Delivery" },
             ].map((tab) => {
               const isActive = activeTab === tab.id;
               return (
@@ -2148,9 +2260,22 @@ export default function AdminDashboardPage() {
               </div>
 
               {/* Customer Contact & Address Info */}
-              <div className="bg-primary/5 dark:bg-primary/30 p-4 rounded-2xl mb-6 text-xs space-y-1">
+              <div className="bg-primary/5 dark:bg-primary/30 p-4 rounded-2xl mb-6 text-xs space-y-1.5">
                 <p><strong>Phone:</strong> {selectedOrderDetails.phone || "N/A"}</p>
                 <p><strong>Shipping Address:</strong> {selectedOrderDetails.shipping_address || "N/A"}</p>
+                <p>
+                  <strong>Delivery Zone:</strong>{" "}
+                  <span className="font-black text-accent uppercase">
+                    {selectedOrderDetails.delivery_area === "outside_dhaka"
+                      ? "Outside Dhaka"
+                      : "Inside Dhaka"}
+                  </span>
+                  {selectedOrderDetails.delivery_charge !== undefined && (
+                    <span className="ml-2 px-2 py-0.5 rounded-md bg-secondary border border-foreground/10 text-[10px] font-bold">
+                      Delivery Fee: ৳{Number(selectedOrderDetails.delivery_charge).toFixed(2)}
+                    </span>
+                  )}
+                </p>
                 <p>
                   <strong>Payment Method:</strong>{" "}
                   {selectedOrderDetails.payment_method === "V" ? (
@@ -2220,13 +2345,28 @@ export default function AdminDashboardPage() {
                 </table>
               </div>
 
-              <div className="flex justify-between items-center pt-4 border-t border-foreground/10">
-                <span className="text-xs font-bold opacity-70 uppercase">
-                  Payment Status: <strong className="uppercase font-black text-foreground">{selectedOrderDetails.payment_status === "C" ? "Complete" : selectedOrderDetails.payment_status === "F" ? "Failed" : "Pending"}</strong>
-                </span>
-                <span className="text-base font-black text-foreground">
-                  Total: ${selectedOrderDetails.items ? selectedOrderDetails.items.reduce((sum, i) => sum + (i.quantity * Number(i.unit_price)), 0).toFixed(2) : "0.00"}
-                </span>
+              <div className="pt-4 border-t border-foreground/10 space-y-2">
+                <div className="flex justify-between text-xs opacity-75">
+                  <span>Items Subtotal:</span>
+                  <span>${selectedOrderDetails.items ? selectedOrderDetails.items.reduce((sum, i) => sum + (i.quantity * Number(i.unit_price)), 0).toFixed(2) : "0.00"}</span>
+                </div>
+                {selectedOrderDetails.delivery_charge !== undefined && (
+                  <div className="flex justify-between text-xs opacity-75">
+                    <span>Delivery Charge ({selectedOrderDetails.delivery_area === "outside_dhaka" ? "Outside Dhaka" : "Inside Dhaka"}):</span>
+                    <span className="font-bold">৳{Number(selectedOrderDetails.delivery_charge).toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center pt-2 border-t border-foreground/10">
+                  <span className="text-xs font-bold opacity-70 uppercase">
+                    Payment Status: <strong className="uppercase font-black text-foreground">{selectedOrderDetails.payment_status === "C" ? "Complete" : selectedOrderDetails.payment_status === "F" ? "Failed" : "Pending"}</strong>
+                  </span>
+                  <span className="text-base font-black text-foreground">
+                    Grand Total: ${(
+                      (selectedOrderDetails.items ? selectedOrderDetails.items.reduce((sum, i) => sum + (i.quantity * Number(i.unit_price)), 0) : 0) +
+                      Number(selectedOrderDetails.delivery_charge || 0)
+                    ).toFixed(2)}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -3499,6 +3639,291 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           </div>
+          );
+        })()}
+
+        {/* 8. MANAGE DELIVERY TAB */}
+        {activeTab === "delivery" && (() => {
+          const hasDeliveryChanges =
+            deliverySettings.inside_dhaka_charge !== initialDeliverySettings.inside_dhaka_charge ||
+            deliverySettings.outside_dhaka_charge !== initialDeliverySettings.outside_dhaka_charge ||
+            deliverySettings.estimated_days_inside !== initialDeliverySettings.estimated_days_inside ||
+            deliverySettings.estimated_days_outside !== initialDeliverySettings.estimated_days_outside ||
+            deliverySettings.is_active !== initialDeliverySettings.is_active;
+
+          return (
+            <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
+              <div className="max-w-4xl mx-auto space-y-8">
+                {/* Header & Save Action */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-foreground/10">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xl">🚚</span>
+                      <h2 className="text-lg font-black uppercase tracking-tight text-foreground">
+                        Manage Delivery & Shipping Charges
+                      </h2>
+                    </div>
+                    <p className="text-xs opacity-60 font-medium">
+                      Configure delivery fees and estimated timeframes for Inside Dhaka and Outside Dhaka. Customers will select these during checkout.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                    {hasDeliveryChanges && (
+                      <button
+                        type="button"
+                        onClick={() => setDeliverySettings(initialDeliverySettings)}
+                        className="px-4 py-2.5 rounded-xl border border-foreground/15 text-xs font-bold uppercase tracking-wider hover:bg-foreground/5 transition-all text-foreground/70"
+                      >
+                        Reset
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      disabled={savingDeliverySettings || !hasDeliveryChanges}
+                      onClick={() => handleSaveDeliverySettings()}
+                      className="flex-1 sm:flex-none px-6 py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-black uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {savingDeliverySettings ? (
+                        <>
+                          <span className="animate-spin text-sm">⏳</span>
+                          <span>Saving...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Save Delivery Settings</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Quick Status / Highlights Banner */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Inside Dhaka Card */}
+                  <div className="p-6 rounded-3xl bg-accent/10 border border-accent/20 relative overflow-hidden">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-accent">
+                        Inside Dhaka Delivery
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full bg-accent/20 text-accent font-black text-[9px] uppercase tracking-wider">
+                        {deliverySettings.estimated_days_inside || "1-2 Days"}
+                      </span>
+                    </div>
+                    <div className="text-3xl font-black text-foreground mb-1">
+                      ৳{deliverySettings.inside_dhaka_charge || "0"}
+                      <span className="text-xs font-bold opacity-60 ml-1.5 uppercase">BDT</span>
+                    </div>
+                    <p className="text-xs opacity-70 font-medium">
+                      Applied when customer selects &quot;In Side Dhaka&quot; at checkout.
+                    </p>
+                  </div>
+
+                  {/* Outside Dhaka Card */}
+                  <div className="p-6 rounded-3xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 relative overflow-hidden">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-[10px] font-black uppercase tracking-widest opacity-80">
+                        Outside Dhaka Delivery
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full bg-foreground/10 text-foreground font-black text-[9px] uppercase tracking-wider">
+                        {deliverySettings.estimated_days_outside || "3-5 Days"}
+                      </span>
+                    </div>
+                    <div className="text-3xl font-black text-foreground mb-1">
+                      ৳{deliverySettings.outside_dhaka_charge || "0"}
+                      <span className="text-xs font-bold opacity-60 ml-1.5 uppercase">BDT</span>
+                    </div>
+                    <p className="text-xs opacity-70 font-medium">
+                      Applied when customer selects &quot;Out Side Dhaka&quot; at checkout.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Edit Form Fields */}
+                <form onSubmit={handleSaveDeliverySettings} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Inside Dhaka Config */}
+                    <div className="p-6 rounded-3xl bg-primary/5 dark:bg-primary/30 border border-foreground/10 space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-secondary border border-foreground/10 flex items-center justify-center font-black text-sm shadow-xs">
+                          🏙️
+                        </div>
+                        <div>
+                          <h3 className="font-black text-sm text-foreground">In Side Dhaka Delivery</h3>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-accent">
+                            Default Standard Area
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 pt-2">
+                        <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                          Delivery Charge (Taka / BDT) *
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 font-black text-sm text-foreground/50">
+                            ৳
+                          </span>
+                          <input
+                            type="number"
+                            min={0}
+                            step="any"
+                            required
+                            value={deliverySettings.inside_dhaka_charge}
+                            onChange={(e) =>
+                              setDeliverySettings({
+                                ...deliverySettings,
+                                inside_dhaka_charge: e.target.value,
+                              })
+                            }
+                            placeholder="e.g. 60"
+                            className="w-full pl-9 pr-4 py-3 rounded-xl border border-foreground/15 bg-secondary text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
+                          />
+                        </div>
+                        <p className="text-[10px] opacity-50 font-medium">
+                          Amount added to customer order when Inside Dhaka is chosen (e.g. 60 tk).
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                          Estimated Delivery Timeframe
+                        </label>
+                        <input
+                          type="text"
+                          value={deliverySettings.estimated_days_inside}
+                          onChange={(e) =>
+                            setDeliverySettings({
+                              ...deliverySettings,
+                              estimated_days_inside: e.target.value,
+                            })
+                          }
+                          placeholder="e.g. 1-2 Days"
+                          className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-secondary text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Outside Dhaka Config */}
+                    <div className="p-6 rounded-3xl bg-primary/5 dark:bg-primary/30 border border-foreground/10 space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-secondary border border-foreground/10 flex items-center justify-center font-black text-sm shadow-xs">
+                          🚛
+                        </div>
+                        <div>
+                          <h3 className="font-black text-sm text-foreground">Out Side Dhaka Delivery</h3>
+                          <span className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                            Nationwide / Regional Area
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 pt-2">
+                        <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                          Delivery Charge (Taka / BDT) *
+                        </label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 font-black text-sm text-foreground/50">
+                            ৳
+                          </span>
+                          <input
+                            type="number"
+                            min={0}
+                            step="any"
+                            required
+                            value={deliverySettings.outside_dhaka_charge}
+                            onChange={(e) =>
+                              setDeliverySettings({
+                                ...deliverySettings,
+                                outside_dhaka_charge: e.target.value,
+                              })
+                            }
+                            placeholder="e.g. 130"
+                            className="w-full pl-9 pr-4 py-3 rounded-xl border border-foreground/15 bg-secondary text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
+                          />
+                        </div>
+                        <p className="text-[10px] opacity-50 font-medium">
+                          Amount added to customer order when Outside Dhaka is chosen (e.g. 130 tk).
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                          Estimated Delivery Timeframe
+                        </label>
+                        <input
+                          type="text"
+                          value={deliverySettings.estimated_days_outside}
+                          onChange={(e) =>
+                            setDeliverySettings({
+                              ...deliverySettings,
+                              estimated_days_outside: e.target.value,
+                            })
+                          }
+                          placeholder="e.g. 3-5 Days"
+                          className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-secondary text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Customer Checkout Preview */}
+                  <div className="p-6 rounded-3xl bg-secondary border border-foreground/15 space-y-4">
+                    <div className="flex items-center justify-between pb-3 border-b border-foreground/10">
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-accent">
+                          Live Customer Checkout Preview
+                        </span>
+                        <h4 className="text-xs font-bold text-foreground opacity-80">
+                          This is how delivery options appear to customers on the checkout page:
+                        </h4>
+                      </div>
+                      <span className="text-xs font-mono font-bold bg-primary/10 px-2 py-1 rounded-md">
+                        Preview Only
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Inside Dhaka Option Preview */}
+                      <div className="p-4 rounded-2xl border-2 border-accent bg-accent/10 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-4 h-4 rounded-full border-4 border-accent bg-secondary" />
+                          <div>
+                            <div className="text-xs font-black uppercase text-foreground">
+                              In Side Dhaka
+                            </div>
+                            <div className="text-[10px] opacity-70 font-medium">
+                              Estimated: {deliverySettings.estimated_days_inside || "1-2 Days"}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-sm font-black text-accent">
+                          ৳{deliverySettings.inside_dhaka_charge || "60"}
+                        </div>
+                      </div>
+
+                      {/* Outside Dhaka Option Preview */}
+                      <div className="p-4 rounded-2xl border-2 border-foreground/10 bg-secondary flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-4 h-4 rounded-full border border-foreground/30 bg-transparent" />
+                          <div>
+                            <div className="text-xs font-black uppercase text-foreground">
+                              Out Side Dhaka
+                            </div>
+                            <div className="text-[10px] opacity-70 font-medium">
+                              Estimated: {deliverySettings.estimated_days_outside || "3-5 Days"}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-sm font-black text-foreground opacity-80">
+                          ৳{deliverySettings.outside_dhaka_charge || "130"}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
           );
         })()}
       </main>

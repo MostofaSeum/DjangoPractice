@@ -4,7 +4,7 @@ from django.db.models.functions import Greatest
 from django.utils import timezone
 from .signals import order_created
 from rest_framework import serializers
-from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting
+from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting
 from decimal import Decimal
 
 class ProductImageSerializer(serializers.ModelSerializer):
@@ -285,7 +285,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'customer_name', 'payment_status', 'placed_at', 'shipping_address', 'phone', 'payment_method', 'transaction_id', 'transaction_phone_no', 'items']
+        fields = ['id', 'customer', 'customer_name', 'payment_status', 'placed_at', 'shipping_address', 'phone', 'payment_method', 'transaction_id', 'transaction_phone_no', 'delivery_area', 'delivery_charge', 'items']
 
     def get_customer_name(self, obj):
         if obj.customer and hasattr(obj.customer, 'user') and obj.customer.user:
@@ -347,6 +347,7 @@ class CreateOrderSerializer(serializers.Serializer):
     transaction_id = serializers.CharField(max_length=255, required=False, allow_blank=True, default='')
     transaction_phone_no = serializers.CharField(max_length=255, required=False, allow_blank=True, default='')
     coupon_code = serializers.CharField(max_length=50, required=False, allow_blank=True, default='')
+    delivery_area = serializers.CharField(max_length=20, required=False, default='inside_dhaka')
 
     def validate_cart_id(self, cart_id):
         if not Cart.objects.filter(pk=cart_id).exists():
@@ -362,6 +363,16 @@ class CreateOrderSerializer(serializers.Serializer):
             payment_method = self.validated_data.get('payment_method', 'C')
             raw_coupon_code = self.validated_data.get('coupon_code', '')
             coupon_code = str(raw_coupon_code).strip().upper() if raw_coupon_code else ''
+            delivery_area = self.validated_data.get('delivery_area', 'inside_dhaka')
+            if delivery_area not in [Order.DELIVERY_AREA_INSIDE_DHAKA, Order.DELIVERY_AREA_OUTSIDE_DHAKA]:
+                delivery_area = Order.DELIVERY_AREA_INSIDE_DHAKA
+
+            # Fetch active delivery settings
+            delivery_settings = DeliverySetting.get_settings()
+            if delivery_area == Order.DELIVERY_AREA_OUTSIDE_DHAKA:
+                delivery_charge = delivery_settings.outside_dhaka_charge
+            else:
+                delivery_charge = delivery_settings.inside_dhaka_charge
             
             cart_items = list(CartItem.objects.select_related('product', 'variant').filter(cart_id=cart_id))
             if not cart_items:
@@ -423,12 +434,13 @@ class CreateOrderSerializer(serializers.Serializer):
                 })
 
             payment_status = Order.PAYMENT_STATUS_PENDING
-            order_total = sum(d['quantity'] * d['unit_price'] for d in order_items_data)
+            items_total = sum(d['quantity'] * d['unit_price'] for d in order_items_data)
+            order_total = items_total + Decimal(str(delivery_charge))
 
             if payment_method == 'V':
                 if customer.vibe_coin < order_total:
                     raise serializers.ValidationError({
-                        'payment_method': f'Insufficient VibeCoin balance. Required: {order_total:.2f} VC, Available: {customer.vibe_coin:.2f} VC.'
+                        'payment_method': f'Insufficient VibeCoin balance. Required: {order_total:.2f} VC (including ৳{delivery_charge:.2f} delivery), Available: {customer.vibe_coin:.2f} VC.'
                     })
                 customer.vibe_coin -= order_total
                 customer.save()
@@ -440,7 +452,9 @@ class CreateOrderSerializer(serializers.Serializer):
                 payment_method=payment_method,
                 payment_status=payment_status,
                 transaction_id=self.validated_data.get('transaction_id', ''),
-                transaction_phone_no=self.validated_data.get('transaction_phone_no', '')
+                transaction_phone_no=self.validated_data.get('transaction_phone_no', ''),
+                delivery_area=delivery_area,
+                delivery_charge=delivery_charge
             )
 
             order_items = [
@@ -611,4 +625,15 @@ class PaymentSettingSerializer(serializers.ModelSerializer):
             'cod_active', 'vibecoin_active',
             'last_updated'
         ]
+
+
+class DeliverySettingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeliverySetting
+        fields = [
+            'id', 'inside_dhaka_charge', 'outside_dhaka_charge',
+            'estimated_days_inside', 'estimated_days_outside',
+            'is_active', 'last_updated'
+        ]
+
 

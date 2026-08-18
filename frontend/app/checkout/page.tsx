@@ -50,7 +50,21 @@ export default function CheckoutPage() {
     vibecoin_active: true,
   });
 
-  // Prefill phone/customer info, payment settings, and load applied coupon
+  const [deliverySettings, setDeliverySettings] = useState<{
+    inside_dhaka_charge: number;
+    outside_dhaka_charge: number;
+    estimated_days_inside: string;
+    estimated_days_outside: string;
+  }>({
+    inside_dhaka_charge: 60,
+    outside_dhaka_charge: 130,
+    estimated_days_inside: "1-2 Days",
+    estimated_days_outside: "3-5 Days",
+  });
+
+  const [deliveryArea, setDeliveryArea] = useState<"inside_dhaka" | "outside_dhaka">("inside_dhaka");
+
+  // Prefill phone/customer info, payment settings, delivery settings, and load applied coupon
   useEffect(() => {
     try {
       const savedCoupon = localStorage.getItem("applied_coupon");
@@ -60,6 +74,25 @@ export default function CheckoutPage() {
     } catch (e) {
       console.error("Failed to load applied coupon:", e);
     }
+
+    // Fetch Delivery Settings
+    const fetchDeliverySettings = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/store/delivery-settings/`, { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          setDeliverySettings({
+            inside_dhaka_charge: Number(data.inside_dhaka_charge ?? 60),
+            outside_dhaka_charge: Number(data.outside_dhaka_charge ?? 130),
+            estimated_days_inside: data.estimated_days_inside || "1-2 Days",
+            estimated_days_outside: data.estimated_days_outside || "3-5 Days",
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch delivery settings:", err);
+      }
+    };
+    fetchDeliverySettings();
 
     // Fetch Payment Settings
     const fetchPaymentSettings = async () => {
@@ -215,7 +248,12 @@ export default function CheckoutPage() {
       }, 0) || 0
     : 0;
 
-  const finalTotal = Math.max(0, discountedSubtotal - couponSavings);
+  const itemsTotal = Math.max(0, discountedSubtotal - couponSavings);
+  const deliveryCharge =
+    deliveryArea === "outside_dhaka"
+      ? Number(deliverySettings.outside_dhaka_charge || 130)
+      : Number(deliverySettings.inside_dhaka_charge || 60);
+  const finalTotal = itemsTotal + deliveryCharge;
   const requiredCoins = Number(finalTotal.toFixed(2));
   const userCoins = Number(Number(vibeCoin).toFixed(2));
   const hasSufficientVibeCoin = userCoins > 0 && userCoins >= requiredCoins;
@@ -283,6 +321,7 @@ export default function CheckoutPage() {
         transaction_id: isOnlinePayment ? transactionId : "",
         transaction_phone_no: isOnlinePayment ? transactionPhoneNo : "",
         coupon_code: appliedCoupon?.code || "",
+        delivery_area: deliveryArea,
       };
 
       const res = await fetch(`${API_BASE}/store/orders/`, {
@@ -426,6 +465,79 @@ export default function CheckoutPage() {
                     placeholder="e.g. House 12, Road 5, Block B, Dhanmondi, Dhaka"
                     className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
                   />
+                </div>
+
+                {/* Delivery Zone Selection */}
+                <div className="flex flex-col gap-2.5 sm:col-span-2 pt-2 border-t border-foreground/10">
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                      Delivery Area & Charges *
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* In Side Dhaka Option */}
+                    <div
+                      onClick={() => setDeliveryArea("inside_dhaka")}
+                      className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
+                        deliveryArea === "inside_dhaka"
+                          ? "border-accent bg-accent/10 shadow-sm"
+                          : "border-foreground/10 bg-background hover:border-accent/40"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="radio"
+                          name="delivery_area"
+                          checked={deliveryArea === "inside_dhaka"}
+                          onChange={() => setDeliveryArea("inside_dhaka")}
+                          className="w-4 h-4 accent-accent cursor-pointer"
+                        />
+                        <div>
+                          <span className="font-black text-xs uppercase tracking-tight block text-foreground">
+                            In Side Dhaka
+                          </span>
+                          <span className="text-[10px] opacity-70 font-medium block">
+                            Est. {deliverySettings.estimated_days_inside || "1-2 Days"}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-sm font-black text-accent">
+                        ৳{deliverySettings.inside_dhaka_charge}
+                      </div>
+                    </div>
+
+                    {/* Out Side Dhaka Option */}
+                    <div
+                      onClick={() => setDeliveryArea("outside_dhaka")}
+                      className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
+                        deliveryArea === "outside_dhaka"
+                          ? "border-accent bg-accent/10 shadow-sm"
+                          : "border-foreground/10 bg-background hover:border-accent/40"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="radio"
+                          name="delivery_area"
+                          checked={deliveryArea === "outside_dhaka"}
+                          onChange={() => setDeliveryArea("outside_dhaka")}
+                          className="w-4 h-4 accent-accent cursor-pointer"
+                        />
+                        <div>
+                          <span className="font-black text-xs uppercase tracking-tight block text-foreground">
+                            Out Side Dhaka
+                          </span>
+                          <span className="text-[10px] opacity-70 font-medium block">
+                            Est. {deliverySettings.estimated_days_outside || "3-5 Days"}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-sm font-black text-accent">
+                        ৳{deliverySettings.outside_dhaka_charge}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -663,9 +775,11 @@ export default function CheckoutPage() {
               )}
 
               <div className="flex justify-between opacity-80 font-medium">
-                <span>Shipping</span>
-                <span className="font-bold text-green-500 uppercase text-xs">
-                  Free
+                <span>
+                  Delivery Charge ({deliveryArea === "outside_dhaka" ? "Outside Dhaka" : "Inside Dhaka"})
+                </span>
+                <span className="font-bold text-accent">
+                  +৳{deliveryCharge.toFixed(2)}
                 </span>
               </div>
               <div className="pt-3 border-t border-foreground/10 flex justify-between items-center text-base font-black">

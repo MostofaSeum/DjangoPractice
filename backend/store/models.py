@@ -185,6 +185,13 @@ class Order(models.Model):
         (PAYMENT_METHOD_VIBECOIN, 'VibeCoin'),
     ]
 
+    DELIVERY_AREA_INSIDE_DHAKA = 'inside_dhaka'
+    DELIVERY_AREA_OUTSIDE_DHAKA = 'outside_dhaka'
+    DELIVERY_AREA_CHOICES = [
+        (DELIVERY_AREA_INSIDE_DHAKA, 'Inside Dhaka'),
+        (DELIVERY_AREA_OUTSIDE_DHAKA, 'Outside Dhaka'),
+    ]
+
     placed_at = models.DateTimeField(auto_now_add=True)
     payment_status = models.CharField(
         max_length=1, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING)
@@ -195,6 +202,10 @@ class Order(models.Model):
         max_length=1, choices=PAYMENT_METHOD_CHOICES, default=PAYMENT_METHOD_COD)
     transaction_id = models.CharField(max_length=255, default='', blank=True)
     transaction_phone_no = models.CharField(max_length=255, default='', blank=True)
+    delivery_area = models.CharField(
+        max_length=20, choices=DELIVERY_AREA_CHOICES, default=DELIVERY_AREA_INSIDE_DHAKA)
+    delivery_charge = models.DecimalField(
+        max_digits=6, decimal_places=2, default=60.00, validators=[MinValueValidator(0)])
     class Meta:
         permissions = [
             ('cancel_order', 'Can cancel order'),
@@ -337,3 +348,31 @@ class PaymentSetting(models.Model):
     def get_settings(cls):
         obj, created = cls.objects.get_or_create(id=1)
         return obj
+
+
+class DeliverySetting(models.Model):
+    inside_dhaka_charge = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        default=60.00,
+        validators=[MinValueValidator(0)]
+    )
+    outside_dhaka_charge = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        default=130.00,
+        validators=[MinValueValidator(0)]
+    )
+    estimated_days_inside = models.CharField(max_length=50, default="1-2 Days", blank=True)
+    estimated_days_outside = models.CharField(max_length=50, default="3-5 Days", blank=True)
+    is_active = models.BooleanField(default=True)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Delivery Settings (Inside: ৳{self.inside_dhaka_charge}, Outside: ৳{self.outside_dhaka_charge})"
+
+    @classmethod
+    def get_settings(cls):
+        obj, created = cls.objects.get_or_create(id=1)
+        return obj
+
