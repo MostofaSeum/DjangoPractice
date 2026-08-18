@@ -3658,7 +3658,6 @@ export default function AdminDashboardPage() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-foreground/10">
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xl">🚚</span>
                       <h2 className="text-lg font-black uppercase tracking-tight text-foreground">
                         Manage Delivery & Shipping Charges
                       </h2>
@@ -3698,46 +3697,6 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
 
-                {/* Quick Status / Highlights Banner */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Inside Dhaka Card */}
-                  <div className="p-6 rounded-3xl bg-accent/10 border border-accent/20 relative overflow-hidden">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-accent">
-                        Inside Dhaka Delivery
-                      </span>
-                      <span className="px-2 py-0.5 rounded-full bg-accent/20 text-accent font-black text-[9px] uppercase tracking-wider">
-                        {deliverySettings.estimated_days_inside || "1-2 Days"}
-                      </span>
-                    </div>
-                    <div className="text-3xl font-black text-foreground mb-1">
-                      ৳{deliverySettings.inside_dhaka_charge || "0"}
-                      <span className="text-xs font-bold opacity-60 ml-1.5 uppercase">BDT</span>
-                    </div>
-                    <p className="text-xs opacity-70 font-medium">
-                      Applied when customer selects &quot;In Side Dhaka&quot; at checkout.
-                    </p>
-                  </div>
-
-                  {/* Outside Dhaka Card */}
-                  <div className="p-6 rounded-3xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 relative overflow-hidden">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-[10px] font-black uppercase tracking-widest opacity-80">
-                        Outside Dhaka Delivery
-                      </span>
-                      <span className="px-2 py-0.5 rounded-full bg-foreground/10 text-foreground font-black text-[9px] uppercase tracking-wider">
-                        {deliverySettings.estimated_days_outside || "3-5 Days"}
-                      </span>
-                    </div>
-                    <div className="text-3xl font-black text-foreground mb-1">
-                      ৳{deliverySettings.outside_dhaka_charge || "0"}
-                      <span className="text-xs font-bold opacity-60 ml-1.5 uppercase">BDT</span>
-                    </div>
-                    <p className="text-xs opacity-70 font-medium">
-                      Applied when customer selects &quot;Out Side Dhaka&quot; at checkout.
-                    </p>
-                  </div>
-                </div>
 
                 {/* Edit Form Fields */}
                 <form onSubmit={handleSaveDeliverySettings} className="space-y-6">
@@ -3804,9 +3763,6 @@ export default function AdminDashboardPage() {
                     {/* Outside Dhaka Config */}
                     <div className="p-6 rounded-3xl bg-primary/5 dark:bg-primary/30 border border-foreground/10 space-y-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-secondary border border-foreground/10 flex items-center justify-center font-black text-sm shadow-xs">
-                          🚛
-                        </div>
                         <div>
                           <h3 className="font-black text-sm text-foreground">Out Side Dhaka Delivery</h3>
                           <span className="text-[10px] font-bold uppercase tracking-wider opacity-70">
@@ -3860,61 +3816,6 @@ export default function AdminDashboardPage() {
                           placeholder="e.g. 3-5 Days"
                           className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-secondary text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
                         />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Customer Checkout Preview */}
-                  <div className="p-6 rounded-3xl bg-secondary border border-foreground/15 space-y-4">
-                    <div className="flex items-center justify-between pb-3 border-b border-foreground/10">
-                      <div>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-accent">
-                          Live Customer Checkout Preview
-                        </span>
-                        <h4 className="text-xs font-bold text-foreground opacity-80">
-                          This is how delivery options appear to customers on the checkout page:
-                        </h4>
-                      </div>
-                      <span className="text-xs font-mono font-bold bg-primary/10 px-2 py-1 rounded-md">
-                        Preview Only
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Inside Dhaka Option Preview */}
-                      <div className="p-4 rounded-2xl border-2 border-accent bg-accent/10 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-4 h-4 rounded-full border-4 border-accent bg-secondary" />
-                          <div>
-                            <div className="text-xs font-black uppercase text-foreground">
-                              In Side Dhaka
-                            </div>
-                            <div className="text-[10px] opacity-70 font-medium">
-                              Estimated: {deliverySettings.estimated_days_inside || "1-2 Days"}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-sm font-black text-accent">
-                          ৳{deliverySettings.inside_dhaka_charge || "60"}
-                        </div>
-                      </div>
-
-                      {/* Outside Dhaka Option Preview */}
-                      <div className="p-4 rounded-2xl border-2 border-foreground/10 bg-secondary flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="w-4 h-4 rounded-full border border-foreground/30 bg-transparent" />
-                          <div>
-                            <div className="text-xs font-black uppercase text-foreground">
-                              Out Side Dhaka
-                            </div>
-                            <div className="text-[10px] opacity-70 font-medium">
-                              Estimated: {deliverySettings.estimated_days_outside || "3-5 Days"}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-sm font-black text-foreground opacity-80">
-                          ৳{deliverySettings.outside_dhaka_charge || "130"}
-                        </div>
                       </div>
                     </div>
                   </div>
