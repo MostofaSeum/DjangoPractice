@@ -48,12 +48,15 @@ async function getCachedRules(): Promise<DeliveryRule[]> {
 interface ProductDeliveryOfferBadgeProps {
   productId: number;
   collectionId?: number | null;
+  soldCount?: number;
   className?: string;
 }
 
 export default function ProductDeliveryOfferBadge({
   productId,
   collectionId,
+  soldCount,
+  className = "",
 }: ProductDeliveryOfferBadgeProps) {
   const [badgeText, setBadgeText] = useState<string | null>(null);
 
@@ -100,12 +103,27 @@ export default function ProductDeliveryOfferBadge({
     };
   }, [productId, collectionId]);
 
-  if (!badgeText) return null;
-
   return (
-    <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent/15 text-accent text-[9px] font-black uppercase tracking-wider border border-accent/25">
-      <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-      <span>{badgeText}</span>
+    <div className={`flex items-center gap-2 ${badgeText ? "justify-between" : "justify-start"} ${className}`}>
+      {badgeText ? (
+        <>
+          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent/15 text-accent text-[9px] font-black uppercase tracking-wider border border-accent/25">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+            <span>{badgeText}</span>
+          </div>
+          {soldCount !== undefined && (
+            <span className="text-[10px] font-bold opacity-60 uppercase tracking-wider shrink-0">
+              {soldCount} Sold
+            </span>
+          )}
+        </>
+      ) : (
+        soldCount !== undefined && (
+          <span className="text-[10px] font-bold opacity-60 uppercase tracking-wider shrink-0">
+            {soldCount} Sold
+          </span>
+        )
+      )}
     </div>
   );
 }

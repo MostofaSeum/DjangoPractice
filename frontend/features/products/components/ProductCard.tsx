@@ -17,9 +17,12 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const discountPercent = Number(product.discount_percent || 0);
   const hasDiscount = discountPercent > 0;
-  const effectivePrice = product.discounted_price !== undefined 
-    ? product.discounted_price 
-    : (hasDiscount ? product.unit_price * (1 - discountPercent / 100) : product.unit_price);
+  const effectivePrice =
+    product.discounted_price !== undefined
+      ? product.discounted_price
+      : hasDiscount
+        ? product.unit_price * (1 - discountPercent / 100)
+        : product.unit_price;
 
   return (
     <div className="bg-secondary text-foreground rounded-xl p-3.5 shadow-sm border border-foreground/10 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group flex flex-col justify-between relative">
@@ -27,7 +30,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-3 bg-secondary border border-foreground/10 group-hover:scale-[1.01] transition-transform duration-300">
           {hasDiscount && (
             <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-accent text-button-fg font-extrabold text-[9px] uppercase tracking-wider shadow-md z-10 flex items-center gap-1">
-              <img src="/discount.png" alt="Discount" className="w-3.5 h-3.5 object-contain brightness-0 invert" />
+              <img
+                src="/discount.png"
+                alt="Discount"
+                className="w-3.5 h-3.5 object-contain brightness-0 invert"
+              />
               -{Math.round(discountPercent)}% OFF
             </span>
           )}
@@ -55,9 +62,17 @@ export default function ProductCard({ product }: ProductCardProps) {
             />
           </button>
         </div>
-        <h3 className="font-bold text-sm text-foreground mb-0.5 line-clamp-1 group-hover:text-accent transition-colors">
-          {product.title}
-        </h3>
+        <div className="flex justify-between items-start gap-1 mb-0.5">
+          <h3 className="font-bold text-sm text-foreground line-clamp-1 group-hover:text-accent transition-colors">
+            {product.title}
+          </h3>
+          {Number(product.average_rating || 0) > 0 && (
+            <div className="flex items-center gap-0.5 text-amber-500 font-bold text-[11px] shrink-0 mt-0.5">
+              <span>★</span>
+              <span>{Number(product.average_rating).toFixed(1)}</span>
+            </div>
+          )}
+        </div>
         <p className="text-[11px] opacity-70 mb-2 line-clamp-1 leading-normal">
           {product.description || "No description available."}
         </p>
@@ -70,6 +85,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 ? (product as any).collection.id
                 : (product as any).collection || (product as any).collection_id
             }
+            soldCount={Number(product.units_sold || 0)}
           />
         </div>
       </div>
@@ -86,7 +102,6 @@ export default function ProductCard({ product }: ProductCardProps) {
               </span>
             )}
           </div>
-          <span className="text-[9px] font-bold uppercase tracking-wider opacity-60">Qty: {product.inventory}</span>
         </div>
         <div className="grid grid-cols-2 gap-1.5">
           <Link

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.conf import settings
-from django.db.models import Sum
+from django.db.models import Sum, Avg
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from uuid import uuid4
@@ -61,6 +61,15 @@ class Product(models.Model):
     def units_sold(self):
         result = self.orderitem_set.aggregate(total=Sum('quantity'))['total']
         return int(result or 0)
+
+    @property
+    def average_rating(self):
+        result = self.reviews.aggregate(avg=Avg('rating'))['avg']
+        return round(float(result), 1) if result is not None else 0.0
+
+    @property
+    def review_count(self):
+        return self.reviews.count()
 
     @property
     def discounted_price(self):

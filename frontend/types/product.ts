@@ -40,6 +40,8 @@ export interface Product {
   is_photos_published?: boolean;
   is_trending?: boolean;
   units_sold?: number;
+  average_rating?: number;
+  review_count?: number;
 }
 
 export interface PaymentSetting {

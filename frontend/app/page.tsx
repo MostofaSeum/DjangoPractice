@@ -17,6 +17,9 @@ interface Product {
   inventory: number;
   description?: string;
   images?: { id?: number; image: string }[];
+  units_sold?: number;
+  average_rating?: number;
+  review_count?: number;
 }
 
 const TruckIcon = () => (
@@ -83,9 +86,12 @@ export default async function Home() {
   let featuredCollections: Collection[] = [];
 
   try {
-    const res = await fetch(`${apiBaseUrl}/store/products/?is_trending=true&page_size=8`, {
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `${apiBaseUrl}/store/products/?is_trending=true&page_size=8`,
+      {
+        cache: "no-store",
+      },
+    );
     if (res.ok) {
       const data = await res.json();
       const products: Product[] = Array.isArray(data)
@@ -106,7 +112,9 @@ export default async function Home() {
       const collections: Collection[] = Array.isArray(colData)
         ? colData
         : colData.results || [];
-      featuredCollections = collections.filter((c: any) => c.is_featured).slice(0, 3);
+      featuredCollections = collections
+        .filter((c: any) => c.is_featured)
+        .slice(0, 3);
     }
   } catch (err) {
     console.error("Failed to fetch collections:", err);
@@ -126,7 +134,10 @@ export default async function Home() {
     <div className="min-h-screen pb-24 bg-background text-foreground font-sans transition-colors duration-300">
       {/* Top Banner Image*/}
       <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 pt-6">
-        <Link href="/gift-cards" className="block w-full rounded-[2rem] overflow-hidden shadow-lg border border-foreground/10 group flex justify-center bg-secondary cursor-pointer">
+        <Link
+          href="/gift-cards"
+          className="block w-full rounded-[2rem] overflow-hidden shadow-lg border border-foreground/10 group flex justify-center bg-secondary cursor-pointer"
+        >
           <Image
             src="/Banners/Banner.png"
             alt="Special Promotion Banner"
@@ -328,44 +339,51 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className={`grid grid-cols-1 ${featuredCollections.length > 0 ? "lg:grid-cols-3 h-auto lg:h-[600px]" : "grid-cols-1 h-auto"} gap-6`}>
+          <div
+            className={`grid grid-cols-1 ${featuredCollections.length > 0 ? "lg:grid-cols-3 h-auto lg:h-[600px]" : "grid-cols-1 h-auto"} gap-6`}
+          >
             {featuredCollections.length > 0 ? (
               <>
                 {/* 1st Collection: Large Card (Col Span 2) */}
-                {featuredCollections[0] && (() => {
-                  const imgUrl = getCollectionImageUrl(featuredCollections[0]);
-                  return (
-                    <Link
-                      href={`/collections/${featuredCollections[0].id}`}
-                      className="lg:col-span-2 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[400px] bg-secondary flex items-end p-10 border border-foreground/10"
-                    >
-                      {imgUrl ? (
-                        <>
-                          <Image
-                            src={imgUrl}
-                            alt={featuredCollections[0].title}
-                            fill
-                            unoptimized
-                            className="object-cover group-hover:scale-105 transition-transform duration-700"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
-                        </>
-                      ) : (
-                        <div className="absolute inset-0 bg-primary/10 dark:bg-primary/40 flex items-center justify-center text-foreground/40 font-black text-2xl uppercase tracking-widest p-6 text-center">
-                          {featuredCollections[0].title}
+                {featuredCollections[0] &&
+                  (() => {
+                    const imgUrl = getCollectionImageUrl(
+                      featuredCollections[0],
+                    );
+                    return (
+                      <Link
+                        href={`/collections/${featuredCollections[0].id}`}
+                        className="lg:col-span-2 relative rounded-3xl overflow-hidden group cursor-pointer shadow-lg min-h-[400px] bg-secondary flex items-end p-10 border border-foreground/10"
+                      >
+                        {imgUrl ? (
+                          <>
+                            <Image
+                              src={imgUrl}
+                              alt={featuredCollections[0].title}
+                              fill
+                              unoptimized
+                              className="object-cover group-hover:scale-105 transition-transform duration-700"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90" />
+                          </>
+                        ) : (
+                          <div className="absolute inset-0 bg-primary/10 dark:bg-primary/40 flex items-center justify-center text-foreground/40 font-black text-2xl uppercase tracking-widest p-6 text-center">
+                            {featuredCollections[0].title}
+                          </div>
+                        )}
+                        <div className="relative z-20 text-foreground transform transition-transform duration-500 group-hover:translate-y-[-5px]">
+                          <span className="bg-accent/20 text-foreground text-xs font-bold px-3 py-1 mb-4 inline-block uppercase tracking-widest rounded-md shadow-md">
+                            FEATURED
+                          </span>
+                          <h3
+                            className={`text-4xl md:text-5xl font-black uppercase tracking-tight drop-shadow-md ${imgUrl ? "text-white" : "text-foreground"}`}
+                          >
+                            {featuredCollections[0].title}
+                          </h3>
                         </div>
-                      )}
-                      <div className="relative z-20 text-foreground transform transition-transform duration-500 group-hover:translate-y-[-5px]">
-                        <span className="bg-accent/20 text-foreground text-xs font-bold px-3 py-1 mb-4 inline-block uppercase tracking-widest rounded-md shadow-md">
-                          FEATURED
-                        </span>
-                        <h3 className={`text-4xl md:text-5xl font-black uppercase tracking-tight drop-shadow-md ${imgUrl ? 'text-white' : 'text-foreground'}`}>
-                          {featuredCollections[0].title}
-                        </h3>
-                      </div>
-                    </Link>
-                  );
-                })()}
+                      </Link>
+                    );
+                  })()}
 
                 {/* 2nd & 3rd Collections: Small Stacked Cards */}
                 {featuredCollections.length > 1 && (
@@ -395,7 +413,9 @@ export default async function Home() {
                             </div>
                           )}
                           <div className="relative z-20 text-foreground transform transition-transform duration-500 group-hover:translate-y-[-3px]">
-                            <h3 className={`text-2xl font-bold uppercase tracking-tight drop-shadow-md ${imgUrl ? 'text-white' : 'text-foreground'}`}>
+                            <h3
+                              className={`text-2xl font-bold uppercase tracking-tight drop-shadow-md ${imgUrl ? "text-white" : "text-foreground"}`}
+                            >
                               {col.title}
                             </h3>
                           </div>
@@ -432,9 +452,12 @@ export default async function Home() {
               trendingProducts.map((product) => {
                 const discountPercent = Number(product.discount_percent || 0);
                 const hasDiscount = discountPercent > 0;
-                const effectivePrice = product.discounted_price !== undefined 
-                  ? product.discounted_price 
-                  : (hasDiscount ? product.unit_price * (1 - discountPercent / 100) : product.unit_price);
+                const effectivePrice =
+                  product.discounted_price !== undefined
+                    ? product.discounted_price
+                    : hasDiscount
+                      ? product.unit_price * (1 - discountPercent / 100)
+                      : product.unit_price;
 
                 return (
                   <div
@@ -445,7 +468,11 @@ export default async function Home() {
                       <div className="aspect-square bg-primary/5 dark:bg-primary/40 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
                         {hasDiscount && (
                           <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-accent text-button-fg font-extrabold text-[9px] uppercase tracking-wider shadow-md z-10 flex items-center gap-1">
-                            <img src="/discount.png" alt="Discount" className="w-3.5 h-3.5 object-contain brightness-0 invert" />
+                            <img
+                              src="/discount.png"
+                              alt="Discount"
+                              className="w-3.5 h-3.5 object-contain brightness-0 invert"
+                            />
                             -{Math.round(discountPercent)}% OFF
                           </span>
                         )}
@@ -454,24 +481,36 @@ export default async function Home() {
                           images={product.images}
                         />
                       </div>
-                      <h4 className="font-bold text-lg text-foreground mb-1 line-clamp-1 group-hover:text-accent transition-colors">
-                        {product.title}
-                      </h4>
-                      <div className="mb-2">
+                      <div className="flex justify-between items-start gap-1 mb-1">
+                        <h4 className="font-bold text-lg text-foreground line-clamp-1 group-hover:text-accent transition-colors">
+                          {product.title}
+                        </h4>
+                        {Number(product.average_rating || 0) > 0 && (
+                          <div className="flex items-center gap-1 text-amber-500 font-bold text-xs shrink-0 mt-1">
+                            <span>★</span>
+                            <span>
+                              {Number(product.average_rating).toFixed(1)}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="mb-3">
                         <ProductDeliveryOfferBadge
                           productId={product.id}
                           collectionId={
                             typeof (product as any).collection === "object" &&
                             (product as any).collection !== null
                               ? (product as any).collection.id
-                              : (product as any).collection || (product as any).collection_id
+                              : (product as any).collection ||
+                                (product as any).collection_id
                           }
+                          soldCount={Number(product.units_sold || 0)}
                         />
                       </div>
                     </Link>
 
                     <div>
-                      <div className="flex items-baseline gap-2 mb-6">
+                      <div className="flex items-baseline gap-2 mb-4">
                         <span className="text-accent font-bold text-lg">
                           ৳{Number(effectivePrice).toFixed(2)}
                         </span>
