@@ -70,32 +70,45 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   const product: Product = await res.json();
 
-  // Determine collection ID
+  // Determine collection ID and collection title
   const collectionId =
     typeof product.collection === "object" && product.collection !== null
       ? product.collection.id
       : product.collection;
 
-  // Fetch collection detail to get related products and collection name
-  let collectionData: CollectionDetail | null = null;
+  let collectionTitle = "Shop";
+  let relatedProducts: Product[] = [];
+
   if (collectionId) {
     try {
-      const collectionRes = await fetch(
-        `${apiBaseUrl}/store/collections/${collectionId}/`,
-        { cache: "no-store" },
-      );
-      if (collectionRes.ok) {
-        collectionData = await collectionRes.json();
+      const [colRes, relatedRes] = await Promise.all([
+        fetch(`${apiBaseUrl}/store/collections/${collectionId}/`, {
+          cache: "no-store",
+        }),
+        fetch(
+          `${apiBaseUrl}/store/products/?collection_id=${collectionId}&page_size=5`,
+          { cache: "no-store" },
+        ),
+      ]);
+
+      if (colRes.ok) {
+        const colData = await colRes.json();
+        collectionTitle = colData?.title || "Shop";
+      }
+
+      if (relatedRes.ok) {
+        const relatedData = await relatedRes.json();
+        const list: Product[] = Array.isArray(relatedData)
+          ? relatedData
+          : relatedData.results || [];
+        relatedProducts = list
+          .filter((p) => p.id !== product.id)
+          .slice(0, 4);
       }
     } catch (err) {
-      console.error("Error fetching collection data:", err);
+      console.error("Error fetching related products/collection data:", err);
     }
   }
-
-  const collectionTitle = collectionData?.title || "Undefined";
-  const relatedProducts = (collectionData?.products || [])
-    .filter((p) => p.id !== product.id)
-    .slice(0, 4);
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans antialiased pb-24 transition-colors duration-300">
