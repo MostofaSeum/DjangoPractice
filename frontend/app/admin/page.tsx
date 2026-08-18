@@ -5039,7 +5039,7 @@ export default function AdminDashboardPage() {
                                     : "text-foreground/60 hover:text-foreground"
                                 }`}
                               >
-                                Free Delivery (৳0)
+                                Free Delivery 
                               </button>
                               <button
                                 type="button"
@@ -5050,7 +5050,7 @@ export default function AdminDashboardPage() {
                                     : "text-foreground/60 hover:text-foreground"
                                 }`}
                               >
-                                Reduced Charges
+                                Custom Charge
                               </button>
                             </div>
                           </div>
