@@ -99,6 +99,7 @@ interface DeliveryRuleItem {
   collection_title?: string | null;
   product_count?: number;
   products_details?: { id: number; title: string; unit_price: number }[];
+  min_quantity?: number;
   is_active: boolean;
   created_at: string;
 }
@@ -190,6 +191,7 @@ export default function AdminDashboardPage() {
   const [deliveryRuleCollectionId, setDeliveryRuleCollectionId] = useState<
     number | ""
   >("");
+  const [deliveryRuleMinQuantity, setDeliveryRuleMinQuantity] = useState("1");
   const [deliveryRuleIsActive, setDeliveryRuleIsActive] = useState(true);
   const [deliveryRuleSearchInput, setDeliveryRuleSearchInput] = useState("");
   const [isDeliveryRuleDropdownOpen, setIsDeliveryRuleDropdownOpen] =
@@ -481,6 +483,7 @@ export default function AdminDashboardPage() {
     setDeliveryRuleSelectedProductIds(
       rule.products_details ? rule.products_details.map((p) => p.id) : [],
     );
+    setDeliveryRuleMinQuantity(String(rule.min_quantity || 1));
     setDeliveryRuleIsActive(rule.is_active);
     setDeliveryRuleSearchInput("");
   };
@@ -494,6 +497,7 @@ export default function AdminDashboardPage() {
     setDeliveryRuleOutsideCharge("0");
     setDeliveryRuleCollectionId("");
     setDeliveryRuleSelectedProductIds([]);
+    setDeliveryRuleMinQuantity("1");
     setDeliveryRuleIsActive(true);
     setDeliveryRuleSearchInput("");
   };
@@ -580,6 +584,16 @@ export default function AdminDashboardPage() {
 
     if (!confirm.isConfirmed) return;
 
+    const minQty = parseInt(deliveryRuleMinQuantity, 10);
+    if (isNaN(minQty) || minQty < 1) {
+      Swal.fire(
+        "Error",
+        "Please enter a valid minimum quantity (1 or greater).",
+        "error",
+      );
+      return;
+    }
+
     try {
       setDeliveryRuleCreating(true);
       const url = isEdit
@@ -607,6 +621,7 @@ export default function AdminDashboardPage() {
             deliveryRuleTargetType === "collection"
               ? Number(deliveryRuleCollectionId)
               : null,
+          min_quantity: minQty,
           is_active: deliveryRuleIsActive,
         }),
       });
@@ -5109,6 +5124,28 @@ export default function AdminDashboardPage() {
                             </div>
                           )}
 
+                          {/* Minimum Quantity Requirement */}
+                          <div>
+                            <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 opacity-70">
+                              Minimum Quantity Required *
+                            </label>
+                            <input
+                              type="number"
+                              min={1}
+                              step={1}
+                              required
+                              value={deliveryRuleMinQuantity}
+                              onChange={(e) =>
+                                setDeliveryRuleMinQuantity(e.target.value)
+                              }
+                              placeholder="e.g. 1 (Always applies) or 3 (Buy 3 to get offer)"
+                              className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-2.5 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                            />
+                            <p className="text-[10px] opacity-60 mt-1">
+                              Set to 1 for unconditional offer, or e.g. 3 to require &quot;Buy 3 items to get offer&quot;.
+                            </p>
+                          </div>
+
                           {/* Status Toggle */}
                           <div className="flex items-center justify-between p-3 rounded-2xl bg-secondary border border-foreground/10">
                             <div>
@@ -5232,6 +5269,11 @@ export default function AdminDashboardPage() {
                                                 <span className="font-mono font-black text-sm uppercase px-3 py-1 rounded-lg bg-accent/15 text-accent border border-accent/30 tracking-wider">
                                                   {isFree ? "FREE DELIVERY " : "CUSTOM CHARGE"}
                                                 </span>
+                                                {Number(rule.min_quantity || 1) > 1 && (
+                                                  <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-accent/20 text-accent border border-accent/30">
+                                                    Min {rule.min_quantity} Qty
+                                                  </span>
+                                                )}
                                                 {/* On/Off Toggle Button */}
                                                 <button
                                                   type="button"

@@ -5,6 +5,7 @@ import AnimatedWord from "@/components/ui/AnimatedWord";
 import JoinTheClub from "@/components/ui/JoinTheClub";
 import AddToCartButton from "@/features/products/components/AddToCartButton";
 import ProductImage from "@/components/ui/ProductImage";
+import ProductDeliveryOfferBadge from "@/components/ProductDeliveryOfferBadge";
 import { getApiBaseUrl } from "@/config/siteConfig";
 
 interface Product {
@@ -456,6 +457,17 @@ export default async function Home() {
                       <h4 className="font-bold text-lg text-foreground mb-1 line-clamp-1 group-hover:text-accent transition-colors">
                         {product.title}
                       </h4>
+                      <div className="mb-2">
+                        <ProductDeliveryOfferBadge
+                          productId={product.id}
+                          collectionId={
+                            typeof (product as any).collection === "object" &&
+                            (product as any).collection !== null
+                              ? (product as any).collection.id
+                              : (product as any).collection || (product as any).collection_id
+                          }
+                        />
+                      </div>
                     </Link>
 
                     <div>

@@ -281,22 +281,36 @@ export default function CartPage() {
                 : null;
 
             return activeRules.some((rule) => {
+              const reqQty = Number(rule.min_quantity || 1);
+
               if (rule.target_type === "product") {
-                if (rule.products && Array.isArray(rule.products)) {
-                  return rule.products.map(Number).includes(Number(item.product.id));
-                } else if (
-                  rule.products_details &&
-                  Array.isArray(rule.products_details)
-                ) {
-                  return rule.products_details.some(
-                    (p: any) => Number(p.id) === Number(item.product.id),
-                  );
-                }
+                const isProductMatch =
+                  (rule.products && Array.isArray(rule.products) && rule.products.map(Number).includes(Number(item.product.id))) ||
+                  (rule.products_details && Array.isArray(rule.products_details) && rule.products_details.some((p: any) => Number(p.id) === Number(item.product.id)));
+
+                if (!isProductMatch) return false;
+
+                // Total quantity of this product in cart
+                const totalProdQty = cart.items
+                  .filter((ci) => Number(ci.product.id) === Number(item.product.id))
+                  .reduce((sum, ci) => sum + ci.quantity, 0);
+
+                return totalProdQty >= reqQty;
               } else if (rule.target_type === "collection") {
-                return (
-                  itemColId !== null &&
-                  Number(rule.collection) === itemColId
-                );
+                if (itemColId === null || Number(rule.collection) !== itemColId) return false;
+
+                // Total quantity of this collection in cart
+                const totalColQty = cart.items
+                  .filter((ci) => {
+                    const cId =
+                      typeof ci.product.collection === "object" && ci.product.collection !== null
+                        ? Number(ci.product.collection.id)
+                        : Number(ci.product.collection);
+                    return cId === itemColId;
+                  })
+                  .reduce((sum, ci) => sum + ci.quantity, 0);
+
+                return totalColQty >= reqQty;
               }
               return false;
             });

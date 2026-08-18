@@ -3,6 +3,7 @@
 import Link from "next/link";
 import ProductImage from "@/components/ui/ProductImage";
 import AddToCartButton from "./AddToCartButton";
+import ProductDeliveryOfferBadge from "@/components/ProductDeliveryOfferBadge";
 import { Product } from "@/types";
 import { useWishlist } from "@/hooks/useWishlist";
 
@@ -57,9 +58,20 @@ export default function ProductCard({ product }: ProductCardProps) {
         <h3 className="font-bold text-sm text-foreground mb-0.5 line-clamp-1 group-hover:text-accent transition-colors">
           {product.title}
         </h3>
-        <p className="text-[11px] opacity-70 mb-3 line-clamp-1 leading-normal">
+        <p className="text-[11px] opacity-70 mb-2 line-clamp-1 leading-normal">
           {product.description || "No description available."}
         </p>
+        <div className="mb-2">
+          <ProductDeliveryOfferBadge
+            productId={product.id}
+            collectionId={
+              typeof (product as any).collection === "object" &&
+              (product as any).collection !== null
+                ? (product as any).collection.id
+                : (product as any).collection || (product as any).collection_id
+            }
+          />
+        </div>
       </div>
 
       <div>

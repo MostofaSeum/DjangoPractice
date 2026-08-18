@@ -34,7 +34,7 @@ export default function ProductInteractive({
   );
 
   const [quantity, setQuantity] = useState(1);
-  const { addToCart } = useCart();
+  const { cart, addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
   const [loading, setLoading] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
@@ -48,9 +48,11 @@ export default function ProductInteractive({
     outside_dhaka_charge: 130,
   });
   const [matchedDeliveryRule, setMatchedDeliveryRule] = useState<{
+    target_type: "product" | "collection";
     rule_type: "free" | "reduced";
     inside_dhaka_charge: number;
     outside_dhaka_charge: number;
+    min_quantity: number;
   } | null>(null);
 
   useEffect(() => {
@@ -78,19 +80,21 @@ export default function ProductInteractive({
             let isMatch = false;
             if (rule.target_type === "product") {
               if (rule.products && Array.isArray(rule.products)) {
-                isMatch = rule.products.includes(productId);
+                isMatch = rule.products.map(Number).includes(Number(productId));
               } else if (rule.products_details && Array.isArray(rule.products_details)) {
-                isMatch = rule.products_details.some((p: any) => p.id === productId);
+                isMatch = rule.products_details.some((p: any) => Number(p.id) === Number(productId));
               }
             } else if (rule.target_type === "collection" && collectionId) {
-              isMatch = rule.collection === collectionId;
+              isMatch = Number(rule.collection) === Number(collectionId);
             }
 
             if (isMatch) {
               setMatchedDeliveryRule({
+                target_type: rule.target_type,
                 rule_type: rule.rule_type,
                 inside_dhaka_charge: Number(rule.inside_dhaka_charge ?? 0),
                 outside_dhaka_charge: Number(rule.outside_dhaka_charge ?? 0),
+                min_quantity: Number(rule.min_quantity || 1),
               });
               break;
             }
@@ -410,6 +414,75 @@ export default function ProductInteractive({
 
       <hr className="border-foreground/10 my-3" />
 
+      {/* Delivery Offer Dynamic Progress Banner Above Add to Cart */}
+      {matchedDeliveryRule && (() => {
+        const requiredQty = matchedDeliveryRule.min_quantity || 1;
+        const isFree = matchedDeliveryRule.rule_type === "free";
+        const offerName = isFree ? "Free Delivery" : "Discounted Delivery";
+
+        // Count qualifying items in cart
+        const inCartQty =
+          cart?.items
+            ?.filter((item) => {
+              if (matchedDeliveryRule.target_type === "product") {
+                return Number(item.product.id) === Number(productId);
+              }
+              const itemColId =
+                typeof item.product.collection === "object" &&
+                item.product.collection !== null
+                  ? Number(item.product.collection.id)
+                  : item.product.collection !== undefined &&
+                    item.product.collection !== null
+                  ? Number(item.product.collection)
+                  : null;
+              return itemColId !== null && itemColId === Number(collectionId);
+            })
+            .reduce((sum, item) => sum + item.quantity, 0) || 0;
+
+        const remaining = Math.max(0, requiredQty - inCartQty);
+        const isQualified = inCartQty >= requiredQty;
+
+        return (
+          <div
+            className={`p-3 rounded-2xl border transition-all text-xs font-bold flex items-center justify-between gap-3 ${
+              isQualified
+                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300 shadow-xs"
+                : "bg-accent/10 border-accent/25 text-foreground"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-base">{isQualified ? "🎉" : "📦"}</span>
+              <div>
+                {isQualified ? (
+                  <p className="font-extrabold uppercase tracking-tight text-emerald-600 dark:text-emerald-400">
+                    Congratulations! You got {offerName}!
+                  </p>
+                ) : inCartQty > 0 ? (
+                  <p>
+                    Buy <span className="text-accent font-black">{remaining} more</span> to get {offerName}!
+                  </p>
+                ) : (
+                  <p>
+                    Buy <span className="text-accent font-black">{requiredQty} items</span> to get {offerName}!
+                  </p>
+                )}
+                {!isQualified && (
+                  <p className="text-[10px] opacity-70 font-normal mt-0.5">
+                    {inCartQty} of {requiredQty} added to cart
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {requiredQty > 1 && (
+              <span className="px-2 py-0.5 rounded-lg text-[9px] font-black uppercase bg-primary/10 tracking-wider">
+                {isQualified ? "Applied" : `${inCartQty}/${requiredQty}`}
+              </span>
+            )}
+          </div>
+        );
+      })()}
+
       {/* Quantity Selector & Add to Cart Client Area */}
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-4">
@@ -488,69 +561,95 @@ export default function ProductInteractive({
         </div>
 
         {/* Delivery Charge Info Under Wishlist */}
-        <div className="pt-2 text-xs font-bold text-foreground/80 flex flex-col gap-1">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="opacity-70 font-semibold uppercase text-[10px] tracking-wider">
-              Delivery:
-            </span>
+        {(() => {
+          const inCartQty =
+            cart?.items
+              ?.filter((item) => {
+                if (matchedDeliveryRule?.target_type === "product") {
+                  return Number(item.product.id) === Number(productId);
+                }
+                const itemColId =
+                  typeof item.product.collection === "object" &&
+                  item.product.collection !== null
+                    ? Number(item.product.collection.id)
+                    : item.product.collection !== undefined &&
+                      item.product.collection !== null
+                    ? Number(item.product.collection)
+                    : null;
+                return itemColId !== null && itemColId === Number(collectionId);
+              })
+              .reduce((sum, item) => sum + item.quantity, 0) || 0;
 
-            {/* Inside Dhaka */}
-            <span className="inline-flex items-center gap-1 bg-primary/5 dark:bg-primary/20 px-2 py-1 rounded-lg border border-foreground/10">
-              <span className="text-[11px] text-foreground font-semibold">Inside Dhaka:</span>
-              {matchedDeliveryRule?.rule_type === "free" ? (
-                <span className="flex items-center gap-1 font-bold">
-                  <span className="line-through opacity-50 text-[10px]">
-                    ৳{deliverySettings.inside_dhaka_charge}
-                  </span>
-                  <span className="text-emerald-600 dark:text-emerald-400 font-extrabold uppercase text-[11px]">
-                    Free
-                  </span>
-                </span>
-              ) : matchedDeliveryRule?.rule_type === "reduced" ? (
-                <span className="flex items-center gap-1 font-bold">
-                  <span className="line-through opacity-50 text-[10px]">
-                    ৳{deliverySettings.inside_dhaka_charge}
-                  </span>
-                  <span className="text-accent font-extrabold text-[11px]">
-                    ৳{matchedDeliveryRule.inside_dhaka_charge}
-                  </span>
-                </span>
-              ) : (
-                <span className="text-accent font-extrabold text-[11px]">
-                  ৳{deliverySettings.inside_dhaka_charge}
-                </span>
-              )}
-            </span>
+          const isQualified =
+            matchedDeliveryRule &&
+            inCartQty >= (matchedDeliveryRule.min_quantity || 1);
 
-            {/* Outside Dhaka */}
-            <span className="inline-flex items-center gap-1 bg-primary/5 dark:bg-primary/20 px-2 py-1 rounded-lg border border-foreground/10">
-              <span className="text-[11px] text-foreground font-semibold">Outside Dhaka:</span>
-              {matchedDeliveryRule?.rule_type === "free" ? (
-                <span className="flex items-center gap-1 font-bold">
-                  <span className="line-through opacity-50 text-[10px]">
-                    ৳{deliverySettings.outside_dhaka_charge}
-                  </span>
-                  <span className="text-emerald-600 dark:text-emerald-400 font-extrabold uppercase text-[11px]">
-                    Free
-                  </span>
+          return (
+            <div className="pt-2 text-xs font-bold text-foreground/80 flex flex-col gap-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="opacity-70 font-semibold uppercase text-[10px] tracking-wider">
+                  Delivery:
                 </span>
-              ) : matchedDeliveryRule?.rule_type === "reduced" ? (
-                <span className="flex items-center gap-1 font-bold">
-                  <span className="line-through opacity-50 text-[10px]">
-                    ৳{deliverySettings.outside_dhaka_charge}
-                  </span>
-                  <span className="text-accent font-extrabold text-[11px]">
-                    ৳{matchedDeliveryRule.outside_dhaka_charge}
-                  </span>
+
+                {/* Inside Dhaka */}
+                <span className="inline-flex items-center gap-1 bg-primary/5 dark:bg-primary/20 px-2 py-1 rounded-lg border border-foreground/10">
+                  <span className="text-[11px] text-foreground font-semibold">Inside Dhaka:</span>
+                  {matchedDeliveryRule?.rule_type === "free" ? (
+                    <span className="flex items-center gap-1 font-bold">
+                      <span className="line-through opacity-50 text-[10px]">
+                        ৳{deliverySettings.inside_dhaka_charge}
+                      </span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-extrabold uppercase text-[11px]">
+                        {isQualified ? "Free" : "Free (on qualified qty)"}
+                      </span>
+                    </span>
+                  ) : matchedDeliveryRule?.rule_type === "reduced" ? (
+                    <span className="flex items-center gap-1 font-bold">
+                      <span className="line-through opacity-50 text-[10px]">
+                        ৳{deliverySettings.inside_dhaka_charge}
+                      </span>
+                      <span className="text-accent font-extrabold text-[11px]">
+                        ৳{matchedDeliveryRule.inside_dhaka_charge}
+                      </span>
+                    </span>
+                  ) : (
+                    <span className="text-accent font-extrabold text-[11px]">
+                      ৳{deliverySettings.inside_dhaka_charge}
+                    </span>
+                  )}
                 </span>
-              ) : (
-                <span className="text-accent font-extrabold text-[11px]">
-                  ৳{deliverySettings.outside_dhaka_charge}
+
+                {/* Outside Dhaka */}
+                <span className="inline-flex items-center gap-1 bg-primary/5 dark:bg-primary/20 px-2 py-1 rounded-lg border border-foreground/10">
+                  <span className="text-[11px] text-foreground font-semibold">Outside Dhaka:</span>
+                  {matchedDeliveryRule?.rule_type === "free" ? (
+                    <span className="flex items-center gap-1 font-bold">
+                      <span className="line-through opacity-50 text-[10px]">
+                        ৳{deliverySettings.outside_dhaka_charge}
+                      </span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-extrabold uppercase text-[11px]">
+                        {isQualified ? "Free" : "Free (on qualified qty)"}
+                      </span>
+                    </span>
+                  ) : matchedDeliveryRule?.rule_type === "reduced" ? (
+                    <span className="flex items-center gap-1 font-bold">
+                      <span className="line-through opacity-50 text-[10px]">
+                        ৳{deliverySettings.outside_dhaka_charge}
+                      </span>
+                      <span className="text-accent font-extrabold text-[11px]">
+                        ৳{matchedDeliveryRule.outside_dhaka_charge}
+                      </span>
+                    </span>
+                  ) : (
+                    <span className="text-accent font-extrabold text-[11px]">
+                      ৳{deliverySettings.outside_dhaka_charge}
+                    </span>
+                  )}
                 </span>
-              )}
-            </span>
-          </div>
-        </div>
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

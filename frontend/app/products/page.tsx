@@ -3,6 +3,7 @@ import ProductImage from "@/components/ui/ProductImage";
 import AddToCartButton from "@/features/products/components/AddToCartButton";
 import ProductSearchBar from "@/features/products/components/ProductSearchBar";
 import ProductSortSelect from "@/features/products/components/ProductSortSelect";
+import ProductDeliveryOfferBadge from "@/components/ProductDeliveryOfferBadge";
 import { getApiBaseUrl } from "@/config/siteConfig";
 
 interface Product {
@@ -194,9 +195,20 @@ export default async function ProductsPage({
                         <h2 className="font-bold text-lg text-foreground mb-1 line-clamp-1 group-hover:text-accent transition-colors">
                           {product.title}
                         </h2>
-                        <p className="opacity-70 text-xs line-clamp-2 mb-4 leading-relaxed">
+                        <p className="opacity-70 text-xs line-clamp-2 mb-3 leading-relaxed">
                           {product.short_description || product.description || "No description available"}
                         </p>
+                        <div className="mb-3">
+                          <ProductDeliveryOfferBadge
+                            productId={product.id}
+                            collectionId={
+                              typeof (product as any).collection === "object" &&
+                              (product as any).collection !== null
+                                ? (product as any).collection.id
+                                : (product as any).collection || (product as any).collection_id
+                            }
+                          />
+                        </div>
                       </div>
                       <div>
                         <div className="flex items-baseline gap-2 mb-4">
