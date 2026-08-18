@@ -287,20 +287,29 @@ export default function CheckoutPage() {
   if (cart && cart.items && cart.items.length > 0 && deliveryRules.length > 0) {
     // For each cart item, determine its specific inside & outside charges
     const itemCharges = cart.items.map((item) => {
+      const itemColId =
+        typeof (item.product as any).collection === "object" &&
+        (item.product as any).collection !== null
+          ? Number((item.product as any).collection.id)
+          : (item.product as any).collection !== undefined &&
+            (item.product as any).collection !== null
+          ? Number((item.product as any).collection)
+          : (item.product as any).collection_id !== undefined &&
+            (item.product as any).collection_id !== null
+          ? Number((item.product as any).collection_id)
+          : null;
+
       // Find rules matching this item
       const matchedRules = deliveryRules.filter((rule) => {
         if (!rule.is_active) return false;
         if (rule.target_type === "product") {
           if (rule.products && Array.isArray(rule.products)) {
-            return rule.products.includes(item.product.id);
+            return rule.products.map(Number).includes(Number(item.product.id));
           } else if (rule.products_details && Array.isArray(rule.products_details)) {
-            return rule.products_details.some((p) => p.id === item.product.id);
+            return rule.products_details.some((p) => Number(p.id) === Number(item.product.id));
           }
         } else if (rule.target_type === "collection") {
-          return (
-            (item.product as any).collection === rule.collection ||
-            (item.product as any).collection_id === rule.collection
-          );
+          return itemColId !== null && Number(rule.collection) === itemColId;
         }
         return false;
       });
@@ -615,11 +624,6 @@ export default function CheckoutPage() {
                             <span className="font-black text-xs uppercase tracking-tight block text-foreground">
                               In Side Dhaka
                             </span>
-                            {matchingInsideRule && (
-                              <span className="px-1.5 py-0.2 rounded bg-accent/20 text-accent text-[9px] font-black uppercase">
-                                {(matchingInsideRule as DeliveryRuleItem).rule_type === "free" ? "Free" : "Custom"}
-                              </span>
-                            )}
                           </div>
                           <span className="text-[10px] opacity-70 font-medium block">
                             Est. {deliverySettings.estimated_days_inside || "1-2 Days"}
@@ -660,11 +664,6 @@ export default function CheckoutPage() {
                             <span className="font-black text-xs uppercase tracking-tight block text-foreground">
                               Out Side Dhaka
                             </span>
-                            {matchingOutsideRule && (
-                              <span className="px-1.5 py-0.2 rounded bg-accent/20 text-accent text-[9px] font-black uppercase">
-                                {(matchingOutsideRule as DeliveryRuleItem).rule_type === "free" ? "Free" : "Custom"}
-                              </span>
-                            )}
                           </div>
                           <span className="text-[10px] opacity-70 font-medium block">
                             Est. {deliverySettings.estimated_days_outside || "3-5 Days"}
@@ -926,7 +925,7 @@ export default function CheckoutPage() {
                   </span>
                   {currentAppliedRule && (
                     <span className="ml-1.5 px-1.5 py-0.2 rounded bg-accent/20 text-accent text-[9px] font-black uppercase inline-block">
-                      {(currentAppliedRule as DeliveryRuleItem).rule_type === "free" ? "Free Delivery Offer" : "Custom Delivery Offer"}
+                      {(currentAppliedRule as DeliveryRuleItem).rule_type === "free" ? "Free Delivery Offer" : "Delivery Charge Discount"}
                     </span>
                   )}
                 </div>

@@ -147,7 +147,7 @@ class SimpleProductSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'title', 'unit_price', 'discount_percent', 'discounted_price', 'inventory', 'images', 'is_photos_published']
+        fields = ['id', 'title', 'unit_price', 'discount_percent', 'discounted_price', 'inventory', 'images', 'is_photos_published', 'collection']
 
     def get_discounted_price(self, product):
         return float(product.discounted_price)

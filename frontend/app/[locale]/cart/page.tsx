@@ -268,22 +268,34 @@ export default function CartPage() {
 
         if (activeRules.length > 0) {
           const isItemFree = (item: any) => {
+            const itemColId =
+              typeof item.product.collection === "object" &&
+              item.product.collection !== null
+                ? Number(item.product.collection.id)
+                : item.product.collection !== undefined &&
+                  item.product.collection !== null
+                ? Number(item.product.collection)
+                : item.product.collection_id !== undefined &&
+                  item.product.collection_id !== null
+                ? Number(item.product.collection_id)
+                : null;
+
             return activeRules.some((rule) => {
               if (rule.target_type === "product") {
                 if (rule.products && Array.isArray(rule.products)) {
-                  return rule.products.includes(item.product.id);
+                  return rule.products.map(Number).includes(Number(item.product.id));
                 } else if (
                   rule.products_details &&
                   Array.isArray(rule.products_details)
                 ) {
                   return rule.products_details.some(
-                    (p: any) => p.id === item.product.id,
+                    (p: any) => Number(p.id) === Number(item.product.id),
                   );
                 }
               } else if (rule.target_type === "collection") {
                 return (
-                  item.product.collection === rule.collection ||
-                  item.product.collection_id === rule.collection
+                  itemColId !== null &&
+                  Number(rule.collection) === itemColId
                 );
               }
               return false;

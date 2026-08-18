@@ -4723,7 +4723,7 @@ export default function AdminDashboardPage() {
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
                       <div>
                         <h3 className="text-sm font-black uppercase tracking-wider text-foreground flex items-center gap-2">
-                          <span>Free & Reduced Delivery Offers</span>
+                          <span>Free & Delivery Offers</span>
                           <span className="px-2 py-0.5 rounded-md bg-accent/15 text-accent text-[10px] font-bold">
                             {deliveryRulesList.length} Rules
                           </span>
@@ -5230,7 +5230,7 @@ export default function AdminDashboardPage() {
                                             <div className="space-y-1">
                                               <div className="flex items-center gap-2 flex-wrap">
                                                 <span className="font-mono font-black text-sm uppercase px-3 py-1 rounded-lg bg-accent/15 text-accent border border-accent/30 tracking-wider">
-                                                  {isFree ? "FREE DELIVERY (৳0)" : "CUSTOM CHARGE"}
+                                                  {isFree ? "FREE DELIVERY " : "CUSTOM CHARGE"}
                                                 </span>
                                                 {/* On/Off Toggle Button */}
                                                 <button
@@ -5258,9 +5258,6 @@ export default function AdminDashboardPage() {
                                                 </button>
                                               </div>
                                             </div>
-                                            <span className="font-black text-lg text-accent">
-                                              {isFree ? "FREE" : `৳${rule.inside_dhaka_charge}`}
-                                            </span>
                                           </div>
 
                                           {/* Scope Container Box */}
@@ -5310,17 +5307,7 @@ export default function AdminDashboardPage() {
                                         </div>
 
                                         {/* Card Footer Actions */}
-                                        <div className="pt-2 border-t border-foreground/10 flex justify-between items-center">
-                                          <button
-                                            type="button"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              handleStartEditDeliveryRule(rule);
-                                            }}
-                                            className="text-[10px] font-extrabold text-accent hover:underline uppercase tracking-wider"
-                                          >
-                                            Edit
-                                          </button>
+                                        <div className="pt-2 border-t border-foreground/10 flex justify-end items-center">
                                           <button
                                             type="button"
                                             onClick={(e) => {
