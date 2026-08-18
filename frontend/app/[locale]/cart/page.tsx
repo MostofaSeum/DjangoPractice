@@ -409,11 +409,6 @@ export default function CartPage() {
                             <span className="text-xs font-bold opacity-80">
                               {variant.name}
                             </span>
-                            {variant.size && (
-                              <span className="px-1.5 py-0.5 rounded bg-primary/10 text-[9px] font-black uppercase opacity-75">
-                                {variant.size}
-                              </span>
-                            )}
                           </div>
                         )}
 
