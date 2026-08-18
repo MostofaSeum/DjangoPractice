@@ -673,7 +673,7 @@ class DeliveryRuleSerializer(serializers.ModelSerializer):
             'id', 'title', 'target_type', 'rule_type',
             'inside_dhaka_charge', 'outside_dhaka_charge',
             'products', 'collection', 'collection_title',
-            'product_count', 'products_details',
+            'product_count', 'products_details', 'min_quantity',
             'is_active', 'created_at'
         ]
 

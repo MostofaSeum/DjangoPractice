@@ -409,6 +409,7 @@ class DeliveryRule(models.Model):
     )
     products = models.ManyToManyField(Product, blank=True, related_name='delivery_rules')
     collection = models.ForeignKey(Collection, on_delete=models.SET_NULL, null=True, blank=True, related_name='delivery_rules')
+    min_quantity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
