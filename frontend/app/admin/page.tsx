@@ -5055,7 +5055,7 @@ export default function AdminDashboardPage() {
                                     : "text-foreground/60 hover:text-foreground"
                                 }`}
                               >
-                                Free Delivery 
+                                Free Delivery
                               </button>
                               <button
                                 type="button"
@@ -5143,7 +5143,8 @@ export default function AdminDashboardPage() {
                               className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-2.5 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                             />
                             <p className="text-[10px] opacity-60 mt-1">
-                              Set to 1 for unconditional offer, or e.g. 3 to require &quot;Buy 3 items to get offer&quot;.
+                              Set to 1 for unconditional offer, or e.g. 3 to
+                              require &quot;Buy 3 items to get offer&quot;.
                             </p>
                           </div>
 
@@ -5246,131 +5247,150 @@ export default function AdminDashboardPage() {
 
                           return (
                             <div className="space-y-4 max-h-[580px] overflow-y-auto pr-1">
-                                  {filtered.map((rule) => {
-                                    const isFree = rule.rule_type === "free";
-                                    const isBeingEdited = editingDeliveryRuleId === rule.id;
+                              {filtered.map((rule) => {
+                                const isFree = rule.rule_type === "free";
+                                const isBeingEdited =
+                                  editingDeliveryRuleId === rule.id;
 
-                                    return (
-                                      <div
-                                        key={rule.id}
-                                        onClick={() => handleStartEditDeliveryRule(rule)}
-                                        className={`p-5 rounded-2xl border-2 flex flex-col justify-between gap-4 shadow-xs relative overflow-hidden group cursor-pointer transition-all ${
-                                          isBeingEdited
-                                            ? "border-accent shadow-md bg-accent/5"
-                                            : rule.is_active
-                                              ? "bg-secondary border-foreground/10 hover:border-accent/40"
-                                              : "bg-secondary/40 border-foreground/10 opacity-60 hover:opacity-90 hover:border-accent/40"
-                                        }`}
-                                      >
-                                        <div className="space-y-3">
-                                          {/* Header: Delivery Badge, Active Status, and Benefit */}
-                                          <div className="flex justify-between items-start gap-2">
-                                            <div className="space-y-1">
-                                              <div className="flex items-center gap-2 flex-wrap">
-                                                <span className="font-mono font-black text-sm uppercase px-3 py-1 rounded-lg bg-accent/15 text-accent border border-accent/30 tracking-wider">
-                                                  {isFree ? "FREE DELIVERY " : "CUSTOM CHARGE"}
-                                                </span>
-                                                {Number(rule.min_quantity || 1) > 1 && (
-                                                  <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-accent/20 text-accent border border-accent/30">
-                                                    Min {rule.min_quantity} Qty
-                                                  </span>
-                                                )}
-                                                {/* On/Off Toggle Button */}
-                                                <button
-                                                  type="button"
-                                                  onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleToggleDeliveryRule(rule);
-                                                  }}
-                                                  className={`px-2 py-0.5 rounded text-[9px] font-black uppercase transition-all flex items-center gap-1 ${
-                                                    rule.is_active
-                                                      ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25"
-                                                      : "bg-foreground/15 text-foreground/60 hover:bg-foreground/25"
-                                                  }`}
-                                                >
-                                                  <span
-                                                    className={`w-1.5 h-1.5 rounded-full ${
-                                                      rule.is_active
-                                                        ? "bg-emerald-500"
-                                                        : "bg-foreground/50"
-                                                    }`}
-                                                  />
-                                                  {rule.is_active
-                                                    ? "Active"
-                                                    : "Disabled"}
-                                                </button>
-                                              </div>
-                                            </div>
-                                          </div>
-
-                                          {/* Scope Container Box */}
-                                          <div className="p-3 rounded-xl bg-secondary/80 border border-foreground/5 text-xs space-y-1">
-                                            <p className="text-[10px] font-extrabold uppercase tracking-wider opacity-60">
-                                              SCOPE:{" "}
-                                              {rule.target_type === "product"
-                                                ? "SPECIFIC PRODUCTS"
-                                                : "COLLECTION"}
-                                            </p>
-                                            {rule.target_type === "product" ? (
-                                              <div>
-                                                <p className="font-bold text-foreground">
-                                                  {rule.product_count ||
-                                                    (rule.products_details
-                                                      ? rule.products_details.length
-                                                      : 0)}{" "}
-                                                  Product(s) Selected
-                                                </p>
-                                                {rule.products_details &&
-                                                  rule.products_details.length > 0 && (
-                                                    <p className="text-[11px] opacity-70 font-normal truncate mt-0.5">
-                                                      {rule.products_details
-                                                        .map((p) => p.title)
-                                                        .join(", ")}
-                                                    </p>
-                                                  )}
-                                              </div>
-                                            ) : (
-                                              <p className="font-bold text-foreground">
-                                                Collection:{" "}
-                                                {rule.collection_title ||
-                                                  `#${rule.collection}`}
-                                              </p>
-                                            )}
-                                          </div>
-
-                                          {/* Rule Name & Charges Info */}
-                                          <div className="flex justify-between items-center text-[10px] opacity-70 font-semibold pt-1">
-                                            <span>Rule: <strong className="text-foreground">{rule.title}</strong></span>
-                                            {!isFree && (
-                                              <span>
-                                                Inside: <strong className="text-accent">৳{rule.inside_dhaka_charge}</strong> | Outside: <strong className="text-accent">৳{rule.outside_dhaka_charge}</strong>
+                                return (
+                                  <div
+                                    key={rule.id}
+                                    onClick={() =>
+                                      handleStartEditDeliveryRule(rule)
+                                    }
+                                    className={`p-5 rounded-2xl border-2 flex flex-col justify-between gap-4 shadow-xs relative overflow-hidden group cursor-pointer transition-all ${
+                                      isBeingEdited
+                                        ? "border-accent shadow-md bg-accent/5"
+                                        : rule.is_active
+                                          ? "bg-secondary border-foreground/10 hover:border-accent/40"
+                                          : "bg-secondary/40 border-foreground/10 opacity-60 hover:opacity-90 hover:border-accent/40"
+                                    }`}
+                                  >
+                                    <div className="space-y-3">
+                                      {/* Header: Delivery Badge, Active Status, and Benefit */}
+                                      <div className="flex justify-between items-start gap-2">
+                                        <div className="space-y-1">
+                                          <div className="flex items-center gap-2 flex-wrap">
+                                            <span className="font-mono font-black text-sm uppercase px-3 py-1 rounded-lg bg-accent/15 text-accent border border-accent/30 tracking-wider">
+                                              {isFree
+                                                ? "FREE DELIVERY "
+                                                : "CUSTOM CHARGE"}
+                                            </span>
+                                            {Number(rule.min_quantity || 1) >
+                                              1 && (
+                                              <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-accent/20 text-accent border border-accent/30">
+                                                Min {rule.min_quantity} Qty
                                               </span>
                                             )}
+                                            {/* On/Off Toggle Button */}
+                                            <button
+                                              type="button"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleToggleDeliveryRule(rule);
+                                              }}
+                                              className={`px-2 py-0.5 rounded text-[9px] font-black uppercase transition-all flex items-center gap-1 ${
+                                                rule.is_active
+                                                  ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25"
+                                                  : "bg-foreground/15 text-foreground/60 hover:bg-foreground/25"
+                                              }`}
+                                            >
+                                              <span
+                                                className={`w-1.5 h-1.5 rounded-full ${
+                                                  rule.is_active
+                                                    ? "bg-emerald-500"
+                                                    : "bg-foreground/50"
+                                                }`}
+                                              />
+                                              {rule.is_active
+                                                ? "Active"
+                                                : "Disabled"}
+                                            </button>
                                           </div>
                                         </div>
-
-                                        {/* Card Footer Actions */}
-                                        <div className="pt-2 border-t border-foreground/10 flex justify-end items-center">
-                                          <button
-                                            type="button"
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              handleDeleteDeliveryRule(
-                                                rule.id,
-                                                rule.title,
-                                              );
-                                            }}
-                                            className="text-[10px] font-extrabold text-red-500 hover:underline uppercase tracking-wider"
-                                          >
-                                            Delete
-                                          </button>
-                                        </div>
                                       </div>
-                                    );
-                                  })}
-                                </div>
-                              );
-                            })()}
+
+                                      {/* Scope Container Box */}
+                                      <div className="p-3 rounded-xl bg-secondary/80 border border-foreground/5 text-xs space-y-1">
+                                        <p className="text-[10px] font-extrabold uppercase tracking-wider opacity-60">
+                                          SCOPE:{" "}
+                                          {rule.target_type === "product"
+                                            ? "SPECIFIC PRODUCTS"
+                                            : "COLLECTION"}
+                                        </p>
+                                        {rule.target_type === "product" ? (
+                                          <div>
+                                            <p className="font-bold text-foreground">
+                                              {rule.product_count ||
+                                                (rule.products_details
+                                                  ? rule.products_details.length
+                                                  : 0)}{" "}
+                                              Product(s) Selected
+                                            </p>
+                                            {rule.products_details &&
+                                              rule.products_details.length >
+                                                0 && (
+                                                <p className="text-[11px] opacity-70 font-normal truncate mt-0.5">
+                                                  {rule.products_details
+                                                    .map((p) => p.title)
+                                                    .join(", ")}
+                                                </p>
+                                              )}
+                                          </div>
+                                        ) : (
+                                          <p className="font-bold text-foreground">
+                                            Collection:{" "}
+                                            {rule.collection_title ||
+                                              `#${rule.collection}`}
+                                          </p>
+                                        )}
+                                      </div>
+
+                                      {/* Rule Name & Charges Info */}
+                                      <div className="flex justify-between items-center text-[10px] opacity-70 font-semibold pt-1">
+                                        <span>
+                                          Rule:{" "}
+                                          <strong className="text-foreground">
+                                            {rule.title}
+                                          </strong>
+                                        </span>
+                                        {!isFree && (
+                                          <span>
+                                            Inside:{" "}
+                                            <strong className="text-accent">
+                                              ৳{rule.inside_dhaka_charge}
+                                            </strong>{" "}
+                                            | Outside:{" "}
+                                            <strong className="text-accent">
+                                              ৳{rule.outside_dhaka_charge}
+                                            </strong>
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    {/* Card Footer Actions */}
+                                    <div className="pt-2 border-t border-foreground/10 flex justify-end items-center">
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleDeleteDeliveryRule(
+                                            rule.id,
+                                            rule.title,
+                                          );
+                                        }}
+                                        className="text-[10px] font-extrabold text-red-500 hover:underline uppercase tracking-wider"
+                                      >
+                                        Delete
+                                      </button>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>
