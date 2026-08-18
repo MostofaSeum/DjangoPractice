@@ -2222,8 +2222,10 @@ export default function AdminDashboardPage() {
                         alt={tab.label}
                         width={24}
                         height={24}
-                        className={`object-contain w-full h-full brightness-0 ${
-                          isActive ? "" : "invert"
+                        className={`object-contain w-full h-full transition-all ${
+                          isActive
+                            ? "brightness-0 dark:brightness-0 dark:invert"
+                            : "brightness-0 invert dark:brightness-0 dark:opacity-60 group-hover:dark:opacity-100"
                         }`}
                       />
                     </div>
