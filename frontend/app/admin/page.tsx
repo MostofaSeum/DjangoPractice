@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Swal from "sweetalert2";
 import ImageUploadModal from "@/components/ui/ImageUploadModal";
 import ProductImage from "@/components/ui/ProductImage";
@@ -124,6 +125,7 @@ export default function AdminDashboardPage() {
   };
 
   const [activeTab, setActiveTab] = useState<Tab>("products");
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // State data
   const [products, setProducts] = useState<Product[]>([]);
@@ -1978,84 +1980,182 @@ export default function AdminDashboardPage() {
     setActiveTab(targetTab);
   };
 
+  const navTabs = [
+    {
+      id: "products" as Tab,
+      label: "Products",
+      icon: "/admin/products.png",
+      count: totalProductsCount,
+    },
+    {
+      id: "collections" as Tab,
+      label: "Collections",
+      icon: "/admin/collections.png",
+      count: collections.length,
+    },
+    {
+      id: "orders" as Tab,
+      label: "Orders",
+      icon: "/admin/orders.png",
+      count: orders.length,
+    },
+    {
+      id: "customers" as Tab,
+      label: "Customers",
+      icon: "/admin/customers.png",
+      count: customers.length,
+    },
+    {
+      id: "promotions" as Tab,
+      label: "Sales",
+      icon: "/admin/sales.png",
+      count: promoProductsCatalog.filter(
+        (p) => Number(p.discount_percent || 0) > 0,
+      ).length,
+    },
+    {
+      id: "coupons" as Tab,
+      label: "Coupons",
+      icon: "/admin/coupons.png",
+      count: couponsList.length,
+    },
+    {
+      id: "payments" as Tab,
+      label: "Payment Settings",
+      icon: "/admin/payment_settings.png",
+    },
+    {
+      id: "delivery" as Tab,
+      label: "Manage Delivery",
+      icon: "/admin/manage_delivery.png",
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans pb-24 transition-colors duration-300">
-      {/* Top Banner */}
-      <div className="bg-primary text-background dark:text-foreground pt-8 pb-6 px-6 md:px-12 border-b border-white/10 shadow-md transition-colors duration-300">
-        <div className="max-w-[1400px] mx-auto space-y-6">
-          {/* Header Top Row: Title, Staff Badge, Actions */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="min-h-screen bg-background text-foreground font-sans transition-colors duration-300 flex flex-col">
+      {/* Top Banner Header */}
+      <header className="bg-primary text-background dark:text-foreground py-4 px-6 md:px-10 border-b border-white/10 shadow-sm transition-colors duration-300 sticky top-0 z-40">
+        <div className="flex justify-between items-center gap-4">
+          <div className="flex items-center gap-3">
+            {/* Collapse / Expand Toggle Button on Top Left */}
+            <button
+              type="button"
+              onClick={() => setIsSidebarCollapsed((prev) => !prev)}
+              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-background dark:text-foreground transition-all flex items-center justify-center cursor-pointer shadow-xs"
+              title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            >
+              <svg
+                className={`w-5 h-5 transition-transform duration-300 ${
+                  isSidebarCollapsed ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2.5"
+                  d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                />
+              </svg>
+            </button>
+
             <div>
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="bg-accent text-white text-[9px] font-black px-2.5 py-0.5 uppercase tracking-widest rounded-md">
+              <div className="flex items-center gap-2">
+                <span className="bg-accent text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest rounded-md">
                   Staff Portal
                 </span>
+                <h1 className="text-lg md:text-xl font-black uppercase tracking-tight">
+                  Admin Dashboard
+                </h1>
               </div>
-              <h1 className="text-2xl md:text-3xl font-black uppercase tracking-tight">
-                Admin Dashboard
-              </h1>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <ThemeToggle />
-              <button
-                onClick={handleLogout}
-                className="bg-accent/20 text-accent hover:bg-accent/30 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider border border-accent/20 transition-colors"
-              >
-                Logout
-              </button>
             </div>
           </div>
 
-          {/* Navigation Tabs */}
-          <div className="flex items-center gap-1.5 p-1.5 bg-primary/60 dark:bg-black/30 backdrop-blur-md rounded-2xl border border-white/10 overflow-x-auto">
-            {[
-              {
-                id: "products" as Tab,
-                label: "Products",
-                count: totalProductsCount,
-              },
-              {
-                id: "collections" as Tab,
-                label: "Collections",
-                count: collections.length,
-              },
-              { id: "orders" as Tab, label: "Orders", count: orders.length },
-              {
-                id: "customers" as Tab,
-                label: "Customers",
-                count: customers.length,
-              },
-              {
-                id: "promotions" as Tab,
-                label: "Sales",
-                count: promoProductsCatalog.filter(
-                  (p) => Number(p.discount_percent || 0) > 0,
-                ).length,
-              },
-              {
-                id: "coupons" as Tab,
-                label: "Coupons",
-                count: couponsList.length,
-              },
-              { id: "payments" as Tab, label: "Payment Settings" },
-              { id: "delivery" as Tab, label: "Manage Delivery" },
-            ].map((tab) => {
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <button
+              onClick={handleLogout}
+              className="bg-accent/20 text-accent hover:bg-accent/30 px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider border border-accent/20 transition-colors cursor-pointer"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Layout Body: Left Sidebar + Right Content Area */}
+      <div className="flex flex-1 relative min-h-[calc(100vh-65px)]">
+        {/* Left Sidebar Navigation */}
+        <aside
+          className={`bg-primary/95 dark:bg-black/40 border-r border-foreground/10 flex flex-col py-6 transition-all duration-300 ease-in-out shrink-0 sticky top-[65px] h-[calc(100vh-65px)] z-30 select-none ${
+            isSidebarCollapsed ? "w-20 px-2" : "w-64 md:w-72 px-4"
+          }`}
+        >
+          {/* Top of Sidebar: Header Label and Collapse Indicator */}
+          <div
+            className={`flex items-center justify-between mb-6 pb-3 border-b border-white/10 ${
+              isSidebarCollapsed ? "justify-center" : "px-2"
+            }`}
+          >
+            {!isSidebarCollapsed ? (
+              <span className="text-[10px] font-black uppercase tracking-widest text-background/60 dark:text-foreground/60">
+                Navigation
+              </span>
+            ) : (
+              <span className="text-[10px] font-black text-background/60 dark:text-foreground/60">
+                •••
+              </span>
+            )}
+          </div>
+
+          {/* Nav Tab Items */}
+          <nav className="flex-1 space-y-1.5 overflow-y-auto pr-0.5 scrollbar-thin">
+            {navTabs.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
                 <button
                   key={tab.id}
                   onClick={() => handleTabSwitch(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider transition-all whitespace-nowrap shrink-0 ${
+                  title={isSidebarCollapsed ? tab.label : undefined}
+                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-xs font-extrabold uppercase tracking-wider transition-all duration-200 cursor-pointer group ${
+                    isSidebarCollapsed ? "justify-center" : "justify-between"
+                  } ${
                     isActive
-                      ? "bg-secondary text-foreground shadow-sm scale-[1.02]"
+                      ? "bg-secondary text-foreground shadow-md scale-[1.02]"
                       : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
                   }`}
                 >
-                  <span>{tab.label}</span>
-                  {typeof tab.count !== "undefined" && (
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className={`relative w-6 h-6 rounded-lg flex items-center justify-center shrink-0 p-0.5 transition-transform group-hover:scale-110 ${
+                        isActive
+                          ? "opacity-100"
+                          : "opacity-80 group-hover:opacity-100"
+                      }`}
+                    >
+                      <Image
+                        src={tab.icon}
+                        alt={tab.label}
+                        width={24}
+                        height={24}
+                        className="object-contain w-full h-full"
+                      />
+                    </div>
+
+                    {/* Tab Label (Smooth text transition on collapse) */}
+                    {!isSidebarCollapsed && (
+                      <span className="truncate text-left transition-opacity duration-200">
+                        {tab.label}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Count Badge */}
+                  {!isSidebarCollapsed && typeof tab.count !== "undefined" && (
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-black transition-colors ${
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-black shrink-0 transition-colors ${
                         isActive
                           ? "bg-accent/20 text-accent"
                           : "bg-white/10 text-background/80 dark:text-foreground/80"
@@ -2067,12 +2167,11 @@ export default function AdminDashboardPage() {
                 </button>
               );
             })}
-          </div>
-        </div>
-      </div>
+          </nav>
+        </aside>
 
-      {/* Main Content */}
-      <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-12">
+        {/* Right Main Content Area */}
+        <main className="flex-1 p-6 md:p-10 max-w-[1600px] w-full overflow-x-hidden transition-all duration-300">
         {/* PRODUCTS TAB */}
         {activeTab === "products" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
@@ -5398,7 +5497,8 @@ export default function AdminDashboardPage() {
               </div>
             );
           })()}
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
