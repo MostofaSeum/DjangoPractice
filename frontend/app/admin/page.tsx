@@ -4122,16 +4122,16 @@ export default function AdminDashboardPage() {
 
                         {/* Target Scope Switcher */}
                         <div>
-                          <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 opacity-70">
+                          <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
                             Apply Offer To *
                           </label>
-                          <div className="grid grid-cols-2 gap-2 p-1 bg-secondary rounded-xl border border-foreground/10">
+                          <div className="grid grid-cols-2 gap-2 p-1 bg-primary/5 dark:bg-primary/20 rounded-xl border border-foreground/10">
                             <button
                               type="button"
                               onClick={() => setDeliveryRuleTargetType("product")}
-                              className={`py-2 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all ${
+                              className={`py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
                                 deliveryRuleTargetType === "product"
-                                  ? "bg-accent text-accent-foreground shadow-sm"
+                                  ? "bg-secondary text-foreground shadow-sm"
                                   : "text-foreground/60 hover:text-foreground"
                               }`}
                             >
@@ -4140,9 +4140,9 @@ export default function AdminDashboardPage() {
                             <button
                               type="button"
                               onClick={() => setDeliveryRuleTargetType("collection")}
-                              className={`py-2 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all ${
+                              className={`py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
                                 deliveryRuleTargetType === "collection"
-                                  ? "bg-accent text-accent-foreground shadow-sm"
+                                  ? "bg-secondary text-foreground shadow-sm"
                                   : "text-foreground/60 hover:text-foreground"
                               }`}
                             >
@@ -4323,16 +4323,16 @@ export default function AdminDashboardPage() {
 
                         {/* Benefit Type: Free Delivery vs Reduced */}
                         <div>
-                          <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 opacity-70">
+                          <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
                             Offer Type *
                           </label>
-                          <div className="grid grid-cols-2 gap-2 p-1 bg-secondary rounded-xl border border-foreground/10">
+                          <div className="grid grid-cols-2 gap-2 p-1 bg-primary/5 dark:bg-primary/20 rounded-xl border border-foreground/10">
                             <button
                               type="button"
                               onClick={() => setDeliveryRuleType("free")}
-                              className={`py-2 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all ${
+                              className={`py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
                                 deliveryRuleType === "free"
-                                  ? "bg-accent text-accent-foreground shadow-sm"
+                                  ? "bg-secondary text-foreground shadow-sm"
                                   : "text-foreground/60 hover:text-foreground"
                               }`}
                             >
@@ -4341,9 +4341,9 @@ export default function AdminDashboardPage() {
                             <button
                               type="button"
                               onClick={() => setDeliveryRuleType("reduced")}
-                              className={`py-2 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all ${
+                              className={`py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
                                 deliveryRuleType === "reduced"
-                                  ? "bg-accent text-accent-foreground shadow-sm"
+                                  ? "bg-secondary text-foreground shadow-sm"
                                   : "text-foreground/60 hover:text-foreground"
                               }`}
                             >
