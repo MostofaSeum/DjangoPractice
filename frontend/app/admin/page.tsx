@@ -3708,7 +3708,7 @@ export default function AdminDashboardPage() {
                       </div>
                       <div>
                         <h3 className="font-black text-sm text-foreground">bKash Payment</h3>
-                        <span className={`text-[10px] font-bold uppercase tracking-wider ${paymentSettings.bkash_active ? "text-emerald-500" : "text-red-500"}`}>
+                        <span className={`text-[10px] font-bold uppercase tracking-wider ${paymentSettings.bkash_active ? "text-accent" : "text-foreground/50"}`}>
                           {paymentSettings.bkash_active ? "Active" : "Disabled"}
                         </span>
                       </div>
@@ -3724,7 +3724,7 @@ export default function AdminDashboardPage() {
                         })
                       }
                       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        paymentSettings.bkash_active ? "bg-emerald-500" : "bg-foreground/20"
+                        paymentSettings.bkash_active ? "bg-accent" : "bg-foreground/20"
                       }`}
                     >
                       <span
@@ -3750,7 +3750,7 @@ export default function AdminDashboardPage() {
                         })
                       }
                       placeholder="e.g. 01700000000"
-                      className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-secondary text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
+                      className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
                     />
                     <p className="text-[10px] opacity-50 font-medium">
                       This number is displayed to customers to send money during bKash checkout.
@@ -3767,7 +3767,7 @@ export default function AdminDashboardPage() {
                       </div>
                       <div>
                         <h3 className="font-black text-sm text-foreground">Nagad Payment</h3>
-                        <span className={`text-[10px] font-bold uppercase tracking-wider ${paymentSettings.nagad_active ? "text-emerald-500" : "text-red-500"}`}>
+                        <span className={`text-[10px] font-bold uppercase tracking-wider ${paymentSettings.nagad_active ? "text-accent" : "text-foreground/50"}`}>
                           {paymentSettings.nagad_active ? "Active" : "Disabled"}
                         </span>
                       </div>
@@ -3783,7 +3783,7 @@ export default function AdminDashboardPage() {
                         })
                       }
                       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        paymentSettings.nagad_active ? "bg-emerald-500" : "bg-foreground/20"
+                        paymentSettings.nagad_active ? "bg-accent" : "bg-foreground/20"
                       }`}
                     >
                       <span
@@ -3809,7 +3809,7 @@ export default function AdminDashboardPage() {
                         })
                       }
                       placeholder="e.g. 01800000000"
-                      className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-secondary text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
+                      className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
                     />
                     <p className="text-[10px] opacity-50 font-medium">
                       This number is displayed to customers to send money during Nagad checkout.
@@ -3825,7 +3825,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <div>
                       <h3 className="font-black text-sm text-foreground">Cash On Delivery (COD)</h3>
-                      <span className={`text-[10px] font-bold uppercase tracking-wider ${paymentSettings.cod_active ? "text-emerald-500" : "text-red-500"}`}>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider ${paymentSettings.cod_active ? "text-accent" : "text-foreground/50"}`}>
                         {paymentSettings.cod_active ? "Active" : "Disabled"}
                       </span>
                     </div>
@@ -3840,7 +3840,7 @@ export default function AdminDashboardPage() {
                       })
                     }
                     className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      paymentSettings.cod_active ? "bg-emerald-500" : "bg-foreground/20"
+                      paymentSettings.cod_active ? "bg-accent" : "bg-foreground/20"
                     }`}
                   >
                     <span
@@ -3859,7 +3859,7 @@ export default function AdminDashboardPage() {
                     </div>
                     <div>
                       <h3 className="font-black text-sm text-foreground">VibeCoin Balance Payment</h3>
-                      <span className={`text-[10px] font-bold uppercase tracking-wider ${paymentSettings.vibecoin_active ? "text-emerald-500" : "text-red-500"}`}>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider ${paymentSettings.vibecoin_active ? "text-accent" : "text-foreground/50"}`}>
                         {paymentSettings.vibecoin_active ? "Active" : "Disabled"}
                       </span>
                     </div>
@@ -3874,7 +3874,7 @@ export default function AdminDashboardPage() {
                       })
                     }
                     className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      paymentSettings.vibecoin_active ? "bg-emerald-500" : "bg-foreground/20"
+                      paymentSettings.vibecoin_active ? "bg-accent" : "bg-foreground/20"
                     }`}
                   >
                     <span
@@ -3981,7 +3981,7 @@ export default function AdminDashboardPage() {
                               })
                             }
                             placeholder="e.g. 60"
-                            className="w-full pl-9 pr-4 py-3 rounded-xl border border-foreground/15 bg-secondary text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
+                            className="w-full pl-9 pr-4 py-3 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
                           />
                         </div>
                         <p className="text-[10px] opacity-50 font-medium">
@@ -4003,7 +4003,7 @@ export default function AdminDashboardPage() {
                             })
                           }
                           placeholder="e.g. 1-2 Days"
-                          className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-secondary text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
+                          className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
                         />
                       </div>
                     </div>
@@ -4040,7 +4040,7 @@ export default function AdminDashboardPage() {
                               })
                             }
                             placeholder="e.g. 130"
-                            className="w-full pl-9 pr-4 py-3 rounded-xl border border-foreground/15 bg-secondary text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
+                            className="w-full pl-9 pr-4 py-3 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
                           />
                         </div>
                         <p className="text-[10px] opacity-50 font-medium">
@@ -4062,7 +4062,7 @@ export default function AdminDashboardPage() {
                             })
                           }
                           placeholder="e.g. 3-5 Days"
-                          className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-secondary text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
+                          className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
                         />
                       </div>
                     </div>
@@ -4116,7 +4116,7 @@ export default function AdminDashboardPage() {
                             onChange={(e) => setDeliveryRuleTitle(e.target.value)}
                             placeholder="e.g. Free Delivery on Winter Jacket"
                             required
-                            className="w-full bg-secondary border border-foreground/15 rounded-xl px-4 py-2.5 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                            className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-2.5 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                           />
                         </div>
 
@@ -4156,7 +4156,7 @@ export default function AdminDashboardPage() {
                           <div className="relative">
                             <div className="flex justify-between items-center mb-1.5">
                               <label className="block text-[10px] font-extrabold uppercase tracking-wider opacity-70">
-                                Select Products ({promoProductsCatalog.length} available)
+                                Select Products
                               </label>
                               {deliveryRuleSelectedProductIds.length > 0 && (
                                 <button
@@ -4206,7 +4206,7 @@ export default function AdminDashboardPage() {
                                 setIsDeliveryRuleDropdownOpen(true);
                               }}
                               placeholder="Search products for delivery offer..."
-                              className="w-full bg-secondary border border-foreground/15 rounded-xl px-4 py-2.5 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                              className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-2.5 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                             />
 
                             {/* Suggestions Dropdown */}
@@ -4309,7 +4309,7 @@ export default function AdminDashboardPage() {
                                 setDeliveryRuleCollectionId(e.target.value ? Number(e.target.value) : "")
                               }
                               required
-                              className="w-full bg-secondary border border-foreground/15 rounded-xl px-4 py-2.5 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                              className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-2.5 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                             >
                               <option value="">-- Choose Collection --</option>
                               {collections.map((col) => (
