@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
 import Swal from "sweetalert2";
 import { ProductVariant } from "@/types/product";
+import { getApiBaseUrl } from "@/config/siteConfig";
 
 interface ProductInteractiveProps {
   productId: number;
@@ -14,6 +15,7 @@ interface ProductInteractiveProps {
   inventory?: number;
   variants?: ProductVariant[];
   shortDescription?: string;
+  collectionId?: number;
 }
 
 export default function ProductInteractive({
@@ -24,6 +26,7 @@ export default function ProductInteractive({
   inventory = 1,
   variants = [],
   shortDescription = "",
+  collectionId,
 }: ProductInteractiveProps) {
   const activeVariants = variants.filter((v) => v.is_active !== false);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
@@ -35,6 +38,70 @@ export default function ProductInteractive({
   const { isInWishlist, toggleWishlist } = useWishlist();
   const [loading, setLoading] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
+
+  // Delivery data state
+  const [deliverySettings, setDeliverySettings] = useState<{
+    inside_dhaka_charge: number;
+    outside_dhaka_charge: number;
+  }>({
+    inside_dhaka_charge: 60,
+    outside_dhaka_charge: 130,
+  });
+  const [matchedDeliveryRule, setMatchedDeliveryRule] = useState<{
+    rule_type: "free" | "reduced";
+    inside_dhaka_charge: number;
+    outside_dhaka_charge: number;
+  } | null>(null);
+
+  useEffect(() => {
+    const fetchDeliveryInfo = async () => {
+      try {
+        const [settingsRes, rulesRes] = await Promise.all([
+          fetch(`${getApiBaseUrl()}/store/delivery-settings/`, { cache: "no-store" }),
+          fetch(`${getApiBaseUrl()}/store/delivery-rules/`, { cache: "no-store" }),
+        ]);
+
+        if (settingsRes.ok) {
+          const sData = await settingsRes.json();
+          setDeliverySettings({
+            inside_dhaka_charge: Number(sData.inside_dhaka_charge ?? 60),
+            outside_dhaka_charge: Number(sData.outside_dhaka_charge ?? 130),
+          });
+        }
+
+        if (rulesRes.ok) {
+          const rData = await rulesRes.json();
+          const rules = Array.isArray(rData) ? rData : rData.results || [];
+          // Find matching rule for this product or its collection
+          const activeRules = rules.filter((r: any) => r.is_active);
+          for (const rule of activeRules) {
+            let isMatch = false;
+            if (rule.target_type === "product") {
+              if (rule.products && Array.isArray(rule.products)) {
+                isMatch = rule.products.includes(productId);
+              } else if (rule.products_details && Array.isArray(rule.products_details)) {
+                isMatch = rule.products_details.some((p: any) => p.id === productId);
+              }
+            } else if (rule.target_type === "collection" && collectionId) {
+              isMatch = rule.collection === collectionId;
+            }
+
+            if (isMatch) {
+              setMatchedDeliveryRule({
+                rule_type: rule.rule_type,
+                inside_dhaka_charge: Number(rule.inside_dhaka_charge ?? 0),
+                outside_dhaka_charge: Number(rule.outside_dhaka_charge ?? 0),
+              });
+              break;
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching delivery info for product:", err);
+      }
+    };
+    fetchDeliveryInfo();
+  }, [productId, collectionId]);
 
   const isSaved = isInWishlist(productId);
 
@@ -418,6 +485,71 @@ export default function ProductInteractive({
                 : "Add to Wishlist"}
             </span>
           </button>
+        </div>
+
+        {/* Delivery Charge Info Under Wishlist */}
+        <div className="pt-2 text-xs font-bold text-foreground/80 flex flex-col gap-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="opacity-70 font-semibold uppercase text-[10px] tracking-wider">
+              Delivery:
+            </span>
+
+            {/* Inside Dhaka */}
+            <span className="inline-flex items-center gap-1 bg-primary/5 dark:bg-primary/20 px-2 py-1 rounded-lg border border-foreground/10">
+              <span className="text-[11px] text-foreground font-semibold">Inside Dhaka:</span>
+              {matchedDeliveryRule?.rule_type === "free" ? (
+                <span className="flex items-center gap-1 font-bold">
+                  <span className="line-through opacity-50 text-[10px]">
+                    ৳{deliverySettings.inside_dhaka_charge}
+                  </span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-extrabold uppercase text-[11px]">
+                    Free
+                  </span>
+                </span>
+              ) : matchedDeliveryRule?.rule_type === "reduced" ? (
+                <span className="flex items-center gap-1 font-bold">
+                  <span className="line-through opacity-50 text-[10px]">
+                    ৳{deliverySettings.inside_dhaka_charge}
+                  </span>
+                  <span className="text-accent font-extrabold text-[11px]">
+                    ৳{matchedDeliveryRule.inside_dhaka_charge}
+                  </span>
+                </span>
+              ) : (
+                <span className="text-accent font-extrabold text-[11px]">
+                  ৳{deliverySettings.inside_dhaka_charge}
+                </span>
+              )}
+            </span>
+
+            {/* Outside Dhaka */}
+            <span className="inline-flex items-center gap-1 bg-primary/5 dark:bg-primary/20 px-2 py-1 rounded-lg border border-foreground/10">
+              <span className="text-[11px] text-foreground font-semibold">Outside Dhaka:</span>
+              {matchedDeliveryRule?.rule_type === "free" ? (
+                <span className="flex items-center gap-1 font-bold">
+                  <span className="line-through opacity-50 text-[10px]">
+                    ৳{deliverySettings.outside_dhaka_charge}
+                  </span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-extrabold uppercase text-[11px]">
+                    Free
+                  </span>
+                </span>
+              ) : matchedDeliveryRule?.rule_type === "reduced" ? (
+                <span className="flex items-center gap-1 font-bold">
+                  <span className="line-through opacity-50 text-[10px]">
+                    ৳{deliverySettings.outside_dhaka_charge}
+                  </span>
+                  <span className="text-accent font-extrabold text-[11px]">
+                    ৳{matchedDeliveryRule.outside_dhaka_charge}
+                  </span>
+                </span>
+              ) : (
+                <span className="text-accent font-extrabold text-[11px]">
+                  ৳{deliverySettings.outside_dhaka_charge}
+                </span>
+              )}
+            </span>
+          </div>
         </div>
       </div>
     </div>

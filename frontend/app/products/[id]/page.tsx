@@ -149,6 +149,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
               inventory={product.inventory}
               variants={(product as any).variants || []}
               shortDescription={product.short_description || "Short Description"}
+              collectionId={collectionId}
             />
 
             <hr className="border-foreground/10 my-2" />
