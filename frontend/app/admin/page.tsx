@@ -3690,7 +3690,7 @@ export default function AdminDashboardPage() {
                         </>
                       ) : (
                         <>
-                          <span>Save Delivery Settings</span>
+                          <span>Save</span>
                         </>
                       )}
                     </button>

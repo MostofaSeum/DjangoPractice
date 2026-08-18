@@ -205,7 +205,7 @@ class Order(models.Model):
     delivery_area = models.CharField(
         max_length=20, choices=DELIVERY_AREA_CHOICES, default=DELIVERY_AREA_INSIDE_DHAKA)
     delivery_charge = models.DecimalField(
-        max_digits=6, decimal_places=2, default=60.00, validators=[MinValueValidator(0)])
+        max_digits=10, decimal_places=2, default=60.00, validators=[MinValueValidator(0)])
     class Meta:
         permissions = [
             ('cancel_order', 'Can cancel order'),
@@ -352,13 +352,13 @@ class PaymentSetting(models.Model):
 
 class DeliverySetting(models.Model):
     inside_dhaka_charge = models.DecimalField(
-        max_digits=6,
+        max_digits=10,
         decimal_places=2,
         default=60.00,
         validators=[MinValueValidator(0)]
     )
     outside_dhaka_charge = models.DecimalField(
-        max_digits=6,
+        max_digits=10,
         decimal_places=2,
         default=130.00,
         validators=[MinValueValidator(0)]
