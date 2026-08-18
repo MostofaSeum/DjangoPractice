@@ -216,7 +216,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   </div>
                   <div className="mt-4">
                     <p className="text-accent font-extrabold text-sm mb-4">
-                      ${Number(item.unit_price).toFixed(2)}
+                      ৳{Number(item.unit_price).toFixed(2)}
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                       <Link

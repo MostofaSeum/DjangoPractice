@@ -414,11 +414,11 @@ export default function CartPage() {
 
                         <div className="flex items-baseline gap-2 mt-1">
                           <span className="text-accent font-extrabold text-sm">
-                            ${effectiveUnitPrice.toFixed(2)}
+                            ৳{effectiveUnitPrice.toFixed(2)}
                           </span>
                           {hasDiscount && (
                             <span className="text-xs line-through opacity-50 font-bold">
-                              ${unitPrice.toFixed(2)}
+                              ৳{unitPrice.toFixed(2)}
                             </span>
                           )}
                         </div>
@@ -458,11 +458,11 @@ export default function CartPage() {
                       {/* Total Price for Item */}
                       <div className="text-right min-w-[90px]">
                         <div className="font-black text-base text-accent">
-                          ${itemTotal.toFixed(2)}
+                          ৳{itemTotal.toFixed(2)}
                         </div>
                         {hasDiscount && (
                           <div className="text-[10px] line-through opacity-50 font-bold">
-                            ${originalItemTotal.toFixed(2)}
+                            ৳{originalItemTotal.toFixed(2)}
                           </div>
                         )}
                       </div>
@@ -510,7 +510,7 @@ export default function CartPage() {
                       : "Subtotal"}
                   </span>
                   <span className="font-bold">
-                    ${originalSubtotal.toFixed(2)}
+                    ৳{originalSubtotal.toFixed(2)}
                   </span>
                 </div>
 
@@ -520,13 +520,13 @@ export default function CartPage() {
                       <span className="flex items-center gap-1">
                         Product Discounts
                       </span>
-                      <span>-${productDiscountSavings.toFixed(2)}</span>
+                      <span>-৳{productDiscountSavings.toFixed(2)}</span>
                     </div>
 
                     <div className="flex justify-between opacity-80 pt-1 border-t border-foreground/10">
                       <span>Discounted Subtotal</span>
                       <span className="font-bold">
-                        ${discountedSubtotal.toFixed(2)}
+                        ৳{discountedSubtotal.toFixed(2)}
                       </span>
                     </div>
                   </>
@@ -564,7 +564,7 @@ export default function CartPage() {
                           OFF)
                         </span>
                         <span className="text-[10px] text-accent font-bold">
-                          Saved ${couponSavings.toFixed(2)}
+                          Saved ৳{couponSavings.toFixed(2)}
                         </span>
                       </div>
                       <button
@@ -586,19 +586,19 @@ export default function CartPage() {
                 {appliedCoupon && (
                   <div className="flex justify-between text-accent font-bold">
                     <span>Coupon Discount</span>
-                    <span>-${couponSavings.toFixed(2)}</span>
+                    <span>-৳{couponSavings.toFixed(2)}</span>
                   </div>
                 )}
 
                 <div className="flex justify-between opacity-80">
                   <span>Estimated Taxes</span>
-                  <span className="font-bold">$0.00</span>
+                  <span className="font-bold">৳0.00</span>
                 </div>
 
                 <div className="pt-4 border-t border-foreground/10 flex justify-between items-center text-base font-black uppercase tracking-tight">
                   <span>Total Amount</span>
                   <span className="text-2xl text-accent font-black">
-                    ${finalTotal.toFixed(2)}
+                    ৳{finalTotal.toFixed(2)}
                   </span>
                 </div>
               </div>

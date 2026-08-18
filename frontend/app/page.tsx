@@ -461,11 +461,11 @@ export default async function Home() {
                     <div>
                       <div className="flex items-baseline gap-2 mb-6">
                         <span className="text-accent font-bold text-lg">
-                          ${Number(effectivePrice).toFixed(2)}
+                          ৳{Number(effectivePrice).toFixed(2)}
                         </span>
                         {hasDiscount && (
                           <span className="text-xs line-through opacity-50 font-bold">
-                            ${Number(product.unit_price).toFixed(2)}
+                            ৳{Number(product.unit_price).toFixed(2)}
                           </span>
                         )}
                       </div>

@@ -1610,7 +1610,7 @@ export default function AdminDashboardPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
                     <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                      Unit Price ($) *
+                      Unit Price (৳) *
                     </label>
                     <input
                       type="number"
@@ -1835,7 +1835,7 @@ export default function AdminDashboardPage() {
                         </div>
                       </td>
                       <td className="py-2.5 px-2 text-accent font-extrabold align-middle">
-                        ${Number(prod.unit_price).toFixed(2)}
+                        ৳{Number(prod.unit_price).toFixed(2)}
                       </td>
                       <td className="py-2.5 px-2 align-middle">{prod.inventory}</td>
                       <td
@@ -2328,9 +2328,9 @@ export default function AdminDashboardPage() {
                             )}
                           </td>
                           <td className="py-2 px-1">{item.quantity}</td>
-                          <td className="py-2 px-1">${Number(item.unit_price).toFixed(2)}</td>
+                          <td className="py-2 px-1">৳{Number(item.unit_price).toFixed(2)}</td>
                           <td className="py-2 px-1 text-right font-black text-accent">
-                            ${(item.quantity * Number(item.unit_price)).toFixed(2)}
+                            ৳{(item.quantity * Number(item.unit_price)).toFixed(2)}
                           </td>
                         </tr>
                       ))
@@ -2348,7 +2348,7 @@ export default function AdminDashboardPage() {
               <div className="pt-4 border-t border-foreground/10 space-y-2">
                 <div className="flex justify-between text-xs opacity-75">
                   <span>Items Subtotal:</span>
-                  <span>${selectedOrderDetails.items ? selectedOrderDetails.items.reduce((sum, i) => sum + (i.quantity * Number(i.unit_price)), 0).toFixed(2) : "0.00"}</span>
+                  <span>৳{selectedOrderDetails.items ? selectedOrderDetails.items.reduce((sum, i) => sum + (i.quantity * Number(i.unit_price)), 0).toFixed(2) : "0.00"}</span>
                 </div>
                 {selectedOrderDetails.delivery_charge !== undefined && (
                   <div className="flex justify-between text-xs opacity-75">
@@ -2361,7 +2361,7 @@ export default function AdminDashboardPage() {
                     Payment Status: <strong className="uppercase font-black text-foreground">{selectedOrderDetails.payment_status === "C" ? "Complete" : selectedOrderDetails.payment_status === "F" ? "Failed" : "Pending"}</strong>
                   </span>
                   <span className="text-base font-black text-foreground">
-                    Grand Total: ${(
+                    Grand Total: ৳{(
                       (selectedOrderDetails.items ? selectedOrderDetails.items.reduce((sum, i) => sum + (i.quantity * Number(i.unit_price)), 0) : 0) +
                       Number(selectedOrderDetails.delivery_charge || 0)
                     ).toFixed(2)}
@@ -2518,7 +2518,7 @@ export default function AdminDashboardPage() {
                           {ord.items.map((it) => (
                             <div key={it.id} className="flex justify-between text-[11px]">
                               <span>{it.product?.title || `Product #${it.product}`} x {it.quantity}</span>
-                              <span className="font-bold">${(it.quantity * Number(it.unit_price)).toFixed(2)}</span>
+                              <span className="font-bold">৳{(it.quantity * Number(it.unit_price)).toFixed(2)}</span>
                             </div>
                           ))}
                         </div>
@@ -2593,7 +2593,7 @@ export default function AdminDashboardPage() {
                             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary text-foreground border border-foreground/15 text-[11px] font-bold shadow-2xs"
                           >
                             <span className="truncate max-w-[130px]">#{p.id} {p.title}</span>
-                            <span className="text-accent text-[10px] font-mono">${Number(p.unit_price).toFixed(2)}</span>
+                            <span className="text-accent text-[10px] font-mono">৳{Number(p.unit_price).toFixed(2)}</span>
                             <button
                               type="button"
                               onClick={() =>
@@ -2705,7 +2705,7 @@ export default function AdminDashboardPage() {
                                             #{prod.id} {prod.title}
                                           </p>
                                           <p className="text-[10px] text-foreground/60 font-semibold">
-                                            Original: ${Number(prod.unit_price).toFixed(2)}
+                                            Original: ৳{Number(prod.unit_price).toFixed(2)}
                                           </p>
                                         </div>
                                       </div>
@@ -2855,10 +2855,10 @@ export default function AdminDashboardPage() {
                                   </h4>
                                   <div className="flex items-baseline gap-2 mt-1">
                                     <span className="text-accent font-extrabold text-xs">
-                                      ${discounted.toFixed(2)}
+                                      ৳{discounted.toFixed(2)}
                                     </span>
                                     <span className="line-through text-[10px] opacity-50 font-bold">
-                                      ${original.toFixed(2)}
+                                      ৳{original.toFixed(2)}
                                     </span>
                                   </div>
                                 </div>
@@ -3082,7 +3082,7 @@ export default function AdminDashboardPage() {
                             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-secondary text-foreground border border-foreground/15 text-[11px] font-bold shadow-2xs"
                           >
                             <span className="truncate max-w-[130px]">#{p.id} {p.title}</span>
-                            <span className="text-accent text-[10px] font-mono">${Number(p.unit_price).toFixed(2)}</span>
+                            <span className="text-accent text-[10px] font-mono">৳{Number(p.unit_price).toFixed(2)}</span>
                             <button
                               type="button"
                               onClick={() =>
@@ -3193,7 +3193,7 @@ export default function AdminDashboardPage() {
                                             #{prod.id} {prod.title}
                                           </p>
                                           <p className="text-[10px] text-foreground/60 font-semibold">
-                                            Price: ${Number(prod.unit_price).toFixed(2)}
+                                            Price: ৳{Number(prod.unit_price).toFixed(2)}
                                           </p>
                                         </div>
                                       </div>
@@ -3745,9 +3745,6 @@ export default function AdminDashboardPage() {
                     {/* Inside Dhaka Config */}
                     <div className="p-6 rounded-3xl bg-primary/5 dark:bg-primary/30 border border-foreground/10 space-y-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-secondary border border-foreground/10 flex items-center justify-center font-black text-sm shadow-xs">
-                          🏙️
-                        </div>
                         <div>
                           <h3 className="font-black text-sm text-foreground">In Side Dhaka Delivery</h3>
                           <span className="text-[10px] font-bold uppercase tracking-wider text-accent">

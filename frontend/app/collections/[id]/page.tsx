@@ -100,9 +100,9 @@ export default async function CollectionDetailPage({ params }: PageProps) {
                   <div>
                     <div className="flex justify-between items-center mb-4">
                       <div className="flex items-baseline gap-2">
-                        <span className="text-accent font-extrabold text-lg">${Number(effectivePrice).toFixed(2)}</span>
+                        <span className="text-accent font-extrabold text-lg">৳{Number(effectivePrice).toFixed(2)}</span>
                         {hasDiscount && (
-                          <span className="text-xs line-through opacity-50 font-bold">${unitPriceNum.toFixed(2)}</span>
+                          <span className="text-xs line-through opacity-50 font-bold">৳{unitPriceNum.toFixed(2)}</span>
                         )}
                       </div>
                       <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Qty: {product.inventory}</span>

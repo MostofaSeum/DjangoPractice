@@ -418,14 +418,14 @@ export default function ProfilePage() {
                                   )}
                                 </div>
                                 <span className="font-black text-accent">
-                                  ${(it.quantity * Number(it.unit_price)).toFixed(2)}
+                                  ৳{(it.quantity * Number(it.unit_price)).toFixed(2)}
                                 </span>
                               </div>
                             ))}
                           </div>
                           <div className="pt-2 border-t border-foreground/10 flex justify-between items-center text-xs font-black">
                             <span className="uppercase text-foreground">Total Amount</span>
-                            <span className="text-base text-foreground">${orderTotal.toFixed(2)}</span>
+                            <span className="text-base text-foreground">৳{orderTotal.toFixed(2)}</span>
                           </div>
                         </div>
                       )}

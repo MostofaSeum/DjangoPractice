@@ -136,7 +136,7 @@ export default function WishlistPage() {
                   <div>
                     <div className="flex justify-between items-center mb-4 pt-3 border-t border-foreground/10">
                       <span className="text-accent font-extrabold text-base">
-                        ${Number(product.unit_price).toFixed(2)}
+                        ৳{Number(product.unit_price).toFixed(2)}
                       </span>
                       <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">
                         Qty: {product.inventory}

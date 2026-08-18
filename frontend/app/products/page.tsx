@@ -98,7 +98,7 @@ export default async function ProductsPage({
 
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Min Price ($)
+                    Min Price (৳)
                   </label>
                   <input
                     type="number"
@@ -111,7 +111,7 @@ export default async function ProductsPage({
 
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Max Price ($)
+                    Max Price (৳)
                   </label>
                   <input
                     type="number"
@@ -201,11 +201,11 @@ export default async function ProductsPage({
                       <div>
                         <div className="flex items-baseline gap-2 mb-4">
                           <span className="text-accent font-extrabold text-lg">
-                            ${Number(effectivePrice).toFixed(2)}
+                            ৳{Number(effectivePrice).toFixed(2)}
                           </span>
                           {hasDiscount && (
                             <span className="text-xs line-through opacity-50 font-bold">
-                              ${Number(product.unit_price).toFixed(2)}
+                              ৳{Number(product.unit_price).toFixed(2)}
                             </span>
                           )}
                         </div>

@@ -114,12 +114,12 @@ export default function ProductInteractive({
       {/* Price Section */}
       <div className="flex flex-wrap items-center gap-2.5 mb-2 mt-1">
         <span className="text-2xl sm:text-3xl font-black text-accent">
-          ${currentPrice.toFixed(2)}
+          ৳{currentPrice.toFixed(2)}
         </span>
         {isOnSale && (
           <>
             <span className="text-base line-through opacity-50 font-bold">
-              ${originalPrice.toFixed(2)}
+              ৳{originalPrice.toFixed(2)}
             </span>
             {discountPercent > 0 && (
               <span className="px-2 py-0.5 rounded-md bg-accent text-button-fg font-extrabold text-[10px] uppercase tracking-wider shadow-sm flex items-center gap-1">
@@ -132,7 +132,7 @@ export default function ProductInteractive({
               </span>
             )}
             <span className="px-2.5 py-0.5 rounded-md bg-accent/15 text-accent font-bold text-xs border border-accent/20">
-              Save ${savedAmount.toFixed(2)}
+              Save ৳{savedAmount.toFixed(2)}
             </span>
           </>
         )}
@@ -227,7 +227,7 @@ export default function ProductInteractive({
                           setSelectedVariant(v);
                           setQuantity(1);
                         }}
-                        title={`${v.color_name || v.name} - $${Number(v.effective_price || basePrice).toFixed(2)}`}
+                        title={`${v.color_name || v.name} - ৳${Number(v.effective_price || basePrice).toFixed(2)}`}
                         className={`group relative p-0.5 rounded-full transition-all cursor-pointer ${
                           isSelected
                             ? "ring-2 ring-accent ring-offset-2 ring-offset-secondary scale-110"

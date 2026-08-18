@@ -265,7 +265,7 @@ export default function ProductVariantsManager({
                     {v.color_name && <span>Color: {v.color_name}</span>}
                     <span>Stock: {v.inventory}</span>
                     <span className="text-accent font-bold">
-                      ${Number(v.effective_price || basePrice).toFixed(2)}
+                      ৳{Number(v.effective_price || basePrice).toFixed(2)}
                       {v.price_override && " (Override)"}
                     </span>
                   </div>
@@ -293,7 +293,7 @@ export default function ProductVariantsManager({
         </div>
       ) : (
         <div className="p-4 rounded-2xl border border-dashed border-foreground/20 text-center text-xs opacity-60 bg-primary/5">
-          No variants added yet. This product currently uses its base price (${Number(basePrice).toFixed(2)}) and default inventory.
+          No variants added yet. This product currently uses its base price (৳{Number(basePrice).toFixed(2)}) and default inventory.
         </div>
       )}
 
@@ -414,7 +414,7 @@ export default function ProductVariantsManager({
                 {/* Price Override */}
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Custom Price Override ($) <span className="opacity-50 lowercase">(leave blank to use base price ${Number(basePrice).toFixed(2)})</span>
+                    Custom Price Override (৳) <span className="opacity-50 lowercase">(leave blank to use base price ৳{Number(basePrice).toFixed(2)})</span>
                   </label>
                   <input
                     type="number"
@@ -422,7 +422,7 @@ export default function ProductVariantsManager({
                     min="0.01"
                     value={variantForm.price_override}
                     onChange={(e) => setVariantForm({ ...variantForm, price_override: e.target.value })}
-                    placeholder={`Base Price: $${Number(basePrice).toFixed(2)}`}
+                    placeholder={`Base Price: ৳${Number(basePrice).toFixed(2)}`}
                     className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                   />
                 </div>

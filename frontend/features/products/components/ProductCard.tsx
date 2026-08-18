@@ -66,11 +66,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="flex justify-between items-center mb-3 pt-2.5 border-t border-foreground/10">
           <div className="flex items-baseline gap-1.5">
             <span className="text-accent font-extrabold text-sm sm:text-base">
-              ${Number(effectivePrice).toFixed(2)}
+              ৳{Number(effectivePrice).toFixed(2)}
             </span>
             {hasDiscount && (
               <span className="text-[10px] line-through opacity-50 font-bold">
-                ${Number(product.unit_price).toFixed(2)}
+                ৳{Number(product.unit_price).toFixed(2)}
               </span>
             )}
           </div>

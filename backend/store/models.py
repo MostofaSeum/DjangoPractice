@@ -279,7 +279,7 @@ class GiftCard(models.Model):
     is_used = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.card_code} - ${self.price} ({self.user_email})"
+        return f"{self.card_code} - ৳{self.price} ({self.user_email})"
 
 
 class WishlistItem(models.Model):

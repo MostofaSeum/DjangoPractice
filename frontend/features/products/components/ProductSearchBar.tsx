@@ -404,7 +404,7 @@ export default function ProductSearchBar({
                             <span>#{item.id}</span>
                             <span>Stock: {item.inventory ?? 0}</span>
                             <span className="text-accent font-bold">
-                              ${Number(item.unit_price).toFixed(2)}
+                              ৳{Number(item.unit_price).toFixed(2)}
                             </span>
                           </div>
                         </div>
@@ -437,11 +437,11 @@ export default function ProductSearchBar({
 
                       <div className="text-right flex-shrink-0">
                         <div className="text-sm font-black text-accent">
-                          ${Number(effectivePrice).toFixed(2)}
+                          ৳{Number(effectivePrice).toFixed(2)}
                         </div>
                         {discountPercent > 0 && (
                           <div className="text-[10px] line-through opacity-50">
-                            ${Number(item.unit_price).toFixed(2)}
+                            ৳{Number(item.unit_price).toFixed(2)}
                           </div>
                         )}
                       </div>

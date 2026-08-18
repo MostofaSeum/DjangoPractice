@@ -16,12 +16,12 @@ interface GiftCardOption {
 }
 
 const GIFT_CARD_OPTIONS: GiftCardOption[] = [
-  { price: 500, title: "$500 Gift Card", badge: "BRONZE" },
-  { price: 1000, title: "$1,000 Gift Card", badge: "SILVER" },
-  { price: 1500, title: "$1,500 Gift Card", badge: "GOLD" },
-  { price: 2000, title: "$2,000 Gift Card", badge: "PLATINUM" },
-  { price: 2500, title: "$2,500 Gift Card", badge: "DIAMOND" },
-  { price: 3000, title: "$3,000 Gift Card", badge: "VIP ELITE" },
+  { price: 500, title: "৳500 Gift Card", badge: "BRONZE" },
+  { price: 1000, title: "৳1,000 Gift Card", badge: "SILVER" },
+  { price: 1500, title: "৳1,500 Gift Card", badge: "GOLD" },
+  { price: 2000, title: "৳2,000 Gift Card", badge: "PLATINUM" },
+  { price: 2500, title: "৳2,500 Gift Card", badge: "DIAMOND" },
+  { price: 3000, title: "৳3,000 Gift Card", badge: "VIP ELITE" },
 ];
 
 export default function GiftCardsPage() {
@@ -242,7 +242,7 @@ export default function GiftCardsPage() {
               <p style="margin-bottom: 4px;"><strong>Payment Method:</strong> ${paymentMethod === 'B' ? 'bKash' : 'Nagad'}</p>
               ${transactionPhoneNo ? `<p style="margin-bottom: 4px;"><strong>Sender Mobile:</strong> ${transactionPhoneNo}</p>` : ''}
               ${transactionId ? `<p style="margin-bottom: 8px;"><strong>TrxID:</strong> ${transactionId}</p>` : ''}
-              <p style="margin-bottom: 12px;"><strong>Value:</strong> $${Number(data.price).toLocaleString()} USD</p>
+              <p style="margin-bottom: 12px;"><strong>Value:</strong> ৳${Number(data.price).toLocaleString()} BDT</p>
               <p style="margin-bottom: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">16-Digit Card Code:</p>
               <div style="background: var(--primary); color: var(--logo-color); padding: 12px; border-radius: 12px; font-family: var(--font-mono); font-size: 18px; font-weight: 900; letter-spacing: 2px; text-align: center;">
                 ${data.card_code}
@@ -350,7 +350,7 @@ export default function GiftCardsPage() {
 
                   <div className="z-10 my-auto">
                     <p className="text-3xl font-black tracking-tight drop-shadow-sm text-foreground">
-                      ${card.price.toLocaleString()}
+                      ৳{card.price.toLocaleString()}
                     </p>
                     <p className="text-[10px] font-bold tracking-widest uppercase opacity-70 mt-1 text-foreground">
                       PREPAID GIFT VOUCHER
@@ -379,7 +379,7 @@ export default function GiftCardsPage() {
                     Price Value
                   </span>
                   <span className="text-xl font-black text-accent">
-                    ${card.price.toLocaleString()}
+                    ৳{card.price.toLocaleString()}
                   </span>
                 </div>
 
@@ -416,7 +416,7 @@ export default function GiftCardsPage() {
                     {selectedCard.title}
                   </h3>
                   <p className="opacity-70 text-xs font-bold uppercase tracking-wider mt-1 text-foreground">
-                    Total Amount: ${selectedCard.price.toLocaleString()} USD
+                    Total Amount: ৳{selectedCard.price.toLocaleString()} BDT
                   </p>
                 </div>
 
@@ -566,7 +566,7 @@ export default function GiftCardsPage() {
                     Order Successful!
                   </h3>
                   <p className="opacity-70 text-xs font-bold uppercase tracking-wider mt-1 text-foreground">
-                    ${successResult.price.toLocaleString()} USD issued to {email}
+                    ৳{successResult.price.toLocaleString()} BDT issued to {email}
                   </p>
                 </div>
 

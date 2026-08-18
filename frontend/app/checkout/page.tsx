@@ -753,14 +753,14 @@ export default function CheckoutPage() {
                     : "Subtotal"}
                 </span>
                 <span className="font-bold text-foreground">
-                  ${originalSubtotal.toFixed(2)}
+                  ৳{originalSubtotal.toFixed(2)}
                 </span>
               </div>
 
               {productDiscountSavings > 0 && (
                 <div className="flex justify-between text-accent font-bold">
                   <span>Product Discounts</span>
-                  <span>-${productDiscountSavings.toFixed(2)}</span>
+                  <span>-৳{productDiscountSavings.toFixed(2)}</span>
                 </div>
               )}
 
@@ -770,7 +770,7 @@ export default function CheckoutPage() {
                     Coupon ({appliedCoupon.code} -{" "}
                     {appliedCoupon.discountPercent}% OFF)
                   </span>
-                  <span>-${couponSavings.toFixed(2)}</span>
+                  <span>-৳{couponSavings.toFixed(2)}</span>
                 </div>
               )}
 
@@ -785,7 +785,7 @@ export default function CheckoutPage() {
               <div className="pt-3 border-t border-foreground/10 flex justify-between items-center text-base font-black">
                 <span>Total Amount</span>
                 <span className="text-2xl text-accent">
-                  ${finalTotal.toFixed(2)}
+                  ৳{finalTotal.toFixed(2)}
                 </span>
               </div>
             </div>
