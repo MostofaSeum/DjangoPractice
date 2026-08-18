@@ -255,6 +255,104 @@ export default function CartPage() {
     e.preventDefault();
     if (!cart || cart.items.length === 0) return;
 
+    // Check delivery rules for mixed cart items (some free delivery, some non-free delivery)
+    try {
+      const rulesRes = await fetch(`${API_BASE}/store/delivery-rules/`, {
+        cache: "no-store",
+      });
+      if (rulesRes.ok) {
+        const rulesData = await rulesRes.json();
+        const activeRules: any[] = (
+          Array.isArray(rulesData) ? rulesData : rulesData.results || []
+        ).filter((r: any) => r.is_active && r.rule_type === "free");
+
+        if (activeRules.length > 0) {
+          const isItemFree = (item: any) => {
+            return activeRules.some((rule) => {
+              if (rule.target_type === "product") {
+                if (rule.products && Array.isArray(rule.products)) {
+                  return rule.products.includes(item.product.id);
+                } else if (
+                  rule.products_details &&
+                  Array.isArray(rule.products_details)
+                ) {
+                  return rule.products_details.some(
+                    (p: any) => p.id === item.product.id,
+                  );
+                }
+              } else if (rule.target_type === "collection") {
+                return (
+                  item.product.collection === rule.collection ||
+                  item.product.collection_id === rule.collection
+                );
+              }
+              return false;
+            });
+          };
+
+          const freeItems = cart.items.filter(isItemFree);
+          const nonFreeItems = cart.items.filter((item) => !isItemFree(item));
+
+          // If cart has at least one free item AND at least one non-free item
+          if (freeItems.length > 0 && nonFreeItems.length > 0) {
+            const nonFreeNames = nonFreeItems
+              .map((i) => `• <strong>${i.product.title}</strong>`)
+              .join("<br/>");
+
+            const popupResult = await Swal.fire({
+              title: "Free Delivery Offer",
+              html: `
+                <div class="text-left text-xs space-y-3">
+                  <p class="text-foreground/80 font-medium">
+                    The following product(s) in your cart <span class="text-red-500 font-bold">do not qualify</span> for Free Delivery:
+                  </p>
+                  <div class="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-foreground font-semibold space-y-1">
+                    ${nonFreeNames}
+                  </div>
+                  <p class="text-foreground/80 font-medium">
+                    Remove them to get <strong>Free Delivery (৳0)</strong> on your qualifying items, or proceed to checkout with standard delivery charges.
+                  </p>
+                </div>
+              `,
+              icon: "info",
+              showCancelButton: true,
+              confirmButtonText: "Remove Non-Free Items",
+              cancelButtonText: "Go to Checkout",
+              confirmButtonColor: "#ef4444",
+              cancelButtonColor: "var(--accent)",
+              reverseButtons: true,
+            });
+
+            if (popupResult.isConfirmed) {
+              // Remove non-free items
+              setCheckingOut(true);
+              try {
+                for (const item of nonFreeItems) {
+                  await removeFromCart(item.id);
+                }
+                Swal.fire({
+                  position: "top-end",
+                  icon: "success",
+                  title: "Non-qualifying items removed. You now get Free Delivery!",
+                  showConfirmButton: false,
+                  timer: 2000,
+                  toast: true,
+                });
+              } catch (err) {
+                console.error("Failed to remove non-free items:", err);
+              } finally {
+                setCheckingOut(false);
+              }
+              return;
+            }
+            // If user clicked "Go to Checkout" (cancel button), proceed to checkout with standard charges
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Delivery rule check error:", err);
+    }
+
     if (appliedCoupon) {
       try {
         setCheckingOut(true);

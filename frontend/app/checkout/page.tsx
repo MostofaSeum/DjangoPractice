@@ -275,7 +275,7 @@ export default function CheckoutPage() {
 
   const itemsTotal = Math.max(0, discountedSubtotal - couponSavings);
 
-  // Compute best matching delivery charge based on Delivery Rules for cart items
+  // Compute delivery charge based on Delivery Rules for cart items
   const baseInsideCharge = Number(deliverySettings.inside_dhaka_charge ?? 60);
   const baseOutsideCharge = Number(deliverySettings.outside_dhaka_charge ?? 130);
 
@@ -285,36 +285,29 @@ export default function CheckoutPage() {
   let matchingOutsideRule: DeliveryRuleItem | null = null;
 
   if (cart && cart.items && cart.items.length > 0 && deliveryRules.length > 0) {
-    for (const item of cart.items) {
-      for (const rule of deliveryRules) {
-        if (!rule.is_active) continue;
-
-        let isMatch = false;
+    // Check if every item in cart has a free delivery rule
+    const allItemsHaveFreeDelivery = cart.items.every((item) => {
+      return deliveryRules.some((rule) => {
+        if (!rule.is_active || rule.rule_type !== "free") return false;
         if (rule.target_type === "product") {
           if (rule.products && Array.isArray(rule.products)) {
-            isMatch = rule.products.includes(item.product.id);
+            return rule.products.includes(item.product.id);
           } else if (rule.products_details && Array.isArray(rule.products_details)) {
-            isMatch = rule.products_details.some((p) => p.id === item.product.id);
+            return rule.products_details.some((p) => p.id === item.product.id);
           }
         } else if (rule.target_type === "collection") {
-          isMatch = (item.product as any).collection === rule.collection ||
-                    (item.product as any).collection_id === rule.collection;
+          return (item.product as any).collection === rule.collection ||
+                 (item.product as any).collection_id === rule.collection;
         }
+        return false;
+      });
+    });
 
-        if (isMatch) {
-          const ruleInside = rule.rule_type === "free" ? 0 : Number(rule.inside_dhaka_charge ?? 0);
-          const ruleOutside = rule.rule_type === "free" ? 0 : Number(rule.outside_dhaka_charge ?? 0);
-
-          if (ruleInside < effectiveInsideCharge) {
-            effectiveInsideCharge = ruleInside;
-            matchingInsideRule = rule;
-          }
-          if (ruleOutside < effectiveOutsideCharge) {
-            effectiveOutsideCharge = ruleOutside;
-            matchingOutsideRule = rule;
-          }
-        }
-      }
+    if (allItemsHaveFreeDelivery) {
+      effectiveInsideCharge = 0;
+      effectiveOutsideCharge = 0;
+      matchingInsideRule = deliveryRules.find((r) => r.is_active && r.rule_type === "free") || null;
+      matchingOutsideRule = matchingInsideRule;
     }
   }
 
