@@ -323,14 +323,29 @@ export default function CheckoutPage() {
         };
       }
 
-      // If item matches a rule, take the lowest charge among its matched rules
-      let itemInside = baseInsideCharge;
-      let itemOutside = baseOutsideCharge;
-      let itemRule: DeliveryRuleItem | null = null;
+      // If item matches rules, determine the item's charges
+      const firstRule = matchedRules[0];
+      let itemInside =
+        firstRule.rule_type === "free"
+          ? 0
+          : Number(firstRule.inside_dhaka_charge ?? 0);
+      let itemOutside =
+        firstRule.rule_type === "free"
+          ? 0
+          : Number(firstRule.outside_dhaka_charge ?? 0);
+      let itemRule: DeliveryRuleItem | null = firstRule;
 
-      for (const rule of matchedRules) {
-        const rInside = rule.rule_type === "free" ? 0 : Number(rule.inside_dhaka_charge ?? 0);
-        const rOutside = rule.rule_type === "free" ? 0 : Number(rule.outside_dhaka_charge ?? 0);
+      for (let i = 1; i < matchedRules.length; i++) {
+        const rule = matchedRules[i];
+        const rInside =
+          rule.rule_type === "free"
+            ? 0
+            : Number(rule.inside_dhaka_charge ?? 0);
+        const rOutside =
+          rule.rule_type === "free"
+            ? 0
+            : Number(rule.outside_dhaka_charge ?? 0);
+
         if (rInside <= itemInside) {
           itemInside = rInside;
           itemRule = rule;

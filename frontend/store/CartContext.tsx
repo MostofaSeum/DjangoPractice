@@ -26,6 +26,7 @@ export interface CartItem {
     discount_percent?: number;
     discounted_price?: number;
     images?: { id?: number; image: string }[];
+    collection?: number | { id: number; title: string };
   };
   variant?: CartVariant | null;
   quantity: number;
