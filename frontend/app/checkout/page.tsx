@@ -617,21 +617,7 @@ export default function CheckoutPage() {
                   />
                 </div>
 
-                <div className="flex flex-col gap-2 sm:col-span-2">
-                  <label className="text-xs font-bold uppercase tracking-wider opacity-80">
-                    Shipping Address (Street, House/Flat, City/District) *
-                  </label>
-                  <textarea
-                    required
-                    rows={3}
-                    value={shippingAddress}
-                    onChange={(e) => setShippingAddress(e.target.value)}
-                    placeholder="e.g. House 12, Road 5, Block B, Dhanmondi, Dhaka"
-                    className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
-                  />
-                </div>
-
-                {/* Delivery Zone Selection */}
+                {/* Delivery Zone Selection (Placed before Shipping Address) */}
                 <div className="flex flex-col gap-2.5 sm:col-span-2 pt-2 border-t border-foreground/10">
                   <div className="flex justify-between items-center">
                     <label className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
@@ -720,6 +706,20 @@ export default function CheckoutPage() {
                       </div>
                     </div>
                   </div>
+                </div>
+
+                <div className="flex flex-col gap-2 sm:col-span-2">
+                  <label className="text-xs font-bold uppercase tracking-wider opacity-80">
+                    Shipping Address (Street, House/Flat, City/District) *
+                  </label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={shippingAddress}
+                    onChange={(e) => setShippingAddress(e.target.value)}
+                    placeholder="e.g. House 12, Road 5, Block B, Dhanmondi, Dhaka"
+                    className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
+                  />
                 </div>
               </div>
             </div>
