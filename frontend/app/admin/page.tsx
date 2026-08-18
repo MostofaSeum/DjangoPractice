@@ -278,9 +278,10 @@ export default function AdminDashboardPage() {
   const fetchAdminData = async (
     pageNumber = prodPage,
     searchQuery = activeProductQuery,
+    showFullLoading = false,
   ) => {
     if (!token) return;
-    setLoading(true);
+    if (showFullLoading) setLoading(true);
     try {
       const searchParam = searchQuery
         ? `&search=${encodeURIComponent(searchQuery)}`
@@ -1212,7 +1213,7 @@ export default function AdminDashboardPage() {
       return;
     }
 
-    fetchAdminData(prodPage, activeProductQuery);
+    fetchAdminData(prodPage, activeProductQuery, products.length === 0);
   }, [user, token, authLoading, router, prodPage, activeProductQuery]);
 
   const filteredCollections = collections.filter(
