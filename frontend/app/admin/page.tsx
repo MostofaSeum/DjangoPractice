@@ -281,6 +281,15 @@ export default function AdminDashboardPage() {
     short_description: "",
     description: "",
   });
+  const [initialProductForm, setInitialProductForm] = useState({
+    title: "",
+    slug: "",
+    unit_price: "",
+    inventory: "10",
+    collection: "",
+    short_description: "",
+    description: "",
+  });
 
   // Pending Photos & Variants for Creation Mode
   const [newProductPhotos, setNewProductPhotos] = useState<File[]>([]);
@@ -1367,7 +1376,7 @@ export default function AdminDashboardPage() {
 
     setEditingProductId(prod.id);
     setProductSubTab("edit");
-    setProductForm({
+    const baselineData = {
       title: prod.title || "",
       slug: prod.slug || "",
       unit_price: String(prod.unit_price || ""),
@@ -1375,7 +1384,9 @@ export default function AdminDashboardPage() {
       collection: String(prod.collection || 1),
       short_description: prod.short_description || "",
       description: prod.description || "",
-    });
+    };
+    setProductForm(baselineData);
+    setInitialProductForm(baselineData);
 
     // If full details might not be present (e.g. from compact list), fetch single product details
     try {
@@ -1384,7 +1395,7 @@ export default function AdminDashboardPage() {
       });
       if (res.ok) {
         const fullProd = await res.json();
-        setProductForm({
+        const freshData = {
           title: fullProd.title || "",
           slug: fullProd.slug || "",
           unit_price: String(fullProd.unit_price || ""),
@@ -1392,34 +1403,59 @@ export default function AdminDashboardPage() {
           collection: String(fullProd.collection || 1),
           short_description: fullProd.short_description || "",
           description: fullProd.description || "",
-        });
+        };
+        setProductForm(freshData);
+        setInitialProductForm(freshData);
       }
     } catch (e) {
       console.error("Error fetching single product details:", e);
     }
   };
 
-  // Reset form to Add mode
+  // Reset form to Add mode or exit selection
   const handleCancelEdit = async () => {
-    if (hasUnsavedPhotos) {
-      const confirm = await Swal.fire({
-        title: "Photos Not Uploaded!",
-        text: "You have selected photo(s) that are not uploaded yet. Canceling edit will discard these un-uploaded photos.",
-        icon: "warning",
+    // Check if form has modified fields
+    const hasFormChanges =
+      editingProductId !== null &&
+      (productForm.title !== initialProductForm.title ||
+        productForm.unit_price !== initialProductForm.unit_price ||
+        productForm.inventory !== initialProductForm.inventory ||
+        productForm.collection !== initialProductForm.collection ||
+        productForm.short_description !== initialProductForm.short_description ||
+        productForm.description !== initialProductForm.description);
+
+    if (hasFormChanges || hasUnsavedPhotos) {
+      const result = await Swal.fire({
+        title: "Save Changes?",
+        text: "You have modified product details. Do you want to save your changes before leaving edit mode?",
+        icon: "question",
+        showDenyButton: true,
         showCancelButton: true,
         confirmButtonColor: "var(--accent)",
+        denyButtonColor: "#ef4444",
         cancelButtonColor: "var(--button-bg)",
-        confirmButtonText: "Discard & Cancel",
-        cancelButtonText: "Stay Here",
+        confirmButtonText: "Save Changes",
+        denyButtonText: "Don't Save",
+        cancelButtonText: "Stay in Edit Mode",
       });
 
-      if (!confirm.isConfirmed) return;
-      setHasUnsavedPhotos(false);
+      if (result.isConfirmed) {
+        // Trigger save and exit
+        const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
+        await handleSaveProduct(fakeEvent);
+        return;
+      } else if (result.isDenied) {
+        // Discard and clear selection
+        setHasUnsavedPhotos(false);
+      } else {
+        // Stay in edit mode
+        return;
+      }
     }
 
     setEditingProductId(null);
     setProductSubTab("all");
-    setProductForm({
+    const emptyForm = {
       title: "",
       slug: "",
       unit_price: "",
@@ -1427,7 +1463,9 @@ export default function AdminDashboardPage() {
       collection: collections.length > 0 ? String(collections[0].id) : "",
       short_description: "",
       description: "",
-    });
+    };
+    setProductForm(emptyForm);
+    setInitialProductForm(emptyForm);
     // Clear new product photos & variants
     newProductPhotoPreviews.forEach((url) => URL.revokeObjectURL(url));
     setNewProductPhotos([]);
@@ -2373,9 +2411,7 @@ export default function AdminDashboardPage() {
                           }`}
                         >
                           <span className="truncate">All Products</span>
-                          <span className="text-[9px] opacity-75">
-                            {totalProductsCount || products.length}
-                          </span>
+
                         </button>
 
                         {/* 2. Add New Product */}
@@ -2401,11 +2437,6 @@ export default function AdminDashboardPage() {
                           }`}
                         >
                           <span className="truncate">Edit Product</span>
-                          {editingProductId && (
-                            <span className="text-[9px] px-1.5 py-0.2 bg-white/20 rounded-md">
-                              #{editingProductId}
-                            </span>
-                          )}
                         </button>
 
                         {/* 4. Reviews */}
@@ -2470,7 +2501,6 @@ export default function AdminDashboardPage() {
                     }`}
                   >
                     Edit Product{" "}
-                    {editingProductId ? `#${editingProductId}` : ""}
                   </button>
 
                   <button
@@ -2974,7 +3004,6 @@ export default function AdminDashboardPage() {
                     <div>
                       <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
                         Edit Product{" "}
-                        {editingProductId ? `#${editingProductId}` : ""}
                       </h2>
                       <p className="text-xs text-foreground/60 mt-0.5">
                         Select a product to populate its current information,
@@ -3110,9 +3139,6 @@ export default function AdminDashboardPage() {
                       return (
                         <div className="p-3 rounded-xl bg-accent/10 border border-accent/30 flex items-center justify-between gap-3">
                           <div className="flex items-center gap-2.5 min-w-0">
-                            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-accent text-white">
-                              Editing
-                            </span>
                             <span className="text-xs font-bold text-foreground truncate">
                               #{editingProductId} {selectedProd?.title || productForm.title}
                             </span>
@@ -3572,7 +3598,7 @@ export default function AdminDashboardPage() {
                 <div className="w-full bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm overflow-x-auto transition-colors duration-300">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
                     <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-                      All Products ({totalProductsCount || products.length})
+                      All Products
                     </h2>
                     <ProductSearchBar
                       mode="admin"
