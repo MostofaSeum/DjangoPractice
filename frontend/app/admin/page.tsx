@@ -1343,7 +1343,7 @@ export default function AdminDashboardPage() {
   };
 
   // Select Product to populate left form for editing
-  const handleSelectProduct = async (prod: Product) => {
+  const handleSelectProduct = async (prod: Product | any) => {
     if (editingProductId === prod.id) {
       setProductSubTab("edit");
       return;
@@ -1370,11 +1370,32 @@ export default function AdminDashboardPage() {
       title: prod.title || "",
       slug: prod.slug || "",
       unit_price: String(prod.unit_price || ""),
-      inventory: String(prod.inventory || 0),
+      inventory: String(prod.inventory ?? 0),
       collection: String(prod.collection || 1),
-      short_description: (prod as any).short_description || "",
-      description: (prod as any).description || "",
+      short_description: prod.short_description || "",
+      description: prod.description || "",
     });
+
+    // If full details might not be present (e.g. from compact list), fetch single product details
+    try {
+      const res = await fetch(`${API_BASE}/store/products/${prod.id}/`, {
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const fullProd = await res.json();
+        setProductForm({
+          title: fullProd.title || "",
+          slug: fullProd.slug || "",
+          unit_price: String(fullProd.unit_price || ""),
+          inventory: String(fullProd.inventory ?? 0),
+          collection: String(fullProd.collection || 1),
+          short_description: fullProd.short_description || "",
+          description: fullProd.description || "",
+        });
+      }
+    } catch (e) {
+      console.error("Error fetching single product details:", e);
+    }
   };
 
   // Reset form to Add mode
@@ -2961,9 +2982,14 @@ export default function AdminDashboardPage() {
 
                 {/* Product Selector Dropdown / Search */}
                 <div className="mb-6 p-4 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 flex flex-col gap-2">
-                  <label className="text-[10px] font-black uppercase tracking-wider opacity-70">
-                    Select Product to Edit
-                  </label>
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] font-black uppercase tracking-wider opacity-70">
+                      Select Product to Edit
+                    </label>
+                    <span className="text-[10px] opacity-60">
+                      {promoProductsCatalog.length} products available
+                    </span>
+                  </div>
                   <select
                     value={editingProductId ? String(editingProductId) : ""}
                     onChange={(e) => {
@@ -2972,15 +2998,15 @@ export default function AdminDashboardPage() {
                         handleCancelEdit();
                         return;
                       }
-                      const found = products.find((p) => p.id === selectedId);
+                      const found = promoProductsCatalog.find((p) => p.id === selectedId);
                       if (found) {
                         handleSelectProduct(found);
                       }
                     }}
                     className="w-full px-4 py-3 border border-foreground/15 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent cursor-pointer"
                   >
-                    <option value="">-- Choose a product to edit --</option>
-                    {products.map((p) => (
+                    <option value="">-- Choose a product to edit ({promoProductsCatalog.length} available) --</option>
+                    {promoProductsCatalog.map((p) => (
                       <option key={p.id} value={p.id}>
                         #{p.id} - {p.title} (৳{Number(p.unit_price).toFixed(2)})
                       </option>
