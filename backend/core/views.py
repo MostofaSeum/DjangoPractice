@@ -10,6 +10,8 @@ from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.utils import timezone
 from datetime import timedelta
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from .models import User, OTPToken
 
 @api_view(['POST'])
@@ -211,3 +213,68 @@ def verify_otp(request):
             'is_staff': user.is_staff,
         }
     }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def reset_password(request):
+    try:
+        username = request.data.get('username', '').strip()
+        email = request.data.get('email', '').strip()
+        new_password = request.data.get('new_password', '')
+        confirm_password = request.data.get('confirm_password', '')
+
+        if not username or not email:
+            return Response(
+                {'error': 'Username and email are required.'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Look for user matching both username and email (case-insensitive for email)
+        try:
+            user = User.objects.get(username=username, email__iexact=email)
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'No matching account found with the provided username and email.'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # If passwords are not supplied, it is a verification check
+        if not new_password:
+            return Response(
+                {'detail': 'Account verified. You can now set your new password.'}, 
+                status=status.HTTP_200_OK
+            )
+
+        # Password matching check
+        if new_password != confirm_password:
+            return Response(
+                {'error': 'New password and confirm password do not match.'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Django password validation (length, complexity, similarity)
+        try:
+            validate_password(new_password, user=user)
+        except ValidationError as e:
+            return Response(
+                {'error': e.messages}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Update password
+        user.set_password(new_password)
+        user.save()
+
+        return Response(
+            {'detail': 'Password has been successfully changed! You can now sign in.'}, 
+            status=status.HTTP_200_OK
+        )
+
+    except Exception as e:
+        import traceback
+        print("reset_password Error:", traceback.format_exc())
+        return Response(
+            {'error': f"Server error: {str(e)}"}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )

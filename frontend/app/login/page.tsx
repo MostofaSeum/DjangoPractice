@@ -105,9 +105,17 @@ function LoginForm() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-              Password
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                Password
+              </label>
+              <Link
+                href="/forgot-password"
+                className="text-[10px] font-bold text-accent hover:underline transition-colors"
+              >
+                Forgot Password?
+              </Link>
+            </div>
             <input
               type="password"
               required
@@ -121,7 +129,7 @@ function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-3 py-4 bg-button-bg text-button-fg rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center"
+            className="w-full mt-3 py-4 bg-button-bg text-button-fg rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center cursor-pointer"
           >
             {loading ? "Signing In..." : "Sign In"}
           </button>
