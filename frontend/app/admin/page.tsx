@@ -2418,9 +2418,6 @@ export default function AdminDashboardPage() {
                           }`}
                         >
                           <span className="truncate">Reviews</span>
-                          <span className="text-[9px] opacity-50 uppercase tracking-tighter">
-                            Soon
-                          </span>
                         </button>
                       </div>
                     )}
@@ -2486,21 +2483,8 @@ export default function AdminDashboardPage() {
                     }`}
                   >
                     <span>Reviews</span>
-                    <span className="text-[9px] opacity-60 uppercase bg-foreground/10 px-1.5 py-0.5 rounded-md">
-                      Empty
-                    </span>
                   </button>
                 </div>
-
-                {productSubTab === "edit" && editingProductId && (
-                  <button
-                    type="button"
-                    onClick={handleCancelEdit}
-                    className="text-xs font-bold uppercase tracking-wider text-red-500 hover:underline px-3 py-1.5 rounded-xl border border-red-500/20 bg-red-500/5 cursor-pointer"
-                  >
-                    Exit Edit Mode
-                  </button>
-                )}
               </div>
 
               {/* SUBTAB 4: Reviews (Empty state placeholder) */}
@@ -3133,13 +3117,6 @@ export default function AdminDashboardPage() {
                               #{editingProductId} {selectedProd?.title || productForm.title}
                             </span>
                           </div>
-                          <button
-                            type="button"
-                            onClick={handleCancelEdit}
-                            className="text-[10px] font-bold text-red-500 hover:underline uppercase shrink-0"
-                          >
-                            Deselect
-                          </button>
                         </div>
                       );
                     })()}
