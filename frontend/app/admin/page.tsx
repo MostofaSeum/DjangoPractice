@@ -2463,59 +2463,6 @@ export default function AdminDashboardPage() {
           {/* PRODUCTS TAB */}
           {activeTab === "products" && (
             <div className="flex flex-col gap-6">
-              {/* Top Sub-tabs Navigation Bar */}
-              <div className="flex items-center justify-between flex-wrap gap-3 pb-3 border-b border-foreground/10">
-                <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
-                  <button
-                    type="button"
-                    onClick={() => handleProductSubTabSwitch("all")}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                      productSubTab === "all"
-                        ? "bg-accent text-white shadow-sm font-black"
-                        : "bg-secondary text-foreground/70 hover:text-foreground hover:bg-foreground/5 border border-foreground/10"
-                    }`}
-                  >
-                    All Products ({totalProductsCount || products.length})
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleProductSubTabSwitch("add")}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
-                      productSubTab === "add"
-                        ? "bg-accent text-white shadow-sm font-black"
-                        : "bg-secondary text-foreground/70 hover:text-foreground hover:bg-foreground/5 border border-foreground/10"
-                    }`}
-                  >
-                    <span>+</span>
-                    <span>Add New Product</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleProductSubTabSwitch("edit")}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                      productSubTab === "edit"
-                        ? "bg-accent text-white shadow-sm font-black"
-                        : "bg-secondary text-foreground/70 hover:text-foreground hover:bg-foreground/5 border border-foreground/10"
-                    }`}
-                  >
-                    Edit Product{" "}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleProductSubTabSwitch("reviews")}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
-                      productSubTab === "reviews"
-                        ? "bg-accent text-white shadow-sm font-black"
-                        : "bg-secondary text-foreground/70 hover:text-foreground hover:bg-foreground/5 border border-foreground/10"
-                    }`}
-                  >
-                    <span>Reviews</span>
-                  </button>
-                </div>
-              </div>
 
               {/* SUBTAB 4: Reviews (Empty state placeholder) */}
               {productSubTab === "reviews" && (
@@ -3036,11 +2983,17 @@ export default function AdminDashboardPage() {
                         value={editProductSearch}
                         onChange={(e) => setEditProductSearch(e.target.value)}
                         placeholder="Search by product name, ID or price..."
-                        className="w-full pl-9 pr-8 py-3 border border-foreground/15 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all shadow-inner"
+                        className="w-full pl-10 pr-8 py-3 border border-foreground/15 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all shadow-inner"
                       />
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 opacity-40 text-xs">
-                        🔍
-                      </span>
+                      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none flex items-center justify-center opacity-60 dark:opacity-80">
+                        <Image
+                          src="/search.png"
+                          alt="Search"
+                          width={16}
+                          height={16}
+                          className="object-contain dark:invert transition-all"
+                        />
+                      </div>
                       {editProductSearch && (
                         <button
                           type="button"
