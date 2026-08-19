@@ -89,7 +89,7 @@ export default function AdminSidebar({
     {
       id: "analytics" as AdminTab,
       label: "Analytics",
-      icon: "/admin/sales.png",
+      icon: "/admin/analytics.png",
     },
   ];
 
