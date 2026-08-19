@@ -21,6 +21,7 @@ export default function ForgotPasswordPage() {
   const [isVerified, setIsVerified] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
   // Password visibility states
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
