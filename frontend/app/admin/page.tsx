@@ -2255,6 +2255,42 @@ export default function AdminDashboardPage() {
               handleApplyPromotion={handleApplyPromotion}
               handleRemovePromotion={handleRemovePromotion}
               selectedPromoProducts={selectedPromoProducts}
+              deliveryRulesList={deliveryRulesList}
+              editingDeliveryRuleId={editingDeliveryRuleId}
+              deliveryRuleTitle={deliveryRuleTitle}
+              setDeliveryRuleTitle={setDeliveryRuleTitle}
+              deliveryRuleTargetType={deliveryRuleTargetType}
+              setDeliveryRuleTargetType={setDeliveryRuleTargetType}
+              deliveryRuleType={deliveryRuleType}
+              setDeliveryRuleType={setDeliveryRuleType}
+              deliveryRuleInsideCharge={deliveryRuleInsideCharge}
+              setDeliveryRuleInsideCharge={setDeliveryRuleInsideCharge}
+              deliveryRuleOutsideCharge={deliveryRuleOutsideCharge}
+              setDeliveryRuleOutsideCharge={setDeliveryRuleOutsideCharge}
+              deliveryRuleSelectedProductIds={deliveryRuleSelectedProductIds}
+              setDeliveryRuleSelectedProductIds={
+                setDeliveryRuleSelectedProductIds
+              }
+              deliveryRuleCollectionId={deliveryRuleCollectionId}
+              setDeliveryRuleCollectionId={setDeliveryRuleCollectionId}
+              deliveryRuleMinQuantity={deliveryRuleMinQuantity}
+              setDeliveryRuleMinQuantity={setDeliveryRuleMinQuantity}
+              deliveryRuleIsActive={deliveryRuleIsActive}
+              setDeliveryRuleIsActive={setDeliveryRuleIsActive}
+              deliveryRuleSearchInput={deliveryRuleSearchInput}
+              setDeliveryRuleSearchInput={setDeliveryRuleSearchInput}
+              isDeliveryRuleDropdownOpen={isDeliveryRuleDropdownOpen}
+              setIsDeliveryRuleDropdownOpen={setIsDeliveryRuleDropdownOpen}
+              deliveryRuleCreating={deliveryRuleCreating}
+              deliveryRuleFilterSearch={deliveryRuleFilterSearch}
+              setDeliveryRuleFilterSearch={setDeliveryRuleFilterSearch}
+              selectedDeliveryRuleProducts={selectedDeliveryRuleProducts}
+              collections={collections}
+              handleSaveDeliveryRule={handleSaveDeliveryRule}
+              handleCancelEditDeliveryRule={handleCancelEditDeliveryRule}
+              handleStartEditDeliveryRule={handleStartEditDeliveryRule}
+              handleToggleDeliveryRule={handleToggleDeliveryRule}
+              handleDeleteDeliveryRule={handleDeleteDeliveryRule}
             />
           )}
 
@@ -2312,43 +2348,6 @@ export default function AdminDashboardPage() {
               setDeliverySettings={setDeliverySettings}
               savingDeliverySettings={savingDeliverySettings}
               handleSaveDeliverySettings={handleSaveDeliverySettings}
-              deliveryRulesList={deliveryRulesList}
-              editingDeliveryRuleId={editingDeliveryRuleId}
-              deliveryRuleTitle={deliveryRuleTitle}
-              setDeliveryRuleTitle={setDeliveryRuleTitle}
-              deliveryRuleTargetType={deliveryRuleTargetType}
-              setDeliveryRuleTargetType={setDeliveryRuleTargetType}
-              deliveryRuleType={deliveryRuleType}
-              setDeliveryRuleType={setDeliveryRuleType}
-              deliveryRuleInsideCharge={deliveryRuleInsideCharge}
-              setDeliveryRuleInsideCharge={setDeliveryRuleInsideCharge}
-              deliveryRuleOutsideCharge={deliveryRuleOutsideCharge}
-              setDeliveryRuleOutsideCharge={setDeliveryRuleOutsideCharge}
-              deliveryRuleSelectedProductIds={deliveryRuleSelectedProductIds}
-              setDeliveryRuleSelectedProductIds={
-                setDeliveryRuleSelectedProductIds
-              }
-              deliveryRuleCollectionId={deliveryRuleCollectionId}
-              setDeliveryRuleCollectionId={setDeliveryRuleCollectionId}
-              deliveryRuleMinQuantity={deliveryRuleMinQuantity}
-              setDeliveryRuleMinQuantity={setDeliveryRuleMinQuantity}
-              deliveryRuleIsActive={deliveryRuleIsActive}
-              setDeliveryRuleIsActive={setDeliveryRuleIsActive}
-              deliveryRuleSearchInput={deliveryRuleSearchInput}
-              setDeliveryRuleSearchInput={setDeliveryRuleSearchInput}
-              isDeliveryRuleDropdownOpen={isDeliveryRuleDropdownOpen}
-              setIsDeliveryRuleDropdownOpen={setIsDeliveryRuleDropdownOpen}
-              deliveryRuleCreating={deliveryRuleCreating}
-              deliveryRuleFilterSearch={deliveryRuleFilterSearch}
-              setDeliveryRuleFilterSearch={setDeliveryRuleFilterSearch}
-              selectedDeliveryRuleProducts={selectedDeliveryRuleProducts}
-              promoProductsCatalog={promoProductsCatalog}
-              collections={collections}
-              handleSaveDeliveryRule={handleSaveDeliveryRule}
-              handleCancelEditDeliveryRule={handleCancelEditDeliveryRule}
-              handleStartEditDeliveryRule={handleStartEditDeliveryRule}
-              handleToggleDeliveryRule={handleToggleDeliveryRule}
-              handleDeleteDeliveryRule={handleDeleteDeliveryRule}
             />
           )}
 
