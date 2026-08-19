@@ -1,0 +1,127 @@
+export interface Product {
+  id: number;
+  title: string;
+  unit_price: number;
+  discount_percent?: number;
+  discounted_price?: number;
+  inventory: number;
+  slug: string;
+  collection: number;
+  short_description?: string;
+  description?: string;
+  images?: { id?: number; image: string }[];
+  is_trending?: boolean;
+}
+
+export interface Collection {
+  id: number;
+  title: string;
+  product_count: number;
+  image?: string | null;
+  is_featured?: boolean;
+}
+
+export interface OrderItem {
+  id: number;
+  product: { id: number; title: string; unit_price: number };
+  variant?: {
+    id: number;
+    name: string;
+    color_name?: string;
+    color_code?: string;
+    size?: string;
+    price_override?: number;
+    inventory?: number;
+  } | null;
+  variant_title?: string;
+  quantity: number;
+  unit_price: number;
+}
+
+export interface Order {
+  id: number;
+  customer: number;
+  customer_name?: string;
+  payment_status: string;
+  placed_at?: string;
+  shipping_address?: string;
+  phone?: string;
+  payment_method?: string;
+  transaction_id?: string;
+  transaction_phone_no?: string;
+  delivery_area?: string;
+  delivery_charge?: number | string;
+  items?: OrderItem[];
+}
+
+export interface CustomerItem {
+  id: number;
+  phone: string;
+  birth_date: string | null;
+  membership: string;
+  user_id: number;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  customer_name?: string;
+}
+
+export interface CouponItem {
+  id: number;
+  code: string;
+  discount_percent: number;
+  valid_from: string;
+  valid_to: string;
+  target_type: "product" | "collection";
+  collection?: number | null;
+  collection_title?: string | null;
+  product_count?: number;
+  products_details?: { id: number; title: string; unit_price: number }[];
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface DeliveryRuleItem {
+  id: number;
+  title: string;
+  target_type: "product" | "collection";
+  rule_type: "free" | "reduced";
+  inside_dhaka_charge: number | string;
+  outside_dhaka_charge: number | string;
+  collection?: number | null;
+  collection_title?: string | null;
+  product_count?: number;
+  products_details?: { id: number; title: string; unit_price: number }[];
+  min_quantity?: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface PaymentSettingsState {
+  bkash_number: string;
+  bkash_active: boolean;
+  nagad_number: string;
+  nagad_active: boolean;
+  cod_active: boolean;
+  vibecoin_active: boolean;
+}
+
+export interface DeliverySettingsState {
+  inside_dhaka_charge: string;
+  outside_dhaka_charge: string;
+  estimated_days_inside: string;
+  estimated_days_outside: string;
+  is_active: boolean;
+}
+
+export type AdminTab =
+  | "products"
+  | "collections"
+  | "orders"
+  | "customers"
+  | "promotions"
+  | "coupons"
+  | "payments"
+  | "delivery";
+
+export type ProductSubTab = "all" | "add" | "edit" | "reviews";
