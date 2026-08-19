@@ -1415,7 +1415,33 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Reset form to Add mode or exit selection
+  // Reset/clear product form and selection without prompt
+  const clearProductSelection = () => {
+    setEditingProductId(null);
+    setProductSubTab("all");
+    const emptyForm = {
+      title: "",
+      slug: "",
+      unit_price: "",
+      inventory: "10",
+      collection: collections.length > 0 ? String(collections[0].id) : "",
+      short_description: "",
+      description: "",
+    };
+    setProductForm(emptyForm);
+    setInitialProductForm(emptyForm);
+    setHasUnsavedPhotos(false);
+    // Clear new product photos & variants
+    newProductPhotoPreviews.forEach((url) => URL.revokeObjectURL(url));
+    setNewProductPhotos([]);
+    setNewProductPhotoPreviews([]);
+    setNewProductVariants([]);
+    if (newProductFileInputRef.current) {
+      newProductFileInputRef.current.value = "";
+    }
+  };
+
+  // Reset form to Add mode or exit selection with prompt if unsaved changes exist
   const handleCancelEdit = async () => {
     // Check if form has modified fields
     const hasFormChanges =
@@ -1449,34 +1475,15 @@ export default function AdminDashboardPage() {
         return;
       } else if (result.isDenied) {
         // Discard and clear selection
-        setHasUnsavedPhotos(false);
+        clearProductSelection();
+        return;
       } else {
         // Stay in edit mode
         return;
       }
     }
 
-    setEditingProductId(null);
-    setProductSubTab("all");
-    const emptyForm = {
-      title: "",
-      slug: "",
-      unit_price: "",
-      inventory: "10",
-      collection: collections.length > 0 ? String(collections[0].id) : "",
-      short_description: "",
-      description: "",
-    };
-    setProductForm(emptyForm);
-    setInitialProductForm(emptyForm);
-    // Clear new product photos & variants
-    newProductPhotoPreviews.forEach((url) => URL.revokeObjectURL(url));
-    setNewProductPhotos([]);
-    setNewProductPhotoPreviews([]);
-    setNewProductVariants([]);
-    if (newProductFileInputRef.current) {
-      newProductFileInputRef.current.value = "";
-    }
+    clearProductSelection();
   };
 
   // Create or Update Product (POST or PUT)
@@ -1613,17 +1620,19 @@ export default function AdminDashboardPage() {
           }
         }
 
-        Swal.fire({
-          position: "top-end",
+        await Swal.fire({
           icon: "success",
-          title: isEditing
-            ? "Product updated successfully!"
-            : "Product and details added successfully!",
-          showConfirmButton: false,
-          timer: 1800,
-          toast: true,
+          title: isEditing ? "Product Updated!" : "Product Created!",
+          text: isEditing
+            ? `"${productForm.title}" has been updated successfully.`
+            : `"${productForm.title}" has been created successfully.`,
+          confirmButtonColor: "var(--accent)",
+          confirmButtonText: "View All Products",
+          timer: 2500,
+          timerProgressBar: true,
         });
-        handleCancelEdit();
+
+        clearProductSelection();
         fetchAdminData();
       } else {
         const err = await res.json();
