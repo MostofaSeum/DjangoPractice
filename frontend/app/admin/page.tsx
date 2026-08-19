@@ -14,110 +14,23 @@ import PromotionsTab from "@/features/admin/components/tabs/PromotionsTab";
 import CouponsTab from "@/features/admin/components/tabs/CouponsTab";
 import PaymentsTab from "@/features/admin/components/tabs/PaymentsTab";
 import DeliveryTab from "@/features/admin/components/tabs/DeliveryTab";
+import AnalyticsTab from "@/features/admin/components/tabs/AnalyticsTab";
 
 const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
 ).replace(/\/+$/, "");
 
-interface Product {
-  id: number;
-  title: string;
-  unit_price: number;
-  discount_percent?: number;
-  discounted_price?: number;
-  inventory: number;
-  slug: string;
-  collection: number;
-  short_description?: string;
-  description?: string;
-  images?: { id?: number; image: string }[];
-  is_trending?: boolean;
-}
-
-interface Collection {
-  id: number;
-  title: string;
-  product_count: number;
-  image?: string | null;
-  is_featured?: boolean;
-}
-
-interface OrderItem {
-  id: number;
-  product: { id: number; title: string; unit_price: number };
-  quantity: number;
-  unit_price: number;
-}
-
-interface Order {
-  id: number;
-  customer: number;
-  customer_name?: string;
-  payment_status: string;
-  placed_at?: string;
-  shipping_address?: string;
-  phone?: string;
-  payment_method?: string;
-  transaction_id?: string;
-  transaction_phone_no?: string;
-  delivery_area?: string;
-  delivery_charge?: number | string;
-  items?: OrderItem[];
-}
-interface CustomerItem {
-  id: number;
-  phone: string;
-  birth_date: string | null;
-  membership: string;
-  user_id: number;
-  first_name?: string;
-  last_name?: string;
-  email?: string;
-  customer_name?: string;
-}
-
-interface CouponItem {
-  id: number;
-  code: string;
-  discount_percent: number;
-  valid_from: string;
-  valid_to: string;
-  target_type: "product" | "collection";
-  collection?: number | null;
-  collection_title?: string | null;
-  product_count?: number;
-  products_details?: { id: number; title: string; unit_price: number }[];
-  is_active: boolean;
-  created_at: string;
-}
-
-interface DeliveryRuleItem {
-  id: number;
-  title: string;
-  target_type: "product" | "collection";
-  rule_type: "free" | "reduced";
-  inside_dhaka_charge: number | string;
-  outside_dhaka_charge: number | string;
-  collection?: number | null;
-  collection_title?: string | null;
-  product_count?: number;
-  products_details?: { id: number; title: string; unit_price: number }[];
-  min_quantity?: number;
-  is_active: boolean;
-  created_at: string;
-}
-
-type Tab =
-  | "products"
-  | "collections"
-  | "orders"
-  | "customers"
-  | "promotions"
-  | "coupons"
-  | "payments"
-  | "delivery";
-
-type ProductSubTab = "all" | "add" | "edit" | "reviews";
+import {
+  Product,
+  Collection,
+  OrderItem,
+  Order,
+  CustomerItem,
+  CouponItem,
+  DeliveryRuleItem,
+  AdminTab,
+  ProductSubTab,
+} from "@/features/admin/types";
 
 export default function AdminDashboardPage() {
   const { user, token, logout, loading: authLoading } = useAuth();
@@ -128,7 +41,7 @@ export default function AdminDashboardPage() {
     router.push("/login");
   };
 
-  const [activeTab, setActiveTab] = useState<Tab>("products");
+  const [activeTab, setActiveTab] = useState<AdminTab>("products");
   const [productSubTab, setProductSubTab] = useState<ProductSubTab>("all");
   const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -2130,7 +2043,7 @@ export default function AdminDashboardPage() {
     );
   }
 
-  const handleTabSwitch = async (targetTab: Tab) => {
+  const handleTabSwitch = async (targetTab: AdminTab) => {
     if (activeTab === targetTab) {
       if (targetTab === "products") {
         setIsProductsDropdownOpen((prev) => !prev);
@@ -2206,57 +2119,6 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const navTabs = [
-    {
-      id: "products" as Tab,
-      label: "Products",
-      icon: "/admin/products.png",
-      count: totalProductsCount,
-    },
-    {
-      id: "collections" as Tab,
-      label: "Categories",
-      icon: "/admin/collections.png",
-      count: collections.length,
-    },
-    {
-      id: "orders" as Tab,
-      label: "Orders",
-      icon: "/admin/orders.png",
-      count: orders.length,
-    },
-    {
-      id: "customers" as Tab,
-      label: "Customers",
-      icon: "/admin/customers.png",
-      count: customers.length,
-    },
-    {
-      id: "promotions" as Tab,
-      label: "Sales",
-      icon: "/admin/sales.png",
-      count: promoProductsCatalog.filter(
-        (p) => Number(p.discount_percent || 0) > 0,
-      ).length,
-    },
-    {
-      id: "coupons" as Tab,
-      label: "Coupons",
-      icon: "/admin/coupons.png",
-      count: couponsList.length,
-    },
-    {
-      id: "payments" as Tab,
-      label: "Payment Settings",
-      icon: "/admin/payment_settings.png",
-    },
-    {
-      id: "delivery" as Tab,
-      label: "Manage Delivery",
-      icon: "/admin/manage_delivery.png",
-    },
-  ];
-
   return (
     <div className="min-h-screen bg-background text-foreground font-sans transition-colors duration-300 flex flex-col">
       {/* Modular Header */}
@@ -2266,8 +2128,8 @@ export default function AdminDashboardPage() {
       <div className="flex flex-1 relative min-h-[calc(100vh-65px)]">
         {/* Modular Sidebar */}
         <AdminSidebar
-          activeTab={activeTab as any}
-          setActiveTab={(t) => handleTabSwitch(t as Tab)}
+          activeTab={activeTab}
+          setActiveTab={(t) => handleTabSwitch(t)}
           productSubTab={productSubTab}
           handleProductSubTabSwitch={handleProductSubTabSwitch}
           isProductsDropdownOpen={isProductsDropdownOpen}
@@ -2489,6 +2351,9 @@ export default function AdminDashboardPage() {
               handleDeleteDeliveryRule={handleDeleteDeliveryRule}
             />
           )}
+
+          {/* 9. ANALYTICS TAB */}
+          {activeTab === "analytics" && <AnalyticsTab />}
         </main>
       </div>
     </div>

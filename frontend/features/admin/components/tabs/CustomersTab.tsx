@@ -12,9 +12,12 @@ interface CustomersTabProps {
     customerId: number;
     orders: Order[];
   } | null;
-  setCustomerHistoryModal: (
-    modal: { customerId: number; orders: Order[] } | null
-  ) => void;
+  setCustomerHistoryModal: React.Dispatch<
+    React.SetStateAction<{
+      customerId: number;
+      orders: Order[];
+    } | null>
+  >;
 }
 
 export default function CustomersTab({

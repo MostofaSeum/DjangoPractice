@@ -86,6 +86,11 @@ export default function AdminSidebar({
       count: deliveryRulesCount > 0 ? deliveryRulesCount : undefined,
       icon: "/admin/manage_delivery.png",
     },
+    {
+      id: "analytics" as AdminTab,
+      label: "Analytics",
+      icon: "/admin/sales.png",
+    },
   ];
 
   return (

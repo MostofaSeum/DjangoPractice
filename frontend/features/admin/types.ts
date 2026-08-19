@@ -23,7 +23,7 @@ export interface Collection {
 
 export interface OrderItem {
   id: number;
-  product: { id: number; title: string; unit_price: number };
+  product?: { id: number; title: string; unit_price: number };
   variant?: {
     id: number;
     name: string;
@@ -57,7 +57,7 @@ export interface Order {
 export interface CustomerItem {
   id: number;
   phone: string;
-  birth_date: string | null;
+  birth_date?: string | null;
   membership: string;
   user_id: number;
   first_name?: string;
@@ -122,6 +122,7 @@ export type AdminTab =
   | "promotions"
   | "coupons"
   | "payments"
-  | "delivery";
+  | "delivery"
+  | "analytics";
 
 export type ProductSubTab = "all" | "add" | "edit" | "reviews";
