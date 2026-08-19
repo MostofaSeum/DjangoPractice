@@ -47,9 +47,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   const apiBaseUrl = getApiBaseUrl();
 
-  // Fetch product detail
+  // Fetch product detail with 30s ISR cache
   const res = await fetch(`${apiBaseUrl}/store/products/${id}/`, {
-    cache: "no-store",
+    next: { revalidate: 30 },
   });
 
   if (!res.ok) {
@@ -83,11 +83,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
     try {
       const [colRes, relatedRes] = await Promise.all([
         fetch(`${apiBaseUrl}/store/collections/${collectionId}/`, {
-          cache: "no-store",
+          next: { revalidate: 30 },
         }),
         fetch(
           `${apiBaseUrl}/store/products/?collection_id=${collectionId}&page_size=5`,
-          { cache: "no-store" },
+          { next: { revalidate: 30 } },
         ),
       ]);
 

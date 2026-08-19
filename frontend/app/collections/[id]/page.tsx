@@ -37,8 +37,8 @@ export default async function CollectionDetailPage({ params }: PageProps) {
   const { id } = await params;
 
   const apiBaseUrl = getApiBaseUrl();
-  const res = await fetch(`${apiBaseUrl}/store/collections/${id}/`, {
-    cache: "no-store",
+  const res = await fetch(`${apiBaseUrl}/store/collections/${id}/?include_products=true`, {
+    next: { revalidate: 30 },
   });
 
   if (!res.ok) {

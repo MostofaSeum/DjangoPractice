@@ -48,20 +48,21 @@ class ProductViewSet(ModelViewSet):
 
 
 class CollectionViewSet(ModelViewSet):
-    queryset = Collection.objects.annotate(product_count=Count('product')).all()
+    queryset = Collection.objects.annotate(product_count=Count('product')).order_by('title').all()
     permission_classes = [IsAdminOrReadOnly]
     pagination_class = None
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     search_fields = ['title']
     ordering_fields = ['title', 'product_count']
+    ordering = ['title']
 
     def get_queryset(self):
-        if self.action == 'retrieve':
-            return Collection.objects.prefetch_related('product_set__images').all()
+        if self.action == 'retrieve' and self.request.query_params.get('include_products') == 'true':
+            return Collection.objects.prefetch_related('product_set__images', 'product_set__variants').all()
         return Collection.objects.annotate(product_count=Count('product')).all()
 
     def get_serializer_class(self):
-        if self.action == 'retrieve':
+        if self.action == 'retrieve' and self.request.query_params.get('include_products') == 'true':
             return CollectionDetailSerializer
         return CollectionSerializer
 

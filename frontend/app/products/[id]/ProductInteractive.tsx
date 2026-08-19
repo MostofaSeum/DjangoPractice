@@ -59,8 +59,8 @@ export default function ProductInteractive({
     const fetchDeliveryInfo = async () => {
       try {
         const [settingsRes, rulesRes] = await Promise.all([
-          fetch(`${getApiBaseUrl()}/store/delivery-settings/`, { cache: "no-store" }),
-          fetch(`${getApiBaseUrl()}/store/delivery-rules/`, { cache: "no-store" }),
+          fetch(`${getApiBaseUrl()}/store/delivery-settings/`, { next: { revalidate: 30 } }),
+          fetch(`${getApiBaseUrl()}/store/delivery-rules/`, { next: { revalidate: 30 } }),
         ]);
 
         if (settingsRes.ok) {
