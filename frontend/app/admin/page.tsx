@@ -270,6 +270,7 @@ export default function AdminDashboardPage() {
   // Selected Product for Edit
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const [editProductSearch, setEditProductSearch] = useState("");
+  const [adminDataVersion, setAdminDataVersion] = useState(0);
 
   // Product Form State
   const [productForm, setProductForm] = useState({
@@ -406,6 +407,7 @@ export default function AdminDashboardPage() {
       fetchPaymentSettings();
       fetchDeliverySettings();
       fetchDeliveryRules();
+      setAdminDataVersion((v) => v + 1);
     } catch (err) {
       console.error("Failed to fetch admin data:", err);
     } finally {
@@ -3294,6 +3296,7 @@ export default function AdminDashboardPage() {
                           basePrice={parseFloat(productForm.unit_price) || 0}
                           token={token}
                           onVariantsUpdated={fetchAdminData}
+                          refreshTrigger={adminDataVersion}
                         />
                       </div>
 

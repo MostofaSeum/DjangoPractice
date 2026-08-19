@@ -11,6 +11,7 @@ interface ProductVariantsManagerProps {
   basePrice: number;
   token: string | null;
   onVariantsUpdated?: () => void;
+  refreshTrigger?: number;
 }
 
 const API_BASE = (
@@ -23,6 +24,7 @@ export default function ProductVariantsManager({
   basePrice,
   token,
   onVariantsUpdated,
+  refreshTrigger,
 }: ProductVariantsManagerProps) {
   const [variants, setVariants] = useState<ProductVariant[]>([]);
   const [loading, setLoading] = useState(false);
@@ -67,7 +69,7 @@ export default function ProductVariantsManager({
     if (productId) {
       fetchVariants();
     }
-  }, [productId]);
+  }, [productId, refreshTrigger]);
 
   const handleOpenAddModal = () => {
     setEditingVariant(null);
