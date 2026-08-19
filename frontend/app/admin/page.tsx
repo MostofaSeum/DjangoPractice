@@ -5847,7 +5847,7 @@ export default function AdminDashboardPage() {
                               onChange={(e) =>
                                 setDeliveryRuleMinQuantity(e.target.value)
                               }
-                              placeholder="e.g. 1 (Always applies) or 3 (Buy 3 to get offer)"
+                              placeholder="e.g. 3"
                               className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-2.5 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                             />
                             <p className="text-[10px] opacity-60 mt-1">
