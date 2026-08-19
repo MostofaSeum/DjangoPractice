@@ -67,7 +67,7 @@ export default function AdminSidebar({
       id: "promotions" as AdminTab,
       label: "Promotions",
       count: promosCount,
-      icon: "/admin/promotions.png",
+      icon: "/admin/sales.png",
     },
     {
       id: "coupons" as AdminTab,
@@ -78,7 +78,7 @@ export default function AdminSidebar({
     {
       id: "payments" as AdminTab,
       label: "Payment Methods",
-      icon: "/admin/payment_methods.png",
+      icon: "/admin/payment_settings.png",
     },
     {
       id: "delivery" as AdminTab,
