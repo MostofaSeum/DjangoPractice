@@ -116,6 +116,8 @@ type Tab =
   | "payments"
   | "delivery";
 
+type ProductSubTab = "all" | "add" | "edit" | "reviews";
+
 export default function AdminDashboardPage() {
   const { user, token, logout, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -126,6 +128,8 @@ export default function AdminDashboardPage() {
   };
 
   const [activeTab, setActiveTab] = useState<Tab>("products");
+  const [productSubTab, setProductSubTab] = useState<ProductSubTab>("all");
+  const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -1340,7 +1344,10 @@ export default function AdminDashboardPage() {
 
   // Select Product to populate left form for editing
   const handleSelectProduct = async (prod: Product) => {
-    if (editingProductId === prod.id) return;
+    if (editingProductId === prod.id) {
+      setProductSubTab("edit");
+      return;
+    }
     if (hasUnsavedPhotos) {
       const confirm = await Swal.fire({
         title: "Photos Not Uploaded!",
@@ -1358,6 +1365,7 @@ export default function AdminDashboardPage() {
     }
 
     setEditingProductId(prod.id);
+    setProductSubTab("edit");
     setProductForm({
       title: prod.title || "",
       slug: prod.slug || "",
@@ -1388,6 +1396,7 @@ export default function AdminDashboardPage() {
     }
 
     setEditingProductId(null);
+    setProductSubTab("all");
     setProductForm({
       title: "",
       slug: "",
@@ -2050,7 +2059,12 @@ export default function AdminDashboardPage() {
   }
 
   const handleTabSwitch = async (targetTab: Tab) => {
-    if (activeTab === targetTab) return;
+    if (activeTab === targetTab) {
+      if (targetTab === "products") {
+        setIsProductsDropdownOpen((prev) => !prev);
+      }
+      return;
+    }
 
     if (hasUnsavedPhotos) {
       const confirm = await Swal.fire({
@@ -2071,6 +2085,53 @@ export default function AdminDashboardPage() {
     }
 
     setActiveTab(targetTab);
+    if (targetTab === "products") {
+      setIsProductsDropdownOpen(true);
+    }
+  };
+
+  const handleProductSubTabSwitch = async (subTab: ProductSubTab) => {
+    if (activeTab === "products" && productSubTab === subTab) return;
+
+    if (hasUnsavedPhotos) {
+      const confirm = await Swal.fire({
+        title: "Photos Not Uploaded!",
+        text: "You have selected photo(s) that are not uploaded yet. If you switch section now, these photos won't be saved.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "var(--accent)",
+        cancelButtonColor: "var(--button-bg)",
+        confirmButtonText: "Leave Without Uploading",
+        cancelButtonText: "Stay Here",
+      });
+
+      if (!confirm.isConfirmed) return;
+      setHasUnsavedPhotos(false);
+    }
+
+    setActiveTab("products");
+    setIsProductsDropdownOpen(true);
+    setProductSubTab(subTab);
+
+    if (subTab === "add") {
+      setEditingProductId(null);
+      setProductForm({
+        title: "",
+        slug: "",
+        unit_price: "",
+        inventory: "10",
+        collection: collections.length > 0 ? String(collections[0].id) : "",
+        short_description: "",
+        description: "",
+      });
+      newProductPhotoPreviews.forEach((url) => URL.revokeObjectURL(url));
+      setNewProductPhotos([]);
+      setNewProductPhotoPreviews([]);
+      setNewProductVariants([]);
+      if (newProductFileInputRef.current) {
+        newProductFileInputRef.current.value = "";
+      }
+    }
   };
 
   const navTabs = [
@@ -2196,61 +2257,150 @@ export default function AdminDashboardPage() {
           <nav className="flex-1 space-y-1.5 overflow-y-auto pr-0.5 scrollbar-thin">
             {navTabs.map((tab) => {
               const isActive = activeTab === tab.id;
+              const isProductsTab = tab.id === "products";
+
               return (
-                <button
-                  key={tab.id}
-                  onClick={() => handleTabSwitch(tab.id)}
-                  title={isSidebarCollapsed ? tab.label : undefined}
-                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-xs font-extrabold uppercase tracking-wider transition-all duration-200 cursor-pointer group ${
-                    isSidebarCollapsed ? "justify-center" : "justify-between"
-                  } ${
-                    isActive
-                      ? "bg-secondary text-foreground shadow-md scale-[1.02]"
-                      : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
-                  }`}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div
-                      className={`relative w-6 h-6 rounded-lg flex items-center justify-center shrink-0 p-0.5 transition-transform group-hover:scale-110 ${
-                        isActive
-                          ? "opacity-100"
-                          : "opacity-80 group-hover:opacity-100"
-                      }`}
-                    >
-                      <Image
-                        src={tab.icon}
-                        alt={tab.label}
-                        width={24}
-                        height={24}
-                        className={`object-contain w-full h-full transition-all ${
+                <div key={tab.id} className="space-y-1">
+                  <button
+                    onClick={() => handleTabSwitch(tab.id)}
+                    title={isSidebarCollapsed ? tab.label : undefined}
+                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-xs font-extrabold uppercase tracking-wider transition-all duration-200 cursor-pointer group ${
+                      isSidebarCollapsed ? "justify-center" : "justify-between"
+                    } ${
+                      isActive
+                        ? "bg-secondary text-foreground shadow-md scale-[1.02]"
+                        : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className={`relative w-6 h-6 rounded-lg flex items-center justify-center shrink-0 p-0.5 transition-transform group-hover:scale-110 ${
                           isActive
-                            ? "brightness-0 dark:brightness-0 dark:invert"
-                            : "brightness-0 invert dark:brightness-0 dark:opacity-60 group-hover:dark:opacity-100"
+                            ? "opacity-100"
+                            : "opacity-80 group-hover:opacity-100"
                         }`}
-                      />
+                      >
+                        <Image
+                          src={tab.icon}
+                          alt={tab.label}
+                          width={24}
+                          height={24}
+                          className={`object-contain w-full h-full transition-all ${
+                            isActive
+                              ? "brightness-0 dark:brightness-0 dark:invert"
+                              : "brightness-0 invert dark:brightness-0 dark:opacity-60 group-hover:dark:opacity-100"
+                          }`}
+                        />
+                      </div>
+
+                      {/* Tab Label (Smooth text transition on collapse) */}
+                      {!isSidebarCollapsed && (
+                        <span className="truncate text-left transition-opacity duration-200">
+                          {tab.label}
+                        </span>
+                      )}
                     </div>
 
-                    {/* Tab Label (Smooth text transition on collapse) */}
+                    {/* Count Badge & Dropdown Chevron */}
                     {!isSidebarCollapsed && (
-                      <span className="truncate text-left transition-opacity duration-200">
-                        {tab.label}
-                      </span>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {typeof tab.count !== "undefined" && (
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-black transition-colors ${
+                              isActive
+                                ? "bg-accent/20 text-accent"
+                                : "bg-white/10 text-background/80 dark:text-foreground/80"
+                            }`}
+                          >
+                            {tab.count}
+                          </span>
+                        )}
+                        {isProductsTab && (
+                          <svg
+                            className={`w-3.5 h-3.5 transition-transform duration-200 opacity-70 ${
+                              isProductsDropdownOpen ? "rotate-180" : ""
+                            }`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2.5"
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        )}
+                      </div>
                     )}
-                  </div>
+                  </button>
 
-                  {/* Count Badge */}
-                  {!isSidebarCollapsed && typeof tab.count !== "undefined" && (
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-black shrink-0 transition-colors ${
-                        isActive
-                          ? "bg-accent/20 text-accent"
-                          : "bg-white/10 text-background/80 dark:text-foreground/80"
-                      }`}
-                    >
-                      {tab.count}
-                    </span>
+                  {/* Products Subsections */}
+                  {isProductsTab && isProductsDropdownOpen && !isSidebarCollapsed && (
+                    <div className="pl-6 pr-1 py-1 space-y-1 border-l-2 border-white/10 ml-5 transition-all">
+                      {/* 1. All Products */}
+                      <button
+                        onClick={() => handleProductSubTabSwitch("all")}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                          isActive && productSubTab === "all"
+                            ? "bg-accent text-white shadow-xs font-black"
+                            : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                        }`}
+                      >
+                        <span className="truncate">All Products</span>
+                        <span className="text-[9px] opacity-75">
+                          {totalProductsCount || products.length}
+                        </span>
+                      </button>
+
+                      {/* 2. Add New Product */}
+                      <button
+                        onClick={() => handleProductSubTabSwitch("add")}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                          isActive && productSubTab === "add"
+                            ? "bg-accent text-white shadow-xs font-black"
+                            : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                        }`}
+                      >
+                        <span className="truncate">Add New Product</span>
+                        <span className="text-xs font-black">+</span>
+                      </button>
+
+                      {/* 3. Edit Product */}
+                      <button
+                        onClick={() => handleProductSubTabSwitch("edit")}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                          isActive && productSubTab === "edit"
+                            ? "bg-accent text-white shadow-xs font-black"
+                            : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                        }`}
+                      >
+                        <span className="truncate">Edit Product</span>
+                        {editingProductId && (
+                          <span className="text-[9px] px-1.5 py-0.2 bg-white/20 rounded-md">
+                            #{editingProductId}
+                          </span>
+                        )}
+                      </button>
+
+                      {/* 4. Reviews */}
+                      <button
+                        onClick={() => handleProductSubTabSwitch("reviews")}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                          isActive && productSubTab === "reviews"
+                            ? "bg-accent text-white shadow-xs font-black"
+                            : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                        }`}
+                      >
+                        <span className="truncate">Reviews</span>
+                        <span className="text-[9px] opacity-50 uppercase tracking-tighter">
+                          Soon
+                        </span>
+                      </button>
+                    </div>
                   )}
-                </button>
+                </div>
               );
             })}
           </nav>
@@ -2260,28 +2410,114 @@ export default function AdminDashboardPage() {
         <main className="flex-1 p-6 md:p-10 max-w-[1600px] w-full overflow-x-hidden transition-all duration-300">
         {/* PRODUCTS TAB */}
         {activeTab === "products" && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
-            {/* Add/Edit Product Form (1 Column) */}
-            <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm h-fit lg:sticky lg:top-24 transition-colors duration-300">
-              <div className="flex justify-between items-center mb-6 pb-2 border-b border-foreground/10">
-                <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-                  {editingProductId
-                    ? `Edit Product #${editingProductId}`
-                    : "Add New Product"}
-                </h2>
-                {editingProductId && (
-                  <button
-                    onClick={handleCancelEdit}
-                    className="text-[10px] font-bold uppercase tracking-wider text-red-500 hover:underline"
-                  >
-                    Cancel Edit
-                  </button>
-                )}
+          <div className="flex flex-col gap-6">
+            {/* Top Sub-tabs Navigation Bar */}
+            <div className="flex items-center justify-between flex-wrap gap-3 pb-3 border-b border-foreground/10">
+              <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
+                <button
+                  type="button"
+                  onClick={() => handleProductSubTabSwitch("all")}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                    productSubTab === "all"
+                      ? "bg-accent text-white shadow-sm font-black"
+                      : "bg-secondary text-foreground/70 hover:text-foreground hover:bg-foreground/5 border border-foreground/10"
+                  }`}
+                >
+                  All Products ({totalProductsCount || products.length})
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleProductSubTabSwitch("add")}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                    productSubTab === "add"
+                      ? "bg-accent text-white shadow-sm font-black"
+                      : "bg-secondary text-foreground/70 hover:text-foreground hover:bg-foreground/5 border border-foreground/10"
+                  }`}
+                >
+                  <span>+</span>
+                  <span>Add New Product</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleProductSubTabSwitch("edit")}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                    productSubTab === "edit"
+                      ? "bg-accent text-white shadow-sm font-black"
+                      : "bg-secondary text-foreground/70 hover:text-foreground hover:bg-foreground/5 border border-foreground/10"
+                  }`}
+                >
+                  Edit Product {editingProductId ? `#${editingProductId}` : ""}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleProductSubTabSwitch("reviews")}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+                    productSubTab === "reviews"
+                      ? "bg-accent text-white shadow-sm font-black"
+                      : "bg-secondary text-foreground/70 hover:text-foreground hover:bg-foreground/5 border border-foreground/10"
+                  }`}
+                >
+                  <span>Reviews</span>
+                  <span className="text-[9px] opacity-60 uppercase bg-foreground/10 px-1.5 py-0.5 rounded-md">
+                    Empty
+                  </span>
+                </button>
               </div>
-              <form
-                onSubmit={handleSaveProduct}
-                className="flex flex-col gap-4"
-              >
+
+              {productSubTab === "edit" && editingProductId && (
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="text-xs font-bold uppercase tracking-wider text-red-500 hover:underline px-3 py-1.5 rounded-xl border border-red-500/20 bg-red-500/5 cursor-pointer"
+                >
+                  Exit Edit Mode
+                </button>
+              )}
+            </div>
+
+            {/* SUBTAB 4: Reviews (Empty state placeholder) */}
+            {productSubTab === "reviews" && (
+              <div className="bg-secondary text-foreground p-12 rounded-3xl border border-foreground/10 shadow-sm flex flex-col items-center justify-center text-center gap-3">
+                <div className="w-16 h-16 rounded-2xl bg-primary/5 dark:bg-primary/20 flex items-center justify-center text-2xl">
+                  ⭐
+                </div>
+                <h3 className="text-sm font-black uppercase tracking-wider">
+                  Product Reviews & Ratings
+                </h3>
+                <p className="text-xs text-foreground/60 max-w-sm">
+                  Customer product reviews and ratings will appear here. No reviews submitted yet.
+                </p>
+              </div>
+            )}
+
+            {/* SUBTAB 1, 2, 3: Products Form + Table View */}
+            {productSubTab !== "reviews" && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
+                {/* Add/Edit Product Form (1 Column) */}
+                {(productSubTab === "add" || productSubTab === "edit" || !editingProductId) && (
+                  <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm h-fit lg:sticky lg:top-24 transition-colors duration-300">
+                    <div className="flex justify-between items-center mb-6 pb-2 border-b border-foreground/10">
+                      <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
+                        {editingProductId
+                          ? `Edit Product #${editingProductId}`
+                          : "Add New Product"}
+                      </h2>
+                      {editingProductId && (
+                        <button
+                          onClick={handleCancelEdit}
+                          className="text-[10px] font-bold uppercase tracking-wider text-red-500 hover:underline"
+                        >
+                          Cancel Edit
+                        </button>
+                      )}
+                    </div>
+                    <form
+                      onSubmit={handleSaveProduct}
+                      className="flex flex-col gap-4"
+                    >
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                     Product Title *
@@ -2998,9 +3234,10 @@ export default function AdminDashboardPage() {
                 </>
               )}
             </div>
+          )}
 
-            {/* Products Table (2 Columns) */}
-            <div className="lg:col-span-2 bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm overflow-x-auto transition-colors duration-300">
+            {/* Products Table */}
+            <div className={`${(productSubTab === "add" || productSubTab === "edit") ? "lg:col-span-2" : "lg:col-span-3"} bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm overflow-x-auto transition-colors duration-300`}>
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
                 <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
                   All Products ({totalProductsCount || products.length})
@@ -3123,6 +3360,8 @@ export default function AdminDashboardPage() {
                 </div>
               )}
             </div>
+            </div>
+            )}
           </div>
         )}
 
