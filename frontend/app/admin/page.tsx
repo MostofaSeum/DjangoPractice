@@ -2492,198 +2492,188 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
             )}
+            {/* SUBTAB 2: Add New Product (Dedicated Creation View) */}
+            {productSubTab === "add" && (
+              <div className="max-w-3xl mx-auto w-full bg-secondary text-foreground p-8 md:p-10 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
+                <div className="flex justify-between items-center mb-6 pb-3 border-b border-foreground/10">
+                  <div>
+                    <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
+                      Add New Product
+                    </h2>
+                    <p className="text-xs text-foreground/60 mt-0.5">
+                      Fill in the details below to create and publish a new product.
+                    </p>
+                  </div>
+                </div>
+                <form
+                  onSubmit={handleSaveProduct}
+                  className="flex flex-col gap-4"
+                >
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                      Product Title *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={productForm.title}
+                      onChange={(e) =>
+                        setProductForm({ ...productForm, title: e.target.value })
+                      }
+                      placeholder="e.g. Neon Void Hoodie"
+                      className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+                    />
+                  </div>
 
-            {/* SUBTAB 1, 2, 3: Products Form + Table View */}
-            {productSubTab !== "reviews" && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
-                {/* Add/Edit Product Form (1 Column) */}
-                {(productSubTab === "add" || productSubTab === "edit" || !editingProductId) && (
-                  <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm h-fit lg:sticky lg:top-24 transition-colors duration-300">
-                    <div className="flex justify-between items-center mb-6 pb-2 border-b border-foreground/10">
-                      <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-                        {editingProductId
-                          ? `Edit Product #${editingProductId}`
-                          : "Add New Product"}
-                      </h2>
-                      {editingProductId && (
-                        <button
-                          onClick={handleCancelEdit}
-                          className="text-[10px] font-bold uppercase tracking-wider text-red-500 hover:underline"
-                        >
-                          Cancel Edit
-                        </button>
-                      )}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                        Unit Price (৳) *
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        required
+                        value={productForm.unit_price}
+                        onChange={(e) =>
+                          setProductForm({
+                            ...productForm,
+                            unit_price: e.target.value,
+                          })
+                        }
+                        placeholder="99.99"
+                        className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+                      />
                     </div>
-                    <form
-                      onSubmit={handleSaveProduct}
-                      className="flex flex-col gap-4"
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                        Inventory Stock *
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        value={productForm.inventory}
+                        onChange={(e) =>
+                          setProductForm({
+                            ...productForm,
+                            inventory: e.target.value,
+                          })
+                        }
+                        placeholder="10"
+                        className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                      Collection *
+                    </label>
+                    <select
+                      value={
+                        productForm.collection ||
+                        (collections.length > 0 ? String(collections[0].id) : "")
+                      }
+                      onChange={(e) =>
+                        setProductForm({
+                          ...productForm,
+                          collection: e.target.value,
+                        })
+                      }
+                      className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none cursor-pointer focus:ring-2 focus:ring-accent transition-all"
                     >
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Product Title *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={productForm.title}
-                    onChange={(e) =>
-                      setProductForm({ ...productForm, title: e.target.value })
-                    }
-                    placeholder="e.g. Neon Void Hoodie"
-                    className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                      Unit Price (৳) *
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      required
-                      value={productForm.unit_price}
-                      onChange={(e) =>
-                        setProductForm({
-                          ...productForm,
-                          unit_price: e.target.value,
-                        })
-                      }
-                      placeholder="99.99"
-                      className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
-                    />
+                      {collections.map((col) => (
+                        <option
+                          key={col.id}
+                          value={col.id}
+                          className="bg-secondary text-foreground"
+                        >
+                          {col.title}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                      Inventory Stock *
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      value={productForm.inventory}
-                      onChange={(e) =>
-                        setProductForm({
-                          ...productForm,
-                          inventory: e.target.value,
-                        })
-                      }
-                      placeholder="10"
-                      className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Collection *
-                  </label>
-                  <select
-                    value={
-                      productForm.collection ||
-                      (collections.length > 0 ? String(collections[0].id) : "")
-                    }
-                    onChange={(e) =>
-                      setProductForm({
-                        ...productForm,
-                        collection: e.target.value,
-                      })
-                    }
-                    className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none cursor-pointer focus:ring-2 focus:ring-accent transition-all"
-                  >
-                    {collections.map((col) => (
-                      <option
-                        key={col.id}
-                        value={col.id}
-                        className="bg-secondary text-foreground"
-                      >
-                        {col.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {(() => {
-                  const shortWords = productForm.short_description.trim()
-                    ? productForm.short_description.trim().split(/\s+/).length
-                    : 0;
-                  const detailWords = productForm.description.trim()
-                    ? productForm.description.trim().split(/\s+/).length
-                    : 0;
-                  return (
-                    <>
-                      <div className="flex flex-col gap-1">
-                        <div className="flex justify-between items-center">
-                          <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                            Short Description{" "}
-                            <span className="text-red-500">*</span>
-                          </label>
-                          <span
-                            className={`text-[10px] font-bold ${
-                              shortWords > 150 ? "text-red-500" : "opacity-60"
+                  {(() => {
+                    const shortWords = productForm.short_description.trim()
+                      ? productForm.short_description.trim().split(/\s+/).length
+                      : 0;
+                    const detailWords = productForm.description.trim()
+                      ? productForm.description.trim().split(/\s+/).length
+                      : 0;
+                    return (
+                      <>
+                        <div className="flex flex-col gap-1">
+                          <div className="flex justify-between items-center">
+                            <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                              Short Description{" "}
+                              <span className="text-red-500">*</span>
+                            </label>
+                            <span
+                              className={`text-[10px] font-bold ${
+                                shortWords > 150 ? "text-red-500" : "opacity-60"
+                              }`}
+                            >
+                              {shortWords}/150 words
+                            </span>
+                          </div>
+                          <textarea
+                            rows={2}
+                            required
+                            value={productForm.short_description}
+                            onChange={(e) =>
+                              setProductForm({
+                                ...productForm,
+                                short_description: e.target.value,
+                              })
+                            }
+                            placeholder="Brief summarize your product"
+                            className={`px-4 py-2.5 border rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none transition-all ${
+                              shortWords > 150
+                                ? "border-red-500 ring-1 ring-red-500"
+                                : "border-foreground/15 focus:ring-2 focus:ring-accent"
                             }`}
-                          >
-                            {shortWords}/150 words
-                          </span>
+                          />
                         </div>
-                        <textarea
-                          rows={2}
-                          required
-                          value={productForm.short_description}
-                          onChange={(e) =>
-                            setProductForm({
-                              ...productForm,
-                              short_description: e.target.value,
-                            })
-                          }
-                          placeholder="Brief summarize your product"
-                          className={`px-4 py-2.5 border rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none transition-all ${
-                            shortWords > 150
-                              ? "border-red-500 ring-1 ring-red-500"
-                              : "border-foreground/15 focus:ring-2 focus:ring-accent"
-                          }`}
-                        />
-                      </div>
 
-                      <div className="flex flex-col gap-1">
-                        <div className="flex justify-between items-center">
-                          <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                            Details Description{" "}
-                            <span className="text-red-500">*</span>
-                          </label>
-                          <span
-                            className={`text-[10px] font-bold ${
-                              detailWords > 500 ? "text-red-500" : "opacity-60"
+                        <div className="flex flex-col gap-1">
+                          <div className="flex justify-between items-center">
+                            <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                              Details Description{" "}
+                              <span className="text-red-500">*</span>
+                            </label>
+                            <span
+                              className={`text-[10px] font-bold ${
+                                detailWords > 500 ? "text-red-500" : "opacity-60"
+                              }`}
+                            >
+                              {detailWords}/500 words
+                            </span>
+                          </div>
+                          <textarea
+                            rows={4}
+                            required
+                            value={productForm.description}
+                            onChange={(e) =>
+                              setProductForm({
+                                ...productForm,
+                                description: e.target.value,
+                              })
+                            }
+                            placeholder="Full product details, materials, sizing, specifications"
+                            className={`px-4 py-2.5 border rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none transition-all ${
+                              detailWords > 500
+                                ? "border-red-500 ring-1 ring-red-500"
+                                : "border-foreground/15 focus:ring-2 focus:ring-accent"
                             }`}
-                          >
-                            {detailWords}/500 words
-                          </span>
+                          />
                         </div>
-                        <textarea
-                          rows={4}
-                          required
-                          value={productForm.description}
-                          onChange={(e) =>
-                            setProductForm({
-                              ...productForm,
-                              description: e.target.value,
-                            })
-                          }
-                          placeholder="Full product details, materials, sizing, specifications"
-                          className={`px-4 py-2.5 border rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none transition-all ${
-                            detailWords > 500
-                              ? "border-red-500 ring-1 ring-red-500"
-                              : "border-foreground/15 focus:ring-2 focus:ring-accent"
-                          }`}
-                        />
-                      </div>
-                    </>
-                  );
-                })()}
+                      </>
+                    );
+                  })()}
 
-                {/* In Creation Mode: Add Photos & Variants directly (Identical styling to edit mode) */}
-                {!editingProductId && (
+                  {/* Creation Mode: Add Photos & Variants directly */}
                   <div className="space-y-6 pt-4 border-t border-foreground/10">
                     {/* 1. Photos Section */}
                     <div className="space-y-3">
@@ -2734,7 +2724,7 @@ export default function AdminDashboardPage() {
                               className="object-cover w-full h-full opacity-90"
                             />
                             <div className="absolute top-3 left-3 bg-yellow-500 text-black font-black px-2.5 py-1 rounded-lg text-[9px] uppercase shadow-sm">
-                              Pending Upload (Cover)
+                              Cover (Main)
                             </div>
                             <button
                               type="button"
@@ -2755,33 +2745,30 @@ export default function AdminDashboardPage() {
 
                           {/* Thumbnails for Detail Photos */}
                           {newProductPhotoPreviews.length > 1 && (
-                            <div className="grid grid-cols-4 gap-3">
+                            <div className="grid grid-cols-4 gap-2">
                               {newProductPhotoPreviews
                                 .slice(1)
-                                .map((url, idx) => {
-                                  const realIdx = idx + 1;
+                                .map((previewUrl, idx) => {
+                                  const actualIdx = idx + 1;
                                   return (
                                     <div
-                                      key={url}
-                                      className="relative group rounded-xl overflow-hidden border-2 border-yellow-500/80 shadow-sm bg-secondary aspect-square w-full"
+                                      key={actualIdx}
+                                      className="relative group rounded-xl overflow-hidden border border-foreground/15 bg-secondary aspect-square"
                                     >
                                       <img
-                                        src={url}
-                                        alt={`Pending ${realIdx + 1}`}
-                                        className="object-cover w-full h-full opacity-90"
+                                        src={previewUrl}
+                                        alt={`Detail ${actualIdx}`}
+                                        className="object-cover w-full h-full"
                                       />
-                                      <div className="absolute top-1 left-1 bg-yellow-500 text-black text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm">
-                                        Pending
-                                      </div>
                                       <button
                                         type="button"
                                         onClick={() => {
-                                          URL.revokeObjectURL(url);
+                                          URL.revokeObjectURL(previewUrl);
                                           setNewProductPhotos((prev) =>
-                                            prev.filter((_, i) => i !== realIdx),
+                                            prev.filter((_, i) => i !== actualIdx),
                                           );
                                           setNewProductPhotoPreviews((prev) =>
-                                            prev.filter((_, i) => i !== realIdx),
+                                            prev.filter((_, i) => i !== actualIdx),
                                           );
                                         }}
                                         className="absolute inset-0 bg-black/60 text-white text-[9px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
@@ -2793,79 +2780,56 @@ export default function AdminDashboardPage() {
                                 })}
                             </div>
                           )}
+
+                          {newProductPhotoPreviews.length < 5 && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                newProductFileInputRef.current?.click()
+                              }
+                              className="w-full py-2.5 border-2 border-dashed border-foreground/20 rounded-xl text-xs font-bold uppercase tracking-wider hover:border-accent hover:text-accent transition-all flex items-center justify-center gap-2 cursor-pointer"
+                            >
+                              <span>+</span>
+                              <span>
+                                Add More Photos ({5 - newProductPhotoPreviews.length} left)
+                              </span>
+                            </button>
+                          )}
                         </div>
                       ) : (
+                        /* Empty Upload Dropzone */
                         <div
                           onClick={() =>
                             newProductFileInputRef.current?.click()
                           }
-                          className="rounded-2xl border-2 border-dashed border-accent/50 bg-accent/5 hover:bg-accent/10 cursor-pointer flex flex-col gap-2 items-center justify-center p-8 aspect-[4/3] w-full transition-all"
+                          className="border-2 border-dashed border-foreground/20 hover:border-accent rounded-2xl p-6 text-center cursor-pointer transition-all hover:bg-primary/5 flex flex-col items-center justify-center gap-2"
                         >
-                          <svg
-                            className="w-8 h-8 text-accent"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M12 4v16m8-8H4"
-                            />
-                          </svg>
-                          <span className="text-xs font-black uppercase text-accent tracking-wider">
-                            Select Main Cover Photo
-                          </span>
+                          <div className="w-10 h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center text-lg font-black">
+                            +
+                          </div>
+                          <div>
+                            <p className="text-xs font-black uppercase tracking-wider">
+                              Click to choose photos
+                            </p>
+                            <p className="text-[10px] opacity-60">
+                              Upload up to 5 photos (1st will be Cover Photo)
+                            </p>
+                          </div>
                         </div>
                       )}
-
-                      {/* Select More Button */}
-                      {newProductPhotos.length > 0 &&
-                        newProductPhotos.length < 5 && (
-                          <button
-                            type="button"
-                            onClick={() =>
-                              newProductFileInputRef.current?.click()
-                            }
-                            className="w-full py-2.5 px-4 rounded-xl border-2 border-dashed border-accent/40 bg-accent/5 hover:bg-accent/10 text-accent font-black text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
-                          >
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M12 4v16m8-8H4"
-                              />
-                            </svg>
-                            <span>
-                              + Select More Photos (
-                              {newProductPhotos.length}/5)
-                            </span>
-                          </button>
-                        )}
                     </div>
 
-                    {/* 2. Variants Section (Matching ProductVariantsManager Style) */}
-                    <div className="mt-4 pt-4 border-t border-foreground/10">
-                      <div className="flex items-center justify-between mb-3">
+                    {/* 2. Variants Section */}
+                    <div className="space-y-3 pt-4 border-t border-foreground/10">
+                      <div className="flex justify-between items-center">
                         <div>
-                          <h3 className="text-xs font-black uppercase tracking-widest text-foreground flex items-center gap-2">
-                            <span>
-                              Product Variants ({newProductVariants.length})
-                            </span>
-                          </h3>
-                          <p className="text-[10px] opacity-60">
-                            Add colors, shades, sizes, or custom pricing options
-                            for this product.
+                          <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                            Product Variants (Optional)
+                          </label>
+                          <p className="text-[9px] opacity-60">
+                            Add different colors, sizes, or prices
                           </p>
                         </div>
-
                         <button
                           type="button"
                           onClick={() => {
@@ -2881,70 +2845,56 @@ export default function AdminDashboardPage() {
                             });
                             setIsNewVariantModalOpen(true);
                           }}
-                          className="px-3 py-1.5 bg-accent text-button-fg rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity shadow-sm flex items-center gap-1 cursor-pointer"
+                          className="px-3 py-1.5 rounded-lg bg-accent/20 text-accent hover:bg-accent/30 text-[10px] font-black uppercase tracking-wider border border-accent/20 transition-colors cursor-pointer"
                         >
-                          <span>+ Add Variant</span>
+                          + Add Variant
                         </button>
                       </div>
 
                       {/* Variants List */}
                       {newProductVariants.length > 0 ? (
-                        <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                          {newProductVariants.map((v, vIdx) => (
+                        <div className="space-y-2">
+                          {newProductVariants.map((variant, idx) => (
                             <div
-                              key={vIdx}
-                              className="flex items-center justify-between p-3 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 hover:border-foreground/20 transition-all text-xs"
+                              key={idx}
+                              className="flex items-center justify-between p-2.5 rounded-xl border border-foreground/10 bg-primary/5 dark:bg-primary/20 text-xs"
                             >
-                              <div className="flex items-center gap-3 min-w-0">
-                                {v.color_code ? (
-                                  <div
-                                    className="w-6 h-6 rounded-full border border-white/30 shadow-xs shrink-0"
-                                    style={{ backgroundColor: v.color_code }}
-                                    title={v.color_name || v.color_code}
+                              <div className="flex items-center gap-2.5">
+                                {variant.color_code && (
+                                  <span
+                                    className="w-4 h-4 rounded-full border border-black/20 shrink-0"
+                                    style={{
+                                      backgroundColor: variant.color_code,
+                                    }}
                                   />
-                                ) : (
-                                  <div className="w-6 h-6 rounded-full bg-primary/20 border border-foreground/10 flex items-center justify-center text-[9px] font-bold opacity-60 shrink-0">
-                                    N/A
-                                  </div>
                                 )}
-
-                                <div className="truncate">
-                                  <div className="font-bold text-foreground truncate flex items-center gap-1.5">
-                                    <span>{v.name}</span>
-                                    {v.size && (
-                                      <span className="px-1.5 py-0.5 rounded bg-primary/10 text-[9px] font-black uppercase text-foreground/80">
-                                        {v.size}
+                                <div>
+                                  <p className="font-bold">{variant.name}</p>
+                                  <div className="flex items-center gap-2 text-[10px] opacity-60">
+                                    {variant.color_name && (
+                                      <span>{variant.color_name}</span>
+                                    )}
+                                    {variant.size && (
+                                      <span>Size: {variant.size}</span>
+                                    )}
+                                    <span>Stock: {variant.inventory}</span>
+                                    {variant.price_override && (
+                                      <span className="text-accent font-bold">
+                                        ৳{Number(variant.price_override).toFixed(2)}
                                       </span>
                                     )}
                                   </div>
-                                  <div className="text-[10px] opacity-60 flex items-center gap-2">
-                                    {v.color_name && (
-                                      <span>Color: {v.color_name}</span>
-                                    )}
-                                    <span>Stock: {v.inventory}</span>
-                                    <span className="text-accent font-bold">
-                                      ৳
-                                      {v.price_override
-                                        ? Number(v.price_override).toFixed(2)
-                                        : Number(
-                                            parseFloat(productForm.unit_price) ||
-                                              0,
-                                          ).toFixed(2)}
-                                      {v.price_override && " (Override)"}
-                                    </span>
-                                  </div>
                                 </div>
                               </div>
-
-                              <div className="flex items-center gap-1.5 shrink-0">
+                              <div className="flex items-center gap-1">
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    setEditingNewVariantIndex(vIdx);
-                                    setNewVariantForm({ ...v });
+                                    setEditingNewVariantIndex(idx);
+                                    setNewVariantForm({ ...variant });
                                     setIsNewVariantModalOpen(true);
                                   }}
-                                  className="px-2.5 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-[10px] font-bold uppercase transition-colors cursor-pointer"
+                                  className="px-2 py-1 text-[10px] font-bold text-accent hover:underline cursor-pointer"
                                 >
                                   Edit
                                 </button>
@@ -2952,10 +2902,10 @@ export default function AdminDashboardPage() {
                                   type="button"
                                   onClick={() =>
                                     setNewProductVariants((prev) =>
-                                      prev.filter((_, i) => i !== vIdx),
+                                      prev.filter((_, i) => i !== idx),
                                     )
                                   }
-                                  className="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-500 text-[10px] font-bold uppercase transition-colors cursor-pointer"
+                                  className="px-2 py-1 text-[10px] font-bold text-red-500 hover:underline cursor-pointer"
                                 >
                                   Delete
                                 </button>
@@ -2964,7 +2914,7 @@ export default function AdminDashboardPage() {
                           ))}
                         </div>
                       ) : (
-                        <div className="p-4 rounded-2xl border border-dashed border-foreground/20 text-center text-xs opacity-60 bg-primary/5">
+                        <div className="p-3.5 rounded-xl border border-foreground/10 bg-primary/5 dark:bg-primary/20 text-[10px] opacity-60 text-center">
                           No variants added yet. This product will use its base
                           price (৳
                           {Number(
@@ -2975,287 +2925,524 @@ export default function AdminDashboardPage() {
                       )}
                     </div>
                   </div>
-                )}
 
-                <button
-                  type="submit"
-                  className="w-full mt-2 py-3 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md cursor-pointer"
-                >
-                  {editingProductId ? "Update Product" : "Create Product"}
-                </button>
-              </form>
+                  <button
+                    type="submit"
+                    className="w-full mt-4 py-4 bg-button-bg text-button-fg rounded-2xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md cursor-pointer"
+                  >
+                    Create Product
+                  </button>
+                </form>
+              </div>
+            )}
 
-              {/* Modal for adding/editing variant during creation */}
-              {mounted &&
-                isNewVariantModalOpen &&
-                createPortal(
-                  <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-                    <div className="bg-secondary text-foreground rounded-3xl p-6 max-w-md w-full shadow-2xl border border-foreground/10 relative max-h-[90vh] overflow-y-auto overflow-x-hidden">
-                      <div className="flex justify-between items-center pb-3 border-b border-foreground/10 mb-4">
-                        <h4 className="text-sm font-black uppercase tracking-tight">
-                          {editingNewVariantIndex !== null
-                            ? "Edit Product Variant"
-                            : "Add New Product Variant"}
-                        </h4>
-                        <button
-                          type="button"
-                          onClick={() => setIsNewVariantModalOpen(false)}
-                          className="w-7 h-7 flex items-center justify-center rounded-full bg-primary/10 hover:bg-primary/20 text-xs font-bold transition-colors cursor-pointer"
-                        >
-                          ✕
-                        </button>
+            {/* SUBTAB 3: Edit Product (Dedicated Edit View) */}
+            {productSubTab === "edit" && (
+              <div className="max-w-3xl mx-auto w-full bg-secondary text-foreground p-8 md:p-10 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
+                <div className="flex justify-between items-center mb-6 pb-3 border-b border-foreground/10">
+                  <div>
+                    <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
+                      Edit Product {editingProductId ? `#${editingProductId}` : ""}
+                    </h2>
+                    <p className="text-xs text-foreground/60 mt-0.5">
+                      Select a product to populate its current information, images, and variants.
+                    </p>
+                  </div>
+                  {editingProductId && (
+                    <button
+                      type="button"
+                      onClick={handleCancelEdit}
+                      className="text-xs font-bold uppercase tracking-wider text-red-500 hover:underline"
+                    >
+                      Clear Selection
+                    </button>
+                  )}
+                </div>
+
+                {/* Product Selector Dropdown / Search */}
+                <div className="mb-6 p-4 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 flex flex-col gap-2">
+                  <label className="text-[10px] font-black uppercase tracking-wider opacity-70">
+                    Select Product to Edit
+                  </label>
+                  <select
+                    value={editingProductId ? String(editingProductId) : ""}
+                    onChange={(e) => {
+                      const selectedId = Number(e.target.value);
+                      if (!selectedId) {
+                        handleCancelEdit();
+                        return;
+                      }
+                      const found = products.find((p) => p.id === selectedId);
+                      if (found) {
+                        handleSelectProduct(found);
+                      }
+                    }}
+                    className="w-full px-4 py-3 border border-foreground/15 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent cursor-pointer"
+                  >
+                    <option value="">-- Choose a product to edit --</option>
+                    {products.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        #{p.id} - {p.title} (৳{Number(p.unit_price).toFixed(2)})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {editingProductId ? (
+                  <form
+                    onSubmit={handleSaveProduct}
+                    className="flex flex-col gap-4"
+                  >
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                        Product Title *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={productForm.title}
+                        onChange={(e) =>
+                          setProductForm({ ...productForm, title: e.target.value })
+                        }
+                        placeholder="e.g. Neon Void Hoodie"
+                        className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                          Unit Price (৳) *
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          required
+                          value={productForm.unit_price}
+                          onChange={(e) =>
+                            setProductForm({
+                              ...productForm,
+                              unit_price: e.target.value,
+                            })
+                          }
+                          placeholder="99.99"
+                          className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+                        />
                       </div>
 
-                      <form
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          if (!newVariantForm.name.trim()) return;
-
-                          if (editingNewVariantIndex !== null) {
-                            setNewProductVariants((prev) =>
-                              prev.map((item, idx) =>
-                                idx === editingNewVariantIndex
-                                ? { ...newVariantForm }
-                                : item,
-                              ),
-                            );
-                          } else {
-                            setNewProductVariants((prev) => [
-                              ...prev,
-                              { ...newVariantForm },
-                            ]);
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                          Inventory Stock *
+                        </label>
+                        <input
+                          type="number"
+                          required
+                          value={productForm.inventory}
+                          onChange={(e) =>
+                            setProductForm({
+                              ...productForm,
+                              inventory: e.target.value,
+                            })
                           }
-                          setIsNewVariantModalOpen(false);
-                        }}
-                        className="space-y-3.5"
-                      >
-                        {/* Variant Name */}
-                        <div className="flex flex-col gap-1">
-                          <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                            Variant Title / Name{" "}
-                            <span className="text-red-500">*</span>
-                          </label>
-                          <input
-                            type="text"
-                            required
-                            value={newVariantForm.name}
-                            onChange={(e) =>
-                              setNewVariantForm({
-                                ...newVariantForm,
-                                name: e.target.value,
-                              })
-                            }
-                            placeholder="e.g. 01 Velvet Rose, 50ml, Medium Beige"
-                            className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                          />
-                        </div>
+                          placeholder="10"
+                          className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+                        />
+                      </div>
+                    </div>
 
-                        {/* Color Settings (Optional Shades) */}
-                        <div className="grid grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                        Collection *
+                      </label>
+                      <select
+                        value={
+                          productForm.collection ||
+                          (collections.length > 0 ? String(collections[0].id) : "")
+                        }
+                        onChange={(e) =>
+                          setProductForm({
+                            ...productForm,
+                            collection: e.target.value,
+                          })
+                        }
+                        className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none cursor-pointer focus:ring-2 focus:ring-accent transition-all"
+                      >
+                        {collections.map((col) => (
+                          <option
+                            key={col.id}
+                            value={col.id}
+                            className="bg-secondary text-foreground"
+                          >
+                            {col.title}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {(() => {
+                      const shortWords = productForm.short_description.trim()
+                        ? productForm.short_description.trim().split(/\s+/).length
+                        : 0;
+                      const detailWords = productForm.description.trim()
+                        ? productForm.description.trim().split(/\s+/).length
+                        : 0;
+                      return (
+                        <>
                           <div className="flex flex-col gap-1">
-                            <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                              Shade / Color Name{" "}
-                              <span className="opacity-40 lowercase">
-                                (optional)
+                            <div className="flex justify-between items-center">
+                              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                                Short Description{" "}
+                                <span className="text-red-500">*</span>
+                              </label>
+                              <span
+                                className={`text-[10px] font-bold ${
+                                  shortWords > 150 ? "text-red-500" : "opacity-60"
+                                }`}
+                              >
+                                {shortWords}/150 words
                               </span>
-                            </label>
-                            <input
-                              type="text"
-                              value={newVariantForm.color_name}
+                            </div>
+                            <textarea
+                              rows={2}
+                              required
+                              value={productForm.short_description}
                               onChange={(e) =>
-                                setNewVariantForm({
-                                  ...newVariantForm,
-                                  color_name: e.target.value,
+                                setProductForm({
+                                  ...productForm,
+                                  short_description: e.target.value,
                                 })
                               }
-                              placeholder="e.g. Velvet Rose (leave blank if N/A)"
-                              className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                              placeholder="Brief summarize your product"
+                              className={`px-4 py-2.5 border rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none transition-all ${
+                                shortWords > 150
+                                  ? "border-red-500 ring-1 ring-red-500"
+                                  : "border-foreground/15 focus:ring-2 focus:ring-accent"
+                              }`}
                             />
                           </div>
 
                           <div className="flex flex-col gap-1">
                             <div className="flex justify-between items-center">
                               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                                Color Hex{" "}
-                                <span className="opacity-40 lowercase">
-                                  (optional)
-                                </span>
+                                Details Description{" "}
+                                <span className="text-red-500">*</span>
                               </label>
-                              {newVariantForm.color_code && (
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    setNewVariantForm({
-                                      ...newVariantForm,
-                                      color_code: "",
-                                    })
-                                  }
-                                  className="text-[9px] font-bold text-red-500 hover:underline cursor-pointer"
-                                >
-                                  Clear
-                                </button>
-                              )}
+                              <span
+                                className={`text-[10px] font-bold ${
+                                  detailWords > 500 ? "text-red-500" : "opacity-60"
+                                }`}
+                              >
+                                {detailWords}/500 words
+                              </span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="color"
-                                value={newVariantForm.color_code || "#000000"}
-                                onChange={(e) =>
-                                  setNewVariantForm({
-                                    ...newVariantForm,
-                                    color_code: e.target.value,
-                                  })
-                                }
-                                className="w-9 h-8 rounded-lg cursor-pointer bg-transparent border-0 p-0 shrink-0"
-                              />
-                              <input
-                                type="text"
-                                value={newVariantForm.color_code}
-                                onChange={(e) =>
-                                  setNewVariantForm({
-                                    ...newVariantForm,
-                                    color_code: e.target.value,
-                                  })
-                                }
-                                placeholder="#000000"
-                                className="w-full px-3 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent font-mono uppercase"
-                              />
-                            </div>
+                            <textarea
+                              rows={4}
+                              required
+                              value={productForm.description}
+                              onChange={(e) =>
+                                setProductForm({
+                                  ...productForm,
+                                  description: e.target.value,
+                                })
+                              }
+                              placeholder="Full product details, materials, sizing, specifications"
+                              className={`px-4 py-2.5 border rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none transition-all ${
+                                detailWords > 500
+                                  ? "border-red-500 ring-1 ring-red-500"
+                                  : "border-foreground/15 focus:ring-2 focus:ring-accent"
+                              }`}
+                            />
                           </div>
+                        </>
+                      );
+                    })()}
+
+                    {/* Photos & Variants Management for Existing Product */}
+                    <div className="mt-4 pt-4 border-t border-foreground/10 space-y-4">
+                      <ImageUploadModal
+                        productId={editingProductId}
+                        onSuccess={fetchAdminData}
+                        onUnsavedChange={setHasUnsavedPhotos}
+                      />
+
+                      <ProductVariantsManager
+                        productId={editingProductId}
+                        productTitle={productForm.title}
+                        basePrice={parseFloat(productForm.unit_price) || 0}
+                        token={token}
+                        onVariantsUpdated={fetchAdminData}
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full mt-4 py-4 bg-button-bg text-button-fg rounded-2xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md cursor-pointer"
+                    >
+                      Update Product
+                    </button>
+                  </form>
+                ) : (
+                  <div className="p-10 border-2 border-dashed border-foreground/15 rounded-3xl text-center flex flex-col items-center justify-center gap-2">
+                    <p className="text-xs font-bold uppercase tracking-wider text-foreground/70">
+                      No product selected
+                    </p>
+                    <p className="text-[11px] text-foreground/50">
+                      Please choose a product from the dropdown above or click on any product from &ldquo;All Products&rdquo;.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Modal for adding/editing variant during creation */}
+            {mounted &&
+              isNewVariantModalOpen &&
+              createPortal(
+                <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+                  <div className="bg-secondary text-foreground rounded-3xl p-6 max-w-md w-full shadow-2xl border border-foreground/10 relative max-h-[90vh] overflow-y-auto overflow-x-hidden">
+                    <div className="flex justify-between items-center pb-3 border-b border-foreground/10 mb-4">
+                      <h4 className="text-sm font-black uppercase tracking-tight">
+                        {editingNewVariantIndex !== null
+                          ? "Edit Product Variant"
+                          : "Add New Product Variant"}
+                      </h4>
+                      <button
+                        type="button"
+                        onClick={() => setIsNewVariantModalOpen(false)}
+                        className="w-7 h-7 flex items-center justify-center rounded-full bg-primary/10 hover:bg-primary/20 text-xs font-bold transition-colors cursor-pointer"
+                      >
+                        ✕
+                      </button>
+                    </div>
+
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        if (!newVariantForm.name.trim()) return;
+
+                        if (editingNewVariantIndex !== null) {
+                          setNewProductVariants((prev) =>
+                            prev.map((item, idx) =>
+                              idx === editingNewVariantIndex
+                              ? { ...newVariantForm }
+                              : item,
+                            ),
+                          );
+                        } else {
+                          setNewProductVariants((prev) => [
+                            ...prev,
+                            { ...newVariantForm },
+                          ]);
+                        }
+                        setIsNewVariantModalOpen(false);
+                      }}
+                      className="space-y-3.5"
+                    >
+                      {/* Variant Name */}
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                          Variant Title / Name{" "}
+                          <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={newVariantForm.name}
+                          onChange={(e) =>
+                            setNewVariantForm({
+                              ...newVariantForm,
+                              name: e.target.value,
+                            })
+                          }
+                          placeholder="e.g. 01 Velvet Rose, 50ml, Medium Beige"
+                          className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                        />
+                      </div>
+
+                      {/* Color Settings (Optional Shades) */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="flex flex-col gap-1">
+                          <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                            Shade / Color Name{" "}
+                            <span className="opacity-40 lowercase">
+                              (optional)
+                            </span>
+                          </label>
+                          <input
+                            type="text"
+                            value={newVariantForm.color_name}
+                            onChange={(e) =>
+                              setNewVariantForm({
+                                ...newVariantForm,
+                                color_name: e.target.value,
+                              })
+                            }
+                            placeholder="e.g. Velvet Rose (leave blank if N/A)"
+                            className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                          />
                         </div>
 
-                        {/* Size, Price, Inventory Grid */}
-                        <div className="grid grid-cols-3 gap-2.5">
-                          <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex justify-between items-center">
                             <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                              Size / Volume{" "}
+                              Color Hex{" "}
                               <span className="opacity-40 lowercase">
-                                (opt)
+                                (optional)
                               </span>
                             </label>
+                            {newVariantForm.color_code && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setNewVariantForm({
+                                    ...newVariantForm,
+                                    color_code: "",
+                                  })
+                                }
+                                className="text-[9px] font-bold text-red-500 hover:underline cursor-pointer"
+                              >
+                                Clear
+                              </button>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={newVariantForm.color_code || "#000000"}
+                              onChange={(e) =>
+                                setNewVariantForm({
+                                  ...newVariantForm,
+                                  color_code: e.target.value,
+                                })
+                              }
+                              className="w-9 h-8 rounded-lg cursor-pointer bg-transparent border-0 p-0 shrink-0"
+                            />
                             <input
                               type="text"
-                              value={newVariantForm.size}
+                              value={newVariantForm.color_code}
                               onChange={(e) =>
                                 setNewVariantForm({
                                   ...newVariantForm,
-                                  size: e.target.value,
+                                  color_code: e.target.value,
                                 })
                               }
-                              placeholder="e.g. 50ml, L"
-                              className="w-full px-3 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                            />
-                          </div>
-
-                          <div className="flex flex-col gap-1">
-                            <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                              Price (৳){" "}
-                              <span className="opacity-40 lowercase">
-                                (opt)
-                              </span>
-                            </label>
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={newVariantForm.price_override}
-                              onChange={(e) =>
-                                setNewVariantForm({
-                                  ...newVariantForm,
-                                  price_override: e.target.value,
-                                })
-                              }
-                              placeholder={productForm.unit_price || "Base"}
-                              className="w-full px-3 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                            />
-                          </div>
-
-                          <div className="flex flex-col gap-1">
-                            <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                              Stock *
-                            </label>
-                            <input
-                              type="number"
-                              required
-                              value={newVariantForm.inventory}
-                              onChange={(e) =>
-                                setNewVariantForm({
-                                  ...newVariantForm,
-                                  inventory: e.target.value,
-                                })
-                              }
-                              placeholder="10"
-                              className="w-full px-3 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                              placeholder="#000000"
+                              className="w-full px-3 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent font-mono uppercase"
                             />
                           </div>
                         </div>
+                      </div>
 
-                        {/* Modal Footer */}
-                        <div className="flex justify-end gap-2 pt-3 border-t border-foreground/10">
-                          <button
-                            type="button"
-                            onClick={() => setIsNewVariantModalOpen(false)}
-                            className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-primary/10 transition-colors cursor-pointer"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="submit"
-                            className="px-5 py-2 rounded-xl bg-button-bg text-button-fg text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity shadow-md cursor-pointer"
-                          >
-                            {editingNewVariantIndex !== null
-                              ? "Save Changes"
-                              : "Add Variant"}
-                          </button>
+                      {/* Size, Price, Inventory Grid */}
+                      <div className="grid grid-cols-3 gap-2.5">
+                        <div className="flex flex-col gap-1">
+                          <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                            Size / Volume{" "}
+                            <span className="opacity-40 lowercase">
+                              (opt)
+                            </span>
+                          </label>
+                          <input
+                            type="text"
+                            value={newVariantForm.size}
+                            onChange={(e) =>
+                              setNewVariantForm({
+                                ...newVariantForm,
+                                size: e.target.value,
+                              })
+                            }
+                            placeholder="e.g. 50ml, L"
+                            className="w-full px-3 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                          />
                         </div>
-                      </form>
-                    </div>
-                  </div>,
-                  document.body,
-                )}
 
-              {/* Photo Upload & Variants Section when editing an existing product */}
-              {editingProductId && (
-                <>
-                  <div className="mt-4 pt-4 border-t border-foreground/10">
-                    <ImageUploadModal
-                      productId={editingProductId}
-                      onSuccess={fetchAdminData}
-                      onUnsavedChange={setHasUnsavedPhotos}
-                    />
+                        <div className="flex flex-col gap-1">
+                          <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                            Price (৳){" "}
+                            <span className="opacity-40 lowercase">
+                              (opt)
+                            </span>
+                          </label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={newVariantForm.price_override}
+                            onChange={(e) =>
+                              setNewVariantForm({
+                                ...newVariantForm,
+                                price_override: e.target.value,
+                              })
+                            }
+                            placeholder={productForm.unit_price || "Base"}
+                            className="w-full px-3 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                          <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                            Stock *
+                          </label>
+                          <input
+                            type="number"
+                            required
+                            value={newVariantForm.inventory}
+                            onChange={(e) =>
+                              setNewVariantForm({
+                                ...newVariantForm,
+                                inventory: e.target.value,
+                              })
+                            }
+                            placeholder="10"
+                            className="w-full px-3 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Modal Footer */}
+                      <div className="flex justify-end gap-2 pt-3 border-t border-foreground/10">
+                        <button
+                          type="button"
+                          onClick={() => setIsNewVariantModalOpen(false)}
+                          className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-primary/10 transition-colors cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="px-5 py-2 rounded-xl bg-button-bg text-button-fg text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity shadow-md cursor-pointer"
+                        >
+                          {editingNewVariantIndex !== null
+                            ? "Save Changes"
+                            : "Add Variant"}
+                        </button>
+                      </div>
+                    </form>
                   </div>
-
-                  <ProductVariantsManager
-                    productId={editingProductId}
-                    productTitle={productForm.title}
-                    basePrice={parseFloat(productForm.unit_price) || 0}
-                    token={token}
-                    onVariantsUpdated={fetchAdminData}
-                  />
-                </>
+                </div>,
+                document.body,
               )}
-            </div>
-          )}
 
-            {/* Products Table */}
-            <div className={`${(productSubTab === "add" || productSubTab === "edit") ? "lg:col-span-2" : "lg:col-span-3"} bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm overflow-x-auto transition-colors duration-300`}>
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
-                <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-                  All Products ({totalProductsCount || products.length})
-                </h2>
-                <ProductSearchBar
-                  mode="admin"
-                  initialSearch={activeProductQuery}
-                  onSelectProduct={(prod) => handleSelectProduct(prod as any)}
-                  onSearchSubmit={(q) => {
-                    setActiveProductQuery(q);
-                    setProdPage(1);
-                  }}
-                  onClear={() => {
-                    setActiveProductQuery("");
-                    setProdPage(1);
-                  }}
-                />
-              </div>
+            {/* SUBTAB 1: All Products (Full-Width Table View) */}
+            {productSubTab === "all" && (
+              <div className="w-full bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm overflow-x-auto transition-colors duration-300">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
+                  <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
+                    All Products ({totalProductsCount || products.length})
+                  </h2>
+                  <ProductSearchBar
+                    mode="admin"
+                    initialSearch={activeProductQuery}
+                    onSelectProduct={(prod) => handleSelectProduct(prod as any)}
+                    onSearchSubmit={(q) => {
+                      setActiveProductQuery(q);
+                      setProdPage(1);
+                    }}
+                    onClear={() => {
+                      setActiveProductQuery("");
+                      setProdPage(1);
+                    }}
+                  />
+                </div>
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-foreground/10 text-[10px] font-black uppercase tracking-wider opacity-60">
@@ -3360,10 +3547,9 @@ export default function AdminDashboardPage() {
                 </div>
               )}
             </div>
-            </div>
-            )}
-          </div>
-        )}
+          )}
+        </div>
+      )}
 
         {/* COLLECTIONS TAB */}
         {activeTab === "collections" && (

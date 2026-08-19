@@ -1,3 +1,3 @@
-import ForgotPasswordPage from "../../../forgot-password/page";
+import ForgotPasswordPage from "../../forgot-password/page";
 
 export default ForgotPasswordPage;
