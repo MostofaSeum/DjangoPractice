@@ -143,9 +143,9 @@ export default function AdminSidebar({
                     setActiveTab(tab.id);
                   }
                 }}
-                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer group ${
+                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer group ${
                   isActive
-                    ? "bg-accent/15 text-white dark:text-foreground font-black border border-accent/40 shadow-xs"
+                    ? "bg-white/10 dark:bg-white/10 text-white dark:text-foreground font-black border border-white/25 dark:border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.1)] ring-1 ring-white/10"
                     : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5 border border-transparent"
                 }`}
                 title={isSidebarCollapsed ? tab.label : undefined}
