@@ -2119,10 +2119,98 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const [isRefreshingTab, setIsRefreshingTab] = useState(false);
+
+  const handleRefreshCurrentTab = async () => {
+    if (!token) return;
+    try {
+      setIsRefreshingTab(true);
+      if (activeTab === "products") {
+        await fetchAdminData(prodPage, activeProductQuery, false);
+      } else if (activeTab === "collections") {
+        const colRes = await fetch(`${API_BASE}/store/collections/`, {
+          cache: "no-store",
+        });
+        if (colRes.ok) {
+          const colData = await colRes.json();
+          setCollections(Array.isArray(colData) ? colData : colData.results || []);
+        }
+      } else if (activeTab === "orders") {
+        const orderRes = await fetch(`${API_BASE}/store/orders/`, {
+          headers: { Authorization: `JWT ${token}` },
+        });
+        if (orderRes.ok) {
+          const orderData = await orderRes.json();
+          setOrders(Array.isArray(orderData) ? orderData : orderData.results || []);
+        }
+      } else if (activeTab === "customers") {
+        const custRes = await fetch(`${API_BASE}/store/customers/`, {
+          headers: { Authorization: `JWT ${token}` },
+        });
+        if (custRes.ok) {
+          const custData = await custRes.json();
+          setCustomers(Array.isArray(custData) ? custData : custData.results || []);
+        }
+      } else if (activeTab === "promotions") {
+        await fetchAllProductsForPromo();
+        await fetchDeliveryRules();
+      } else if (activeTab === "coupons") {
+        await fetchCoupons();
+      } else if (activeTab === "payments") {
+        await fetchPaymentSettings();
+      } else if (activeTab === "delivery") {
+        await fetchDeliverySettings();
+        await fetchDeliveryRules();
+      } else if (activeTab === "analytics") {
+        // Refresh orders and products for analytics
+        const [prodRes, orderRes] = await Promise.all([
+          fetch(`${API_BASE}/store/products/?page=1`, { cache: "no-store" }),
+          fetch(`${API_BASE}/store/orders/`, {
+            headers: { Authorization: `JWT ${token}` },
+          }),
+        ]);
+        if (prodRes.ok) {
+          const prodData = await prodRes.json();
+          setProducts(Array.isArray(prodData) ? prodData : prodData.results || []);
+        }
+        if (orderRes.ok) {
+          const orderData = await orderRes.json();
+          setOrders(Array.isArray(orderData) ? orderData : orderData.results || []);
+        }
+      }
+
+      Swal.fire({
+        position: "top-end",
+        icon: "success",
+        title: "Tab refreshed!",
+        showConfirmButton: false,
+        timer: 1200,
+        toast: true,
+      });
+    } catch (err) {
+      console.error("Error refreshing tab:", err);
+      Swal.fire({
+        position: "top-end",
+        icon: "error",
+        title: "Refresh failed",
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+      });
+    } finally {
+      setIsRefreshingTab(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground font-sans transition-colors duration-300 flex flex-col">
       {/* Modular Header */}
-      <AdminHeader onLogout={handleLogout} />
+      <AdminHeader
+        onLogout={handleLogout}
+        activeTab={activeTab}
+        onRefresh={handleRefreshCurrentTab}
+        isRefreshing={isRefreshingTab}
+      />
 
       {/* Main Layout Body: Left Sidebar + Right Content Area */}
       <div className="flex flex-1 relative min-h-[calc(100vh-65px)]">
