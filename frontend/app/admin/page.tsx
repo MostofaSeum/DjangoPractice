@@ -2352,7 +2352,13 @@ export default function AdminDashboardPage() {
           )}
 
           {/* 9. ANALYTICS TAB */}
-          {activeTab === "analytics" && <AnalyticsTab />}
+          {activeTab === "analytics" && (
+            <AnalyticsTab
+              orders={orders}
+              products={products}
+              customers={customers}
+            />
+          )}
         </main>
       </div>
     </div>
