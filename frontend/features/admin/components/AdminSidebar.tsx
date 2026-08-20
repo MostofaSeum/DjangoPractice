@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import Image from "next/image";
 import { AdminTab, ProductSubTab } from "../types";
 
@@ -39,77 +38,60 @@ export default function AdminSidebar({
   couponsCount,
   deliveryRulesCount,
 }: AdminSidebarProps) {
-  const tabs = useMemo(
-    () => [
-      {
-        id: "products" as AdminTab,
-        label: "Products",
-        count: productsCount,
-        icon: "/admin/products.png",
-      },
-      {
-        id: "collections" as AdminTab,
-        label: "Collections",
-        count: collectionsCount,
-        icon: "/admin/collections.png",
-      },
-      {
-        id: "orders" as AdminTab,
-        label: "Orders",
-        count: ordersCount,
-        icon: "/admin/orders.png",
-      },
-      {
-        id: "customers" as AdminTab,
-        label: "Customers",
-        count: customersCount,
-        icon: "/admin/customers.png",
-      },
-      {
-        id: "promotions" as AdminTab,
-        label: "Promotions",
-        count: promosCount,
-        icon: "/admin/sales.png",
-      },
-      {
-        id: "coupons" as AdminTab,
-        label: "Coupons",
-        count: couponsCount,
-        icon: "/admin/coupons.png",
-      },
-      {
-        id: "payments" as AdminTab,
-        label: "Payment Methods",
-        icon: "/admin/payment_settings.png",
-      },
-      {
-        id: "delivery" as AdminTab,
-        label: "Manage Delivery",
-        count: deliveryRulesCount > 0 ? deliveryRulesCount : undefined,
-        icon: "/admin/manage_delivery.png",
-      },
-      {
-        id: "analytics" as AdminTab,
-        label: "Analytics",
-        icon: "/admin/analytics.png",
-      },
-    ],
-    [
-      productsCount,
-      collectionsCount,
-      ordersCount,
-      customersCount,
-      promosCount,
-      couponsCount,
-      deliveryRulesCount,
-    ]
-  );
-
-  // Calculate active tab index for moving pill indicator
-  const activeIndex = useMemo(() => {
-    const idx = tabs.findIndex((t) => t.id === activeTab);
-    return idx >= 0 ? idx : 0;
-  }, [tabs, activeTab]);
+  const tabs = [
+    {
+      id: "products" as AdminTab,
+      label: "Products",
+      count: productsCount,
+      icon: "/admin/products.png",
+    },
+    {
+      id: "collections" as AdminTab,
+      label: "Collections",
+      count: collectionsCount,
+      icon: "/admin/collections.png",
+    },
+    {
+      id: "orders" as AdminTab,
+      label: "Orders",
+      count: ordersCount,
+      icon: "/admin/orders.png",
+    },
+    {
+      id: "customers" as AdminTab,
+      label: "Customers",
+      count: customersCount,
+      icon: "/admin/customers.png",
+    },
+    {
+      id: "promotions" as AdminTab,
+      label: "Promotions",
+      count: promosCount,
+      icon: "/admin/sales.png",
+    },
+    {
+      id: "coupons" as AdminTab,
+      label: "Coupons",
+      count: couponsCount,
+      icon: "/admin/coupons.png",
+    },
+    {
+      id: "payments" as AdminTab,
+      label: "Payment Methods",
+      icon: "/admin/payment_settings.png",
+    },
+    {
+      id: "delivery" as AdminTab,
+      label: "Manage Delivery",
+      count: deliveryRulesCount > 0 ? deliveryRulesCount : undefined,
+      icon: "/admin/manage_delivery.png",
+    },
+    {
+      id: "analytics" as AdminTab,
+      label: "Analytics",
+      icon: "/admin/analytics.png",
+    },
+  ];
 
   return (
     <aside
@@ -141,21 +123,13 @@ export default function AdminSidebar({
       </button>
 
       {/* Navigation Links */}
-      <nav className="p-3 space-y-1.5 sticky top-24 relative">
-        {/* Animated Floating Indicator Border that glides between tabs */}
-        <div
-          className="absolute left-3 right-3 h-[48px] rounded-2xl border border-white/25 dark:border-white/20 bg-white/10 dark:bg-white/10 shadow-[0_2px_12px_rgba(0,0,0,0.12)] ring-1 ring-white/10 pointer-events-none transition-all duration-300 ease-out z-0"
-          style={{
-            transform: `translateY(${activeIndex * (48 + 6)}px)`,
-          }}
-        />
-
+      <nav className="p-3 space-y-1.5 sticky top-24">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           const isProductsTab = tab.id === "products";
 
           return (
-            <div key={tab.id} className="flex flex-col relative z-10">
+            <div key={tab.id} className="flex flex-col">
               <button
                 onClick={() => {
                   if (isProductsTab) {
@@ -169,14 +143,19 @@ export default function AdminSidebar({
                     setActiveTab(tab.id);
                   }
                 }}
-                className={`w-full h-[48px] flex items-center justify-between px-3.5 rounded-2xl text-xs uppercase tracking-wider transition-colors duration-200 cursor-pointer group select-none ${
+                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs uppercase tracking-wider transition-all duration-200 cursor-pointer group relative ${
                   isActive
-                    ? "text-white dark:text-foreground font-black"
-                    : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground font-bold hover:bg-white/5"
+                    ? "bg-white/10 dark:bg-white/10 text-white dark:text-foreground font-black border border-white/25 dark:border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.1)] ring-1 ring-white/10"
+                    : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5 border border-transparent font-bold"
                 }`}
                 title={isSidebarCollapsed ? tab.label : undefined}
               >
-                <div className="flex items-center gap-3 min-w-0">
+                {/* Active Left Indicator Accent Bar */}
+                {isActive && (
+                  <span className="absolute left-1.5 top-2.5 bottom-2.5 w-1 rounded-full bg-accent animate-in fade-in zoom-in duration-200" />
+                )}
+
+                <div className={`flex items-center gap-3 min-w-0 ${isActive ? "pl-1.5" : ""} transition-all duration-200`}>
                   <div
                     className={`w-5 h-5 relative shrink-0 transition-transform duration-200 group-hover:scale-110 ${
                       isActive ? "scale-105" : "opacity-80"
