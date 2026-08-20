@@ -145,8 +145,8 @@ export default function AdminSidebar({
                 }}
                 className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer group ${
                   isActive
-                    ? "bg-white/15 dark:bg-white/10 text-white dark:text-foreground shadow-xs font-black"
-                    : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                    ? "bg-accent/15 text-white dark:text-foreground font-black border border-accent/40 shadow-xs"
+                    : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5 border border-transparent"
                 }`}
                 title={isSidebarCollapsed ? tab.label : undefined}
               >
@@ -182,7 +182,7 @@ export default function AdminSidebar({
                       <span
                         className={`px-2 py-0.5 rounded-full text-[10px] font-black transition-colors ${
                           isActive
-                            ? "bg-accent/20 text-accent"
+                            ? "bg-accent text-white dark:text-primary shadow-xs border border-accent/30"
                             : "bg-white/10 text-background/80 dark:text-foreground/80"
                         }`}
                       >
