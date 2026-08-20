@@ -58,6 +58,7 @@ export default function AdminDashboardPage() {
   const [customers, setCustomers] = useState<CustomerItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasUnsavedPhotos, setHasUnsavedPhotos] = useState(false);
+  const [isRefreshingTab, setIsRefreshingTab] = useState(false);
 
   // Payment Settings State
   const [paymentSettings, setPaymentSettings] = useState({
@@ -2118,8 +2119,6 @@ export default function AdminDashboardPage() {
       }
     }
   };
-
-  const [isRefreshingTab, setIsRefreshingTab] = useState(false);
 
   const handleRefreshCurrentTab = async () => {
     if (!token) return;
