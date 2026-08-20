@@ -7,6 +7,7 @@ import ProductSearchBar from "@/features/products/components/ProductSearchBar";
 import ProductImage from "@/components/ui/ProductImage";
 import ImageUploadModal from "@/components/ui/ImageUploadModal";
 import ProductVariantsManager from "@/features/products/components/ProductVariantsManager";
+import ReviewsSubTab from "./ReviewsSubTab";
 
 interface ProductsTabProps {
   productSubTab: ProductSubTab;
@@ -147,20 +148,9 @@ export default function ProductsTab({
 }: ProductsTabProps) {
   return (
     <div className="flex flex-col gap-6">
-      {/* SUBTAB 4: Reviews (Empty state placeholder) */}
+      {/* SUBTAB 4: Reviews */}
       {productSubTab === "reviews" && (
-        <div className="bg-secondary text-foreground p-12 rounded-3xl border border-foreground/10 shadow-sm flex flex-col items-center justify-center text-center gap-3">
-          <div className="w-16 h-16 rounded-2xl bg-primary/5 dark:bg-primary/20 flex items-center justify-center text-2xl">
-            ⭐
-          </div>
-          <h3 className="text-sm font-black uppercase tracking-wider">
-            Product Reviews & Ratings
-          </h3>
-          <p className="text-xs text-foreground/60 max-w-sm">
-            Customer product reviews and ratings will appear here. No reviews
-            submitted yet.
-          </p>
-        </div>
+        <ReviewsSubTab products={products} token={token} />
       )}
 
       {/* SUBTAB 2: Add New Product */}

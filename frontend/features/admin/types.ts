@@ -66,6 +66,19 @@ export interface CustomerItem {
   customer_name?: string;
 }
 
+export interface ReviewItem {
+  id: number;
+  user_id?: number;
+  product?: number;
+  product_title?: string;
+  name: string;
+  rating: number;
+  description: string;
+  image?: string | null;
+  images?: { id: number; image: string }[];
+  date: string;
+}
+
 export interface CouponItem {
   id: number;
   code: string;

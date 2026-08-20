@@ -104,11 +104,13 @@ class ReviewImageSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(source='user.id', read_only=True)
+    product_title = serializers.CharField(source='product.title', read_only=True)
     images = ReviewImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = Review
-        fields = ['id', 'user_id', 'name', 'rating', 'description', 'image', 'images', 'date']
+        fields = ['id', 'user_id', 'product', 'product_title', 'name', 'rating', 'description', 'image', 'images', 'date']
+        read_only_fields = ['product']
 
     def create (self,validated_data):
         product_id = self.context['product_id']

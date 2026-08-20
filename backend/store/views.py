@@ -74,11 +74,21 @@ class CollectionViewSet(ModelViewSet):
 
 class ReviewViewSet(ModelViewSet):
     serializer_class = ReviewSerializer
+    pagination_class = None
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ['rating']
+    search_fields = ['name', 'description', 'product__title']
+    ordering_fields = ['date', 'rating']
+    ordering = ['-date']
+
     def get_queryset(self):
-        return Review.objects.filter(product_id=self.kwargs['product_pk']).prefetch_related('images')
+        product_pk = self.kwargs.get('product_pk')
+        if product_pk:
+            return Review.objects.filter(product_id=product_pk).select_related('product').prefetch_related('images')
+        return Review.objects.select_related('product').prefetch_related('images').all()
         
     def get_serializer_context(self):
-        return {'product_id' : self.kwargs['product_pk'], 'request': self.request}
+        return {'product_id': self.kwargs.get('product_pk'), 'request': self.request}
 
     def update(self, request, *args, **kwargs):
         review = self.get_object()
