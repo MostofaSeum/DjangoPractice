@@ -2177,15 +2177,6 @@ export default function AdminDashboardPage() {
           setOrders(Array.isArray(orderData) ? orderData : orderData.results || []);
         }
       }
-
-      Swal.fire({
-        position: "top-end",
-        icon: "success",
-        title: "Tab refreshed!",
-        showConfirmButton: false,
-        timer: 1200,
-        toast: true,
-      });
     } catch (err) {
       console.error("Error refreshing tab:", err);
       Swal.fire({
