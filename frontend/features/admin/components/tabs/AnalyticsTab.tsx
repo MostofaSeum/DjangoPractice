@@ -47,44 +47,66 @@ export default function AnalyticsTab({
       const now = new Date();
 
       if (timeRange === "24h") {
-        const buckets: { [key: string]: { label: string; sales: number; orders: number } } = {};
-        for (let i = 5; i >= 0; i--) {
-          const slotStart = new Date(now.getTime() - i * 4 * 60 * 60 * 1000);
-          const hour = slotStart.getHours();
-          const key = `${hour}:00`;
-          buckets[key] = { label: key, sales: 0, orders: 0 };
+        // Create 8 discrete 3-hour time buckets over the last 24h
+        // e.g. 8 slots from now-24h to now
+        const numSlots = 8;
+        const slotDurationMs = (24 / numSlots) * 60 * 60 * 1000;
+        const startTimestamp = now.getTime() - 24 * 60 * 60 * 1000;
+
+        const buckets: {
+          slotStart: number;
+          slotEnd: number;
+          label: string;
+          sales: number;
+          orders: number;
+        }[] = [];
+
+        for (let i = 0; i < numSlots; i++) {
+          const s = startTimestamp + i * slotDurationMs;
+          const e = s + slotDurationMs;
+          const dateObj = new Date(e);
+          const hourStr = dateObj.getHours().toString().padStart(2, "0") + ":00";
+          buckets.push({
+            slotStart: s,
+            slotEnd: e,
+            label: hourStr,
+            sales: 0,
+            orders: 0,
+          });
         }
 
         let salesSum = 0;
         let countSum = 0;
         let compSales = 0;
 
-        const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-
         orders.forEach((o) => {
-          const orderDate = o.placed_at ? new Date(o.placed_at) : new Date();
-          if (orderDate >= cutoff) {
+          if (!o.placed_at) return;
+          const orderTime = new Date(o.placed_at).getTime();
+          if (isNaN(orderTime)) return;
+
+          if (orderTime >= startTimestamp && orderTime <= now.getTime() + 60000) {
             const tot = getOrderTotal(o);
             salesSum += tot;
             countSum += 1;
             if (o.payment_status === "C") compSales += tot;
 
-            const hoursAgo = Math.floor(
-              (now.getTime() - orderDate.getTime()) / (1000 * 60 * 60)
-            );
-            const slotIndex = Math.min(5, Math.floor(hoursAgo / 4));
-            const slotTime = new Date(now.getTime() - slotIndex * 4 * 60 * 60 * 1000);
-            const key = `${slotTime.getHours()}:00`;
-            if (buckets[key]) {
-              buckets[key].sales += tot;
-              buckets[key].orders += 1;
+            // Find matching bucket
+            for (let b of buckets) {
+              if (orderTime >= b.slotStart && orderTime <= b.slotEnd) {
+                b.sales += tot;
+                b.orders += 1;
+                break;
+              }
             }
           }
         });
 
-        const data = Object.values(buckets);
         return {
-          chartData: data,
+          chartData: buckets.map((b) => ({
+            label: b.label,
+            sales: b.sales,
+            orders: b.orders,
+          })),
           totalSales: salesSum,
           totalOrdersCount: countSum,
           avgOrderValue: countSum > 0 ? salesSum / countSum : 0,
@@ -92,43 +114,73 @@ export default function AnalyticsTab({
         };
       }
 
+      // For 7d, 15d, 30d -> Daily Buckets
       const daysCount = timeRange === "7d" ? 7 : timeRange === "15d" ? 15 : 30;
-      const dayMap: { [key: string]: { label: string; sales: number; orders: number; dateStr: string } } = {};
+      const dayBuckets: {
+        dateStr: string;
+        label: string;
+        startOfDay: number;
+        endOfDay: number;
+        sales: number;
+        orders: number;
+      }[] = [];
 
       for (let i = daysCount - 1; i >= 0; i--) {
-        const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        d.setHours(0, 0, 0, 0);
+
+        const endD = new Date(d);
+        endD.setHours(23, 59, 59, 999);
+
         const dateStr = d.toISOString().split("T")[0];
         const label = d.toLocaleDateString("en-US", {
           month: "short",
           day: "numeric",
         });
-        dayMap[dateStr] = { label, sales: 0, orders: 0, dateStr };
+
+        dayBuckets.push({
+          dateStr,
+          label,
+          startOfDay: d.getTime(),
+          endOfDay: endD.getTime(),
+          sales: 0,
+          orders: 0,
+        });
       }
 
-      const cutoff = new Date(now.getTime() - daysCount * 24 * 60 * 60 * 1000);
+      const cutoffTime = dayBuckets[0].startOfDay;
       let salesSum = 0;
       let countSum = 0;
       let compSales = 0;
 
       orders.forEach((o) => {
-        const orderDate = o.placed_at ? new Date(o.placed_at) : new Date();
-        if (orderDate >= cutoff) {
-          const dateStr = orderDate.toISOString().split("T")[0];
+        if (!o.placed_at) return;
+        const orderTime = new Date(o.placed_at).getTime();
+        if (isNaN(orderTime)) return;
+
+        if (orderTime >= cutoffTime) {
           const tot = getOrderTotal(o);
           salesSum += tot;
           countSum += 1;
           if (o.payment_status === "C") compSales += tot;
 
-          if (dayMap[dateStr]) {
-            dayMap[dateStr].sales += tot;
-            dayMap[dateStr].orders += 1;
+          for (let b of dayBuckets) {
+            if (orderTime >= b.startOfDay && orderTime <= b.endOfDay) {
+              b.sales += tot;
+              b.orders += 1;
+              break;
+            }
           }
         }
       });
 
-      const data = Object.values(dayMap);
       return {
-        chartData: data,
+        chartData: dayBuckets.map((b) => ({
+          label: b.label,
+          sales: b.sales,
+          orders: b.orders,
+        })),
         totalSales: salesSum,
         totalOrdersCount: countSum,
         avgOrderValue: countSum > 0 ? salesSum / countSum : 0,
@@ -171,7 +223,7 @@ export default function AnalyticsTab({
                 <button
                   key={tab.id}
                   onClick={() => setTimeRange(tab.id)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 ${
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                     isActive
                       ? "bg-button-bg text-button-fg shadow-md scale-[1.02]"
                       : "opacity-60 hover:opacity-100 hover:bg-foreground/5"
@@ -265,7 +317,7 @@ export default function AnalyticsTab({
             <div className="flex items-center gap-1 bg-foreground/5 p-1 rounded-xl border border-foreground/10">
               <button
                 onClick={() => setChartType("area")}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase transition-colors ${
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase transition-colors cursor-pointer ${
                   chartType === "area"
                     ? "bg-button-bg text-button-fg"
                     : "opacity-60 hover:opacity-100"
@@ -275,7 +327,7 @@ export default function AnalyticsTab({
               </button>
               <button
                 onClick={() => setChartType("bar")}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase transition-colors ${
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-bold uppercase transition-colors cursor-pointer ${
                   chartType === "bar"
                     ? "bg-button-bg text-button-fg"
                     : "opacity-60 hover:opacity-100"

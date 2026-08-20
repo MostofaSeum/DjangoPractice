@@ -243,6 +243,8 @@ class OrderViewSet(ModelViewSet):
         return Response(serializer.data)
 
 
+    pagination_class = None
+
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return CreateOrderSerializer
