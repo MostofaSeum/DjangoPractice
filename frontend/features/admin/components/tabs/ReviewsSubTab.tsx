@@ -353,7 +353,6 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
                   {/* Product Badge */}
                   <div className="mt-3">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/5 dark:bg-primary/25 border border-foreground/10 text-[11px] font-bold text-accent truncate max-w-full">
-                      <span>🏷️</span>
                       <span className="truncate">{rev.product_title || `Product #${rev.product}`}</span>
                     </span>
                   </div>
