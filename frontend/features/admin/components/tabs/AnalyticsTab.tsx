@@ -574,7 +574,10 @@ export default function AnalyticsTab({
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-foreground/10">
             <div>
               <div className="flex items-center gap-2.5">
-                <span className="text-xl">🏷️</span>
+                <span className="flex h-3 w-3 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
+                </span>
                 <h2 className="text-base font-black uppercase tracking-widest text-foreground">
                   Promo & Coupon Performance
                 </h2>
@@ -625,7 +628,7 @@ export default function AnalyticsTab({
                 </span>
                 <span className="text-xs font-bold opacity-60">times used</span>
               </div>
-              <div className="mt-2 text-[10px] font-semibold text-emerald-500">
+              <div className="mt-2 text-[10px] font-semibold text-accent">
                 ● Applied across customer checkouts
               </div>
             </div>
@@ -636,7 +639,7 @@ export default function AnalyticsTab({
                 Discounts Granted
               </span>
               <div className="mt-3 flex items-baseline gap-2">
-                <span className="text-2xl font-black text-rose-500">
+                <span className="text-2xl font-black text-accent">
                   ৳{couponStats.totalDiscountsGranted.toLocaleString()}
                 </span>
               </div>
@@ -651,7 +654,7 @@ export default function AnalyticsTab({
                 Coupon Driven Revenue
               </span>
               <div className="mt-3 flex items-baseline gap-2">
-                <span className="text-2xl font-black text-accent">
+                <span className="text-2xl font-black text-foreground">
                   ৳{couponStats.totalCouponRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
@@ -752,7 +755,8 @@ export default function AnalyticsTab({
                         yAxisId="right"
                         name="Redemptions"
                         dataKey="uses"
-                        fill="#10b981"
+                        fill="var(--foreground)"
+                        fillOpacity={0.65}
                         radius={[6, 6, 0, 0]}
                         maxBarSize={28}
                       />
@@ -793,7 +797,7 @@ export default function AnalyticsTab({
                           <span
                             className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${
                               c.isActive
-                                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                                ? "bg-accent/15 text-accent font-black"
                                 : "bg-foreground/10 opacity-60 text-foreground"
                             }`}
                           >
