@@ -30,6 +30,7 @@ import {
   DeliveryRuleItem,
   AdminTab,
   ProductSubTab,
+  AnalyticsSubTab,
 } from "@/features/admin/types";
 
 export default function AdminDashboardPage() {
@@ -44,8 +45,15 @@ export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>("products");
   const [productSubTab, setProductSubTab] = useState<ProductSubTab>("all");
   const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(true);
+  const [analyticsSubTab, setAnalyticsSubTab] = useState<AnalyticsSubTab>("sales");
+  const [isAnalyticsDropdownOpen, setIsAnalyticsDropdownOpen] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const handleAnalyticsSubTabSwitch = (subTab: AnalyticsSubTab) => {
+    setActiveTab("analytics");
+    setAnalyticsSubTab(subTab);
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -2220,6 +2228,10 @@ export default function AdminDashboardPage() {
           handleProductSubTabSwitch={handleProductSubTabSwitch}
           isProductsDropdownOpen={isProductsDropdownOpen}
           setIsProductsDropdownOpen={setIsProductsDropdownOpen}
+          analyticsSubTab={analyticsSubTab}
+          handleAnalyticsSubTabSwitch={handleAnalyticsSubTabSwitch}
+          isAnalyticsDropdownOpen={isAnalyticsDropdownOpen}
+          setIsAnalyticsDropdownOpen={setIsAnalyticsDropdownOpen}
           isSidebarCollapsed={isSidebarCollapsed}
           setIsSidebarCollapsed={setIsSidebarCollapsed}
           productsCount={totalProductsCount}
@@ -2444,6 +2456,8 @@ export default function AdminDashboardPage() {
               products={products}
               customers={customers}
               coupons={couponsList}
+              analyticsSubTab={analyticsSubTab}
+              onSubTabChange={setAnalyticsSubTab}
             />
           )}
         </main>

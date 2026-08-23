@@ -20,6 +20,8 @@ interface AnalyticsTabProps {
   products?: Product[];
   customers?: CustomerItem[];
   coupons?: CouponItem[];
+  analyticsSubTab?: AnalyticsSubTab;
+  onSubTabChange?: (subTab: AnalyticsSubTab) => void;
 }
 
 export default function AnalyticsTab({
@@ -27,8 +29,15 @@ export default function AnalyticsTab({
   products = [],
   customers = [],
   coupons = [],
+  analyticsSubTab = "sales",
+  onSubTabChange,
 }: AnalyticsTabProps) {
-  const [activeSubTab, setActiveSubTab] = useState<"sales" | "coupons">("sales");
+  const [internalSubTab, setInternalSubTab] = useState<AnalyticsSubTab>("sales");
+  const activeSubTab = onSubTabChange ? analyticsSubTab : internalSubTab;
+  const setActiveSubTab = (sub: AnalyticsSubTab) => {
+    if (onSubTabChange) onSubTabChange(sub);
+    else setInternalSubTab(sub);
+  };
   const [timeRange, setTimeRange] = useState<TimeRange>("7d");
   const [chartType, setChartType] = useState<"area" | "bar">("area");
   const [couponSearch, setCouponSearch] = useState<string>("");

@@ -135,6 +135,7 @@ export default function AdminSidebar({
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           const isProductsTab = tab.id === "products";
+          const isAnalyticsTab = tab.id === "analytics";
 
           return (
             <div key={tab.id} className="flex flex-col">
@@ -146,6 +147,13 @@ export default function AdminSidebar({
                     } else {
                       setActiveTab("products");
                       setIsProductsDropdownOpen(true);
+                    }
+                  } else if (isAnalyticsTab) {
+                    if (activeTab === "analytics") {
+                      setIsAnalyticsDropdownOpen((prev) => !prev);
+                    } else {
+                      setActiveTab("analytics");
+                      setIsAnalyticsDropdownOpen(true);
                     }
                   } else {
                     setActiveTab(tab.id);
@@ -202,10 +210,13 @@ export default function AdminSidebar({
                         {tab.count}
                       </span>
                     )}
-                    {isProductsTab && (
+                    {(isProductsTab || isAnalyticsTab) && (
                       <svg
                         className={`w-3.5 h-3.5 transition-transform duration-200 opacity-70 ${
-                          isProductsDropdownOpen ? "rotate-180" : ""
+                          (isProductsTab && isProductsDropdownOpen) ||
+                          (isAnalyticsTab && isAnalyticsDropdownOpen)
+                            ? "rotate-180"
+                            : ""
                         }`}
                         fill="none"
                         stroke="currentColor"
@@ -275,6 +286,37 @@ export default function AdminSidebar({
                       }`}
                     >
                       <span className="truncate">Reviews</span>
+                    </button>
+                  </div>
+                )}
+
+              {/* Analytics Subsections */}
+              {isAnalyticsTab &&
+                isAnalyticsDropdownOpen &&
+                !isSidebarCollapsed && (
+                  <div className="pl-6 pr-1 py-1 mt-1 space-y-1 border-l-2 border-white/10 ml-5 transition-all">
+                    {/* 1. Sales & Revenue Analytics */}
+                    <button
+                      onClick={() => handleAnalyticsSubTabSwitch("sales")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        isActive && analyticsSubTab === "sales"
+                          ? "bg-accent text-white shadow-xs font-black"
+                          : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="truncate">Sales & Revenue</span>
+                    </button>
+
+                    {/* 2. Promo & Coupon Performance */}
+                    <button
+                      onClick={() => handleAnalyticsSubTabSwitch("coupons")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        isActive && analyticsSubTab === "coupons"
+                          ? "bg-accent text-white shadow-xs font-black"
+                          : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="truncate">Promo & Coupons</span>
                     </button>
                   </div>
                 )}
