@@ -1230,7 +1230,10 @@ export default function AnalyticsTab({
                         paddingAngle={4}
                         dataKey="value"
                         onClick={(data) => {
-                          setSelectedPaymentMethod((prev) => (prev === data.key ? null : data.key));
+                          const key = data && typeof data.key === "string" ? data.key : String(data?.key ?? "");
+                          if (key) {
+                            setSelectedPaymentMethod((prev) => (prev === key ? null : key));
+                          }
                         }}
                         cursor="pointer"
                       >
