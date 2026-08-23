@@ -161,26 +161,6 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
             Browse, search, sort by rating, and manage customer reviews for all catalog products.
           </p>
         </div>
-
-        <button
-          onClick={fetchReviews}
-          className="px-4 py-2 bg-primary/5 hover:bg-primary/10 dark:bg-primary/30 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-colors cursor-pointer border border-foreground/10"
-        >
-          <svg
-            className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2.5"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          </svg>
-          Refresh Reviews
-        </button>
       </div>
 
       {/* Filter and Search Bar */}
@@ -215,29 +195,6 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
 
         {/* Product Filter & Search Controls */}
         <div className="flex flex-col sm:flex-row items-center gap-3">
-          {/* Select by Product */}
-          <select
-            value={selectedProductId}
-            onChange={(e) =>
-              setSelectedProductId(
-                e.target.value === "ALL" ? "ALL" : Number(e.target.value)
-              )
-            }
-            className="w-full sm:w-56 px-3.5 py-2.5 rounded-xl border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none cursor-pointer focus:ring-2 focus:ring-accent transition-all"
-          >
-            <option value="ALL" className="bg-secondary text-foreground">
-              All Products ({products.length})
-            </option>
-            {products.map((p) => (
-              <option
-                key={p.id}
-                value={p.id}
-                className="bg-secondary text-foreground"
-              >
-                {p.title}
-              </option>
-            ))}
-          </select>
 
           {/* Search Input */}
           <div className="relative w-full sm:w-64">
