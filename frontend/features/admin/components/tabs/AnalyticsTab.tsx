@@ -45,6 +45,7 @@ export default function AnalyticsTab({
   const [chartType, setChartType] = useState<"area" | "bar">("area");
   const [couponSearch, setCouponSearch] = useState<string>("");
   const [chartLimit, setChartLimit] = useState<"5" | "10" | "all">("10");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
 
   // Helper to compute order total
   const getOrderTotal = (order: Order): number => {
@@ -1196,18 +1197,28 @@ export default function AnalyticsTab({
           {/* Donut & Table Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
             {/* Donut Chart (5 cols) */}
-            <div className="lg:col-span-5 bg-foreground/5 border border-foreground/10 rounded-2xl p-5 flex flex-col justify-between">
-              <div className="mb-2">
-                <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
-                  Revenue Share by Gateway
-                </h3>
-                <p className="text-[11px] opacity-50 mt-0.5">
-                  Percentage distribution of sales
-                </p>
+            <div className="lg:col-span-5 bg-foreground/5 border border-foreground/10 rounded-2xl p-5 flex flex-col justify-between transition-all">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+                    Revenue Share by Gateway
+                  </h3>
+                  <p className="text-[11px] opacity-50 mt-0.5">
+                    Percentage distribution of sales
+                  </p>
+                </div>
+                {selectedPaymentMethod && (
+                  <button
+                    onClick={() => setSelectedPaymentMethod(null)}
+                    className="text-[10px] font-bold px-2 py-0.5 bg-foreground/10 hover:bg-foreground/20 rounded-md text-foreground transition-all cursor-pointer"
+                  >
+                    Reset Filter
+                  </button>
+                )}
               </div>
 
               {paymentStats.pieData.length > 0 ? (
-                <div className="w-full h-72">
+                <div className="w-full h-72 relative">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
@@ -1218,15 +1229,26 @@ export default function AnalyticsTab({
                         outerRadius={95}
                         paddingAngle={4}
                         dataKey="value"
+                        onClick={(data) => {
+                          setSelectedPaymentMethod((prev) => (prev === data.key ? null : data.key));
+                        }}
+                        cursor="pointer"
                       >
-                        {paymentStats.pieData.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={entry.color}
-                            stroke="var(--secondary)"
-                            strokeWidth={2}
-                          />
-                        ))}
+                        {paymentStats.pieData.map((entry, index) => {
+                          const isSelected = selectedPaymentMethod === entry.key;
+                          const isDimmed = Boolean(selectedPaymentMethod && !isSelected);
+
+                          return (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={entry.color}
+                              stroke={isSelected ? "var(--foreground)" : "var(--secondary)"}
+                              strokeWidth={isSelected ? 3 : 2}
+                              opacity={isDimmed ? 0.25 : 1}
+                              className="transition-all duration-300 cursor-pointer"
+                            />
+                          );
+                        })}
                       </Pie>
                       <Tooltip
                         contentStyle={{
@@ -1245,10 +1267,34 @@ export default function AnalyticsTab({
                         ]}
                       />
                       <Legend
-                        wrapperStyle={{ fontSize: "11px", fontWeight: 700, paddingTop: "10px" }}
+                        wrapperStyle={{ fontSize: "11px", fontWeight: 700, paddingTop: "10px", cursor: "pointer" }}
+                        onClick={(e: any) => {
+                          const matched = paymentStats.pieData.find((p) => p.name === e.value);
+                          if (matched) {
+                            setSelectedPaymentMethod((prev) => (prev === matched.key ? null : matched.key));
+                          }
+                        }}
                       />
                     </PieChart>
                   </ResponsiveContainer>
+
+                  {/* Centered Selected Gateway Highlight Badge */}
+                  {selectedPaymentMethod && (
+                    (() => {
+                      const selectedItem = paymentStats.list.find((m) => m.key === selectedPaymentMethod);
+                      if (!selectedItem) return null;
+                      return (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center pb-8">
+                          <span className="text-[10px] font-black uppercase tracking-wider opacity-60">
+                            {selectedItem.label}
+                          </span>
+                          <span className="text-sm font-black text-foreground">
+                            {selectedItem.revenueSharePct}%
+                          </span>
+                        </div>
+                      );
+                    })()
+                  )}
                 </div>
               ) : (
                 <div className="h-64 flex flex-col items-center justify-center opacity-50 text-xs font-bold">
@@ -1259,13 +1305,15 @@ export default function AnalyticsTab({
 
             {/* Gateway Breakdown Table (7 cols) */}
             <div className="lg:col-span-7 bg-foreground/5 border border-foreground/10 rounded-2xl p-5 flex flex-col justify-between">
-              <div className="mb-4">
-                <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
-                  Gateway Performance Audit
-                </h3>
-                <p className="text-[11px] opacity-50 mt-0.5">
-                  Detailed conversion and order settlement statistics
-                </p>
+              <div className="mb-4 flex justify-between items-start">
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+                    Gateway Performance Audit
+                  </h3>
+                  <p className="text-[11px] opacity-50 mt-0.5">
+                    Click any row to focus on that gateway in the charts
+                  </p>
+                </div>
               </div>
 
               <div className="overflow-x-auto">
@@ -1281,30 +1329,47 @@ export default function AnalyticsTab({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-foreground/5">
-                    {paymentStats.list.map((m) => (
-                      <tr key={m.key} className="hover:bg-foreground/5 transition-colors">
-                        <td className="py-3.5 font-black flex items-center gap-2">
-                          <span
-                            className="w-2.5 h-2.5 rounded-full"
-                            style={{
-                              backgroundColor: m.color,
-                            }}
-                          />
-                          <span>{m.label}</span>
-                        </td>
-                        <td className="py-3.5 text-right font-bold opacity-80">{m.count}</td>
-                        <td className="py-3.5 text-right font-bold text-accent">{m.orderSharePct}%</td>
-                        <td className="py-3.5 text-right font-semibold opacity-70">
-                          {m.completedCount} / {m.count}
-                        </td>
-                        <td className="py-3.5 text-right font-semibold opacity-80">
-                          ৳{m.avgValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </td>
-                        <td className="py-3.5 text-right font-black text-foreground">
-                          ৳{m.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </td>
-                      </tr>
-                    ))}
+                    {paymentStats.list.map((m) => {
+                      const isSelected = selectedPaymentMethod === m.key;
+                      return (
+                        <tr
+                          key={m.key}
+                          onClick={() =>
+                            setSelectedPaymentMethod((prev) => (prev === m.key ? null : m.key))
+                          }
+                          className={`cursor-pointer transition-all duration-200 ${
+                            isSelected
+                              ? "bg-foreground/15 ring-2 ring-accent/60 font-black rounded-lg scale-[1.01]"
+                              : "hover:bg-foreground/5 opacity-90 hover:opacity-100"
+                          }`}
+                        >
+                          <td className="py-3.5 px-2 font-black flex items-center gap-2">
+                            <span
+                              className={`w-3 h-3 rounded-full transition-transform ${
+                                isSelected ? "scale-125 ring-2 ring-foreground/40 shadow-xs" : ""
+                              }`}
+                              style={{
+                                backgroundColor: m.color,
+                              }}
+                            />
+                            <span className={isSelected ? "text-accent underline font-black" : ""}>
+                              {m.label}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-2 text-right font-bold opacity-80">{m.count}</td>
+                          <td className="py-3.5 px-2 text-right font-bold text-accent">{m.orderSharePct}%</td>
+                          <td className="py-3.5 px-2 text-right font-semibold opacity-70">
+                            {m.completedCount} / {m.count}
+                          </td>
+                          <td className="py-3.5 px-2 text-right font-semibold opacity-80">
+                            ৳{m.avgValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </td>
+                          <td className="py-3.5 px-2 text-right font-black text-foreground">
+                            ৳{m.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
