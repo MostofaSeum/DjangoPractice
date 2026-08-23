@@ -41,6 +41,7 @@ export default function AnalyticsTab({
   const [timeRange, setTimeRange] = useState<TimeRange>("7d");
   const [chartType, setChartType] = useState<"area" | "bar">("area");
   const [couponSearch, setCouponSearch] = useState<string>("");
+  const [chartLimit, setChartLimit] = useState<"5" | "10" | "all">("10");
 
   // Helper to compute order total
   const getOrderTotal = (order: Order): number => {
@@ -276,16 +277,24 @@ export default function AnalyticsTab({
       .filter((c) => c.code.toLowerCase().includes(couponSearch.toLowerCase().trim()))
       .sort((a, b) => b.usageCount - a.usageCount || b.totalRevenue - a.totalRevenue);
 
-    // Prepare chart data (top 8 coupons by usage or revenue)
-    const chartData = [...statsList]
-      .sort((a, b) => b.usageCount - a.usageCount || b.totalRevenue - a.totalRevenue)
-      .slice(0, 8)
-      .map((item) => ({
-        code: item.code,
-        uses: item.usageCount,
-        revenue: Math.round(item.totalRevenue),
-        discounts: Math.round(item.totalDiscounts),
-      }));
+    // Prepare chart data (Top 5, Top 10, or All)
+    const sortedStats = [...statsList].sort(
+      (a, b) => b.usageCount - a.usageCount || b.totalRevenue - a.totalRevenue
+    );
+
+    const limitedStats =
+      chartLimit === "5"
+        ? sortedStats.slice(0, 5)
+        : chartLimit === "10"
+        ? sortedStats.slice(0, 10)
+        : sortedStats;
+
+    const chartData = limitedStats.map((item) => ({
+      code: item.code,
+      uses: item.usageCount,
+      revenue: Math.round(item.totalRevenue),
+      discounts: Math.round(item.totalDiscounts),
+    }));
 
     return {
       statsList: filteredList,
@@ -295,7 +304,7 @@ export default function AnalyticsTab({
       totalDiscountsGranted,
       activeCouponsCount,
     };
-  }, [coupons, orders, couponSearch]);
+  }, [coupons, orders, couponSearch, chartLimit]);
 
   return (
     <div className="space-y-8">
@@ -666,24 +675,58 @@ export default function AnalyticsTab({
 
           {/* Coupon Charts & Breakdown Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
-            {/* Revenue & Usage Bar Chart (8 cols) */}
+            {/* Revenue & Usage Bar Chart (7 cols) */}
             <div className="lg:col-span-7 bg-foreground/5 border border-foreground/10 rounded-2xl p-5 flex flex-col justify-between">
-              <div className="mb-4">
-                <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
-                  Top Coupon Performance
-                </h3>
-                <p className="text-[11px] opacity-50 mt-0.5">
-                  Comparison of order redemptions vs. revenue generated (৳ BDT)
-                </p>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+                    Top Coupon Performance
+                  </h3>
+                  <p className="text-[11px] opacity-50 mt-0.5">
+                    Comparison of order redemptions vs. revenue generated (৳ BDT)
+                  </p>
+                </div>
+
+                {/* Filter / Limit Buttons */}
+                <div className="flex items-center gap-1 bg-foreground/5 p-1 rounded-xl border border-foreground/10">
+                  {(
+                    [
+                      { id: "5", label: "Top 5" },
+                      { id: "10", label: "Top 10" },
+                      { id: "all", label: "All" },
+                    ] as const
+                  ).map((btn) => (
+                    <button
+                      key={btn.id}
+                      onClick={() => setChartLimit(btn.id)}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer ${
+                        chartLimit === btn.id
+                          ? "bg-button-bg text-button-fg shadow-xs"
+                          : "opacity-60 hover:opacity-100"
+                      }`}
+                    >
+                      {btn.label}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {couponStats.chartData.length > 0 ? (
-                <div className="w-full h-72">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={couponStats.chartData}
-                      margin={{ top: 10, right: 10, left: -10, bottom: 20 }}
-                    >
+                <div className="w-full overflow-x-auto custom-scrollbar pb-2">
+                  <div
+                    className="h-72"
+                    style={{
+                      minWidth:
+                        couponStats.chartData.length > 8
+                          ? `${couponStats.chartData.length * 45}px`
+                          : "100%",
+                    }}
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={couponStats.chartData}
+                        margin={{ top: 10, right: 10, left: -10, bottom: 20 }}
+                      >
                       <CartesianGrid
                         strokeDasharray="3 3"
                         vertical={false}
@@ -761,7 +804,8 @@ export default function AnalyticsTab({
                         maxBarSize={28}
                       />
                     </BarChart>
-                  </ResponsiveContainer>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               ) : (
                 <div className="h-64 flex flex-col items-center justify-center opacity-50 text-xs font-bold text-center">
