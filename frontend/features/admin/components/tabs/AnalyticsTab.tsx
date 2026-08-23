@@ -351,9 +351,9 @@ export default function AnalyticsTab({
     const methodColorMap: Record<string, string> = {
       bkash: "var(--bkash)",
       nagad: "var(--nagad)",
-      cod: "#1e1e24",
-      vibecoin: "#b8977e",
-      other: "#6b7280",
+      cod: "var(--button-bg)",
+      vibecoin: "var(--accent)",
+      other: "var(--foreground)",
     };
 
     const list = Object.entries(methods).map(([key, data]) => {
@@ -1271,6 +1271,9 @@ export default function AnalyticsTab({
                       />
                       <Legend
                         wrapperStyle={{ fontSize: "11px", fontWeight: 700, paddingTop: "10px", cursor: "pointer" }}
+                        formatter={(value) => (
+                          <span style={{ color: "var(--foreground)", opacity: 0.9 }}>{value}</span>
+                        )}
                         onClick={(e: any) => {
                           const matched = paymentStats.pieData.find((p) => p.name === e.value);
                           if (matched) {
