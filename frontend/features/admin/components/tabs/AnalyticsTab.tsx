@@ -299,34 +299,6 @@ export default function AnalyticsTab({
 
   return (
     <div className="space-y-8">
-      {/* SUBSECTION NAVIGATION TABS */}
-      <div className="flex flex-wrap items-center gap-2 p-1.5 bg-secondary text-foreground rounded-2xl border border-foreground/10 shadow-xs max-w-fit transition-colors duration-300">
-        <button
-          type="button"
-          onClick={() => setActiveSubTab("sales")}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 cursor-pointer ${
-            activeSubTab === "sales"
-              ? "bg-button-bg text-button-fg shadow-md scale-[1.02]"
-              : "opacity-60 hover:opacity-100 hover:bg-foreground/5"
-          }`}
-        >
-          <span>📈</span>
-          <span>Sales & Revenue Analytics</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveSubTab("coupons")}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 cursor-pointer ${
-            activeSubTab === "coupons"
-              ? "bg-button-bg text-button-fg shadow-md scale-[1.02]"
-              : "opacity-60 hover:opacity-100 hover:bg-foreground/5"
-          }`}
-        >
-          <span>🏷️</span>
-          <span>Promo & Coupon Performance</span>
-        </button>
-      </div>
 
       {/* 1. SALES & REVENUE ANALYTICS SUBSECTION */}
       {activeSubTab === "sales" && (
