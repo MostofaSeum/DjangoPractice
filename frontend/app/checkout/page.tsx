@@ -156,7 +156,7 @@ export default function CheckoutPage() {
         title: "Please Sign In",
         text: "You must be logged in to proceed to checkout.",
       });
-      router.push("/login");
+      router.push("/login?redirect=/checkout");
       return;
     }
 

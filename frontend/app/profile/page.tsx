@@ -51,7 +51,7 @@ export default function ProfilePage() {
     if (authLoading) return;
 
     if (!token) {
-      router.push("/login");
+      router.push("/login?redirect=/profile");
       return;
     }
 
