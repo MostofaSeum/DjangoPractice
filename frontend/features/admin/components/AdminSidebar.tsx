@@ -318,6 +318,30 @@ export default function AdminSidebar({
                     >
                       <span className="truncate">Promo & Coupons</span>
                     </button>
+
+                    {/* 3. Payment Methods Breakdown */}
+                    <button
+                      onClick={() => handleAnalyticsSubTabSwitch("payments")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        isActive && analyticsSubTab === "payments"
+                          ? "bg-accent text-white shadow-xs font-black"
+                          : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="truncate">Payment Methods</span>
+                    </button>
+
+                    {/* 4. Top Selling Products & Shades */}
+                    <button
+                      onClick={() => handleAnalyticsSubTabSwitch("top-products")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        isActive && analyticsSubTab === "top-products"
+                          ? "bg-accent text-white shadow-xs font-black"
+                          : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="truncate">Top Products & Shades</span>
+                    </button>
                   </div>
                 )}
             </div>

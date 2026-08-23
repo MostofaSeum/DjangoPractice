@@ -6,6 +6,9 @@ import {
   Area,
   BarChart,
   Bar,
+  PieChart,
+  Pie,
+  Cell,
   XAxis,
   YAxis,
   Tooltip,
@@ -305,6 +308,220 @@ export default function AnalyticsTab({
       activeCouponsCount,
     };
   }, [coupons, orders, couponSearch, chartLimit]);
+
+  // 3. PAYMENT METHODS BREAKDOWN MATHEMATICAL CALCULATIONS
+  const paymentStats = useMemo(() => {
+    const methods = {
+      bkash: { label: "bKash", count: 0, revenue: 0, completedCount: 0 },
+      nagad: { label: "Nagad", count: 0, revenue: 0, completedCount: 0 },
+      cod: { label: "Cash on Delivery (COD)", count: 0, revenue: 0, completedCount: 0 },
+      vibecoin: { label: "VibeCoin Wallet", count: 0, revenue: 0, completedCount: 0 },
+      other: { label: "Other / Direct", count: 0, revenue: 0, completedCount: 0 },
+    };
+
+    let grandTotalRevenue = 0;
+    let grandTotalOrders = 0;
+
+    orders.forEach((order) => {
+      const total = getOrderTotal(order);
+      grandTotalRevenue += total;
+      grandTotalOrders += 1;
+
+      const rawMethod = (order.payment_method || "").toLowerCase();
+      let key: keyof typeof methods = "other";
+
+      if (rawMethod.includes("bkash")) key = "bkash";
+      else if (rawMethod.includes("nagad")) key = "nagad";
+      else if (rawMethod.includes("cod") || rawMethod.includes("cash")) key = "cod";
+      else if (rawMethod.includes("vibe") || rawMethod.includes("coin")) key = "vibecoin";
+
+      methods[key].count += 1;
+      methods[key].revenue += total;
+      if (order.payment_status === "C") {
+        methods[key].completedCount += 1;
+      }
+    });
+
+    const list = Object.entries(methods).map(([key, data]) => {
+      const orderSharePct = grandTotalOrders > 0 ? (data.count / grandTotalOrders) * 100 : 0;
+      const revenueSharePct = grandTotalRevenue > 0 ? (data.revenue / grandTotalRevenue) * 100 : 0;
+      const avgValue = data.count > 0 ? data.revenue / data.count : 0;
+
+      return {
+        key,
+        label: data.label,
+        count: data.count,
+        revenue: data.revenue,
+        completedCount: data.completedCount,
+        orderSharePct: Math.round(orderSharePct * 10) / 10,
+        revenueSharePct: Math.round(revenueSharePct * 10) / 10,
+        avgValue: Math.round(avgValue * 100) / 100,
+      };
+    }).filter(m => m.count > 0 || m.key !== "other");
+
+    // Donut chart distribution data
+    const pieData = list.map((item) => ({
+      name: item.label,
+      value: Math.round(item.revenue),
+      orders: item.count,
+      pct: item.revenueSharePct,
+    }));
+
+    return {
+      list,
+      pieData,
+      grandTotalRevenue,
+      grandTotalOrders,
+    };
+  }, [orders]);
+
+  // 4. TOP SELLING PRODUCTS & SHADE VARIANTS MATHEMATICAL CALCULATIONS
+  const [productSearch, setProductSearch] = useState<string>("");
+  const [productLimit, setProductLimit] = useState<"5" | "10" | "all">("10");
+
+  const productPerformanceStats = useMemo(() => {
+    const productMap: Record<
+      number,
+      {
+        id: number;
+        title: string;
+        image?: string;
+        unitPrice: number;
+        totalUnitsSold: number;
+        totalRevenue: number;
+        ordersCount: number;
+        shadesMap: Record<
+          string,
+          {
+            shadeName: string;
+            colorCode?: string;
+            unitsSold: number;
+            revenue: number;
+          }
+        >;
+      }
+    > = {};
+
+    // Map existing products
+    products.forEach((p) => {
+      productMap[p.id] = {
+        id: p.id,
+        title: p.title,
+        image: p.images?.[0]?.image || "",
+        unitPrice: Number(p.unit_price) || 0,
+        totalUnitsSold: 0,
+        totalRevenue: 0,
+        ordersCount: 0,
+        shadesMap: {},
+      };
+    });
+
+    // Aggregate over order items
+    let overallUnitsSold = 0;
+    let overallCatalogRevenue = 0;
+
+    orders.forEach((order) => {
+      (order.items || []).forEach((it) => {
+        const prodId = it.product?.id;
+        if (!prodId) return;
+
+        const qty = Number(it.quantity) || 0;
+        const price = Number(it.unit_price) || 0;
+        const itemRevenue = qty * price;
+
+        overallUnitsSold += qty;
+        overallCatalogRevenue += itemRevenue;
+
+        if (!productMap[prodId]) {
+          productMap[prodId] = {
+            id: prodId,
+            title: it.product.title || `Product #${prodId}`,
+            image: it.product.images?.[0]?.image || "",
+            unitPrice: price,
+            totalUnitsSold: 0,
+            totalRevenue: 0,
+            ordersCount: 0,
+            shadesMap: {},
+          };
+        }
+
+        const prodRecord = productMap[prodId];
+        prodRecord.totalUnitsSold += qty;
+        prodRecord.totalRevenue += itemRevenue;
+        prodRecord.ordersCount += 1;
+
+        // Shade variant attribution
+        const variant = it.variant;
+        const shadeName = variant?.color_name || it.variant_title || "Standard / Base";
+        const colorCode = variant?.color_code || "";
+
+        if (!prodRecord.shadesMap[shadeName]) {
+          prodRecord.shadesMap[shadeName] = {
+            shadeName,
+            colorCode,
+            unitsSold: 0,
+            revenue: 0,
+          };
+        }
+
+        prodRecord.shadesMap[shadeName].unitsSold += qty;
+        prodRecord.shadesMap[shadeName].revenue += itemRevenue;
+      });
+    });
+
+    const allProductsList = Object.values(productMap)
+      .filter((p) => p.title.toLowerCase().includes(productSearch.toLowerCase().trim()))
+      .sort((a, b) => b.totalRevenue - a.totalRevenue || b.totalUnitsSold - a.totalUnitsSold);
+
+    // Global Top Shades leaderboard
+    const allShadesList: {
+      productTitle: string;
+      shadeName: string;
+      colorCode?: string;
+      unitsSold: number;
+      revenue: number;
+    }[] = [];
+
+    Object.values(productMap).forEach((p) => {
+      Object.values(p.shadesMap).forEach((s) => {
+        if (s.unitsSold > 0) {
+          allShadesList.push({
+            productTitle: p.title,
+            shadeName: s.shadeName,
+            colorCode: s.colorCode,
+            unitsSold: s.unitsSold,
+            revenue: s.revenue,
+          });
+        }
+      });
+    });
+
+    allShadesList.sort((a, b) => b.unitsSold - a.unitsSold || b.revenue - a.revenue);
+
+    // Chart Data Slice
+    const limitedProducts =
+      productLimit === "5"
+        ? allProductsList.slice(0, 5)
+        : productLimit === "10"
+        ? allProductsList.slice(0, 10)
+        : allProductsList;
+
+    const chartData = limitedProducts.map((p) => ({
+      name: p.title.length > 15 ? p.title.substring(0, 15) + "..." : p.title,
+      fullName: p.title,
+      revenue: Math.round(p.totalRevenue),
+      units: p.totalUnitsSold,
+    }));
+
+    return {
+      productsList: allProductsList,
+      allShadesList: allShadesList.slice(0, 10),
+      chartData,
+      overallUnitsSold,
+      overallCatalogRevenue,
+      topProduct: allProductsList[0] || null,
+    };
+  }, [products, orders, productSearch, productLimit]);
 
   return (
     <div className="space-y-8">
@@ -866,6 +1083,527 @@ export default function AnalyticsTab({
                 ) : (
                   <div className="py-12 text-center opacity-50 text-xs font-bold">
                     No matching coupons found.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 3. PAYMENT METHODS BREAKDOWN SUBSECTION */}
+      {activeSubTab === "payments" && (
+        <div className="bg-secondary text-foreground p-6 sm:p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300 space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-foreground/10">
+            <div>
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-3 w-3 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
+                </span>
+                <h2 className="text-base font-black uppercase tracking-widest text-foreground">
+                  Payment Methods Breakdown
+                </h2>
+              </div>
+              <p className="text-xs opacity-60 mt-1">
+                Distribution of orders, transaction volumes, and revenues across COD, bKash, Nagad, and VibeCoin.
+              </p>
+            </div>
+          </div>
+
+          {/* KPI Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
+              <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
+                Total Transaction Volume
+              </span>
+              <div className="mt-3 flex items-baseline gap-2">
+                <span className="text-2xl font-black text-foreground">
+                  ৳{paymentStats.grandTotalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+              <div className="mt-2 text-[10px] font-semibold text-accent">
+                ● Across all channels
+              </div>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
+              <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
+                Total Processed Orders
+              </span>
+              <div className="mt-3 flex items-baseline gap-2">
+                <span className="text-2xl font-black text-foreground">
+                  {paymentStats.grandTotalOrders}
+                </span>
+                <span className="text-xs font-bold opacity-60">orders</span>
+              </div>
+              <div className="mt-2 text-[10px] font-semibold opacity-60">
+                In store database
+              </div>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
+              <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
+                Leading Gateway
+              </span>
+              <div className="mt-3 flex items-baseline gap-2">
+                <span className="text-2xl font-black text-accent">
+                  {[...paymentStats.list].sort((a, b) => b.revenue - a.revenue)[0]?.label || "N/A"}
+                </span>
+              </div>
+              <div className="mt-2 text-[10px] font-semibold opacity-60">
+                By generated revenue
+              </div>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
+              <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
+                Digital vs COD Share
+              </span>
+              <div className="mt-3 flex items-baseline gap-2">
+                <span className="text-2xl font-black text-foreground">
+                  {Math.round(
+                    paymentStats.list
+                      .filter((p) => p.key !== "cod")
+                      .reduce((acc, c) => acc + c.revenueSharePct, 0)
+                  )}
+                  %
+                </span>
+                <span className="text-xs font-bold opacity-60">digital share</span>
+              </div>
+              <div className="mt-2 text-[10px] font-semibold opacity-60">
+                bKash, Nagad & VibeCoins
+              </div>
+            </div>
+          </div>
+
+          {/* Donut & Table Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
+            {/* Donut Chart (5 cols) */}
+            <div className="lg:col-span-5 bg-foreground/5 border border-foreground/10 rounded-2xl p-5 flex flex-col justify-between">
+              <div className="mb-2">
+                <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+                  Revenue Share by Gateway
+                </h3>
+                <p className="text-[11px] opacity-50 mt-0.5">
+                  Percentage distribution of sales
+                </p>
+              </div>
+
+              {paymentStats.pieData.length > 0 ? (
+                <div className="w-full h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={paymentStats.pieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={95}
+                        paddingAngle={4}
+                        dataKey="value"
+                      >
+                        {paymentStats.pieData.map((entry, index) => {
+                          // Deterministic theme-based fills using globals.css variables
+                          const colors = [
+                            "var(--accent)",
+                            "var(--foreground)",
+                            "var(--bkash)",
+                            "var(--nagad)",
+                            "var(--button-bg)",
+                          ];
+                          return (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={colors[index % colors.length]}
+                              stroke="var(--secondary)"
+                              strokeWidth={2}
+                            />
+                          );
+                        })}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "var(--secondary)",
+                          borderRadius: "16px",
+                          border: "1px solid rgba(var(--foreground), 0.15)",
+                          color: "var(--foreground)",
+                          boxShadow: "0 10px 25px -5px rgba(0,0,0,0.15)",
+                          fontSize: "12px",
+                          fontWeight: 600,
+                          padding: "10px 14px",
+                        }}
+                        formatter={(val: any, name: any, item: any) => [
+                          `৳${Number(val).toLocaleString()} (${item.payload.pct}%)`,
+                          name,
+                        ]}
+                      />
+                      <Legend
+                        wrapperStyle={{ fontSize: "11px", fontWeight: 700, paddingTop: "10px" }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="h-64 flex flex-col items-center justify-center opacity-50 text-xs font-bold">
+                  No payment data available.
+                </div>
+              )}
+            </div>
+
+            {/* Gateway Breakdown Table (7 cols) */}
+            <div className="lg:col-span-7 bg-foreground/5 border border-foreground/10 rounded-2xl p-5 flex flex-col justify-between">
+              <div className="mb-4">
+                <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+                  Gateway Performance Audit
+                </h3>
+                <p className="text-[11px] opacity-50 mt-0.5">
+                  Detailed conversion and order settlement statistics
+                </p>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-foreground/10 opacity-60 text-[10px] font-black uppercase tracking-wider">
+                      <th className="pb-3">Gateway</th>
+                      <th className="pb-3 text-right">Orders</th>
+                      <th className="pb-3 text-right">Order Share</th>
+                      <th className="pb-3 text-right">Settled Count</th>
+                      <th className="pb-3 text-right">Avg Ticket</th>
+                      <th className="pb-3 text-right">Revenue (৳)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-foreground/5">
+                    {paymentStats.list.map((m) => (
+                      <tr key={m.key} className="hover:bg-foreground/5 transition-colors">
+                        <td className="py-3.5 font-black flex items-center gap-2">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full"
+                            style={{
+                              backgroundColor:
+                                m.key === "bkash"
+                                  ? "var(--bkash)"
+                                  : m.key === "nagad"
+                                  ? "var(--nagad)"
+                                  : m.key === "cod"
+                                  ? "var(--foreground)"
+                                  : "var(--accent)",
+                            }}
+                          />
+                          <span>{m.label}</span>
+                        </td>
+                        <td className="py-3.5 text-right font-bold opacity-80">{m.count}</td>
+                        <td className="py-3.5 text-right font-bold text-accent">{m.orderSharePct}%</td>
+                        <td className="py-3.5 text-right font-semibold opacity-70">
+                          {m.completedCount} / {m.count}
+                        </td>
+                        <td className="py-3.5 text-right font-semibold opacity-80">
+                          ৳{m.avgValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </td>
+                        <td className="py-3.5 text-right font-black text-foreground">
+                          ৳{m.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 4. TOP SELLING PRODUCTS & SHADE VARIANTS SUBSECTION */}
+      {activeSubTab === "top-products" && (
+        <div className="bg-secondary text-foreground p-6 sm:p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300 space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-foreground/10">
+            <div>
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-3 w-3 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
+                </span>
+                <h2 className="text-base font-black uppercase tracking-widest text-foreground">
+                  Top Selling Products & Shade Variants
+                </h2>
+              </div>
+              <p className="text-xs opacity-60 mt-1">
+                Deep dive into best-selling cosmetics, shade velocity, units moved, and product revenue contributions.
+              </p>
+            </div>
+
+            {/* Product Quick Search */}
+            <div className="w-full sm:w-64">
+              <input
+                type="text"
+                value={productSearch}
+                onChange={(e) => setProductSearch(e.target.value)}
+                placeholder="Search product..."
+                className="w-full px-4 py-2 bg-background border border-foreground/15 rounded-xl text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:ring-2 focus:ring-accent transition-all"
+              />
+            </div>
+          </div>
+
+          {/* Product KPI Stat Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
+              <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
+                Total Units Sold
+              </span>
+              <div className="mt-3 flex items-baseline gap-2">
+                <span className="text-2xl font-black text-foreground">
+                  {productPerformanceStats.overallUnitsSold}
+                </span>
+                <span className="text-xs font-bold opacity-60">items ordered</span>
+              </div>
+              <div className="mt-2 text-[10px] font-semibold opacity-60">
+                Across all orders
+              </div>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
+              <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
+                #1 Bestseller Product
+              </span>
+              <div className="mt-3 flex items-baseline gap-2">
+                <span className="text-xl font-black text-accent truncate">
+                  {productPerformanceStats.topProduct?.title || "N/A"}
+                </span>
+              </div>
+              <div className="mt-2 text-[10px] font-semibold opacity-60">
+                {productPerformanceStats.topProduct?.totalUnitsSold || 0} units sold
+              </div>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
+              <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
+                Item Catalog Revenue
+              </span>
+              <div className="mt-3 flex items-baseline gap-2">
+                <span className="text-2xl font-black text-foreground">
+                  ৳{productPerformanceStats.overallCatalogRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+              <div className="mt-2 text-[10px] font-semibold text-accent">
+                ● Product subtotal volume
+              </div>
+            </div>
+
+            <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
+              <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
+                Distinct Shades Active
+              </span>
+              <div className="mt-3 flex items-baseline gap-2">
+                <span className="text-2xl font-black text-foreground">
+                  {productPerformanceStats.allShadesList.length}
+                </span>
+                <span className="text-xs font-bold opacity-60">shades recorded</span>
+              </div>
+              <div className="mt-2 text-[10px] font-semibold opacity-60">
+                With purchase history
+              </div>
+            </div>
+          </div>
+
+          {/* Product Charts and Shade Leaderboard */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
+            {/* Product Performance Bar Chart (7 cols) */}
+            <div className="lg:col-span-7 bg-foreground/5 border border-foreground/10 rounded-2xl p-5 flex flex-col justify-between">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+                    Product Revenue Velocity
+                  </h3>
+                  <p className="text-[11px] opacity-50 mt-0.5">
+                    Gross revenue (৳ BDT) vs. Total Units Sold per item
+                  </p>
+                </div>
+
+                {/* Filter Limit Buttons */}
+                <div className="flex items-center gap-1 bg-foreground/5 p-1 rounded-xl border border-foreground/10">
+                  {(
+                    [
+                      { id: "5", label: "Top 5" },
+                      { id: "10", label: "Top 10" },
+                      { id: "all", label: "All" },
+                    ] as const
+                  ).map((btn) => (
+                    <button
+                      key={btn.id}
+                      onClick={() => setProductLimit(btn.id)}
+                      className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer ${
+                        productLimit === btn.id
+                          ? "bg-button-bg text-button-fg shadow-xs"
+                          : "opacity-60 hover:opacity-100"
+                      }`}
+                    >
+                      {btn.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {productPerformanceStats.chartData.length > 0 ? (
+                <div className="w-full overflow-x-auto custom-scrollbar pb-2">
+                  <div
+                    className="h-72"
+                    style={{
+                      minWidth:
+                        productPerformanceStats.chartData.length > 8
+                          ? `${productPerformanceStats.chartData.length * 55}px`
+                          : "100%",
+                    }}
+                  >
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={productPerformanceStats.chartData}
+                        margin={{ top: 10, right: 10, left: -10, bottom: 20 }}
+                      >
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          vertical={false}
+                          stroke="var(--foreground)"
+                          opacity={0.1}
+                        />
+                        <XAxis
+                          dataKey="name"
+                          stroke="var(--foreground)"
+                          opacity={0.7}
+                          tickLine={false}
+                          axisLine={false}
+                          fontSize={11}
+                          interval={0}
+                          angle={-20}
+                          textAnchor="end"
+                        />
+                        <YAxis
+                          yAxisId="left"
+                          orientation="left"
+                          stroke="var(--foreground)"
+                          opacity={0.6}
+                          tickLine={false}
+                          axisLine={false}
+                          fontSize={11}
+                          tickFormatter={(val) => `৳${val}`}
+                        />
+                        <YAxis
+                          yAxisId="right"
+                          orientation="right"
+                          stroke="var(--foreground)"
+                          opacity={0.6}
+                          tickLine={false}
+                          axisLine={false}
+                          fontSize={11}
+                          allowDecimals={false}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "var(--secondary)",
+                            borderRadius: "16px",
+                            border: "1px solid rgba(var(--foreground), 0.15)",
+                            color: "var(--foreground)",
+                            boxShadow: "0 10px 25px -5px rgba(0,0,0,0.15)",
+                            fontSize: "12px",
+                            fontWeight: 600,
+                            padding: "10px 14px",
+                          }}
+                          itemStyle={{ color: "var(--foreground)" }}
+                          labelStyle={{ color: "var(--foreground)", fontWeight: 800 }}
+                          formatter={(value: any, name: any) => [
+                            name === "Revenue (৳)" ? `৳${Number(value).toLocaleString()}` : `${value} units`,
+                            name,
+                          ]}
+                          labelFormatter={(label, payload) => {
+                            const item = payload?.[0]?.payload;
+                            return item?.fullName || label;
+                          }}
+                        />
+                        <Legend
+                          wrapperStyle={{ fontSize: "11px", fontWeight: 700, paddingTop: "10px" }}
+                        />
+                        <Bar
+                          yAxisId="left"
+                          name="Revenue (৳)"
+                          dataKey="revenue"
+                          fill="var(--accent)"
+                          radius={[6, 6, 0, 0]}
+                          maxBarSize={28}
+                        />
+                        <Bar
+                          yAxisId="right"
+                          name="Units Sold"
+                          dataKey="units"
+                          fill="var(--foreground)"
+                          fillOpacity={0.65}
+                          radius={[6, 6, 0, 0]}
+                          maxBarSize={28}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-64 flex flex-col items-center justify-center opacity-50 text-xs font-bold text-center">
+                  <span className="text-3xl mb-2">💄</span>
+                  No sales recorded for products yet.
+                </div>
+              )}
+            </div>
+
+            {/* Top Shades Leaderboard (5 cols) */}
+            <div className="lg:col-span-5 bg-foreground/5 border border-foreground/10 rounded-2xl p-5 flex flex-col">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+                  Top Shade Variants
+                </h3>
+                <span className="text-[10px] font-bold opacity-60">
+                  {productPerformanceStats.allShadesList.length} top shades
+                </span>
+              </div>
+
+              <div className="flex-1 overflow-y-auto max-h-72 space-y-2 pr-1 custom-scrollbar">
+                {productPerformanceStats.allShadesList.length > 0 ? (
+                  productPerformanceStats.allShadesList.map((s, idx) => (
+                    <div
+                      key={`${s.productTitle}-${s.shadeName}-${idx}`}
+                      className="p-3 bg-background/60 hover:bg-background rounded-xl border border-foreground/10 transition-all flex items-center justify-between gap-3 text-xs"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {s.colorCode ? (
+                          <span
+                            className="w-4 h-4 rounded-full border border-foreground/20 shrink-0 shadow-xs"
+                            style={{ backgroundColor: s.colorCode }}
+                            title={s.colorCode}
+                          />
+                        ) : (
+                          <span className="w-4 h-4 rounded-full bg-accent/20 border border-accent/40 shrink-0 flex items-center justify-center text-[8px] font-black text-accent">
+                            ✦
+                          </span>
+                        )}
+                        <div className="min-w-0">
+                          <div className="font-extrabold text-foreground truncate">
+                            {s.shadeName}
+                          </div>
+                          <div className="text-[10px] opacity-60 truncate">
+                            {s.productTitle}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-right shrink-0">
+                        <div className="font-black text-foreground">
+                          {s.unitsSold} {s.unitsSold === 1 ? "unit" : "units"}
+                        </div>
+                        <div className="text-[10px] font-bold text-accent">
+                          ৳{s.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-12 text-center opacity-50 text-xs font-bold">
+                    No variant sales data recorded yet.
                   </div>
                 )}
               </div>
