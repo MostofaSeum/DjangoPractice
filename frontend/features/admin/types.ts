@@ -23,7 +23,15 @@ export interface Collection {
 
 export interface OrderItem {
   id: number;
-  product?: { id: number; title: string; unit_price: number };
+  product?: {
+    id: number;
+    title: string;
+    unit_price: number;
+    images?: { id?: number; image: string }[];
+    discount_percent?: number;
+    discounted_price?: number;
+    inventory?: number;
+  };
   variant?: {
     id: number;
     name: string;

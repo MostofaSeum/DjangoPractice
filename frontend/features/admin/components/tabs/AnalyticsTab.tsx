@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Order, Product, CustomerItem, CouponItem } from "../../types";
+import { Order, Product, CustomerItem, CouponItem, AnalyticsSubTab } from "../../types";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -327,13 +327,18 @@ export default function AnalyticsTab({
       grandTotalRevenue += total;
       grandTotalOrders += 1;
 
-      const rawMethod = (order.payment_method || "").toLowerCase();
+      const rawMethod = (order.payment_method || "").trim().toUpperCase();
       let key: keyof typeof methods = "other";
 
-      if (rawMethod.includes("bkash")) key = "bkash";
-      else if (rawMethod.includes("nagad")) key = "nagad";
-      else if (rawMethod.includes("cod") || rawMethod.includes("cash")) key = "cod";
-      else if (rawMethod.includes("vibe") || rawMethod.includes("coin")) key = "vibecoin";
+      if (rawMethod === "B" || rawMethod === "O" || rawMethod.includes("BKASH") || rawMethod.includes("ONLINE")) {
+        key = "bkash";
+      } else if (rawMethod === "N" || rawMethod.includes("NAGAD")) {
+        key = "nagad";
+      } else if (rawMethod === "C" || rawMethod.includes("COD") || rawMethod.includes("CASH")) {
+        key = "cod";
+      } else if (rawMethod === "V" || rawMethod.includes("VIBE") || rawMethod.includes("COIN")) {
+        key = "vibecoin";
+      }
 
       methods[key].count += 1;
       methods[key].revenue += total;
@@ -341,6 +346,14 @@ export default function AnalyticsTab({
         methods[key].completedCount += 1;
       }
     });
+
+    const methodColorMap: Record<string, string> = {
+      bkash: "var(--bkash)",
+      nagad: "var(--nagad)",
+      cod: "#1e1e24",
+      vibecoin: "#b8977e",
+      other: "#6b7280",
+    };
 
     const list = Object.entries(methods).map(([key, data]) => {
       const orderSharePct = grandTotalOrders > 0 ? (data.count / grandTotalOrders) * 100 : 0;
@@ -356,15 +369,18 @@ export default function AnalyticsTab({
         orderSharePct: Math.round(orderSharePct * 10) / 10,
         revenueSharePct: Math.round(revenueSharePct * 10) / 10,
         avgValue: Math.round(avgValue * 100) / 100,
+        color: methodColorMap[key] || "#6b7280",
       };
     }).filter(m => m.count > 0 || m.key !== "other");
 
     // Donut chart distribution data
     const pieData = list.map((item) => ({
+      key: item.key,
       name: item.label,
       value: Math.round(item.revenue),
       orders: item.count,
       pct: item.revenueSharePct,
+      color: item.color,
     }));
 
     return {
@@ -435,8 +451,8 @@ export default function AnalyticsTab({
         if (!productMap[prodId]) {
           productMap[prodId] = {
             id: prodId,
-            title: it.product.title || `Product #${prodId}`,
-            image: it.product.images?.[0]?.image || "",
+            title: it.product?.title || `Product #${prodId}`,
+            image: it.product?.images?.[0]?.image || "",
             unitPrice: price,
             totalUnitsSold: 0,
             totalRevenue: 0,
@@ -1203,24 +1219,14 @@ export default function AnalyticsTab({
                         paddingAngle={4}
                         dataKey="value"
                       >
-                        {paymentStats.pieData.map((entry, index) => {
-                          // Deterministic theme-based fills using globals.css variables
-                          const colors = [
-                            "var(--accent)",
-                            "var(--foreground)",
-                            "var(--bkash)",
-                            "var(--nagad)",
-                            "var(--button-bg)",
-                          ];
-                          return (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={colors[index % colors.length]}
-                              stroke="var(--secondary)"
-                              strokeWidth={2}
-                            />
-                          );
-                        })}
+                        {paymentStats.pieData.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={entry.color}
+                            stroke="var(--secondary)"
+                            strokeWidth={2}
+                          />
+                        ))}
                       </Pie>
                       <Tooltip
                         contentStyle={{
@@ -1281,14 +1287,7 @@ export default function AnalyticsTab({
                           <span
                             className="w-2.5 h-2.5 rounded-full"
                             style={{
-                              backgroundColor:
-                                m.key === "bkash"
-                                  ? "var(--bkash)"
-                                  : m.key === "nagad"
-                                  ? "var(--nagad)"
-                                  : m.key === "cod"
-                                  ? "var(--foreground)"
-                                  : "var(--accent)",
+                              backgroundColor: m.color,
                             }}
                           />
                           <span>{m.label}</span>
