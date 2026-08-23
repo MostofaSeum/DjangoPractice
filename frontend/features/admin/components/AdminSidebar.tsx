@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { AdminTab, ProductSubTab } from "../types";
+import { AdminTab, ProductSubTab, AnalyticsSubTab } from "../types";
 
 interface AdminSidebarProps {
   activeTab: AdminTab;
@@ -10,6 +10,10 @@ interface AdminSidebarProps {
   handleProductSubTabSwitch: (subTab: ProductSubTab) => void;
   isProductsDropdownOpen: boolean;
   setIsProductsDropdownOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
+  analyticsSubTab: AnalyticsSubTab;
+  handleAnalyticsSubTabSwitch: (subTab: AnalyticsSubTab) => void;
+  isAnalyticsDropdownOpen: boolean;
+  setIsAnalyticsDropdownOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
   isSidebarCollapsed: boolean;
   setIsSidebarCollapsed: (collapsed: boolean | ((prev: boolean) => boolean)) => void;
   productsCount: number;
@@ -28,6 +32,10 @@ export default function AdminSidebar({
   handleProductSubTabSwitch,
   isProductsDropdownOpen,
   setIsProductsDropdownOpen,
+  analyticsSubTab,
+  handleAnalyticsSubTabSwitch,
+  isAnalyticsDropdownOpen,
+  setIsAnalyticsDropdownOpen,
   isSidebarCollapsed,
   setIsSidebarCollapsed,
   productsCount,

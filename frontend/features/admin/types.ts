@@ -140,3 +140,4 @@ export type AdminTab =
   | "analytics";
 
 export type ProductSubTab = "all" | "add" | "edit" | "reviews";
+export type AnalyticsSubTab = "sales" | "coupons";
