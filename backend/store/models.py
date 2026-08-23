@@ -215,6 +215,7 @@ class Order(models.Model):
         max_length=20, choices=DELIVERY_AREA_CHOICES, default=DELIVERY_AREA_INSIDE_DHAKA)
     delivery_charge = models.DecimalField(
         max_digits=10, decimal_places=2, default=60.00, validators=[MinValueValidator(0)])
+    coupon_code = models.CharField(max_length=50, default='', blank=True)
     class Meta:
         permissions = [
             ('cancel_order', 'Can cancel order'),

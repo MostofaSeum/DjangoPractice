@@ -51,6 +51,7 @@ export interface Order {
   transaction_phone_no?: string;
   delivery_area?: string;
   delivery_charge?: number | string;
+  coupon_code?: string;
   items?: OrderItem[];
 }
 

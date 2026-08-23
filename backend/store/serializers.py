@@ -289,7 +289,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'customer_name', 'payment_status', 'placed_at', 'shipping_address', 'phone', 'payment_method', 'transaction_id', 'transaction_phone_no', 'delivery_area', 'delivery_charge', 'items']
+        fields = ['id', 'customer', 'customer_name', 'payment_status', 'placed_at', 'shipping_address', 'phone', 'payment_method', 'transaction_id', 'transaction_phone_no', 'delivery_area', 'delivery_charge', 'coupon_code', 'items']
 
     def get_customer_name(self, obj):
         if obj.customer and hasattr(obj.customer, 'user') and obj.customer.user:
@@ -483,7 +483,8 @@ class CreateOrderSerializer(serializers.Serializer):
                 transaction_id=self.validated_data.get('transaction_id', ''),
                 transaction_phone_no=self.validated_data.get('transaction_phone_no', ''),
                 delivery_area=delivery_area,
-                delivery_charge=delivery_charge
+                delivery_charge=delivery_charge,
+                coupon_code=coupon_code
             )
 
             order_items = [

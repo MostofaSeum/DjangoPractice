@@ -1,7 +1,5 @@
-"use client";
-
 import { useState, useMemo } from "react";
-import { Order, Product, CustomerItem } from "../../types";
+import { Order, Product, CustomerItem, CouponItem } from "../../types";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -12,6 +10,7 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
+  Legend,
 } from "recharts";
 
 type TimeRange = "24h" | "7d" | "15d" | "30d";
@@ -20,15 +19,18 @@ interface AnalyticsTabProps {
   orders?: Order[];
   products?: Product[];
   customers?: CustomerItem[];
+  coupons?: CouponItem[];
 }
 
 export default function AnalyticsTab({
   orders = [],
   products = [],
   customers = [],
+  coupons = [],
 }: AnalyticsTabProps) {
   const [timeRange, setTimeRange] = useState<TimeRange>("7d");
   const [chartType, setChartType] = useState<"area" | "bar">("area");
+  const [couponSearch, setCouponSearch] = useState<string>("");
 
   // Helper to compute order total
   const getOrderTotal = (order: Order): number => {
@@ -47,8 +49,6 @@ export default function AnalyticsTab({
       const now = new Date();
 
       if (timeRange === "24h") {
-        // Create 8 discrete 3-hour time buckets over the last 24h
-        // e.g. 8 slots from now-24h to now
         const numSlots = 8;
         const slotDurationMs = (24 / numSlots) * 60 * 60 * 1000;
         const startTimestamp = now.getTime() - 24 * 60 * 60 * 1000;
@@ -188,9 +188,108 @@ export default function AnalyticsTab({
       };
     }, [orders, timeRange]);
 
+  // Coupon Performance Analytics Calculation
+  const couponStats = useMemo(() => {
+    // Map existing coupon codes or codes present in orders
+    const couponMap: Record<
+      string,
+      {
+        code: string;
+        usageCount: number;
+        totalRevenue: number;
+        totalDiscounts: number;
+        discountPercent: number;
+        isActive: boolean;
+        targetType: string;
+      }
+    > = {};
+
+    // 1. Initialize with all registered coupons
+    coupons.forEach((c) => {
+      const normalizedCode = (c.code || "").toUpperCase().trim();
+      if (!normalizedCode) return;
+      couponMap[normalizedCode] = {
+        code: normalizedCode,
+        usageCount: 0,
+        totalRevenue: 0,
+        totalDiscounts: 0,
+        discountPercent: Number(c.discount_percent || 0),
+        isActive: Boolean(c.is_active),
+        targetType: c.target_type || "product",
+      };
+    });
+
+    // 2. Aggregate from orders
+    orders.forEach((order) => {
+      const code = (order.coupon_code || "").toUpperCase().trim();
+      if (!code) return;
+
+      if (!couponMap[code]) {
+        // Handle orders with legacy or removed coupon codes
+        couponMap[code] = {
+          code: code,
+          usageCount: 0,
+          totalRevenue: 0,
+          totalDiscounts: 0,
+          discountPercent: 0,
+          isActive: false,
+          targetType: "general",
+        };
+      }
+
+      const orderTot = getOrderTotal(order);
+      couponMap[code].usageCount += 1;
+      couponMap[code].totalRevenue += orderTot;
+
+      // Estimate total discount granted based on percentage if recorded
+      const discPct = couponMap[code].discountPercent;
+      if (discPct > 0 && discPct < 100) {
+        // Items revenue before discount ~ (itemsTotal) / (1 - discPct/100)
+        const itemsTotal = (order.items || []).reduce((acc, it) => {
+          return acc + (Number(it.unit_price) || 0) * (Number(it.quantity) || 0);
+        }, 0);
+        const estimatedDiscount = (itemsTotal / (1 - discPct / 100)) * (discPct / 100);
+        couponMap[code].totalDiscounts += Math.round(estimatedDiscount);
+      }
+    });
+
+    const statsList = Object.values(couponMap);
+
+    // Summary totals
+    const totalCouponUses = statsList.reduce((acc, cur) => acc + cur.usageCount, 0);
+    const totalCouponRevenue = statsList.reduce((acc, cur) => acc + cur.totalRevenue, 0);
+    const totalDiscountsGranted = statsList.reduce((acc, cur) => acc + cur.totalDiscounts, 0);
+    const activeCouponsCount = coupons.filter((c) => c.is_active).length;
+
+    // Filtered list for search
+    const filteredList = statsList
+      .filter((c) => c.code.toLowerCase().includes(couponSearch.toLowerCase().trim()))
+      .sort((a, b) => b.usageCount - a.usageCount || b.totalRevenue - a.totalRevenue);
+
+    // Prepare chart data (top 8 coupons by usage or revenue)
+    const chartData = [...statsList]
+      .sort((a, b) => b.usageCount - a.usageCount || b.totalRevenue - a.totalRevenue)
+      .slice(0, 8)
+      .map((item) => ({
+        code: item.code,
+        uses: item.usageCount,
+        revenue: Math.round(item.totalRevenue),
+        discounts: Math.round(item.totalDiscounts),
+      }));
+
+    return {
+      statsList: filteredList,
+      chartData,
+      totalCouponUses,
+      totalCouponRevenue,
+      totalDiscountsGranted,
+      activeCouponsCount,
+    };
+  }, [coupons, orders, couponSearch]);
+
   return (
-    <div className="space-y-8">
-      {/* Header & Controls */}
+    <div className="space-y-10">
+      {/* 1. MAIN SALES & REVENUE OVERVIEW */}
       <div className="bg-secondary text-foreground p-6 sm:p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-foreground/10">
           <div>
@@ -452,6 +551,262 @@ export default function AnalyticsTab({
                 </BarChart>
               )}
             </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. PROMO & COUPON PERFORMANCE SUBSECTION */}
+      <div className="bg-secondary text-foreground p-6 sm:p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300 space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-foreground/10">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <span className="text-xl">🏷️</span>
+              <h2 className="text-base font-black uppercase tracking-widest text-foreground">
+                Promo & Coupon Performance
+              </h2>
+            </div>
+            <p className="text-xs opacity-60 mt-1">
+              Track coupon redemptions, total discounts granted, and resulting cart revenues.
+            </p>
+          </div>
+
+          {/* Quick Search */}
+          <div className="w-full sm:w-64">
+            <input
+              type="text"
+              value={couponSearch}
+              onChange={(e) => setCouponSearch(e.target.value)}
+              placeholder="Search coupon code..."
+              className="w-full px-4 py-2 bg-background border border-foreground/15 rounded-xl text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:ring-2 focus:ring-accent transition-all"
+            />
+          </div>
+        </div>
+
+        {/* Coupon KPI Stat Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Card 1: Active Coupons */}
+          <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
+            <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
+              Active Campaigns
+            </span>
+            <div className="mt-3 flex items-baseline gap-2">
+              <span className="text-2xl font-black text-foreground">
+                {couponStats.activeCouponsCount}
+              </span>
+              <span className="text-xs font-bold opacity-60">coupons live</span>
+            </div>
+            <div className="mt-2 text-[10px] font-semibold opacity-60">
+              {coupons.length} total coupons created
+            </div>
+          </div>
+
+          {/* Card 2: Times Applied */}
+          <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
+            <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
+              Total Redemptions
+            </span>
+            <div className="mt-3 flex items-baseline gap-2">
+              <span className="text-2xl font-black text-foreground">
+                {couponStats.totalCouponUses}
+              </span>
+              <span className="text-xs font-bold opacity-60">times used</span>
+            </div>
+            <div className="mt-2 text-[10px] font-semibold text-emerald-500">
+              ● Applied across customer checkouts
+            </div>
+          </div>
+
+          {/* Card 3: Total Discounts Granted */}
+          <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
+            <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
+              Discounts Granted
+            </span>
+            <div className="mt-3 flex items-baseline gap-2">
+              <span className="text-2xl font-black text-rose-500">
+                ৳{couponStats.totalDiscountsGranted.toLocaleString()}
+              </span>
+            </div>
+            <div className="mt-2 text-[10px] font-semibold opacity-60">
+              Saved by customers
+            </div>
+          </div>
+
+          {/* Card 4: Revenue Generated */}
+          <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
+            <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
+              Coupon Driven Revenue
+            </span>
+            <div className="mt-3 flex items-baseline gap-2">
+              <span className="text-2xl font-black text-accent">
+                ৳{couponStats.totalCouponRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+            <div className="mt-2 text-[10px] font-semibold opacity-60">
+              From discounted orders
+            </div>
+          </div>
+        </div>
+
+        {/* Coupon Charts & Breakdown Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
+          {/* Revenue & Usage Bar Chart (8 cols) */}
+          <div className="lg:col-span-7 bg-foreground/5 border border-foreground/10 rounded-2xl p-5 flex flex-col justify-between">
+            <div className="mb-4">
+              <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+                Top Coupon Performance
+              </h3>
+              <p className="text-[11px] opacity-50 mt-0.5">
+                Comparison of order redemptions vs. revenue generated (৳ BDT)
+              </p>
+            </div>
+
+            {couponStats.chartData.length > 0 ? (
+              <div className="w-full h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={couponStats.chartData}
+                    margin={{ top: 10, right: 10, left: -10, bottom: 20 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      vertical={false}
+                      stroke="var(--foreground)"
+                      opacity={0.1}
+                    />
+                    <XAxis
+                      dataKey="code"
+                      stroke="var(--foreground)"
+                      opacity={0.7}
+                      tickLine={false}
+                      axisLine={false}
+                      fontSize={11}
+                      interval={0}
+                      angle={-20}
+                      textAnchor="end"
+                    />
+                    <YAxis
+                      yAxisId="left"
+                      orientation="left"
+                      stroke="var(--foreground)"
+                      opacity={0.6}
+                      tickLine={false}
+                      axisLine={false}
+                      fontSize={11}
+                      tickFormatter={(val) => `৳${val}`}
+                    />
+                    <YAxis
+                      yAxisId="right"
+                      orientation="right"
+                      stroke="var(--foreground)"
+                      opacity={0.6}
+                      tickLine={false}
+                      axisLine={false}
+                      fontSize={11}
+                      allowDecimals={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "var(--secondary)",
+                        borderRadius: "16px",
+                        border: "1px solid rgba(var(--foreground), 0.15)",
+                        color: "var(--foreground)",
+                        boxShadow: "0 10px 25px -5px rgba(0,0,0,0.15)",
+                        fontSize: "12px",
+                        fontWeight: 600,
+                        padding: "10px 14px",
+                      }}
+                      itemStyle={{ color: "var(--foreground)" }}
+                      labelStyle={{ color: "var(--foreground)", fontWeight: 800 }}
+                      formatter={(value: any, name: any) => [
+                        name === "Revenue (৳)" ? `৳${Number(value).toLocaleString()}` : `${value} orders`,
+                        name,
+                      ]}
+                      labelFormatter={(label) => `Coupon: ${label}`}
+                    />
+                    <Legend
+                      wrapperStyle={{ fontSize: "11px", fontWeight: 700, paddingTop: "10px" }}
+                    />
+                    <Bar
+                      yAxisId="left"
+                      name="Revenue (৳)"
+                      dataKey="revenue"
+                      fill="var(--accent)"
+                      radius={[6, 6, 0, 0]}
+                      maxBarSize={28}
+                    />
+                    <Bar
+                      yAxisId="right"
+                      name="Redemptions"
+                      dataKey="uses"
+                      fill="#10b981"
+                      radius={[6, 6, 0, 0]}
+                      maxBarSize={28}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <div className="h-64 flex flex-col items-center justify-center opacity-50 text-xs font-bold text-center">
+                <span className="text-3xl mb-2">🏷️</span>
+                No coupon usage data recorded yet.
+              </div>
+            )}
+          </div>
+
+          {/* Coupon Breakdown Table (5 cols) */}
+          <div className="lg:col-span-5 bg-foreground/5 border border-foreground/10 rounded-2xl p-5 flex flex-col">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+                Campaign Directory
+              </h3>
+              <span className="text-[10px] font-bold opacity-60">
+                {couponStats.statsList.length} total
+              </span>
+            </div>
+
+            <div className="flex-1 overflow-y-auto max-h-72 space-y-2 pr-1 custom-scrollbar">
+              {couponStats.statsList.length > 0 ? (
+                couponStats.statsList.map((c) => (
+                  <div
+                    key={c.code}
+                    className="p-3 bg-background/60 hover:bg-background rounded-xl border border-foreground/10 transition-all flex items-center justify-between gap-3 text-xs"
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-black text-accent bg-accent/10 px-2 py-0.5 rounded-md text-[11px]">
+                          {c.code}
+                        </span>
+                        <span
+                          className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${
+                            c.isActive
+                              ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                              : "bg-foreground/10 opacity-60 text-foreground"
+                          }`}
+                        >
+                          {c.isActive ? "Active" : "Disabled"}
+                        </span>
+                      </div>
+                      <div className="text-[10px] opacity-60 mt-1">
+                        {c.discountPercent > 0 ? `${c.discountPercent}% Discount` : "Special Promo"}
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      <div className="font-extrabold text-foreground">
+                        {c.usageCount} {c.usageCount === 1 ? "order" : "orders"}
+                      </div>
+                      <div className="text-[10px] font-bold text-accent">
+                        ৳{c.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="py-12 text-center opacity-50 text-xs font-bold">
+                  No matching coupons found.
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -2161,11 +2161,15 @@ export default function AdminDashboardPage() {
         await fetchDeliverySettings();
         await fetchDeliveryRules();
       } else if (activeTab === "analytics") {
-        // Refresh orders and products for analytics
-        const [prodRes, orderRes] = await Promise.all([
+        // Refresh orders, products, and coupons for analytics
+        const [prodRes, orderRes, couponRes] = await Promise.all([
           fetch(`${API_BASE}/store/products/?page=1`, { cache: "no-store" }),
           fetch(`${API_BASE}/store/orders/`, {
             headers: { Authorization: `JWT ${token}` },
+          }),
+          fetch(`${API_BASE}/store/coupons/`, {
+            headers: { Authorization: `JWT ${token}` },
+            cache: "no-store",
           }),
         ]);
         if (prodRes.ok) {
@@ -2175,6 +2179,10 @@ export default function AdminDashboardPage() {
         if (orderRes.ok) {
           const orderData = await orderRes.json();
           setOrders(Array.isArray(orderData) ? orderData : orderData.results || []);
+        }
+        if (couponRes.ok) {
+          const couponData = await couponRes.json();
+          setCouponsList(Array.isArray(couponData) ? couponData : couponData.results || []);
         }
       }
     } catch (err) {
@@ -2435,6 +2443,7 @@ export default function AdminDashboardPage() {
               orders={orders}
               products={products}
               customers={customers}
+              coupons={couponsList}
             />
           )}
         </main>
