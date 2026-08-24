@@ -41,6 +41,7 @@ export default function SheetsSyncTab({
         icon: "warning",
         title: "URL Required",
         text: "Please enter your Google Sheets link.",
+        confirmButtonColor: "var(--accent)",
       });
       return;
     }
@@ -66,7 +67,7 @@ export default function SheetsSyncTab({
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: `Google Sheet Synced! Created: ${data.created_count}, Updated: ${data.updated_count}`,
+          title: `Catalog synced successfully. Created: ${data.created_count}, Updated: ${data.updated_count}`,
           showConfirmButton: false,
           timer: 2500,
           toast: true,
@@ -77,6 +78,7 @@ export default function SheetsSyncTab({
           icon: "error",
           title: "Sync Failed",
           text: data?.error || "Could not fetch or sync from this Google Sheet.",
+          confirmButtonColor: "var(--accent)",
         });
       }
     } catch (err: any) {
@@ -85,6 +87,7 @@ export default function SheetsSyncTab({
         icon: "error",
         title: "Network Error",
         text: err?.message || "Failed to reach the server.",
+        confirmButtonColor: "var(--accent)",
       });
     } finally {
       setIsSyncingSheet(false);
@@ -100,6 +103,7 @@ export default function SheetsSyncTab({
         icon: "warning",
         title: "File Required",
         text: "Please choose a CSV file to import.",
+        confirmButtonColor: "var(--accent)",
       });
       return;
     }
@@ -130,7 +134,7 @@ export default function SheetsSyncTab({
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: `File Imported! Created: ${data.created_count}, Updated: ${data.updated_count}`,
+          title: `File imported successfully. Created: ${data.created_count}, Updated: ${data.updated_count}`,
           showConfirmButton: false,
           timer: 2500,
           toast: true,
@@ -141,6 +145,7 @@ export default function SheetsSyncTab({
           icon: "error",
           title: "Import Failed",
           text: data?.error || "Failed to process the CSV file.",
+          confirmButtonColor: "var(--accent)",
         });
       }
     } catch (err: any) {
@@ -149,6 +154,7 @@ export default function SheetsSyncTab({
         icon: "error",
         title: "Network Error",
         text: err?.message || "Failed to upload the file.",
+        confirmButtonColor: "var(--accent)",
       });
     } finally {
       setIsImportingFile(false);
@@ -180,7 +186,7 @@ export default function SheetsSyncTab({
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: "Catalog CSV downloaded!",
+          title: "Catalog CSV downloaded",
           showConfirmButton: false,
           timer: 1800,
           toast: true,
@@ -190,6 +196,7 @@ export default function SheetsSyncTab({
           icon: "error",
           title: "Export Failed",
           text: "Could not export product catalog.",
+          confirmButtonColor: "var(--accent)",
         });
       }
     } catch (err) {
@@ -220,7 +227,7 @@ export default function SheetsSyncTab({
 
     const sampleRows = [
       [
-        "", // Leave id blank for new products
+        "",
         "Velvet Matte Lipstick",
         "Lips",
         "850.00",
@@ -236,7 +243,7 @@ export default function SheetsSyncTab({
         "10",
       ],
       [
-        "", // Second variant of the same product
+        "",
         "Velvet Matte Lipstick",
         "Lips",
         "850.00",
@@ -285,22 +292,19 @@ export default function SheetsSyncTab({
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
+    <div className="space-y-6 animate-in fade-in duration-300">
       {/* Header Banner */}
       <div className="p-6 md:p-8 rounded-3xl bg-secondary text-foreground border border-foreground/10 shadow-sm transition-colors duration-300">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-              </span>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
               <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
-                Google Sheets & Excel Bulk Sync
+                Spreadsheet & Catalog Synchronization
               </h2>
             </div>
-            <p className="text-xs text-foreground/60">
-              Manage your stock and products in Google Sheets or Excel.
+            <p className="text-xs text-foreground/70 font-medium">
+              Synchronize inventory and product catalogs directly from Google Sheets or standard CSV files.
             </p>
           </div>
 
@@ -309,78 +313,82 @@ export default function SheetsSyncTab({
             <button
               type="button"
               onClick={handleDownloadSampleTemplate}
-              className="px-3.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider bg-primary/10 text-foreground hover:bg-primary/20 transition-all border border-foreground/10 cursor-pointer"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-[10px] font-extrabold uppercase tracking-wider bg-primary/5 hover:bg-primary/10 text-foreground border border-foreground/15 transition-all cursor-pointer"
             >
-              📥 Sample CSV Template
+              <svg className="w-3.5 h-3.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span>Sample Template</span>
             </button>
             <button
               type="button"
               onClick={handleExportCatalog}
               disabled={isExporting}
-              className="px-3.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider bg-button-bg text-button-fg hover:opacity-90 transition-all shadow-xs cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-[10px] font-extrabold uppercase tracking-wider bg-button-bg text-button-fg hover:opacity-90 transition-all shadow-xs cursor-pointer disabled:opacity-50"
             >
-              {isExporting ? "Exporting..." : "⬇️ Export Catalog (CSV)"}
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span>{isExporting ? "Exporting..." : "Export Catalog"}</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Main Grid: Option 1 (Google Sheets) & Option 2 (Excel / CSV Upload) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      {/* Main Grid: Google Sheets Live Sync & CSV File Upload */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         {/* Method 1: Google Sheets Live Sync */}
-        <div className="p-6 md:p-8 rounded-3xl bg-secondary text-foreground border border-foreground/10 shadow-sm flex flex-col justify-between h-full transition-colors duration-300">
+        <div className="p-6 md:p-7 rounded-3xl bg-secondary text-foreground border border-foreground/10 shadow-sm flex flex-col justify-between transition-colors duration-300">
           <div>
-            <div className="flex items-center gap-2 mb-3 pb-3 border-b border-foreground/10">
-              <div className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-sm">
-                1
+            <div className="flex items-center gap-3 mb-4 pb-3 border-b border-foreground/10">
+              <div className="w-7 h-7 rounded-lg bg-accent/15 text-accent flex items-center justify-center font-black text-xs">
+                01
               </div>
               <div>
                 <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
                   Google Sheets Live Sync
                 </h3>
-                <span className="text-[10px] opacity-60">Paste link & sync in real-time</span>
+                <p className="text-[10px] text-foreground/60">Connect shareable sheet to update database</p>
               </div>
             </div>
 
             <form onSubmit={handleSyncGoogleSheet} className="space-y-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black uppercase tracking-wider opacity-70">
-                  Google Sheet Shareable Link *
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                  Google Sheet Shareable URL
                 </label>
                 <input
                   type="url"
                   required
                   value={googleSheetUrl}
                   onChange={(e) => setGoogleSheetUrl(e.target.value)}
-                  placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit?usp=sharing"
-                  className="px-4 py-3 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all shadow-inner"
+                  placeholder="https://docs.google.com/spreadsheets/d/.../edit?usp=sharing"
+                  className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
                 />
               </div>
 
               {/* Instructions Box */}
-              <div className="p-4 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 text-[11px] space-y-1.5 opacity-85 leading-relaxed">
-                <p className="font-bold text-foreground">⚡ How to get the link:</p>
-                <ol className="list-decimal pl-4 space-y-1 opacity-75">
-                  <li>In your Google Sheet, click the top right <b>Share</b> button.</li>
-                  <li>Under General Access, choose <b>&quot;Anyone with the link can view&quot;</b>.</li>
-                  <li>Copy and paste the URL here and click <b>Sync Now</b>.</li>
+              <div className="p-4 rounded-2xl bg-primary/5 border border-foreground/10 text-[11px] space-y-1.5 text-foreground/80 leading-relaxed font-medium">
+                <p className="font-bold text-foreground">Connection Guide:</p>
+                <ol className="list-decimal pl-4 space-y-1 opacity-80 text-[10.5px]">
+                  <li>In Google Sheets, open the <b>Share</b> settings.</li>
+                  <li>Set access permissions to <b>&quot;Anyone with the link can view&quot;</b>.</li>
+                  <li>Paste the URL above and submit to synchronize changes.</li>
                 </ol>
               </div>
 
               <button
                 type="submit"
                 disabled={isSyncingSheet}
-                className="w-full py-3 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {isSyncingSheet ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-button-fg border-t-transparent rounded-full animate-spin"></div>
-                    <span>Syncing from Google Sheets...</span>
+                    <div className="w-3.5 h-3.5 border-2 border-button-fg border-t-transparent rounded-full animate-spin"></div>
+                    <span>Synchronizing...</span>
                   </>
                 ) : (
-                  <>
-                    <span>🔄 Sync from Google Sheets</span>
-                  </>
+                  <span>Sync Google Sheet</span>
                 )}
               </button>
             </form>
@@ -388,24 +396,24 @@ export default function SheetsSyncTab({
         </div>
 
         {/* Method 2: Offline CSV / Excel File Upload */}
-        <div className="p-6 md:p-8 rounded-3xl bg-secondary text-foreground border border-foreground/10 shadow-sm flex flex-col justify-between h-full transition-colors duration-300">
+        <div className="p-6 md:p-7 rounded-3xl bg-secondary text-foreground border border-foreground/10 shadow-sm flex flex-col justify-between transition-colors duration-300">
           <div>
-            <div className="flex items-center gap-2 mb-3 pb-3 border-b border-foreground/10">
-              <div className="w-8 h-8 rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center font-black text-sm">
-                2
+            <div className="flex items-center gap-3 mb-4 pb-3 border-b border-foreground/10">
+              <div className="w-7 h-7 rounded-lg bg-accent/15 text-accent flex items-center justify-center font-black text-xs">
+                02
               </div>
               <div>
                 <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
-                  Upload CSV / Excel File
+                  Bulk CSV / Excel File Import
                 </h3>
-                <span className="text-[10px] opacity-60">Bulk import offline spreadsheets</span>
+                <p className="text-[10px] text-foreground/60">Import catalog files prepared offline</p>
               </div>
             </div>
 
             <form onSubmit={handleImportFile} className="space-y-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-black uppercase tracking-wider opacity-70">
-                  Select CSV File *
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                  Select CSV Spreadsheet
                 </label>
                 <input
                   ref={fileInputRef}
@@ -421,27 +429,25 @@ export default function SheetsSyncTab({
               </div>
 
               {/* Instructions Box */}
-              <div className="p-4 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 text-[11px] space-y-1.5 opacity-85 leading-relaxed">
-                <p className="font-bold text-foreground">💡 Tip for existing products:</p>
-                <p className="opacity-75">
-                  Click <b>&quot;Export Catalog (CSV)&quot;</b> above to get your existing products with their IDs, update stock or prices in Excel, and upload here to bulk update!
+              <div className="p-4 rounded-2xl bg-primary/5 border border-foreground/10 text-[11px] space-y-1.5 text-foreground/80 leading-relaxed font-medium">
+                <p className="font-bold text-foreground">Updating Existing Inventory:</p>
+                <p className="opacity-80 text-[10.5px]">
+                  Use the <b>&quot;Export Catalog&quot;</b> action to download current IDs, make offline quantity or price edits, and upload the updated spreadsheet here.
                 </p>
               </div>
 
               <button
                 type="submit"
                 disabled={isImportingFile || !selectedFile}
-                className="w-full py-3 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {isImportingFile ? (
                   <>
-                    <div className="w-4 h-4 border-2 border-button-fg border-t-transparent rounded-full animate-spin"></div>
-                    <span>Importing CSV file...</span>
+                    <div className="w-3.5 h-3.5 border-2 border-button-fg border-t-transparent rounded-full animate-spin"></div>
+                    <span>Processing File...</span>
                   </>
                 ) : (
-                  <>
-                    <span>📤 Upload & Process File</span>
-                  </>
+                  <span>Process CSV Import</span>
                 )}
               </button>
             </form>
@@ -457,54 +463,54 @@ export default function SheetsSyncTab({
               <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
                 Sync Execution Report
               </h3>
-              <span className="text-[10px] opacity-60">
+              <p className="text-[10px] text-foreground/60">
                 Source: {lastSyncMode === "sheets" ? "Google Sheets" : "Uploaded CSV"}
-              </span>
+              </p>
             </div>
             <button
               type="button"
               onClick={() => setSyncResults(null)}
-              className="text-[10px] font-bold uppercase tracking-wider opacity-60 hover:opacity-100"
+              className="text-[10px] font-bold uppercase tracking-wider text-foreground/60 hover:text-foreground cursor-pointer"
             >
-              ✕ Dismiss
+              Dismiss
             </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                New Products Created
+            <div className="p-4 rounded-2xl bg-primary/5 border border-foreground/10">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">
+                Products Created
               </span>
-              <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
+              <p className="text-2xl font-black text-foreground mt-1">
                 {syncResults.created_count}
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                Existing Products Updated
+            <div className="p-4 rounded-2xl bg-primary/5 border border-foreground/10">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">
+                Products Updated
               </span>
-              <p className="text-2xl font-black text-blue-600 dark:text-blue-400 mt-1">
+              <p className="text-2xl font-black text-accent mt-1">
                 {syncResults.updated_count}
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                Row Warnings / Errors
+            <div className="p-4 rounded-2xl bg-primary/5 border border-foreground/10">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">
+                Warnings / Errors
               </span>
-              <p className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">
+              <p className={`text-2xl font-black mt-1 ${syncResults.errors.length > 0 ? "text-red-500" : "text-foreground/70"}`}>
                 {syncResults.errors.length}
               </p>
             </div>
           </div>
 
           {syncResults.errors.length > 0 && (
-            <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 space-y-2">
+            <div className="p-4 rounded-2xl bg-primary/5 border border-red-500/30 space-y-2">
               <p className="text-xs font-black uppercase tracking-wider text-red-500">
                 Error Details:
               </p>
-              <ul className="list-disc pl-5 text-xs text-red-500 space-y-1 max-h-40 overflow-y-auto">
+              <ul className="list-disc pl-5 text-xs text-foreground/80 space-y-1 max-h-40 overflow-y-auto">
                 {syncResults.errors.map((err, i) => (
                   <li key={i}>{err}</li>
                 ))}
