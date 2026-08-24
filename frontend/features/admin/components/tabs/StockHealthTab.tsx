@@ -5,17 +5,17 @@ import Image from "next/image";
 import { Product, Collection } from "../../types";
 import ProductImage from "@/components/ui/ProductImage";
 
-interface InventoryStockHealthCardsProps {
+interface StockHealthTabProps {
   products: Product[];
   collections?: Collection[];
   onSelectProduct?: (product: Product) => void;
 }
 
-export default function InventoryStockHealthCards({
+export default function StockHealthTab({
   products,
   collections = [],
   onSelectProduct,
-}: InventoryStockHealthCardsProps) {
+}: StockHealthTabProps) {
   // Threshold input state: max 3 digit number, default 10
   const [thresholdInput, setThresholdInput] = useState<string>("10");
   const [searchQuery, setSearchQuery] = useState<string>("");
