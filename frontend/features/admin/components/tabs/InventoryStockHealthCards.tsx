@@ -135,37 +135,30 @@ export default function InventoryStockHealthCards({
           </div>
 
           {/* Threshold Input Control Box */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 bg-primary/5 dark:bg-primary/20 p-4 rounded-2xl border border-foreground/10">
-            <div className="flex flex-col">
-              <label
-                htmlFor="inventory-threshold-input"
-                className="text-[10px] font-black uppercase tracking-wider text-foreground/70"
-              >
-                Alert Threshold
-              </label>
-              <span className="text-[10px] text-foreground/50">
-                Default: 10 units
-              </span>
-            </div>
+          <div className="flex items-center gap-2.5 bg-primary/5 dark:bg-primary/20 px-3 py-2 rounded-xl border border-foreground/10 self-start sm:self-auto">
+            <label
+              htmlFor="inventory-threshold-input"
+              className="text-[10px] font-black uppercase tracking-wider text-foreground/70 shrink-0"
+            >
+              Alert Threshold
+            </label>
 
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <input
-                  id="inventory-threshold-input"
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  maxLength={3}
-                  value={thresholdInput}
-                  onChange={handleThresholdChange}
-                  placeholder="10"
-                  className="w-24 px-3.5 py-2.5 text-center text-sm font-black tracking-wider bg-background border border-foreground/20 rounded-xl text-foreground focus:ring-2 focus:ring-accent focus:border-accent outline-none shadow-inner transition-all font-mono"
-                />
-              </div>
+            <div className="flex items-center gap-1.5">
+              <input
+                id="inventory-threshold-input"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={3}
+                value={thresholdInput}
+                onChange={handleThresholdChange}
+                placeholder="10"
+                className="w-14 px-2 py-1 text-center text-xs font-black tracking-wider bg-background border border-foreground/20 rounded-lg text-foreground focus:ring-1 focus:ring-accent focus:border-accent outline-none transition-all font-mono"
+              />
               <button
                 type="button"
                 onClick={() => setThresholdInput("10")}
-                className="px-3 py-2 text-[10px] font-black uppercase tracking-wider bg-background hover:bg-button-bg hover:text-button-fg border border-foreground/15 rounded-xl transition-all shadow-xs cursor-pointer"
+                className="px-2.5 py-1 text-[9px] font-black uppercase tracking-wider bg-background hover:bg-button-bg hover:text-button-fg border border-foreground/15 rounded-lg transition-all shadow-xs cursor-pointer"
                 title="Reset threshold to default 10"
               >
                 Reset
