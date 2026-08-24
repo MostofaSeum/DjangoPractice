@@ -218,13 +218,30 @@ export default function ProductsTab({
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  Inventory Stock *
-                </label>
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                    Inventory Stock *
+                  </label>
+                  {newProductVariants.length > 0 && (
+                    <span className="text-[9px] font-bold text-accent">
+                      Sum of {newProductVariants.length} variants
+                    </span>
+                  )}
+                </div>
                 <input
                   type="number"
                   required
-                  value={productForm.inventory}
+                  value={
+                    newProductVariants.length > 0
+                      ? String(
+                          newProductVariants.reduce(
+                            (acc, v) => acc + (parseInt(v.inventory) || 0),
+                            0
+                          )
+                        )
+                      : productForm.inventory
+                  }
+                  readOnly={newProductVariants.length > 0}
                   onChange={(e) =>
                     setProductForm({
                       ...productForm,
@@ -232,7 +249,14 @@ export default function ProductsTab({
                     })
                   }
                   placeholder="10"
-                  className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+                  className={`px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all ${
+                    newProductVariants.length > 0 ? "opacity-80 cursor-not-allowed" : ""
+                  }`}
+                  title={
+                    newProductVariants.length > 0
+                      ? "Automatically calculated from the variants below"
+                      : undefined
+                  }
                 />
               </div>
             </div>
@@ -805,24 +829,51 @@ export default function ProductsTab({
                   />
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Inventory Stock *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    value={productForm.inventory}
-                    onChange={(e) =>
-                      setProductForm({
-                        ...productForm,
-                        inventory: e.target.value,
-                      })
-                    }
-                    placeholder="10"
-                    className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
-                  />
-                </div>
+                {(() => {
+                  const currentSelectedProd = promoProductsCatalog.find(
+                    (p) => p.id === editingProductId
+                  );
+                  const hasVariants =
+                    currentSelectedProd &&
+                    Array.isArray((currentSelectedProd as any).variants) &&
+                    (currentSelectedProd as any).variants.length > 0;
+
+                  return (
+                    <div className="flex flex-col gap-1">
+                      <div className="flex justify-between items-center">
+                        <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                          Inventory Stock *
+                        </label>
+                        {hasVariants && (
+                          <span className="text-[9px] font-bold text-accent">
+                            Managed per variant ({((currentSelectedProd as any).variants as any[]).length} variants)
+                          </span>
+                        )}
+                      </div>
+                      <input
+                        type="number"
+                        required
+                        value={productForm.inventory}
+                        readOnly={Boolean(hasVariants)}
+                        onChange={(e) =>
+                          setProductForm({
+                            ...productForm,
+                            inventory: e.target.value,
+                          })
+                        }
+                        placeholder="10"
+                        className={`px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all ${
+                          hasVariants ? "opacity-80 cursor-not-allowed" : ""
+                        }`}
+                        title={
+                          hasVariants
+                            ? "Stock is automatically calculated from variants below"
+                            : undefined
+                        }
+                      />
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="flex flex-col gap-1">

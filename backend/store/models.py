@@ -78,6 +78,13 @@ class Product(models.Model):
             return round(self.unit_price - discount_amount, 2)
         return self.unit_price
 
+    @property
+    def total_inventory(self):
+        variant_stock = self.variants.filter(is_active=True).aggregate(total=Sum('inventory'))['total']
+        if variant_stock is not None and self.variants.exists():
+            return int(variant_stock)
+        return int(self.inventory or 0)
+
     def __str__(self) -> str:
         return self.title
 
@@ -118,10 +125,22 @@ class ProductVariant(models.Model):
     def __str__(self):
         return f"{self.product.title} - {self.name}"
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Automatically sync parent product inventory to total variants stock
+        total_var_stock = self.product.variants.filter(is_active=True).aggregate(total=Sum('inventory'))['total']
+        if total_var_stock is not None:
+            Product.objects.filter(pk=self.product_id).update(inventory=total_var_stock)
+
     def delete(self, *args, **kwargs):
         if self.image:
             self.image.delete(save=False)
+        product_id = self.product_id
         super().delete(*args, **kwargs)
+        # Re-sync parent product inventory
+        total_var_stock = ProductVariant.objects.filter(product_id=product_id, is_active=True).aggregate(total=Sum('inventory'))['total']
+        if total_var_stock is not None:
+            Product.objects.filter(pk=product_id).update(inventory=total_var_stock)
 
 
 class ProductImage(models.Model):
