@@ -300,7 +300,7 @@ export default function SheetsSyncTab({
               </h2>
             </div>
             <p className="text-xs text-foreground/60">
-              Manage your stock and products in Google Sheets or Excel. 100% free with automated database synchronization.
+              Manage your stock and products in Google Sheets or Excel.
             </p>
           </div>
 
