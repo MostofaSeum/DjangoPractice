@@ -441,12 +441,12 @@ export default function ProductTabs({
       : null;
 
   return (
-    <div className="mt-12 sm:mt-20 border-t border-foreground/10 pt-8 sm:pt-12 transition-colors duration-300">
+    <div className="mt-8 sm:mt-10 border-t border-foreground/10 pt-6 sm:pt-8 transition-colors duration-300">
       {/* Tab Navigation Header */}
-      <div className="flex justify-center items-center space-x-3 sm:space-x-4 border-b border-foreground/10 pb-6 mb-8 overflow-x-auto">
+      <div className="flex justify-center items-center space-x-3 sm:space-x-4 border-b border-foreground/10 pb-4 mb-5 overflow-x-auto">
         <button
           onClick={() => setActiveTab("description")}
-          className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 whitespace-nowrap ${
+          className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 whitespace-nowrap ${
             activeTab === "description"
               ? "bg-button-bg text-button-fg shadow-md"
               : "bg-transparent text-foreground/70 hover:text-foreground hover:bg-foreground/5"
@@ -461,7 +461,7 @@ export default function ProductTabs({
             setActiveTab("reviews");
             if (!reviewsFetched) fetchReviews();
           }}
-          className={`px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 flex items-center gap-2.5 whitespace-nowrap ${
+          className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 flex items-center gap-2.5 whitespace-nowrap ${
             activeTab === "reviews"
               ? "bg-button-bg text-button-fg shadow-md"
               : "bg-transparent text-foreground/70 hover:text-foreground hover:bg-foreground/5"

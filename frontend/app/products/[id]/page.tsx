@@ -206,12 +206,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
         {/* Related Products Section */}
         {relatedProducts.length > 0 && (
-          <div className="mt-24">
-            <div className="text-center mb-12">
+          <div className="mt-12 sm:mt-14">
+            <div className="text-center mb-6">
               <h2 className="text-2xl font-black uppercase tracking-tighter">
                 Related products
               </h2>
-              <div className="w-12 h-1 bg-accent mx-auto mt-3 rounded"></div>
+              <div className="w-12 h-1 bg-accent mx-auto mt-2 rounded"></div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
