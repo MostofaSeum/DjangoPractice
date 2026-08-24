@@ -120,9 +120,12 @@ export default function InventoryStockHealthCards({
       <div className="bg-secondary text-foreground p-6 sm:p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-foreground/10">
           <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse" />
-              <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-3 w-3 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
+              </span>
+              <h2 className="text-base font-black uppercase tracking-widest text-foreground">
                 Inventory & Stock Health Alert Cards
               </h2>
             </div>
