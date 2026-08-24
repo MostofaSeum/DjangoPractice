@@ -1,7 +1,14 @@
+import csv
+import io
+import re
+import urllib.request
+import urllib.parse
+from decimal import Decimal
+from django.db import transaction
+from django.http import HttpResponse, request
 from .permissions import ViewCustomerHistoryPermission
 from rest_framework.decorators import action
 from store.models import OrderItem
-from django.http import request
 from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer,PaymentSettingSerializer,DeliverySettingSerializer,DeliveryRuleSerializer
 from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule
 from django.utils import timezone
@@ -39,6 +46,260 @@ class ProductViewSet(ModelViewSet):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAdminUser])
+    def export_csv(self, request):
+        """Export all products and variants as a standard CSV file."""
+        products = Product.objects.prefetch_related('variants', 'collection').all()
+        
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = 'attachment; filename="vibemart_products_catalog.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow([
+            'id', 'title', 'collection', 'unit_price', 'discount_percent', 'inventory',
+            'short_description', 'description', 'variant_name', 'variant_color_name',
+            'variant_color_code', 'variant_size', 'variant_price', 'variant_inventory'
+        ])
+        
+        for p in products:
+            collection_name = p.collection.title if p.collection else ''
+            variants = list(p.variants.all())
+            if variants:
+                for v in variants:
+                    writer.writerow([
+                        p.id, p.title, collection_name, p.unit_price, p.discount_percent, p.inventory,
+                        p.short_description, p.description, v.name, v.color_name or '',
+                        v.color_code or '', v.size or '', v.price_override or '', v.inventory
+                    ])
+            else:
+                writer.writerow([
+                    p.id, p.title, collection_name, p.unit_price, p.discount_percent, p.inventory,
+                    p.short_description, p.description, '', '', '', '', '', ''
+                ])
+        
+        return response
+
+    @staticmethod
+    def _process_product_csv_rows(rows):
+        """Helper to parse and upsert rows from CSV into Product & ProductVariant entities."""
+        created_count = 0
+        updated_count = 0
+        errors = []
+        
+        # Group rows by product (either by ID or by title if ID is empty)
+        grouped = {}
+        for index, row in enumerate(rows, start=2): # 1 is header
+            # Clean keys (case-insensitive & stripped)
+            clean_row = {str(k).strip().lower(): str(v).strip() for k, v in row.items() if k is not None}
+            
+            title = clean_row.get('title')
+            if not title:
+                # If row is empty, skip
+                if not any(clean_row.values()):
+                    continue
+                errors.append(f"Row {index}: Missing required 'title' field.")
+                continue
+            
+            prod_id_raw = clean_row.get('id', '')
+            prod_key = f"id:{prod_id_raw}" if prod_id_raw and prod_id_raw.isdigit() else f"title:{title.lower()}"
+            
+            if prod_key not in grouped:
+                grouped[prod_key] = {
+                    'row_num': index,
+                    'id': int(prod_id_raw) if prod_id_raw and prod_id_raw.isdigit() else None,
+                    'title': title,
+                    'collection': clean_row.get('collection', ''),
+                    'unit_price': clean_row.get('unit_price', '0'),
+                    'discount_percent': clean_row.get('discount_percent', '0'),
+                    'inventory': clean_row.get('inventory', '0'),
+                    'short_description': clean_row.get('short_description', ''),
+                    'description': clean_row.get('description', ''),
+                    'variants': []
+                }
+            
+            # Variant row info
+            variant_name = clean_row.get('variant_name', '')
+            if variant_name:
+                grouped[prod_key]['variants'].append({
+                    'name': variant_name,
+                    'color_name': clean_row.get('variant_color_name', ''),
+                    'color_code': clean_row.get('variant_color_code', ''),
+                    'size': clean_row.get('variant_size', ''),
+                    'price_override': clean_row.get('variant_price', ''),
+                    'inventory': clean_row.get('variant_inventory', '0'),
+                })
+
+        with transaction.atomic():
+            for prod_key, data in grouped.items():
+                try:
+                    # Find or create collection
+                    collection_name = data['collection']
+                    collection_obj = None
+                    if collection_name:
+                        if collection_name.isdigit():
+                            collection_obj = Collection.objects.filter(pk=int(collection_name)).first()
+                        if not collection_obj:
+                            collection_obj, _ = Collection.objects.get_or_create(title=collection_name)
+                    if not collection_obj:
+                        collection_obj = Collection.objects.first()
+                        if not collection_obj:
+                            collection_obj = Collection.objects.create(title="General")
+
+                    try:
+                        price = Decimal(data['unit_price'] or '0')
+                    except Exception:
+                        price = Decimal('0')
+
+                    try:
+                        discount = Decimal(data['discount_percent'] or '0')
+                    except Exception:
+                        discount = Decimal('0')
+
+                    try:
+                        inv = int(float(data['inventory'] or '0'))
+                    except Exception:
+                        inv = 0
+
+                    product = None
+                    is_new = False
+                    if data['id']:
+                        product = Product.objects.filter(pk=data['id']).first()
+                    
+                    if not product:
+                        product = Product.objects.filter(title__iexact=data['title']).first()
+
+                    slug_val = re.sub(r'[^a-zA-Z0-9]+', '-', data['title'].lower()).strip('-')
+
+                    if product:
+                        product.title = data['title']
+                        if not product.slug:
+                            product.slug = slug_val
+                        if price > 0:
+                            product.unit_price = price
+                        product.discount_percent = max(Decimal('0'), min(Decimal('100'), discount))
+                        product.collection = collection_obj
+                        if data['short_description']:
+                            product.short_description = data['short_description']
+                        if data['description']:
+                            product.description = data['description']
+                        if not data['variants']:
+                            product.inventory = inv
+                        product.save()
+                        updated_count += 1
+                    else:
+                        product = Product.objects.create(
+                            title=data['title'],
+                            slug=slug_val or "product",
+                            unit_price=price if price > 0 else Decimal('1.00'),
+                            discount_percent=max(Decimal('0'), min(Decimal('100'), discount)),
+                            inventory=inv,
+                            collection=collection_obj,
+                            short_description=data['short_description'] or 'Short Description',
+                            description=data['description'] or ''
+                        )
+                        created_count += 1
+                        is_new = True
+
+                    # Upsert Variants if provided
+                    if data['variants']:
+                        for v_data in data['variants']:
+                            try:
+                                v_inv = int(float(v_data['inventory'] or '0'))
+                            except Exception:
+                                v_inv = 0
+                            
+                            v_price = None
+                            if v_data['price_override']:
+                                try:
+                                    v_price = Decimal(v_data['price_override'])
+                                except Exception:
+                                    v_price = None
+
+                            variant_obj, _ = ProductVariant.objects.get_or_create(
+                                product=product,
+                                name=v_data['name'],
+                                defaults={
+                                    'color_name': v_data['color_name'] or None,
+                                    'color_code': v_data['color_code'] or None,
+                                    'size': v_data['size'] or None,
+                                    'price_override': v_price,
+                                    'inventory': v_inv,
+                                    'is_active': True,
+                                }
+                            )
+                            if not _:
+                                variant_obj.color_name = v_data['color_name'] or None
+                                variant_obj.color_code = v_data['color_code'] or None
+                                variant_obj.size = v_data['size'] or None
+                                variant_obj.price_override = v_price
+                                variant_obj.inventory = v_inv
+                                variant_obj.is_active = True
+                                variant_obj.save()
+
+                except Exception as e:
+                    errors.append(f"Row {data['row_num']} ('{data['title']}'): {str(e)}")
+
+        return {
+            'created_count': created_count,
+            'updated_count': updated_count,
+            'errors': errors
+        }
+
+    @action(detail=False, methods=['post'], permission_classes=[IsAdminUser])
+    def sync_google_sheet(self, request):
+        """Fetch a public Google Sheet CSV and upsert all products & variants."""
+        sheet_url = request.data.get('url', '').strip()
+        if not sheet_url:
+            return Response({'error': 'Google Sheet URL is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Extract Sheet ID using regex
+        match = re.search(r'/spreadsheets/d/([a-zA-Z0-9-_]+)', sheet_url)
+        if not match:
+            return Response({'error': 'Invalid Google Sheets URL format. Please provide a valid Google Sheets link.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        sheet_id = match.group(1)
+        
+        # Check if specific gid is in the url
+        gid_match = re.search(r'[#&?]gid=([0-9]+)', sheet_url)
+        gid = gid_match.group(1) if gid_match else '0'
+
+        export_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={gid}"
+
+        try:
+            req = urllib.request.Request(
+                export_url,
+                headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+            )
+            with urllib.request.urlopen(req, timeout=15) as response:
+                content = response.read().decode('utf-8-sig', errors='replace')
+        except Exception as e:
+            return Response({
+                'error': f'Failed to fetch Google Sheet. Make sure the sheet sharing is set to "Anyone with the link can view". Details: {str(e)}'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            reader = csv.DictReader(io.StringIO(content))
+            result = self._process_product_csv_rows(reader)
+            return Response(result, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': f'Failed to parse CSV data: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'], permission_classes=[IsAdminUser])
+    def bulk_import_csv(self, request):
+        """Import products from an uploaded CSV file."""
+        file_obj = request.FILES.get('file')
+        if not file_obj:
+            return Response({'error': 'CSV file is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Decode file
+            content = file_obj.read().decode('utf-8-sig', errors='replace')
+            reader = csv.DictReader(io.StringIO(content))
+            result = self._process_product_csv_rows(reader)
+            return Response(result, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': f'Failed to process CSV file: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
     
     def destroy(self, request, *args, **kwargs):
         if OrderItem.objects.filter(product_id=kwargs['pk']).count() > 0:

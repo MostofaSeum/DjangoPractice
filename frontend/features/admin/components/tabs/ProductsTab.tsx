@@ -9,6 +9,7 @@ import ImageUploadModal from "@/components/ui/ImageUploadModal";
 import ProductVariantsManager from "@/features/products/components/ProductVariantsManager";
 import ReviewsSubTab from "./ReviewsSubTab";
 import StockHealthTab from "./StockHealthTab";
+import SheetsSyncTab from "./SheetsSyncTab";
 
 interface ProductsTabProps {
   productSubTab: ProductSubTab;
@@ -161,6 +162,15 @@ export default function ProductsTab({
       {/* SUBTAB 5: Reviews */}
       {productSubTab === "reviews" && (
         <ReviewsSubTab products={products} token={token} />
+      )}
+
+      {/* SUBTAB 6: Google Sheets & Excel Sync */}
+      {productSubTab === "sheets-sync" && (
+        <SheetsSyncTab
+          apiBase={process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}
+          token={token}
+          onSyncSuccess={fetchAdminData}
+        />
       )}
 
       {/* SUBTAB 2: Add New Product */}

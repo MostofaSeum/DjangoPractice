@@ -375,6 +375,18 @@ export default function AdminSidebar({
                     >
                       <span className="truncate">Reviews</span>
                     </button>
+
+                    {/* 6. Google Sheets & Excel Sync */}
+                    <button
+                      onClick={() => handleProductSubTabSwitch("sheets-sync")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        isActive && productSubTab === "sheets-sync"
+                          ? "bg-accent text-white shadow-xs font-black"
+                          : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="truncate">Sheets & Excel Sync</span>
+                    </button>
                   </div>
                 )}
 

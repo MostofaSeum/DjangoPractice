@@ -147,6 +147,12 @@ export type AdminTab =
   | "delivery"
   | "analytics";
 
-export type ProductSubTab = "all" | "add" | "edit" | "reviews" | "stock-health";
+export type ProductSubTab =
+  | "all"
+  | "add"
+  | "edit"
+  | "reviews"
+  | "stock-health"
+  | "sheets-sync";
 export type CollectionSubTab = "all" | "add" | "edit";
 export type AnalyticsSubTab = "sales" | "coupons" | "payments" | "top-products";
