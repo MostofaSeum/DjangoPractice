@@ -137,23 +137,23 @@ export default function InventoryStockHealthCards({
         const colTitle = getCollectionTitle(item.collection);
         const price = Number(item.unit_price || 0).toFixed(2);
         return `
-          <tr style="border-bottom: 1px solid #e5e0d8; font-size: 11px;">
-            <td style="padding: 8px 10px; text-align: center; color: #736b63;">${index + 1}</td>
+          <tr style="border-bottom: 1px solid rgba(58, 53, 50, 0.12); font-size: 11px;">
+            <td style="padding: 8px 10px; text-align: center; color: rgba(58, 53, 50, 0.6);">${index + 1}</td>
             <td style="padding: 8px 10px; font-weight: 700; color: #3a3532;">#${item.id}</td>
-            <td style="padding: 8px 10px; font-weight: 700; color: #1e1b18;">${item.title}</td>
-            <td style="padding: 8px 10px; color: #5a524c;">${colTitle}</td>
+            <td style="padding: 8px 10px; font-weight: 700; color: #3a3532;">${item.title}</td>
+            <td style="padding: 8px 10px; color: rgba(58, 53, 50, 0.7);">${colTitle}</td>
             <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #8b7a66;">৳${price}</td>
             <td style="padding: 8px 10px; text-align: center;">
               <span style="display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; ${
                 isZero
-                  ? "background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca;"
-                  : "background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a;"
+                  ? "background-color: rgba(58, 53, 50, 0.1); color: #3a3532; border: 1px solid rgba(58, 53, 50, 0.2);"
+                  : "background-color: rgba(139, 122, 102, 0.15); color: #8b7a66; border: 1px solid rgba(139, 122, 102, 0.3);"
               }">
                 ${isZero ? "Out of Stock" : "Low Stock"}
               </span>
             </td>
             <td style="padding: 8px 10px; text-align: center; font-weight: 800; font-family: monospace; font-size: 12px; color: ${
-              isZero ? "#dc2626" : "#3a3532"
+              isZero ? "#3a3532" : "#8b7a66"
             };">
               ${stock} units
             </td>
@@ -207,7 +207,7 @@ export default function InventoryStockHealthCards({
             }
             .subtitle {
               font-size: 11px;
-              color: #736b63;
+              color: rgba(58, 53, 50, 0.7);
               margin: 0;
             }
             .kpi-container {
@@ -217,8 +217,8 @@ export default function InventoryStockHealthCards({
               margin-bottom: 24px;
             }
             .kpi-card {
-              border: 1px solid #e5e0d8;
-              background-color: #faf8f5;
+              border: 1px solid rgba(58, 53, 50, 0.12);
+              background-color: rgba(230, 224, 212, 0.35);
               border-radius: 8px;
               padding: 10px 12px;
             }
@@ -227,7 +227,7 @@ export default function InventoryStockHealthCards({
               font-weight: 800;
               text-transform: uppercase;
               letter-spacing: 0.5px;
-              color: #736b63;
+              color: rgba(58, 53, 50, 0.7);
               margin-bottom: 4px;
             }
             .kpi-val {
@@ -248,15 +248,15 @@ export default function InventoryStockHealthCards({
               text-transform: uppercase;
               letter-spacing: 0.5px;
               padding: 9px 10px;
-              border-top: 1px solid #e5e0d8;
-              border-bottom: 1px solid #d4cdbf;
+              border-top: 1px solid rgba(58, 53, 50, 0.12);
+              border-bottom: 1px solid #8b7a66;
             }
             .footer {
               margin-top: 30px;
               padding-top: 12px;
-              border-top: 1px solid #e5e0d8;
+              border-top: 1px solid rgba(58, 53, 50, 0.12);
               font-size: 10px;
-              color: #8c827a;
+              color: rgba(58, 53, 50, 0.6);
               display: flex;
               justify-content: space-between;
             }
