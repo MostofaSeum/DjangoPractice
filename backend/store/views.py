@@ -146,18 +146,22 @@ class ProductViewSet(ModelViewSet):
                         if not collection_obj:
                             collection_obj = Collection.objects.create(title="General")
 
+                    # Clean numeric strings (remove currency symbols like ৳, $, BDT, and % signs)
+                    raw_price = re.sub(r'[^\d.]', '', data['unit_price'] or '')
                     try:
-                        price = Decimal(data['unit_price'] or '0')
+                        price = Decimal(raw_price) if raw_price else Decimal('0')
                     except Exception:
                         price = Decimal('0')
 
+                    raw_discount = re.sub(r'[^\d.]', '', data['discount_percent'] or '')
                     try:
-                        discount = Decimal(data['discount_percent'] or '0')
+                        discount = Decimal(raw_discount) if raw_discount else Decimal('0')
                     except Exception:
                         discount = Decimal('0')
 
+                    raw_inv = re.sub(r'[^\d.]', '', data['inventory'] or '')
                     try:
-                        inv = int(float(data['inventory'] or '0'))
+                        inv = int(float(raw_inv)) if raw_inv else 0
                     except Exception:
                         inv = 0
 
