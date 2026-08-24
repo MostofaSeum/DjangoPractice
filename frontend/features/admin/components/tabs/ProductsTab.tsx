@@ -8,6 +8,7 @@ import ProductImage from "@/components/ui/ProductImage";
 import ImageUploadModal from "@/components/ui/ImageUploadModal";
 import ProductVariantsManager from "@/features/products/components/ProductVariantsManager";
 import ReviewsSubTab from "./ReviewsSubTab";
+import InventoryStockHealthCards from "./InventoryStockHealthCards";
 
 interface ProductsTabProps {
   productSubTab: ProductSubTab;
@@ -148,7 +149,16 @@ export default function ProductsTab({
 }: ProductsTabProps) {
   return (
     <div className="flex flex-col gap-6">
-      {/* SUBTAB 4: Reviews */}
+      {/* SUBTAB 4: Stock Health Alerts */}
+      {productSubTab === "stock-health" && (
+        <InventoryStockHealthCards
+          products={promoProductsCatalog && promoProductsCatalog.length > 0 ? promoProductsCatalog : products}
+          collections={collections}
+          onSelectProduct={handleSelectProduct}
+        />
+      )}
+
+      {/* SUBTAB 5: Reviews */}
       {productSubTab === "reviews" && (
         <ReviewsSubTab products={products} token={token} />
       )}

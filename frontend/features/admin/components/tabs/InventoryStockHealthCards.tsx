@@ -138,7 +138,7 @@ export default function InventoryStockHealthCards({
                 htmlFor="inventory-threshold-input"
                 className="text-[10px] font-black uppercase tracking-wider text-foreground/70"
               >
-                Alert Threshold (Max 3 Digits)
+                Alert Threshold
               </label>
               <span className="text-[10px] text-foreground/50">
                 Default: 10 units
@@ -165,7 +165,7 @@ export default function InventoryStockHealthCards({
                 className="px-3 py-2 text-[10px] font-black uppercase tracking-wider bg-background hover:bg-button-bg hover:text-button-fg border border-foreground/15 rounded-xl transition-all shadow-xs cursor-pointer"
                 title="Reset threshold to default 10"
               >
-                Reset (10)
+                Reset
               </button>
             </div>
           </div>
