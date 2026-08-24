@@ -139,7 +139,7 @@ export default function AdminSidebar({
       </button>
 
       {/* Navigation Links */}
-      <nav className="p-3 space-y-1.5 sticky top-24">
+      <nav className="p-3 space-y-1.5 sticky top-16">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           const isProductsTab = tab.id === "products";
