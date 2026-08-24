@@ -298,7 +298,10 @@ export default function SheetsSyncTab({
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
-              <span className="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
+              </span>
               <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
                 Spreadsheet & Catalog Synchronization
               </h2>
