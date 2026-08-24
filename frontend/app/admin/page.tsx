@@ -30,6 +30,7 @@ import {
   DeliveryRuleItem,
   AdminTab,
   ProductSubTab,
+  CollectionSubTab,
   AnalyticsSubTab,
 } from "@/features/admin/types";
 
@@ -45,10 +46,27 @@ export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>("products");
   const [productSubTab, setProductSubTab] = useState<ProductSubTab>("all");
   const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(true);
+  const [collectionSubTab, setCollectionSubTab] = useState<CollectionSubTab>("all");
+  const [isCollectionsDropdownOpen, setIsCollectionsDropdownOpen] = useState(true);
   const [analyticsSubTab, setAnalyticsSubTab] = useState<AnalyticsSubTab>("sales");
   const [isAnalyticsDropdownOpen, setIsAnalyticsDropdownOpen] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const handleCollectionSubTabSwitch = (subTab: CollectionSubTab) => {
+    setActiveTab("collections");
+    setIsCollectionsDropdownOpen(true);
+    setCollectionSubTab(subTab);
+    if (subTab === "add") {
+      setEditingCollectionId(null);
+      setNewCollectionTitle("");
+      setCollectionImageFile(null);
+      setCollectionImagePreview(null);
+      if (collectionFileInputRef.current) {
+        collectionFileInputRef.current.value = "";
+      }
+    }
+  };
 
   const handleAnalyticsSubTabSwitch = (subTab: AnalyticsSubTab) => {
     setActiveTab("analytics");
@@ -1726,6 +1744,7 @@ export default function AdminDashboardPage() {
 
   const handleSelectCollection = (col: Collection) => {
     setEditingCollectionId(col.id);
+    setCollectionSubTab("edit");
     setNewCollectionTitle(col.title);
     setCollectionImageFile(null);
     setCollectionImagePreview(col.image || null);
@@ -1736,6 +1755,7 @@ export default function AdminDashboardPage() {
 
   const handleCancelCollectionEdit = () => {
     setEditingCollectionId(null);
+    setCollectionSubTab("all");
     setNewCollectionTitle("");
     setCollectionImageFile(null);
     setCollectionImagePreview(null);
@@ -2228,6 +2248,10 @@ export default function AdminDashboardPage() {
           handleProductSubTabSwitch={handleProductSubTabSwitch}
           isProductsDropdownOpen={isProductsDropdownOpen}
           setIsProductsDropdownOpen={setIsProductsDropdownOpen}
+          collectionSubTab={collectionSubTab}
+          handleCollectionSubTabSwitch={handleCollectionSubTabSwitch}
+          isCollectionsDropdownOpen={isCollectionsDropdownOpen}
+          setIsCollectionsDropdownOpen={setIsCollectionsDropdownOpen}
           analyticsSubTab={analyticsSubTab}
           handleAnalyticsSubTabSwitch={handleAnalyticsSubTabSwitch}
           isAnalyticsDropdownOpen={isAnalyticsDropdownOpen}
@@ -2295,6 +2319,7 @@ export default function AdminDashboardPage() {
           {/* 2. COLLECTIONS TAB */}
           {activeTab === "collections" && (
             <CollectionsTab
+              collectionSubTab={collectionSubTab}
               collections={collections}
               apiBase={API_BASE}
               token={token}

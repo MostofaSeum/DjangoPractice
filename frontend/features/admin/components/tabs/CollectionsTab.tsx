@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { Collection } from "../../types";
+import { useState } from "react";
+import Image from "next/image";
+import { Collection, CollectionSubTab } from "../../types";
 import CollectionSearchBar from "@/features/collections/components/CollectionSearchBar";
 
 interface CollectionsTabProps {
+  collectionSubTab: CollectionSubTab;
   collections: Collection[];
   apiBase: string;
   token: string | null;
@@ -27,6 +29,7 @@ interface CollectionsTabProps {
 }
 
 export default function CollectionsTab({
+  collectionSubTab,
   collections,
   apiBase,
   token,
@@ -48,6 +51,7 @@ export default function CollectionsTab({
   handleDeleteCollectionPhoto,
 }: CollectionsTabProps) {
   const [activeCollectionQuery, setActiveCollectionQuery] = useState("");
+  const [editCollectionSearch, setEditCollectionSearch] = useState("");
 
   const filteredCollections = collections.filter(
     (c) =>
@@ -57,174 +61,414 @@ export default function CollectionsTab({
   );
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
-      {/* Create Collection Form */}
-      <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm h-fit lg:sticky lg:top-24 transition-colors duration-300">
-        <div className="flex justify-between items-center mb-6 pb-2 border-b border-foreground/10">
-          <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-            {editingCollectionId
-              ? `Edit Collection #${editingCollectionId}`
-              : "Create Collection"}
-          </h2>
-          {editingCollectionId && (
-            <button
-              onClick={handleCancelCollectionEdit}
-              className="text-[10px] font-bold uppercase tracking-wider text-red-500 hover:underline"
-            >
-              Cancel Edit
-            </button>
-          )}
-        </div>
-        <form onSubmit={handleSaveCollection} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-              Collection Title *
-            </label>
-            <input
-              type="text"
-              required
-              value={newCollectionTitle}
-              onChange={(e) => setNewCollectionTitle(e.target.value)}
-              placeholder="e.g. Summer Drop"
-              className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
-            />
+    <div className="flex flex-col gap-6">
+      {/* SUBTAB 2: Add New Collection */}
+      {collectionSubTab === "add" && (
+        <div className="max-w-3xl mx-auto w-full bg-secondary text-foreground p-8 md:p-10 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
+          <div className="flex justify-between items-center mb-6 pb-3 border-b border-foreground/10">
+            <div>
+              <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
+                Add New Collection
+              </h2>
+              <p className="text-xs text-foreground/60 mt-0.5">
+                Create a new category/collection to organize products.
+              </p>
+            </div>
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-              Collection Cover Photo {!editingCollectionId && "*"}
-            </label>
-            <input
-              ref={collectionFileInputRef}
-              type="file"
-              accept="image/*"
-              required={!editingCollectionId && !collectionImagePreview}
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  setCollectionImageFile(file);
-                  setCollectionImagePreview(URL.createObjectURL(file));
-                }
-              }}
-              className="block w-full text-xs text-foreground file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-button-bg file:text-button-fg hover:file:opacity-90 cursor-pointer"
-            />
-            {collectionImagePreview && (
-              <div className="mt-3 flex justify-center w-full">
-                <div className="relative group w-36 h-36 rounded-2xl overflow-hidden border border-foreground/10 shadow-md bg-primary/5 dark:bg-primary/30">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={
-                      collectionImagePreview.startsWith("http") ||
-                      collectionImagePreview.startsWith("blob")
-                        ? collectionImagePreview
-                        : `${apiBase}${collectionImagePreview}`
-                    }
-                    alt="Cover preview"
-                    className="object-cover w-full h-full"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleDeleteCollectionPhoto}
-                    title="Delete Photo"
-                    className="absolute inset-0 bg-black/60 text-white text-xs font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
-                  >
-                    Delete Photo
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-          <button
-            type="submit"
-            className="w-full py-3 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md"
-          >
-            {editingCollectionId ? "Update Collection" : "Save Collection"}
-          </button>
-        </form>
-      </div>
+          <form onSubmit={handleSaveCollection} className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                Collection Title *
+              </label>
+              <input
+                type="text"
+                required
+                value={newCollectionTitle}
+                onChange={(e) => setNewCollectionTitle(e.target.value)}
+                placeholder="e.g. Summer Drop"
+                className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+              />
+            </div>
 
-      {/* Collections List */}
-      <div className="lg:col-span-2 bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
-          <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-            Existing Collections ({filteredCollections.length})
-          </h2>
-          <CollectionSearchBar
-            initialSearch={activeCollectionQuery}
-            onSelectCollection={(col) => {
-              handleSelectCollection(col as any);
-            }}
-            onSearchSubmit={(q) => {
-              setActiveCollectionQuery(q);
-            }}
-            onClear={() => {
-              setActiveCollectionQuery("");
-            }}
-          />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {filteredCollections.map((col) => (
-            <div
-              key={col.id}
-              onClick={() => handleSelectCollection(col)}
-              className={`p-4 rounded-2xl border transition-all flex justify-between items-center cursor-pointer ${
-                col.is_featured
-                  ? editingCollectionId === col.id
-                    ? "bg-amber-500/25 border-l-4 border-amber-500 font-extrabold"
-                    : "bg-amber-500/15 dark:bg-amber-500/25 border-l-4 border-amber-500 hover:bg-amber-500/20"
-                  : editingCollectionId === col.id
-                    ? "bg-accent/20 border-accent"
-                    : "bg-primary/5 dark:bg-primary/30 border-foreground/10 hover:border-accent/50"
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                {col.image && (
-                  <div className="w-10 h-10 rounded-lg overflow-hidden border border-foreground/10 flex-shrink-0 bg-secondary">
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                Collection Cover Photo *
+              </label>
+              <input
+                ref={collectionFileInputRef}
+                type="file"
+                accept="image/*"
+                required={!collectionImagePreview}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setCollectionImageFile(file);
+                    setCollectionImagePreview(URL.createObjectURL(file));
+                  }
+                }}
+                className="block w-full text-xs text-foreground file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-button-bg file:text-button-fg hover:file:opacity-90 cursor-pointer"
+              />
+              {collectionImagePreview && (
+                <div className="mt-3 flex justify-center w-full">
+                  <div className="relative group w-36 h-36 rounded-2xl overflow-hidden border border-foreground/10 shadow-md bg-primary/5 dark:bg-primary/30">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={
-                        col.image.startsWith("http")
-                          ? col.image
-                          : `${apiBase}${col.image}`
+                        collectionImagePreview.startsWith("http") ||
+                        collectionImagePreview.startsWith("blob")
+                          ? collectionImagePreview
+                          : `${apiBase}${collectionImagePreview}`
                       }
-                      alt={col.title}
-                      className="w-full h-full object-cover"
+                      alt="Cover preview"
+                      className="object-cover w-full h-full"
                     />
+                    <button
+                      type="button"
+                      onClick={handleDeleteCollectionPhoto}
+                      title="Delete Photo"
+                      className="absolute inset-0 bg-black/60 text-white text-xs font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                    >
+                      Delete Photo
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="w-full mt-4 py-3 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-sm cursor-pointer"
+            >
+              Create Collection
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* SUBTAB 3: Edit Collection */}
+      {collectionSubTab === "edit" && (
+        <div className="max-w-3xl mx-auto w-full bg-secondary text-foreground p-8 md:p-10 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
+          <div className="flex justify-between items-center mb-6 pb-3 border-b border-foreground/10">
+            <div>
+              <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
+                Edit Collection
+              </h2>
+              <p className="text-xs text-foreground/60 mt-0.5">
+                Select a collection to edit its title, cover image, or featured status.
+              </p>
+            </div>
+            {editingCollectionId && (
+              <button
+                type="button"
+                onClick={handleCancelCollectionEdit}
+                className="text-xs font-bold uppercase tracking-wider text-red-500 hover:underline"
+              >
+                Clear Selection
+              </button>
+            )}
+          </div>
+
+          {/* Collection Search Bar */}
+          <div className="mb-6 p-5 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 flex flex-col gap-3">
+            <div className="flex justify-between items-center">
+              <label className="text-[10px] font-black uppercase tracking-wider opacity-70">
+                Search Collection to Edit
+              </label>
+            </div>
+
+            <div className="relative w-full">
+              <input
+                type="text"
+                value={editCollectionSearch}
+                onChange={(e) => setEditCollectionSearch(e.target.value)}
+                placeholder="Search by collection title or ID..."
+                className="w-full pl-10 pr-8 py-3 border border-foreground/15 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all shadow-inner"
+              />
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none flex items-center justify-center opacity-60 dark:opacity-80">
+                <Image
+                  src="/search.png"
+                  alt="Search"
+                  width={16}
+                  height={16}
+                  className="object-contain dark:invert transition-all"
+                />
+              </div>
+              {editCollectionSearch && (
+                <button
+                  type="button"
+                  onClick={() => setEditCollectionSearch("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold opacity-40 hover:opacity-100 transition-opacity cursor-pointer"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Search Results List */}
+            {(() => {
+              const query = editCollectionSearch.trim().toLowerCase();
+              const filteredEditCollections = collections.filter((c) => {
+                if (!query) return false;
+                return (
+                  c.title.toLowerCase().includes(query) ||
+                  String(c.id).includes(query)
+                );
+              });
+
+              if (query) {
+                return (
+                  <div className="space-y-1.5 max-h-60 overflow-y-auto pr-1">
+                    {filteredEditCollections.length > 0 ? (
+                      filteredEditCollections.map((col) => (
+                        <div
+                          key={col.id}
+                          onClick={() => {
+                            handleSelectCollection(col);
+                            setEditCollectionSearch("");
+                          }}
+                          className={`flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer ${
+                            editingCollectionId === col.id
+                              ? "bg-accent/20 border-accent font-bold"
+                              : "bg-background border-foreground/10 hover:bg-primary/5 dark:hover:bg-primary/30"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-primary/10 shrink-0 border border-foreground/10">
+                              {col.image ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  src={
+                                    col.image.startsWith("http")
+                                      ? col.image
+                                      : `${apiBase}${col.image}`
+                                  }
+                                  alt={col.title}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-[10px] opacity-40">
+                                  No Img
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <p className="text-xs font-black text-foreground">
+                                {col.title}
+                              </p>
+                              <span className="text-[10px] opacity-60">
+                                ID: #{col.id} • {col.product_count || 0} Products
+                              </span>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            className="px-3 py-1 bg-accent text-white rounded-lg text-[10px] font-black uppercase tracking-wider hover:opacity-90 transition-opacity"
+                          >
+                            Edit
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-xs opacity-50 text-center py-2">
+                        No collections match &quot;{query}&quot;
+                      </p>
+                    )}
+                  </div>
+                );
+              }
+              return null;
+            })()}
+          </div>
+
+          {editingCollectionId ? (
+            <form onSubmit={handleSaveCollection} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                  Collection Title *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={newCollectionTitle}
+                  onChange={(e) => setNewCollectionTitle(e.target.value)}
+                  placeholder="e.g. Summer Drop"
+                  className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                  Collection Cover Photo
+                </label>
+                <input
+                  ref={collectionFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setCollectionImageFile(file);
+                      setCollectionImagePreview(URL.createObjectURL(file));
+                    }
+                  }}
+                  className="block w-full text-xs text-foreground file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-button-bg file:text-button-fg hover:file:opacity-90 cursor-pointer"
+                />
+                {collectionImagePreview && (
+                  <div className="mt-3 flex justify-center w-full">
+                    <div className="relative group w-36 h-36 rounded-2xl overflow-hidden border border-foreground/10 shadow-md bg-primary/5 dark:bg-primary/30">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={
+                          collectionImagePreview.startsWith("http") ||
+                          collectionImagePreview.startsWith("blob")
+                            ? collectionImagePreview
+                            : `${apiBase}${collectionImagePreview}`
+                        }
+                        alt="Cover preview"
+                        className="object-cover w-full h-full"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleDeleteCollectionPhoto}
+                        title="Delete Photo"
+                        className="absolute inset-0 bg-black/60 text-white text-xs font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                      >
+                        Delete Photo
+                      </button>
+                    </div>
                   </div>
                 )}
-                <div>
-                  <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5">
-                    {col.title}
-                  </h3>
-                  <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">
-                    ID: #{col.id} • {col.product_count || 0} Products
-                  </span>
-                </div>
               </div>
-              <div
-                className="flex gap-2"
-                onClick={(e) => e.stopPropagation()}
-              >
+
+              <div className="flex gap-3 mt-4">
                 <button
-                  onClick={() => handleToggleCollectionFeatured(col)}
-                  className={`px-2.5 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all shadow-sm ${
+                  type="button"
+                  onClick={handleCancelCollectionEdit}
+                  className="w-1/3 py-2.5 border border-foreground/15 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-primary/10 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="w-2/3 py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-sm cursor-pointer"
+                >
+                  Update Collection
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="py-12 text-center border-2 border-dashed border-foreground/10 rounded-2xl bg-primary/5 dark:bg-primary/20">
+              <p className="text-xs text-foreground/60">
+                Please search or select a collection from &quot;All Collections&quot; to edit.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SUBTAB 1: All Collections */}
+      {collectionSubTab === "all" && (
+        <div className="w-full bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm overflow-x-auto transition-colors duration-300">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
+            <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
+              All Collections ({filteredCollections.length})
+            </h2>
+            <CollectionSearchBar
+              initialSearch={activeCollectionQuery}
+              onSelectCollection={(col) => {
+                handleSelectCollection(col as any);
+              }}
+              onSearchSubmit={(q) => {
+                setActiveCollectionQuery(q);
+              }}
+              onClear={() => {
+                setActiveCollectionQuery("");
+              }}
+            />
+          </div>
+
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-foreground/10 text-[10px] font-black uppercase tracking-wider opacity-60">
+                <th className="py-3 px-2">ID</th>
+                <th className="py-3 px-2">Cover</th>
+                <th className="py-3 px-2">Title</th>
+                <th className="py-3 px-2">Products Count</th>
+                <th className="py-3 px-2 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-foreground/10 text-xs font-bold">
+              {filteredCollections.map((col) => (
+                <tr
+                  key={col.id}
+                  onClick={() => handleSelectCollection(col)}
+                  className={`cursor-pointer transition-all ${
                     col.is_featured
-                      ? "bg-amber-500 text-black border border-amber-600 shadow-amber-500/20"
-                      : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10"
+                      ? editingCollectionId === col.id
+                        ? "bg-amber-500/25 border-l-4 border-amber-500 font-extrabold"
+                        : "bg-amber-500/15 dark:bg-amber-500/25 border-l-4 border-amber-500 hover:bg-amber-500/20"
+                      : editingCollectionId === col.id
+                        ? "bg-accent/20"
+                        : "hover:bg-primary/5 dark:hover:bg-primary/30"
                   }`}
                 >
-                  {col.is_featured ? " Featured" : "+ Feature"}
-                </button>
-                <button
-                  onClick={() => handleDeleteCollection(col)}
-                  className="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
+                  <td className="py-3 px-2 opacity-50 align-middle">
+                    #{col.id}
+                  </td>
+                  <td className="py-3 px-2 align-middle">
+                    <div className="w-10 h-10 rounded-xl overflow-hidden border border-foreground/10 bg-primary/5 dark:bg-primary/30 shadow-xs relative">
+                      {col.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={
+                            col.image.startsWith("http")
+                              ? col.image
+                              : `${apiBase}${col.image}`
+                          }
+                          alt={col.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[9px] opacity-40">
+                          No Img
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="py-3 px-2 font-black align-middle text-foreground">
+                    {col.title}
+                  </td>
+                  <td className="py-3 px-2 opacity-70 align-middle">
+                    {col.product_count || 0} products
+                  </td>
+                  <td
+                    className="py-3.5 px-2 text-right flex justify-end items-center gap-2"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      onClick={() => handleToggleCollectionFeatured(col)}
+                      className={`px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all shadow-sm ${
+                        col.is_featured
+                          ? "bg-amber-500 text-black border border-amber-600 shadow-amber-500/20"
+                          : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10"
+                      }`}
+                    >
+                      {col.is_featured ? " Featured" : "+ Feature"}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCollection(col)}
+                      className="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </div>
+      )}
     </div>
   );
 }
+

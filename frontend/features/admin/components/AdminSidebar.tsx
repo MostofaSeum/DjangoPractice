@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { AdminTab, ProductSubTab, AnalyticsSubTab } from "../types";
+import { AdminTab, ProductSubTab, CollectionSubTab, AnalyticsSubTab } from "../types";
 
 interface AdminSidebarProps {
   activeTab: AdminTab;
@@ -10,6 +10,10 @@ interface AdminSidebarProps {
   handleProductSubTabSwitch: (subTab: ProductSubTab) => void;
   isProductsDropdownOpen: boolean;
   setIsProductsDropdownOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
+  collectionSubTab: CollectionSubTab;
+  handleCollectionSubTabSwitch: (subTab: CollectionSubTab) => void;
+  isCollectionsDropdownOpen: boolean;
+  setIsCollectionsDropdownOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
   analyticsSubTab: AnalyticsSubTab;
   handleAnalyticsSubTabSwitch: (subTab: AnalyticsSubTab) => void;
   isAnalyticsDropdownOpen: boolean;
@@ -32,6 +36,10 @@ export default function AdminSidebar({
   handleProductSubTabSwitch,
   isProductsDropdownOpen,
   setIsProductsDropdownOpen,
+  collectionSubTab,
+  handleCollectionSubTabSwitch,
+  isCollectionsDropdownOpen,
+  setIsCollectionsDropdownOpen,
   analyticsSubTab,
   handleAnalyticsSubTabSwitch,
   isAnalyticsDropdownOpen,
@@ -135,6 +143,7 @@ export default function AdminSidebar({
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           const isProductsTab = tab.id === "products";
+          const isCollectionsTab = tab.id === "collections";
           const isAnalyticsTab = tab.id === "analytics";
 
           return (
@@ -147,6 +156,13 @@ export default function AdminSidebar({
                     } else {
                       setActiveTab("products");
                       setIsProductsDropdownOpen(true);
+                    }
+                  } else if (isCollectionsTab) {
+                    if (activeTab === "collections") {
+                      setIsCollectionsDropdownOpen((prev) => !prev);
+                    } else {
+                      setActiveTab("collections");
+                      setIsCollectionsDropdownOpen(true);
                     }
                   } else if (isAnalyticsTab) {
                     if (activeTab === "analytics") {
@@ -210,10 +226,11 @@ export default function AdminSidebar({
                         {tab.count}
                       </span>
                     )}
-                    {(isProductsTab || isAnalyticsTab) && (
+                    {(isProductsTab || isCollectionsTab || isAnalyticsTab) && (
                       <svg
                         className={`w-3.5 h-3.5 transition-transform duration-200 opacity-70 ${
                           (isProductsTab && isProductsDropdownOpen) ||
+                          (isCollectionsTab && isCollectionsDropdownOpen) ||
                           (isAnalyticsTab && isAnalyticsDropdownOpen)
                             ? "rotate-180"
                             : ""
@@ -233,6 +250,50 @@ export default function AdminSidebar({
                   </div>
                 )}
               </button>
+
+              {/* Collections Subsections */}
+              {isCollectionsTab &&
+                isCollectionsDropdownOpen &&
+                !isSidebarCollapsed && (
+                  <div className="pl-6 pr-1 py-1 mt-1 space-y-1 border-l-2 border-white/10 ml-5 transition-all">
+                    {/* 1. All Collections */}
+                    <button
+                      onClick={() => handleCollectionSubTabSwitch("all")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        isActive && collectionSubTab === "all"
+                          ? "bg-accent text-white shadow-xs font-black"
+                          : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="truncate">All Collections</span>
+                    </button>
+
+                    {/* 2. Add New Collection */}
+                    <button
+                      onClick={() => handleCollectionSubTabSwitch("add")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        isActive && collectionSubTab === "add"
+                          ? "bg-accent text-white shadow-xs font-black"
+                          : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="truncate">Add New Collection</span>
+                      <span className="text-xs font-black">+</span>
+                    </button>
+
+                    {/* 3. Edit Collection */}
+                    <button
+                      onClick={() => handleCollectionSubTabSwitch("edit")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        isActive && collectionSubTab === "edit"
+                          ? "bg-accent text-white shadow-xs font-black"
+                          : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="truncate">Edit Collection</span>
+                    </button>
+                  </div>
+                )}
 
               {/* Products Subsections */}
               {isProductsTab &&
