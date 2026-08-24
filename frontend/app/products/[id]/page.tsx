@@ -42,30 +42,20 @@ const CartIcon = () => (
 
 import { getApiBaseUrl } from "@/config/siteConfig";
 
+import { notFound } from "next/navigation";
+
 export default async function ProductDetailPage({ params }: PageProps) {
   const { id } = await params;
 
   const apiBaseUrl = getApiBaseUrl();
 
-  // Fetch product detail with 30s ISR cache
+  // Fetch product detail dynamically (no stale cached response)
   const res = await fetch(`${apiBaseUrl}/store/products/${id}/`, {
-    next: { revalidate: 30 },
+    cache: "no-store",
   });
 
   if (!res.ok) {
-    return (
-      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-8 text-center">
-        <p className="text-red-500 mb-6 font-bold uppercase tracking-widest">
-          Product not found.
-        </p>
-        <Link
-          href="/products"
-          className="inline-block text-[10px] font-bold tracking-widest uppercase border-b-2 border-current pb-1 hover:opacity-70 transition-opacity"
-        >
-          Back to Shop
-        </Link>
-      </div>
-    );
+    notFound();
   }
 
   const product: Product = await res.json();
