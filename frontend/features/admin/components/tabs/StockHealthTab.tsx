@@ -425,15 +425,20 @@ export default function StockHealthTab({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
           {/* Card 1: Alert Count */}
           <div className="p-4 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-wider text-foreground/70">
-                Under Threshold (&lt; {currentThreshold})
-              </span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-accent/20 text-accent">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase tracking-wider text-foreground/70">
+                  Under Threshold
+                </span>
+                <span className="text-[9px] font-bold text-accent">
+                  (&lt; {currentThreshold} units)
+                </span>
+              </div>
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-accent/20 text-accent shrink-0 whitespace-nowrap">
                 Needs Attention
               </span>
             </div>
-            <div className="mt-3 flex items-baseline gap-2">
+            <div className="mt-3 flex items-baseline gap-2 flex-wrap">
               <span className="text-2xl font-black text-foreground">
                 {lowStockProducts.length}
               </span>
@@ -445,15 +450,20 @@ export default function StockHealthTab({
 
           {/* Card 2: Out of Stock (0 units) */}
           <div className="p-4 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-wider text-foreground/70">
-                Out of Stock (0 Units)
-              </span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-foreground/10 text-foreground/80">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase tracking-wider text-foreground/70">
+                  Out of Stock
+                </span>
+                <span className="text-[9px] font-bold text-foreground/50">
+                  (0 units)
+                </span>
+              </div>
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-foreground/10 text-foreground/80 shrink-0 whitespace-nowrap">
                 Critical
               </span>
             </div>
-            <div className="mt-3 flex items-baseline gap-2">
+            <div className="mt-3 flex items-baseline gap-2 flex-wrap">
               <span className="text-2xl font-black text-foreground">
                 {catalogMetrics.outOfStockCount}
               </span>
@@ -465,15 +475,20 @@ export default function StockHealthTab({
 
           {/* Card 3: Healthy Stock */}
           <div className="p-4 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-wider text-foreground/70">
-                Adequate Stock (&ge; {currentThreshold})
-              </span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-foreground/10 text-foreground/80">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase tracking-wider text-foreground/70">
+                  Adequate Stock
+                </span>
+                <span className="text-[9px] font-bold text-foreground/50">
+                  (&ge; {currentThreshold} units)
+                </span>
+              </div>
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-foreground/10 text-foreground/80 shrink-0 whitespace-nowrap">
                 Healthy
               </span>
             </div>
-            <div className="mt-3 flex items-baseline gap-2">
+            <div className="mt-3 flex items-baseline gap-2 flex-wrap">
               <span className="text-2xl font-black text-foreground">
                 {catalogMetrics.healthyStockCount}
               </span>
@@ -485,15 +500,20 @@ export default function StockHealthTab({
 
           {/* Card 4: Total Inventory in Catalog */}
           <div className="p-4 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 flex flex-col justify-between">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-wider text-foreground/70">
-                Total Catalog Units
-              </span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-foreground/10 text-foreground/80">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black uppercase tracking-wider text-foreground/70">
+                  Total Catalog Units
+                </span>
+                <span className="text-[9px] font-bold text-foreground/50">
+                  All Products
+                </span>
+              </div>
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-foreground/10 text-foreground/80 shrink-0 whitespace-nowrap">
                 Inventory
               </span>
             </div>
-            <div className="mt-3 flex items-baseline gap-2">
+            <div className="mt-3 flex items-baseline gap-2 flex-wrap">
               <span className="text-2xl font-black text-foreground">
                 {catalogMetrics.totalUnitsInCatalog}
               </span>
