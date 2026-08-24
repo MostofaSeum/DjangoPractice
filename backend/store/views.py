@@ -5,6 +5,7 @@ import urllib.request
 import urllib.parse
 from decimal import Decimal
 from django.db import transaction
+from django.core.files.base import ContentFile
 from django.http import HttpResponse, request
 from .permissions import ViewCustomerHistoryPermission
 from rest_framework.decorators import action
@@ -59,23 +60,28 @@ class ProductViewSet(ModelViewSet):
         writer.writerow([
             'id', 'title', 'collection', 'unit_price', 'discount_percent', 'inventory',
             'short_description', 'description', 'variant_name', 'variant_color_name',
-            'variant_color_code', 'variant_size', 'variant_price', 'variant_inventory'
+            'variant_color_code', 'variant_size', 'variant_price', 'variant_inventory', 'image_url'
         ])
         
         for p in products:
             collection_name = p.collection.title if p.collection else ''
             variants = list(p.variants.all())
+            first_img = p.images.first()
+            img_url_str = request.build_absolute_uri(first_img.image.url) if first_img and first_img.image else ''
+            
             if variants:
                 for v in variants:
                     writer.writerow([
                         p.id, p.title, collection_name, p.unit_price, p.discount_percent, p.inventory,
                         p.short_description, p.description, v.name, v.color_name or '',
-                        v.color_code or '', v.size or '', v.price_override or '', v.inventory
+                        v.color_code or '', v.size or '', v.price_override or '', v.inventory,
+                        img_url_str
                     ])
             else:
                 writer.writerow([
                     p.id, p.title, collection_name, p.unit_price, p.discount_percent, p.inventory,
-                    p.short_description, p.description, '', '', '', '', '', ''
+                    p.short_description, p.description, '', '', '', '', '', '',
+                    img_url_str
                 ])
         
         return response
@@ -115,7 +121,8 @@ class ProductViewSet(ModelViewSet):
                     'inventory': clean_row.get('inventory', '0'),
                     'short_description': clean_row.get('short_description', ''),
                     'description': clean_row.get('description', ''),
-                    'variants': []
+                    'variants': [],
+                    'image_urls': []
                 }
             
             # Variant row info
@@ -129,6 +136,11 @@ class ProductViewSet(ModelViewSet):
                     'price_override': clean_row.get('variant_price', ''),
                     'inventory': clean_row.get('variant_inventory', '0'),
                 })
+
+            # Image URL extraction
+            img_url = clean_row.get('image_url', '') or clean_row.get('image', '') or clean_row.get('photo', '')
+            if img_url and img_url not in grouped[prod_key]['image_urls']:
+                grouped[prod_key]['image_urls'].append(img_url)
 
         with transaction.atomic():
             for prod_key, data in grouped.items():
@@ -205,18 +217,37 @@ class ProductViewSet(ModelViewSet):
                         created_count += 1
                         is_new = True
 
+                    # Attach image URLs if provided and product has no images yet or new URLs given
+                    if data.get('image_urls'):
+                        for u in data['image_urls']:
+                            if u.startswith('http://') or u.startswith('https://'):
+                                try:
+                                    req = urllib.request.Request(u, headers={'User-Agent': 'Mozilla/5.0'})
+                                    with urllib.request.urlopen(req, timeout=10) as img_res:
+                                        img_bytes = img_res.read()
+                                        filename = u.split('/')[-1].split('?')[0] or f"product_{product.id}.jpg"
+                                        if not filename.lower().endswith(('.jpg', '.jpeg', '.png', '.webp')):
+                                            filename += '.jpg'
+                                        
+                                        img_obj = ProductImage(product=product)
+                                        img_obj.image.save(filename, ContentFile(img_bytes), save=True)
+                                except Exception as img_err:
+                                    print(f"Failed to download image {u}: {img_err}")
+
                     # Upsert Variants if provided
                     if data['variants']:
                         for v_data in data['variants']:
                             try:
-                                v_inv = int(float(v_data['inventory'] or '0'))
+                                raw_v_inv = re.sub(r'[^\d.]', '', v_data['inventory'] or '')
+                                v_inv = int(float(raw_v_inv)) if raw_v_inv else 0
                             except Exception:
                                 v_inv = 0
                             
                             v_price = None
                             if v_data['price_override']:
                                 try:
-                                    v_price = Decimal(v_data['price_override'])
+                                    raw_v_p = re.sub(r'[^\d.]', '', v_data['price_override'])
+                                    v_price = Decimal(raw_v_p) if raw_v_p else None
                                 except Exception:
                                     v_price = None
 

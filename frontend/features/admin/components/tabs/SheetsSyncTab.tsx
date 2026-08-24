@@ -223,6 +223,7 @@ export default function SheetsSyncTab({
       "variant_size",
       "variant_price",
       "variant_inventory",
+      "image_url",
     ];
 
     const sampleRows = [
@@ -241,6 +242,7 @@ export default function SheetsSyncTab({
         "4.5g",
         "850.00",
         "10",
+        "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=800",
       ],
       [
         "",
@@ -257,6 +259,7 @@ export default function SheetsSyncTab({
         "4.5g",
         "850.00",
         "10",
+        "",
       ],
       [
         "",
@@ -273,6 +276,7 @@ export default function SheetsSyncTab({
         "30ml",
         "1450.00",
         "15",
+        "https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?w=800",
       ],
     ];
 
