@@ -1,7 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { AdminTab, ProductSubTab, CollectionSubTab, AnalyticsSubTab } from "../types";
+import {
+  AdminTab,
+  ProductSubTab,
+  CollectionSubTab,
+  AnalyticsSubTab,
+} from "../types";
 
 interface AdminSidebarProps {
   activeTab: AdminTab;
@@ -9,17 +14,25 @@ interface AdminSidebarProps {
   productSubTab: ProductSubTab;
   handleProductSubTabSwitch: (subTab: ProductSubTab) => void;
   isProductsDropdownOpen: boolean;
-  setIsProductsDropdownOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
+  setIsProductsDropdownOpen: (
+    open: boolean | ((prev: boolean) => boolean),
+  ) => void;
   collectionSubTab: CollectionSubTab;
   handleCollectionSubTabSwitch: (subTab: CollectionSubTab) => void;
   isCollectionsDropdownOpen: boolean;
-  setIsCollectionsDropdownOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
+  setIsCollectionsDropdownOpen: (
+    open: boolean | ((prev: boolean) => boolean),
+  ) => void;
   analyticsSubTab: AnalyticsSubTab;
   handleAnalyticsSubTabSwitch: (subTab: AnalyticsSubTab) => void;
   isAnalyticsDropdownOpen: boolean;
-  setIsAnalyticsDropdownOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
+  setIsAnalyticsDropdownOpen: (
+    open: boolean | ((prev: boolean) => boolean),
+  ) => void;
   isSidebarCollapsed: boolean;
-  setIsSidebarCollapsed: (collapsed: boolean | ((prev: boolean) => boolean)) => void;
+  setIsSidebarCollapsed: (
+    collapsed: boolean | ((prev: boolean) => boolean),
+  ) => void;
   productsCount: number;
   collectionsCount: number;
   ordersCount: number;
@@ -187,7 +200,9 @@ export default function AdminSidebar({
                   <span className="absolute left-1.5 top-2.5 bottom-2.5 w-1 rounded-full bg-accent animate-in fade-in zoom-in duration-200" />
                 )}
 
-                <div className={`flex items-center gap-3 min-w-0 ${isActive ? "pl-1.5" : ""} transition-all duration-200`}>
+                <div
+                  className={`flex items-center gap-3 min-w-0 ${isActive ? "pl-1.5" : ""} transition-all duration-200`}
+                >
                   <div
                     className={`w-5 h-5 relative shrink-0 transition-transform duration-200 group-hover:scale-110 ${
                       isActive ? "scale-105" : "opacity-80"
@@ -406,7 +421,9 @@ export default function AdminSidebar({
 
                     {/* 4. Top Selling Products & Shades */}
                     <button
-                      onClick={() => handleAnalyticsSubTabSwitch("top-products")}
+                      onClick={() =>
+                        handleAnalyticsSubTabSwitch("top-products")
+                      }
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
                         isActive && analyticsSubTab === "top-products"
                           ? "bg-accent text-white shadow-xs font-black"
