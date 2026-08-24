@@ -1782,15 +1782,23 @@ export default function AdminDashboardPage() {
     }
 
     try {
+      const isEditing = editingCollectionId !== null;
       const url = isEditing
         ? `${API_BASE}/store/collections/${editingCollectionId}/`
         : `${API_BASE}/store/collections/`;
-      const method = isEditing ? "PUT" : "POST";
+      const method = isEditing ? "PATCH" : "POST";
+
+      const currentCollection = isEditing
+        ? collections.find((c) => c.id === editingCollectionId)
+        : null;
 
       const formData = new FormData();
       formData.append("title", newCollectionTitle.trim());
       if (collectionImageFile) {
         formData.append("image", collectionImageFile);
+      }
+      if (isEditing && currentCollection) {
+        formData.append("is_featured", String(Boolean(currentCollection.is_featured)));
       }
 
       const res = await fetch(url, {
