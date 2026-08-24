@@ -114,6 +114,234 @@ export default function InventoryStockHealthCards({
     return found ? found.title : `Collection #${collectionId}`;
   };
 
+  // Printable Report Generation (Save as PDF / Print via browser)
+  const handlePrintPDF = () => {
+    const printWindow = window.open("", "_blank", "width=900,height=700");
+    if (!printWindow) {
+      alert("Please allow popups to generate and print the PDF report.");
+      return;
+    }
+
+    const reportDate = new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const rowsHtml = sortedLowStockProducts
+      .map((item, index) => {
+        const stock = Number(item.inventory || 0);
+        const isZero = stock <= 0;
+        const colTitle = getCollectionTitle(item.collection);
+        const price = Number(item.unit_price || 0).toFixed(2);
+        return `
+          <tr style="border-bottom: 1px solid #e5e0d8; font-size: 11px;">
+            <td style="padding: 8px 10px; text-align: center; color: #736b63;">${index + 1}</td>
+            <td style="padding: 8px 10px; font-weight: 700; color: #3a3532;">#${item.id}</td>
+            <td style="padding: 8px 10px; font-weight: 700; color: #1e1b18;">${item.title}</td>
+            <td style="padding: 8px 10px; color: #5a524c;">${colTitle}</td>
+            <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #8b7a66;">৳${price}</td>
+            <td style="padding: 8px 10px; text-align: center;">
+              <span style="display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; ${
+                isZero
+                  ? "background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca;"
+                  : "background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a;"
+              }">
+                ${isZero ? "Out of Stock" : "Low Stock"}
+              </span>
+            </td>
+            <td style="padding: 8px 10px; text-align: center; font-weight: 800; font-family: monospace; font-size: 12px; color: ${
+              isZero ? "#dc2626" : "#3a3532"
+            };">
+              ${stock} units
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>Stock Health Alert Report - Threshold &lt; ${currentThreshold}</title>
+          <style>
+            @media print {
+              body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+              }
+              @page {
+                margin: 1.2cm;
+                size: A4 portrait;
+              }
+              .no-print {
+                display: none !important;
+              }
+            }
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+              color: #3a3532;
+              background-color: #ffffff;
+              margin: 0;
+              padding: 24px;
+            }
+            .header-bar {
+              border-bottom: 2px solid #8b7a66;
+              padding-bottom: 16px;
+              margin-bottom: 20px;
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+            }
+            .title {
+              font-size: 20px;
+              font-weight: 900;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              margin: 0 0 4px 0;
+              color: #3a3532;
+            }
+            .subtitle {
+              font-size: 11px;
+              color: #736b63;
+              margin: 0;
+            }
+            .kpi-container {
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              gap: 12px;
+              margin-bottom: 24px;
+            }
+            .kpi-card {
+              border: 1px solid #e5e0d8;
+              background-color: #faf8f5;
+              border-radius: 8px;
+              padding: 10px 12px;
+            }
+            .kpi-title {
+              font-size: 9px;
+              font-weight: 800;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              color: #736b63;
+              margin-bottom: 4px;
+            }
+            .kpi-val {
+              font-size: 16px;
+              font-weight: 900;
+              color: #3a3532;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 10px;
+            }
+            th {
+              background-color: #f3efe6;
+              color: #3a3532;
+              font-size: 10px;
+              font-weight: 800;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              padding: 9px 10px;
+              border-top: 1px solid #e5e0d8;
+              border-bottom: 1px solid #d4cdbf;
+            }
+            .footer {
+              margin-top: 30px;
+              padding-top: 12px;
+              border-top: 1px solid #e5e0d8;
+              font-size: 10px;
+              color: #8c827a;
+              display: flex;
+              justify-content: space-between;
+            }
+            .print-btn {
+              background-color: #3a3532;
+              color: #ffffff;
+              border: none;
+              padding: 8px 16px;
+              border-radius: 8px;
+              font-size: 12px;
+              font-weight: 700;
+              cursor: pointer;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header-bar">
+            <div>
+              <h1 class="title">Inventory &amp; Stock Health Alert Report</h1>
+              <p class="subtitle">Threshold Filter: Less than <strong>${currentThreshold} units</strong> | Generated on: ${reportDate}</p>
+            </div>
+            <div class="no-print">
+              <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+            </div>
+          </div>
+
+          <div class="kpi-container">
+            <div class="kpi-card">
+              <div class="kpi-title">Alert Items</div>
+              <div class="kpi-val">${sortedLowStockProducts.length} Products</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Out of Stock</div>
+              <div class="kpi-val">${catalogMetrics.outOfStockCount} Products</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Safety Threshold</div>
+              <div class="kpi-val">&lt; ${currentThreshold} Units</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-title">Total Catalog Units</div>
+              <div class="kpi-val">${catalogMetrics.totalUnitsInCatalog} Units</div>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 35px; text-align: center;">#</th>
+                <th style="width: 55px; text-align: left;">ID</th>
+                <th style="text-align: left;">Product Title</th>
+                <th style="text-align: left;">Collection</th>
+                <th style="width: 80px; text-align: right;">Unit Price</th>
+                <th style="width: 100px; text-align: center;">Status</th>
+                <th style="width: 90px; text-align: center;">Stock Level</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml || '<tr><td colspan="7" style="text-align:center; padding: 24px; font-weight: 600; color: #736b63;">No products found below the current threshold.</td></tr>'}
+            </tbody>
+          </table>
+
+          <div class="footer">
+            <span>Storefront Admin Inventory Management</span>
+            <span>Page 1 of 1</span>
+          </div>
+
+          <script>
+            window.onload = function() {
+              setTimeout(function() {
+                window.print();
+              }, 400);
+            };
+          </script>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.open();
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  };
+
   return (
     <div className="w-full space-y-6">
       {/* 1. Header & Threshold Controller Card */}
@@ -134,35 +362,61 @@ export default function InventoryStockHealthCards({
             </p>
           </div>
 
-          {/* Threshold Input Control Box */}
-          <div className="flex items-center gap-2.5 bg-primary/5 dark:bg-primary/20 px-3 py-2 rounded-xl border border-foreground/10 self-start sm:self-auto">
-            <label
-              htmlFor="inventory-threshold-input"
-              className="text-[10px] font-black uppercase tracking-wider text-foreground/70 shrink-0"
+          {/* Right Action Controls: Threshold Box + PDF Download Button */}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Download/Print PDF Button */}
+            <button
+              type="button"
+              onClick={handlePrintPDF}
+              className="flex items-center gap-2 px-3.5 py-2 bg-button-bg text-button-fg rounded-xl text-[10px] font-black uppercase tracking-wider hover:opacity-90 transition-all shadow-xs cursor-pointer"
+              title="Download or print stock alert report as PDF"
             >
-              Alert Threshold
-            </label>
-
-            <div className="flex items-center gap-1.5">
-              <input
-                id="inventory-threshold-input"
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                maxLength={3}
-                value={thresholdInput}
-                onChange={handleThresholdChange}
-                placeholder="10"
-                className="w-14 px-2 py-1 text-center text-xs font-black tracking-wider bg-background border border-foreground/20 rounded-lg text-foreground focus:ring-1 focus:ring-accent focus:border-accent outline-none transition-all font-mono"
-              />
-              <button
-                type="button"
-                onClick={() => setThresholdInput("10")}
-                className="px-2.5 py-1 text-[9px] font-black uppercase tracking-wider bg-background hover:bg-button-bg hover:text-button-fg border border-foreground/15 rounded-lg transition-all shadow-xs cursor-pointer"
-                title="Reset threshold to default 10"
+              <svg
+                className="w-3.5 h-3.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                Reset
-              </button>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                />
+              </svg>
+              Print / Save PDF
+            </button>
+
+            {/* Threshold Input Control Box */}
+            <div className="flex items-center gap-2.5 bg-primary/5 dark:bg-primary/20 px-3 py-2 rounded-xl border border-foreground/10">
+              <label
+                htmlFor="inventory-threshold-input"
+                className="text-[10px] font-black uppercase tracking-wider text-foreground/70 shrink-0"
+              >
+                Alert Threshold
+              </label>
+
+              <div className="flex items-center gap-1.5">
+                <input
+                  id="inventory-threshold-input"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={3}
+                  value={thresholdInput}
+                  onChange={handleThresholdChange}
+                  placeholder="10"
+                  className="w-14 px-2 py-1 text-center text-xs font-black tracking-wider bg-background border border-foreground/20 rounded-lg text-foreground focus:ring-1 focus:ring-accent focus:border-accent outline-none transition-all font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setThresholdInput("10")}
+                  className="px-2.5 py-1 text-[9px] font-black uppercase tracking-wider bg-background hover:bg-button-bg hover:text-button-fg border border-foreground/15 rounded-lg transition-all shadow-xs cursor-pointer"
+                  title="Reset threshold to default 10"
+                >
+                  Reset
+                </button>
+              </div>
             </div>
           </div>
         </div>
