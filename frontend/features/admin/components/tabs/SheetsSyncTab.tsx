@@ -161,7 +161,7 @@ export default function SheetsSyncTab({
 
       const data = await res.json().catch(() => null);
 
-      if (res.ok) {
+      if (res.ok && (data.created_count > 0 || data.updated_count > 0)) {
         setSyncResults(data);
         setLastSyncMode("sheets");
         setLastSyncedAt(data.last_synced_at || new Date().toISOString());
@@ -177,7 +177,7 @@ export default function SheetsSyncTab({
 
         if (onSyncSuccess) onSyncSuccess();
 
-        // Prompt to save URL if not currently saved or if different from saved URL
+        // Prompt to save URL ONLY if the sync was genuinely successful and products were synced
         if (!savedSheetUrl || savedSheetUrl !== targetUrl) {
           const promptSave = await Swal.fire({
             title: "Save Google Sheet Link?",
@@ -207,7 +207,7 @@ export default function SheetsSyncTab({
         Swal.fire({
           icon: "error",
           title: "Sync Failed",
-          text: data?.error || "Could not fetch or sync from this Google Sheet.",
+          text: data?.error || "Could not sync from this Google Sheet. Please check the columns and sharing permissions.",
           confirmButtonColor: "var(--accent)",
         });
       }

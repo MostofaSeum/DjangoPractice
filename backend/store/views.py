@@ -93,6 +93,25 @@ class ProductViewSet(ModelViewSet):
         updated_count = 0
         errors = []
         
+        # Check for empty or invalid structure
+        if not rows:
+            return {
+                'created_count': 0,
+                'updated_count': 0,
+                'errors': ['The provided document has no data rows.']
+            }
+
+        # Check required columns in header
+        fieldnames = getattr(rows, 'fieldnames', None)
+        if fieldnames is not None:
+            clean_headers = [str(h).strip().lower() for h in fieldnames if h]
+            if 'title' not in clean_headers:
+                return {
+                    'created_count': 0,
+                    'updated_count': 0,
+                    'errors': ["Invalid document structure: Missing required 'title' column in the header."]
+                }
+        
         # Group rows by product (either by ID or by title if ID is empty)
         grouped = {}
         for index, row in enumerate(rows, start=2): # 1 is header
@@ -355,7 +374,15 @@ class ProductViewSet(ModelViewSet):
             reader = csv.DictReader(io.StringIO(content))
             result = self._process_product_csv_rows(reader)
             
-            # Update last_synced_at timestamp if sync succeeded
+            # If nothing was created/updated and errors occurred, reject as invalid sync
+            if result.get('created_count', 0) == 0 and result.get('updated_count', 0) == 0:
+                first_err = result['errors'][0] if result.get('errors') else "No valid product rows found in the document."
+                return Response({
+                    'error': f'Sync failed: {first_err}',
+                    'details': result.get('errors', [])
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # Update last_synced_at timestamp only if at least 1 product was synced
             settings = GoogleSheetSyncSetting.get_settings()
             settings.last_synced_at = timezone.now()
             settings.save()
