@@ -2273,7 +2273,7 @@ export default function AdminDashboardPage() {
         activeTab={activeTab}
         onRefresh={handleRefreshCurrentTab}
         isRefreshing={isRefreshingTab}
-        apiBase={apiBaseUrl}
+        apiBase={API_BASE}
         token={token}
         onNavigateToOrder={(orderId) => {
           handleTabSwitch("orders");
