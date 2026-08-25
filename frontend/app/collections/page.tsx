@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getApiBaseUrl } from "@/config/siteConfig";
+import CollectionDeliveryBanner from "@/components/CollectionDeliveryBanner";
 
 interface Collection {
   id: number;

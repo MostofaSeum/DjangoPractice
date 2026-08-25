@@ -3,6 +3,7 @@ import Image from "next/image";
 import ProductImage from "@/components/ui/ProductImage";
 import AddToCartButton from "@/features/products/components/AddToCartButton";
 import ProductDeliveryOfferBadge from "@/components/ProductDeliveryOfferBadge";
+import CollectionDeliveryBanner from "@/components/CollectionDeliveryBanner";
 import { getApiBaseUrl } from "@/config/siteConfig";
 
 interface Product {
@@ -81,9 +82,10 @@ export default async function CollectionDetailPage({ params }: PageProps) {
           <span className="text-[10px] opacity-60 font-bold uppercase tracking-widest block mb-2">
             Collection Detail
           </span>
-          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter">
+          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4">
             {collection.title}
           </h1>
+          <CollectionDeliveryBanner collectionId={collection.id} variant="banner" />
         </div>
 
         <h2 className="text-2xl font-black mb-8 uppercase tracking-tighter">
