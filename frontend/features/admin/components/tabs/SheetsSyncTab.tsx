@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Swal from "sweetalert2";
 
 interface SheetsSyncTabProps {
@@ -21,6 +21,10 @@ export default function SheetsSyncTab({
   onSyncSuccess,
 }: SheetsSyncTabProps) {
   const [googleSheetUrl, setGoogleSheetUrl] = useState("");
+  const [savedSheetUrl, setSavedSheetUrl] = useState<string>("");
+  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
+  const [isLoadingSavedUrl, setIsLoadingSavedUrl] = useState(true);
+
   const [isSyncingSheet, setIsSyncingSheet] = useState(false);
   const [isImportingFile, setIsImportingFile] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -30,13 +34,109 @@ export default function SheetsSyncTab({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  // 1. Google Sheets Live Sync
-  const handleSyncGoogleSheet = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Fetch saved Google Sheet URL on mount
+  useEffect(() => {
     if (!token) return;
 
-    const trimmedUrl = googleSheetUrl.trim();
-    if (!trimmedUrl) {
+    const fetchSavedSheetUrl = async () => {
+      try {
+        setIsLoadingSavedUrl(true);
+        const res = await fetch(`${apiBase}/store/products/get_saved_sheet_url/`, {
+          headers: {
+            Authorization: `JWT ${token}`,
+          },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.sheet_url) {
+            setSavedSheetUrl(data.sheet_url);
+            setGoogleSheetUrl(data.sheet_url);
+          }
+          if (data.last_synced_at) {
+            setLastSyncedAt(data.last_synced_at);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load saved Google Sheet URL:", err);
+      } finally {
+        setIsLoadingSavedUrl(false);
+      }
+    };
+
+    fetchSavedSheetUrl();
+  }, [apiBase, token]);
+
+  // Save or update Google Sheet URL in database
+  const saveUrlToDatabase = async (urlToSave: string) => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${apiBase}/store/products/save_google_sheet_url/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify({ url: urlToSave }),
+      });
+      if (res.ok) {
+        setSavedSheetUrl(urlToSave);
+        return true;
+      }
+    } catch (err) {
+      console.error("Failed to save URL:", err);
+    }
+    return false;
+  };
+
+  // Delete saved Google Sheet URL
+  const handleDeleteSavedUrl = async () => {
+    if (!token) return;
+    const confirmResult = await Swal.fire({
+      title: "Disconnect Sheet?",
+      text: "Are you sure you want to disconnect this saved Google Sheet link? You will be able to connect a new link anytime.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, Disconnect",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "var(--accent)",
+      reverseButtons: true,
+    });
+
+    if (!confirmResult.isConfirmed) return;
+
+    try {
+      const res = await fetch(`${apiBase}/store/products/delete_saved_sheet_url/`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `JWT ${token}`,
+        },
+      });
+
+      if (res.ok) {
+        setSavedSheetUrl("");
+        setGoogleSheetUrl("");
+        setLastSyncedAt(null);
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Google Sheet disconnected.",
+          showConfirmButton: false,
+          timer: 2000,
+          toast: true,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to delete saved sheet URL:", err);
+    }
+  };
+
+  // 1. Google Sheets Live Sync (Works for direct URL or 1-click update)
+  const handleSyncGoogleSheet = async (urlOverride?: string) => {
+    if (!token) return;
+
+    const targetUrl = (urlOverride || googleSheetUrl).trim();
+    if (!targetUrl) {
       Swal.fire({
         icon: "warning",
         title: "URL Required",
@@ -56,7 +156,7 @@ export default function SheetsSyncTab({
           "Content-Type": "application/json",
           Authorization: `JWT ${token}`,
         },
-        body: JSON.stringify({ url: trimmedUrl }),
+        body: JSON.stringify({ url: targetUrl }),
       });
 
       const data = await res.json().catch(() => null);
@@ -64,15 +164,45 @@ export default function SheetsSyncTab({
       if (res.ok) {
         setSyncResults(data);
         setLastSyncMode("sheets");
+        setLastSyncedAt(data.last_synced_at || new Date().toISOString());
+
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: `Catalog synced successfully. Created: ${data.created_count}, Updated: ${data.updated_count}`,
+          title: `Catalog synced successfully! Created: ${data.created_count}, Updated: ${data.updated_count}`,
           showConfirmButton: false,
           timer: 2500,
           toast: true,
         });
+
         if (onSyncSuccess) onSyncSuccess();
+
+        // Prompt to save URL if not currently saved or if different from saved URL
+        if (!savedSheetUrl || savedSheetUrl !== targetUrl) {
+          const promptSave = await Swal.fire({
+            title: "Save Google Sheet Link?",
+            text: "Would you like to save this Google Sheet link? Next time, you can update your entire website catalog with just 1 click!",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Save Link",
+            cancelButtonText: "Not Now",
+            confirmButtonColor: "var(--button-bg)",
+            cancelButtonColor: "var(--accent)",
+            reverseButtons: true,
+          });
+
+          if (promptSave.isConfirmed) {
+            await saveUrlToDatabase(targetUrl);
+            Swal.fire({
+              position: "top-end",
+              icon: "success",
+              title: "Link saved! You can now use 1-Click Update.",
+              showConfirmButton: false,
+              timer: 2500,
+              toast: true,
+            });
+          }
+        }
       } else {
         Swal.fire({
           icon: "error",
@@ -359,10 +489,84 @@ export default function SheetsSyncTab({
               </div>
             </div>
 
-            <form onSubmit={handleSyncGoogleSheet} className="space-y-4">
+            {/* Saved Sheet Active Card (If link is saved) */}
+            {savedSheetUrl ? (
+              <div className="mb-5 p-4.5 rounded-2xl bg-primary/10 dark:bg-primary/30 border border-accent/30 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+                    </span>
+                    <span className="text-[11px] font-black uppercase tracking-wider text-foreground">
+                      Connected Google Sheet
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleDeleteSavedUrl}
+                    className="text-[10px] font-bold uppercase tracking-wider text-red-500 hover:text-red-600 transition-colors flex items-center gap-1 cursor-pointer"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    <span>Disconnect</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2 px-3 py-2 bg-secondary/80 rounded-xl border border-foreground/10 text-foreground text-xs overflow-hidden">
+                  <span className="truncate flex-1 font-mono text-[11px] opacity-80 select-all">
+                    {savedSheetUrl}
+                  </span>
+                  <a
+                    href={savedSheetUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-accent hover:opacity-80 shrink-0 flex items-center gap-1 text-[10px] font-black uppercase tracking-wider"
+                  >
+                    <span>Open</span>
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </div>
+
+                {lastSyncedAt && (
+                  <p className="text-[10px] text-foreground/70 font-medium">
+                    Last synced: <span className="font-bold text-foreground">{new Date(lastSyncedAt).toLocaleString()}</span>
+                  </p>
+                )}
+
+                {/* 1-Click Update Button */}
+                <button
+                  type="button"
+                  disabled={isSyncingSheet}
+                  onClick={() => handleSyncGoogleSheet(savedSheetUrl)}
+                  className="w-full py-2.5 bg-accent text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {isSyncingSheet ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-button-fg border-t-transparent rounded-full animate-spin"></div>
+                      <span>Updating Catalog...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.03 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      <span>1-Click Update from Saved Sheet</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            ) : null}
+
+            {/* Manual URL Input Form (or connecting a new link) */}
+            <form onSubmit={(e) => { e.preventDefault(); handleSyncGoogleSheet(); }} className="space-y-4">
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  Google Sheet Shareable URL
+                  {savedSheetUrl ? "Or Sync with Another Google Sheet URL" : "Google Sheet Shareable URL"}
                 </label>
                 <input
                   type="url"
@@ -395,7 +599,7 @@ export default function SheetsSyncTab({
                     <span>Synchronizing...</span>
                   </>
                 ) : (
-                  <span>Sync Google Sheet</span>
+                  <span>{savedSheetUrl ? "Sync This New URL" : "Sync Google Sheet"}</span>
                 )}
               </button>
             </form>

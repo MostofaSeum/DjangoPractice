@@ -458,3 +458,18 @@ class DeliveryRule(models.Model):
     class Meta:
         ordering = ['-created_at']
 
+
+class GoogleSheetSyncSetting(models.Model):
+    sheet_url = models.URLField(max_length=500, blank=True, default='')
+    last_synced_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Google Sheet Sync Settings ({self.sheet_url or 'None'})"
+
+    @classmethod
+    def get_settings(cls):
+        obj, _ = cls.objects.get_or_create(id=1)
+        return obj
+

@@ -11,7 +11,7 @@ from .permissions import ViewCustomerHistoryPermission
 from rest_framework.decorators import action
 from store.models import OrderItem
 from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer,PaymentSettingSerializer,DeliverySettingSerializer,DeliveryRuleSerializer
-from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule
+from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,GoogleSheetSyncSetting
 from django.utils import timezone
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
@@ -281,10 +281,48 @@ class ProductViewSet(ModelViewSet):
             'errors': errors
         }
 
+    @action(detail=False, methods=['get'], permission_classes=[IsAdminUser])
+    def get_saved_sheet_url(self, request):
+        """Retrieve the currently saved Google Sheet URL and metadata."""
+        settings = GoogleSheetSyncSetting.get_settings()
+        return Response({
+            'sheet_url': settings.sheet_url,
+            'last_synced_at': settings.last_synced_at,
+            'updated_at': settings.updated_at
+        }, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], permission_classes=[IsAdminUser])
+    def save_google_sheet_url(self, request):
+        """Save or update the single Google Sheet URL."""
+        sheet_url = request.data.get('url', '').strip()
+        settings = GoogleSheetSyncSetting.get_settings()
+        settings.sheet_url = sheet_url
+        settings.save()
+        return Response({
+            'message': 'Google Sheet URL saved successfully.',
+            'sheet_url': settings.sheet_url,
+            'last_synced_at': settings.last_synced_at
+        }, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['delete'], permission_classes=[IsAdminUser])
+    def delete_saved_sheet_url(self, request):
+        """Delete/clear the saved Google Sheet URL."""
+        settings = GoogleSheetSyncSetting.get_settings()
+        settings.sheet_url = ''
+        settings.save()
+        return Response({
+            'message': 'Saved Google Sheet URL deleted successfully.'
+        }, status=status.HTTP_200_OK)
+
     @action(detail=False, methods=['post'], permission_classes=[IsAdminUser])
     def sync_google_sheet(self, request):
         """Fetch a public Google Sheet CSV and upsert all products & variants."""
         sheet_url = request.data.get('url', '').strip()
+        if not sheet_url:
+            # Fall back to saved URL if available
+            settings = GoogleSheetSyncSetting.get_settings()
+            sheet_url = settings.sheet_url
+
         if not sheet_url:
             return Response({'error': 'Google Sheet URL is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -316,6 +354,13 @@ class ProductViewSet(ModelViewSet):
         try:
             reader = csv.DictReader(io.StringIO(content))
             result = self._process_product_csv_rows(reader)
+            
+            # Update last_synced_at timestamp if sync succeeded
+            settings = GoogleSheetSyncSetting.get_settings()
+            settings.last_synced_at = timezone.now()
+            settings.save()
+            result['last_synced_at'] = settings.last_synced_at
+            
             return Response(result, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': f'Failed to parse CSV data: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
