@@ -48,12 +48,14 @@ interface CollectionDeliveryBannerProps {
   collectionId: number;
   variant?: "badge" | "banner";
   className?: string;
+  darkOverlay?: boolean;
 }
 
 export default function CollectionDeliveryBanner({
   collectionId,
   variant = "badge",
   className = "",
+  darkOverlay = false,
 }: CollectionDeliveryBannerProps) {
   const [offerText, setOfferText] = useState<string | null>(null);
 
@@ -118,9 +120,17 @@ export default function CollectionDeliveryBanner({
 
   return (
     <div
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent/15 text-accent text-[10px] font-black uppercase tracking-wider border border-accent/25 shadow-2xs ${className}`}
+      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${
+        darkOverlay
+          ? "bg-black/60 text-emerald-300 border border-emerald-400/30"
+          : "bg-accent/15 text-accent border border-accent/25"
+      } text-[10px] font-black uppercase tracking-wider shadow-md ${className}`}
     >
-      <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+      <span
+        className={`w-1.5 h-1.5 rounded-full ${
+          darkOverlay ? "bg-emerald-400" : "bg-accent"
+        } animate-pulse`}
+      />
       <span>{offerText}</span>
     </div>
   );

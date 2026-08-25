@@ -47,7 +47,7 @@ export default async function CollectionsPage() {
           Product Categories
         </h1>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {collections.map((collection) => {
             const imageUrl = collection.image
               ? collection.image.startsWith("http")
@@ -56,40 +56,73 @@ export default async function CollectionsPage() {
               : null;
 
             return (
-              <div
+              <Link
                 key={collection.id}
-                className="bg-secondary rounded-2xl p-6 shadow-sm border border-foreground/10 hover:shadow-xl transition-all duration-300 flex justify-between items-center space-x-4 group cursor-pointer text-foreground"
+                href={`/collections/${collection.id}`}
+                className="group relative rounded-3xl overflow-hidden shadow-md hover:shadow-2xl border border-foreground/10 min-h-[340px] flex flex-col justify-between p-7 transition-all duration-500 hover:-translate-y-1.5 bg-secondary"
               >
-                <div className="flex-1">
-                  <h2 className="text-2xl font-bold mb-1 uppercase tracking-tight group-hover:text-accent transition-colors">
-                    {collection.title}
-                  </h2>
-                  <p className="opacity-70 text-xs font-bold uppercase tracking-wider mb-6">
-                    {collection.product_count} products
-                  </p>
-                  <div className="mb-4">
-                    <CollectionDeliveryBanner collectionId={collection.id} variant="badge" />
-                  </div>
-                  <Link
-                    href={`/collections/${collection.id}`}
-                    className="inline-block text-[10px] font-bold tracking-widest uppercase border-b-2 border-current pb-1 hover:opacity-70 transition-opacity"
-                  >
-                    View Collection
-                  </Link>
-                </div>
-                <div className="w-24 h-24 flex-shrink-0 bg-primary/5 dark:bg-primary/40 rounded-xl relative flex items-center justify-center p-2 text-center text-[10px] opacity-60 font-bold uppercase tracking-wider overflow-hidden border border-foreground/10">
-                  {imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                {/* Background Image with Gradient Overlay */}
+                {imageUrl ? (
+                  <>
+                    <Image
                       src={imageUrl}
-                      alt={`Cover for ${collection.title}`}
-                      className="w-full h-full object-cover rounded-xl"
+                      alt={collection.title}
+                      fill
+                      unoptimized
+                      className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                     />
-                  ) : (
-                    <span>{collection.title}</span>
-                  )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 z-10 transition-opacity duration-500 group-hover:from-black/95 group-hover:via-black/50" />
+                  </>
+                ) : (
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-secondary to-primary/20 dark:from-primary/40 dark:via-secondary dark:to-primary/60" />
+                )}
+
+                {/* Top Row: Delivery Offer Badge or Product Count */}
+                <div className="relative z-20 flex justify-between items-start gap-2">
+                  <span
+                    className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full backdrop-blur-md border ${
+                      imageUrl
+                        ? "bg-black/40 text-white/90 border-white/20"
+                        : "bg-primary/10 text-foreground/80 border-foreground/10"
+                    }`}
+                  >
+                    {collection.product_count} Products
+                  </span>
                 </div>
-              </div>
+
+                {/* Bottom Row: Title, Delivery Banner & Call to Action */}
+                <div className="relative z-20 space-y-3">
+                  <CollectionDeliveryBanner
+                    collectionId={collection.id}
+                    variant="badge"
+                    darkOverlay={Boolean(imageUrl)}
+                    className="backdrop-blur-md shadow-md"
+                  />
+
+                  <div>
+                    <h2
+                      className={`text-2xl md:text-3xl font-black uppercase tracking-tight transition-transform duration-300 group-hover:translate-x-1 ${
+                        imageUrl ? "text-white drop-shadow-md" : "text-foreground"
+                      }`}
+                    >
+                      {collection.title}
+                    </h2>
+                  </div>
+
+                  <div className="pt-2 flex items-center gap-2">
+                    <span
+                      className={`text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5 ${
+                        imageUrl ? "text-white/90 group-hover:text-white" : "text-foreground/80 group-hover:text-foreground"
+                      }`}
+                    >
+                      Explore Collection
+                      <span className="transform transition-transform duration-300 group-hover:translate-x-1.5">
+                        &rarr;
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              </Link>
             );
           })}
         </div>
