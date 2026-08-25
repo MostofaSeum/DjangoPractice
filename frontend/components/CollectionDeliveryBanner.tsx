@@ -122,7 +122,7 @@ export default function CollectionDeliveryBanner({
     <div
       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${
         darkOverlay
-          ? "bg-primary/80 text-foreground border border-accent/40"
+          ? "bg-primary/80 text-button-fg border border-button-fg/20"
           : "bg-accent/15 text-accent border border-accent/25"
       } text-[10px] font-black uppercase tracking-wider shadow-md ${className}`}
     >

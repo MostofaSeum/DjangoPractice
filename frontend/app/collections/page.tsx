@@ -82,7 +82,7 @@ export default async function CollectionsPage() {
                   <span
                     className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full backdrop-blur-md border ${
                       imageUrl
-                        ? "bg-primary/70 text-foreground border-foreground/20"
+                        ? "bg-primary/80 text-button-fg border-button-fg/20"
                         : "bg-primary/10 text-foreground/80 border-foreground/10"
                     }`}
                   >
@@ -102,19 +102,22 @@ export default async function CollectionsPage() {
                   <div>
                     <h2
                       className={`text-2xl md:text-3xl font-black uppercase tracking-tight transition-transform duration-300 group-hover:translate-x-1 ${
-                        imageUrl ? "text-foreground drop-shadow-md" : "text-foreground"
+                        imageUrl ? "text-button-fg drop-shadow-md" : "text-foreground"
                       }`}
                     >
                       {collection.title}
                     </h2>
                   </div>
 
-                  <div className="pt-2 flex items-center gap-2">
-                    <span className="text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5 text-foreground/80 group-hover:text-foreground">
+                  <div className="pt-2">
+                    <span
+                      className={`text-[11px] font-black uppercase tracking-wider ${
+                        imageUrl
+                          ? "text-button-fg/90 group-hover:text-button-fg"
+                          : "text-foreground/80 group-hover:text-foreground"
+                      }`}
+                    >
                       Explore Collection
-                      <span className="transform transition-transform duration-300 group-hover:translate-x-1.5">
-                        &rarr;
-                      </span>
                     </span>
                   </div>
                 </div>
