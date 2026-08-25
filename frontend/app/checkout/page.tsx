@@ -409,6 +409,42 @@ export default function CheckoutPage() {
     matchingOutsideRule = maxOutsideRule;
   }
 
+  // Check Order Total / Cart Threshold Delivery Rules
+  if (deliveryRules.length > 0) {
+    const orderTotalRules = deliveryRules.filter(
+      (r) =>
+        r.is_active &&
+        r.target_type === "order_total" &&
+        itemsTotal >= Number(r.min_order_amount || 0)
+    );
+
+    if (orderTotalRules.length > 0) {
+      // Find the most beneficial rule (lowest delivery charge or highest threshold reached)
+      orderTotalRules.sort(
+        (a, b) => Number(b.min_order_amount || 0) - Number(a.min_order_amount || 0)
+      );
+      const topOrderRule = orderTotalRules[0];
+
+      const thresholdInsideCharge =
+        topOrderRule.rule_type === "free"
+          ? 0
+          : Number(topOrderRule.inside_dhaka_charge ?? 0);
+      const thresholdOutsideCharge =
+        topOrderRule.rule_type === "free"
+          ? 0
+          : Number(topOrderRule.outside_dhaka_charge ?? 0);
+
+      if (thresholdInsideCharge <= effectiveInsideCharge) {
+        effectiveInsideCharge = thresholdInsideCharge;
+        matchingInsideRule = topOrderRule;
+      }
+      if (thresholdOutsideCharge <= effectiveOutsideCharge) {
+        effectiveOutsideCharge = thresholdOutsideCharge;
+        matchingOutsideRule = topOrderRule;
+      }
+    }
+  }
+
   const deliveryCharge =
     deliveryArea === "outside_dhaka"
       ? effectiveOutsideCharge

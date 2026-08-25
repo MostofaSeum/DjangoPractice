@@ -897,26 +897,28 @@ export default function PromotionsTab({
                 </div>
               )}
 
-              <div>
-                <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 opacity-70">
-                  Minimum Quantity Required *
-                </label>
-                <input
-                  type="number"
-                  min={1}
-                  step={1}
-                  required
-                  value={deliveryRuleMinQuantity}
-                  onChange={(e) =>
-                    setDeliveryRuleMinQuantity(e.target.value)
-                  }
-                  placeholder="e.g. 3"
-                  className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-2.5 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                />
-                <p className="text-[10px] opacity-60 mt-1">
-                  Set to 1 for unconditional offer, or e.g. 3 to require &quot;Buy 3 items to get offer&quot;.
-                </p>
-              </div>
+              {deliveryRuleTargetType !== "order_total" && (
+                <div>
+                  <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 opacity-70">
+                    Minimum Quantity Required *
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    step={1}
+                    required
+                    value={deliveryRuleMinQuantity}
+                    onChange={(e) =>
+                      setDeliveryRuleMinQuantity(e.target.value)
+                    }
+                    placeholder="e.g. 3"
+                    className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-2.5 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                  />
+                  <p className="text-[10px] opacity-60 mt-1">
+                    Set to 1 for unconditional offer, or e.g. 3 to require &quot;Buy 3 items to get offer&quot;.
+                  </p>
+                </div>
+              )}
 
               <div className="flex items-center justify-between p-3 rounded-2xl bg-secondary border border-foreground/10">
                 <div>
@@ -958,7 +960,9 @@ export default function PromotionsTab({
                   (deliveryRuleTargetType === "product" &&
                     deliveryRuleSelectedProductIds.length === 0) ||
                   (deliveryRuleTargetType === "collection" &&
-                    !deliveryRuleCollectionId)
+                    !deliveryRuleCollectionId) ||
+                  (deliveryRuleTargetType === "order_total" &&
+                    (!deliveryRuleMinOrderAmount || isNaN(Number(deliveryRuleMinOrderAmount))))
                 }
                 className="w-full py-3 bg-button-bg text-button-fg rounded-xl font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-50"
               >
@@ -1035,9 +1039,14 @@ export default function PromotionsTab({
                                 <span className="font-mono font-black text-sm uppercase px-3 py-1 rounded-lg bg-accent/15 text-accent border border-accent/30 tracking-wider">
                                   {isFree ? "FREE DELIVERY" : "CUSTOM CHARGE"}
                                 </span>
-                                {Number(rule.min_quantity || 1) > 1 && (
+                                {rule.target_type !== "order_total" && Number(rule.min_quantity || 1) > 1 && (
                                   <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-accent/20 text-accent border border-accent/30">
                                     Min {rule.min_quantity} Qty
+                                  </span>
+                                )}
+                                {rule.target_type === "order_total" && Number(rule.min_order_amount || 0) > 0 && (
+                                  <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-accent/20 text-accent border border-accent/30">
+                                    Order &ge; ৳{Number(rule.min_order_amount).toLocaleString()}
                                   </span>
                                 )}
                                 <button
@@ -1070,9 +1079,15 @@ export default function PromotionsTab({
                               SCOPE:{" "}
                               {rule.target_type === "product"
                                 ? "SPECIFIC PRODUCTS"
-                                : "COLLECTION"}
+                                : rule.target_type === "collection"
+                                ? "COLLECTION"
+                                : "ORDER TOTAL THRESHOLD"}
                             </p>
-                            {rule.target_type === "product" ? (
+                            {rule.target_type === "order_total" ? (
+                              <p className="font-bold text-foreground">
+                                Applies to all orders with Subtotal &ge; ৳{Number(rule.min_order_amount || 0).toLocaleString()}
+                              </p>
+                            ) : rule.target_type === "product" ? (
                               <div>
                                 <p className="font-bold text-foreground">
                                   {rule.product_count ||

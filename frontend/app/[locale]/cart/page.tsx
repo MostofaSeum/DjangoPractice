@@ -321,6 +321,18 @@ export default function CartPage() {
           Array.isArray(rulesData) ? rulesData : rulesData.results || []
         ).filter((r: any) => r.is_active && r.rule_type === "free");
 
+        // If entire cart qualifies via an order_total threshold rule, all items qualify
+        const isCartTotalFree = activeRules.some(
+          (rule) =>
+            rule.target_type === "order_total" &&
+            subtotal >= Number(rule.min_order_amount || 0)
+        );
+
+        if (isCartTotalFree) {
+          router.push("/checkout");
+          return;
+        }
+
         if (activeRules.length > 0) {
           const isItemFree = (item: any) => {
             const itemColId =
