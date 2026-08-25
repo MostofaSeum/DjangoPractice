@@ -51,13 +51,20 @@ interface CollectionDeliveryBannerProps {
   darkOverlay?: boolean;
 }
 
+interface OfferDetails {
+  free: boolean;
+  prefix: string;
+  highlight: string;
+  suffix: string;
+}
+
 export default function CollectionDeliveryBanner({
   collectionId,
   variant = "badge",
   className = "",
   darkOverlay = false,
 }: CollectionDeliveryBannerProps) {
-  const [offerText, setOfferText] = useState<string | null>(null);
+  const [offer, setOffer] = useState<OfferDetails | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -76,23 +83,26 @@ export default function CollectionDeliveryBanner({
         const free = matchedRule.rule_type === "free";
 
         if (minAmount > 0) {
-          setOfferText(
-            free
-              ? `Spend ৳${minAmount.toLocaleString()} from this category to get FREE Delivery!`
-              : `Spend ৳${minAmount.toLocaleString()} from this category to get a reduced delivery charge!`
-          );
+          setOffer({
+            free,
+            prefix: "Spend",
+            highlight: `৳${minAmount.toLocaleString()}`,
+            suffix: free ? "for Free Delivery" : "for Reduced Delivery",
+          });
         } else if (qty > 1) {
-          setOfferText(
-            free
-              ? `Buy ${qty}+ items from this category to get FREE Delivery!`
-              : `Buy ${qty}+ items from this category to get a reduced delivery charge!`
-          );
+          setOffer({
+            free,
+            prefix: "Buy",
+            highlight: `${qty}+ Items`,
+            suffix: free ? "for Free Delivery" : "for Reduced Delivery",
+          });
         } else {
-          setOfferText(
-            free
-              ? "Special Offer: FREE Delivery on all items in this category!"
-              : `Special Offer: Reduced delivery charge on this category!`
-          );
+          setOffer({
+            free,
+            prefix: "Special Offer",
+            highlight: free ? "Free Delivery" : "Reduced Delivery",
+            suffix: "on all items",
+          });
         }
       }
     });
@@ -102,32 +112,44 @@ export default function CollectionDeliveryBanner({
     };
   }, [collectionId]);
 
-  if (!offerText) return null;
+  if (!offer) return null;
 
   if (variant === "banner") {
     return (
       <div
-        className={`flex items-center gap-3 p-4 rounded-2xl bg-accent/15 border border-accent/30 text-foreground font-black text-xs uppercase tracking-wider ${className}`}
+        className={`flex items-center gap-3 p-4 rounded-2xl bg-primary/20 dark:bg-primary/40 border border-accent/40 backdrop-blur-md text-foreground font-black text-xs uppercase tracking-wider shadow-md ${className}`}
       >
-        <span className="flex h-2.5 w-2.5 relative">
+        <span className="flex h-2.5 w-2.5 relative shrink-0">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
           <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent" />
         </span>
-        <span className="text-accent font-extrabold">{offerText}</span>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-foreground/90 font-bold">{offer.prefix}</span>
+          <span className="text-accent font-black underline decoration-accent/40">{offer.highlight}</span>
+          <span className="text-foreground font-extrabold">{offer.suffix}</span>
+        </div>
       </div>
     );
   }
 
   return (
     <div
-      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${
+      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl backdrop-blur-md border shadow-md transition-all duration-300 ${
         darkOverlay
-          ? "bg-primary/80 text-button-fg border border-button-fg/20"
-          : "bg-accent/15 text-accent border border-accent/25"
-      } text-[10px] font-black uppercase tracking-wider shadow-md ${className}`}
+          ? "bg-primary/70 border-accent/40 text-button-fg"
+          : "bg-secondary/90 border-accent/30 text-foreground"
+      } ${className}`}
     >
-      <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-      <span>{offerText}</span>
+      <span className="flex h-2 w-2 relative shrink-0">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
+      </span>
+
+      <span className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 flex-wrap">
+        <span className="opacity-90">{offer.prefix}</span>
+        <strong className="text-accent font-black">{offer.highlight}</strong>
+        <span className="font-extrabold">{offer.suffix}</span>
+      </span>
     </div>
   );
 }
