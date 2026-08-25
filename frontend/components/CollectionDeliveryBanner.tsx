@@ -125,7 +125,7 @@ export default function CollectionDeliveryBanner({
         </span>
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className="text-foreground/90 font-bold">{offer.prefix}</span>
-          <span className="text-accent font-black underline decoration-accent/40">{offer.highlight}</span>
+          <span className="text-accent font-black">{offer.highlight}</span>
           <span className="text-foreground font-extrabold">{offer.suffix}</span>
         </div>
       </div>
@@ -149,7 +149,7 @@ export default function CollectionDeliveryBanner({
         <span className="opacity-90">{offer.prefix}</span>
         <strong
           className={`font-black ${
-            darkOverlay ? "text-logo underline decoration-logo/50" : "text-accent"
+            darkOverlay ? "text-logo" : "text-accent"
           }`}
         >
           {offer.highlight}
