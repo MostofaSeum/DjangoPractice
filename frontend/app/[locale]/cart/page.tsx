@@ -325,7 +325,7 @@ export default function CartPage() {
         const isCartTotalFree = activeRules.some(
           (rule) =>
             rule.target_type === "order_total" &&
-            subtotal >= Number(rule.min_order_amount || 0)
+            finalTotal >= Number(rule.min_order_amount || 0)
         );
 
         if (isCartTotalFree) {
