@@ -1009,12 +1009,15 @@ class NotificationViewSet(ModelViewSet):
             'notifications': serializer.data
         })
 
-    @action(detail=True, methods=['patch'])
+    @action(detail=True, methods=['patch', 'post'])
     def mark_read(self, request, pk=None):
-        notification = self.get_object()
-        notification.is_read = True
-        notification.save()
-        return Response(self.get_serializer(notification).data)
+        try:
+            notification = self.get_object()
+            notification.is_read = True
+            notification.save(update_fields=['is_read'])
+            return Response(self.get_serializer(notification).data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['post'])
     def mark_all_read(self, request):

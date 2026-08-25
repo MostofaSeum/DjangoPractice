@@ -115,10 +115,12 @@ export default function AdminNotificationBell({
 
     if (!item.is_read) {
       try {
+        const authHeader = token.startsWith("JWT ") ? token : `JWT ${token}`;
         await fetch(`${apiBase}/store/notifications/${item.id}/mark_read/`, {
-          method: "PATCH",
+          method: "POST",
           headers: {
-            Authorization: `JWT ${token}`,
+            "Content-Type": "application/json",
+            Authorization: authHeader,
           },
         });
 
@@ -142,10 +144,12 @@ export default function AdminNotificationBell({
     if (!token) return;
     try {
       setIsLoading(true);
+      const authHeader = token.startsWith("JWT ") ? token : `JWT ${token}`;
       const res = await fetch(`${apiBase}/store/notifications/mark_all_read/`, {
         method: "POST",
         headers: {
-          Authorization: `JWT ${token}`,
+          "Content-Type": "application/json",
+          Authorization: authHeader,
         },
       });
 
@@ -177,12 +181,20 @@ export default function AdminNotificationBell({
     }
   };
 
+  const handleToggleOpen = () => {
+    const nextState = !isOpen;
+    setIsOpen(nextState);
+    if (nextState && unreadCount > 0) {
+      handleMarkAllRead();
+    }
+  };
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Bell Button with Pulsing Badge */}
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggleOpen}
         title="Notifications"
         className="relative flex items-center justify-center p-2 rounded-xl text-white dark:text-foreground hover:bg-white/10 transition-colors cursor-pointer border border-white/10"
       >
