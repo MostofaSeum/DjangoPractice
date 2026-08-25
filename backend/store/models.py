@@ -473,3 +473,28 @@ class GoogleSheetSyncSetting(models.Model):
         obj, _ = cls.objects.get_or_create(id=1)
         return obj
 
+
+class Notification(models.Model):
+    TYPE_ORDER = 'order'
+    TYPE_STOCK = 'stock'
+    TYPE_SYSTEM = 'system'
+    TYPE_CHOICES = [
+        (TYPE_ORDER, 'New Order'),
+        (TYPE_STOCK, 'Low Stock Alert'),
+        (TYPE_SYSTEM, 'System Alert'),
+    ]
+
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    notification_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default=TYPE_ORDER)
+    target_id = models.CharField(max_length=100, blank=True, default='')  # e.g., order ID or product ID
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"[{self.get_notification_type_display()}] {self.title} ({'Read' if self.is_read else 'Unread'})"
+
+    class Meta:
+        ordering = ['-created_at']
+
+

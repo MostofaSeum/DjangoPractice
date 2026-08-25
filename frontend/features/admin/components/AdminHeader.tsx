@@ -2,12 +2,16 @@
 
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { AdminTab } from "../types";
+import AdminNotificationBell from "./AdminNotificationBell";
 
 interface AdminHeaderProps {
   onLogout: () => void;
   activeTab?: AdminTab;
   onRefresh?: () => void;
   isRefreshing?: boolean;
+  apiBase?: string;
+  token?: string | null;
+  onNavigateToOrder?: (orderId: string) => void;
 }
 
 export default function AdminHeader({
@@ -15,6 +19,9 @@ export default function AdminHeader({
   activeTab,
   onRefresh,
   isRefreshing = false,
+  apiBase = "",
+  token = null,
+  onNavigateToOrder,
 }: AdminHeaderProps) {
   const getTabDisplayName = (tab?: AdminTab) => {
     switch (tab) {
@@ -87,6 +94,15 @@ export default function AdminHeader({
                 {isRefreshing ? "Refreshing..." : `Refresh ${getTabDisplayName(activeTab)}`}
               </span>
             </button>
+          )}
+
+          {/* Real-time Order Notification Bell */}
+          {token && apiBase && (
+            <AdminNotificationBell
+              apiBase={apiBase}
+              token={token}
+              onNavigateToOrder={onNavigateToOrder}
+            />
           )}
 
           <ThemeToggle />

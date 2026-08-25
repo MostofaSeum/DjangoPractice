@@ -18,6 +18,7 @@ router.register('variants', views.ProductVariantViewSet, basename='variants')
 router.register('payment-settings', views.PaymentSettingViewSet, basename='payment-settings')
 router.register('delivery-settings', views.DeliverySettingViewSet, basename='delivery-settings')
 router.register('delivery-rules', views.DeliveryRuleViewSet, basename='delivery-rules')
+router.register('notifications', views.NotificationViewSet, basename='notifications')
 
 
 products_router = routers.NestedDefaultRouter(router, 'products', lookup='product')

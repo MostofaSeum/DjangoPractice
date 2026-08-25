@@ -4,7 +4,7 @@ from django.db.models.functions import Greatest
 from django.utils import timezone
 from .signals import order_created
 from rest_framework import serializers
-from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule
+from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,Notification
 from decimal import Decimal
 
 class ProductImageSerializer(serializers.ModelSerializer):
@@ -503,6 +503,18 @@ class CreateOrderSerializer(serializers.Serializer):
             OrderItem.objects.bulk_create(order_items)
             Cart.objects.filter(pk=cart_id).delete()
 
+            # Create an admin notification for the new order
+            try:
+                Notification.objects.create(
+                    title=f"New Order #{order.id}",
+                    message=f"Customer {order.phone or customer.phone} placed an order for ৳{order_total:.2f} ({order.get_payment_method_display()}).",
+                    notification_type=Notification.TYPE_ORDER,
+                    target_id=str(order.id),
+                    is_read=False
+                )
+            except Exception as notif_err:
+                print(f"Failed to create notification: {notif_err}")
+
             order_created.send_robust(self.__class__, order=order)
             return order
 
@@ -698,5 +710,12 @@ class DeliveryRuleSerializer(serializers.ModelSerializer):
         if rule.target_type == DeliveryRule.TARGET_PRODUCT:
             return list(rule.products.values('id', 'title', 'unit_price'))
         return []
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ['id', 'title', 'message', 'notification_type', 'target_id', 'is_read', 'created_at']
+
 
 
