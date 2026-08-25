@@ -285,9 +285,6 @@ export default function AdminNotificationBell({
 
           {/* Footer */}
           <div className="p-2.5 bg-primary/5 border-t border-foreground/10 text-center">
-            <span className="text-[10px] opacity-60 font-bold uppercase tracking-wider">
-              Automatic Realtime Order Alerts
-            </span>
           </div>
         </div>
       )}
