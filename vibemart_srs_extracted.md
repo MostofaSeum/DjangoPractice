@@ -270,7 +270,7 @@ Customer
 
 High
 
-1. Allow entering promotional coupon codes for fixed or percentage discounts in Taka.2. Evaluate active DeliveryRule entities against cart items, collection, and quantities.3. Update shipping fee dynamically to Free Delivery (0 Taka) or Reduced Delivery fee when thresholds are met.
+1. Allow entering promotional coupon codes for fixed or percentage discounts in Taka.2. Evaluate active DeliveryRule entities against cart items, collection, minimum quantities, minimum category spend thresholds, or overall cart order total amount.3. Update shipping fee dynamically to Free Delivery (0 Taka) or Reduced Delivery fee when quantity or monetary spend thresholds are met.
 
 Discounts and delivery fees calculate accurately in real-time in the cart drawer and checkout.
 
@@ -2138,13 +2138,13 @@ target_type
 
 VARCHAR(20)
 
-CHECK IN ('product', 'collection')
+CHECK IN ('product', 'collection', 'order_total')
 
 No
 
 'product'
 
-Scope target
+Scope target: specific products, collection, or cart order total
 
 rule_type
 
@@ -2208,7 +2208,19 @@ No
 
 1
 
-Minimum item quantity threshold to trigger rule
+Minimum item quantity threshold to trigger rule (for quantity-based offers)
+
+min_order_amount
+
+DECIMAL(10,2)
+
+MinValueValidator(0)
+
+Yes
+
+0.00
+
+Minimum monetary spend threshold in ৳ to trigger rule (for order total or category spend offers)
 
 is_active
 
@@ -2592,7 +2604,7 @@ BR-03
 
 Delivery Rule Evaluation
 
-When cart items qualify for a DeliveryRule (e.g., purchasing 2+ items from a specific collection), the system automatically applies the free or reduced delivery charge over the base regional charge.
+When cart items qualify for a DeliveryRule based on item quantity (e.g., purchasing 2+ items from a specific collection), category spend threshold (e.g., spending ৳1000+ on a collection/products), or overall cart order total amount, the system automatically overrides base regional charges with the designated free (৳0) or reduced delivery fee in real-time.
 
 BR-04
 
