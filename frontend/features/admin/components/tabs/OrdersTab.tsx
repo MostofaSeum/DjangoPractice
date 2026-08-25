@@ -1,18 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Order } from "../../types";
 
 interface OrdersTabProps {
   orders: Order[];
   handleUpdateOrderStatus: (orderId: number, status: string) => Promise<void>;
   handleDeleteOrder: (orderId: number) => Promise<void>;
+  targetOrderId?: string | null;
 }
 
 export default function OrdersTab({
   orders,
   handleUpdateOrderStatus,
   handleDeleteOrder,
+  targetOrderId = null,
 }: OrdersTabProps) {
   const [orderSearch, setOrderSearch] = useState("");
   const [activeOrderQuery, setActiveOrderQuery] = useState("");
@@ -22,6 +24,15 @@ export default function OrdersTab({
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<Order | null>(
     null
   );
+
+  useEffect(() => {
+    if (targetOrderId && orders.length > 0) {
+      const match = orders.find((o) => String(o.id) === String(targetOrderId));
+      if (match) {
+        setSelectedOrderDetails(match);
+      }
+    }
+  }, [targetOrderId, orders]);
 
   const filteredOrders = orders
     .filter((o) => {

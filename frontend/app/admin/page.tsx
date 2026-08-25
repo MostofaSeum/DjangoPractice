@@ -204,6 +204,7 @@ export default function AdminDashboardPage() {
   const [activeCollectionQuery, setActiveCollectionQuery] = useState("");
   const [activeOrderQuery, setActiveOrderQuery] = useState("");
   const [activeCustomerQuery, setActiveCustomerQuery] = useState("");
+  const [selectedNotificationOrderId, setSelectedNotificationOrderId] = useState<string | null>(null);
 
   const [customerHistoryModal, setCustomerHistoryModal] = useState<{
     customerId: number;
@@ -2138,6 +2139,20 @@ export default function AdminDashboardPage() {
     setActiveTab(targetTab);
     if (targetTab === "products") {
       setIsProductsDropdownOpen(true);
+    } else if (targetTab === "orders" && token) {
+      // Automatically refresh orders so admin always sees latest orders without manual refresh
+      try {
+        const orderRes = await fetch(`${API_BASE}/store/orders/`, {
+          headers: { Authorization: `JWT ${token}` },
+          cache: "no-store",
+        });
+        if (orderRes.ok) {
+          const orderData = await orderRes.json();
+          setOrders(Array.isArray(orderData) ? orderData : orderData.results || []);
+        }
+      } catch (err) {
+        console.error("Failed to auto-refresh orders on tab switch:", err);
+      }
     }
   };
 
@@ -2276,6 +2291,7 @@ export default function AdminDashboardPage() {
         apiBase={API_BASE}
         token={token}
         onNavigateToOrder={(orderId) => {
+          setSelectedNotificationOrderId(orderId);
           handleTabSwitch("orders");
         }}
       />
@@ -2390,6 +2406,7 @@ export default function AdminDashboardPage() {
               orders={orders}
               handleUpdateOrderStatus={handleUpdateOrderStatus}
               handleDeleteOrder={handleDeleteOrder}
+              targetOrderId={selectedNotificationOrderId}
             />
           )}
 
