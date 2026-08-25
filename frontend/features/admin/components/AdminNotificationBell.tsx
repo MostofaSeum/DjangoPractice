@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import Swal from "sweetalert2";
 
 interface NotificationItem {
@@ -185,19 +186,13 @@ export default function AdminNotificationBell({
         title="Notifications"
         className="relative flex items-center justify-center p-2 rounded-xl text-white dark:text-foreground hover:bg-white/10 transition-colors cursor-pointer border border-white/10"
       >
-        <svg
-          className="w-5 h-5 text-white/90 dark:text-foreground/90"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-          />
-        </svg>
+        <Image
+          src="/notification.png"
+          alt="Notifications"
+          width={20}
+          height={20}
+          className="object-contain filter brightness-0 invert opacity-90 hover:opacity-100 transition-opacity"
+        />
 
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-accent text-white font-black text-[9px] shadow-md animate-pulse">
