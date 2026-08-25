@@ -898,25 +898,89 @@ export default function PromotionsTab({
               )}
 
               {deliveryRuleTargetType !== "order_total" && (
-                <div>
-                  <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 opacity-70">
-                    Minimum Quantity Required *
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    step={1}
-                    required
-                    value={deliveryRuleMinQuantity}
-                    onChange={(e) =>
-                      setDeliveryRuleMinQuantity(e.target.value)
-                    }
-                    placeholder="e.g. 3"
-                    className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-2.5 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-                  />
-                  <p className="text-[10px] opacity-60 mt-1">
-                    Set to 1 for unconditional offer, or e.g. 3 to require &quot;Buy 3 items to get offer&quot;.
-                  </p>
+                <div className="space-y-4 p-4 rounded-2xl bg-secondary/80 border border-foreground/10">
+                  <div>
+                    <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 opacity-70">
+                      Offer Trigger Condition *
+                    </label>
+                    <div className="grid grid-cols-2 gap-2 p-1 bg-primary/5 dark:bg-primary/20 rounded-xl border border-foreground/10">
+                      <button
+                        type="button"
+                        onClick={() => setDeliveryRuleMinOrderAmount("")}
+                        className={`py-1.5 px-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
+                          !deliveryRuleMinOrderAmount || Number(deliveryRuleMinOrderAmount) === 0
+                            ? "bg-secondary text-foreground shadow-sm"
+                            : "text-foreground/60 hover:text-foreground"
+                        }`}
+                      >
+                        By Quantity
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!deliveryRuleMinOrderAmount || Number(deliveryRuleMinOrderAmount) === 0) {
+                            setDeliveryRuleMinOrderAmount("1000");
+                          }
+                        }}
+                        className={`py-1.5 px-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
+                          deliveryRuleMinOrderAmount && Number(deliveryRuleMinOrderAmount) > 0
+                            ? "bg-secondary text-foreground shadow-sm"
+                            : "text-foreground/60 hover:text-foreground"
+                        }`}
+                      >
+                        By Minimum Spend (৳)
+                      </button>
+                    </div>
+                  </div>
+
+                  {deliveryRuleMinOrderAmount && Number(deliveryRuleMinOrderAmount) > 0 ? (
+                    <div>
+                      <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 opacity-70">
+                        Minimum Spend on Eligible Items (৳) *
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-sm text-foreground/50">
+                          ৳
+                        </span>
+                        <input
+                          type="number"
+                          min={1}
+                          step="any"
+                          required
+                          value={deliveryRuleMinOrderAmount}
+                          onChange={(e) =>
+                            setDeliveryRuleMinOrderAmount(e.target.value)
+                          }
+                          placeholder="e.g. 1000"
+                          className="w-full pl-8 pr-4 py-2 bg-background border border-foreground/15 rounded-xl text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                        />
+                      </div>
+                      <p className="text-[10px] opacity-60 mt-1">
+                        Customer gets offer when they buy at least ৳{Number(deliveryRuleMinOrderAmount || 0).toLocaleString()} worth of these items.
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 opacity-70">
+                        Minimum Quantity Required *
+                      </label>
+                      <input
+                        type="number"
+                        min={1}
+                        step={1}
+                        required
+                        value={deliveryRuleMinQuantity}
+                        onChange={(e) =>
+                          setDeliveryRuleMinQuantity(e.target.value)
+                        }
+                        placeholder="e.g. 3"
+                        className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-2 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                      />
+                      <p className="text-[10px] opacity-60 mt-1">
+                        Set to 1 for unconditional offer, or e.g. 3 to require &quot;Buy 3 items to get offer&quot;.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
