@@ -136,7 +136,7 @@ export default function CollectionDeliveryBanner({
     <div
       className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl backdrop-blur-md border shadow-md transition-all duration-300 ${
         darkOverlay
-          ? "bg-primary/70 border-accent/40 text-button-fg"
+          ? "bg-primary/85 border-foreground/30 text-button-fg"
           : "bg-secondary/90 border-accent/30 text-foreground"
       } ${className}`}
     >
@@ -147,7 +147,13 @@ export default function CollectionDeliveryBanner({
 
       <span className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 flex-wrap">
         <span className="opacity-90">{offer.prefix}</span>
-        <strong className="text-accent font-black">{offer.highlight}</strong>
+        <strong
+          className={`font-black ${
+            darkOverlay ? "text-logo underline decoration-logo/50" : "text-accent"
+          }`}
+        >
+          {offer.highlight}
+        </strong>
         <span className="font-extrabold">{offer.suffix}</span>
       </span>
     </div>
