@@ -681,7 +681,7 @@ class DeliveryRuleSerializer(serializers.ModelSerializer):
             'inside_dhaka_charge', 'outside_dhaka_charge',
             'products', 'collection', 'collection_title',
             'product_count', 'products_details', 'min_quantity',
-            'is_active', 'created_at'
+            'min_order_amount', 'is_active', 'created_at'
         ]
 
     def get_collection_title(self, rule):

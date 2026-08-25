@@ -409,9 +409,11 @@ class DeliverySetting(models.Model):
 class DeliveryRule(models.Model):
     TARGET_PRODUCT = 'product'
     TARGET_COLLECTION = 'collection'
+    TARGET_ORDER_TOTAL = 'order_total'
     TARGET_CHOICES = [
         (TARGET_PRODUCT, 'Specific Products'),
         (TARGET_COLLECTION, 'Collection'),
+        (TARGET_ORDER_TOTAL, 'Order Total / Cart Amount Threshold'),
     ]
 
     RULE_FREE = 'free'
@@ -439,6 +441,14 @@ class DeliveryRule(models.Model):
     products = models.ManyToManyField(Product, blank=True, related_name='delivery_rules')
     collection = models.ForeignKey(Collection, on_delete=models.SET_NULL, null=True, blank=True, related_name='delivery_rules')
     min_quantity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
+    min_order_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
+        validators=[MinValueValidator(0)],
+        blank=True,
+        null=True
+    )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
