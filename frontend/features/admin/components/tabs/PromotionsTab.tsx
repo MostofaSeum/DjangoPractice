@@ -23,8 +23,8 @@ interface PromotionsTabProps {
   editingDeliveryRuleId: number | null;
   deliveryRuleTitle: string;
   setDeliveryRuleTitle: (title: string) => void;
-  deliveryRuleTargetType: "product" | "collection";
-  setDeliveryRuleTargetType: (type: "product" | "collection") => void;
+  deliveryRuleTargetType: "product" | "collection" | "order_total";
+  setDeliveryRuleTargetType: (type: "product" | "collection" | "order_total") => void;
   deliveryRuleType: "free" | "reduced";
   setDeliveryRuleType: (type: "free" | "reduced") => void;
   deliveryRuleInsideCharge: string;
@@ -37,6 +37,8 @@ interface PromotionsTabProps {
   setDeliveryRuleCollectionId: (id: number | "") => void;
   deliveryRuleMinQuantity: string;
   setDeliveryRuleMinQuantity: (qty: string) => void;
+  deliveryRuleMinOrderAmount: string;
+  setDeliveryRuleMinOrderAmount: (amt: string) => void;
   deliveryRuleIsActive: boolean;
   setDeliveryRuleIsActive: (active: boolean) => void;
   deliveryRuleSearchInput: string;
@@ -87,6 +89,8 @@ export default function PromotionsTab({
   setDeliveryRuleCollectionId,
   deliveryRuleMinQuantity,
   setDeliveryRuleMinQuantity,
+  deliveryRuleMinOrderAmount,
+  setDeliveryRuleMinOrderAmount,
   deliveryRuleIsActive,
   setDeliveryRuleIsActive,
   deliveryRuleSearchInput,
@@ -561,22 +565,33 @@ export default function PromotionsTab({
                 <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
                   Apply Offer To *
                 </label>
-                <div className="grid grid-cols-2 gap-2 p-1 bg-primary/5 dark:bg-primary/20 rounded-xl border border-foreground/10">
+                <div className="grid grid-cols-3 gap-1.5 p-1 bg-primary/5 dark:bg-primary/20 rounded-xl border border-foreground/10">
+                  <button
+                    type="button"
+                    onClick={() => setDeliveryRuleTargetType("order_total")}
+                    className={`py-2 px-1 text-center rounded-lg text-[11px] font-black uppercase tracking-wider transition-all ${
+                      deliveryRuleTargetType === "order_total"
+                        ? "bg-secondary text-foreground shadow-sm"
+                        : "text-foreground/60 hover:text-foreground"
+                    }`}
+                  >
+                    Order Total
+                  </button>
                   <button
                     type="button"
                     onClick={() => setDeliveryRuleTargetType("product")}
-                    className={`py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
+                    className={`py-2 px-1 text-center rounded-lg text-[11px] font-black uppercase tracking-wider transition-all ${
                       deliveryRuleTargetType === "product"
                         ? "bg-secondary text-foreground shadow-sm"
                         : "text-foreground/60 hover:text-foreground"
                     }`}
                   >
-                    Specific Products
+                    Products
                   </button>
                   <button
                     type="button"
                     onClick={() => setDeliveryRuleTargetType("collection")}
-                    className={`py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
+                    className={`py-2 px-1 text-center rounded-lg text-[11px] font-black uppercase tracking-wider transition-all ${
                       deliveryRuleTargetType === "collection"
                         ? "bg-secondary text-foreground shadow-sm"
                         : "text-foreground/60 hover:text-foreground"
@@ -586,6 +601,34 @@ export default function PromotionsTab({
                   </button>
                 </div>
               </div>
+
+              {deliveryRuleTargetType === "order_total" && (
+                <div className="p-4 rounded-2xl bg-secondary/80 border border-foreground/10 space-y-2">
+                  <label className="block text-[10px] font-extrabold uppercase tracking-wider opacity-70">
+                    Minimum Order Amount (৳) *
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-sm text-foreground/50">
+                      ৳
+                    </span>
+                    <input
+                      type="number"
+                      min={0}
+                      step="any"
+                      required
+                      value={deliveryRuleMinOrderAmount}
+                      onChange={(e) =>
+                        setDeliveryRuleMinOrderAmount(e.target.value)
+                      }
+                      placeholder="e.g. 1000"
+                      className="w-full pl-8 pr-4 py-2.5 bg-background border border-foreground/15 rounded-xl text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                    />
+                  </div>
+                  <p className="text-[10px] opacity-60">
+                    Applies automatically when customer checkout item subtotal reaches this amount or more.
+                  </p>
+                </div>
+              )}
 
               {deliveryRuleTargetType === "product" && (
                 <div className="relative">

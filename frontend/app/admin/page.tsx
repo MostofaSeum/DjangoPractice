@@ -131,7 +131,7 @@ export default function AdminDashboardPage() {
   >(null);
   const [deliveryRuleTitle, setDeliveryRuleTitle] = useState("");
   const [deliveryRuleTargetType, setDeliveryRuleTargetType] = useState<
-    "product" | "collection"
+    "product" | "collection" | "order_total"
   >("product");
   const [deliveryRuleType, setDeliveryRuleType] = useState<"free" | "reduced">(
     "free",
@@ -145,6 +145,8 @@ export default function AdminDashboardPage() {
     number | ""
   >("");
   const [deliveryRuleMinQuantity, setDeliveryRuleMinQuantity] = useState("1");
+  const [deliveryRuleMinOrderAmount, setDeliveryRuleMinOrderAmount] =
+    useState("1000");
   const [deliveryRuleIsActive, setDeliveryRuleIsActive] = useState(true);
   const [deliveryRuleSearchInput, setDeliveryRuleSearchInput] = useState("");
   const [isDeliveryRuleDropdownOpen, setIsDeliveryRuleDropdownOpen] =
@@ -483,6 +485,11 @@ export default function AdminDashboardPage() {
       rule.products_details ? rule.products_details.map((p) => p.id) : [],
     );
     setDeliveryRuleMinQuantity(String(rule.min_quantity || 1));
+    setDeliveryRuleMinOrderAmount(
+      rule.min_order_amount !== undefined && rule.min_order_amount !== null
+        ? String(rule.min_order_amount)
+        : "1000",
+    );
     setDeliveryRuleIsActive(rule.is_active);
     setDeliveryRuleSearchInput("");
   };
@@ -497,6 +504,7 @@ export default function AdminDashboardPage() {
     setDeliveryRuleCollectionId("");
     setDeliveryRuleSelectedProductIds([]);
     setDeliveryRuleMinQuantity("1");
+    setDeliveryRuleMinOrderAmount("1000");
     setDeliveryRuleIsActive(true);
     setDeliveryRuleSearchInput("");
   };
@@ -541,6 +549,7 @@ export default function AdminDashboardPage() {
     if (deliveryRuleType === "reduced") {
       insideCharge = parseFloat(deliveryRuleInsideCharge);
       outsideCharge = parseFloat(deliveryRuleOutsideCharge);
+
       if (isNaN(insideCharge) || insideCharge < 0) {
         Swal.fire(
           "Error",
@@ -559,11 +568,26 @@ export default function AdminDashboardPage() {
       }
     }
 
+    let minOrderAmountNum = 0;
+    if (deliveryRuleTargetType === "order_total") {
+      minOrderAmountNum = parseFloat(deliveryRuleMinOrderAmount);
+      if (isNaN(minOrderAmountNum) || minOrderAmountNum < 0) {
+        Swal.fire(
+          "Error",
+          "Please enter a valid minimum order amount (৳0 or greater).",
+          "error",
+        );
+        return;
+      }
+    }
+
     const isEdit = editingDeliveryRuleId !== null;
     const targetDesc =
       deliveryRuleTargetType === "product"
         ? `${deliveryRuleSelectedProductIds.length} product(s)`
-        : `Collection "${collections.find((c) => c.id === Number(deliveryRuleCollectionId))?.title || deliveryRuleCollectionId}"`;
+        : deliveryRuleTargetType === "collection"
+        ? `Collection "${collections.find((c) => c.id === Number(deliveryRuleCollectionId))?.title || deliveryRuleCollectionId}"`
+        : `Cart Total >= ৳${minOrderAmountNum}`;
 
     const benefitDesc =
       deliveryRuleType === "free"
@@ -584,7 +608,7 @@ export default function AdminDashboardPage() {
     if (!confirm.isConfirmed) return;
 
     const minQty = parseInt(deliveryRuleMinQuantity, 10);
-    if (isNaN(minQty) || minQty < 1) {
+    if (deliveryRuleTargetType !== "order_total" && (isNaN(minQty) || minQty < 1)) {
       Swal.fire(
         "Error",
         "Please enter a valid minimum quantity (1 or greater).",
@@ -620,7 +644,9 @@ export default function AdminDashboardPage() {
             deliveryRuleTargetType === "collection"
               ? Number(deliveryRuleCollectionId)
               : null,
-          min_quantity: minQty,
+          min_quantity: deliveryRuleTargetType === "order_total" ? 1 : minQty,
+          min_order_amount:
+            deliveryRuleTargetType === "order_total" ? minOrderAmountNum : 0,
           is_active: deliveryRuleIsActive,
         }),
       });
@@ -2406,6 +2432,8 @@ export default function AdminDashboardPage() {
               setDeliveryRuleCollectionId={setDeliveryRuleCollectionId}
               deliveryRuleMinQuantity={deliveryRuleMinQuantity}
               setDeliveryRuleMinQuantity={setDeliveryRuleMinQuantity}
+              deliveryRuleMinOrderAmount={deliveryRuleMinOrderAmount}
+              setDeliveryRuleMinOrderAmount={setDeliveryRuleMinOrderAmount}
               deliveryRuleIsActive={deliveryRuleIsActive}
               setDeliveryRuleIsActive={setDeliveryRuleIsActive}
               deliveryRuleSearchInput={deliveryRuleSearchInput}
