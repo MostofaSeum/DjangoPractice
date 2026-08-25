@@ -106,7 +106,7 @@ export interface CouponItem {
 export interface DeliveryRuleItem {
   id: number;
   title: string;
-  target_type: "product" | "collection";
+  target_type: "product" | "collection" | "order_total";
   rule_type: "free" | "reduced";
   inside_dhaka_charge: number | string;
   outside_dhaka_charge: number | string;
@@ -115,6 +115,7 @@ export interface DeliveryRuleItem {
   product_count?: number;
   products_details?: { id: number; title: string; unit_price: number }[];
   min_quantity?: number;
+  min_order_amount?: number | string | null;
   is_active: boolean;
   created_at: string;
 }
