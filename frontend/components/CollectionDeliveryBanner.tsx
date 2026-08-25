@@ -79,19 +79,19 @@ export default function CollectionDeliveryBanner({
           setOfferText(
             free
               ? `Spend ৳${minAmount.toLocaleString()} from this category to get FREE Delivery!`
-              : `Spend ৳${minAmount.toLocaleString()} from this category for ৳${matchedRule.inside_dhaka_charge} delivery!`
+              : `Spend ৳${minAmount.toLocaleString()} from this category to get a reduced delivery charge!`
           );
         } else if (qty > 1) {
           setOfferText(
             free
               ? `Buy ${qty}+ items from this category to get FREE Delivery!`
-              : `Buy ${qty}+ items from this category for ৳${matchedRule.inside_dhaka_charge} delivery!`
+              : `Buy ${qty}+ items from this category to get a reduced delivery charge!`
           );
         } else {
           setOfferText(
             free
               ? "Special Offer: FREE Delivery on all items in this category!"
-              : `Special Offer: Delivery starting from ৳${matchedRule.inside_dhaka_charge} on this category!`
+              : `Special Offer: Reduced delivery charge on this category!`
           );
         }
       }

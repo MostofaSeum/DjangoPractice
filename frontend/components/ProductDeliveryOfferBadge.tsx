@@ -86,19 +86,19 @@ export default function ProductDeliveryOfferBadge({
             setBadgeText(
               isFree
                 ? `Spend ৳${minAmount.toLocaleString()} to get free delivery`
-                : `Spend ৳${minAmount.toLocaleString()} for ৳${rule.inside_dhaka_charge} delivery`,
+                : `Spend ৳${minAmount.toLocaleString()} to get a reduced delivery charge`,
             );
           } else if (qty > 1) {
             setBadgeText(
               isFree
                 ? `Buy ${qty} items to get free delivery`
-                : `Buy ${qty} items for ৳${rule.inside_dhaka_charge} delivery`,
+                : `Buy ${qty} items to get a reduced delivery charge`,
             );
           } else {
             setBadgeText(
               isFree
                 ? "Free Delivery Offer"
-                : `Delivery from ৳${rule.inside_dhaka_charge}`,
+                : "Reduced Delivery Charge",
             );
           }
           break;
