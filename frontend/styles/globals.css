@@ -58,3 +58,30 @@ body {
     background-color 0.3s ease,
     color 0.3s ease;
 }
+
+/* SweetAlert2 Theme Overrides */
+.swal2-popup {
+  background: var(--secondary) !important;
+  color: var(--foreground) !important;
+  border: 1px solid rgba(128, 128, 128, 0.2) !important;
+  border-radius: 1.5rem !important;
+}
+
+.swal2-title {
+  color: var(--foreground) !important;
+}
+
+.swal2-html-container {
+  color: var(--foreground) !important;
+}
+
+.swal2-popup .swal2-styled.swal2-confirm {
+  border-radius: 0.75rem !important;
+  font-weight: 700 !important;
+}
+
+.swal2-popup .swal2-styled.swal2-cancel {
+  border-radius: 0.75rem !important;
+  font-weight: 700 !important;
+}
+

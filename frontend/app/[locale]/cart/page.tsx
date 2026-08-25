@@ -394,20 +394,24 @@ export default function CartPage() {
 
             const popupResult = await Swal.fire({
               title: "Free Delivery Offer",
+              customClass: {
+                popup: "rounded-3xl border border-foreground/15 shadow-2xl p-6",
+              },
               html: `
-                <div class="text-left text-xs space-y-3">
-                  <p class="text-foreground/80 font-medium">
-                    The following product(s) in your cart <span class="text-red-500 font-bold">do not qualify</span> for Free Delivery:
+                <div class="text-left text-xs space-y-3.5 pt-2">
+                  <p class="font-medium text-foreground/80 leading-relaxed">
+                    The following product(s) in your cart <span class="text-red-500 font-black">do not qualify</span> for Free Delivery:
                   </p>
-                  <div class="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-foreground font-semibold space-y-1">
+                  <div class="p-3.5 bg-red-500/10 dark:bg-red-500/20 border border-red-500/30 rounded-2xl font-bold text-foreground space-y-1.5 shadow-2xs">
                     ${nonFreeNames}
                   </div>
-                  <p class="text-foreground/80 font-medium">
-                    Remove them to get <strong>Free Delivery (৳0)</strong> on your qualifying items, or proceed to checkout with standard delivery charges.
+                  <p class="font-medium text-foreground/80 leading-relaxed">
+                    Remove them to get <strong class="text-accent font-black">Free Delivery (৳0)</strong> on your qualifying items, or proceed to checkout with standard delivery charges.
                   </p>
                 </div>
               `,
               icon: "info",
+              iconColor: "var(--accent)",
               showCancelButton: true,
               confirmButtonText: "Remove Non-Free Items",
               cancelButtonText: "Go to Checkout",
