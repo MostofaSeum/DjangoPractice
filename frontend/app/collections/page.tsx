@@ -66,6 +66,9 @@ export default async function CollectionsPage() {
                   <p className="opacity-70 text-xs font-bold uppercase tracking-wider mb-6">
                     {collection.product_count} products
                   </p>
+                  <div className="mb-4">
+                    <CollectionDeliveryBanner collectionId={collection.id} variant="badge" />
+                  </div>
                   <Link
                     href={`/collections/${collection.id}`}
                     className="inline-block text-[10px] font-bold tracking-widest uppercase border-b-2 border-current pb-1 hover:opacity-70 transition-opacity"

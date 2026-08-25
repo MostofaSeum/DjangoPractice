@@ -79,8 +79,16 @@ export default function ProductDeliveryOfferBadge({
 
         if (isMatch) {
           const qty = Number(rule.min_quantity || 1);
+          const minAmount = Number(rule.min_order_amount || 0);
           const isFree = rule.rule_type === "free";
-          if (qty > 1) {
+
+          if (minAmount > 0) {
+            setBadgeText(
+              isFree
+                ? `Spend ৳${minAmount.toLocaleString()} to get free delivery`
+                : `Spend ৳${minAmount.toLocaleString()} for ৳${rule.inside_dhaka_charge} delivery`,
+            );
+          } else if (qty > 1) {
             setBadgeText(
               isFree
                 ? `Buy ${qty} items to get free delivery`

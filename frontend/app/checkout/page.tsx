@@ -304,6 +304,7 @@ export default function CheckoutPage() {
       const matchedRules = deliveryRules.filter((rule) => {
         if (!rule.is_active) return false;
         const reqQty = Number(rule.min_quantity || 1);
+        const reqAmount = Number(rule.min_order_amount || 0);
 
         if (rule.target_type === "product") {
           const isProductMatch =
@@ -312,27 +313,55 @@ export default function CheckoutPage() {
 
           if (!isProductMatch) return false;
 
-          // Total quantity of this product in cart
-          const totalProdQty = cart.items
-            .filter((ci) => Number(ci.product.id) === Number(item.product.id))
-            .reduce((sum, ci) => sum + ci.quantity, 0);
+          if (reqAmount > 0) {
+            // Check total spend on this product in cart
+            const totalProdSpend = cart.items
+              .filter((ci) => Number(ci.product.id) === Number(item.product.id))
+              .reduce((sum, ci) => {
+                const ciPrice = Number(ci.product.discounted_price ?? ci.product.unit_price ?? 0);
+                return sum + ciPrice * ci.quantity;
+              }, 0);
+            return totalProdSpend >= reqAmount;
+          } else {
+            // Total quantity of this product in cart
+            const totalProdQty = cart.items
+              .filter((ci) => Number(ci.product.id) === Number(item.product.id))
+              .reduce((sum, ci) => sum + ci.quantity, 0);
 
-          return totalProdQty >= reqQty;
+            return totalProdQty >= reqQty;
+          }
         } else if (rule.target_type === "collection") {
           if (itemColId === null || Number(rule.collection) !== itemColId) return false;
 
-          // Total quantity of this collection in cart
-          const totalColQty = cart.items
-            .filter((ci) => {
-              const cId =
-                typeof (ci.product as any).collection === "object" && (ci.product as any).collection !== null
-                  ? Number((ci.product as any).collection.id)
-                  : Number((ci.product as any).collection);
-              return cId === itemColId;
-            })
-            .reduce((sum, ci) => sum + ci.quantity, 0);
+          if (reqAmount > 0) {
+            // Check total spend on this collection in cart
+            const totalColSpend = cart.items
+              .filter((ci) => {
+                const cId =
+                  typeof (ci.product as any).collection === "object" && (ci.product as any).collection !== null
+                    ? Number((ci.product as any).collection.id)
+                    : Number((ci.product as any).collection);
+                return cId === itemColId;
+              })
+              .reduce((sum, ci) => {
+                const ciPrice = Number(ci.product.discounted_price ?? ci.product.unit_price ?? 0);
+                return sum + ciPrice * ci.quantity;
+              }, 0);
+            return totalColSpend >= reqAmount;
+          } else {
+            // Total quantity of this collection in cart
+            const totalColQty = cart.items
+              .filter((ci) => {
+                const cId =
+                  typeof (ci.product as any).collection === "object" && (ci.product as any).collection !== null
+                    ? Number((ci.product as any).collection.id)
+                    : Number((ci.product as any).collection);
+                return cId === itemColId;
+              })
+              .reduce((sum, ci) => sum + ci.quantity, 0);
 
-          return totalColQty >= reqQty;
+            return totalColQty >= reqQty;
+          }
         }
         return false;
       });

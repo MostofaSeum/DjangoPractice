@@ -569,16 +569,16 @@ export default function AdminDashboardPage() {
     }
 
     let minOrderAmountNum = 0;
-    if (deliveryRuleTargetType === "order_total") {
+    if (deliveryRuleMinOrderAmount && !isNaN(parseFloat(deliveryRuleMinOrderAmount))) {
       minOrderAmountNum = parseFloat(deliveryRuleMinOrderAmount);
-      if (isNaN(minOrderAmountNum) || minOrderAmountNum < 0) {
-        Swal.fire(
-          "Error",
-          "Please enter a valid minimum order amount (৳0 or greater).",
-          "error",
-        );
-        return;
-      }
+    }
+    if (deliveryRuleTargetType === "order_total" && minOrderAmountNum <= 0) {
+      Swal.fire(
+        "Error",
+        "Please enter a valid minimum order amount (৳0 or greater).",
+        "error",
+      );
+      return;
     }
 
     const isEdit = editingDeliveryRuleId !== null;
@@ -608,7 +608,11 @@ export default function AdminDashboardPage() {
     if (!confirm.isConfirmed) return;
 
     const minQty = parseInt(deliveryRuleMinQuantity, 10);
-    if (deliveryRuleTargetType !== "order_total" && (isNaN(minQty) || minQty < 1)) {
+    if (
+      deliveryRuleTargetType !== "order_total" &&
+      minOrderAmountNum <= 0 &&
+      (isNaN(minQty) || minQty < 1)
+    ) {
       Swal.fire(
         "Error",
         "Please enter a valid minimum quantity (1 or greater).",
@@ -644,9 +648,8 @@ export default function AdminDashboardPage() {
             deliveryRuleTargetType === "collection"
               ? Number(deliveryRuleCollectionId)
               : null,
-          min_quantity: deliveryRuleTargetType === "order_total" ? 1 : minQty,
-          min_order_amount:
-            deliveryRuleTargetType === "order_total" ? minOrderAmountNum : 0,
+          min_quantity: minOrderAmountNum > 0 ? 1 : minQty,
+          min_order_amount: minOrderAmountNum > 0 ? minOrderAmountNum : 0,
           is_active: deliveryRuleIsActive,
         }),
       });
