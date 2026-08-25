@@ -49,9 +49,10 @@ export default function AdminNotificationBell({
     if (!token) return;
 
     try {
+      const cleanToken = token.replace(/^JWT\s+/i, "").trim();
       const res = await fetch(`${apiBase}/store/notifications/`, {
         headers: {
-          Authorization: `JWT ${token}`,
+          Authorization: `JWT ${cleanToken}`,
         },
       });
 
@@ -115,12 +116,12 @@ export default function AdminNotificationBell({
 
     if (!item.is_read) {
       try {
-        const authHeader = token.startsWith("JWT ") ? token : `JWT ${token}`;
+        const cleanToken = token.replace(/^JWT\s+/i, "").trim();
         await fetch(`${apiBase}/store/notifications/${item.id}/mark_read/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: authHeader,
+            Authorization: `JWT ${cleanToken}`,
           },
         });
 
@@ -144,12 +145,12 @@ export default function AdminNotificationBell({
     if (!token) return;
     try {
       setIsLoading(true);
-      const authHeader = token.startsWith("JWT ") ? token : `JWT ${token}`;
+      const cleanToken = token.replace(/^JWT\s+/i, "").trim();
       const res = await fetch(`${apiBase}/store/notifications/mark_all_read/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: authHeader,
+          Authorization: `JWT ${cleanToken}`,
         },
       });
 
