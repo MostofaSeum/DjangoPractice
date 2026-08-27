@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useCart } from "@/hooks/useCart";
 import { useWishlist } from "@/hooks/useWishlist";
+import { useLanguage } from "@/store/LanguageContext";
 import Swal from "sweetalert2";
 import { ProductVariant } from "@/types/product";
 import { getApiBaseUrl } from "@/config/siteConfig";
@@ -36,6 +37,7 @@ export default function ProductInteractive({
   const [quantity, setQuantity] = useState(1);
   const { cart, addToCart } = useCart();
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { t, formatCurrency, locale } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
 
@@ -185,12 +187,12 @@ export default function ProductInteractive({
       {/* Price Section */}
       <div className="flex flex-wrap items-center gap-2.5 mb-2 mt-1">
         <span className="text-2xl sm:text-3xl font-black text-accent">
-          ৳{currentPrice.toFixed(2)}
+          {formatCurrency(currentPrice)}
         </span>
         {isOnSale && (
           <>
             <span className="text-base line-through opacity-50 font-bold">
-              ৳{originalPrice.toFixed(2)}
+              {formatCurrency(originalPrice)}
             </span>
             {discountPercent > 0 && (
               <span className="px-2 py-0.5 rounded-md bg-accent text-button-fg font-extrabold text-[10px] uppercase tracking-wider shadow-sm flex items-center gap-1">
@@ -199,11 +201,11 @@ export default function ProductInteractive({
                   alt="Discount"
                   className="w-3.5 h-3.5 object-contain brightness-0 invert"
                 />
-                -{Math.round(discountPercent)}% OFF
+                -{Math.round(discountPercent)}% {t("trending.off")}
               </span>
             )}
             <span className="px-2.5 py-0.5 rounded-md bg-accent/15 text-accent font-bold text-xs border border-accent/20">
-              Save ৳{savedAmount.toFixed(2)}
+              {t("productDetail.save")} {formatCurrency(savedAmount)}
             </span>
           </>
         )}
@@ -216,21 +218,29 @@ export default function ProductInteractive({
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <span className="text-rose-500 text-base leading-none select-none">🔥</span>
               <span>
-                Only <span className="text-rose-500 font-black">{currentStock}</span> items left in stock
+                {locale === "bn" ? (
+                  <>
+                    মাত্র <span className="text-rose-500 font-black">{currentStock.toLocaleString("bn-BD")}</span> টি পণ্য স্টকে বাকি আছে
+                  </>
+                ) : (
+                  <>
+                    Only <span className="text-rose-500 font-black">{currentStock}</span> items left in stock
+                  </>
+                )}
               </span>
             </div>
           ) : (
             <div className="flex items-center gap-2 text-xs font-semibold text-foreground opacity-90">
               <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
               <span>
-                In stock
+                {t("productDetail.inStock")}
               </span>
             </div>
           )
         ) : (
           <div className="flex items-center gap-1.5 text-xs font-bold text-red-500">
             <span className="w-2 h-2 rounded-full bg-red-500 inline-block"></span>
-            <span>Out of stock</span>
+            <span>{t("productDetail.outOfStock")}</span>
           </div>
         )}
       </div>
@@ -244,13 +254,10 @@ export default function ProductInteractive({
 
       {/* Product Variants Section (Separate Color Swatches & Size Dropdown) */}
       {activeVariants.length > 0 && (() => {
-        // Collect unique color variants (variants with color_code or distinct color_name)
         const colorVariants = activeVariants.filter((v) => Boolean(v.color_code || v.color_name));
-        // Collect unique sizes available
         const sizeVariants = activeVariants.filter((v) => Boolean(v.size));
         const uniqueSizes = Array.from(new Set(sizeVariants.map((v) => v.size!).filter(Boolean)));
 
-        // If no explicit color or size attributes were filled, fall back to standard list
         const hasSpecificColors = colorVariants.length > 0;
         const hasSpecificSizes = uniqueSizes.length > 0;
 
@@ -261,7 +268,7 @@ export default function ProductInteractive({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-black uppercase tracking-wider text-foreground">
-                    Color / Shade:
+                    {t("productDetail.colorShade")}:
                   </label>
                   {selectedVariant && (selectedVariant.color_name || selectedVariant.name) && (
                     <span className="text-xs font-bold text-accent">
@@ -282,7 +289,6 @@ export default function ProductInteractive({
                         key={v.id}
                         type="button"
                         onClick={() => {
-                          // If current size exists, try to find a variant matching both new color and current size
                           if (selectedVariant?.size) {
                             const match = activeVariants.find(
                               (item) =>
@@ -323,7 +329,7 @@ export default function ProductInteractive({
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-black uppercase tracking-wider text-foreground">
-                    Select Size:
+                    {t("productDetail.selectSize")}:
                   </label>
                 </div>
 
@@ -332,7 +338,6 @@ export default function ProductInteractive({
                     value={selectedVariant?.size || ""}
                     onChange={(e) => {
                       const newSize = e.target.value;
-                      // Match variant with newSize and current color if possible
                       const match = activeVariants.find((item) => {
                         if (selectedVariant?.color_name && item.color_name === selectedVariant.color_name) {
                           return item.size === newSize;
@@ -351,7 +356,7 @@ export default function ProductInteractive({
                     className="w-full px-3.5 py-2.5 rounded-xl border border-foreground/15 bg-secondary text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent cursor-pointer transition-all appearance-none"
                   >
                     <option value="" disabled>
-                      Choose a size...
+                      {t("productDetail.chooseSizePlaceholder")}
                     </option>
                     {uniqueSizes.map((sz) => {
                       const displaySize = /^\d+(\.\d+)?$/.test(sz.trim()) ? `${sz.trim()}ml` : sz;
@@ -371,12 +376,12 @@ export default function ProductInteractive({
               </div>
             )}
 
-            {/* Fallback if variant only has name and no explicit color/size field */}
+            {/* Fallback if variant only has name */}
             {!hasSpecificColors && !hasSpecificSizes && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-black uppercase tracking-wider text-foreground">
-                    Choose Option:
+                    {t("productDetail.chooseOption")}:
                   </label>
                   {selectedVariant && (
                     <span className="text-xs font-bold text-accent">
@@ -414,13 +419,12 @@ export default function ProductInteractive({
 
       <hr className="border-foreground/10 my-3" />
 
-      {/* Delivery Offer Dynamic Progress Banner Above Add to Cart */}
+      {/* Delivery Offer Dynamic Progress Banner */}
       {matchedDeliveryRule && (() => {
         const requiredQty = matchedDeliveryRule.min_quantity || 1;
         const isFree = matchedDeliveryRule.rule_type === "free";
-        const offerName = isFree ? "Free Delivery" : "Discounted Delivery";
+        const offerName = isFree ? (locale === "bn" ? "ফ্রি ডেলিভারি" : "Free Delivery") : (locale === "bn" ? "কম ডেলিভারি চার্জ" : "Discounted Delivery");
 
-        // Count qualifying items in cart
         const inCartQty =
           cart?.items
             ?.filter((item) => {
@@ -455,15 +459,31 @@ export default function ProductInteractive({
               <div>
                 {isQualified ? (
                   <p className="font-extrabold uppercase tracking-tight text-emerald-600 dark:text-emerald-400">
-                    Congratulations! You got {offerName}!
+                    {locale === "bn" ? `অভিনন্দন! আপনি ${offerName} পেয়েছেন!` : `Congratulations! You got ${offerName}!`}
                   </p>
                 ) : inCartQty > 0 ? (
                   <p>
-                    Buy <span className="text-accent font-black">{remaining} more</span> to get {offerName}!
+                    {locale === "bn" ? (
+                      <>
+                        {offerName} পেতে আরও <span className="text-accent font-black">{remaining.toLocaleString("bn-BD")} টি পণ্য</span> কিনুন!
+                      </>
+                    ) : (
+                      <>
+                        Buy <span className="text-accent font-black">{remaining} more</span> to get {offerName}!
+                      </>
+                    )}
                   </p>
                 ) : (
                   <p>
-                    Buy <span className="text-accent font-black">{requiredQty} items</span> to get {offerName}!
+                    {locale === "bn" ? (
+                      <>
+                        {offerName} পেতে <span className="text-accent font-black">{requiredQty.toLocaleString("bn-BD")} টি পণ্য</span> কিনুন!
+                      </>
+                    ) : (
+                      <>
+                        Buy <span className="text-accent font-black">{requiredQty} items</span> to get {offerName}!
+                      </>
+                    )}
                   </p>
                 )}
               </div>
@@ -479,18 +499,18 @@ export default function ProductInteractive({
             <div className="flex items-center border border-foreground/15 rounded-xl overflow-hidden bg-background shadow-sm">
               <button
                 onClick={handleDecrement}
-                className="px-4 py-2.5 hover:bg-secondary text-foreground font-black transition-colors"
+                className="px-4 py-2.5 hover:bg-secondary text-foreground font-black transition-colors cursor-pointer"
                 type="button"
               >
                 -
               </button>
               <span className="w-12 text-center font-bold text-foreground">
-                {quantity}
+                {locale === "bn" ? quantity.toLocaleString("bn-BD") : quantity}
               </span>
               <button
                 onClick={handleIncrement}
                 disabled={quantity >= currentStock}
-                className="px-4 py-2.5 hover:bg-secondary text-foreground font-black transition-colors disabled:opacity-40"
+                className="px-4 py-2.5 hover:bg-secondary text-foreground font-black transition-colors disabled:opacity-40 cursor-pointer"
                 type="button"
               >
                 +
@@ -500,7 +520,7 @@ export default function ProductInteractive({
 
           {isOutOfStock ? (
             <span className="px-8 py-3.5 bg-red-500/10 text-red-500 font-bold rounded-xl text-xs tracking-widest uppercase border border-red-500/30">
-              Out of Stock
+              {t("productDetail.outOfStock")}
             </span>
           ) : (
             <button
@@ -511,10 +531,10 @@ export default function ProductInteractive({
               {loading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-button-fg border-t-transparent rounded-full animate-spin"></div>
-                  <span>Adding...</span>
+                  <span>{locale === "bn" ? "যোগ হচ্ছে..." : "Adding..."}</span>
                 </>
               ) : (
-                <span>Add to Cart</span>
+                <span>{t("trending.addToCart")}</span>
               )}
             </button>
           )}
@@ -541,15 +561,15 @@ export default function ProductInteractive({
             />
             <span>
               {wishlistLoading
-                ? "Processing..."
+                ? (locale === "bn" ? "প্রক্রিয়াধীন..." : "Processing...")
                 : isSaved
-                ? "Saved in Wishlist"
-                : "Add to Wishlist"}
+                ? t("productDetail.savedInWishlist")
+                : t("productDetail.addToWishlist")}
             </span>
           </button>
         </div>
 
-        {/* Delivery Charge Info Under Wishlist */}
+        {/* Delivery Charge Info */}
         {(() => {
           const inCartQty =
             cart?.items
@@ -577,65 +597,65 @@ export default function ProductInteractive({
             <div className="pt-2 text-xs font-bold text-foreground/80 flex flex-col gap-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="opacity-70 font-semibold uppercase text-[10px] tracking-wider">
-                  Delivery:
+                  {t("productDetail.delivery")}:
                 </span>
 
                 {/* Inside Dhaka */}
                 <span className="inline-flex items-center gap-1 bg-primary/5 dark:bg-primary/20 px-2 py-1 rounded-lg border border-foreground/10">
-                  <span className="text-[11px] text-foreground font-semibold">Inside Dhaka:</span>
+                  <span className="text-[11px] text-foreground font-semibold">{t("productDetail.insideDhaka")}:</span>
                   {isQualified ? (
                     matchedDeliveryRule?.rule_type === "free" ? (
                       <span className="flex items-center gap-1 font-bold">
                         <span className="line-through opacity-50 text-[10px]">
-                          ৳{deliverySettings.inside_dhaka_charge}
+                          {formatCurrency(deliverySettings.inside_dhaka_charge)}
                         </span>
                         <span className="text-emerald-600 dark:text-emerald-400 font-extrabold uppercase text-[11px]">
-                          Free
+                          {t("productDetail.free")}
                         </span>
                       </span>
                     ) : (
                       <span className="flex items-center gap-1 font-bold">
                         <span className="line-through opacity-50 text-[10px]">
-                          ৳{deliverySettings.inside_dhaka_charge}
+                          {formatCurrency(deliverySettings.inside_dhaka_charge)}
                         </span>
                         <span className="text-accent font-extrabold text-[11px]">
-                          ৳{matchedDeliveryRule?.inside_dhaka_charge}
+                          {formatCurrency(matchedDeliveryRule?.inside_dhaka_charge)}
                         </span>
                       </span>
                     )
                   ) : (
                     <span className="text-accent font-extrabold text-[11px]">
-                      ৳{deliverySettings.inside_dhaka_charge}
+                      {formatCurrency(deliverySettings.inside_dhaka_charge)}
                     </span>
                   )}
                 </span>
 
                 {/* Outside Dhaka */}
                 <span className="inline-flex items-center gap-1 bg-primary/5 dark:bg-primary/20 px-2 py-1 rounded-lg border border-foreground/10">
-                  <span className="text-[11px] text-foreground font-semibold">Outside Dhaka:</span>
+                  <span className="text-[11px] text-foreground font-semibold">{t("productDetail.outsideDhaka")}:</span>
                   {isQualified ? (
                     matchedDeliveryRule?.rule_type === "free" ? (
                       <span className="flex items-center gap-1 font-bold">
                         <span className="line-through opacity-50 text-[10px]">
-                          ৳{deliverySettings.outside_dhaka_charge}
+                          {formatCurrency(deliverySettings.outside_dhaka_charge)}
                         </span>
                         <span className="text-emerald-600 dark:text-emerald-400 font-extrabold uppercase text-[11px]">
-                          Free
+                          {t("productDetail.free")}
                         </span>
                       </span>
                     ) : (
                       <span className="flex items-center gap-1 font-bold">
                         <span className="line-through opacity-50 text-[10px]">
-                          ৳{deliverySettings.outside_dhaka_charge}
+                          {formatCurrency(deliverySettings.outside_dhaka_charge)}
                         </span>
                         <span className="text-accent font-extrabold text-[11px]">
-                          ৳{matchedDeliveryRule?.outside_dhaka_charge}
+                          {formatCurrency(matchedDeliveryRule?.outside_dhaka_charge)}
                         </span>
                       </span>
                     )
                   ) : (
                     <span className="text-accent font-extrabold text-[11px]">
-                      ৳{deliverySettings.outside_dhaka_charge}
+                      {formatCurrency(deliverySettings.outside_dhaka_charge)}
                     </span>
                   )}
                 </span>

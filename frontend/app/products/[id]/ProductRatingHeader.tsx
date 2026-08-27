@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getApiBaseUrl } from '@/config/siteConfig';
+import { useLanguage } from '@/store/LanguageContext';
 
 interface Review {
   id: number;
@@ -9,6 +10,7 @@ interface Review {
 }
 
 export default function ProductRatingHeader({ productId }: { productId: number }) {
+  const { t, locale } = useLanguage();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -91,11 +93,11 @@ export default function ProductRatingHeader({ productId }: { productId: number }
       </div>
       {count > 0 && (
         <span className="text-xs font-black text-foreground group-hover:text-accent transition-colors">
-          {avgRating}
+          {locale === "bn" ? Number(avgRating).toLocaleString("bn-BD") : avgRating}
         </span>
       )}
       <span className="text-[11px] opacity-70 font-bold uppercase tracking-wider group-hover:text-accent transition-colors">
-        ({count} {count === 1 ? "Customer Review" : "Customer Reviews"})
+        ({locale === "bn" ? `${count.toLocaleString("bn-BD")} টি রিভিউ` : `${count} ${count === 1 ? "Customer Review" : "Customer Reviews"}`})
       </span>
     </div>
   );

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { getApiBaseUrl } from "@/config/siteConfig";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/store/LanguageContext";
 import Swal from "sweetalert2";
 
 interface ReviewImageItem {
@@ -32,6 +33,7 @@ export default function ProductTabs({
   description,
 }: ProductTabsProps) {
   const { user, token, loading: authLoading } = useAuth();
+  const { t, locale } = useLanguage();
   const [activeTab, setActiveTab] = useState<"description" | "reviews">(
     "description",
   );
@@ -446,14 +448,14 @@ export default function ProductTabs({
       <div className="flex justify-center items-center space-x-3 sm:space-x-4 border-b border-foreground/10 pb-4 mb-5 overflow-x-auto">
         <button
           onClick={() => setActiveTab("description")}
-          className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 whitespace-nowrap ${
+          className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 whitespace-nowrap cursor-pointer ${
             activeTab === "description"
               ? "bg-button-bg text-button-fg shadow-md"
               : "bg-transparent text-foreground/70 hover:text-foreground hover:bg-foreground/5"
           }`}
           type="button"
         >
-          Description
+          {t("productDetail.descriptionTab")}
         </button>
 
         <button
@@ -461,14 +463,14 @@ export default function ProductTabs({
             setActiveTab("reviews");
             if (!reviewsFetched) fetchReviews();
           }}
-          className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 flex items-center gap-2.5 whitespace-nowrap ${
+          className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 flex items-center gap-2.5 whitespace-nowrap cursor-pointer ${
             activeTab === "reviews"
               ? "bg-button-bg text-button-fg shadow-md"
               : "bg-transparent text-foreground/70 hover:text-foreground hover:bg-foreground/5"
           }`}
           type="button"
         >
-          <span>Reviews</span>
+          <span>{t("productDetail.reviewsTab")}</span>
           <span
             className={`px-2 py-0.5 text-[10px] rounded-full font-black ${
               activeTab === "reviews"
@@ -476,7 +478,7 @@ export default function ProductTabs({
                 : "bg-foreground/10 text-foreground/70"
             }`}
           >
-            {reviews.length}
+            {locale === "bn" ? reviews.length.toLocaleString("bn-BD") : reviews.length}
           </span>
         </button>
       </div>
@@ -485,7 +487,7 @@ export default function ProductTabs({
       {activeTab === "description" && (
         <div className="text-sm sm:text-base text-foreground/80 leading-relaxed max-w-3xl mx-auto text-center font-medium px-4 break-words break-all [overflow-wrap:anywhere]">
           <p className="whitespace-pre-line break-words [overflow-wrap:anywhere]">
-            {description || "No description available for this product."}
+            {description || (locale === "bn" ? "এই পণ্যের জন্য কোনো বিবরণ উপলব্ধ নেই।" : "No description available for this product.")}
           </p>
         </div>
       )}
@@ -496,13 +498,13 @@ export default function ProductTabs({
           {/* Review List Header */}
           <div className="flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-2 border-b border-foreground/10 pb-4">
             <h3 className="text-base sm:text-lg font-black uppercase tracking-tight text-foreground">
-              Customer Reviews
+              {t("productDetail.customerReviews")}
             </h3>
             {avgRating && (
               <div className="flex items-center gap-2">
                 {renderStars(Math.round(Number(avgRating)))}
                 <span className="text-xs sm:text-sm font-extrabold text-foreground">
-                  {avgRating} / 5.0
+                  {locale === "bn" ? `${Number(avgRating).toLocaleString("bn-BD")} / ৫.০` : `${avgRating} / 5.0`}
                 </span>
               </div>
             )}
@@ -510,15 +512,15 @@ export default function ProductTabs({
 
           {loadingReviews && reviews.length === 0 ? (
             <div className="py-8 text-center text-xs sm:text-sm text-foreground/60 uppercase font-bold tracking-wider">
-              Loading reviews...
+              {locale === "bn" ? "রিভিউ লোড হচ্ছে..." : "Loading reviews..."}
             </div>
           ) : reviews.length === 0 ? (
             <div className="p-6 sm:p-8 rounded-2xl bg-secondary/50 border border-foreground/10 text-center">
               <p className="text-sm text-foreground/80 font-semibold mb-1">
-                No reviews yet for this product.
+                {t("productDetail.noReviewsYet")}
               </p>
               <p className="text-xs text-foreground/50">
-                Be the first to share your thoughts!
+                {t("productDetail.beTheFirst")}
               </p>
             </div>
           ) : (
@@ -675,22 +677,22 @@ export default function ProductTabs({
           <div id="write-review-section" className="pt-8 border-t border-foreground/10">
             <div className="flex items-center justify-between mb-6">
               <h4 className="text-sm sm:text-base font-black uppercase tracking-tight text-foreground text-center sm:text-left">
-                {editingReviewId ? "Edit Your Review" : "Write a Review"}
+                {editingReviewId ? t("productDetail.editReview") : t("productDetail.writeReview")}
               </h4>
               {editingReviewId && (
                 <button
                   type="button"
                   onClick={handleCancelEdit}
-                  className="px-3 py-1.5 rounded-lg border border-foreground/20 text-xs font-bold text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-all"
+                  className="px-3 py-1.5 rounded-lg border border-foreground/20 text-xs font-bold text-foreground/70 hover:text-foreground hover:bg-foreground/5 transition-all cursor-pointer"
                 >
-                  Cancel Edit
+                  {t("productDetail.cancelEdit")}
                 </button>
               )}
             </div>
 
             {authLoading ? (
               <div className="py-4 text-xs text-foreground/50 font-bold uppercase tracking-wider text-center sm:text-left">
-                Checking sign-in status...
+                {locale === "bn" ? "সাইন-ইন স্ট্যাটাস যাচাই করা হচ্ছে..." : "Checking sign-in status..."}
               </div>
             ) : !user || !token ? (
               <div className="p-6 sm:p-8 rounded-3xl bg-secondary/40 border border-foreground/10 text-center space-y-4">
@@ -711,18 +713,17 @@ export default function ProductTabs({
                   </svg>
                 </div>
                 <p className="text-xs sm:text-sm font-bold text-foreground uppercase tracking-tight">
-                  Sign in required to post a review
+                  {t("productDetail.signInRequired")}
                 </p>
                 <p className="text-xs text-foreground/70 font-medium max-w-sm mx-auto">
-                  Please sign in to your account to submit a review for this
-                  product.
+                  {t("productDetail.signInPrompt")}
                 </p>
                 <div>
                   <Link
                     href={`/login?redirect=/products/${productId}`}
                     className="inline-block px-6 sm:px-8 py-3 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md"
                   >
-                    Sign In to Review
+                    {t("productDetail.signInToReview")}
                   </Link>
                 </div>
               </div>
@@ -734,24 +735,26 @@ export default function ProductTabs({
 
                 <div>
                   <label className="block text-xs font-extrabold uppercase tracking-widest mb-2 text-foreground/80">
-                    Your Rating *
+                    {t("productDetail.yourRating")} *
                   </label>
                   <div className="flex items-center gap-3 bg-background border border-foreground/15 rounded-xl px-4 py-2.5 w-fit">
                     {renderStars(rating, true)}
                     <span className="text-xs font-extrabold text-amber-500 min-w-[75px]">
-                      {hoverRating || rating} / 5 Stars
+                      {locale === "bn"
+                        ? `${(hoverRating || rating).toLocaleString("bn-BD")} / ৫ স্টার`
+                        : `${hoverRating || rating} / 5 Stars`}
                     </span>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-extrabold uppercase tracking-widest mb-2 text-foreground/80">
-                    Your Review *
+                    {t("productDetail.yourReview")} *
                   </label>
                   <textarea
                     required
                     rows={4}
-                    placeholder="Write your detailed review about this product..."
+                    placeholder={t("productDetail.reviewPlaceholder")}
                     value={reviewText}
                     onChange={(e) => setReviewText(e.target.value)}
                     className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-semibold text-foreground placeholder:text-foreground/40 outline-none focus:ring-2 focus:ring-accent transition-all resize-y"
@@ -761,7 +764,7 @@ export default function ProductTabs({
                 {/* Attach Photos Option */}
                 <div>
                   <label className="block text-xs font-extrabold uppercase tracking-widest mb-2 text-foreground/80">
-                    Attach Photos ({existingImages.length + selectedImages.length}/5)
+                    {t("productDetail.attachPhotos")} ({locale === "bn" ? (existingImages.length + selectedImages.length).toLocaleString("bn-BD") : existingImages.length + selectedImages.length}/৫)
                   </label>
                   <div className="flex flex-wrap items-center gap-3">
                     {/* Render Existing Saved Photos */}
@@ -778,7 +781,7 @@ export default function ProductTabs({
                         <button
                           type="button"
                           onClick={() => handleRemoveExistingImage(img.id)}
-                          className="absolute top-1.5 right-1.5 bg-black/70 text-white rounded-full p-1.5 hover:bg-black transition-colors"
+                          className="absolute top-1.5 right-1.5 bg-black/70 text-white rounded-full p-1.5 hover:bg-black transition-colors cursor-pointer"
                           title="Delete photo"
                         >
                           <svg
@@ -811,7 +814,7 @@ export default function ProductTabs({
                         <button
                           type="button"
                           onClick={() => removeSelectedImage(idx)}
-                          className="absolute top-1.5 right-1.5 bg-black/70 text-white rounded-full p-1.5 hover:bg-black transition-colors"
+                          className="absolute top-1.5 right-1.5 bg-black/70 text-white rounded-full p-1.5 hover:bg-black transition-colors cursor-pointer"
                           title="Remove photo"
                         >
                           <svg
@@ -850,8 +853,8 @@ export default function ProductTabs({
                         </svg>
                         <span className="text-[11px] font-bold text-foreground/70">
                           {existingImages.length + imagePreviews.length > 0
-                            ? "Add More"
-                            : "Upload Photos"}
+                            ? (locale === "bn" ? "আরও যোগ করুন" : "Add More")
+                            : (locale === "bn" ? "ছবি আপলোড করুন" : "Upload Photos")}
                         </span>
                         <input
                           type="file"
@@ -870,23 +873,23 @@ export default function ProductTabs({
                     <button
                       type="button"
                       onClick={handleCancelEdit}
-                      className="px-6 py-3.5 border border-foreground/20 rounded-xl font-extrabold text-xs uppercase tracking-widest hover:bg-foreground/5 transition-all"
+                      className="px-6 py-3.5 border border-foreground/20 rounded-xl font-extrabold text-xs uppercase tracking-widest hover:bg-foreground/5 transition-all cursor-pointer"
                     >
-                      Cancel
+                      {t("productDetail.cancelEdit")}
                     </button>
                   )}
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full sm:w-auto px-8 py-3.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50 inline-flex items-center justify-center gap-2"
+                    className="w-full sm:w-auto px-8 py-3.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer"
                   >
                     {submitting
                       ? editingReviewId
-                        ? "Updating..."
-                        : "Submitting..."
+                        ? (locale === "bn" ? "আপডেট হচ্ছে..." : "Updating...")
+                        : (locale === "bn" ? "জমা দেওয়া হচ্ছে..." : "Submitting...")
                       : editingReviewId
-                      ? "Update Review"
-                      : "Submit Review"}
+                      ? t("productDetail.updateReview")
+                      : t("productDetail.submitReview")}
                   </button>
                 </div>
               </form>

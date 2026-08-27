@@ -24,6 +24,7 @@ interface DeliveryRuleItem {
   products?: number[];
   products_details?: { id: number; title: string; unit_price: number }[];
   min_quantity?: number;
+  min_order_amount?: number;
   is_active: boolean;
 }
 
