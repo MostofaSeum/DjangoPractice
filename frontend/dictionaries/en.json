@@ -131,5 +131,24 @@
     "outsideDhaka": "Outside Dhaka",
     "free": "Free",
     "viewDetails": "View Details"
+  },
+  "swal": {
+    "addedToCart": "Added \"{title}\" to cart!",
+    "addedQuantityToCart": "Added {quantity}x \"{title}\" to cart!",
+    "couldNotAddToCart": "Could not add item to cart.",
+    "savedToWishlist": "Saved to your wishlist!",
+    "removedFromWishlist": "Removed from wishlist.",
+    "signInWishlist": "Please sign in to add items to your wishlist.",
+    "signInReview": "You must be signed in to post or edit a review.",
+    "enterReview": "Please enter your review content.",
+    "reviewUpdated": "Your review has been updated!",
+    "reviewPublished": "Thank you! Your review has been published.",
+    "reviewDeleted": "Your review has been deleted.",
+    "deleteReviewTitle": "Delete Review?",
+    "deleteReviewText": "Are you sure you want to delete your review? This action cannot be undone.",
+    "yesDeleteIt": "Yes, delete it",
+    "cancel": "Cancel",
+    "maxPhotosAllowed": "Maximum 5 photos allowed per review.",
+    "networkError": "Network error. Please try again."
   }
 }

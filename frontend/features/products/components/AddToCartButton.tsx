@@ -51,10 +51,14 @@ export default function AddToCartButton({
     try {
       setLoading(true);
       await addToCart(productId, 1);
+      const title =
+        locale === "bn"
+          ? t("swal.addedToCart").replace("{title}", productTitle)
+          : `Added "${productTitle}" to cart!`;
       Swal.fire({
         position: "top-end",
         icon: "success",
-        title: `Added "${productTitle}" to cart!`,
+        title: title || `Added "${productTitle}" to cart!`,
         showConfirmButton: false,
         timer: 1800,
         toast: true,
@@ -64,7 +68,7 @@ export default function AddToCartButton({
       Swal.fire({
         position: "top-end",
         icon: "error",
-        title: "Could not add item to cart.",
+        title: t("swal.couldNotAddToCart") || "Could not add item to cart.",
         showConfirmButton: false,
         timer: 1800,
         toast: true,

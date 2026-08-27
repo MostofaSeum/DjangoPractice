@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/store/LanguageContext";
 import { getApiBaseUrl } from "@/config/siteConfig";
 import Swal from "sweetalert2";
 
@@ -34,6 +35,7 @@ export const WishlistContext = createContext<WishlistContextType | undefined>(un
 
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const { user, token } = useAuth();
+  const { t } = useLanguage();
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [wishlistProductIds, setWishlistProductIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState<boolean>(false);
@@ -82,7 +84,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       Swal.fire({
         position: "top-end",
         icon: "warning",
-        title: "Please sign in to add items to your wishlist.",
+        title: t("swal.signInWishlist") || "Please sign in to add items to your wishlist.",
         showConfirmButton: false,
         timer: 2000,
         toast: true,
@@ -109,7 +111,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
           Swal.fire({
             position: "top-end",
             icon: "info",
-            title: "Removed from wishlist.",
+            title: t("swal.removedFromWishlist") || "Removed from wishlist.",
             showConfirmButton: false,
             timer: 1800,
             toast: true,
@@ -132,7 +134,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
           Swal.fire({
             position: "top-end",
             icon: "success",
-            title: "Saved to your wishlist!",
+            title: t("swal.savedToWishlist") || "Saved to your wishlist!",
             showConfirmButton: false,
             timer: 1800,
             toast: true,

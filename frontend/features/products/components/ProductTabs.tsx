@@ -119,14 +119,14 @@ export default function ProductTabs({
 
   const handleDeleteReview = async (reviewId: number) => {
     const result = await Swal.fire({
-      title: "Delete Review?",
-      text: "Are you sure you want to delete your review? This action cannot be undone.",
+      title: t("swal.deleteReviewTitle") || "Delete Review?",
+      text: t("swal.deleteReviewText") || "Are you sure you want to delete your review? This action cannot be undone.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#ef4444",
       cancelButtonColor: "#6b7280",
-      confirmButtonText: "Yes, delete it",
-      cancelButtonText: "Cancel",
+      confirmButtonText: t("swal.yesDeleteIt") || "Yes, delete it",
+      cancelButtonText: t("swal.cancel") || "Cancel",
     });
 
     if (!result.isConfirmed) return;
@@ -150,7 +150,7 @@ export default function ProductTabs({
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: "Your review has been deleted.",
+          title: t("swal.reviewDeleted") || "Your review has been deleted.",
           showConfirmButton: false,
           timer: 2000,
           toast: true,
@@ -164,7 +164,7 @@ export default function ProductTabs({
         Swal.fire({
           position: "top-end",
           icon: "error",
-          title: errData.error || errData.detail || "Could not delete review.",
+          title: errData.error || errData.detail || (locale === "bn" ? "রিভিউ মুছে ফেলা যায়নি।" : "Could not delete review."),
           showConfirmButton: false,
           timer: 2500,
           toast: true,
@@ -175,7 +175,7 @@ export default function ProductTabs({
       Swal.fire({
         position: "top-end",
         icon: "error",
-        title: "Network error. Could not delete review.",
+        title: t("swal.networkError") || "Network error. Could not delete review.",
         showConfirmButton: false,
         timer: 2500,
         toast: true,
@@ -258,7 +258,7 @@ export default function ProductTabs({
       Swal.fire({
         position: "top-end",
         icon: "warning",
-        title: "You must be signed in to post or edit a review.",
+        title: t("swal.signInReview") || "You must be signed in to post or edit a review.",
         showConfirmButton: false,
         timer: 2000,
         toast: true,
@@ -270,7 +270,7 @@ export default function ProductTabs({
       Swal.fire({
         position: "top-end",
         icon: "warning",
-        title: "Please enter your review content.",
+        title: t("swal.enterReview") || "Please enter your review content.",
         showConfirmButton: false,
         timer: 2000,
         toast: true,
@@ -325,8 +325,8 @@ export default function ProductTabs({
           position: "top-end",
           icon: "success",
           title: isEditing
-            ? "Your review has been updated!"
-            : "Thank you! Your review has been published.",
+            ? t("swal.reviewUpdated") || "Your review has been updated!"
+            : t("swal.reviewPublished") || "Thank you! Your review has been published.",
           showConfirmButton: false,
           timer: 2000,
           toast: true,
@@ -342,7 +342,7 @@ export default function ProductTabs({
           title:
             errData.error ||
             errData.detail ||
-            "Failed to save review. Please try again.",
+            (locale === "bn" ? "রিভিউ সংরক্ষণ করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।" : "Failed to save review. Please try again."),
           showConfirmButton: false,
           timer: 2500,
           toast: true,
@@ -353,7 +353,7 @@ export default function ProductTabs({
       Swal.fire({
         position: "top-end",
         icon: "error",
-        title: "Network error. Could not save review.",
+        title: t("swal.networkError") || "Network error. Could not save review.",
         showConfirmButton: false,
         timer: 2500,
         toast: true,

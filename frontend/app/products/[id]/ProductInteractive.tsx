@@ -153,10 +153,18 @@ export default function ProductInteractive({
       await addToCart(productId, quantity, selectedVariant ? selectedVariant.id : null);
       
       const variantText = selectedVariant ? ` (${selectedVariant.name})` : "";
+      const fullTitle = `${productTitle}${variantText}`;
+      const title =
+        locale === "bn"
+          ? t("swal.addedQuantityToCart")
+              .replace("{quantity}", quantity.toLocaleString("bn-BD"))
+              .replace("{title}", fullTitle)
+          : `Added ${quantity}x "${fullTitle}" to cart!`;
+
       Swal.fire({
         position: "top-end",
         icon: "success",
-        title: `Added ${quantity}x "${productTitle}${variantText}" to cart!`,
+        title: title || `Added ${quantity}x "${fullTitle}" to cart!`,
         showConfirmButton: false,
         timer: 1800,
         toast: true,
@@ -166,7 +174,7 @@ export default function ProductInteractive({
       Swal.fire({
         position: "top-end",
         icon: "error",
-        title: err?.message || "Could not add item to cart.",
+        title: err?.message || t("swal.couldNotAddToCart") || "Could not add item to cart.",
         showConfirmButton: false,
         timer: 1800,
         toast: true,
