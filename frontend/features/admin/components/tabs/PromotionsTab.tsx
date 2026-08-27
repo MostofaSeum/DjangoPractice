@@ -15,6 +15,8 @@ interface PromotionsTabProps {
   setIsPromoDropdownOpen: (open: boolean) => void;
   promoDiscountPercent: string;
   setPromoDiscountPercent: (percent: string) => void;
+  promoValidUntil: string;
+  setPromoValidUntil: (date: string) => void;
   promoApplying: boolean;
   handleApplyPromotion: (e: React.FormEvent) => Promise<void>;
   handleRemovePromotion: (type: "all" | "product", productId?: number) => Promise<void>;
@@ -68,6 +70,8 @@ export default function PromotionsTab({
   setIsPromoDropdownOpen,
   promoDiscountPercent,
   setPromoDiscountPercent,
+  promoValidUntil,
+  setPromoValidUntil,
   promoApplying,
   handleApplyPromotion,
   handleRemovePromotion,
@@ -353,6 +357,35 @@ export default function PromotionsTab({
               </div>
             </div>
 
+            {/* Valid Until Date & Time */}
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="block text-[10px] font-extrabold uppercase tracking-wider opacity-70">
+                  {isBn ? "মেয়াদ উত্তীর্ণের তারিখ ও সময় (ঐচ্ছিক)" : "Valid Until Date & Time (Optional)"}
+                </label>
+                {promoValidUntil && (
+                  <button
+                    type="button"
+                    onClick={() => setPromoValidUntil("")}
+                    className="text-[9px] font-bold text-red-500 hover:underline uppercase cursor-pointer"
+                  >
+                    {isBn ? "মুছুন" : "Clear"}
+                  </button>
+                )}
+              </div>
+              <input
+                type="datetime-local"
+                value={promoValidUntil}
+                onChange={(e) => setPromoValidUntil(e.target.value)}
+                className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent shadow-inner cursor-pointer"
+              />
+              <p className="text-[9px] opacity-60 mt-1 font-medium">
+                {isBn
+                  ? "নির্ধারিত সময় পার হলে স্বয়ংক্রিয়ভাবে অফারটি বন্ধ হয়ে যাবে।"
+                  : "Offer will automatically expire and revert back after this date & time."}
+              </p>
+            </div>
+
             <button
               type="submit"
               disabled={promoApplying || promoSelectedProductIds.length === 0}
@@ -459,6 +492,20 @@ export default function PromotionsTab({
                                 ৳{original.toFixed(2)}
                               </span>
                             </div>
+                            {prod.discount_valid_until && (
+                              <div className="mt-1 flex items-center gap-1 text-[9px] font-bold text-foreground/60">
+                                <span>⏳</span>
+                                <span>
+                                  {isBn ? "মেয়াদঃ " : "Valid Until: "}
+                                  {new Date(prod.discount_valid_until).toLocaleString(isBn ? "bn-BD" : "en-US", {
+                                    month: "short",
+                                    day: "numeric",
+                                    hour: "numeric",
+                                    minute: "numeric",
+                                  })}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
 

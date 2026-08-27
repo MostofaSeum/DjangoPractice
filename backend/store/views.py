@@ -774,6 +774,7 @@ class PromotionViewSet(ModelViewSet):
     def apply(self, request):
         target_type = request.data.get('target_type')
         discount_percent = request.data.get('discount_percent')
+        valid_until = request.data.get('valid_until') or None
         description = request.data.get('description', '')
 
         if discount_percent is None:
@@ -791,7 +792,10 @@ class PromotionViewSet(ModelViewSet):
             collection_id = request.data.get('collection_id')
             if not collection_id:
                 return Response({'error': 'collection_id is required.'}, status=status.HTTP_400_BAD_REQUEST)
-            updated_count = Product.objects.filter(collection_id=collection_id).update(discount_percent=discount_val)
+            updated_count = Product.objects.filter(collection_id=collection_id).update(
+                discount_percent=discount_val,
+                discount_valid_until=valid_until
+            )
             if not description:
                 try:
                     col = Collection.objects.get(pk=collection_id)
@@ -811,7 +815,10 @@ class PromotionViewSet(ModelViewSet):
             if isinstance(product_ids, (int, str)):
                 product_ids = [product_ids]
 
-            updated_count = Product.objects.filter(pk__in=product_ids).update(discount_percent=discount_val)
+            updated_count = Product.objects.filter(pk__in=product_ids).update(
+                discount_percent=discount_val,
+                discount_valid_until=valid_until
+            )
             if not description:
                 if len(product_ids) == 1:
                     try:
@@ -824,7 +831,11 @@ class PromotionViewSet(ModelViewSet):
         else:
             return Response({'error': 'Invalid target_type. Must be "product" or "collection".'}, status=status.HTTP_400_BAD_REQUEST)
 
-        promotion = Promotion.objects.create(description=description, discount=discount_val)
+        promotion = Promotion.objects.create(
+            description=description,
+            discount=discount_val,
+            valid_until=valid_until
+        )
 
         return Response({
             'message': f'Successfully applied {discount_val}% discount to {updated_count} product(s).',
@@ -836,15 +847,15 @@ class PromotionViewSet(ModelViewSet):
     def remove(self, request):
         target_type = request.data.get('target_type')
         if target_type == 'all':
-            updated_count = Product.objects.filter(discount_percent__gt=0).update(discount_percent=0.00)
+            updated_count = Product.objects.filter(discount_percent__gt=0).update(discount_percent=0.00, discount_valid_until=None)
             Promotion.objects.all().delete()
             return Response({'message': f'Successfully removed all active promotions from {updated_count} product(s).', 'updated_count': updated_count})
         elif target_type == 'collection':
             collection_id = request.data.get('collection_id')
-            updated_count = Product.objects.filter(collection_id=collection_id).update(discount_percent=0.00)
+            updated_count = Product.objects.filter(collection_id=collection_id).update(discount_percent=0.00, discount_valid_until=None)
         elif target_type == 'product':
             product_id = request.data.get('product_id')
-            updated_count = Product.objects.filter(pk=product_id).update(discount_percent=0.00)
+            updated_count = Product.objects.filter(pk=product_id).update(discount_percent=0.00, discount_valid_until=None)
         else:
             return Response({'error': 'Invalid target_type. Must be "all", "product", or "collection".'}, status=status.HTTP_400_BAD_REQUEST)
 
