@@ -20,12 +20,14 @@ interface AdminNotificationBellProps {
   apiBase: string;
   token: string | null;
   onNavigateToOrder?: (orderId: string) => void;
+  onNavigateToTab?: (tab: "orders" | "promotions" | "coupons" | "products") => void;
 }
 
 export default function AdminNotificationBell({
   apiBase,
   token,
   onNavigateToOrder,
+  onNavigateToTab,
 }: AdminNotificationBellProps) {
   const { locale, t } = useLanguage();
   const isBn = locale === "bn";
@@ -244,6 +246,12 @@ export default function AdminNotificationBell({
 
     if (item.notification_type === "order" && item.target_id && onNavigateToOrder) {
       onNavigateToOrder(item.target_id);
+      setIsOpen(false);
+    } else if (item.notification_type === "promotion" && onNavigateToTab) {
+      onNavigateToTab("promotions");
+      setIsOpen(false);
+    } else if (item.notification_type === "coupon" && onNavigateToTab) {
+      onNavigateToTab("coupons");
       setIsOpen(false);
     }
   };

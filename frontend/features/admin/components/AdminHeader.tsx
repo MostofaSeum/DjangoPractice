@@ -14,6 +14,7 @@ interface AdminHeaderProps {
   apiBase?: string;
   token?: string | null;
   onNavigateToOrder?: (orderId: string) => void;
+  onNavigateToTab?: (tab: AdminTab) => void;
 }
 
 export default function AdminHeader({
@@ -24,6 +25,7 @@ export default function AdminHeader({
   apiBase = "",
   token = null,
   onNavigateToOrder,
+  onNavigateToTab,
 }: AdminHeaderProps) {
   const { locale } = useLanguage();
   const isBn = locale === "bn";
@@ -107,6 +109,7 @@ export default function AdminHeader({
               apiBase={apiBase}
               token={token}
               onNavigateToOrder={onNavigateToOrder}
+              onNavigateToTab={onNavigateToTab}
             />
           )}
 

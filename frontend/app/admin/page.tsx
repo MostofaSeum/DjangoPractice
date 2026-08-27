@@ -2387,6 +2387,9 @@ export default function AdminDashboardPage() {
           setSelectedNotificationOrderId(orderId);
           handleTabSwitch("orders");
         }}
+        onNavigateToTab={(tab) => {
+          handleTabSwitch(tab);
+        }}
       />
 
       {/* Main Layout Body: Left Sidebar + Right Content Area */}
