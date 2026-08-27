@@ -87,7 +87,28 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 export function useLanguage() {
   const context = useContext(LanguageContext);
   if (!context) {
-    throw new Error("useLanguage must be used within a LanguageProvider");
+    // Safe fallback so components outside provider or during hot reload don't crash
+    return {
+      locale: "en" as Locale,
+      setLocale: () => {},
+      toggleLocale: () => {},
+      t: (path: string) => {
+        const keys = path.split(".");
+        let current: any = dictionaries.en;
+        for (const k of keys) {
+          if (current && typeof current === "object" && k in current) {
+            current = current[k];
+          } else {
+            return path;
+          }
+        }
+        return typeof current === "string" ? current : path;
+      },
+      formatCurrency: (amount: number | string) => {
+        const num = Number(amount) || 0;
+        return `৳${num.toFixed(2)}`;
+      },
+    };
   }
   return context;
 }
