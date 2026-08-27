@@ -20,10 +20,19 @@
     "stationary": "স্টেশনারি"
   },
   "categories": {
-    "featuredTitle": "বিশেষ কালেকশনসমূহ",
+    "featuredTitle": "বিশেষ কালেকশন",
+    "pageTitle": "পণ্য ক্যাটাগরি",
+    "breadcrumbCategories": "ক্যাটাগরি",
     "viewAll": "সব দেখুন",
     "featured": "বিশেষ",
-    "noCollections": "কোনো কালেকশন পাওয়া যায়নি।"
+    "productsCount": "{count} টি পণ্য",
+    "exploreCollection": "কালেকশন দেখুন",
+    "noCollections": "কোনো কালেকশন পাওয়া যায়নি।",
+    "collectionDetail": "কালেকশন বিবরণ",
+    "productsInCollection": "এই কালেকশনের পণ্যসমূহ",
+    "noProductsInCollection": "এই কালেকশনে কোনো পণ্য পাওয়া যায়নি।",
+    "collectionNotFound": "কালেকশনটি পাওয়া যায়নি।",
+    "backToCollections": "সব ক্যাটাগরিতে ফিরে যান"
   },
   "trending": {
     "title": "চলতি ট্রেন্ড",

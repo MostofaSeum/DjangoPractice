@@ -21,9 +21,18 @@
   },
   "categories": {
     "featuredTitle": "Featured Categories",
+    "pageTitle": "Product Categories",
+    "breadcrumbCategories": "Categories",
     "viewAll": "View All",
     "featured": "FEATURED",
-    "noCollections": "No collections available."
+    "productsCount": "{count} Products",
+    "exploreCollection": "Explore Collection",
+    "noCollections": "No collections available.",
+    "collectionDetail": "Collection Detail",
+    "productsInCollection": "Products in this Collection",
+    "noProductsInCollection": "No products found in this collection.",
+    "collectionNotFound": "Collection not found.",
+    "backToCollections": "Back to Categories"
   },
   "trending": {
     "title": "Trending Now",
