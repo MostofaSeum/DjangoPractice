@@ -1429,49 +1429,63 @@ export default function ProductsTab({
                     {isBn ? Number(prod.inventory ?? 0).toLocaleString("bn-BD") : prod.inventory}
                   </td>
                   <td
-                    className="py-3.5 px-2 text-right flex justify-end items-center gap-2"
+                    className="py-3 px-3 text-right"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    {handleToggleProductVisibility && (
+                    <div className="flex justify-end items-center gap-1.5 flex-nowrap">
+                      {/* Visibility Toggle Button */}
+                      {handleToggleProductVisibility && (
+                        <button
+                          type="button"
+                          onClick={() => handleToggleProductVisibility(prod)}
+                          title={
+                            prod.is_visible !== false
+                              ? (isBn ? "পাবলিক থেকে লুকাতে ক্লিক করুন" : "Click to hide from public")
+                              : (isBn ? "পাবলিকে দেখাতে ক্লিক করুন" : "Click to show to public")
+                          }
+                          className={`h-7 px-2.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all duration-150 flex items-center gap-1.5 border active:scale-95 cursor-pointer ${
+                            prod.is_visible !== false
+                              ? "bg-visible/10 text-visible border-visible/25 hover:bg-visible/20 shadow-xs"
+                              : "bg-hidden/10 text-hidden border-hidden/25 hover:bg-hidden/20 shadow-xs"
+                          }`}
+                        >
+                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${prod.is_visible !== false ? "bg-visible" : "bg-hidden"}`} />
+                          <span className="leading-none">
+                            {prod.is_visible !== false
+                              ? (isBn ? "দৃশ্যমান" : "Visible")
+                              : (isBn ? "লুকানো" : "Hidden")}
+                          </span>
+                        </button>
+                      )}
+
+                      {/* Trending Toggle Button */}
                       <button
-                        onClick={() => handleToggleProductVisibility(prod)}
-                        title={
-                          prod.is_visible !== false
-                            ? (isBn ? "পাবলিক থেকে লুকাতে ক্লিক করুন" : "Click to hide from public")
-                            : (isBn ? "পাবলিকে দেখাতে ক্লিক করুন" : "Click to show to public")
-                        }
-                        className={`px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer ${
-                          prod.is_visible !== false
-                            ? "bg-visible/15 text-visible border border-visible/30 hover:bg-visible/25"
-                            : "bg-hidden/15 text-hidden border border-hidden/30 hover:bg-hidden/25 opacity-75 hover:opacity-100"
+                        type="button"
+                        onClick={() => handleToggleProductTrending(prod)}
+                        title={prod.is_trending ? (isBn ? "ট্রেন্ডিং তালিকা থেকে সরান" : "Remove from Trending") : (isBn ? "ট্রেন্ডিং করুন" : "Add to Trending")}
+                        className={`h-7 px-2.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all duration-150 flex items-center gap-1 border active:scale-95 cursor-pointer ${
+                          prod.is_trending
+                            ? "bg-amber-500 text-black border-amber-600 shadow-xs hover:bg-amber-400 font-black"
+                            : "bg-primary/5 dark:bg-primary/20 text-foreground/70 border-foreground/15 hover:bg-primary/10 dark:hover:bg-primary/30 hover:text-foreground"
                         }`}
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                        <span>
-                          {prod.is_visible !== false
-                            ? (isBn ? "দৃশ্যমান" : "Visible")
-                            : (isBn ? "লুকানো" : "Hidden")}
-                        </span>
+                        <span className="text-[9px] leading-none">{prod.is_trending ? "🔥" : "+"}</span>
+                        <span className="leading-none">{isBn ? "ট্রেন্ডিং" : "Trending"}</span>
                       </button>
-                    )}
-                    <button
-                      onClick={() => handleToggleProductTrending(prod)}
-                      className={`px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all shadow-sm cursor-pointer ${
-                        prod.is_trending
-                          ? "bg-amber-500 text-black border border-amber-600 shadow-amber-500/20"
-                          : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10"
-                      }`}
-                    >
-                      {prod.is_trending
-                        ? (isBn ? "ট্রেন্ডিং সক্রিয়" : " Trending")
-                        : (isBn ? "+ ট্রেন্ডিং করুন" : "+ Trending")}
-                    </button>
-                    <button
-                      onClick={() => handleDeleteProduct(prod.id)}
-                      className="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
-                    >
-                      {isBn ? "মুছুন" : "Delete"}
-                    </button>
+
+                      {/* Delete Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteProduct(prod.id)}
+                        title={isBn ? "পণ্য মুছুন" : "Delete Product"}
+                        className="h-7 px-2.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider text-red-600 dark:text-red-400 bg-red-500/10 hover:bg-red-500/20 border border-red-500/25 active:scale-95 transition-all duration-150 cursor-pointer flex items-center gap-1"
+                      >
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        <span className="leading-none">{isBn ? "মুছুন" : "Delete"}</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
