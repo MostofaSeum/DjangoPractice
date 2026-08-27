@@ -8,7 +8,7 @@ interface NotificationItem {
   id: number;
   title: string;
   message: string;
-  notification_type: "order" | "stock" | "system";
+  notification_type: "order" | "stock" | "system" | "promotion" | "coupon";
   target_id: string;
   is_read: boolean;
   created_at: string;
@@ -261,6 +261,14 @@ export default function AdminNotificationBell({
                     {item.notification_type === "order" ? (
                       <div className="w-7 h-7 rounded-lg bg-accent/15 text-accent flex items-center justify-center font-bold text-xs">
                         🛒
+                      </div>
+                    ) : item.notification_type === "promotion" ? (
+                      <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-500 flex items-center justify-center font-bold text-xs">
+                        🏷️
+                      </div>
+                    ) : item.notification_type === "coupon" ? (
+                      <div className="w-7 h-7 rounded-lg bg-purple-500/15 text-purple-500 flex items-center justify-center font-bold text-xs">
+                        🎟️
                       </div>
                     ) : (
                       <div className="w-7 h-7 rounded-lg bg-accent/15 text-accent flex items-center justify-center font-bold text-xs">

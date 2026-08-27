@@ -12,6 +12,7 @@ from rest_framework.decorators import action
 from store.models import OrderItem
 from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,AdminEditOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer,PaymentSettingSerializer,DeliverySettingSerializer,DeliveryRuleSerializer,NotificationSerializer
 from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,GoogleSheetSyncSetting,Notification
+from datetime import timedelta
 from django.utils import timezone
 from django.db.models import Count
 from django_filters.rest_framework import DjangoFilterBackend
@@ -1013,7 +1014,75 @@ class NotificationViewSet(ModelViewSet):
             qs = qs.filter(id__gt=int(since_id))
         return qs[:50]
 
+    def _check_expiring_items(self):
+        """Check for active promotions and coupons expiring within 1 hour and generate notifications."""
+        now = timezone.now()
+        one_hour_later = now + timedelta(hours=1)
+        two_hours_ago = now - timedelta(hours=2)
+
+        # 1. Check Expiring Promotions
+        expiring_promos = Promotion.objects.filter(
+            valid_until__isnull=False,
+            valid_until__gt=now,
+            valid_until__lte=one_hour_later
+        )
+        for promo in expiring_promos:
+            target_key = f"promo_exp_{promo.id}_{promo.valid_until.strftime('%Y%m%d%H%M')}"
+            # Check if notification already exists
+            if not Notification.objects.filter(notification_type=Notification.TYPE_PROMOTION, target_id=target_key).exists():
+                minutes_left = max(1, int((promo.valid_until - now).total_seconds() / 60))
+                Notification.objects.create(
+                    title=f"Promotion Expiring Soon!",
+                    message=f"Only {minutes_left} min left before promotion '{promo.description}' ({promo.discount}% OFF) expires.",
+                    notification_type=Notification.TYPE_PROMOTION,
+                    target_id=target_key,
+                    is_read=False
+                )
+
+        # 2. Check Expiring Products with custom discount_valid_until
+        expiring_products = Product.objects.filter(
+            discount_percent__gt=0,
+            discount_valid_until__isnull=False,
+            discount_valid_until__gt=now,
+            discount_valid_until__lte=one_hour_later
+        )
+        for prod in expiring_products:
+            target_key = f"prod_promo_exp_{prod.id}_{prod.discount_valid_until.strftime('%Y%m%d%H%M')}"
+            if not Notification.objects.filter(notification_type=Notification.TYPE_PROMOTION, target_id=target_key).exists():
+                minutes_left = max(1, int((prod.discount_valid_until - now).total_seconds() / 60))
+                Notification.objects.create(
+                    title=f"Product Promotion Expiring Soon!",
+                    message=f"Only {minutes_left} min left before {prod.discount_percent}% discount on '{prod.title}' expires.",
+                    notification_type=Notification.TYPE_PROMOTION,
+                    target_id=target_key,
+                    is_read=False
+                )
+
+        # 3. Check Expiring Coupons
+        expiring_coupons = Coupon.objects.filter(
+            is_active=True,
+            valid_to__isnull=False,
+            valid_to__gt=now,
+            valid_to__lte=one_hour_later
+        )
+        for coupon in expiring_coupons:
+            target_key = f"coupon_exp_{coupon.id}_{coupon.valid_to.strftime('%Y%m%d%H%M')}"
+            if not Notification.objects.filter(notification_type=Notification.TYPE_COUPON, target_id=target_key).exists():
+                minutes_left = max(1, int((coupon.valid_to - now).total_seconds() / 60))
+                Notification.objects.create(
+                    title=f"Coupon Code Expiring Soon!",
+                    message=f"Only {minutes_left} min left before coupon '{coupon.code}' ({coupon.discount_percent}% OFF) expires.",
+                    notification_type=Notification.TYPE_COUPON,
+                    target_id=target_key,
+                    is_read=False
+                )
+
     def list(self, request, *args, **kwargs):
+        try:
+            self._check_expiring_items()
+        except Exception as e:
+            print(f"Error checking expiring items: {e}")
+
         queryset = self.get_queryset()
         serializer = self.get_serializer(queryset, many=True)
         unread_count = Notification.objects.filter(is_read=False).count()

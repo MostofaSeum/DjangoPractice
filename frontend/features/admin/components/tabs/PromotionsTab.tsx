@@ -494,7 +494,6 @@ export default function PromotionsTab({
                             </div>
                             {prod.discount_valid_until && (
                               <div className="mt-1 flex items-center gap-1 text-[9px] font-bold text-foreground/60">
-                                <span>⏳</span>
                                 <span>
                                   {isBn ? "মেয়াদঃ " : "Valid Until: "}
                                   {new Date(prod.discount_valid_until).toLocaleString(isBn ? "bn-BD" : "en-US", {

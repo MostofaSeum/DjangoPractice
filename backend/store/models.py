@@ -490,10 +490,14 @@ class Notification(models.Model):
     TYPE_ORDER = 'order'
     TYPE_STOCK = 'stock'
     TYPE_SYSTEM = 'system'
+    TYPE_PROMOTION = 'promotion'
+    TYPE_COUPON = 'coupon'
     TYPE_CHOICES = [
         (TYPE_ORDER, 'New Order'),
         (TYPE_STOCK, 'Low Stock Alert'),
         (TYPE_SYSTEM, 'System Alert'),
+        (TYPE_PROMOTION, 'Promotion Expiry Alert'),
+        (TYPE_COUPON, 'Coupon Expiry Alert'),
     ]
 
     title = models.CharField(max_length=255)
