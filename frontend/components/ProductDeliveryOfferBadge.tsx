@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getApiBaseUrl } from "@/config/siteConfig";
+import { useLanguage } from "@/store/LanguageContext";
 
 interface DeliveryRule {
   id: number;
@@ -13,6 +14,7 @@ interface DeliveryRule {
   products_details?: { id: number }[];
   collection?: number | null;
   min_quantity?: number;
+  min_order_amount?: number | string | null;
   is_active: boolean;
 }
 
@@ -58,7 +60,8 @@ export default function ProductDeliveryOfferBadge({
   soldCount,
   className = "",
 }: ProductDeliveryOfferBadgeProps) {
-  const [badgeText, setBadgeText] = useState<string | null>(null);
+  const { t, formatCurrency, locale } = useLanguage();
+  const [matchedRule, setMatchedRule] = useState<DeliveryRule | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -78,29 +81,7 @@ export default function ProductDeliveryOfferBadge({
         }
 
         if (isMatch) {
-          const qty = Number(rule.min_quantity || 1);
-          const minAmount = Number(rule.min_order_amount || 0);
-          const isFree = rule.rule_type === "free";
-
-          if (minAmount > 0) {
-            setBadgeText(
-              isFree
-                ? `Spend ৳${minAmount.toLocaleString()} to get free delivery`
-                : `Spend ৳${minAmount.toLocaleString()} to get a reduced delivery charge`,
-            );
-          } else if (qty > 1) {
-            setBadgeText(
-              isFree
-                ? `Buy ${qty} items to get free delivery`
-                : `Buy ${qty} items to get a reduced delivery charge`,
-            );
-          } else {
-            setBadgeText(
-              isFree
-                ? "Free Delivery Offer"
-                : "Reduced Delivery Charge",
-            );
-          }
+          setMatchedRule(rule);
           break;
         }
       }
@@ -110,6 +91,32 @@ export default function ProductDeliveryOfferBadge({
       isMounted = false;
     };
   }, [productId, collectionId]);
+
+  const getBadgeText = () => {
+    if (!matchedRule) return null;
+
+    const qty = Number(matchedRule.min_quantity || 1);
+    const minAmount = Number(matchedRule.min_order_amount || 0);
+    const isFree = matchedRule.rule_type === "free";
+
+    if (minAmount > 0) {
+      const formattedAmount = formatCurrency(minAmount);
+      if (locale === "bn") {
+        return `${formattedAmount} ${t("delivery.spend")} ${isFree ? t("delivery.toGetFree") : t("delivery.toGetReduced")}`;
+      }
+      return `${t("delivery.spend")} ${formattedAmount} ${isFree ? t("delivery.toGetFree") : t("delivery.toGetReduced")}`;
+    } else if (qty > 1) {
+      const qtyStr = locale === "bn" ? qty.toLocaleString("bn-BD") : qty;
+      if (locale === "bn") {
+        return `${qtyStr}${t("delivery.items")} ${t("delivery.buy")} ${isFree ? t("delivery.toGetFree") : t("delivery.toGetReduced")}`;
+      }
+      return `${t("delivery.buy")} ${qtyStr}+ ${t("delivery.items")} ${isFree ? t("delivery.toGetFree") : t("delivery.toGetReduced")}`;
+    } else {
+      return isFree ? t("delivery.freeOffer") : t("delivery.reducedOffer");
+    }
+  };
+
+  const badgeText = getBadgeText();
 
   return (
     <div className={`flex items-center gap-2 ${badgeText ? "justify-between" : "justify-start"} ${className}`}>
@@ -121,14 +128,14 @@ export default function ProductDeliveryOfferBadge({
           </div>
           {soldCount !== undefined && (
             <span className="text-[10px] font-bold opacity-60 uppercase tracking-wider shrink-0">
-              {soldCount} Sold
+              {locale === "bn" ? `${soldCount.toLocaleString("bn-BD")} ${t("delivery.sold")}` : `${soldCount} Sold`}
             </span>
           )}
         </>
       ) : (
         soldCount !== undefined && (
           <span className="text-[10px] font-bold opacity-60 uppercase tracking-wider shrink-0">
-            {soldCount} Sold
+            {locale === "bn" ? `${soldCount.toLocaleString("bn-BD")} ${t("delivery.sold")}` : `${soldCount} Sold`}
           </span>
         )
       )}

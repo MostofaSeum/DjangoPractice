@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getApiBaseUrl } from "@/config/siteConfig";
+import { useLanguage } from "@/store/LanguageContext";
 
 interface DeliveryRule {
   id: number;
@@ -51,59 +52,28 @@ interface CollectionDeliveryBannerProps {
   darkOverlay?: boolean;
 }
 
-interface OfferDetails {
-  free: boolean;
-  prefix: string;
-  highlight: string;
-  suffix: string;
-}
-
 export default function CollectionDeliveryBanner({
   collectionId,
   variant = "badge",
   className = "",
   darkOverlay = false,
 }: CollectionDeliveryBannerProps) {
-  const [offer, setOffer] = useState<OfferDetails | null>(null);
+  const { t, formatCurrency, locale } = useLanguage();
+  const [matchedRule, setMatchedRule] = useState<DeliveryRule | null>(null);
 
   useEffect(() => {
     let isMounted = true;
     getCachedRules().then((rules) => {
       if (!isMounted || !rules || rules.length === 0) return;
 
-      const matchedRule = rules.find(
+      const rule = rules.find(
         (r) =>
           r.target_type === "collection" &&
           Number(r.collection) === Number(collectionId)
       );
 
-      if (matchedRule) {
-        const qty = Number(matchedRule.min_quantity || 1);
-        const minAmount = Number(matchedRule.min_order_amount || 0);
-        const free = matchedRule.rule_type === "free";
-
-        if (minAmount > 0) {
-          setOffer({
-            free,
-            prefix: "Spend",
-            highlight: `৳${minAmount.toLocaleString()}`,
-            suffix: free ? "for Free Delivery" : "for Reduced Delivery",
-          });
-        } else if (qty > 1) {
-          setOffer({
-            free,
-            prefix: "Buy",
-            highlight: `${qty}+ Items`,
-            suffix: free ? "for Free Delivery" : "for Reduced Delivery",
-          });
-        } else {
-          setOffer({
-            free,
-            prefix: "Special Offer",
-            highlight: free ? "Free Delivery" : "Reduced Delivery",
-            suffix: "on all items",
-          });
-        }
+      if (rule) {
+        setMatchedRule(rule);
       }
     });
 
@@ -112,7 +82,29 @@ export default function CollectionDeliveryBanner({
     };
   }, [collectionId]);
 
-  if (!offer) return null;
+  if (!matchedRule) return null;
+
+  const qty = Number(matchedRule.min_quantity || 1);
+  const minAmount = Number(matchedRule.min_order_amount || 0);
+  const free = matchedRule.rule_type === "free";
+
+  let prefix = "";
+  let highlight = "";
+  let suffix = "";
+
+  if (minAmount > 0) {
+    prefix = t("delivery.spend");
+    highlight = formatCurrency(minAmount);
+    suffix = free ? t("delivery.forFree") : t("delivery.forReduced");
+  } else if (qty > 1) {
+    prefix = t("delivery.buy");
+    highlight = locale === "bn" ? `${qty.toLocaleString("bn-BD")}+ ${t("delivery.items")}` : `${qty}+ Items`;
+    suffix = free ? t("delivery.forFree") : t("delivery.forReduced");
+  } else {
+    prefix = t("delivery.specialOffer");
+    highlight = free ? t("delivery.freeOffer") : t("delivery.reducedOffer");
+    suffix = t("delivery.onAllItems");
+  }
 
   if (variant === "banner") {
     return (
@@ -124,9 +116,9 @@ export default function CollectionDeliveryBanner({
           <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent" />
         </span>
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-foreground/90 font-bold">{offer.prefix}</span>
-          <span className="text-accent font-black">{offer.highlight}</span>
-          <span className="text-foreground font-extrabold">{offer.suffix}</span>
+          <span className="text-foreground/90 font-bold">{prefix}</span>
+          <span className="text-accent font-black">{highlight}</span>
+          <span className="text-foreground font-extrabold">{suffix}</span>
         </div>
       </div>
     );
@@ -146,15 +138,15 @@ export default function CollectionDeliveryBanner({
       </span>
 
       <span className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 flex-wrap">
-        <span className="opacity-90">{offer.prefix}</span>
+        <span className="opacity-90">{prefix}</span>
         <strong
           className={`font-black ${
             darkOverlay ? "text-logo" : "text-accent"
           }`}
         >
-          {offer.highlight}
+          {highlight}
         </strong>
-        <span className="font-extrabold">{offer.suffix}</span>
+        <span className="font-extrabold">{suffix}</span>
       </span>
     </div>
   );

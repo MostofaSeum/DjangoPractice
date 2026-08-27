@@ -49,5 +49,19 @@
     "subscribe": "Subscribe",
     "subscribing": "Subscribing...",
     "disclaimer": "By joining, you agree to our Terms and Privacy Policy. Unsubscribe anytime."
+  },
+  "delivery": {
+    "spend": "Spend",
+    "buy": "Buy",
+    "items": "Items",
+    "toGetFree": "to get free delivery",
+    "toGetReduced": "to get a reduced delivery charge",
+    "forFree": "for Free Delivery",
+    "forReduced": "for Reduced Delivery",
+    "freeOffer": "Free Delivery Offer",
+    "reducedOffer": "Reduced Delivery Charge",
+    "specialOffer": "Special Offer",
+    "onAllItems": "on all items",
+    "sold": "Sold"
   }
 }
