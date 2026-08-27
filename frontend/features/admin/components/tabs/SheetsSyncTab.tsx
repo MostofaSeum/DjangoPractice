@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Swal from "sweetalert2";
+import { useLanguage } from "@/store/LanguageContext";
 
 interface SheetsSyncTabProps {
   apiBase: string;
@@ -20,6 +21,9 @@ export default function SheetsSyncTab({
   token,
   onSyncSuccess,
 }: SheetsSyncTabProps) {
+  const { locale } = useLanguage();
+  const isBn = locale === "bn";
+
   const [googleSheetUrl, setGoogleSheetUrl] = useState("");
   const [savedSheetUrl, setSavedSheetUrl] = useState<string>("");
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
@@ -92,12 +96,14 @@ export default function SheetsSyncTab({
   const handleDeleteSavedUrl = async () => {
     if (!token) return;
     const confirmResult = await Swal.fire({
-      title: "Disconnect Sheet?",
-      text: "Are you sure you want to disconnect this saved Google Sheet link? You will be able to connect a new link anytime.",
+      title: isBn ? "গুগল শিট সংযোগ বিচ্ছিন্ন করবেন?" : "Disconnect Sheet?",
+      text: isBn
+        ? "আপনি কি নিশ্চিতভাবে এই গুগল শিট লিঙ্কটি বিচ্ছিন্ন করতে চান? পরবর্তীতে যেকোনো সময় নতুন লিঙ্ক যুক্ত করতে পারবেন।"
+        : "Are you sure you want to disconnect this saved Google Sheet link? You will be able to connect a new link anytime.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Yes, Disconnect",
-      cancelButtonText: "Cancel",
+      confirmButtonText: isBn ? "হ্যাঁ, সংযোগ বিচ্ছিন্ন করুন" : "Yes, Disconnect",
+      cancelButtonText: isBn ? "বাতিল" : "Cancel",
       confirmButtonColor: "#ef4444",
       cancelButtonColor: "var(--accent)",
       reverseButtons: true,
@@ -120,7 +126,7 @@ export default function SheetsSyncTab({
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: "Google Sheet disconnected.",
+          title: isBn ? "গুগল শিট সংযোগ বিচ্ছিন্ন করা হয়েছে।" : "Google Sheet disconnected.",
           showConfirmButton: false,
           timer: 2000,
           toast: true,
@@ -139,8 +145,8 @@ export default function SheetsSyncTab({
     if (!targetUrl) {
       Swal.fire({
         icon: "warning",
-        title: "URL Required",
-        text: "Please enter your Google Sheets link.",
+        title: isBn ? "লিঙ্ক প্রয়োজন" : "URL Required",
+        text: isBn ? "অনুগ্রহ করে আপনার গুগল শিট লিঙ্ক প্রদান করুন।" : "Please enter your Google Sheets link.",
         confirmButtonColor: "var(--accent)",
       });
       return;
@@ -169,7 +175,9 @@ export default function SheetsSyncTab({
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: `Catalog synced successfully! Created: ${data.created_count}, Updated: ${data.updated_count}`,
+          title: isBn
+            ? `ক্যাটালগ সফলভাবে সিঙ্ক হয়েছে! নতুন যুক্ত: ${data.created_count.toLocaleString("bn-BD")}, আপডেট: ${data.updated_count.toLocaleString("bn-BD")}`
+            : `Catalog synced successfully! Created: ${data.created_count}, Updated: ${data.updated_count}`,
           showConfirmButton: false,
           timer: 2500,
           toast: true,
@@ -180,12 +188,14 @@ export default function SheetsSyncTab({
         // Prompt to save URL ONLY if the sync was genuinely successful and products were synced
         if (!savedSheetUrl || savedSheetUrl !== targetUrl) {
           const promptSave = await Swal.fire({
-            title: "Save Google Sheet Link?",
-            text: "Would you like to save this Google Sheet link? Next time, you can update your entire website catalog with just 1 click!",
+            title: isBn ? "গুগল শিট লিঙ্ক সংরক্ষণ করবেন?" : "Save Google Sheet Link?",
+            text: isBn
+              ? "আপনি কি এই গুগল শিট লিঙ্কটি সংরক্ষণ করতে চান? পরবর্তীতে মাত্র ১ ক্লিকে পুরো ক্যাটালগ আপডেট করতে পারবেন!"
+              : "Would you like to save this Google Sheet link? Next time, you can update your entire website catalog with just 1 click!",
             icon: "question",
             showCancelButton: true,
-            confirmButtonText: "Yes, Save Link",
-            cancelButtonText: "Not Now",
+            confirmButtonText: isBn ? "হ্যাঁ, সংরক্ষণ করুন" : "Yes, Save Link",
+            cancelButtonText: isBn ? "এখন নয়" : "Not Now",
             confirmButtonColor: "var(--button-bg)",
             cancelButtonColor: "var(--accent)",
             reverseButtons: true,
@@ -196,7 +206,7 @@ export default function SheetsSyncTab({
             Swal.fire({
               position: "top-end",
               icon: "success",
-              title: "Link saved! You can now use 1-Click Update.",
+              title: isBn ? "লিঙ্ক সংরক্ষিত হয়েছে! এখন ১-ক্লিক আপডেট ব্যবহার করতে পারবেন।" : "Link saved! You can now use 1-Click Update.",
               showConfirmButton: false,
               timer: 2500,
               toast: true,
@@ -206,8 +216,8 @@ export default function SheetsSyncTab({
       } else {
         Swal.fire({
           icon: "error",
-          title: "Sync Failed",
-          text: data?.error || "Could not sync from this Google Sheet. Please check the columns and sharing permissions.",
+          title: isBn ? "সিঙ্ক ব্যর্থ হয়েছে" : "Sync Failed",
+          text: data?.error || (isBn ? "এই গুগল শিট থেকে সিঙ্ক করা সম্ভব হয়নি। শিটের কলাম ও শেয়ারিং পারমিশন চেক করুন।" : "Could not sync from this Google Sheet. Please check the columns and sharing permissions."),
           confirmButtonColor: "var(--accent)",
         });
       }
@@ -215,8 +225,8 @@ export default function SheetsSyncTab({
       console.error("Google Sheets sync error:", err);
       Swal.fire({
         icon: "error",
-        title: "Network Error",
-        text: err?.message || "Failed to reach the server.",
+        title: isBn ? "নেটওয়ার্ক সমস্যা" : "Network Error",
+        text: err?.message || (isBn ? "সার্ভারের সাথে যোগাযোগ করা সম্ভব হয়নি।" : "Failed to reach the server."),
         confirmButtonColor: "var(--accent)",
       });
     } finally {
@@ -231,8 +241,8 @@ export default function SheetsSyncTab({
     if (!selectedFile) {
       Swal.fire({
         icon: "warning",
-        title: "File Required",
-        text: "Please choose a CSV file to import.",
+        title: isBn ? "ফাইল নির্বাচন করুন" : "File Required",
+        text: isBn ? "অনুগ্রহ করে একটি CSV ফাইল নির্বাচন করুন।" : "Please choose a CSV file to import.",
         confirmButtonColor: "var(--accent)",
       });
       return;
@@ -264,7 +274,9 @@ export default function SheetsSyncTab({
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: `File imported successfully. Created: ${data.created_count}, Updated: ${data.updated_count}`,
+          title: isBn
+            ? `ফাইল সফলভাবে ইমপোর্ট হয়েছে। নতুন যুক্ত: ${data.created_count.toLocaleString("bn-BD")}, আপডেট: ${data.updated_count.toLocaleString("bn-BD")}`
+            : `File imported successfully. Created: ${data.created_count}, Updated: ${data.updated_count}`,
           showConfirmButton: false,
           timer: 2500,
           toast: true,
@@ -273,8 +285,8 @@ export default function SheetsSyncTab({
       } else {
         Swal.fire({
           icon: "error",
-          title: "Import Failed",
-          text: data?.error || "Failed to process the CSV file.",
+          title: isBn ? "ইমপোর্ট ব্যর্থ হয়েছে" : "Import Failed",
+          text: data?.error || (isBn ? "CSV ফাইলটি প্রসেস করা সম্ভব হয়নি।" : "Failed to process the CSV file."),
           confirmButtonColor: "var(--accent)",
         });
       }
@@ -282,8 +294,8 @@ export default function SheetsSyncTab({
       console.error("Bulk CSV import error:", err);
       Swal.fire({
         icon: "error",
-        title: "Network Error",
-        text: err?.message || "Failed to upload the file.",
+        title: isBn ? "নেটওয়ার্ক সমস্যা" : "Network Error",
+        text: err?.message || (isBn ? "ফাইল আপলোড করতে সমস্যা হয়েছে।" : "Failed to upload the file."),
         confirmButtonColor: "var(--accent)",
       });
     } finally {
@@ -316,7 +328,7 @@ export default function SheetsSyncTab({
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: "Catalog CSV downloaded",
+          title: isBn ? "ক্যাটালগ CSV ডাউনলোড সম্পন্ন হয়েছে" : "Catalog CSV downloaded",
           showConfirmButton: false,
           timer: 1800,
           toast: true,
@@ -324,8 +336,8 @@ export default function SheetsSyncTab({
       } else {
         Swal.fire({
           icon: "error",
-          title: "Export Failed",
-          text: "Could not export product catalog.",
+          title: isBn ? "এক্সপোর্ট ব্যর্থ হয়েছে" : "Export Failed",
+          text: isBn ? "পণ্য ক্যাটালগ এক্সপোর্ট করা সম্ভব হয়নি।" : "Could not export product catalog.",
           confirmButtonColor: "var(--accent)",
         });
       }
@@ -437,11 +449,13 @@ export default function SheetsSyncTab({
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
               </span>
               <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
-                Spreadsheet & Catalog Synchronization
+                {isBn ? "স্প্রেডশিট ও ক্যাটালগ সিঙ্ক্রোনাইজেশন" : "Spreadsheet & Catalog Synchronization"}
               </h2>
             </div>
             <p className="text-xs text-foreground/70 font-medium">
-              Synchronize inventory and product catalogs directly from Google Sheets or standard CSV files.
+              {isBn
+                ? "গুগল শিট বা স্ট্যান্ডার্ড CSV ফাইল থেকে সরাসরি আপনার প্রোডাক্ট ইনভেন্টরি ও ক্যাটালগ আপডেট করুন।"
+                : "Synchronize inventory and product catalogs directly from Google Sheets or standard CSV files."}
             </p>
           </div>
 
@@ -455,7 +469,7 @@ export default function SheetsSyncTab({
               <svg className="w-3.5 h-3.5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
-              <span>Sample Template</span>
+              <span>{isBn ? "নমুনা টেমপ্লেট" : "Sample Template"}</span>
             </button>
             <button
               type="button"
@@ -466,7 +480,7 @@ export default function SheetsSyncTab({
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-              <span>{isExporting ? "Exporting..." : "Export Catalog"}</span>
+              <span>{isExporting ? (isBn ? "এক্সপোর্ট হচ্ছে..." : "Exporting...") : (isBn ? "ক্যাটালগ এক্সপোর্ট" : "Export Catalog")}</span>
             </button>
           </div>
         </div>
@@ -483,9 +497,9 @@ export default function SheetsSyncTab({
               </div>
               <div>
                 <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
-                  Google Sheets Live Sync
+                  {isBn ? "গুগল শিট লাইভ সিঙ্ক" : "Google Sheets Live Sync"}
                 </h3>
-                <p className="text-[10px] text-foreground/60">Connect shareable sheet to update database</p>
+                <p className="text-[10px] text-foreground/60">{isBn ? "শেয়ারেবল শিট লিঙ্ক যুক্ত করে ডাটাবেজ আপডেট করুন" : "Connect shareable sheet to update database"}</p>
               </div>
             </div>
 
@@ -499,7 +513,7 @@ export default function SheetsSyncTab({
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
                     </span>
                     <span className="text-[11px] font-black uppercase tracking-wider text-foreground">
-                      Connected Google Sheet
+                      {isBn ? "সংযুক্ত গুগল শিট" : "Connected Google Sheet"}
                     </span>
                   </div>
 
@@ -511,7 +525,7 @@ export default function SheetsSyncTab({
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                    <span>Disconnect</span>
+                    <span>{isBn ? "সংযোগ বিচ্ছিন্ন করুন" : "Disconnect"}</span>
                   </button>
                 </div>
 
@@ -525,7 +539,7 @@ export default function SheetsSyncTab({
                     rel="noreferrer"
                     className="text-accent hover:opacity-80 shrink-0 flex items-center gap-1 text-[10px] font-black uppercase tracking-wider"
                   >
-                    <span>Open</span>
+                    <span>{isBn ? "খুলুন" : "Open"}</span>
                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
@@ -534,7 +548,10 @@ export default function SheetsSyncTab({
 
                 {lastSyncedAt && (
                   <p className="text-[10px] text-foreground/70 font-medium">
-                    Last synced: <span className="font-bold text-foreground">{new Date(lastSyncedAt).toLocaleString()}</span>
+                    {isBn ? "সর্বশেষ সিঙ্কঃ" : "Last synced:"}{" "}
+                    <span className="font-bold text-foreground">
+                      {new Date(lastSyncedAt).toLocaleString(isBn ? "bn-BD" : undefined)}
+                    </span>
                   </p>
                 )}
 
@@ -548,14 +565,14 @@ export default function SheetsSyncTab({
                   {isSyncingSheet ? (
                     <>
                       <div className="w-3.5 h-3.5 border-2 border-button-fg border-t-transparent rounded-full animate-spin"></div>
-                      <span>Updating Catalog...</span>
+                      <span>{isBn ? "ক্যাটালগ সিঙ্ক হচ্ছে..." : "Updating Catalog..."}</span>
                     </>
                   ) : (
                     <>
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.03 0 01-15.357-2m15.357 2H15" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
-                      <span>1-Click Update from Saved Sheet</span>
+                      <span>{isBn ? "সংরক্ষিত শিট থেকে ১-ক্লিক আপডেট" : "1-Click Update from Saved Sheet"}</span>
                     </>
                   )}
                 </button>
@@ -566,7 +583,9 @@ export default function SheetsSyncTab({
             <form onSubmit={(e) => { e.preventDefault(); handleSyncGoogleSheet(); }} className="space-y-4">
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  {savedSheetUrl ? "Or Sync with Another Google Sheet URL" : "Google Sheet Shareable URL"}
+                  {savedSheetUrl
+                    ? (isBn ? "অথবা অন্য গুগল শিট লিঙ্ক দিয়ে সিঙ্ক করুন" : "Or Sync with Another Google Sheet URL")
+                    : (isBn ? "গুগল শিট শেয়ারেবল লিঙ্ক" : "Google Sheet Shareable URL")}
                 </label>
                 <input
                   type="url"
@@ -580,11 +599,21 @@ export default function SheetsSyncTab({
 
               {/* Instructions Box */}
               <div className="p-4 rounded-2xl bg-primary/5 border border-foreground/10 text-[11px] space-y-1.5 text-foreground/80 leading-relaxed font-medium">
-                <p className="font-bold text-foreground">Connection Guide:</p>
+                <p className="font-bold text-foreground">{isBn ? "সংযোগ নির্দেশিকাঃ" : "Connection Guide:"}</p>
                 <ol className="list-decimal pl-4 space-y-1 opacity-80 text-[10.5px]">
-                  <li>In Google Sheets, open the <b>Share</b> settings.</li>
-                  <li>Set access permissions to <b>&quot;Anyone with the link can view&quot;</b>.</li>
-                  <li>Paste the URL above and submit to synchronize changes.</li>
+                  {isBn ? (
+                    <>
+                      <li>গুগল শিটে গিয়ে <b>Share</b> সেটিংসে ক্লিক করুন।</li>
+                      <li>পারমিশন দিন <b>&quot;Anyone with the link can view&quot;</b>।</li>
+                      <li>উপরের বক্সে লিংকটি পেস্ট করে সাবমিট করুন।</li>
+                    </>
+                  ) : (
+                    <>
+                      <li>In Google Sheets, open the <b>Share</b> settings.</li>
+                      <li>Set access permissions to <b>&quot;Anyone with the link can view&quot;</b>.</li>
+                      <li>Paste the URL above and submit to synchronize changes.</li>
+                    </>
+                  )}
                 </ol>
               </div>
 
@@ -596,10 +625,10 @@ export default function SheetsSyncTab({
                 {isSyncingSheet ? (
                   <>
                     <div className="w-3.5 h-3.5 border-2 border-button-fg border-t-transparent rounded-full animate-spin"></div>
-                    <span>Synchronizing...</span>
+                    <span>{isBn ? "সিঙ্ক হচ্ছে..." : "Synchronizing..."}</span>
                   </>
                 ) : (
-                  <span>{savedSheetUrl ? "Sync This New URL" : "Sync Google Sheet"}</span>
+                  <span>{savedSheetUrl ? (isBn ? "নতুন এই লিঙ্কে সিঙ্ক করুন" : "Sync This New URL") : (isBn ? "গুগল শিট সিঙ্ক করুন" : "Sync Google Sheet")}</span>
                 )}
               </button>
             </form>
@@ -615,16 +644,16 @@ export default function SheetsSyncTab({
               </div>
               <div>
                 <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
-                  Bulk CSV / Excel File Import
+                  {isBn ? "বাল্ক CSV / এক্সেল ফাইল ইমপোর্ট" : "Bulk CSV / Excel File Import"}
                 </h3>
-                <p className="text-[10px] text-foreground/60">Import catalog files prepared offline</p>
+                <p className="text-[10px] text-foreground/60">{isBn ? "অফলাইনে প্রস্তুতকৃত ক্যাটালগ ফাইল ইমপোর্ট করুন" : "Import catalog files prepared offline"}</p>
               </div>
             </div>
 
             <form onSubmit={handleImportFile} className="space-y-4">
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  Select CSV Spreadsheet
+                  {isBn ? "CSV স্প্রেডশিট ফাইল নির্বাচন করুন" : "Select CSV Spreadsheet"}
                 </label>
                 <input
                   ref={fileInputRef}
@@ -641,9 +670,11 @@ export default function SheetsSyncTab({
 
               {/* Instructions Box */}
               <div className="p-4 rounded-2xl bg-primary/5 border border-foreground/10 text-[11px] space-y-1.5 text-foreground/80 leading-relaxed font-medium">
-                <p className="font-bold text-foreground">Updating Existing Inventory:</p>
+                <p className="font-bold text-foreground">{isBn ? "বিদ্যমান ইনভেন্টরি আপডেট পদ্ধতিঃ" : "Updating Existing Inventory:"}</p>
                 <p className="opacity-80 text-[10.5px]">
-                  Use the <b>&quot;Export Catalog&quot;</b> action to download current IDs, make offline quantity or price edits, and upload the updated spreadsheet here.
+                  {isBn
+                    ? "উপরে থাকা \"ক্যাটালগ এক্সপোর্ট\" বাটনে ক্লিক করে বর্তমান পণ্যের আইডি সহ ফাইল ডাউনলোড করুন, অফলাইনে স্টক বা মূল্য পরিবর্তন করে এখানে আপলোড করুন।"
+                    : "Use the \"Export Catalog\" action to download current IDs, make offline quantity or price edits, and upload the updated spreadsheet here."}
                 </p>
               </div>
 
@@ -655,10 +686,10 @@ export default function SheetsSyncTab({
                 {isImportingFile ? (
                   <>
                     <div className="w-3.5 h-3.5 border-2 border-button-fg border-t-transparent rounded-full animate-spin"></div>
-                    <span>Processing File...</span>
+                    <span>{isBn ? "ফাইল প্রসেস হচ্ছে..." : "Processing File..."}</span>
                   </>
                 ) : (
-                  <span>Process CSV Import</span>
+                  <span>{isBn ? "CSV ইমপোর্ট প্রসেস করুন" : "Process CSV Import"}</span>
                 )}
               </button>
             </form>
@@ -672,10 +703,13 @@ export default function SheetsSyncTab({
           <div className="flex justify-between items-center pb-3 border-b border-foreground/10">
             <div>
               <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
-                Sync Execution Report
+                {isBn ? "সিঙ্ক এক্সিকিউশন রিপোর্ট" : "Sync Execution Report"}
               </h3>
               <p className="text-[10px] text-foreground/60">
-                Source: {lastSyncMode === "sheets" ? "Google Sheets" : "Uploaded CSV"}
+                {isBn ? "উৎসঃ" : "Source:"}{" "}
+                {lastSyncMode === "sheets"
+                  ? (isBn ? "গুগল শিটস" : "Google Sheets")
+                  : (isBn ? "আপলোডকৃত CSV" : "Uploaded CSV")}
               </p>
             </div>
             <button
@@ -683,35 +717,35 @@ export default function SheetsSyncTab({
               onClick={() => setSyncResults(null)}
               className="text-[10px] font-bold uppercase tracking-wider text-foreground/60 hover:text-foreground cursor-pointer"
             >
-              Dismiss
+              {isBn ? "বন্ধ করুন" : "Dismiss"}
             </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-4 rounded-2xl bg-primary/5 border border-foreground/10">
               <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">
-                Products Created
+                {isBn ? "নতুন পণ্য তৈরি" : "Products Created"}
               </span>
               <p className="text-2xl font-black text-foreground mt-1">
-                {syncResults.created_count}
+                {syncResults.created_count.toLocaleString(isBn ? "bn-BD" : undefined)}
               </p>
             </div>
 
             <div className="p-4 rounded-2xl bg-primary/5 border border-foreground/10">
               <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">
-                Products Updated
+                {isBn ? "পণ্য আপডেট" : "Products Updated"}
               </span>
               <p className="text-2xl font-black text-accent mt-1">
-                {syncResults.updated_count}
+                {syncResults.updated_count.toLocaleString(isBn ? "bn-BD" : undefined)}
               </p>
             </div>
 
             <div className="p-4 rounded-2xl bg-primary/5 border border-foreground/10">
               <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">
-                Warnings / Errors
+                {isBn ? "সতর্কতা / ত্রুটি" : "Warnings / Errors"}
               </span>
               <p className={`text-2xl font-black mt-1 ${syncResults.errors.length > 0 ? "text-red-500" : "text-foreground/70"}`}>
-                {syncResults.errors.length}
+                {syncResults.errors.length.toLocaleString(isBn ? "bn-BD" : undefined)}
               </p>
             </div>
           </div>
@@ -719,7 +753,7 @@ export default function SheetsSyncTab({
           {syncResults.errors.length > 0 && (
             <div className="p-4 rounded-2xl bg-primary/5 border border-red-500/30 space-y-2">
               <p className="text-xs font-black uppercase tracking-wider text-red-500">
-                Error Details:
+                {isBn ? "ত্রুটির বিবরণীঃ" : "Error Details:"}
               </p>
               <ul className="list-disc pl-5 text-xs text-foreground/80 space-y-1 max-h-40 overflow-y-auto">
                 {syncResults.errors.map((err, i) => (

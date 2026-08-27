@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CustomerItem, Order } from "../../types";
 import CustomerSearchBar from "@/features/customers/components/CustomerSearchBar";
+import { useLanguage } from "@/store/LanguageContext";
 
 interface CustomersTabProps {
   customers: CustomerItem[];
@@ -27,6 +28,9 @@ export default function CustomersTab({
   customerHistoryModal,
   setCustomerHistoryModal,
 }: CustomersTabProps) {
+  const { locale, formatCurrency } = useLanguage();
+  const isBn = locale === "bn";
+
   const [activeCustomerQuery, setActiveCustomerQuery] = useState("");
 
   const filteredCustomers = customers.filter(
@@ -58,7 +62,9 @@ export default function CustomersTab({
     <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
         <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-          Registered Customers ({filteredCustomers.length})
+          {isBn
+            ? `নিবন্ধিত গ্রাহকবৃন্দ (${filteredCustomers.length.toLocaleString("bn-BD")})`
+            : `Registered Customers (${filteredCustomers.length})`}
         </h2>
         <CustomerSearchBar
           token={token}
@@ -79,10 +85,10 @@ export default function CustomersTab({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-foreground/10 text-[10px] font-black uppercase tracking-wider opacity-60">
-                <th className="py-3 px-2">Customer Name</th>
-                <th className="py-3 px-2">Phone</th>
-                <th className="py-3 px-2">Membership</th>
-                <th className="py-3 px-2 text-right">Actions</th>
+                <th className="py-3 px-2">{isBn ? "গ্রাহকের নাম" : "Customer Name"}</th>
+                <th className="py-3 px-2">{isBn ? "মোবাইল নম্বর" : "Phone"}</th>
+                <th className="py-3 px-2">{isBn ? "মেম্বারশিপ" : "Membership"}</th>
+                <th className="py-3 px-2 text-right">{isBn ? "কার্যক্রম" : "Actions"}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-foreground/10 text-xs font-bold">
@@ -105,7 +111,7 @@ export default function CustomersTab({
                         <div className="font-black text-foreground">
                           {cust.first_name || cust.last_name
                             ? `${cust.first_name || ""} ${cust.last_name || ""}`.trim()
-                            : cust.customer_name || `Customer #${cust.id}`}
+                            : cust.customer_name || (isBn ? `গ্রাহক #${cust.id}` : `Customer #${cust.id}`)}
                         </div>
                         <div className="text-[10px] opacity-60 flex items-center gap-1.5 font-medium">
                           <span>@{cust.customer_name}</span>
@@ -115,23 +121,23 @@ export default function CustomersTab({
                     </div>
                   </td>
                   <td className="py-3.5 px-2 opacity-80">
-                    {cust.phone || "No Phone Registered"}
+                    {cust.phone || (isBn ? "ফোন নম্বর যুক্ত নেই" : "No Phone Registered")}
                   </td>
                   <td className="py-3.5 px-2">
                     <span className="px-3 py-1 bg-amber-500/20 text-amber-500 rounded-full text-[10px] uppercase font-black tracking-wider">
                       {cust.membership === "G"
-                        ? "Gold (G)"
+                        ? (isBn ? "গোল্ড (G)" : "Gold (G)")
                         : cust.membership === "S"
-                          ? "Silver (S)"
-                          : "Bronze (B)"}
+                          ? (isBn ? "সিলভার (S)" : "Silver (S)")
+                          : (isBn ? "ব্রোঞ্জ (B)" : "Bronze (B)")}
                     </span>
                   </td>
                   <td className="py-3.5 px-2 text-right">
                     <button
                       onClick={() => handleViewCustomerHistory(cust.id)}
-                      className="px-3.5 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors shadow-sm"
+                      className="px-3.5 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
                     >
-                      View Order History
+                      {isBn ? "অর্ডার ইতিহাস দেখুন" : "View Order History"}
                     </button>
                   </td>
                 </tr>
@@ -141,7 +147,7 @@ export default function CustomersTab({
         </div>
       ) : (
         <div className="py-12 text-center text-xs font-bold uppercase tracking-wider opacity-50">
-          No customers found.
+          {isBn ? "কোনো গ্রাহক পাওয়া যায়নি।" : "No customers found."}
         </div>
       )}
 
@@ -152,17 +158,21 @@ export default function CustomersTab({
             <div className="flex justify-between items-center pb-4 border-b border-foreground/10 mb-6">
               <div>
                 <h3 className="text-lg font-black uppercase tracking-tight">
-                  Order History - Customer #{customerHistoryModal.customerId}
+                  {isBn
+                    ? `অর্ডার ইতিহাস - গ্রাহক #${customerHistoryModal.customerId.toLocaleString("bn-BD")}`
+                    : `Order History - Customer #${customerHistoryModal.customerId}`}
                 </h3>
                 <span className="text-[10px] font-bold opacity-60 uppercase tracking-wider">
-                  Total Orders: {customerHistoryModal.orders.length}
+                  {isBn
+                    ? `মোট অর্ডারঃ ${customerHistoryModal.orders.length.toLocaleString("bn-BD")} টি`
+                    : `Total Orders: ${customerHistoryModal.orders.length}`}
                 </span>
               </div>
               <button
                 onClick={() => setCustomerHistoryModal(null)}
-                className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3 py-1.5 rounded-xl transition-colors uppercase"
+                className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3 py-1.5 rounded-xl transition-colors uppercase cursor-pointer"
               >
-                Close
+                {isBn ? "বন্ধ করুন" : "Close"}
               </button>
             </div>
 
@@ -175,7 +185,7 @@ export default function CustomersTab({
                   >
                     <div className="flex justify-between items-center font-bold">
                       <span className="font-black text-sm">
-                        Order #{ord.id}
+                        {isBn ? `অর্ডার #${ord.id.toLocaleString("bn-BD")}` : `Order #${ord.id}`}
                       </span>
                       <span
                         className={`px-2.5 py-0.5 rounded-full text-[10px] uppercase font-black ${
@@ -187,25 +197,25 @@ export default function CustomersTab({
                         }`}
                       >
                         {ord.payment_status === "C"
-                          ? "Complete"
+                          ? (isBn ? "সফল (Complete)" : "Complete")
                           : ord.payment_status === "F"
-                            ? "Failed"
-                            : "Pending"}
+                            ? (isBn ? "ব্যর্থ (Failed)" : "Failed")
+                            : (isBn ? "পেন্ডিং (Pending)" : "Pending")}
                       </span>
                     </div>
                     <p className="text-[11px] opacity-70">
-                      <strong>Placed At:</strong>{" "}
+                      <strong>{isBn ? "অর্ডারের সময়:" : "Placed At:"}</strong>{" "}
                       {ord.placed_at
-                        ? new Date(ord.placed_at).toLocaleString()
+                        ? new Date(ord.placed_at).toLocaleString(isBn ? "bn-BD" : "en-US")
                         : "N/A"}
                     </p>
                     <p className="text-[11px] opacity-70">
-                      <strong>Shipping:</strong>{" "}
-                      {ord.shipping_address || "N/A"} |{" "}
-                      <strong>Phone:</strong> {ord.phone || "N/A"}
+                      <strong>{isBn ? "ঠিকানা:" : "Shipping:"}</strong>{" "}
+                      {ord.shipping_address || (isBn ? "নেই" : "N/A")} |{" "}
+                      <strong>{isBn ? "ফোন:" : "Phone:"}</strong> {ord.phone || (isBn ? "নেই" : "N/A")}
                     </p>
                     <p className="text-[11px] opacity-70">
-                      <strong>Payment Method:</strong>{" "}
+                      <strong>{isBn ? "পেমেন্ট মাধ্যম:" : "Payment Method:"}</strong>{" "}
                       {ord.payment_method === "V" ? (
                         <span className="inline-flex items-center gap-1 align-middle">
                           <img
@@ -213,7 +223,7 @@ export default function CustomersTab({
                             alt="VibeCoin"
                             className="w-3.5 h-3.5 object-contain inline"
                           />{" "}
-                          VibeCoin Payment
+                          {isBn ? "ভাইবকয়েন পেমেন্ট" : "VibeCoin Payment"}
                         </span>
                       ) : ord.payment_method === "O" ||
                         ord.payment_method === "B" ? (
@@ -221,14 +231,14 @@ export default function CustomersTab({
                       ) : ord.payment_method === "N" ? (
                         `Nagad (TrxID: ${ord.transaction_id || "N/A"})`
                       ) : (
-                        "Cash on Delivery (COD)"
+                        isBn ? "ক্যাশ অন ডেলিভারি (COD)" : "Cash on Delivery (COD)"
                       )}
                     </p>
 
                     {ord.items && ord.items.length > 0 && (
                       <div className="mt-2 pt-2 border-t border-foreground/10 space-y-1">
                         <p className="text-[10px] font-black uppercase opacity-60">
-                          Items:
+                          {isBn ? "পণ্যসমূহ:" : "Items:"}
                         </p>
                         {ord.items.map((it) => (
                           <div
@@ -236,11 +246,11 @@ export default function CustomersTab({
                             className="flex justify-between text-[11px]"
                           >
                             <span>
-                              {it.product?.title || `Product #${it.product}`}{" "}
-                              x {it.quantity}
+                              {it.product?.title || (isBn ? `পণ্য #${it.product}` : `Product #${it.product}`)}{" "}
+                              x {isBn ? it.quantity.toLocaleString("bn-BD") : it.quantity}
                             </span>
                             <span className="font-bold">
-                              ৳{(it.quantity * Number(it.unit_price)).toFixed(2)}
+                              {formatCurrency(it.quantity * Number(it.unit_price))}
                             </span>
                           </div>
                         ))}
@@ -251,7 +261,7 @@ export default function CustomersTab({
               </div>
             ) : (
               <div className="py-8 text-center text-xs font-bold uppercase tracking-wider opacity-50">
-                This customer has not placed any orders yet.
+                {isBn ? "এই গ্রাহক এখনও কোনো অর্ডার করেননি।" : "This customer has not placed any orders yet."}
               </div>
             )}
           </div>

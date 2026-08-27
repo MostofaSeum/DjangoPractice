@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Image from "next/image";
 import { Product, Collection } from "../../types";
 import ProductImage from "@/components/ui/ProductImage";
+import { useLanguage } from "@/store/LanguageContext";
 
 interface StockHealthTabProps {
   products: Product[];
@@ -16,6 +17,9 @@ export default function StockHealthTab({
   collections = [],
   onSelectProduct,
 }: StockHealthTabProps) {
+  const { locale, formatCurrency } = useLanguage();
+  const isBn = locale === "bn";
+
   // Threshold input state: max 3 digit number, default 10
   const [thresholdInput, setThresholdInput] = useState<string>("10");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -109,20 +113,20 @@ export default function StockHealthTab({
   }, [lowStockProducts, sortBy]);
 
   const getCollectionTitle = (collectionId?: number) => {
-    if (!collectionId) return "Uncategorized";
+    if (!collectionId) return isBn ? "ক্যাটাগরিহীন" : "Uncategorized";
     const found = collections.find((c) => c.id === collectionId);
-    return found ? found.title : `Collection #${collectionId}`;
+    return found ? found.title : (isBn ? `কালেকশন #${collectionId}` : `Collection #${collectionId}`);
   };
 
   // Printable Report Generation (Save as PDF / Print via browser)
   const handlePrintPDF = () => {
     const printWindow = window.open("", "_blank", "width=900,height=700");
     if (!printWindow) {
-      alert("Please allow popups to generate and print the PDF report.");
+      alert(isBn ? "পিডিএফ রিপোর্ট প্রিন্ট করতে পপ-আপ অনুমতি দিন।" : "Please allow popups to generate and print the PDF report.");
       return;
     }
 
-    const reportDate = new Date().toLocaleDateString("en-US", {
+    const reportDate = new Date().toLocaleDateString(isBn ? "bn-BD" : "en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -149,7 +153,7 @@ export default function StockHealthTab({
                   ? "background-color: rgba(58, 53, 50, 0.1); color: #3a3532; border: 1px solid rgba(58, 53, 50, 0.2);"
                   : "background-color: rgba(139, 122, 102, 0.15); color: #8b7a66; border: 1px solid rgba(139, 122, 102, 0.3);"
               }">
-                ${isZero ? "Out of Stock" : "Low Stock"}
+                ${isZero ? (isBn ? "স্টক শেষ" : "Out of Stock") : (isBn ? "স্বল্প স্টক" : "Low Stock")}
               </span>
             </td>
             <td style="padding: 8px 10px; text-align: center; font-weight: 800; font-family: monospace; font-size: 12px; color: ${
@@ -167,7 +171,7 @@ export default function StockHealthTab({
       <html>
         <head>
           <meta charset="utf-8" />
-          <title>Stock Health Alert Report - Threshold &lt; ${currentThreshold}</title>
+          <title>${isBn ? "স্টক পর্যবেক্ষণ রিপোর্ট" : "Stock Health Alert Report"} - Threshold &lt; ${currentThreshold}</title>
           <style>
             @media print {
               body {
@@ -277,30 +281,30 @@ export default function StockHealthTab({
         <body>
           <div class="header-bar">
             <div>
-              <h1 class="title">Inventory &amp; Stock Health Alert Report</h1>
-              <p class="subtitle">Threshold Filter: Less than <strong>${currentThreshold} units</strong> | Generated on: ${reportDate}</p>
+              <h1 class="title">${isBn ? "ইনভেন্টরি ও স্টক পর্যবেক্ষণ রিপোর্ট" : "Inventory & Stock Health Alert Report"}</h1>
+              <p class="subtitle">${isBn ? `সতর্কতা সীমাঃ <strong>${currentThreshold} ইউনিটের নিচে</strong> | রিপোর্ট সময়ঃ ${reportDate}` : `Threshold Filter: Less than <strong>${currentThreshold} units</strong> | Generated on: ${reportDate}`}</p>
             </div>
             <div class="no-print">
-              <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+              <button class="print-btn" onclick="window.print()">${isBn ? "প্রিন্ট / পিডিএফ ডাউনলোড" : "Print / Save as PDF"}</button>
             </div>
           </div>
 
           <div class="kpi-container">
             <div class="kpi-card">
-              <div class="kpi-title">Alert Items</div>
-              <div class="kpi-val">${sortedLowStockProducts.length} Products</div>
+              <div class="kpi-title">${isBn ? "সতর্কতা আইটেম" : "Alert Items"}</div>
+              <div class="kpi-val">${sortedLowStockProducts.length} ${isBn ? "টি পণ্য" : "Products"}</div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-title">Out of Stock</div>
-              <div class="kpi-val">${catalogMetrics.outOfStockCount} Products</div>
+              <div class="kpi-title">${isBn ? "স্টক শেষ" : "Out of Stock"}</div>
+              <div class="kpi-val">${catalogMetrics.outOfStockCount} ${isBn ? "টি পণ্য" : "Products"}</div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-title">Safety Threshold</div>
-              <div class="kpi-val">&lt; ${currentThreshold} Units</div>
+              <div class="kpi-title">${isBn ? "নিরাপদ সীমা" : "Safety Threshold"}</div>
+              <div class="kpi-val">&lt; ${currentThreshold} ${isBn ? "ইউনিট" : "Units"}</div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-title">Total Catalog Units</div>
-              <div class="kpi-val">${catalogMetrics.totalUnitsInCatalog} Units</div>
+              <div class="kpi-title">${isBn ? "মোট ক্যাটালগ ইউনিট" : "Total Catalog Units"}</div>
+              <div class="kpi-val">${catalogMetrics.totalUnitsInCatalog} ${isBn ? "ইউনিট" : "Units"}</div>
             </div>
           </div>
 
@@ -308,16 +312,16 @@ export default function StockHealthTab({
             <thead>
               <tr>
                 <th style="width: 35px; text-align: center;">#</th>
-                <th style="width: 55px; text-align: left;">ID</th>
-                <th style="text-align: left;">Product Title</th>
-                <th style="text-align: left;">Collection</th>
-                <th style="width: 80px; text-align: right;">Unit Price</th>
-                <th style="width: 100px; text-align: center;">Status</th>
-                <th style="width: 90px; text-align: center;">Stock Level</th>
+                <th style="width: 55px; text-align: left;">${isBn ? "আইডি" : "ID"}</th>
+                <th style="text-align: left;">${isBn ? "পণ্যের নাম" : "Product Title"}</th>
+                <th style="text-align: left;">${isBn ? "কালেকশন" : "Collection"}</th>
+                <th style="width: 80px; text-align: right;">${isBn ? "মূল্য" : "Unit Price"}</th>
+                <th style="width: 100px; text-align: center;">${isBn ? "স্ট্যাটাস" : "Status"}</th>
+                <th style="width: 90px; text-align: center;">${isBn ? "স্টক লেভেল" : "Stock Level"}</th>
               </tr>
             </thead>
             <tbody>
-              ${rowsHtml || '<tr><td colspan="7" style="text-align:center; padding: 24px; font-weight: 600; color: #736b63;">No products found below the current threshold.</td></tr>'}
+              ${rowsHtml || `<tr><td colspan="7" style="text-align:center; padding: 24px; font-weight: 600; color: #736b63;">${isBn ? "বর্তমান সীমার নিচে কোনো পণ্য নেই।" : "No products found below the current threshold."}</td></tr>`}
             </tbody>
           </table>
 
@@ -354,11 +358,13 @@ export default function StockHealthTab({
                 <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
               </span>
               <h2 className="text-base font-black uppercase tracking-widest text-foreground">
-                Inventory & Stock Health Alert Cards
+                {isBn ? "ইনভেন্টরি ও স্টক পর্যবেক্ষণ কার্ড" : "Inventory & Stock Health Alert Cards"}
               </h2>
             </div>
             <p className="text-xs text-foreground/70">
-              Set your target stock safety threshold to identify, prioritize, and restock low-inventory items across your catalog.
+              {isBn
+                ? "আপনার স্টোরের নিরাপদ স্টক সীমা নির্ধারণ করুন এবং স্বল্প-স্টক পণ্যগুলো দ্রুত চিহ্নিত ও রিস্টক করুন।"
+                : "Set your target stock safety threshold to identify, prioritize, and restock low-inventory items across your catalog."}
             </p>
           </div>
 
@@ -369,7 +375,7 @@ export default function StockHealthTab({
               type="button"
               onClick={handlePrintPDF}
               className="flex items-center gap-2 px-3.5 py-2 bg-button-bg text-button-fg rounded-xl text-[10px] font-black uppercase tracking-wider hover:opacity-90 transition-all shadow-xs cursor-pointer"
-              title="Download or print stock alert report as PDF"
+              title={isBn ? "স্টক অ্যালার্ট রিপোর্ট পিডিএফ হিসেবে ডাউনলোড বা প্রিন্ট করুন" : "Download or print stock alert report as PDF"}
             >
               <svg
                 className="w-3.5 h-3.5"
@@ -384,7 +390,7 @@ export default function StockHealthTab({
                   d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
                 />
               </svg>
-              Print / Save PDF
+              {isBn ? "প্রিন্ট / পিডিএফ ডাউনলোড" : "Print / Save PDF"}
             </button>
 
             {/* Threshold Input Control Box */}
@@ -393,7 +399,7 @@ export default function StockHealthTab({
                 htmlFor="inventory-threshold-input"
                 className="text-[10px] font-black uppercase tracking-wider text-foreground/70 shrink-0"
               >
-                Alert Threshold
+                {isBn ? "সতর্কতা সীমা" : "Alert Threshold"}
               </label>
 
               <div className="flex items-center gap-1.5">
@@ -412,9 +418,9 @@ export default function StockHealthTab({
                   type="button"
                   onClick={() => setThresholdInput("10")}
                   className="px-2.5 py-1 text-[9px] font-black uppercase tracking-wider bg-background hover:bg-button-bg hover:text-button-fg border border-foreground/15 rounded-lg transition-all shadow-xs cursor-pointer"
-                  title="Reset threshold to default 10"
+                  title={isBn ? "ডিফল্ট ১০ এ রিসেট করুন" : "Reset threshold to default 10"}
                 >
-                  Reset
+                  {isBn ? "রিসেট" : "Reset"}
                 </button>
               </div>
             </div>
@@ -428,22 +434,24 @@ export default function StockHealthTab({
             <div className="flex items-start justify-between gap-2">
               <div className="flex flex-col">
                 <span className="text-[10px] font-black uppercase tracking-wider text-foreground/70">
-                  Under Threshold
+                  {isBn ? "সীমার নিচে পণ্য" : "Under Threshold"}
                 </span>
                 <span className="text-[9px] font-bold text-accent">
-                  (&lt; {currentThreshold} units)
+                  (&lt; {currentThreshold.toLocaleString(isBn ? "bn-BD" : undefined)} {isBn ? "ইউনিট" : "units"})
                 </span>
               </div>
               <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-accent/20 text-accent shrink-0 whitespace-nowrap">
-                Needs Attention
+                {isBn ? "দৃষ্টি আকর্ষণ" : "Needs Attention"}
               </span>
             </div>
             <div className="mt-3 flex items-baseline gap-2 flex-wrap">
               <span className="text-2xl font-black text-foreground">
-                {lowStockProducts.length}
+                {lowStockProducts.length.toLocaleString(isBn ? "bn-BD" : undefined)}
               </span>
               <span className="text-xs font-bold text-foreground/60">
-                items ({((lowStockProducts.length / (catalogMetrics.totalItems || 1)) * 100).toFixed(0)}% of catalog)
+                {isBn
+                  ? `টি আইটেম (ক্যাটালগের ${((lowStockProducts.length / (catalogMetrics.totalItems || 1)) * 100).toFixed(0)}%)`
+                  : `items (${((lowStockProducts.length / (catalogMetrics.totalItems || 1)) * 100).toFixed(0)}% of catalog)`}
               </span>
             </div>
           </div>
@@ -453,22 +461,22 @@ export default function StockHealthTab({
             <div className="flex items-start justify-between gap-2">
               <div className="flex flex-col">
                 <span className="text-[10px] font-black uppercase tracking-wider text-foreground/70">
-                  Out of Stock
+                  {isBn ? "স্টক শেষ" : "Out of Stock"}
                 </span>
                 <span className="text-[9px] font-bold text-foreground/50">
-                  (0 units)
+                  {isBn ? "(০ ইউনিট)" : "(0 units)"}
                 </span>
               </div>
               <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-foreground/10 text-foreground/80 shrink-0 whitespace-nowrap">
-                Critical
+                {isBn ? "জরুরি" : "Critical"}
               </span>
             </div>
             <div className="mt-3 flex items-baseline gap-2 flex-wrap">
               <span className="text-2xl font-black text-foreground">
-                {catalogMetrics.outOfStockCount}
+                {catalogMetrics.outOfStockCount.toLocaleString(isBn ? "bn-BD" : undefined)}
               </span>
               <span className="text-xs font-bold text-foreground/60">
-                items zero stock
+                {isBn ? "টি পণ্য শূন্য স্টক" : "items zero stock"}
               </span>
             </div>
           </div>
@@ -478,22 +486,22 @@ export default function StockHealthTab({
             <div className="flex items-start justify-between gap-2">
               <div className="flex flex-col">
                 <span className="text-[10px] font-black uppercase tracking-wider text-foreground/70">
-                  Adequate Stock
+                  {isBn ? "পর্যাপ্ত স্টক" : "Adequate Stock"}
                 </span>
                 <span className="text-[9px] font-bold text-foreground/50">
-                  (&ge; {currentThreshold} units)
+                  (&ge; {currentThreshold.toLocaleString(isBn ? "bn-BD" : undefined)} {isBn ? "ইউনিট" : "units"})
                 </span>
               </div>
               <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-foreground/10 text-foreground/80 shrink-0 whitespace-nowrap">
-                Healthy
+                {isBn ? "নিরাপদ" : "Healthy"}
               </span>
             </div>
             <div className="mt-3 flex items-baseline gap-2 flex-wrap">
               <span className="text-2xl font-black text-foreground">
-                {catalogMetrics.healthyStockCount}
+                {catalogMetrics.healthyStockCount.toLocaleString(isBn ? "bn-BD" : undefined)}
               </span>
               <span className="text-xs font-bold text-foreground/60">
-                items safe
+                {isBn ? "টি পণ্য নিরাপদ" : "items safe"}
               </span>
             </div>
           </div>
@@ -503,22 +511,24 @@ export default function StockHealthTab({
             <div className="flex items-start justify-between gap-2">
               <div className="flex flex-col">
                 <span className="text-[10px] font-black uppercase tracking-wider text-foreground/70">
-                  Total Catalog Units
+                  {isBn ? "মোট ক্যাটালগ ইউনিট" : "Total Catalog Units"}
                 </span>
                 <span className="text-[9px] font-bold text-foreground/50">
-                  All Products
+                  {isBn ? "সকল পণ্য" : "All Products"}
                 </span>
               </div>
               <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-foreground/10 text-foreground/80 shrink-0 whitespace-nowrap">
-                Inventory
+                {isBn ? "ইনভেন্টরি" : "Inventory"}
               </span>
             </div>
             <div className="mt-3 flex items-baseline gap-2 flex-wrap">
               <span className="text-2xl font-black text-foreground">
-                {catalogMetrics.totalUnitsInCatalog}
+                {catalogMetrics.totalUnitsInCatalog.toLocaleString(isBn ? "bn-BD" : undefined)}
               </span>
               <span className="text-xs font-bold text-foreground/60">
-                total units across {catalogMetrics.totalItems} items
+                {isBn
+                  ? `মোট ${catalogMetrics.totalItems.toLocaleString("bn-BD")} টি পণ্যে`
+                  : `total units across ${catalogMetrics.totalItems} items`}
               </span>
             </div>
           </div>
@@ -534,14 +544,14 @@ export default function StockHealthTab({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search alert items by title or ID..."
+              placeholder={isBn ? "নাম বা আইডি দিয়ে পণ্য খুঁজুন..." : "Search alert items by title or ID..."}
               className="w-full pl-4 pr-10 py-2.5 text-xs font-bold bg-background border border-foreground/15 rounded-2xl text-foreground placeholder:text-foreground/40 focus:ring-2 focus:ring-accent outline-none transition-all shadow-xs"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold opacity-60 hover:opacity-100"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold opacity-60 hover:opacity-100 cursor-pointer"
               >
                 ✕
               </button>
@@ -552,7 +562,7 @@ export default function StockHealthTab({
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
               <label className="text-[10px] font-bold uppercase tracking-wider text-foreground/70 shrink-0">
-                Collection:
+                {isBn ? "কালেকশনঃ" : "Collection:"}
               </label>
               <select
                 value={selectedCollectionId}
@@ -563,7 +573,7 @@ export default function StockHealthTab({
                 }
                 className="px-3 py-2 text-xs font-bold bg-background border border-foreground/15 rounded-xl text-foreground outline-none cursor-pointer focus:ring-2 focus:ring-accent shadow-xs"
               >
-                <option value="ALL">All Collections</option>
+                <option value="ALL">{isBn ? "সকল কালেকশন" : "All Collections"}</option>
                 {collections.map((col) => (
                   <option key={col.id} value={col.id}>
                     {col.title}
@@ -575,17 +585,17 @@ export default function StockHealthTab({
             {/* Sort Filter */}
             <div className="flex items-center gap-2">
               <label className="text-[10px] font-bold uppercase tracking-wider text-foreground/70 shrink-0">
-                Sort:
+                {isBn ? "ক্রমানুসারঃ" : "Sort:"}
               </label>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
                 className="px-3 py-2 text-xs font-bold bg-background border border-foreground/15 rounded-xl text-foreground outline-none cursor-pointer focus:ring-2 focus:ring-accent shadow-xs"
               >
-                <option value="inventory_asc">Stock: Lowest First</option>
-                <option value="inventory_desc">Stock: Highest First</option>
-                <option value="title">Title: Alphabetical</option>
-                <option value="price">Price: Highest First</option>
+                <option value="inventory_asc">{isBn ? "স্টকঃ কম থেকে বেশি" : "Stock: Lowest First"}</option>
+                <option value="inventory_desc">{isBn ? "স্টকঃ বেশি থেকে কম" : "Stock: Highest First"}</option>
+                <option value="title">{isBn ? "নামঃ বর্ণানুক্রমিক" : "Title: Alphabetical"}</option>
+                <option value="price">{isBn ? "মূল্যঃ বেশি থেকে কম" : "Price: Highest First"}</option>
               </select>
             </div>
           </div>
@@ -597,15 +607,19 @@ export default function StockHealthTab({
         <div className="flex justify-between items-center mb-6 pb-3 border-b border-foreground/10">
           <div>
             <h3 className="text-xs font-black uppercase tracking-widest text-foreground">
-              Low Stock Items List ({sortedLowStockProducts.length})
+              {isBn
+                ? `স্বল্প স্টক পণ্যের তালিকা (${sortedLowStockProducts.length.toLocaleString("bn-BD")})`
+                : `Low Stock Items List (${sortedLowStockProducts.length})`}
             </h3>
             <p className="text-[11px] text-foreground/60 mt-0.5">
-              Showing all products with inventory strictly below {currentThreshold} units.
+              {isBn
+                ? `যেসব পণ্যের স্টক ${currentThreshold.toLocaleString("bn-BD")} ইউনিটের কম রয়েছে তাদের তালিকা।`
+                : `Showing all products with inventory strictly below ${currentThreshold} units.`}
             </p>
           </div>
 
           <span className="text-[10px] font-bold px-3 py-1 bg-primary/5 rounded-full border border-foreground/10 text-foreground/70">
-            Threshold: &lt; {currentThreshold}
+            {isBn ? "সীমাঃ" : "Threshold:"} &lt; {currentThreshold.toLocaleString(isBn ? "bn-BD" : undefined)}
           </span>
         </div>
 
@@ -615,11 +629,12 @@ export default function StockHealthTab({
               ✓
             </div>
             <h4 className="text-sm font-black uppercase tracking-wider text-foreground">
-              All Stock Levels Healthy
+              {isBn ? "সকল পণ্যের স্টক সন্তোষজনক" : "All Stock Levels Healthy"}
             </h4>
             <p className="text-xs text-foreground/60 max-w-sm mx-auto mt-1">
-              No products found with inventory below {currentThreshold} units
-              {searchQuery || selectedCollectionId !== "ALL" ? " matching your active filters" : ""}.
+              {isBn
+                ? `${currentThreshold.toLocaleString("bn-BD")} ইউনিটের নিচে কোনো পণ্য পাওয়া যায়নি${searchQuery || selectedCollectionId !== "ALL" ? " (ফিল্টার অনুযায়ী)" : ""}।`
+                : `No products found with inventory below ${currentThreshold} units${searchQuery || selectedCollectionId !== "ALL" ? " matching your active filters" : ""}.`}
             </p>
           </div>
         ) : (
@@ -655,7 +670,7 @@ export default function StockHealthTab({
                               : "bg-accent/15 text-accent border-accent/30"
                           }`}
                         >
-                          {isZero ? "Out of Stock" : "Low Stock"}
+                          {isZero ? (isBn ? "স্টক শেষ" : "Out of Stock") : (isBn ? "স্বল্প স্টক" : "Low Stock")}
                         </span>
                       </div>
 
@@ -679,13 +694,15 @@ export default function StockHealthTab({
                   {/* Bottom Part: Stock Level Progress & Action */}
                   <div className="mt-4 pt-3 border-t border-foreground/10">
                     <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider mb-1.5">
-                      <span className="text-foreground/70">Current Inventory</span>
+                      <span className="text-foreground/70">{isBn ? "বর্তমান ইনভেন্টরি" : "Current Inventory"}</span>
                       <span
                         className={`text-xs font-mono font-black ${
                           isZero ? "text-foreground opacity-90" : "text-accent"
                         }`}
                       >
-                        {stock} / {currentThreshold} units
+                        {isBn
+                          ? `${stock.toLocaleString("bn-BD")} / ${currentThreshold.toLocaleString("bn-BD")} ইউনিট`
+                          : `${stock} / ${currentThreshold} units`}
                       </span>
                     </div>
 
@@ -707,7 +724,7 @@ export default function StockHealthTab({
                           onClick={() => onSelectProduct(product)}
                           className="w-full py-2 bg-primary/5 hover:bg-button-bg hover:text-button-fg border border-foreground/15 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all text-center cursor-pointer shadow-xs"
                         >
-                          Manage Product
+                          {isBn ? "পণ্য পরিচালনা করুন" : "Manage Product"}
                         </button>
                       </div>
                     )}

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Swal from "sweetalert2";
 import { ProductVariant } from "@/types/product";
+import { useLanguage } from "@/store/LanguageContext";
 
 interface ProductVariantsManagerProps {
   productId: number;
@@ -26,6 +27,9 @@ export default function ProductVariantsManager({
   onVariantsUpdated,
   refreshTrigger,
 }: ProductVariantsManagerProps) {
+  const { locale, formatCurrency } = useLanguage();
+  const isBn = locale === "bn";
+
   const [variants, setVariants] = useState<ProductVariant[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -106,8 +110,8 @@ export default function ProductVariantsManager({
     if (!variantForm.name.trim()) {
       Swal.fire({
         icon: "error",
-        title: "Validation Error",
-        text: "Please enter a variant name.",
+        title: isBn ? "তথ্য অসম্পূর্ণ" : "Validation Error",
+        text: isBn ? "অনুগ্রহ করে ভ্যারিয়েন্টের নাম দিন।" : "Please enter a variant name.",
       });
       return;
     }
@@ -144,7 +148,9 @@ export default function ProductVariantsManager({
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: editingVariant ? "Variant updated successfully!" : "Variant created successfully!",
+          title: editingVariant
+            ? (isBn ? "ভ্যারিয়েন্ট সফলভাবে আপডেট হয়েছে!" : "Variant updated successfully!")
+            : (isBn ? "ভ্যারিয়েন্ট সফলভাবে তৈরি হয়েছে!" : "Variant created successfully!"),
           showConfirmButton: false,
           timer: 1500,
           toast: true,
@@ -156,7 +162,7 @@ export default function ProductVariantsManager({
         const errorData = await res.json();
         Swal.fire({
           icon: "error",
-          title: "Failed to save variant",
+          title: isBn ? "ভ্যারিয়েন্ট সংরক্ষণ সম্ভব হয়নি" : "Failed to save variant",
           text: JSON.stringify(errorData),
         });
       }
@@ -164,8 +170,8 @@ export default function ProductVariantsManager({
       console.error("Save variant error:", err);
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Could not save variant.",
+        title: isBn ? "ত্রুটি" : "Error",
+        text: isBn ? "ভ্যারিয়েন্ট সংরক্ষণ করা সম্ভব হয়নি।" : "Could not save variant.",
       });
     }
   };
@@ -174,12 +180,13 @@ export default function ProductVariantsManager({
     if (!token) return;
 
     const confirm = await Swal.fire({
-      title: `Delete variant "${v.name}"?`,
-      text: "This will remove the shade/size variant from this product.",
+      title: isBn ? `"${v.name}" ভ্যারিয়েন্ট মুছবেন?` : `Delete variant "${v.name}"?`,
+      text: isBn ? "এটি এই পণ্য থেকে শেড বা সাইজ ভ্যারিয়েন্টটি স্থায়ীভাবে মুছে ফেলবে।" : "This will remove the shade/size variant from this product.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#ef4444",
-      confirmButtonText: "Yes, Delete",
+      confirmButtonText: isBn ? "হ্যাঁ, মুছে ফেলুন" : "Yes, Delete",
+      cancelButtonText: isBn ? "বাতিল" : "Cancel",
     });
 
     if (!confirm.isConfirmed) return;
@@ -196,7 +203,7 @@ export default function ProductVariantsManager({
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: "Variant deleted!",
+          title: isBn ? "ভ্যারিয়েন্ট মুছে ফেলা হয়েছে!" : "Variant deleted!",
           showConfirmButton: false,
           timer: 1500,
           toast: true,
@@ -214,10 +221,12 @@ export default function ProductVariantsManager({
       <div className="flex items-center justify-between mb-3">
         <div>
           <h3 className="text-xs font-black uppercase tracking-widest text-foreground flex items-center gap-2">
-            <span>Product Variants ({variants.length})</span>
+            <span>{isBn ? `পণ্য ভ্যারিয়েন্ট (${variants.length.toLocaleString("bn-BD")})` : `Product Variants (${variants.length})`}</span>
           </h3>
           <p className="text-[10px] opacity-60">
-            Add colors, shades, sizes, or custom pricing options for this cosmetic product.
+            {isBn
+              ? "এই প্রসাধনী পণ্যের জন্য বিভিন্ন শেড, রঙ, সাইজ বা আলাদা মূল্য যোগ করুন।"
+              : "Add colors, shades, sizes, or custom pricing options for this cosmetic product."}
           </p>
         </div>
 
@@ -226,13 +235,13 @@ export default function ProductVariantsManager({
           onClick={handleOpenAddModal}
           className="px-3 py-1.5 bg-accent text-button-fg rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity shadow-sm flex items-center gap-1 cursor-pointer"
         >
-          <span>+ Add Variant</span>
+          <span>{isBn ? "+ ভ্যারিয়েন্ট যোগ করুন" : "+ Add Variant"}</span>
         </button>
       </div>
 
       {/* Variants List */}
       {loading ? (
-        <div className="py-4 text-center text-xs opacity-50">Loading variants...</div>
+        <div className="py-4 text-center text-xs opacity-50">{isBn ? "ভ্যারিয়েন্ট লোড হচ্ছে..." : "Loading variants..."}</div>
       ) : variants.length > 0 ? (
         <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
           {variants.map((v) => (
@@ -250,7 +259,7 @@ export default function ProductVariantsManager({
                   />
                 ) : (
                   <div className="w-6 h-6 rounded-full bg-primary/20 border border-foreground/10 flex items-center justify-center text-[9px] font-bold opacity-60 flex-shrink-0">
-                    N/A
+                    {isBn ? "নাই" : "N/A"}
                   </div>
                 )}
 
@@ -264,11 +273,11 @@ export default function ProductVariantsManager({
                     )}
                   </div>
                   <div className="text-[10px] opacity-60 flex items-center gap-2">
-                    {v.color_name && <span>Color: {v.color_name}</span>}
-                    <span>Stock: {v.inventory}</span>
+                    {v.color_name && <span>{isBn ? `রঙঃ ${v.color_name}` : `Color: ${v.color_name}`}</span>}
+                    <span>{isBn ? `স্টকঃ ${(v.inventory ?? 0).toLocaleString("bn-BD")}` : `Stock: ${v.inventory}`}</span>
                     <span className="text-accent font-bold">
-                      ৳{Number(v.effective_price || basePrice).toFixed(2)}
-                      {v.price_override && " (Override)"}
+                      {formatCurrency(Number(v.effective_price || basePrice))}
+                      {v.price_override && (isBn ? " (কাস্টম মূল্য)" : " (Override)")}
                     </span>
                   </div>
                 </div>
@@ -278,16 +287,16 @@ export default function ProductVariantsManager({
                 <button
                   type="button"
                   onClick={() => handleOpenEditModal(v)}
-                  className="px-2.5 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-[10px] font-bold uppercase transition-colors"
+                  className="px-2.5 py-1 rounded-lg bg-primary/10 hover:bg-primary/20 text-[10px] font-bold uppercase transition-colors cursor-pointer"
                 >
-                  Edit
+                  {isBn ? "সম্পাদনা" : "Edit"}
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDeleteVariant(v)}
-                  className="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-500 text-[10px] font-bold uppercase transition-colors"
+                  className="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-500 text-[10px] font-bold uppercase transition-colors cursor-pointer"
                 >
-                  Delete
+                  {isBn ? "মুছুন" : "Delete"}
                 </button>
               </div>
             </div>
@@ -295,7 +304,9 @@ export default function ProductVariantsManager({
         </div>
       ) : (
         <div className="p-4 rounded-2xl border border-dashed border-foreground/20 text-center text-xs opacity-60 bg-primary/5">
-          No variants added yet. This product currently uses its base price (৳{Number(basePrice).toFixed(2)}) and default inventory.
+          {isBn
+            ? `এখনও কোনো ভ্যারিয়েন্ট যোগ করা হয়নি। এই পণ্যটি মূল মূল্য (${formatCurrency(Number(basePrice))}) ও সাধারণ স্টক ব্যবহার করছে।`
+            : `No variants added yet. This product currently uses its base price (৳${Number(basePrice).toFixed(2)}) and default inventory.`}
         </div>
       )}
 
@@ -307,7 +318,9 @@ export default function ProductVariantsManager({
             <div className="bg-secondary text-foreground rounded-3xl p-6 max-w-md w-full shadow-2xl border border-foreground/10 relative max-h-[90vh] overflow-y-auto overflow-x-hidden">
               <div className="flex justify-between items-center pb-3 border-b border-foreground/10 mb-4">
                 <h4 className="text-sm font-black uppercase tracking-tight">
-                  {editingVariant ? "Edit Product Variant" : "Add New Product Variant"}
+                  {editingVariant
+                    ? (isBn ? "পণ্য ভ্যারিয়েন্ট সম্পাদনা" : "Edit Product Variant")
+                    : (isBn ? "নতুন পণ্য ভ্যারিয়েন্ট যোগ" : "Add New Product Variant")}
                 </h4>
                 <button
                   type="button"
@@ -322,14 +335,14 @@ export default function ProductVariantsManager({
                 {/* Variant Name */}
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Variant Title / Name <span className="text-red-500">*</span>
+                    {isBn ? "ভ্যারিয়েন্ট নাম / টাইটেল" : "Variant Title / Name"} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     required
                     value={variantForm.name}
                     onChange={(e) => setVariantForm({ ...variantForm, name: e.target.value })}
-                    placeholder="e.g. 01 Velvet Rose, 50ml, Medium Beige"
+                    placeholder={isBn ? "যেমনঃ ০১ ভেলভেট রোজ, ৫০ মিলি, মিডিয়াম বেইজ" : "e.g. 01 Velvet Rose, 50ml, Medium Beige"}
                     className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                   />
                 </div>
@@ -338,13 +351,13 @@ export default function ProductVariantsManager({
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
                     <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                      Shade / Color Name <span className="opacity-40 lowercase">(optional)</span>
+                      {isBn ? "শেড / রঙের নাম" : "Shade / Color Name"} <span className="opacity-40 lowercase">({isBn ? "ঐচ্ছিক" : "optional"})</span>
                     </label>
                     <input
                       type="text"
                       value={variantForm.color_name}
                       onChange={(e) => setVariantForm({ ...variantForm, color_name: e.target.value })}
-                      placeholder="e.g. Velvet Rose (leave blank if N/A)"
+                      placeholder={isBn ? "যেমনঃ ভেলভেট রোজ" : "e.g. Velvet Rose (leave blank if N/A)"}
                       className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                     />
                   </div>
@@ -352,7 +365,7 @@ export default function ProductVariantsManager({
                   <div className="flex flex-col gap-1">
                     <div className="flex justify-between items-center">
                       <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                        Color Hex <span className="opacity-40 lowercase">(optional)</span>
+                        {isBn ? "কালার হেক্স কোড" : "Color Hex"} <span className="opacity-40 lowercase">({isBn ? "ঐচ্ছিক" : "optional"})</span>
                       </label>
                       {variantForm.color_code && (
                         <button
@@ -360,7 +373,7 @@ export default function ProductVariantsManager({
                           onClick={() => setVariantForm({ ...variantForm, color_code: "" })}
                           className="text-[9px] font-bold text-red-500 hover:underline cursor-pointer"
                         >
-                          Clear
+                          {isBn ? "মুছুন" : "Clear"}
                         </button>
                       )}
                     </div>
@@ -375,7 +388,7 @@ export default function ProductVariantsManager({
                         type="text"
                         value={variantForm.color_code}
                         onChange={(e) => setVariantForm({ ...variantForm, color_code: e.target.value })}
-                        placeholder="e.g. #C84248 or leave blank"
+                        placeholder={isBn ? "যেমনঃ #C84248" : "e.g. #C84248 or leave blank"}
                         className="w-full px-2.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                       />
                     </div>
@@ -386,13 +399,13 @@ export default function ProductVariantsManager({
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
                     <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                      Size / Volume
+                      {isBn ? "সাইজ / পরিমাণ" : "Size / Volume"}
                     </label>
                     <input
                       type="text"
                       value={variantForm.size}
                       onChange={(e) => setVariantForm({ ...variantForm, size: e.target.value })}
-                      placeholder="e.g. 30ml, 50ml"
+                      placeholder={isBn ? "যেমনঃ ৩০ মিলি, ৫০ মিলি" : "e.g. 30ml, 50ml"}
                       className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                     />
                   </div>
@@ -400,7 +413,7 @@ export default function ProductVariantsManager({
                   {/* Inventory */}
                   <div className="flex flex-col gap-1">
                     <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                      Stock Quantity <span className="text-red-500">*</span>
+                      {isBn ? "স্টক পরিমাণ" : "Stock Quantity"} <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
@@ -416,7 +429,12 @@ export default function ProductVariantsManager({
                 {/* Price Override */}
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Custom Price Override (৳) <span className="opacity-50 lowercase">(leave blank to use base price ৳{Number(basePrice).toFixed(2)})</span>
+                    {isBn ? "আলাদা মূল্য ওভাররাইড (৳)" : "Custom Price Override (৳)"}{" "}
+                    <span className="opacity-50 lowercase">
+                      {isBn
+                        ? `(খালি রাখলে মূল মূল্য ${formatCurrency(Number(basePrice))} প্রযোজ্য হবে)`
+                        : `(leave blank to use base price ৳${Number(basePrice).toFixed(2)})`}
+                    </span>
                   </label>
                   <input
                     type="number"
@@ -424,7 +442,7 @@ export default function ProductVariantsManager({
                     min="0.01"
                     value={variantForm.price_override}
                     onChange={(e) => setVariantForm({ ...variantForm, price_override: e.target.value })}
-                    placeholder={`Base Price: ৳${Number(basePrice).toFixed(2)}`}
+                    placeholder={isBn ? `মূল মূল্যঃ ${formatCurrency(Number(basePrice))}` : `Base Price: ৳${Number(basePrice).toFixed(2)}`}
                     className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                   />
                 </div>
@@ -435,13 +453,13 @@ export default function ProductVariantsManager({
                     onClick={() => setIsModalOpen(false)}
                     className="px-4 py-2 rounded-xl bg-primary/10 text-xs font-bold uppercase hover:bg-primary/20 transition-colors cursor-pointer"
                   >
-                    Cancel
+                    {isBn ? "বাতিল" : "Cancel"}
                   </button>
                   <button
                     type="submit"
                     className="px-5 py-2 rounded-xl bg-button-bg text-button-fg text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity shadow-sm cursor-pointer"
                   >
-                    {editingVariant ? "Save Changes" : "Create Variant"}
+                    {editingVariant ? (isBn ? "সংরক্ষণ করুন" : "Save Changes") : (isBn ? "ভ্যারিয়েন্ট তৈরি করুন" : "Create Variant")}
                   </button>
                 </div>
               </form>

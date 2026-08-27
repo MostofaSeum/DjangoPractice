@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Swal from "sweetalert2";
 import { ReviewItem, Product } from "../../types";
+import { useLanguage } from "@/store/LanguageContext";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
@@ -14,6 +15,9 @@ interface ReviewsSubTabProps {
 }
 
 export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
+  const { locale } = useLanguage();
+  const isBn = locale === "bn";
+
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,12 +50,12 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
   // Delete review handler
   const handleDeleteReview = async (reviewId: number) => {
     const result = await Swal.fire({
-      title: "Delete Review?",
-      text: "Are you sure you want to permanently delete this customer review?",
+      title: isBn ? "রিভিউ মুছে ফেলতে চান?" : "Delete Review?",
+      text: isBn ? "আপনি কি নিশ্চিতভাবে এই গ্রাহক রিভিউটি স্থায়ীভাবে মুছে ফেলতে চান?" : "Are you sure you want to permanently delete this customer review?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Yes, delete it",
-      cancelButtonText: "Cancel",
+      confirmButtonText: isBn ? "হ্যাঁ, মুছে ফেলুন" : "Yes, delete it",
+      cancelButtonText: isBn ? "বাতিল" : "Cancel",
       customClass: {
         popup: "rounded-3xl bg-secondary text-foreground border border-foreground/10",
         confirmButton: "bg-red-500 text-white font-bold px-4 py-2 rounded-xl",
@@ -70,18 +74,18 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
         if (res.ok || res.status === 204) {
           setReviews((prev) => prev.filter((r) => r.id !== reviewId));
           Swal.fire({
-            title: "Deleted!",
-            text: "Review has been removed.",
+            title: isBn ? "মুছে ফেলা হয়েছে!" : "Deleted!",
+            text: isBn ? "রিভিউটি সফলভাবে সরানো হয়েছে।" : "Review has been removed.",
             icon: "success",
             timer: 1500,
             showConfirmButton: false,
           });
         } else {
-          Swal.fire("Error", "Failed to delete review", "error");
+          Swal.fire(isBn ? "ত্রুটি" : "Error", isBn ? "রিভিউ মুছে ফেলা সম্ভব হয়নি" : "Failed to delete review", "error");
         }
       } catch (err) {
         console.error("Error deleting review:", err);
-        Swal.fire("Error", "An unexpected error occurred", "error");
+        Swal.fire(isBn ? "ত্রুটি" : "Error", isBn ? "একটি অপ্রত্যাশিত সমস্যা হয়েছে" : "An unexpected error occurred", "error");
       }
     }
   };
@@ -154,11 +158,13 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
               <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
             </span>
             <h2 className="text-base font-black uppercase tracking-widest text-foreground">
-              Customer Reviews & Ratings
+              {isBn ? "গ্রাহক রিভিউ ও রেটিং" : "Customer Reviews & Ratings"}
             </h2>
           </div>
           <p className="text-xs opacity-60 mt-1">
-            Browse, search, sort by rating, and manage customer reviews for all catalog products.
+            {isBn
+              ? "স্টোরের সকল পণ্যের কাস্টমার রিভিউ ও রেটিং পর্যবেক্ষণ এবং পরিচালনা করুন।"
+              : "Browse, search, sort by rating, and manage customer reviews for all catalog products."}
           </p>
         </div>
 
@@ -179,7 +185,7 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
               d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
             />
           </svg>
-          Refresh Reviews
+          {isBn ? "রিভিউ রিফ্রেশ করুন" : "Refresh Reviews"}
         </button>
       </div>
 
@@ -195,7 +201,7 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
                 : "opacity-60 hover:opacity-100 hover:bg-foreground/5"
             }`}
           >
-            All ({reviews.length})
+            {isBn ? `সকল (${reviews.length.toLocaleString("bn-BD")})` : `All (${reviews.length})`}
           </button>
           {[5, 4, 3, 2, 1].map((stars) => (
             <button
@@ -207,22 +213,23 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
                   : "opacity-60 hover:opacity-100 hover:bg-foreground/5"
               }`}
             >
-              <span>{stars}★</span>
-              <span className="text-[10px] opacity-75">({ratingCounts[stars] || 0})</span>
+              <span>{isBn ? `${stars.toLocaleString("bn-BD")}★` : `${stars}★`}</span>
+              <span className="text-[10px] opacity-75">
+                ({(ratingCounts[stars] || 0).toLocaleString(isBn ? "bn-BD" : undefined)})
+              </span>
             </button>
           ))}
         </div>
 
         {/* Product Filter & Search Controls */}
         <div className="flex flex-col sm:flex-row items-center gap-3">
-
           {/* Search Input */}
           <div className="relative w-full sm:w-64">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search product, customer, text..."
+              placeholder={isBn ? "পণ্য, গ্রাহক বা রিভিউ টেক্সট খুঁজুন..." : "Search product, customer, text..."}
               className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
             />
             <svg
@@ -255,7 +262,7 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
         {loading ? (
           <div className="py-20 flex flex-col items-center justify-center gap-3">
             <div className="w-8 h-8 border-3 border-accent border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-xs font-bold opacity-60">Loading reviews...</p>
+            <p className="text-xs font-bold opacity-60">{isBn ? "রিভিউ লোড হচ্ছে..." : "Loading reviews..."}</p>
           </div>
         ) : filteredReviews.length === 0 ? (
           <div className="py-16 text-center border border-dashed border-foreground/15 rounded-2xl flex flex-col items-center justify-center gap-3">
@@ -263,12 +270,12 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
               💬
             </div>
             <h4 className="text-sm font-black uppercase tracking-wider text-foreground">
-              No Reviews Found
+              {isBn ? "কোনো রিভিউ পাওয়া যায়নি" : "No Reviews Found"}
             </h4>
             <p className="text-xs opacity-60 max-w-sm">
               {searchQuery || selectedRating !== "ALL" || selectedProductId !== "ALL"
-                ? "No reviews match the selected filter or search criteria."
-                : "No customer reviews have been submitted for any product yet."}
+                ? (isBn ? "নির্বাচিত ফিল্টার বা অনুসন্ধানের সাথে কোনো রিভিউ মেলেনি।" : "No reviews match the selected filter or search criteria.")
+                : (isBn ? "এখনও কোনো পণ্যের জন্য গ্রাহক রিভিউ আসেনি।" : "No customer reviews have been submitted for any product yet.")}
             </p>
             {(searchQuery || selectedRating !== "ALL" || selectedProductId !== "ALL") && (
               <button
@@ -279,7 +286,7 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
                 }}
                 className="mt-2 px-4 py-2 rounded-xl bg-button-bg text-button-fg text-xs font-bold uppercase tracking-wider cursor-pointer"
               >
-                Clear All Filters
+                {isBn ? "সকল ফিল্টার সাফ করুন" : "Clear All Filters"}
               </button>
             )}
           </div>
@@ -297,18 +304,18 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
                       {renderStars(rev.rating)}
                       <span className="text-[10px] opacity-50 block mt-1 font-semibold">
                         {rev.date
-                          ? new Date(rev.date).toLocaleDateString("en-US", {
+                          ? new Date(rev.date).toLocaleDateString(isBn ? "bn-BD" : "en-US", {
                               year: "numeric",
                               month: "short",
                               day: "numeric",
                             })
-                          : "Recently"}
+                          : (isBn ? "সম্প্রতি" : "Recently")}
                       </span>
                     </div>
 
                     <button
                       onClick={() => handleDeleteReview(rev.id)}
-                      title="Delete Review"
+                      title={isBn ? "রিভিউ মুছুন" : "Delete Review"}
                       className="opacity-40 hover:opacity-100 hover:text-red-500 transition-opacity p-1 cursor-pointer"
                     >
                       <svg
@@ -330,13 +337,13 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
                   {/* Product Badge */}
                   <div className="mt-3">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/5 dark:bg-primary/25 border border-foreground/10 text-[11px] font-bold text-accent truncate max-w-full">
-                      <span className="truncate">{rev.product_title || `Product #${rev.product}`}</span>
+                      <span className="truncate">{rev.product_title || (isBn ? `পণ্য #${rev.product}` : `Product #${rev.product}`)}</span>
                     </span>
                   </div>
 
                   {/* Review Description */}
                   <p className="mt-3 text-xs text-foreground/80 leading-relaxed font-medium">
-                    "{rev.description}"
+                    &ldquo;{rev.description}&rdquo;
                   </p>
 
                   {/* Review Attached Images */}
@@ -380,11 +387,11 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
                       {rev.name ? rev.name.charAt(0) : "U"}
                     </div>
                     <span className="text-xs font-bold text-foreground">
-                      {rev.name || "Anonymous Customer"}
+                      {rev.name || (isBn ? "অজ্ঞাত গ্রাহক" : "Anonymous Customer")}
                     </span>
                   </div>
                   <span className="text-[10px] font-bold opacity-40">
-                    ID #{rev.id}
+                    {isBn ? `আইডি #${rev.id}` : `ID #${rev.id}`}
                   </span>
                 </div>
               </div>

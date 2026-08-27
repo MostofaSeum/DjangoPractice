@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useLanguage } from "@/store/LanguageContext";
 import {
   AdminTab,
   ProductSubTab,
@@ -67,57 +68,60 @@ export default function AdminSidebar({
   couponsCount,
   deliveryRulesCount,
 }: AdminSidebarProps) {
+  const { locale } = useLanguage();
+  const isBn = locale === "bn";
+
   const tabs = [
     {
       id: "products" as AdminTab,
-      label: "Products",
+      label: isBn ? "পণ্যসমূহ" : "Products",
       count: productsCount,
       icon: "/admin/products.png",
     },
     {
       id: "collections" as AdminTab,
-      label: "Collections",
+      label: isBn ? "কালেকশন / ক্যাটাগরি" : "Collections",
       count: collectionsCount,
       icon: "/admin/collections.png",
     },
     {
       id: "orders" as AdminTab,
-      label: "Orders",
+      label: isBn ? "অর্ডার তালিকা" : "Orders",
       count: ordersCount,
       icon: "/admin/orders.png",
     },
     {
       id: "customers" as AdminTab,
-      label: "Customers",
+      label: isBn ? "গ্রাহকবৃন্দ" : "Customers",
       count: customersCount,
       icon: "/admin/customers.png",
     },
     {
       id: "promotions" as AdminTab,
-      label: "Promotions",
+      label: isBn ? "প্রমোশন ও অফার" : "Promotions",
       count: promosCount,
       icon: "/admin/sales.png",
     },
     {
       id: "coupons" as AdminTab,
-      label: "Coupons",
+      label: isBn ? "কুপন কোড" : "Coupons",
       count: couponsCount,
       icon: "/admin/coupons.png",
     },
     {
       id: "payments" as AdminTab,
-      label: "Payment Methods",
+      label: isBn ? "পেমেন্ট মাধ্যম" : "Payment Methods",
       icon: "/admin/payment_settings.png",
     },
     {
       id: "delivery" as AdminTab,
-      label: "Manage Delivery",
+      label: isBn ? "ডেলিভারি সেটিংস" : "Manage Delivery",
       count: deliveryRulesCount > 0 ? deliveryRulesCount : undefined,
       icon: "/admin/manage_delivery.png",
     },
     {
       id: "analytics" as AdminTab,
-      label: "Analytics",
+      label: isBn ? "রিপোর্ট ও অ্যানালিটিক্স" : "Analytics",
       icon: "/admin/analytics.png",
     },
   ];
@@ -238,7 +242,7 @@ export default function AdminSidebar({
                             : "bg-white/10 text-background/80 dark:text-foreground/80"
                         }`}
                       >
-                        {tab.count}
+                        {tab.count.toLocaleString(isBn ? "bn-BD" : undefined)}
                       </span>
                     )}
                     {(isProductsTab || isCollectionsTab || isAnalyticsTab) && (
@@ -280,7 +284,7 @@ export default function AdminSidebar({
                           : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
                       }`}
                     >
-                      <span className="truncate">All Collections</span>
+                      <span className="truncate">{isBn ? "সকল কালেকশন" : "All Collections"}</span>
                     </button>
 
                     {/* 2. Add New Collection */}
@@ -292,7 +296,7 @@ export default function AdminSidebar({
                           : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
                       }`}
                     >
-                      <span className="truncate">Add New Collection</span>
+                      <span className="truncate">{isBn ? "নতুন কালেকশন যোগ" : "Add New Collection"}</span>
                       <span className="text-xs font-black">+</span>
                     </button>
 
@@ -305,7 +309,7 @@ export default function AdminSidebar({
                           : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
                       }`}
                     >
-                      <span className="truncate">Edit Collection</span>
+                      <span className="truncate">{isBn ? "কালেকশন সম্পাদনা" : "Edit Collection"}</span>
                     </button>
                   </div>
                 )}
@@ -324,7 +328,7 @@ export default function AdminSidebar({
                           : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
                       }`}
                     >
-                      <span className="truncate">All Products</span>
+                      <span className="truncate">{isBn ? "সকল পণ্য" : "All Products"}</span>
                     </button>
 
                     {/* 2. Add New Product */}
@@ -336,7 +340,7 @@ export default function AdminSidebar({
                           : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
                       }`}
                     >
-                      <span className="truncate">Add New Product</span>
+                      <span className="truncate">{isBn ? "নতুন পণ্য যোগ" : "Add New Product"}</span>
                       <span className="text-xs font-black">+</span>
                     </button>
 
@@ -349,7 +353,7 @@ export default function AdminSidebar({
                           : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
                       }`}
                     >
-                      <span className="truncate">Edit Product</span>
+                      <span className="truncate">{isBn ? "পণ্য সম্পাদনা" : "Edit Product"}</span>
                     </button>
 
                     {/* 4. Stock Health Alerts */}
@@ -361,7 +365,7 @@ export default function AdminSidebar({
                           : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
                       }`}
                     >
-                      <span className="truncate">Stock Health Alerts</span>
+                      <span className="truncate">{isBn ? "স্টক পর্যবেক্ষণ" : "Stock Health Alerts"}</span>
                     </button>
 
                     {/* 5. Reviews */}
@@ -373,7 +377,7 @@ export default function AdminSidebar({
                           : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
                       }`}
                     >
-                      <span className="truncate">Reviews</span>
+                      <span className="truncate">{isBn ? "রিভিউ ও রেটিং" : "Reviews"}</span>
                     </button>
 
                     {/* 6. Google Sheets & Excel Sync */}
@@ -385,7 +389,7 @@ export default function AdminSidebar({
                           : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
                       }`}
                     >
-                      <span className="truncate">Sheets & Excel Sync</span>
+                      <span className="truncate">{isBn ? "শীটস ও এক্সেল সিঙ্ক" : "Sheets & Excel Sync"}</span>
                     </button>
                   </div>
                 )}
@@ -404,7 +408,7 @@ export default function AdminSidebar({
                           : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
                       }`}
                     >
-                      <span className="truncate">Sales & Revenue</span>
+                      <span className="truncate">{isBn ? "বিক্রয় ও আয়" : "Sales & Revenue"}</span>
                     </button>
 
                     {/* 2. Promo & Coupon Performance */}
@@ -416,7 +420,7 @@ export default function AdminSidebar({
                           : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
                       }`}
                     >
-                      <span className="truncate">Promo & Coupons</span>
+                      <span className="truncate">{isBn ? "প্রমোশন ও কুপন পারফর্মেন্স" : "Promo & Coupons"}</span>
                     </button>
 
                     {/* 3. Payment Methods Breakdown */}
@@ -428,7 +432,7 @@ export default function AdminSidebar({
                           : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
                       }`}
                     >
-                      <span className="truncate">Payment Methods</span>
+                      <span className="truncate">{isBn ? "পেমেন্ট পরিসংখ্যান" : "Payment Methods"}</span>
                     </button>
 
                     {/* 4. Top Selling Products & Shades */}
@@ -442,7 +446,7 @@ export default function AdminSidebar({
                           : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
                       }`}
                     >
-                      <span className="truncate">Top Products & Shades</span>
+                      <span className="truncate">{isBn ? "সর্বাধিক বিক্রিত পণ্য" : "Top Products & Shades"}</span>
                     </button>
                   </div>
                 )}

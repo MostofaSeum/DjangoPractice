@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Collection, CollectionSubTab } from "../../types";
 import CollectionSearchBar from "@/features/collections/components/CollectionSearchBar";
+import { useLanguage } from "@/store/LanguageContext";
 
 interface CollectionsTabProps {
   collectionSubTab: CollectionSubTab;
@@ -50,6 +51,9 @@ export default function CollectionsTab({
   handleCancelCollectionEdit,
   handleDeleteCollectionPhoto,
 }: CollectionsTabProps) {
+  const { locale } = useLanguage();
+  const isBn = locale === "bn";
+
   const [activeCollectionQuery, setActiveCollectionQuery] = useState("");
   const [editCollectionSearch, setEditCollectionSearch] = useState("");
 
@@ -68,31 +72,31 @@ export default function CollectionsTab({
           <div className="flex justify-between items-center mb-6 pb-3 border-b border-foreground/10">
             <div>
               <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
-                Add New Collection
+                {isBn ? "নতুন কালেকশন / ক্যাটাগরি যোগ করুন" : "Add New Collection"}
               </h2>
               <p className="text-xs text-foreground/60 mt-0.5">
-                Create a new category/collection to organize products.
+                {isBn ? "পণ্যগুলোকে সাজাতে নতুন ক্যাটাগরি তৈরি করুন।" : "Create a new category/collection to organize products."}
               </p>
             </div>
           </div>
           <form onSubmit={handleSaveCollection} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                Collection Title *
+                {isBn ? "কালেকশনের নাম *" : "Collection Title *"}
               </label>
               <input
                 type="text"
                 required
                 value={newCollectionTitle}
                 onChange={(e) => setNewCollectionTitle(e.target.value)}
-                placeholder="e.g. Summer Drop"
+                placeholder={isBn ? "যেমনঃ গ্রীষ্মকালীন কালেকশন" : "e.g. Summer Drop"}
                 className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
               />
             </div>
 
             <div className="flex flex-col gap-1">
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                Collection Cover Photo *
+                {isBn ? "কালেকশন কভার ফটো *" : "Collection Cover Photo *"}
               </label>
               <input
                 ref={collectionFileInputRef}
@@ -125,10 +129,10 @@ export default function CollectionsTab({
                     <button
                       type="button"
                       onClick={handleDeleteCollectionPhoto}
-                      title="Delete Photo"
-                      className="absolute inset-0 bg-black/60 text-white text-xs font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                      title={isBn ? "ছবি মুছুন" : "Delete Photo"}
+                      className="absolute inset-0 bg-black/60 text-white text-xs font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
                     >
-                      Delete Photo
+                      {isBn ? "ছবি মুছুন" : "Delete Photo"}
                     </button>
                   </div>
                 </div>
@@ -139,7 +143,7 @@ export default function CollectionsTab({
               type="submit"
               className="w-full mt-4 py-3 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-sm cursor-pointer"
             >
-              Create Collection
+              {isBn ? "কালেকশন তৈরি করুন" : "Create Collection"}
             </button>
           </form>
         </div>
@@ -151,19 +155,19 @@ export default function CollectionsTab({
           <div className="flex justify-between items-center mb-6 pb-3 border-b border-foreground/10">
             <div>
               <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
-                Edit Collection
+                {isBn ? "কালেকশন সম্পাদনা করুন" : "Edit Collection"}
               </h2>
               <p className="text-xs text-foreground/60 mt-0.5">
-                Select a collection to edit its title, cover image, or featured status.
+                {isBn ? "নাম, কভার ফটো পরিবর্তন বা ফিচার করতে কালেকশন নির্বাচন করুন।" : "Select a collection to edit its title, cover image, or featured status."}
               </p>
             </div>
             {editingCollectionId && (
               <button
                 type="button"
                 onClick={handleCancelCollectionEdit}
-                className="text-xs font-bold uppercase tracking-wider text-red-500 hover:underline"
+                className="text-xs font-bold uppercase tracking-wider text-red-500 hover:underline cursor-pointer"
               >
-                Clear Selection
+                {isBn ? "নির্বাচন বাতিল" : "Clear Selection"}
               </button>
             )}
           </div>
@@ -172,7 +176,7 @@ export default function CollectionsTab({
           <div className="mb-6 p-5 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 flex flex-col gap-3">
             <div className="flex justify-between items-center">
               <label className="text-[10px] font-black uppercase tracking-wider opacity-70">
-                Search Collection to Edit
+                {isBn ? "সম্পাদনার জন্য কালেকশন খুঁজুন" : "Search Collection to Edit"}
               </label>
             </div>
 
@@ -181,7 +185,7 @@ export default function CollectionsTab({
                 type="text"
                 value={editCollectionSearch}
                 onChange={(e) => setEditCollectionSearch(e.target.value)}
-                placeholder="Search by collection title or ID..."
+                placeholder={isBn ? "কালেকশন এর নাম বা আইডি দিয়ে খুঁজুন..." : "Search by collection title or ID..."}
                 className="w-full pl-10 pr-8 py-3 border border-foreground/15 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all shadow-inner"
               />
               <div className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none flex items-center justify-center opacity-60 dark:opacity-80">
@@ -247,7 +251,7 @@ export default function CollectionsTab({
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center text-[10px] opacity-40">
-                                  No Img
+                                  {isBn ? "ছবি নেই" : "No Img"}
                                 </div>
                               )}
                             </div>
@@ -256,21 +260,23 @@ export default function CollectionsTab({
                                 {col.title}
                               </p>
                               <span className="text-[10px] opacity-60">
-                                ID: #{col.id} • {col.product_count || 0} Products
+                                {isBn
+                                  ? `আইডি: #${col.id.toLocaleString("bn-BD")} • ${(col.product_count || 0).toLocaleString("bn-BD")} টি পণ্য`
+                                  : `ID: #${col.id} • ${col.product_count || 0} Products`}
                               </span>
                             </div>
                           </div>
                           <button
                             type="button"
-                            className="px-3 py-1 bg-accent text-white rounded-lg text-[10px] font-black uppercase tracking-wider hover:opacity-90 transition-opacity"
+                            className="px-3 py-1 bg-accent text-white rounded-lg text-[10px] font-black uppercase tracking-wider hover:opacity-90 transition-opacity cursor-pointer"
                           >
-                            Edit
+                            {isBn ? "এডিট" : "Edit"}
                           </button>
                         </div>
                       ))
                     ) : (
                       <p className="text-xs opacity-50 text-center py-2">
-                        No collections match &quot;{query}&quot;
+                        {isBn ? `"${query}" এর সাথে কোনো কালেকশন মিলেনি` : `No collections match "${query}"`}
                       </p>
                     )}
                   </div>
@@ -284,21 +290,21 @@ export default function CollectionsTab({
             <form onSubmit={handleSaveCollection} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  Collection Title *
+                  {isBn ? "কালেকশনের নাম *" : "Collection Title *"}
                 </label>
                 <input
                   type="text"
                   required
                   value={newCollectionTitle}
                   onChange={(e) => setNewCollectionTitle(e.target.value)}
-                  placeholder="e.g. Summer Drop"
+                  placeholder={isBn ? "যেমনঃ গ্রীষ্মকালীন কালেকশন" : "e.g. Summer Drop"}
                   className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
                 />
               </div>
 
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  Collection Cover Photo
+                  {isBn ? "কালেকশন কভার ফটো" : "Collection Cover Photo"}
                 </label>
                 <input
                   ref={collectionFileInputRef}
@@ -330,10 +336,10 @@ export default function CollectionsTab({
                       <button
                         type="button"
                         onClick={handleDeleteCollectionPhoto}
-                        title="Delete Photo"
-                        className="absolute inset-0 bg-black/60 text-white text-xs font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                        title={isBn ? "ছবি মুছুন" : "Delete Photo"}
+                        className="absolute inset-0 bg-black/60 text-white text-xs font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
                       >
-                        Delete Photo
+                        {isBn ? "ছবি মুছুন" : "Delete Photo"}
                       </button>
                     </div>
                   </div>
@@ -346,20 +352,20 @@ export default function CollectionsTab({
                   onClick={handleCancelCollectionEdit}
                   className="w-1/3 py-2.5 border border-foreground/15 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-primary/10 transition-colors cursor-pointer"
                 >
-                  Cancel
+                  {isBn ? "বাতিল" : "Cancel"}
                 </button>
                 <button
                   type="submit"
                   className="w-2/3 py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-sm cursor-pointer"
                 >
-                  Update Collection
+                  {isBn ? "কালেকশন আপডেট করুন" : "Update Collection"}
                 </button>
               </div>
             </form>
           ) : (
             <div className="py-12 text-center border-2 border-dashed border-foreground/10 rounded-2xl bg-primary/5 dark:bg-primary/20">
               <p className="text-xs text-foreground/60">
-                Please search or select a collection from &quot;All Collections&quot; to edit.
+                {isBn ? "সম্পাদনা করতে 'সকল কালেকশন' থেকে একটি নির্বাচন বা অনুসন্ধান করুন।" : "Please search or select a collection from 'All Collections' to edit."}
               </p>
             </div>
           )}
@@ -371,7 +377,9 @@ export default function CollectionsTab({
         <div className="w-full bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm overflow-x-auto transition-colors duration-300">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
             <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-              All Collections ({filteredCollections.length})
+              {isBn
+                ? `সকল কালেকশন (${filteredCollections.length.toLocaleString("bn-BD")})`
+                : `All Collections (${filteredCollections.length})`}
             </h2>
             <CollectionSearchBar
               initialSearch={activeCollectionQuery}
@@ -390,11 +398,11 @@ export default function CollectionsTab({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-foreground/10 text-[10px] font-black uppercase tracking-wider opacity-60">
-                <th className="py-3 px-2">ID</th>
-                <th className="py-3 px-2">Cover</th>
-                <th className="py-3 px-2">Title</th>
-                <th className="py-3 px-2">Products Count</th>
-                <th className="py-3 px-2 text-right">Actions</th>
+                <th className="py-3 px-2">{isBn ? "আইডি" : "ID"}</th>
+                <th className="py-3 px-2">{isBn ? "কভার" : "Cover"}</th>
+                <th className="py-3 px-2">{isBn ? "নাম" : "Title"}</th>
+                <th className="py-3 px-2">{isBn ? "পণ্যের সংখ্যা" : "Products Count"}</th>
+                <th className="py-3 px-2 text-right">{isBn ? "কার্যক্রম" : "Actions"}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-foreground/10 text-xs font-bold">
@@ -413,7 +421,7 @@ export default function CollectionsTab({
                   }`}
                 >
                   <td className="py-3 px-2 opacity-50 align-middle">
-                    #{col.id}
+                    #{isBn ? col.id.toLocaleString("bn-BD") : col.id}
                   </td>
                   <td className="py-3 px-2 align-middle">
                     <div className="w-10 h-10 rounded-xl overflow-hidden border border-foreground/10 bg-primary/5 dark:bg-primary/30 shadow-xs relative">
@@ -430,7 +438,7 @@ export default function CollectionsTab({
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-[9px] opacity-40">
-                          No Img
+                          {isBn ? "ছবি নেই" : "No Img"}
                         </div>
                       )}
                     </div>
@@ -439,7 +447,7 @@ export default function CollectionsTab({
                     {col.title}
                   </td>
                   <td className="py-3 px-2 opacity-70 align-middle">
-                    {col.product_count || 0} products
+                    {isBn ? `${(col.product_count || 0).toLocaleString("bn-BD")} টি পণ্য` : `${col.product_count || 0} products`}
                   </td>
                   <td
                     className="py-3.5 px-2 text-right flex justify-end items-center gap-2"
@@ -447,19 +455,19 @@ export default function CollectionsTab({
                   >
                     <button
                       onClick={() => handleToggleCollectionFeatured(col)}
-                      className={`px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all shadow-sm ${
+                      className={`px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all shadow-sm cursor-pointer ${
                         col.is_featured
                           ? "bg-amber-500 text-black border border-amber-600 shadow-amber-500/20"
                           : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10"
                       }`}
                     >
-                      {col.is_featured ? " Featured" : "+ Feature"}
+                      {col.is_featured ? (isBn ? "★ ফিচার্ড" : "★ Featured") : (isBn ? "+ ফিচার করুন" : "+ Feature")}
                     </button>
                     <button
                       onClick={() => handleDeleteCollection(col)}
                       className="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
                     >
-                      Delete
+                      {isBn ? "মুছুন" : "Delete"}
                     </button>
                   </td>
                 </tr>

@@ -15,6 +15,7 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
+import { useLanguage } from "@/store/LanguageContext";
 
 type TimeRange = "24h" | "7d" | "15d" | "30d";
 
@@ -35,6 +36,9 @@ export default function AnalyticsTab({
   analyticsSubTab = "sales",
   onSubTabChange,
 }: AnalyticsTabProps) {
+  const { locale, formatCurrency } = useLanguage();
+  const isBn = locale === "bn";
+
   const [internalSubTab, setInternalSubTab] = useState<AnalyticsSubTab>("sales");
   const activeSubTab = onSubTabChange ? analyticsSubTab : internalSubTab;
   const setActiveSubTab = (sub: AnalyticsSubTab) => {
@@ -64,27 +68,33 @@ export default function AnalyticsTab({
       const now = new Date();
 
       if (timeRange === "24h") {
-        const numSlots = 8;
-        const slotDurationMs = (24 / numSlots) * 60 * 60 * 1000;
-        const startTimestamp = now.getTime() - 24 * 60 * 60 * 1000;
-
+        // Build 6 buckets of 4 hours each
         const buckets: {
+          label: string;
           slotStart: number;
           slotEnd: number;
-          label: string;
           sales: number;
           orders: number;
         }[] = [];
 
-        for (let i = 0; i < numSlots; i++) {
-          const s = startTimestamp + i * slotDurationMs;
-          const e = s + slotDurationMs;
-          const dateObj = new Date(e);
-          const hourStr = dateObj.getHours().toString().padStart(2, "0") + ":00";
+        const fourHoursMs = 4 * 60 * 60 * 1000;
+        const startTimestamp = now.getTime() - 24 * 60 * 60 * 1000;
+
+        for (let i = 0; i < 6; i++) {
+          const slotStart = startTimestamp + i * fourHoursMs;
+          const slotEnd = slotStart + fourHoursMs;
+          const d = new Date(slotStart);
+          const hours = d.getHours();
+          const ampm = hours >= 12 ? (isBn ? "বিকাল/রাত" : "PM") : (isBn ? "সকাল" : "AM");
+          const formattedHour = hours % 12 === 0 ? 12 : hours % 12;
+          const label = isBn
+            ? `${formattedHour.toLocaleString("bn-BD")}:০০ ${ampm}`
+            : `${formattedHour}:00 ${ampm}`;
+
           buckets.push({
-            slotStart: s,
-            slotEnd: e,
-            label: hourStr,
+            label,
+            slotStart,
+            slotEnd,
             sales: 0,
             orders: 0,
           });
@@ -149,7 +159,7 @@ export default function AnalyticsTab({
         endD.setHours(23, 59, 59, 999);
 
         const dateStr = d.toISOString().split("T")[0];
-        const label = d.toLocaleDateString("en-US", {
+        const label = d.toLocaleDateString(isBn ? "bn-BD" : "en-US", {
           month: "short",
           day: "numeric",
         });
@@ -554,11 +564,11 @@ export default function AnalyticsTab({
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
                 </span>
                 <h2 className="text-base font-black uppercase tracking-widest text-foreground">
-                  Sales & Revenue Analytics
+                  {isBn ? "বিক্রয় ও আয় অ্যানালিটিক্স" : "Sales & Revenue Analytics"}
                 </h2>
               </div>
               <p className="text-xs opacity-60 mt-1">
-                Real-time sales breakdown and performance metrics for VibeMart.
+                {isBn ? "রিয়েল-টাইম বিক্রয় পরিসংখ্যান এবং আয়ের বিস্তারিত রিপোর্ট।" : "Real-time sales breakdown and performance metrics for VibeMart."}
               </p>
             </div>
 
@@ -566,10 +576,10 @@ export default function AnalyticsTab({
             <div className="flex items-center gap-1.5 p-1.5 bg-primary/5 rounded-2xl border border-foreground/10 self-stretch sm:self-auto justify-between sm:justify-start">
               {(
                 [
-                  { id: "24h", label: "Last 24h" },
-                  { id: "7d", label: "Last 7 Days" },
-                  { id: "15d", label: "Last 15 Days" },
-                  { id: "30d", label: "Last 30 Days" },
+                  { id: "24h", label: isBn ? "গত ২৪ ঘন্টা" : "Last 24h" },
+                  { id: "7d", label: isBn ? "গত ৭ দিন" : "Last 7 Days" },
+                  { id: "15d", label: isBn ? "গত ১৫ দিন" : "Last 15 Days" },
+                  { id: "30d", label: isBn ? "গত ৩০ দিন" : "Last 30 Days" },
                 ] as const
               ).map((tab) => {
                 const isActive = timeRange === tab.id;
@@ -595,62 +605,62 @@ export default function AnalyticsTab({
             {/* 1. Total Sales */}
             <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                Total Revenue ({timeRange.toUpperCase()})
+                {isBn ? `মোট আয় (${timeRange === "24h" ? "২৪ ঘন্টা" : timeRange.replace("d", " দিন")})` : `Total Revenue (${timeRange.toUpperCase()})`}
               </span>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-foreground">
-                  ৳{totalSales.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ৳{totalSales.toLocaleString(isBn ? "bn-BD" : undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
               <div className="mt-2 text-[10px] font-bold text-accent flex items-center gap-1">
-                <span>● Complete: ৳{completedSales.toFixed(2)}</span>
+                <span>● {isBn ? "সফল পেমেন্টঃ ৳" : "Complete: ৳"}{completedSales.toLocaleString(isBn ? "bn-BD" : undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
             </div>
 
             {/* 2. Total Orders */}
             <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                Orders Placed
+                {isBn ? "মোট অর্ডার সংখ্যা" : "Orders Placed"}
               </span>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-foreground">
-                  {totalOrdersCount}
+                  {totalOrdersCount.toLocaleString(isBn ? "bn-BD" : undefined)}
                 </span>
-                <span className="text-xs font-bold opacity-60">orders</span>
+                <span className="text-xs font-bold opacity-60">{isBn ? "টি অর্ডার" : "orders"}</span>
               </div>
               <div className="mt-2 text-[10px] font-semibold opacity-60">
-                In selected time period
+                {isBn ? "নির্বাচিত সময়সীমায়" : "In selected time period"}
               </div>
             </div>
 
             {/* 3. Average Order Value */}
             <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                Average Order Value
+                {isBn ? "গড় অর্ডার মূল্য (AOV)" : "Average Order Value"}
               </span>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-foreground">
-                  ৳{avgOrderValue.toFixed(2)}
+                  ৳{avgOrderValue.toLocaleString(isBn ? "bn-BD" : undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
               <div className="mt-2 text-[10px] font-semibold opacity-60">
-                Revenue per transaction
+                {isBn ? "প্রতি ট্রানজ্যাকশনে গড় আয়" : "Revenue per transaction"}
               </div>
             </div>
 
             {/* 4. Active Catalog */}
             <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                Active Catalog
+                {isBn ? "সক্রিয় ক্যাটালগ" : "Active Catalog"}
               </span>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-foreground">
-                  {products.length}
+                  {products.length.toLocaleString(isBn ? "bn-BD" : undefined)}
                 </span>
-                <span className="text-xs font-bold opacity-60">products</span>
+                <span className="text-xs font-bold opacity-60">{isBn ? "টি পণ্য" : "products"}</span>
               </div>
               <div className="mt-2 text-[10px] font-semibold opacity-60">
-                Across all collections
+                {isBn ? "সকল কালেকশন মিলিয়ে" : "Across all collections"}
               </div>
             </div>
           </div>
@@ -660,10 +670,12 @@ export default function AnalyticsTab({
             <div className="flex justify-between items-center mb-6">
               <div>
                 <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
-                  Sales Revenue Trend (৳ BDT)
+                  {isBn ? "বিক্রয় আয়ের গতিধারা (৳ BDT)" : "Sales Revenue Trend (৳ BDT)"}
                 </h3>
                 <p className="text-[11px] opacity-50 mt-0.5">
-                  Timeline visualization for {timeRange === "24h" ? "last 24 hours" : `last ${timeRange.replace("d", "")} days`}
+                  {isBn
+                    ? `${timeRange === "24h" ? "গত ২৪ ঘন্টার" : `গত ${timeRange.replace("d", "")} দিনের`} টাইমলাইন ভিউ`
+                    : `Timeline visualization for ${timeRange === "24h" ? "last 24 hours" : `last ${timeRange.replace("d", "")} days`}`}
                 </p>
               </div>
 
@@ -677,7 +689,7 @@ export default function AnalyticsTab({
                       : "opacity-60 hover:opacity-100"
                   }`}
                 >
-                  Area
+                  {isBn ? "এরিয়া চার্ট" : "Area"}
                 </button>
                 <button
                   onClick={() => setChartType("bar")}
@@ -687,7 +699,7 @@ export default function AnalyticsTab({
                       : "opacity-60 hover:opacity-100"
                   }`}
                 >
-                  Bar
+                  {isBn ? "বার চার্ট" : "Bar"}
                 </button>
               </div>
             </div>
@@ -741,8 +753,8 @@ export default function AnalyticsTab({
                       }}
                       itemStyle={{ color: "var(--foreground)" }}
                       labelStyle={{ color: "var(--foreground)", opacity: 0.7 }}
-                      formatter={(value: any) => [`৳${Number(value).toFixed(2)}`, "Sales Revenue"]}
-                      labelFormatter={(label) => `Timeline: ${label}`}
+                      formatter={(value: any) => [`৳${Number(value).toFixed(2)}`, isBn ? "বিক্রয় আয়" : "Sales Revenue"]}
+                      labelFormatter={(label) => `${isBn ? "সময়ঃ" : "Timeline:"} ${label}`}
                     />
                     <Area
                       type="monotone"
@@ -794,8 +806,8 @@ export default function AnalyticsTab({
                       }}
                       itemStyle={{ color: "var(--foreground)" }}
                       labelStyle={{ color: "var(--foreground)", opacity: 0.7 }}
-                      formatter={(value: any) => [`৳${Number(value).toFixed(2)}`, "Sales Revenue"]}
-                      labelFormatter={(label) => `Timeline: ${label}`}
+                      formatter={(value: any) => [`৳${Number(value).toFixed(2)}`, isBn ? "বিক্রয় আয়" : "Sales Revenue"]}
+                      labelFormatter={(label) => `${isBn ? "সময়ঃ" : "Timeline:"} ${label}`}
                     />
                     <Bar
                       dataKey="sales"
@@ -822,11 +834,11 @@ export default function AnalyticsTab({
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
                 </span>
                 <h2 className="text-base font-black uppercase tracking-widest text-foreground">
-                  Promo & Coupon Performance
+                  {isBn ? "প্রমোশন ও কুপন পারফর্মেন্স" : "Promo & Coupon Performance"}
                 </h2>
               </div>
               <p className="text-xs opacity-60 mt-1">
-                Track coupon redemptions, total discounts granted, and resulting cart revenues.
+                {isBn ? "কুপন ব্যবহার, প্রদত্ত মোট ছাড় এবং এর ফলে অর্জিত বিক্রয়ের হিসাব।" : "Track coupon redemptions, total discounts granted, and resulting cart revenues."}
               </p>
             </div>
 
@@ -836,7 +848,7 @@ export default function AnalyticsTab({
                 type="text"
                 value={couponSearch}
                 onChange={(e) => setCouponSearch(e.target.value)}
-                placeholder="Search coupon code..."
+                placeholder={isBn ? "কুপন কোড দিয়ে খুঁজুন..." : "Search coupon code..."}
                 className="w-full px-4 py-2 bg-background border border-foreground/15 rounded-xl text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:ring-2 focus:ring-accent transition-all"
               />
             </div>
@@ -847,62 +859,62 @@ export default function AnalyticsTab({
             {/* Card 1: Active Coupons */}
             <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                Active Campaigns
+                {isBn ? "সক্রিয় ক্যাম্পেইন" : "Active Campaigns"}
               </span>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-foreground">
-                  {couponStats.activeCouponsCount}
+                  {couponStats.activeCouponsCount.toLocaleString(isBn ? "bn-BD" : undefined)}
                 </span>
-                <span className="text-xs font-bold opacity-60">coupons live</span>
+                <span className="text-xs font-bold opacity-60">{isBn ? "টি কুপন চালু" : "coupons live"}</span>
               </div>
               <div className="mt-2 text-[10px] font-semibold opacity-60">
-                {coupons.length} total coupons created
+                {isBn ? `মোট ${coupons.length.toLocaleString("bn-BD")} টি কুপন তৈরি হয়েছে` : `${coupons.length} total coupons created`}
               </div>
             </div>
 
             {/* Card 2: Times Applied */}
             <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                Total Redemptions
+                {isBn ? "মোট ব্যবহার সংখ্যা" : "Total Redemptions"}
               </span>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-foreground">
-                  {couponStats.totalCouponUses}
+                  {couponStats.totalCouponUses.toLocaleString(isBn ? "bn-BD" : undefined)}
                 </span>
-                <span className="text-xs font-bold opacity-60">times used</span>
+                <span className="text-xs font-bold opacity-60">{isBn ? "বার ব্যবহৃত" : "times used"}</span>
               </div>
               <div className="mt-2 text-[10px] font-semibold text-accent">
-                ● Applied across customer checkouts
+                {isBn ? "● গ্রাহকদের চেকআউটে ব্যবহৃত" : "● Applied across customer checkouts"}
               </div>
             </div>
 
             {/* Card 3: Total Discounts Granted */}
             <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                Discounts Granted
+                {isBn ? "প্রদত্ত মোট ছাড়" : "Discounts Granted"}
               </span>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-accent">
-                  ৳{couponStats.totalDiscountsGranted.toLocaleString()}
+                  ৳{couponStats.totalDiscountsGranted.toLocaleString(isBn ? "bn-BD" : undefined)}
                 </span>
               </div>
               <div className="mt-2 text-[10px] font-semibold opacity-60">
-                Saved by customers
+                {isBn ? "গ্রাহকদের সাশ্রয়কৃত অর্থ" : "Saved by customers"}
               </div>
             </div>
 
             {/* Card 4: Revenue Generated */}
             <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                Coupon Driven Revenue
+                {isBn ? "কুপন থেকে মোট আয়" : "Coupon Driven Revenue"}
               </span>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-foreground">
-                  ৳{couponStats.totalCouponRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ৳{couponStats.totalCouponRevenue.toLocaleString(isBn ? "bn-BD" : undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
               <div className="mt-2 text-[10px] font-semibold opacity-60">
-                From discounted orders
+                {isBn ? "ছাড়যুক্ত অর্ডারসমূহ থেকে" : "From discounted orders"}
               </div>
             </div>
           </div>
@@ -914,10 +926,10 @@ export default function AnalyticsTab({
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                 <div>
                   <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
-                    Top Coupon Performance
+                    {isBn ? "সেরা কুপন পারফর্মেন্স" : "Top Coupon Performance"}
                   </h3>
                   <p className="text-[11px] opacity-50 mt-0.5">
-                    Comparison of order redemptions vs. revenue generated (৳ BDT)
+                    {isBn ? "ব্যবহারের সংখ্যা বনাম অর্জিত আয়ের তুলনা (৳ BDT)" : "Comparison of order redemptions vs. revenue generated (৳ BDT)"}
                   </p>
                 </div>
 
@@ -925,9 +937,9 @@ export default function AnalyticsTab({
                 <div className="flex items-center gap-1 bg-foreground/5 p-1 rounded-xl border border-foreground/10">
                   {(
                     [
-                      { id: "5", label: "Top 5" },
-                      { id: "10", label: "Top 10" },
-                      { id: "all", label: "All" },
+                      { id: "5", label: isBn ? "শীর্ষ ৫" : "Top 5" },
+                      { id: "10", label: isBn ? "শীর্ষ ১০" : "Top 10" },
+                      { id: "all", label: isBn ? "সকল" : "All" },
                     ] as const
                   ).map((btn) => (
                     <button
@@ -1012,17 +1024,19 @@ export default function AnalyticsTab({
                         itemStyle={{ color: "var(--foreground)" }}
                         labelStyle={{ color: "var(--foreground)", fontWeight: 800 }}
                         formatter={(value: any, name: any) => [
-                          name === "Revenue (৳)" ? `৳${Number(value).toLocaleString()}` : `${value} orders`,
+                          name === (isBn ? "বিক্রয় আয় (৳)" : "Revenue (৳)")
+                            ? `৳${Number(value).toLocaleString(isBn ? "bn-BD" : undefined)}`
+                            : `${value} ${isBn ? "টি অর্ডার" : "orders"}`,
                           name,
                         ]}
-                        labelFormatter={(label) => `Coupon: ${label}`}
+                        labelFormatter={(label) => `${isBn ? "কুপন কোডঃ" : "Coupon:"} ${label}`}
                       />
                       <Legend
                         wrapperStyle={{ fontSize: "11px", fontWeight: 700, paddingTop: "10px" }}
                       />
                       <Bar
                         yAxisId="left"
-                        name="Revenue (৳)"
+                        name={isBn ? "বিক্রয় আয় (৳)" : "Revenue (৳)"}
                         dataKey="revenue"
                         fill="var(--accent)"
                         radius={[6, 6, 0, 0]}
@@ -1030,7 +1044,7 @@ export default function AnalyticsTab({
                       />
                       <Bar
                         yAxisId="right"
-                        name="Redemptions"
+                        name={isBn ? "ব্যবহার সংখ্যা" : "Redemptions"}
                         dataKey="uses"
                         fill="var(--foreground)"
                         fillOpacity={0.65}
@@ -1044,7 +1058,7 @@ export default function AnalyticsTab({
               ) : (
                 <div className="h-64 flex flex-col items-center justify-center opacity-50 text-xs font-bold text-center">
                   <span className="text-3xl mb-2">🏷️</span>
-                  No coupon usage data recorded yet.
+                  {isBn ? "এখনও কোনো কুপন ব্যবহারের তথ্য রেকর্ড করা হয়নি।" : "No coupon usage data recorded yet."}
                 </div>
               )}
             </div>
@@ -1053,10 +1067,10 @@ export default function AnalyticsTab({
             <div className="lg:col-span-5 bg-foreground/5 border border-foreground/10 rounded-2xl p-5 flex flex-col">
               <div className="flex justify-between items-center mb-3">
                 <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
-                  Campaign Directory
+                  {isBn ? "ক্যাম্পেইন ডিরেক্টরি" : "Campaign Directory"}
                 </h3>
                 <span className="text-[10px] font-bold opacity-60">
-                  {couponStats.statsList.length} total
+                  {isBn ? `মোট ${couponStats.statsList.length.toLocaleString("bn-BD")} টি` : `${couponStats.statsList.length} total`}
                 </span>
               </div>
 
@@ -1079,27 +1093,29 @@ export default function AnalyticsTab({
                                 : "bg-foreground/10 opacity-60 text-foreground"
                             }`}
                           >
-                            {c.isActive ? "Active" : "Disabled"}
+                            {c.isActive ? (isBn ? "সক্রিয়" : "Active") : (isBn ? "নিষ্ক্রিয়" : "Disabled")}
                           </span>
                         </div>
                         <div className="text-[10px] opacity-60 mt-1">
-                          {c.discountPercent > 0 ? `${c.discountPercent}% Discount` : "Special Promo"}
+                          {c.discountPercent > 0
+                            ? (isBn ? `${Number(c.discountPercent).toLocaleString("bn-BD")}% ছাড়` : `${c.discountPercent}% Discount`)
+                            : (isBn ? "বিশেষ প্রমোশন" : "Special Promo")}
                         </div>
                       </div>
 
                       <div className="text-right">
                         <div className="font-extrabold text-foreground">
-                          {c.usageCount} {c.usageCount === 1 ? "order" : "orders"}
+                          {c.usageCount.toLocaleString(isBn ? "bn-BD" : undefined)} {isBn ? "টি অর্ডার" : (c.usageCount === 1 ? "order" : "orders")}
                         </div>
                         <div className="text-[10px] font-bold text-accent">
-                          ৳{c.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          ৳{c.totalRevenue.toLocaleString(isBn ? "bn-BD" : undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="py-12 text-center opacity-50 text-xs font-bold">
-                    No matching coupons found.
+                    {isBn ? "কোনো কুপন পাওয়া যায়নি।" : "No matching coupons found."}
                   </div>
                 )}
               </div>
@@ -1119,11 +1135,13 @@ export default function AnalyticsTab({
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
                 </span>
                 <h2 className="text-base font-black uppercase tracking-widest text-foreground">
-                  Payment Methods Breakdown
+                  {isBn ? "পেমেন্ট মাধ্যম পরিসংখ্যান" : "Payment Methods Breakdown"}
                 </h2>
               </div>
               <p className="text-xs opacity-60 mt-1">
-                Distribution of orders, transaction volumes, and revenues across COD, bKash, Nagad, and VibeCoin.
+                {isBn
+                  ? "ক্যাশ অন ডেলিভারি, বিকাশ, নগদ ও ভাইবকয়েনের অর্ডার বন্টন এবং আয়ের বিস্তারিত পর্যালোচনা।"
+                  : "Distribution of orders, transaction volumes, and revenues across COD, bKash, Nagad, and VibeCoin."}
               </p>
             </div>
           </div>
@@ -1132,36 +1150,36 @@ export default function AnalyticsTab({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                Total Transaction Volume
+                {isBn ? "মোট লেনদেনের পরিমাণ" : "Total Transaction Volume"}
               </span>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-foreground">
-                  ৳{paymentStats.grandTotalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ৳{paymentStats.grandTotalRevenue.toLocaleString(isBn ? "bn-BD" : undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
               <div className="mt-2 text-[10px] font-semibold text-accent">
-                ● Across all channels
+                {isBn ? "● সকল মাধ্যমে সমন্বিত" : "● Across all channels"}
               </div>
             </div>
 
             <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                Total Processed Orders
+                {isBn ? "মোট প্রক্রিয়াকৃত অর্ডার" : "Total Processed Orders"}
               </span>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-foreground">
-                  {paymentStats.grandTotalOrders}
+                  {paymentStats.grandTotalOrders.toLocaleString(isBn ? "bn-BD" : undefined)}
                 </span>
-                <span className="text-xs font-bold opacity-60">orders</span>
+                <span className="text-xs font-bold opacity-60">{isBn ? "টি অর্ডার" : "orders"}</span>
               </div>
               <div className="mt-2 text-[10px] font-semibold opacity-60">
-                In store database
+                {isBn ? "স্টোর ডাটাবেজ অনুসারে" : "In store database"}
               </div>
             </div>
 
             <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                Leading Gateway
+                {isBn ? "শীর্ষ পেমেন্ট মাধ্যম" : "Leading Gateway"}
               </span>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-accent">
@@ -1169,13 +1187,13 @@ export default function AnalyticsTab({
                 </span>
               </div>
               <div className="mt-2 text-[10px] font-semibold opacity-60">
-                By generated revenue
+                {isBn ? "অর্জিত আয়ের ভিত্তিতে" : "By generated revenue"}
               </div>
             </div>
 
             <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                Digital vs COD Share
+                {isBn ? "ডিজিটাল বনাম সিওডি ভাগ" : "Digital vs COD Share"}
               </span>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-foreground">
@@ -1183,13 +1201,13 @@ export default function AnalyticsTab({
                     paymentStats.list
                       .filter((p) => p.key !== "cod")
                       .reduce((acc, c) => acc + c.revenueSharePct, 0)
-                  )}
+                  ).toLocaleString(isBn ? "bn-BD" : undefined)}
                   %
                 </span>
-                <span className="text-xs font-bold opacity-60">digital share</span>
+                <span className="text-xs font-bold opacity-60">{isBn ? "ডিজিটাল পেমেন্ট" : "digital share"}</span>
               </div>
               <div className="mt-2 text-[10px] font-semibold opacity-60">
-                bKash, Nagad & VibeCoins
+                {isBn ? "বিকাশ, নগদ ও ভাইবকয়েন" : "bKash, Nagad & VibeCoins"}
               </div>
             </div>
           </div>
@@ -1201,10 +1219,10 @@ export default function AnalyticsTab({
               <div className="flex justify-between items-start mb-2">
                 <div>
                   <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
-                    Revenue Share by Gateway
+                    {isBn ? "পেমেন্ট মাধ্যম অনুযায়ী আয়ের ভাগ" : "Revenue Share by Gateway"}
                   </h3>
                   <p className="text-[11px] opacity-50 mt-0.5">
-                    Percentage distribution of sales
+                    {isBn ? "মোট বিক্রয়ের শতকরা অনুপাত" : "Percentage distribution of sales"}
                   </p>
                 </div>
                 {selectedPaymentMethod && (
@@ -1212,7 +1230,7 @@ export default function AnalyticsTab({
                     onClick={() => setSelectedPaymentMethod(null)}
                     className="text-[10px] font-bold px-2 py-0.5 bg-foreground/10 hover:bg-foreground/20 rounded-md text-foreground transition-all cursor-pointer"
                   >
-                    Reset Filter
+                    {isBn ? "ফিল্টার রিসেট" : "Reset Filter"}
                   </button>
                 )}
               </div>
@@ -1265,7 +1283,7 @@ export default function AnalyticsTab({
                           padding: "10px 14px",
                         }}
                         formatter={(val: any, name: any, item: any) => [
-                          `৳${Number(val).toLocaleString()} (${item.payload.pct}%)`,
+                          `৳${Number(val).toLocaleString(isBn ? "bn-BD" : undefined)} (${item.payload.pct}%)`,
                           name,
                         ]}
                       />
@@ -1304,7 +1322,7 @@ export default function AnalyticsTab({
                 </div>
               ) : (
                 <div className="h-64 flex flex-col items-center justify-center opacity-50 text-xs font-bold">
-                  No payment data available.
+                  {isBn ? "কোনো পেমেন্ট তথ্য পাওয়া যায়নি।" : "No payment data available."}
                 </div>
               )}
             </div>
@@ -1314,10 +1332,10 @@ export default function AnalyticsTab({
               <div className="mb-4 flex justify-between items-start">
                 <div>
                   <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
-                    Gateway Performance Audit
+                    {isBn ? "পেমেন্ট গেটওয়ে পারফর্মেন্স অডিট" : "Gateway Performance Audit"}
                   </h3>
                   <p className="text-[11px] opacity-50 mt-0.5">
-                    Click any row to focus on that gateway in the charts
+                    {isBn ? "চার্টে নির্দিষ্ট মাধ্যমটি ফোকাস করতে যেকোনো সারিতে ক্লিক করুন" : "Click any row to focus on that gateway in the charts"}
                   </p>
                 </div>
               </div>
@@ -1326,12 +1344,12 @@ export default function AnalyticsTab({
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="border-b border-foreground/10 opacity-60 text-[10px] font-black uppercase tracking-wider">
-                      <th className="pb-3">Gateway</th>
-                      <th className="pb-3 text-right">Orders</th>
-                      <th className="pb-3 text-right">Order Share</th>
-                      <th className="pb-3 text-right">Settled Count</th>
-                      <th className="pb-3 text-right">Avg Ticket</th>
-                      <th className="pb-3 text-right">Revenue (৳)</th>
+                      <th className="pb-3">{isBn ? "পেমেন্ট গেটওয়ে" : "Gateway"}</th>
+                      <th className="pb-3 text-right">{isBn ? "মোট অর্ডার" : "Orders"}</th>
+                      <th className="pb-3 text-right">{isBn ? "অর্ডার শেয়ার" : "Order Share"}</th>
+                      <th className="pb-3 text-right">{isBn ? "সফল পেমেন্ট" : "Settled Count"}</th>
+                      <th className="pb-3 text-right">{isBn ? "গড় টিকিট (AOV)" : "Avg Ticket"}</th>
+                      <th className="pb-3 text-right">{isBn ? "মোট আয় (৳)" : "Revenue (৳)"}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-foreground/5">
@@ -1362,16 +1380,16 @@ export default function AnalyticsTab({
                               {m.label}
                             </span>
                           </td>
-                          <td className="py-3.5 px-2 text-right font-bold opacity-80">{m.count}</td>
+                          <td className="py-3.5 px-2 text-right font-bold opacity-80">{m.count.toLocaleString(isBn ? "bn-BD" : undefined)}</td>
                           <td className="py-3.5 px-2 text-right font-bold text-accent">{m.orderSharePct}%</td>
                           <td className="py-3.5 px-2 text-right font-semibold opacity-70">
-                            {m.completedCount} / {m.count}
+                            {m.completedCount.toLocaleString(isBn ? "bn-BD" : undefined)} / {m.count.toLocaleString(isBn ? "bn-BD" : undefined)}
                           </td>
                           <td className="py-3.5 px-2 text-right font-semibold opacity-80">
-                            ৳{m.avgValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            ৳{m.avgValue.toLocaleString(isBn ? "bn-BD" : undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </td>
                           <td className="py-3.5 px-2 text-right font-black text-foreground">
-                            ৳{m.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            ৳{m.revenue.toLocaleString(isBn ? "bn-BD" : undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </td>
                         </tr>
                       );
@@ -1395,11 +1413,13 @@ export default function AnalyticsTab({
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
                 </span>
                 <h2 className="text-base font-black uppercase tracking-widest text-foreground">
-                  Top Selling Products & Shade Variants
+                  {isBn ? "সর্বাধিক বিক্রিত পণ্য ও শেড ভ্যারিয়েন্ট" : "Top Selling Products & Shade Variants"}
                 </h2>
               </div>
               <p className="text-xs opacity-60 mt-1">
-                Deep dive into best-selling cosmetics, shade velocity, units moved, and product revenue contributions.
+                {isBn
+                  ? "সর্বাধিক বিক্রিত প্রসাধনী সামগ্রী, শেডের গতিধারা, বিক্রিত ইউনিট এবং পণ্যভিত্তিক আয়ের হিসাব।"
+                  : "Deep dive into best-selling cosmetics, shade velocity, units moved, and product revenue contributions."}
               </p>
             </div>
 
@@ -1409,7 +1429,7 @@ export default function AnalyticsTab({
                 type="text"
                 value={productSearch}
                 onChange={(e) => setProductSearch(e.target.value)}
-                placeholder="Search product..."
+                placeholder={isBn ? "পণ্য দিয়ে খুঁজুন..." : "Search product..."}
                 className="w-full px-4 py-2 bg-background border border-foreground/15 rounded-xl text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:ring-2 focus:ring-accent transition-all"
               />
             </div>
@@ -1419,59 +1439,61 @@ export default function AnalyticsTab({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                Total Units Sold
+                {isBn ? "মোট বিক্রিত ইউনিট" : "Total Units Sold"}
               </span>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-foreground">
-                  {productPerformanceStats.overallUnitsSold}
+                  {productPerformanceStats.overallUnitsSold.toLocaleString(isBn ? "bn-BD" : undefined)}
                 </span>
-                <span className="text-xs font-bold opacity-60">items ordered</span>
+                <span className="text-xs font-bold opacity-60">{isBn ? "টি পণ্য বিক্রয়" : "items ordered"}</span>
               </div>
               <div className="mt-2 text-[10px] font-semibold opacity-60">
-                Across all orders
+                {isBn ? "সকল অর্ডার মিলিয়ে" : "Across all orders"}
               </div>
             </div>
 
             <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                #1 Bestseller Product
+                {isBn ? "#১ শীর্ষ বিক্রিত পণ্য" : "#1 Bestseller Product"}
               </span>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-xl font-black text-accent truncate">
-                  {productPerformanceStats.topProduct?.title || "N/A"}
+                  {productPerformanceStats.topProduct?.title || (isBn ? "তথ্য নেই" : "N/A")}
                 </span>
               </div>
               <div className="mt-2 text-[10px] font-semibold opacity-60">
-                {productPerformanceStats.topProduct?.totalUnitsSold || 0} units sold
+                {isBn
+                  ? `${(productPerformanceStats.topProduct?.totalUnitsSold || 0).toLocaleString("bn-BD")} টি বিক্রিত হয়েছে`
+                  : `${productPerformanceStats.topProduct?.totalUnitsSold || 0} units sold`}
               </div>
             </div>
 
             <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                Item Catalog Revenue
+                {isBn ? "আইটেম ক্যাটালগ আয়" : "Item Catalog Revenue"}
               </span>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-foreground">
-                  ৳{productPerformanceStats.overallCatalogRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  ৳{productPerformanceStats.overallCatalogRevenue.toLocaleString(isBn ? "bn-BD" : undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
               <div className="mt-2 text-[10px] font-semibold text-accent">
-                ● Product subtotal volume
+                {isBn ? "● পণ্য সাবটোটাল ভলিউম" : "● Product subtotal volume"}
               </div>
             </div>
 
             <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
               <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                Distinct Shades Active
+                {isBn ? "সক্রিয় শেড ভ্যারিয়েন্ট" : "Distinct Shades Active"}
               </span>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="text-2xl font-black text-foreground">
-                  {productPerformanceStats.allShadesList.length}
+                  {productPerformanceStats.allShadesList.length.toLocaleString(isBn ? "bn-BD" : undefined)}
                 </span>
-                <span className="text-xs font-bold opacity-60">shades recorded</span>
+                <span className="text-xs font-bold opacity-60">{isBn ? "টি শেড রেকর্ডকৃত" : "shades recorded"}</span>
               </div>
               <div className="mt-2 text-[10px] font-semibold opacity-60">
-                With purchase history
+                {isBn ? "ক্রয় হিস্ট্রি অনুযায়ী" : "With purchase history"}
               </div>
             </div>
           </div>
@@ -1483,10 +1505,10 @@ export default function AnalyticsTab({
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                 <div>
                   <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
-                    Product Revenue Velocity
+                    {isBn ? "পণ্যভিত্তিক আয়ের গতিধারা" : "Product Revenue Velocity"}
                   </h3>
                   <p className="text-[11px] opacity-50 mt-0.5">
-                    Gross revenue (৳ BDT) vs. Total Units Sold per item
+                    {isBn ? "মোট আয় (৳ BDT) বনাম মোট বিক্রিত ইউনিট" : "Gross revenue (৳ BDT) vs. Total Units Sold per item"}
                   </p>
                 </div>
 
@@ -1494,9 +1516,9 @@ export default function AnalyticsTab({
                 <div className="flex items-center gap-1 bg-foreground/5 p-1 rounded-xl border border-foreground/10">
                   {(
                     [
-                      { id: "5", label: "Top 5" },
-                      { id: "10", label: "Top 10" },
-                      { id: "all", label: "All" },
+                      { id: "5", label: isBn ? "শীর্ষ ৫" : "Top 5" },
+                      { id: "10", label: isBn ? "শীর্ষ ১০" : "Top 10" },
+                      { id: "all", label: isBn ? "সকল" : "All" },
                     ] as const
                   ).map((btn) => (
                     <button
@@ -1581,7 +1603,9 @@ export default function AnalyticsTab({
                           itemStyle={{ color: "var(--foreground)" }}
                           labelStyle={{ color: "var(--foreground)", fontWeight: 800 }}
                           formatter={(value: any, name: any) => [
-                            name === "Revenue (৳)" ? `৳${Number(value).toLocaleString()}` : `${value} units`,
+                            name === (isBn ? "বিক্রয় আয় (৳)" : "Revenue (৳)")
+                              ? `৳${Number(value).toLocaleString(isBn ? "bn-BD" : undefined)}`
+                              : `${value} ${isBn ? "টি ইউনিট" : "units"}`,
                             name,
                           ]}
                           labelFormatter={(label, payload) => {
@@ -1594,7 +1618,7 @@ export default function AnalyticsTab({
                         />
                         <Bar
                           yAxisId="left"
-                          name="Revenue (৳)"
+                          name={isBn ? "বিক্রয় আয় (৳)" : "Revenue (৳)"}
                           dataKey="revenue"
                           fill="var(--accent)"
                           radius={[6, 6, 0, 0]}
@@ -1602,7 +1626,7 @@ export default function AnalyticsTab({
                         />
                         <Bar
                           yAxisId="right"
-                          name="Units Sold"
+                          name={isBn ? "বিক্রিত ইউনিট" : "Units Sold"}
                           dataKey="units"
                           fill="var(--foreground)"
                           fillOpacity={0.65}
@@ -1616,7 +1640,7 @@ export default function AnalyticsTab({
               ) : (
                 <div className="h-64 flex flex-col items-center justify-center opacity-50 text-xs font-bold text-center">
                   <span className="text-3xl mb-2">💄</span>
-                  No sales recorded for products yet.
+                  {isBn ? "এখনও কোনো পণ্যের বিক্রয় রেকর্ড হয়নি।" : "No sales recorded for products yet."}
                 </div>
               )}
             </div>
@@ -1625,10 +1649,10 @@ export default function AnalyticsTab({
             <div className="lg:col-span-5 bg-foreground/5 border border-foreground/10 rounded-2xl p-5 flex flex-col">
               <div className="flex justify-between items-center mb-3">
                 <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
-                  Top Shade Variants
+                  {isBn ? "জনপ্রিয় শেড ভ্যারিয়েন্টসমূহ" : "Top Shade Variants"}
                 </h3>
                 <span className="text-[10px] font-bold opacity-60">
-                  {productPerformanceStats.allShadesList.length} top shades
+                  {isBn ? `শীর্ষ ${productPerformanceStats.allShadesList.length.toLocaleString("bn-BD")} টি শেড` : `${productPerformanceStats.allShadesList.length} top shades`}
                 </span>
               </div>
 
@@ -1663,17 +1687,17 @@ export default function AnalyticsTab({
 
                       <div className="text-right shrink-0">
                         <div className="font-black text-foreground">
-                          {s.unitsSold} {s.unitsSold === 1 ? "unit" : "units"}
+                          {s.unitsSold.toLocaleString(isBn ? "bn-BD" : undefined)} {isBn ? "টি ইউনিট" : (s.unitsSold === 1 ? "unit" : "units")}
                         </div>
                         <div className="text-[10px] font-bold text-accent">
-                          ৳{s.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          ৳{s.revenue.toLocaleString(isBn ? "bn-BD" : undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </div>
                       </div>
                     </div>
                   ))
                 ) : (
                   <div className="py-12 text-center opacity-50 text-xs font-bold">
-                    No variant sales data recorded yet.
+                    {isBn ? "কোনো ভ্যারিয়েন্ট বিক্রয়ের তথ্য নেই।" : "No variant sales data recorded yet."}
                   </div>
                 )}
               </div>

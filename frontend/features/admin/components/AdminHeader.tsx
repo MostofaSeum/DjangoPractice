@@ -1,8 +1,10 @@
 "use client";
 
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import LanguageToggle from "@/components/ui/LanguageToggle";
 import { AdminTab } from "../types";
 import AdminNotificationBell from "./AdminNotificationBell";
+import { useLanguage } from "@/store/LanguageContext";
 
 interface AdminHeaderProps {
   onLogout: () => void;
@@ -23,28 +25,31 @@ export default function AdminHeader({
   token = null,
   onNavigateToOrder,
 }: AdminHeaderProps) {
+  const { locale } = useLanguage();
+  const isBn = locale === "bn";
+
   const getTabDisplayName = (tab?: AdminTab) => {
     switch (tab) {
       case "products":
-        return "Products";
+        return isBn ? "পণ্যসমূহ" : "Products";
       case "collections":
-        return "Collections";
+        return isBn ? "কালেকশন / ক্যাটাগরি" : "Collections";
       case "orders":
-        return "Orders";
+        return isBn ? "অর্ডারসমূহ" : "Orders";
       case "customers":
-        return "Customers";
+        return isBn ? "গ্রাহকবৃন্দ" : "Customers";
       case "promotions":
-        return "Promotions";
+        return isBn ? "প্রমোশন ও অফার" : "Promotions";
       case "coupons":
-        return "Coupons";
+        return isBn ? "কুপন কোড" : "Coupons";
       case "payments":
-        return "Payment Methods";
+        return isBn ? "পেমেন্ট মাধ্যম" : "Payment Methods";
       case "delivery":
-        return "Delivery Settings";
+        return isBn ? "ডেলিভারি সেটিংস" : "Delivery Settings";
       case "analytics":
-        return "Analytics";
+        return isBn ? "রিপোর্ট ও অ্যানালিটিক্স" : "Analytics";
       default:
-        return "Current Tab";
+        return isBn ? "বর্তমান ট্যাব" : "Current Tab";
     }
   };
 
@@ -55,10 +60,10 @@ export default function AdminHeader({
           <div>
             <div className="flex items-center gap-2">
               <span className="bg-accent text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest rounded-md">
-                Staff Portal
+                {isBn ? "অ্যাডমিন প্যানেল" : "Staff Portal"}
               </span>
               <h1 className="text-lg md:text-xl font-black uppercase tracking-tight">
-                Admin Dashboard
+                {isBn ? "অ্যাডমিন ড্যাশবোর্ড" : "Admin Dashboard"}
               </h1>
             </div>
           </div>
@@ -70,7 +75,7 @@ export default function AdminHeader({
             <button
               onClick={onRefresh}
               disabled={isRefreshing}
-              title={`Refresh ${getTabDisplayName(activeTab)}`}
+              title={`${isBn ? "রিফ্রেশ করুন" : "Refresh"} ${getTabDisplayName(activeTab)}`}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border border-white/15 bg-white/10 text-white dark:text-foreground hover:bg-white/20 active:scale-95 cursor-pointer ${
                 isRefreshing ? "opacity-60 cursor-not-allowed" : ""
               }`}
@@ -91,7 +96,7 @@ export default function AdminHeader({
                 />
               </svg>
               <span className="hidden sm:inline">
-                {isRefreshing ? "Refreshing..." : `Refresh ${getTabDisplayName(activeTab)}`}
+                {isRefreshing ? (isBn ? "রিফ্রেশ হচ্ছে..." : "Refreshing...") : `${isBn ? "রিফ্রেশ" : "Refresh"} ${getTabDisplayName(activeTab)}`}
               </span>
             </button>
           )}
@@ -105,12 +110,13 @@ export default function AdminHeader({
             />
           )}
 
+          <LanguageToggle />
           <ThemeToggle />
           <button
             onClick={onLogout}
             className="bg-accent/20 text-accent hover:bg-accent/30 px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider border border-accent/20 transition-colors cursor-pointer"
           >
-            Logout
+            {isBn ? "লগআউট" : "Logout"}
           </button>
         </div>
       </div>

@@ -46,7 +46,8 @@ export default function ProductSearchBar({
   className = "",
 }: ProductSearchBarProps) {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, formatCurrency, locale } = useLanguage();
+  const isBn = locale === "bn";
   const [query, setQuery] = useState(initialSearch);
   const [suggestions, setSuggestions] = useState<ProductSuggestion[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
@@ -98,13 +99,16 @@ export default function ProductSearchBar({
           setIsOpen(true);
         } else {
           setSuggestions([]);
+          setTotalCount(0);
         }
       } catch (err) {
-        console.error("Search suggestion fetch failed:", err);
+        console.error("Error fetching product search suggestions:", err);
+        setSuggestions([]);
+        setTotalCount(0);
       } finally {
         setLoading(false);
       }
-    }, 200);
+    }, 250);
 
     return () => {
       if (debounceTimerRef.current) {
@@ -255,7 +259,6 @@ export default function ProductSearchBar({
       } ${className}`}
     >
       <form onSubmit={handleSubmit} className="flex items-center gap-2 w-full sm:w-auto">
-        {/* Hidden inputs to preserve existing filters (customer mode) */}
         {!isAdmin && minPrice && <input type="hidden" name="minPrice" value={minPrice} />}
         {!isAdmin && maxPrice && <input type="hidden" name="maxPrice" value={maxPrice} />}
         {!isAdmin && ordering && <input type="hidden" name="ordering" value={ordering} />}
@@ -278,7 +281,7 @@ export default function ProductSearchBar({
             placeholder={
               placeholder ||
               (isAdmin
-                ? "Search product..."
+                ? (isBn ? "পণ্য দিয়ে খুঁজুন..." : "Search product...")
                 : t("products.searchPlaceholder"))
             }
             autoComplete="off"
@@ -289,14 +292,13 @@ export default function ProductSearchBar({
             }
           />
 
-          {/* Clear button */}
           {query.length > 0 && (
             <button
               type="button"
               onClick={handleClear}
               className={`absolute ${
                 isAdmin ? "right-2" : "right-3.5"
-              } top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground p-0.5 transition-colors`}
+              } top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground p-0.5 transition-colors cursor-pointer`}
               aria-label="Clear search"
             >
               <svg
@@ -310,7 +312,6 @@ export default function ProductSearchBar({
             </button>
           )}
 
-          {/* Loading indicator */}
           {loading && (
             <div
               className={`absolute ${
@@ -339,21 +340,21 @@ export default function ProductSearchBar({
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth="2"
+                strokeWidth="2.5"
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
             </svg>
           )}
-          {isAdmin ? "Search" : t("products.search")}
+          {isAdmin ? (isBn ? "অনুসন্ধান" : "Search") : t("products.search")}
         </button>
 
         {isAdmin && initialSearch && (
           <button
             type="button"
             onClick={handleClear}
-            className="text-[10px] font-bold text-red-500 hover:underline uppercase whitespace-nowrap"
+            className="text-[10px] font-bold text-red-500 hover:underline uppercase whitespace-nowrap cursor-pointer"
           >
-            Clear
+            {isBn ? "সাফ করুন" : "Clear"}
           </button>
         )}
       </form>
@@ -368,8 +369,8 @@ export default function ProductSearchBar({
           {suggestions.length > 0 ? (
             <div className="py-1.5">
               <div className="px-3.5 py-1.5 text-[9px] font-black uppercase tracking-wider opacity-60 flex justify-between border-b border-foreground/10 mb-1">
-                <span>Product Suggestions</span>
-                <span>{totalCount} found</span>
+                <span>{isBn ? "পণ্য পরামর্শ" : "Product Suggestions"}</span>
+                <span>{isBn ? `${totalCount.toLocaleString("bn-BD")} টি পাওয়া গেছে` : `${totalCount} found`}</span>
               </div>
 
               <div className="max-h-[340px] overflow-y-auto divide-y divide-foreground/5">
@@ -404,9 +405,9 @@ export default function ProductSearchBar({
                           </div>
                           <div className="text-[10px] opacity-60 flex items-center gap-2">
                             <span>#{item.id}</span>
-                            <span>Stock: {item.inventory ?? 0}</span>
+                            <span>{isBn ? `স্টকঃ ${(item.inventory ?? 0).toLocaleString("bn-BD")}` : `Stock: ${item.inventory ?? 0}`}</span>
                             <span className="text-accent font-bold">
-                              ৳{Number(item.unit_price).toFixed(2)}
+                              {formatCurrency(Number(item.unit_price))}
                             </span>
                           </div>
                         </div>
@@ -439,11 +440,11 @@ export default function ProductSearchBar({
 
                       <div className="text-right flex-shrink-0">
                         <div className="text-sm font-black text-accent">
-                          ৳{Number(effectivePrice).toFixed(2)}
+                          {formatCurrency(Number(effectivePrice))}
                         </div>
                         {discountPercent > 0 && (
                           <div className="text-[10px] line-through opacity-50">
-                            ৳{Number(item.unit_price).toFixed(2)}
+                            {formatCurrency(Number(item.unit_price))}
                           </div>
                         )}
                       </div>
@@ -460,8 +461,8 @@ export default function ProductSearchBar({
                   className="w-full py-1.5 px-3 rounded-xl bg-button-bg text-button-fg text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity text-center flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {isAdmin
-                    ? `Filter table for "${query.trim()}"`
-                    : `View all ${totalCount} results for "${query.trim()}"`}
+                    ? (isBn ? `"${query.trim()}" এর জন্য ফিল্টার করুন` : `Filter table for "${query.trim()}"`)
+                    : (isBn ? `"${query.trim()}" এর সকল ${totalCount.toLocaleString("bn-BD")} টি পণ্য দেখুন` : `View all ${totalCount} results for "${query.trim()}"`)}
                 </button>
               </div>
             </div>
@@ -469,10 +470,10 @@ export default function ProductSearchBar({
             !loading && (
               <div className="py-6 px-4 text-center">
                 <p className="text-xs opacity-70 font-semibold mb-0.5">
-                  No products found matching &quot;{query.trim()}&quot;
+                  {isBn ? `"${query.trim()}" দিয়ে কোনো পণ্য পাওয়া যায়নি` : `No products found matching "${query.trim()}"`}
                 </p>
                 <p className="text-[10px] opacity-50">
-                  Try checking your spelling or using different keywords
+                  {isBn ? "বানান সঠিক কিনা যাচাই করুন অথবা অন্য শব্দ দিয়ে চেষ্টা করুন" : "Try checking your spelling or using different keywords"}
                 </p>
               </div>
             )

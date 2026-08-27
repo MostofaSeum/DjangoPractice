@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Order } from "../../types";
+import { useLanguage } from "@/store/LanguageContext";
 
 interface OrdersTabProps {
   orders: Order[];
@@ -16,6 +17,9 @@ export default function OrdersTab({
   handleDeleteOrder,
   targetOrderId = null,
 }: OrdersTabProps) {
+  const { locale, formatCurrency } = useLanguage();
+  const isBn = locale === "bn";
+
   const [orderSearch, setOrderSearch] = useState("");
   const [activeOrderQuery, setActiveOrderQuery] = useState("");
   const [orderStatusFilter, setOrderStatusFilter] = useState<
@@ -65,29 +69,30 @@ export default function OrdersTab({
             {[
               {
                 id: "ALL" as const,
-                label: "All Orders",
+                label: isBn ? "সকল অর্ডার" : "All Orders",
                 count: orders.length,
               },
               {
                 id: "P" as const,
-                label: "Pending",
+                label: isBn ? "পেন্ডিং (অপেক্ষারত)" : "Pending",
                 count: orders.filter((o) => o.payment_status === "P").length,
                 color: "text-amber-500",
               },
               {
                 id: "C" as const,
-                label: "Complete",
+                label: isBn ? "সফল (কমপ্লিট)" : "Complete",
                 count: orders.filter((o) => o.payment_status === "C").length,
                 color: "text-emerald-500",
               },
               {
                 id: "F" as const,
-                label: "Failed",
+                label: isBn ? "ব্যর্থ / বাতিল" : "Failed",
                 count: orders.filter((o) => o.payment_status === "F").length,
                 color: "text-red-500",
               },
             ].map((statusBtn) => {
               const isSelected = orderStatusFilter === statusBtn.id;
+              const displayCount = isBn ? statusBtn.count.toLocaleString("bn-BD") : statusBtn.count;
               return (
                 <button
                   key={statusBtn.id}
@@ -107,7 +112,7 @@ export default function OrdersTab({
                         : "bg-foreground/10 text-foreground/80"
                     }`}
                   >
-                    {statusBtn.count}
+                    {displayCount}
                   </span>
                 </button>
               );
@@ -126,14 +131,14 @@ export default function OrdersTab({
             type="text"
             value={orderSearch}
             onChange={(e) => setOrderSearch(e.target.value)}
-            placeholder="Search orders..."
+            placeholder={isBn ? "অর্ডার অনুসন্ধান করুন..." : "Search orders..."}
             className="px-3.5 py-1.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full sm:w-48 focus:ring-2 focus:ring-accent"
           />
           <button
             type="submit"
             className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
           >
-            Search
+            {isBn ? "খুঁজুন" : "Search"}
           </button>
           {(activeOrderQuery || orderSearch) && (
             <button
@@ -144,7 +149,7 @@ export default function OrdersTab({
               }}
               className="text-[10px] font-bold text-red-500 hover:underline uppercase cursor-pointer"
             >
-              Clear
+              {isBn ? "মুছুন" : "Clear"}
             </button>
           )}
         </form>
@@ -155,13 +160,13 @@ export default function OrdersTab({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-foreground/10 text-[10px] font-black uppercase tracking-wider opacity-60">
-                <th className="py-3 px-2">Order ID</th>
-                <th className="py-3 px-2">Customer</th>
-                <th className="py-3 px-2">Date Placed</th>
-                <th className="py-3 px-2">Method</th>
-                <th className="py-3 px-2">Items Count</th>
-                <th className="py-3 px-2">Payment Status</th>
-                <th className="py-3 px-2 text-right">Actions</th>
+                <th className="py-3 px-2">{isBn ? "অর্ডার আইডি" : "Order ID"}</th>
+                <th className="py-3 px-2">{isBn ? "গ্রাহক" : "Customer"}</th>
+                <th className="py-3 px-2">{isBn ? "অর্ডারের তারিখ" : "Date Placed"}</th>
+                <th className="py-3 px-2">{isBn ? "পেমেন্ট মাধ্যম" : "Method"}</th>
+                <th className="py-3 px-2">{isBn ? "পণ্যের সংখ্যা" : "Items Count"}</th>
+                <th className="py-3 px-2">{isBn ? "পেমেন্ট স্ট্যাটাস" : "Payment Status"}</th>
+                <th className="py-3 px-2 text-right">{isBn ? "কার্যক্রম" : "Actions"}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-foreground/10 text-xs font-bold">
@@ -170,20 +175,23 @@ export default function OrdersTab({
                   ? order.items.reduce((sum, i) => sum + i.quantity, 0)
                   : 0;
 
+                const displayOrderId = isBn ? order.id.toLocaleString("bn-BD") : order.id;
+                const displayItemCount = isBn ? `${itemCount.toLocaleString("bn-BD")} টি` : `${itemCount} item(s)`;
+
                 return (
                   <tr
                     key={order.id}
                     className="hover:bg-primary/5 dark:hover:bg-primary/30 transition-colors"
                   >
                     <td className="py-3.5 px-2 font-black">
-                      Order #{order.id}
+                      {isBn ? `অর্ডার #${displayOrderId}` : `Order #${order.id}`}
                     </td>
                     <td className="py-3.5 px-2 opacity-90 font-bold">
-                      {order.customer_name || `Customer #${order.customer}`}
+                      {order.customer_name || (isBn ? `গ্রাহক #${order.customer}` : `Customer #${order.customer}`)}
                     </td>
                     <td className="py-3.5 px-2 opacity-60 text-[11px]">
                       {order.placed_at
-                        ? new Date(order.placed_at).toLocaleDateString()
+                        ? new Date(order.placed_at).toLocaleDateString(isBn ? "bn-BD" : "en-US")
                         : "N/A"}
                     </td>
                     <td className="py-3.5 px-2">
@@ -211,7 +219,7 @@ export default function OrdersTab({
                         </span>
                       )}
                     </td>
-                    <td className="py-3.5 px-2">{itemCount} item(s)</td>
+                    <td className="py-3.5 px-2">{displayItemCount}</td>
                     <td className="py-3.5 px-2">
                       <select
                         value={order.payment_status || "P"}
@@ -230,34 +238,34 @@ export default function OrdersTab({
                           value="P"
                           className="bg-secondary text-foreground"
                         >
-                          Pending (P)
+                          {isBn ? "পেন্ডিং (P)" : "Pending (P)"}
                         </option>
                         <option
                           value="C"
                           className="bg-secondary text-foreground"
                         >
-                          Complete (C)
+                          {isBn ? "কমপ্লিট (C)" : "Complete (C)"}
                         </option>
                         <option
                           value="F"
                           className="bg-secondary text-foreground"
                         >
-                          Failed (F)
+                          {isBn ? "ফেইল্ড / বাতিল (F)" : "Failed (F)"}
                         </option>
                       </select>
                     </td>
                     <td className="py-3.5 px-2 text-right flex justify-end gap-2">
                       <button
                         onClick={() => setSelectedOrderDetails(order)}
-                        className="px-3 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                        className="px-3 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
                       >
-                        View Details
+                        {isBn ? "বিস্তারিত দেখুন" : "View Details"}
                       </button>
                       <button
                         onClick={() => handleDeleteOrder(order.id)}
-                        className="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                        className="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
                       >
-                        Delete
+                        {isBn ? "মুছুন" : "Delete"}
                       </button>
                     </td>
                   </tr>
@@ -268,7 +276,7 @@ export default function OrdersTab({
         </div>
       ) : (
         <div className="py-12 text-center text-xs font-bold uppercase tracking-wider opacity-50">
-          No orders found.
+          {isBn ? "কোনো অর্ডার পাওয়া যায়নি।" : "No orders found."}
         </div>
       )}
 
@@ -279,50 +287,54 @@ export default function OrdersTab({
             <div className="flex justify-between items-center pb-4 border-b border-foreground/10 mb-6">
               <div>
                 <h3 className="text-lg font-black uppercase tracking-tight">
-                  Order #{selectedOrderDetails.id}
+                  {isBn
+                    ? `অর্ডার #${selectedOrderDetails.id.toLocaleString("bn-BD")}`
+                    : `Order #${selectedOrderDetails.id}`}
                 </h3>
                 <span className="text-[10px] font-bold opacity-60 uppercase tracking-wider">
-                  Customer #{selectedOrderDetails.customer} •{" "}
+                  {isBn
+                    ? `গ্রাহক #${selectedOrderDetails.customer.toLocaleString("bn-BD")} • `
+                    : `Customer #${selectedOrderDetails.customer} • `}
                   {selectedOrderDetails.placed_at
                     ? new Date(
                         selectedOrderDetails.placed_at
-                      ).toLocaleString()
+                      ).toLocaleString(isBn ? "bn-BD" : "en-US")
                     : ""}
                 </span>
               </div>
               <button
                 onClick={() => setSelectedOrderDetails(null)}
-                className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3 py-1.5 rounded-xl transition-colors uppercase"
+                className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3 py-1.5 rounded-xl transition-colors uppercase cursor-pointer"
               >
-                Close
+                {isBn ? "বন্ধ করুন" : "Close"}
               </button>
             </div>
 
             {/* Customer Contact & Address Info */}
             <div className="bg-primary/5 dark:bg-primary/30 p-4 rounded-2xl mb-6 text-xs space-y-1.5">
               <p>
-                <strong>Phone:</strong> {selectedOrderDetails.phone || "N/A"}
+                <strong>{isBn ? "মোবাইল নম্বর:" : "Phone:"}</strong> {selectedOrderDetails.phone || (isBn ? "নেই" : "N/A")}
               </p>
               <p>
-                <strong>Shipping Address:</strong>{" "}
-                {selectedOrderDetails.shipping_address || "N/A"}
+                <strong>{isBn ? "ডেলিভারি ঠিকানা:" : "Shipping Address:"}</strong>{" "}
+                {selectedOrderDetails.shipping_address || (isBn ? "নেই" : "N/A")}
               </p>
               <p>
-                <strong>Delivery Zone:</strong>{" "}
+                <strong>{isBn ? "ডেলিভারি এলাকা:" : "Delivery Zone:"}</strong>{" "}
                 <span className="font-black text-accent uppercase">
                   {selectedOrderDetails.delivery_area === "outside_dhaka"
-                    ? "Outside Dhaka"
-                    : "Inside Dhaka"}
+                    ? (isBn ? "ঢাকার বাইরে" : "Outside Dhaka")
+                    : (isBn ? "ঢাকার ভিতরে" : "Inside Dhaka")}
                 </span>
                 {selectedOrderDetails.delivery_charge !== undefined && (
                   <span className="ml-2 px-2 py-0.5 rounded-md bg-secondary border border-foreground/10 text-[10px] font-bold">
-                    Delivery Fee: ৳
-                    {Number(selectedOrderDetails.delivery_charge).toFixed(2)}
+                    {isBn ? "ডেলিভারি ফি: " : "Delivery Fee: "}
+                    {formatCurrency(selectedOrderDetails.delivery_charge)}
                   </span>
                 )}
               </p>
               <p>
-                <strong>Payment Method:</strong>{" "}
+                <strong>{isBn ? "পেমেন্ট পদ্ধতি:" : "Payment Method:"}</strong>{" "}
                 {selectedOrderDetails.payment_method === "V" ? (
                   <span className="text-accent font-black uppercase inline-flex items-center gap-1">
                     <img
@@ -330,43 +342,43 @@ export default function OrdersTab({
                       alt="VibeCoin"
                       className="w-3.5 h-3.5 object-contain"
                     />{" "}
-                    VibeCoin Payment
+                    {isBn ? "ভাইবকয়েন পেমেন্ট" : "VibeCoin Payment"}
                   </span>
                 ) : selectedOrderDetails.payment_method === "O" ||
                   selectedOrderDetails.payment_method === "B" ? (
                   <span className="text-bkash font-black uppercase">
-                    Online / bKash Payment
+                    {isBn ? "বিকাশ পেমেন্ট" : "Online / bKash Payment"}
                   </span>
                 ) : selectedOrderDetails.payment_method === "N" ? (
                   <span className="text-nagad font-black uppercase">
-                    Nagad Payment
+                    {isBn ? "নগদ পেমেন্ট" : "Nagad Payment"}
                   </span>
                 ) : (
                   <span className="font-black uppercase">
-                    Cash on Delivery (COD)
+                    {isBn ? "ক্যাশ অন ডেলিভারি (সিওডি)" : "Cash on Delivery (COD)"}
                   </span>
                 )}
               </p>
               {(selectedOrderDetails.payment_method === "O" ||
                 selectedOrderDetails.payment_method === "B") && (
                 <p>
-                  <strong>bKash TrxID:</strong>{" "}
+                  <strong>{isBn ? "বিকাশ TrxID:" : "bKash TrxID:"}</strong>{" "}
                   <code className="bg-secondary px-2 py-0.5 rounded font-mono font-bold text-bkash">
                     {selectedOrderDetails.transaction_id || "N/A"}
                   </code>{" "}
                   {selectedOrderDetails.transaction_phone_no
-                    ? `[Sender: ${selectedOrderDetails.transaction_phone_no}]`
+                    ? `[${isBn ? "প্রেরক" : "Sender"}: ${selectedOrderDetails.transaction_phone_no}]`
                     : ""}
                 </p>
               )}
               {selectedOrderDetails.payment_method === "N" && (
                 <p>
-                  <strong>Nagad TrxID:</strong>{" "}
+                  <strong>{isBn ? "নগদ TrxID:" : "Nagad TrxID:"}</strong>{" "}
                   <code className="bg-secondary px-2 py-0.5 rounded font-mono font-bold text-nagad">
                     {selectedOrderDetails.transaction_id || "N/A"}
                   </code>{" "}
                   {selectedOrderDetails.transaction_phone_no
-                    ? `[Sender: ${selectedOrderDetails.transaction_phone_no}]`
+                    ? `[${isBn ? "প্রেরক" : "Sender"}: ${selectedOrderDetails.transaction_phone_no}]`
                     : ""}
                 </p>
               )}
@@ -377,10 +389,10 @@ export default function OrdersTab({
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="border-b border-foreground/10 text-[10px] font-black uppercase opacity-60">
-                    <th className="py-2 px-1">Product</th>
-                    <th className="py-2 px-1">Qty</th>
-                    <th className="py-2 px-1">Unit Price</th>
-                    <th className="py-2 px-1 text-right">Subtotal</th>
+                    <th className="py-2 px-1">{isBn ? "পণ্য" : "Product"}</th>
+                    <th className="py-2 px-1">{isBn ? "পরিমাণ" : "Qty"}</th>
+                    <th className="py-2 px-1">{isBn ? "একক মূল্য" : "Unit Price"}</th>
+                    <th className="py-2 px-1 text-right">{isBn ? "মোট মূল্য" : "Subtotal"}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-foreground/10">
@@ -390,7 +402,7 @@ export default function OrdersTab({
                       <tr key={item.id}>
                         <td className="py-2 px-1 font-bold">
                           <div>
-                            {item.product?.title || `Product #${item.product}`}
+                            {item.product?.title || (isBn ? `পণ্য #${item.product}` : `Product #${item.product}`)}
                           </div>
                           {(item.variant || item.variant_title) && (
                             <div className="text-[10px] text-accent font-semibold flex items-center gap-1 mt-0.5">
@@ -403,18 +415,20 @@ export default function OrdersTab({
                                 />
                               )}
                               <span>
-                                Option:{" "}
+                                {isBn ? "ভেরিয়েন্ট: " : "Option: "}
                                 {item.variant?.name || item.variant_title}
                               </span>
                             </div>
                           )}
                         </td>
-                        <td className="py-2 px-1">{item.quantity}</td>
                         <td className="py-2 px-1">
-                          ৳{Number(item.unit_price).toFixed(2)}
+                          {isBn ? `${item.quantity.toLocaleString("bn-BD")} টি` : item.quantity}
+                        </td>
+                        <td className="py-2 px-1">
+                          {formatCurrency(item.unit_price)}
                         </td>
                         <td className="py-2 px-1 text-right font-black text-accent">
-                          ৳{(item.quantity * Number(item.unit_price)).toFixed(2)}
+                          {formatCurrency(item.quantity * Number(item.unit_price))}
                         </td>
                       </tr>
                     ))
@@ -424,7 +438,7 @@ export default function OrdersTab({
                         colSpan={4}
                         className="py-4 text-center text-xs opacity-50"
                       >
-                        No item breakdown available.
+                        {isBn ? "পণ্যের বিবরণ পাওয়া যায়নি।" : "No item breakdown available."}
                       </td>
                     </tr>
                   )}
@@ -434,47 +448,46 @@ export default function OrdersTab({
 
             <div className="pt-4 border-t border-foreground/10 space-y-2">
               <div className="flex justify-between text-xs opacity-75">
-                <span>Items Subtotal:</span>
-                <span>
-                  ৳
-                  {selectedOrderDetails.items
-                    ? selectedOrderDetails.items
-                        .reduce(
+                <span>{isBn ? "পণ্যের সাবটোটাল:" : "Items Subtotal:"}</span>
+                <span className="font-bold">
+                  {formatCurrency(
+                    selectedOrderDetails.items
+                      ? selectedOrderDetails.items.reduce(
                           (sum, i) => sum + i.quantity * Number(i.unit_price),
                           0
                         )
-                        .toFixed(2)
-                    : "0.00"}
+                      : 0
+                  )}
                 </span>
               </div>
               {selectedOrderDetails.delivery_charge !== undefined && (
                 <div className="flex justify-between text-xs opacity-75">
                   <span>
-                    Delivery Charge (
+                    {isBn ? "ডেলিভারি চার্জ (" : "Delivery Charge ("}
                     {selectedOrderDetails.delivery_area === "outside_dhaka"
-                      ? "Outside Dhaka"
-                      : "Inside Dhaka"}
+                      ? (isBn ? "ঢাকার বাইরে" : "Outside Dhaka")
+                      : (isBn ? "ঢাকার ভিতরে" : "Inside Dhaka")}
                     ):
                   </span>
                   <span className="font-bold">
-                    ৳{Number(selectedOrderDetails.delivery_charge).toFixed(2)}
+                    {formatCurrency(selectedOrderDetails.delivery_charge)}
                   </span>
                 </div>
               )}
               <div className="flex justify-between items-center pt-2 border-t border-foreground/10">
                 <span className="text-xs font-bold opacity-70 uppercase">
-                  Payment Status:{" "}
+                  {isBn ? "পেমেন্ট অবস্থা: " : "Payment Status: "}
                   <strong className="uppercase font-black text-foreground">
                     {selectedOrderDetails.payment_status === "C"
-                      ? "Complete"
+                      ? (isBn ? "সফল (Complete)" : "Complete")
                       : selectedOrderDetails.payment_status === "F"
-                        ? "Failed"
-                        : "Pending"}
+                        ? (isBn ? "ব্যর্থ (Failed)" : "Failed")
+                        : (isBn ? "পেন্ডিং (Pending)" : "Pending")}
                   </strong>
                 </span>
                 <span className="text-base font-black text-foreground">
-                  Grand Total: ৳
-                  {(
+                  {isBn ? "সর্বমোট মূল্য: " : "Grand Total: "}
+                  {formatCurrency(
                     (selectedOrderDetails.items
                       ? selectedOrderDetails.items.reduce(
                           (sum, i) =>
@@ -483,7 +496,7 @@ export default function OrdersTab({
                         )
                       : 0) +
                     Number(selectedOrderDetails.delivery_charge || 0)
-                  ).toFixed(2)}
+                  )}
                 </span>
               </div>
             </div>

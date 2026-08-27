@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Collection, CouponItem, Product } from "../../types";
 import ProductImage from "@/components/ui/ProductImage";
+import { useLanguage } from "@/store/LanguageContext";
 
 interface CouponsTabProps {
   couponsList: CouponItem[];
@@ -67,6 +68,9 @@ export default function CouponsTab({
   promoProductsCatalog,
   collections,
 }: CouponsTabProps) {
+  const { locale } = useLanguage();
+  const isBn = locale === "bn";
+
   const [couponFilterSearch, setCouponFilterSearch] = useState("");
 
   const filteredCoupons = couponsList.filter(
@@ -86,16 +90,16 @@ export default function CouponsTab({
         <div className="flex justify-between items-center mb-6 pb-2 border-b border-foreground/10">
           <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
             {editingCouponId
-              ? `Edit Coupon #${editingCouponId}`
-              : "Create New Coupon"}
+              ? (isBn ? `কুপন #${editingCouponId} সম্পাদনা` : `Edit Coupon #${editingCouponId}`)
+              : (isBn ? "নতুন কুপন তৈরি করুন" : "Create New Coupon")}
           </h2>
           {editingCouponId && (
             <button
               type="button"
               onClick={handleCancelEditCoupon}
-              className="text-[10px] font-bold uppercase tracking-wider text-red-500 hover:underline"
+              className="text-[10px] font-bold uppercase tracking-wider text-red-500 hover:underline cursor-pointer"
             >
-              Cancel Edit
+              {isBn ? "সম্পাদনা বাতিল" : "Cancel Edit"}
             </button>
           )}
         </div>
@@ -104,7 +108,7 @@ export default function CouponsTab({
           {/* Coupon Code Input */}
           <div>
             <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-              Coupon Code *
+              {isBn ? "কুপন কোড *" : "Coupon Code *"}
             </label>
             <input
               type="text"
@@ -114,7 +118,7 @@ export default function CouponsTab({
               onChange={(e) =>
                 setCouponCode(e.target.value.toUpperCase().slice(0, 20))
               }
-              placeholder="e.g. SUMMER25, VIP50"
+              placeholder={isBn ? "যেমনঃ EID25, VIP50" : "e.g. SUMMER25, VIP50"}
               className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-sm font-black uppercase tracking-wider text-foreground outline-none focus:ring-2 focus:ring-accent shadow-inner"
             />
           </div>
@@ -122,7 +126,7 @@ export default function CouponsTab({
           {/* Discount Percentage */}
           <div>
             <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-              Discount Percentage (%) *
+              {isBn ? "ছাড়ের শতকরা হার (%) *" : "Discount Percentage (%) *"}
             </label>
             <div className="relative">
               <input
@@ -133,11 +137,11 @@ export default function CouponsTab({
                 required
                 value={couponDiscountPercent}
                 onChange={(e) => setCouponDiscountPercent(e.target.value)}
-                placeholder="e.g. 20"
+                placeholder={isBn ? "যেমনঃ ২০" : "e.g. 20"}
                 className="w-full bg-background border border-foreground/15 rounded-xl px-4 pr-20 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shadow-inner"
               />
               <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none px-2 py-1 rounded-lg bg-accent/20 text-accent font-extrabold text-[10px] uppercase tracking-wider">
-                % OFF
+                {isBn ? "% ছাড়" : "% OFF"}
               </div>
             </div>
           </div>
@@ -145,7 +149,7 @@ export default function CouponsTab({
           {/* Expiry Date & Time */}
           <div>
             <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-              Valid Until (Expiration Date & Time) *
+              {isBn ? "মেয়াদ শেষ হওয়ার তারিখ ও সময় *" : "Valid Until (Expiration Date & Time) *"}
             </label>
             <input
               type="datetime-local"
@@ -160,12 +164,15 @@ export default function CouponsTab({
           <div className="flex items-center justify-between p-3.5 rounded-xl bg-background border border-foreground/15">
             <div>
               <p className="text-xs font-black uppercase tracking-wider text-foreground">
-                Status: {couponIsActive ? "Active" : "Disabled"}
+                {isBn ? "অবস্থা: " : "Status: "}
+                {couponIsActive
+                  ? (isBn ? "সক্রিয় (Active)" : "Active")
+                  : (isBn ? "নিষ্ক্রিয় (Disabled)" : "Disabled")}
               </p>
               <p className="text-[10px] opacity-60 font-medium">
                 {couponIsActive
-                  ? "Customers can redeem this coupon."
-                  : "Coupon is disabled and cannot be redeemed."}
+                  ? (isBn ? "গ্রাহকরা এই কুপনটি রিডিম বা ব্যবহার করতে পারবেন।" : "Customers can redeem this coupon.")
+                  : (isBn ? "কুপনটি বন্ধ আছে এবং ব্যবহার করা যাবে না।" : "Coupon is disabled and cannot be redeemed.")}
               </p>
             </div>
             <button
@@ -186,30 +193,30 @@ export default function CouponsTab({
           {/* Target Scope Switcher */}
           <div>
             <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-              Apply Coupon To *
+              {isBn ? "কুপন প্রযোজ্য হবে *" : "Apply Coupon To *"}
             </label>
             <div className="grid grid-cols-2 gap-2 p-1 bg-primary/5 dark:bg-primary/20 rounded-xl border border-foreground/10">
               <button
                 type="button"
                 onClick={() => setCouponTargetType("product")}
-                className={`py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
+                className={`py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                   couponTargetType === "product"
                     ? "bg-secondary text-foreground shadow-sm"
                     : "text-foreground/60 hover:text-foreground"
                 }`}
               >
-                Specific Products
+                {isBn ? "নির্দিষ্ট পণ্যসমূহ" : "Specific Products"}
               </button>
               <button
                 type="button"
                 onClick={() => setCouponTargetType("collection")}
-                className={`py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
+                className={`py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                   couponTargetType === "collection"
                     ? "bg-secondary text-foreground shadow-sm"
                     : "text-foreground/60 hover:text-foreground"
                 }`}
               >
-                Collection
+                {isBn ? "কালেকশন / ক্যাটাগরি" : "Collection"}
               </button>
             </div>
           </div>
@@ -219,8 +226,9 @@ export default function CouponsTab({
             <div className="relative">
               <div className="flex justify-between items-center mb-2">
                 <label className="block text-[10px] font-extrabold uppercase tracking-wider opacity-70">
-                  Select Eligible Products ({promoProductsCatalog.length}{" "}
-                  available)
+                  {isBn
+                    ? `প্রযোজ্য পণ্য নির্বাচন করুন (মোট ${promoProductsCatalog.length.toLocaleString("bn-BD")} টি)`
+                    : `Select Eligible Products (${promoProductsCatalog.length} available)`}
                 </label>
                 {couponSelectedProductIds.length > 0 && (
                   <button
@@ -229,9 +237,9 @@ export default function CouponsTab({
                       setCouponSelectedProductIds([]);
                       setCouponSearchInput("");
                     }}
-                    className="text-[9px] font-bold text-red-500 hover:underline uppercase"
+                    className="text-[9px] font-bold text-red-500 hover:underline uppercase cursor-pointer"
                   >
-                    Clear All ({couponSelectedProductIds.length})
+                    {isBn ? `সব মুছুন (${couponSelectedProductIds.length.toLocaleString("bn-BD")})` : `Clear All (${couponSelectedProductIds.length})`}
                   </button>
                 )}
               </div>
@@ -257,7 +265,7 @@ export default function CouponsTab({
                             prev.filter((id) => id !== p.id)
                           )
                         }
-                        className="text-foreground/50 hover:text-red-500 font-black ml-0.5 text-xs"
+                        className="text-foreground/50 hover:text-red-500 font-black ml-0.5 text-xs cursor-pointer"
                       >
                         ×
                       </button>
@@ -275,12 +283,12 @@ export default function CouponsTab({
                     setCouponSearchInput(e.target.value);
                     setIsCouponDropdownOpen(true);
                   }}
-                  placeholder="Search product to add to coupon..."
+                  placeholder={isBn ? "কুপনে যুক্ত করতে পণ্য খুঁজুন..." : "Search product to add to coupon..."}
                   className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent placeholder:font-normal shadow-inner"
                 />
                 {couponSelectedProductIds.length > 0 && (
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md bg-accent/20 text-accent font-black text-[10px] uppercase">
-                    {couponSelectedProductIds.length} Selected
+                    {isBn ? `${couponSelectedProductIds.length.toLocaleString("bn-BD")} টি নির্বাচিত` : `${couponSelectedProductIds.length} Selected`}
                   </span>
                 )}
               </div>
@@ -305,8 +313,7 @@ export default function CouponsTab({
                       if (matches.length === 0) {
                         return (
                           <div className="p-4 text-center text-xs font-bold opacity-50">
-                            No products found matching &ldquo;
-                            {couponSearchInput}&rdquo;
+                            {isBn ? `"${couponSearchInput}" এর সাথে কোনো পণ্য মিলেনি` : `No products found matching "${couponSearchInput}"`}
                           </div>
                         );
                       }
@@ -314,7 +321,7 @@ export default function CouponsTab({
                       return (
                         <>
                           <div className="p-2 flex justify-between items-center text-[10px] font-bold text-foreground/60">
-                            <span>{matches.length} matching products</span>
+                            <span>{isBn ? `${matches.length.toLocaleString("bn-BD")} টি পণ্য পাওয়া গেছে` : `${matches.length} matching products`}</span>
                             <button
                               type="button"
                               onClick={() => {
@@ -323,9 +330,9 @@ export default function CouponsTab({
                                   Array.from(new Set([...prev, ...matchIds]))
                                 );
                               }}
-                              className="text-accent hover:underline uppercase"
+                              className="text-accent hover:underline uppercase cursor-pointer"
                             >
-                              + Select All ({matches.length})
+                              {isBn ? `+ সবগুলো নির্বাচন (${matches.length.toLocaleString("bn-BD")})` : `+ Select All (${matches.length})`}
                             </button>
                           </div>
                           {matches.map((prod) => {
@@ -365,7 +372,7 @@ export default function CouponsTab({
                                       #{prod.id} {prod.title}
                                     </p>
                                     <p className="text-[10px] text-foreground/60 font-semibold">
-                                      Price: ৳
+                                      {isBn ? "মূল্যঃ ৳" : "Price: ৳"}
                                       {Number(prod.unit_price).toFixed(2)}
                                     </p>
                                   </div>
@@ -378,7 +385,7 @@ export default function CouponsTab({
                                       : "text-foreground/40"
                                   }`}
                                 >
-                                  {isSelected ? "Selected" : "+ Add"}
+                                  {isSelected ? (isBn ? "নির্বাচিত" : "Selected") : (isBn ? "+ যোগ করুন" : "+ Add")}
                                 </span>
                               </div>
                             );
@@ -396,7 +403,7 @@ export default function CouponsTab({
           {couponTargetType === "collection" && (
             <div>
               <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-                Select Collection *
+                {isBn ? "কালেকশন নির্বাচন করুন *" : "Select Collection *"}
               </label>
               <select
                 value={couponCollectionId}
@@ -406,12 +413,12 @@ export default function CouponsTab({
                   )
                 }
                 required
-                className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent cursor-pointer"
               >
-                <option value="">-- Choose Collection --</option>
+                <option value="">{isBn ? "-- কালেকশন বাছুন --" : "-- Choose Collection --"}</option>
                 {collections.map((col) => (
                   <option key={col.id} value={col.id}>
-                    #{col.id} {col.title} ({col.product_count || 0} products)
+                    #{col.id} {col.title} ({isBn ? `${(col.product_count || 0).toLocaleString("bn-BD")} টি পণ্য` : `${col.product_count || 0} products`})
                   </option>
                 ))}
               </select>
@@ -427,15 +434,15 @@ export default function CouponsTab({
                 couponSelectedProductIds.length === 0) ||
               (couponTargetType === "collection" && !couponCollectionId)
             }
-            className="w-full py-4 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50"
+            className="w-full py-4 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50 cursor-pointer"
           >
             {editingCouponId
               ? couponCreating
-                ? "Updating Coupon..."
-                : "Update Coupon"
+                ? (isBn ? "কুপন আপডেট হচ্ছে..." : "Updating Coupon...")
+                : (isBn ? "কুপন আপডেট করুন" : "Update Coupon")
               : couponCreating
-                ? "Creating Coupon..."
-                : "Create Coupon Now"}
+                ? (isBn ? "কুপন তৈরি হচ্ছে..." : "Creating Coupon...")
+                : (isBn ? "নতুন কুপন সংরক্ষণ করুন" : "Create Coupon Now")}
           </button>
         </form>
       </div>
@@ -445,13 +452,15 @@ export default function CouponsTab({
         <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
             <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-              Store Coupons ({couponsList.length})
+              {isBn
+                ? `স্টোরের কুপনসমূহ (${couponsList.length.toLocaleString("bn-BD")})`
+                : `Store Coupons (${couponsList.length})`}
             </h2>
             <input
               type="text"
               value={couponFilterSearch}
               onChange={(e) => setCouponFilterSearch(e.target.value)}
-              placeholder="Search coupons by code..."
+              placeholder={isBn ? "কুপন কোড দিয়ে অনুসন্ধান..." : "Search coupons by code..."}
               className="px-3.5 py-1.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full sm:w-56 focus:ring-2 focus:ring-accent"
             />
           </div>
@@ -459,8 +468,8 @@ export default function CouponsTab({
           {filteredCoupons.length === 0 ? (
             <div className="py-12 text-center text-xs font-bold uppercase tracking-wider opacity-50">
               {couponFilterSearch
-                ? `No coupons found matching "${couponFilterSearch}".`
-                : "No coupons created yet. Use the form on the left to create your first coupon!"}
+                ? (isBn ? `"${couponFilterSearch}" এর সাথে কোনো কুপন পাওয়া যায়নি।` : `No coupons found matching "${couponFilterSearch}".`)
+                : (isBn ? "এখনও কোনো কুপন তৈরি করা হয়নি। নতুন কুপন যোগ করতে বামপাশের ফর্মটি পূরণ করুন!" : "No coupons created yet. Use the form on the left to create your first coupon!")}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -468,14 +477,14 @@ export default function CouponsTab({
                 const isExpired =
                   coupon.valid_to && new Date(coupon.valid_to) < new Date();
                 const formattedExpiry = coupon.valid_to
-                  ? new Date(coupon.valid_to).toLocaleDateString(undefined, {
+                  ? new Date(coupon.valid_to).toLocaleDateString(isBn ? "bn-BD" : undefined, {
                       year: "numeric",
                       month: "short",
                       day: "numeric",
                       hour: "2-digit",
                       minute: "2-digit",
                     })
-                  : "No Expiry";
+                  : (isBn ? "মেয়াদহীন" : "No Expiry");
                 const isBeingEdited = editingCouponId === coupon.id;
 
                 return (
@@ -504,7 +513,7 @@ export default function CouponsTab({
                               onClick={(e) =>
                                 handleToggleCouponActive(coupon, e)
                               }
-                              className={`px-2 py-0.5 rounded text-[9px] font-black uppercase transition-all flex items-center gap-1 ${
+                              className={`px-2 py-0.5 rounded text-[9px] font-black uppercase transition-all flex items-center gap-1 cursor-pointer ${
                                 coupon.is_active
                                   ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25"
                                   : "bg-foreground/15 text-foreground/60 hover:bg-foreground/25"
@@ -517,35 +526,35 @@ export default function CouponsTab({
                                     : "bg-foreground/50"
                                 }`}
                               />
-                              {coupon.is_active ? "Active" : "Disabled"}
+                              {coupon.is_active
+                                ? (isBn ? "সক্রিয়" : "Active")
+                                : (isBn ? "নিষ্ক্রিয়" : "Disabled")}
                             </button>
                             {isExpired && (
                               <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-red-500/15 text-red-500">
-                                Expired
+                                {isBn ? "মেয়াদোত্তীর্ণ" : "Expired"}
                               </span>
                             )}
                           </div>
                         </div>
                         <span className="font-black text-lg text-accent">
-                          {Number(coupon.discount_percent)}% OFF
+                          {isBn ? `${Number(coupon.discount_percent).toLocaleString("bn-BD")}% ছাড়` : `${Number(coupon.discount_percent)}% OFF`}
                         </span>
                       </div>
 
                       {/* Target Details */}
                       <div className="p-3 rounded-xl bg-secondary/80 border border-foreground/5 text-xs space-y-1">
                         <p className="text-[10px] font-extrabold uppercase tracking-wider opacity-60">
-                          Scope:{" "}
+                          {isBn ? "প্রযোজ্য ক্ষেত্র: " : "Scope: "}
                           {coupon.target_type === "product"
-                            ? "Specific Products"
-                            : "Collection"}
+                            ? (isBn ? "নির্দিষ্ট পণ্যসমূহ" : "Specific Products")
+                            : (isBn ? "কালেকশন / ক্যাটাগরি" : "Collection")}
                         </p>
                         {coupon.target_type === "product" ? (
                           <p className="font-bold text-foreground truncate">
-                            {coupon.product_count ||
-                              (coupon.products_details
-                                ? coupon.products_details.length
-                                : 0)}{" "}
-                            Product(s) Selected
+                            {isBn
+                              ? `${(coupon.product_count || (coupon.products_details ? coupon.products_details.length : 0)).toLocaleString("bn-BD")} টি পণ্য নির্বাচিত`
+                              : `${coupon.product_count || (coupon.products_details ? coupon.products_details.length : 0)} Product(s) Selected`}
                             {coupon.products_details &&
                               coupon.products_details.length > 0 && (
                                 <span className="block text-[10px] opacity-70 font-normal truncate mt-0.5">
@@ -557,7 +566,7 @@ export default function CouponsTab({
                           </p>
                         ) : (
                           <p className="font-bold text-foreground">
-                            Collection:{" "}
+                            {isBn ? "কালেকশন: " : "Collection: "}
                             {coupon.collection_title || `#${coupon.collection}`}
                           </p>
                         )}
@@ -565,7 +574,7 @@ export default function CouponsTab({
 
                       {/* Expiry Timestamp */}
                       <div className="flex justify-between items-center text-[10px] opacity-60 font-semibold pt-1">
-                        <span>Expires: {formattedExpiry}</span>
+                        <span>{isBn ? "মেয়াদ শেষঃ " : "Expires: "}{formattedExpiry}</span>
                       </div>
                     </div>
 
@@ -577,9 +586,9 @@ export default function CouponsTab({
                           e.stopPropagation();
                           handleDeleteCoupon(coupon.id, coupon.code);
                         }}
-                        className="text-[10px] font-extrabold text-red-500 hover:underline uppercase tracking-wider"
+                        className="text-[10px] font-extrabold text-red-500 hover:underline uppercase tracking-wider cursor-pointer"
                       >
-                        Delete
+                        {isBn ? "মুছুন" : "Delete"}
                       </button>
                     </div>
                   </div>

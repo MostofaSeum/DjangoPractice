@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Collection, DeliveryRuleItem, Product } from "../../types";
 import ProductImage from "@/components/ui/ProductImage";
+import { useLanguage } from "@/store/LanguageContext";
 
 interface PromotionsTabProps {
   promoProductsCatalog: Product[];
@@ -108,6 +109,9 @@ export default function PromotionsTab({
   handleToggleDeliveryRule,
   handleDeleteDeliveryRule,
 }: PromotionsTabProps) {
+  const { locale, formatCurrency } = useLanguage();
+  const isBn = locale === "bn";
+
   const [promoSearch, setPromoSearch] = useState("");
   const [activePromoSearch, setActivePromoSearch] = useState("");
   const [promoPage, setPromoPage] = useState(1);
@@ -136,7 +140,7 @@ export default function PromotionsTab({
         <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm h-fit lg:sticky lg:top-24 transition-colors duration-300">
           <div className="flex justify-between items-center mb-6 pb-2 border-b border-foreground/10">
             <h2 className="text-xs font-black uppercase tracking-widest text-foreground flex items-center gap-2">
-              Apply New Promotion
+              {isBn ? "নতুন প্রমোশন ও ছাড় প্রয়োগ করুন" : "Apply New Promotion"}
             </h2>
           </div>
 
@@ -144,7 +148,9 @@ export default function PromotionsTab({
             <div className="relative">
               <div className="flex justify-between items-center mb-2">
                 <label className="block text-[10px] font-extrabold uppercase tracking-wider opacity-70">
-                  Select Products ({promoProductsCatalog.length} available)
+                  {isBn
+                    ? `পণ্য নির্বাচন করুন (মোট ${promoProductsCatalog.length.toLocaleString("bn-BD")} টি রয়েছে)`
+                    : `Select Products (${promoProductsCatalog.length} available)`}
                 </label>
                 {promoSelectedProductIds.length > 0 && (
                   <button
@@ -153,9 +159,9 @@ export default function PromotionsTab({
                       setPromoSelectedProductIds([]);
                       setPromoSearchInput("");
                     }}
-                    className="text-[9px] font-bold text-red-500 hover:underline uppercase"
+                    className="text-[9px] font-bold text-red-500 hover:underline uppercase cursor-pointer"
                   >
-                    Clear All ({promoSelectedProductIds.length})
+                    {isBn ? `সব মুছুন (${promoSelectedProductIds.length.toLocaleString("bn-BD")})` : `Clear All (${promoSelectedProductIds.length})`}
                   </button>
                 )}
               </div>
@@ -180,7 +186,7 @@ export default function PromotionsTab({
                             prev.filter((id) => id !== p.id)
                           )
                         }
-                        className="text-foreground/50 hover:text-red-500 font-black ml-0.5 text-xs"
+                        className="text-foreground/50 hover:text-red-500 font-black ml-0.5 text-xs cursor-pointer"
                       >
                         ×
                       </button>
@@ -198,12 +204,12 @@ export default function PromotionsTab({
                     setPromoSearchInput(e.target.value);
                     setIsPromoDropdownOpen(true);
                   }}
-                  placeholder="Search product to add to selection..."
+                  placeholder={isBn ? "প্রমোশনে যুক্ত করতে পণ্য খুঁজুন..." : "Search product to add to selection..."}
                   className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent placeholder:font-normal shadow-inner"
                 />
                 {promoSelectedProductIds.length > 0 && (
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded-md bg-accent/20 text-accent font-black text-[10px] uppercase">
-                    {promoSelectedProductIds.length} Selected
+                    {isBn ? `${promoSelectedProductIds.length.toLocaleString("bn-BD")} টি নির্বাচিত` : `${promoSelectedProductIds.length} Selected`}
                   </span>
                 )}
               </div>
@@ -227,8 +233,7 @@ export default function PromotionsTab({
                       if (matches.length === 0) {
                         return (
                           <div className="p-4 text-center text-xs font-bold opacity-50">
-                            No products found matching &ldquo;{promoSearchInput}
-                            &rdquo;
+                            {isBn ? `"${promoSearchInput}" এর সাথে কোনো পণ্য মিলেনি` : `No products found matching "${promoSearchInput}"`}
                           </div>
                         );
                       }
@@ -236,7 +241,7 @@ export default function PromotionsTab({
                       return (
                         <>
                           <div className="p-2 flex justify-between items-center text-[10px] font-bold text-foreground/60">
-                            <span>{matches.length} matching products</span>
+                            <span>{isBn ? `${matches.length.toLocaleString("bn-BD")} টি পণ্য পাওয়া গেছে` : `${matches.length} matching products`}</span>
                             <button
                               type="button"
                               onClick={() => {
@@ -245,9 +250,9 @@ export default function PromotionsTab({
                                   Array.from(new Set([...prev, ...matchIds]))
                                 );
                               }}
-                              className="text-accent hover:underline uppercase"
+                              className="text-accent hover:underline uppercase cursor-pointer"
                             >
-                              + Select All ({matches.length})
+                              {isBn ? `+ সবগুলো নির্বাচন (${matches.length.toLocaleString("bn-BD")})` : `+ Select All (${matches.length})`}
                             </button>
                           </div>
                           {matches.map((prod) => {
@@ -290,7 +295,7 @@ export default function PromotionsTab({
                                       #{prod.id} {prod.title}
                                     </p>
                                     <p className="text-[10px] text-foreground/60 font-semibold">
-                                      Original: ৳
+                                      {isBn ? "মূল দামঃ ৳" : "Original: ৳"}
                                       {Number(prod.unit_price).toFixed(2)}
                                     </p>
                                   </div>
@@ -312,7 +317,7 @@ export default function PromotionsTab({
                                         : "text-foreground/40"
                                     }`}
                                   >
-                                    {isSelected ? "Selected" : "+ Add"}
+                                    {isSelected ? (isBn ? "নির্বাচিত" : "Selected") : (isBn ? "+ যোগ করুন" : "+ Add")}
                                   </span>
                                 )}
                               </div>
@@ -328,7 +333,7 @@ export default function PromotionsTab({
 
             <div>
               <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-                Discount Percentage (%)
+                {isBn ? "ছাড়ের শতকরা হার (%)" : "Discount Percentage (%)"}
               </label>
               <div className="relative">
                 <input
@@ -338,12 +343,12 @@ export default function PromotionsTab({
                   max="100"
                   value={promoDiscountPercent}
                   onChange={(e) => setPromoDiscountPercent(e.target.value)}
-                  placeholder="e.g. 20"
+                  placeholder={isBn ? "যেমনঃ ২০" : "e.g. 20"}
                   className="w-full bg-background border border-foreground/15 rounded-xl px-4 pr-20 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shadow-inner"
                   required
                 />
                 <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none px-2 py-1 rounded-lg bg-accent/20 text-accent font-extrabold text-[10px] uppercase tracking-wider">
-                  % OFF
+                  {isBn ? "% ছাড়" : "% OFF"}
                 </div>
               </div>
             </div>
@@ -351,13 +356,13 @@ export default function PromotionsTab({
             <button
               type="submit"
               disabled={promoApplying || promoSelectedProductIds.length === 0}
-              className="w-full py-4 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50"
+              className="w-full py-4 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50 cursor-pointer"
             >
               {promoApplying
-                ? "Applying Promotion..."
+                ? (isBn ? "ছাড় যুক্ত হচ্ছে..." : "Applying Promotion...")
                 : promoSelectedProductIds.length > 0
-                  ? `Apply ${promoDiscountPercent}% Discount (${promoSelectedProductIds.length} Products)`
-                  : "Select Products to Apply Discount"}
+                  ? (isBn ? `${promoDiscountPercent}% ছাড় প্রয়োগ করুন (${promoSelectedProductIds.length.toLocaleString("bn-BD")} টি পণ্যে)` : `Apply ${promoDiscountPercent}% Discount (${promoSelectedProductIds.length} Products)`)
+                  : (isBn ? "ছাড় প্রয়োগ করতে পণ্য নির্বাচন করুন" : "Select Products to Apply Discount")}
             </button>
           </form>
         </div>
@@ -367,15 +372,15 @@ export default function PromotionsTab({
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
               <div className="flex items-center gap-3 flex-wrap">
                 <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-                  Products Currently On Sale
+                  {isBn ? "বর্তমানে ছাড়ে বিক্রিত পণ্যসমূহ" : "Products Currently On Sale"}
                 </h2>
                 {onSaleProducts.length > 0 && (
                   <button
                     type="button"
                     onClick={() => handleRemovePromotion("all")}
-                    className="px-3 py-1 bg-red-500/15 text-red-500 hover:bg-red-500 hover:text-white rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all shadow-xs"
+                    className="px-3 py-1 bg-red-500/15 text-red-500 hover:bg-red-500 hover:text-white rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all shadow-xs cursor-pointer"
                   >
-                    Remove All Discounts
+                    {isBn ? "সকল ছাড় বাতিল করুন" : "Remove All Discounts"}
                   </button>
                 )}
               </div>
@@ -391,14 +396,14 @@ export default function PromotionsTab({
                   type="text"
                   value={promoSearch}
                   onChange={(e) => setPromoSearch(e.target.value)}
-                  placeholder="Search on-sale products..."
+                  placeholder={isBn ? "অফারযুক্ত পণ্য খুঁজুন..." : "Search on-sale products..."}
                   className="px-3.5 py-1.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full sm:w-48 focus:ring-2 focus:ring-accent"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                  className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
                 >
-                  Search
+                  {isBn ? "খুঁজুন" : "Search"}
                 </button>
                 {activePromoSearch && (
                   <button
@@ -408,9 +413,9 @@ export default function PromotionsTab({
                       setActivePromoSearch("");
                       setPromoPage(1);
                     }}
-                    className="text-[10px] font-bold text-red-500 hover:underline uppercase"
+                    className="text-[10px] font-bold text-red-500 hover:underline uppercase cursor-pointer"
                   >
-                    Clear
+                    {isBn ? "মুছুন" : "Clear"}
                   </button>
                 )}
               </form>
@@ -462,9 +467,9 @@ export default function PromotionsTab({
                           onClick={() =>
                             handleRemovePromotion("product", prod.id)
                           }
-                          className="px-3 py-2 bg-accent/15 text-accent hover:bg-accent hover:text-button-fg rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shrink-0"
+                          className="px-3 py-2 bg-accent/15 text-accent hover:bg-accent hover:text-button-fg rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shrink-0 cursor-pointer"
                         >
-                          Remove
+                          {isBn ? "ছাড় সরান" : "Remove"}
                         </button>
                       </div>
                     );
@@ -479,13 +484,13 @@ export default function PromotionsTab({
                         setPromoPage((prev) => Math.max(prev - 1, 1))
                       }
                       disabled={promoPage === 1}
-                      className="px-5 py-2.5 border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-button-bg hover:text-button-fg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      className="px-5 py-2.5 border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-button-bg hover:text-button-fg disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
                     >
-                      Previous
+                      {isBn ? "পূর্ববর্তী" : "Previous"}
                     </button>
 
                     <span className="text-xs font-bold opacity-60 uppercase tracking-wider">
-                      Page {promoPage} of {totalPromoPages}
+                      {isBn ? `পৃষ্ঠা ${promoPage.toLocaleString("bn-BD")} / ${totalPromoPages.toLocaleString("bn-BD")}` : `Page ${promoPage} of ${totalPromoPages}`}
                     </span>
 
                     <button
@@ -496,9 +501,9 @@ export default function PromotionsTab({
                         )
                       }
                       disabled={promoPage >= totalPromoPages}
-                      className="px-5 py-2.5 border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-button-bg hover:text-button-fg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      className="px-5 py-2.5 border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-button-bg hover:text-button-fg disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
                     >
-                      Next
+                      {isBn ? "পরবর্তী" : "Next"}
                     </button>
                   </div>
                 )}
@@ -506,8 +511,8 @@ export default function PromotionsTab({
             ) : (
               <div className="py-12 text-center text-xs font-bold uppercase tracking-wider opacity-50">
                 {activePromoSearch
-                  ? `No on-sale products found matching "${activePromoSearch}".`
-                  : "No products currently have active promotions. Use the form on the left to add discounts!"}
+                  ? (isBn ? `"${activePromoSearch}" এর সাথে কোনো অফারযুক্ত পণ্য পাওয়া যায়নি।` : `No on-sale products found matching "${activePromoSearch}".`)
+                  : (isBn ? "বর্তমানে কোনো পণ্যে সক্রিয় প্রমোশন নেই। নতুন ছাড় যোগ করতে বামপাশের ফর্মটি ব্যবহার করুন!" : "No products currently have active promotions. Use the form on the left to add discounts!")}
               </div>
             )}
           </div>
@@ -518,13 +523,15 @@ export default function PromotionsTab({
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6 pb-4 border-b border-foreground/10">
           <div>
             <h3 className="text-sm font-black uppercase tracking-wider text-foreground flex items-center gap-2">
-              <span>Free & Delivery Offers</span>
+              <span>{isBn ? "ফ্রি ও বিশেষ ডেলিভারি অফার" : "Free & Delivery Offers"}</span>
               <span className="px-2 py-0.5 rounded-md bg-accent/15 text-accent text-[10px] font-bold">
-                {deliveryRulesList.length} Rules
+                {isBn ? `${deliveryRulesList.length.toLocaleString("bn-BD")} টি রুল` : `${deliveryRulesList.length} Rules`}
               </span>
             </h3>
             <p className="text-xs opacity-60 font-medium mt-0.5">
-              Set Free Delivery (৳0) or Reduced Shipping fees for specific products or entire collections.
+              {isBn
+                ? "নির্দিষ্ট পণ্য বা সম্পূর্ণ কালেকশনের জন্য ফ্রি ডেলিভারি (৳০) বা বিশেষ হ্রাসকৃত ডেলিভারি চার্জ নির্ধারণ করুন।"
+                : "Set Free Delivery (৳0) or Reduced Shipping fees for specific products or entire collections."}
             </p>
           </div>
         </div>
@@ -533,15 +540,17 @@ export default function PromotionsTab({
           <div className="lg:col-span-5 bg-primary/5 dark:bg-primary/20 border border-foreground/10 p-6 rounded-3xl space-y-5">
             <div className="flex justify-between items-center pb-3 border-b border-foreground/10">
               <h4 className="text-xs font-black uppercase tracking-wider text-foreground">
-                {editingDeliveryRuleId ? "Edit Delivery Rule" : "Create Delivery Rule"}
+                {editingDeliveryRuleId
+                  ? (isBn ? "ডেলিভারি অফার সম্পাদনা" : "Edit Delivery Rule")
+                  : (isBn ? "নতুন ডেলিভারি অফার তৈরি" : "Create Delivery Rule")}
               </h4>
               {editingDeliveryRuleId && (
                 <button
                   type="button"
                   onClick={handleCancelEditDeliveryRule}
-                  className="text-[10px] font-bold text-accent hover:underline uppercase"
+                  className="text-[10px] font-bold text-accent hover:underline uppercase cursor-pointer"
                 >
-                  Cancel Edit
+                  {isBn ? "সম্পাদনা বাতিল" : "Cancel Edit"}
                 </button>
               )}
             </div>
@@ -549,13 +558,13 @@ export default function PromotionsTab({
             <form onSubmit={handleSaveDeliveryRule} className="space-y-4">
               <div>
                 <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 opacity-70">
-                  Rule Title *
+                  {isBn ? "অফারের শিরোনাম *" : "Rule Title *"}
                 </label>
                 <input
                   type="text"
                   value={deliveryRuleTitle}
                   onChange={(e) => setDeliveryRuleTitle(e.target.value)}
-                  placeholder="e.g. Free Delivery on Winter Jacket"
+                  placeholder={isBn ? "যেমনঃ উইন্টার জ্যাকেটে ফ্রি ডেলিভারি" : "e.g. Free Delivery on Winter Jacket"}
                   required
                   className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-2.5 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                 />
@@ -563,41 +572,41 @@ export default function PromotionsTab({
 
               <div>
                 <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-                  Apply Offer To *
+                  {isBn ? "অফার প্রযোজ্য হবে *" : "Apply Offer To *"}
                 </label>
                 <div className="grid grid-cols-3 gap-1.5 p-1 bg-primary/5 dark:bg-primary/20 rounded-xl border border-foreground/10">
                   <button
                     type="button"
                     onClick={() => setDeliveryRuleTargetType("order_total")}
-                    className={`py-2 px-1 text-center rounded-lg text-[11px] font-black uppercase tracking-wider transition-all ${
+                    className={`py-2 px-1 text-center rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                       deliveryRuleTargetType === "order_total"
                         ? "bg-secondary text-foreground shadow-sm"
                         : "text-foreground/60 hover:text-foreground"
                     }`}
                   >
-                    Order Total
+                    {isBn ? "অর্ডার মোট" : "Order Total"}
                   </button>
                   <button
                     type="button"
                     onClick={() => setDeliveryRuleTargetType("product")}
-                    className={`py-2 px-1 text-center rounded-lg text-[11px] font-black uppercase tracking-wider transition-all ${
+                    className={`py-2 px-1 text-center rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                       deliveryRuleTargetType === "product"
                         ? "bg-secondary text-foreground shadow-sm"
                         : "text-foreground/60 hover:text-foreground"
                     }`}
                   >
-                    Products
+                    {isBn ? "পণ্যসমূহ" : "Products"}
                   </button>
                   <button
                     type="button"
                     onClick={() => setDeliveryRuleTargetType("collection")}
-                    className={`py-2 px-1 text-center rounded-lg text-[11px] font-black uppercase tracking-wider transition-all ${
+                    className={`py-2 px-1 text-center rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                       deliveryRuleTargetType === "collection"
                         ? "bg-secondary text-foreground shadow-sm"
                         : "text-foreground/60 hover:text-foreground"
                     }`}
                   >
-                    Collection
+                    {isBn ? "কালেকশন" : "Collection"}
                   </button>
                 </div>
               </div>
@@ -605,7 +614,7 @@ export default function PromotionsTab({
               {deliveryRuleTargetType === "order_total" && (
                 <div className="p-4 rounded-2xl bg-secondary/80 border border-foreground/10 space-y-2">
                   <label className="block text-[10px] font-extrabold uppercase tracking-wider opacity-70">
-                    Minimum Order Amount (৳) *
+                    {isBn ? "সর্বনিম্ন অর্ডারের পরিমাণ (৳) *" : "Minimum Order Amount (৳) *"}
                   </label>
                   <div className="relative">
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-sm text-foreground/50">
@@ -620,12 +629,14 @@ export default function PromotionsTab({
                       onChange={(e) =>
                         setDeliveryRuleMinOrderAmount(e.target.value)
                       }
-                      placeholder="e.g. 1000"
+                      placeholder={isBn ? "যেমনঃ ১০০০" : "e.g. 1000"}
                       className="w-full pl-8 pr-4 py-2.5 bg-background border border-foreground/15 rounded-xl text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                     />
                   </div>
                   <p className="text-[10px] opacity-60">
-                    Applies automatically when customer checkout item subtotal reaches this amount or more.
+                    {isBn
+                      ? "গ্রাহকের চেকআউটের মোট পণ্যের মূল্য এই পরিমাণ বা তার বেশি হলে অফারটি প্রযোজ্য হবে।"
+                      : "Applies automatically when customer checkout item subtotal reaches this amount or more."}
                   </p>
                 </div>
               )}
@@ -634,7 +645,7 @@ export default function PromotionsTab({
                 <div className="relative">
                   <div className="flex justify-between items-center mb-1.5">
                     <label className="block text-[10px] font-extrabold uppercase tracking-wider opacity-70">
-                      Select Products
+                      {isBn ? "পণ্য নির্বাচন করুন" : "Select Products"}
                     </label>
                     {deliveryRuleSelectedProductIds.length > 0 && (
                       <button
@@ -643,9 +654,9 @@ export default function PromotionsTab({
                           setDeliveryRuleSelectedProductIds([]);
                           setDeliveryRuleSearchInput("");
                         }}
-                        className="text-[9px] font-bold text-red-500 hover:underline uppercase"
+                        className="text-[9px] font-bold text-red-500 hover:underline uppercase cursor-pointer"
                       >
-                        Clear All ({deliveryRuleSelectedProductIds.length})
+                        {isBn ? `সব মুছুন (${deliveryRuleSelectedProductIds.length.toLocaleString("bn-BD")})` : `Clear All (${deliveryRuleSelectedProductIds.length})`}
                       </button>
                     )}
                   </div>
@@ -667,7 +678,7 @@ export default function PromotionsTab({
                                 prev.filter((id) => id !== p.id)
                               )
                             }
-                            className="text-foreground/50 hover:text-red-500 font-black ml-0.5"
+                            className="text-foreground/50 hover:text-red-500 font-black ml-0.5 cursor-pointer"
                           >
                             ×
                           </button>
@@ -684,7 +695,7 @@ export default function PromotionsTab({
                       setDeliveryRuleSearchInput(e.target.value);
                       setIsDeliveryRuleDropdownOpen(true);
                     }}
-                    placeholder="Search products for delivery offer..."
+                    placeholder={isBn ? "ডেলিভারি অফারের জন্য পণ্য খুঁজুন..." : "Search products for delivery offer..."}
                     className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-2.5 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                   />
 
@@ -709,7 +720,7 @@ export default function PromotionsTab({
                           if (matches.length === 0) {
                             return (
                               <div className="p-3 text-center text-xs font-bold opacity-50">
-                                No products found matching &ldquo;{deliveryRuleSearchInput}&rdquo;
+                                {isBn ? `"${deliveryRuleSearchInput}" এর সাথে কোনো পণ্য মিলেনি` : `No products found matching "${deliveryRuleSearchInput}"`}
                               </div>
                             );
                           }
@@ -717,7 +728,7 @@ export default function PromotionsTab({
                           return (
                             <>
                               <div className="p-2 flex justify-between items-center text-[10px] font-bold text-foreground/60">
-                                <span>{matches.length} matching products</span>
+                                <span>{isBn ? `${matches.length.toLocaleString("bn-BD")} টি পণ্য পাওয়া গেছে` : `${matches.length} matching products`}</span>
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -729,9 +740,9 @@ export default function PromotionsTab({
                                         )
                                     );
                                   }}
-                                  className="text-accent hover:underline uppercase"
+                                  className="text-accent hover:underline uppercase cursor-pointer"
                                 >
-                                  + Select All ({matches.length})
+                                  {isBn ? `+ সবগুলো নির্বাচন (${matches.length.toLocaleString("bn-BD")})` : `+ Select All (${matches.length})`}
                                 </button>
                               </div>
                               {matches.map((prod) => {
@@ -778,7 +789,7 @@ export default function PromotionsTab({
                                           : "text-foreground/40"
                                       }`}
                                     >
-                                      {isSelected ? "Selected" : "+ Add"}
+                                      {isSelected ? (isBn ? "নির্বাচিত" : "Selected") : (isBn ? "+ যোগ করুন" : "+ Add")}
                                     </span>
                                   </div>
                                 );
@@ -795,7 +806,7 @@ export default function PromotionsTab({
               {deliveryRuleTargetType === "collection" && (
                 <div>
                   <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 opacity-70">
-                    Select Collection *
+                    {isBn ? "কালেকশন নির্বাচন করুন *" : "Select Collection *"}
                   </label>
                   <select
                     value={deliveryRuleCollectionId}
@@ -805,13 +816,12 @@ export default function PromotionsTab({
                       )
                     }
                     required
-                    className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-2.5 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                    className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-2.5 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent cursor-pointer"
                   >
-                    <option value="">-- Choose Collection --</option>
+                    <option value="">{isBn ? "-- কালেকশন বাছুন --" : "-- Choose Collection --"}</option>
                     {collections.map((col) => (
                       <option key={col.id} value={col.id}>
-                        #{col.id} {col.title} ({col.product_count || 0}{" "}
-                        products)
+                        #{col.id} {col.title} ({isBn ? `${(col.product_count || 0).toLocaleString("bn-BD")} টি পণ্য` : `${col.product_count || 0} products`})
                       </option>
                     ))}
                   </select>
@@ -820,30 +830,30 @@ export default function PromotionsTab({
 
               <div>
                 <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-                  Offer Type *
+                  {isBn ? "অফারের ধরন *" : "Offer Type *"}
                 </label>
                 <div className="grid grid-cols-2 gap-2 p-1 bg-primary/5 dark:bg-primary/20 rounded-xl border border-foreground/10">
                   <button
                     type="button"
                     onClick={() => setDeliveryRuleType("free")}
-                    className={`py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
+                    className={`py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                       deliveryRuleType === "free"
                         ? "bg-secondary text-foreground shadow-sm"
                         : "text-foreground/60 hover:text-foreground"
                     }`}
                   >
-                    Free Delivery
+                    {isBn ? "ফ্রি ডেলিভারি" : "Free Delivery"}
                   </button>
                   <button
                     type="button"
                     onClick={() => setDeliveryRuleType("reduced")}
-                    className={`py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all ${
+                    className={`py-2 rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer ${
                       deliveryRuleType === "reduced"
                         ? "bg-secondary text-foreground shadow-sm"
                         : "text-foreground/60 hover:text-foreground"
                     }`}
                   >
-                    Custom Charge
+                    {isBn ? "বিশেষ হ্রাসকৃত চার্জ" : "Custom Charge"}
                   </button>
                 </div>
               </div>
@@ -852,7 +862,7 @@ export default function PromotionsTab({
                 <div className="grid grid-cols-2 gap-3 p-3 bg-secondary/80 rounded-2xl border border-foreground/10">
                   <div>
                     <label className="block text-[9px] font-bold uppercase tracking-wider mb-1 opacity-70">
-                      Inside Dhaka (৳) *
+                      {isBn ? "ঢাকার ভিতরে (৳) *" : "Inside Dhaka (৳) *"}
                     </label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-xs text-foreground/50">
@@ -867,14 +877,14 @@ export default function PromotionsTab({
                         onChange={(e) =>
                           setDeliveryRuleInsideCharge(e.target.value)
                         }
-                        placeholder="e.g. 30"
+                        placeholder={isBn ? "যেমনঃ ৩০" : "e.g. 30"}
                         className="w-full pl-7 pr-3 py-2 bg-background border border-foreground/15 rounded-xl text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                       />
                     </div>
                   </div>
                   <div>
                     <label className="block text-[9px] font-bold uppercase tracking-wider mb-1 opacity-70">
-                      Outside Dhaka (৳) *
+                      {isBn ? "ঢাকার বাইরে (৳) *" : "Outside Dhaka (৳) *"}
                     </label>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-xs text-foreground/50">
@@ -889,7 +899,7 @@ export default function PromotionsTab({
                         onChange={(e) =>
                           setDeliveryRuleOutsideCharge(e.target.value)
                         }
-                        placeholder="e.g. 60"
+                        placeholder={isBn ? "যেমনঃ ৬০" : "e.g. 60"}
                         className="w-full pl-7 pr-3 py-2 bg-background border border-foreground/15 rounded-xl text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                       />
                     </div>
@@ -901,19 +911,19 @@ export default function PromotionsTab({
                 <div className="space-y-4 p-4 rounded-2xl bg-secondary/80 border border-foreground/10">
                   <div>
                     <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 opacity-70">
-                      Offer Trigger Condition *
+                      {isBn ? "শর্ত নির্ধারণ *" : "Offer Trigger Condition *"}
                     </label>
                     <div className="grid grid-cols-2 gap-2 p-1 bg-primary/5 dark:bg-primary/20 rounded-xl border border-foreground/10">
                       <button
                         type="button"
                         onClick={() => setDeliveryRuleMinOrderAmount("")}
-                        className={`py-1.5 px-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
+                        className={`py-1.5 px-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                           !deliveryRuleMinOrderAmount || Number(deliveryRuleMinOrderAmount) === 0
                             ? "bg-secondary text-foreground shadow-sm"
                             : "text-foreground/60 hover:text-foreground"
                         }`}
                       >
-                        By Quantity
+                        {isBn ? "পণ্যের সংখ্যা অনুযায়ী" : "By Quantity"}
                       </button>
                       <button
                         type="button"
@@ -922,13 +932,13 @@ export default function PromotionsTab({
                             setDeliveryRuleMinOrderAmount("1000");
                           }
                         }}
-                        className={`py-1.5 px-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
+                        className={`py-1.5 px-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                           deliveryRuleMinOrderAmount && Number(deliveryRuleMinOrderAmount) > 0
                             ? "bg-secondary text-foreground shadow-sm"
                             : "text-foreground/60 hover:text-foreground"
                         }`}
                       >
-                        By Minimum Spend (৳)
+                        {isBn ? "সর্বনিম্ন কেনাকাটা (৳)" : "By Minimum Spend (৳)"}
                       </button>
                     </div>
                   </div>
@@ -936,7 +946,7 @@ export default function PromotionsTab({
                   {deliveryRuleMinOrderAmount && Number(deliveryRuleMinOrderAmount) > 0 ? (
                     <div>
                       <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 opacity-70">
-                        Minimum Spend on Eligible Items (৳) *
+                        {isBn ? "প্রযোজ্য পণ্যে সর্বনিম্ন খরচ (৳) *" : "Minimum Spend on Eligible Items (৳) *"}
                       </label>
                       <div className="relative">
                         <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-black text-sm text-foreground/50">
@@ -951,18 +961,20 @@ export default function PromotionsTab({
                           onChange={(e) =>
                             setDeliveryRuleMinOrderAmount(e.target.value)
                           }
-                          placeholder="e.g. 1000"
+                          placeholder={isBn ? "যেমনঃ ১০০০" : "e.g. 1000"}
                           className="w-full pl-8 pr-4 py-2 bg-background border border-foreground/15 rounded-xl text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                         />
                       </div>
                       <p className="text-[10px] opacity-60 mt-1">
-                        Customer gets offer when they buy at least ৳{Number(deliveryRuleMinOrderAmount || 0).toLocaleString()} worth of these items.
+                        {isBn
+                          ? `গ্রাহক নির্বাচিত পণ্যগুলো থেকে কমপক্ষে ৳${Number(deliveryRuleMinOrderAmount || 0).toLocaleString()} টাকার কেনাকাটা করলে এই অফার পাবেন।`
+                          : `Customer gets offer when they buy at least ৳${Number(deliveryRuleMinOrderAmount || 0).toLocaleString()} worth of these items.`}
                       </p>
                     </div>
                   ) : (
                     <div>
                       <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 opacity-70">
-                        Minimum Quantity Required *
+                        {isBn ? "সর্বনিম্ন পণ্যের সংখ্যা *" : "Minimum Quantity Required *"}
                       </label>
                       <input
                         type="number"
@@ -973,11 +985,13 @@ export default function PromotionsTab({
                         onChange={(e) =>
                           setDeliveryRuleMinQuantity(e.target.value)
                         }
-                        placeholder="e.g. 3"
+                        placeholder={isBn ? "যেমনঃ ৩" : "e.g. 3"}
                         className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-2 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                       />
                       <p className="text-[10px] opacity-60 mt-1">
-                        Set to 1 for unconditional offer, or e.g. 3 to require &quot;Buy 3 items to get offer&quot;.
+                        {isBn
+                          ? "১ দিলে সবসময় প্রযোজ্য হবে, অথবা যেমন ৩ দিলে '৩টি পণ্য কিনলে অফার' শর্ত কার্যকর হবে।"
+                          : "Set to 1 for unconditional offer, or e.g. 3 to require \"Buy 3 items to get offer\"."}
                       </p>
                     </div>
                   )}
@@ -987,12 +1001,12 @@ export default function PromotionsTab({
               <div className="flex items-center justify-between p-3 rounded-2xl bg-secondary border border-foreground/10">
                 <div>
                   <p className="text-xs font-bold text-foreground">
-                    Rule Active
+                    {isBn ? "অফার সক্রিয় আছে" : "Rule Active"}
                   </p>
                   <p className="text-[10px] opacity-60">
                     {deliveryRuleIsActive
-                      ? "Offer is active for checkout"
-                      : "Rule is disabled"}
+                      ? (isBn ? "চেকআউটে অফারটি কার্যকর রয়েছে" : "Offer is active for checkout")
+                      : (isBn ? "অফারটি নিষ্ক্রিয় রয়েছে" : "Rule is disabled")}
                   </p>
                 </div>
                 <button
@@ -1028,15 +1042,15 @@ export default function PromotionsTab({
                   (deliveryRuleTargetType === "order_total" &&
                     (!deliveryRuleMinOrderAmount || isNaN(Number(deliveryRuleMinOrderAmount))))
                 }
-                className="w-full py-3 bg-button-bg text-button-fg rounded-xl font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-50"
+                className="w-full py-3 bg-button-bg text-button-fg rounded-xl font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-50 cursor-pointer"
               >
                 {editingDeliveryRuleId
                   ? deliveryRuleCreating
-                    ? "Updating Rule..."
-                    : "Update Delivery Rule"
+                    ? (isBn ? "অফার আপডেট হচ্ছে..." : "Updating Rule...")
+                    : (isBn ? "ডেলিভারি অফার আপডেট করুন" : "Update Delivery Rule")
                   : deliveryRuleCreating
-                    ? "Creating Rule..."
-                    : "Create Delivery Rule"}
+                    ? (isBn ? "অফার তৈরি হচ্ছে..." : "Creating Rule...")
+                    : (isBn ? "নতুন ডেলিভারি অফার সংরক্ষণ করুন" : "Create Delivery Rule")}
               </button>
             </form>
           </div>
@@ -1044,7 +1058,9 @@ export default function PromotionsTab({
           <div className="lg:col-span-7 space-y-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-2 border-b border-foreground/10">
               <h4 className="text-xs font-black uppercase tracking-wider text-foreground">
-                Existing Delivery Offers ({deliveryRulesList.length})
+                {isBn
+                  ? `বিদ্যমান ডেলিভারি অফারসমূহ (${deliveryRulesList.length.toLocaleString("bn-BD")})`
+                  : `Existing Delivery Offers (${deliveryRulesList.length})`}
               </h4>
               <input
                 type="text"
@@ -1052,8 +1068,8 @@ export default function PromotionsTab({
                 onChange={(e) =>
                   setDeliveryRuleFilterSearch(e.target.value)
                 }
-                placeholder="Search rules..."
-                className="px-3 py-1.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full sm:w-48 focus:ring-2 focus:ring-accent"
+                placeholder={isBn ? "অফার খুঁজুন..." : "Search rules..."}
+                className="px-3.5 py-1.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full sm:w-48 focus:ring-2 focus:ring-accent"
               />
             </div>
 
@@ -1072,8 +1088,8 @@ export default function PromotionsTab({
                 return (
                   <div className="p-8 text-center rounded-3xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 text-xs opacity-50 font-bold">
                     {deliveryRuleFilterSearch
-                      ? `No delivery rules found matching "${deliveryRuleFilterSearch}".`
-                      : "No custom delivery rules configured yet. Create a free or reduced delivery rule above."}
+                      ? (isBn ? `"${deliveryRuleFilterSearch}" এর সাথে কোনো ডেলিভারি অফার মিলেনি।` : `No delivery rules found matching "${deliveryRuleFilterSearch}".`)
+                      : (isBn ? "এখনও কোনো কাস্টম ডেলিভারি অফার তৈরি হয়নি। বামপাশের ফর্ম থেকে তৈরি করুন।" : "No custom delivery rules configured yet. Create a free or reduced delivery rule above.")}
                   </div>
                 );
               }
@@ -1101,16 +1117,16 @@ export default function PromotionsTab({
                             <div className="space-y-1">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="font-mono font-black text-sm uppercase px-3 py-1 rounded-lg bg-accent/15 text-accent border border-accent/30 tracking-wider">
-                                  {isFree ? "FREE DELIVERY" : "CUSTOM CHARGE"}
+                                  {isFree ? (isBn ? "ফ্রি ডেলিভারি" : "FREE DELIVERY") : (isBn ? "বিশেষ চার্জ" : "CUSTOM CHARGE")}
                                 </span>
                                 {rule.target_type !== "order_total" && Number(rule.min_quantity || 1) > 1 && (
                                   <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-accent/20 text-accent border border-accent/30">
-                                    Min {rule.min_quantity} Qty
+                                    {isBn ? `ন্যূনতম ${rule.min_quantity} টি` : `Min ${rule.min_quantity} Qty`}
                                   </span>
                                 )}
                                 {rule.target_type === "order_total" && Number(rule.min_order_amount || 0) > 0 && (
                                   <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-accent/20 text-accent border border-accent/30">
-                                    Order &ge; ৳{Number(rule.min_order_amount).toLocaleString()}
+                                    {isBn ? `অর্ডার ≥ ৳${Number(rule.min_order_amount).toLocaleString()}` : `Order ≥ ৳${Number(rule.min_order_amount).toLocaleString()}`}
                                   </span>
                                 )}
                                 <button
@@ -1119,7 +1135,7 @@ export default function PromotionsTab({
                                     e.stopPropagation();
                                     handleToggleDeliveryRule(rule);
                                   }}
-                                  className={`px-2 py-0.5 rounded text-[9px] font-black uppercase transition-all flex items-center gap-1 ${
+                                  className={`px-2 py-0.5 rounded text-[9px] font-black uppercase transition-all flex items-center gap-1 cursor-pointer ${
                                     rule.is_active
                                       ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25"
                                       : "bg-foreground/15 text-foreground/60 hover:bg-foreground/25"
@@ -1132,7 +1148,7 @@ export default function PromotionsTab({
                                         : "bg-foreground/50"
                                     }`}
                                   />
-                                  {rule.is_active ? "Active" : "Disabled"}
+                                  {rule.is_active ? (isBn ? "সক্রিয়" : "Active") : (isBn ? "নিষ্ক্রিয়" : "Disabled")}
                                 </button>
                               </div>
                             </div>
@@ -1140,25 +1156,23 @@ export default function PromotionsTab({
 
                           <div className="p-3 rounded-xl bg-secondary/80 border border-foreground/5 text-xs space-y-1">
                             <p className="text-[10px] font-extrabold uppercase tracking-wider opacity-60">
-                              SCOPE:{" "}
+                              {isBn ? "প্রযোজ্য ক্ষেত্র: " : "SCOPE: "}
                               {rule.target_type === "product"
-                                ? "SPECIFIC PRODUCTS"
+                                ? (isBn ? "নির্দিষ্ট পণ্যসমূহ" : "SPECIFIC PRODUCTS")
                                 : rule.target_type === "collection"
-                                ? "COLLECTION"
-                                : "ORDER TOTAL THRESHOLD"}
+                                ? (isBn ? "কালেকশন / ক্যাটাগরি" : "COLLECTION")
+                                : (isBn ? "মোট অর্ডারের পরিমাণ" : "ORDER TOTAL THRESHOLD")}
                             </p>
                             {rule.target_type === "order_total" ? (
                               <p className="font-bold text-foreground">
-                                Applies to all orders with Subtotal &ge; ৳{Number(rule.min_order_amount || 0).toLocaleString()}
+                                {isBn ? `ন্যূনতম ৳${Number(rule.min_order_amount || 0).toLocaleString()} টাকার সকল অর্ডারে প্রযোজ্য` : `Applies to all orders with Subtotal ≥ ৳${Number(rule.min_order_amount || 0).toLocaleString()}`}
                               </p>
                             ) : rule.target_type === "product" ? (
                               <div>
                                 <p className="font-bold text-foreground">
-                                  {rule.product_count ||
-                                    (rule.products_details
-                                      ? rule.products_details.length
-                                      : 0)}{" "}
-                                  Product(s) Selected
+                                  {isBn
+                                    ? `${(rule.product_count || (rule.products_details ? rule.products_details.length : 0)).toLocaleString("bn-BD")} টি পণ্য নির্বাচিত`
+                                    : `${rule.product_count || (rule.products_details ? rule.products_details.length : 0)} Product(s) Selected`}
                                 </p>
                                 {rule.products_details &&
                                   rule.products_details.length > 0 && (
@@ -1171,7 +1185,7 @@ export default function PromotionsTab({
                               </div>
                             ) : (
                               <p className="font-bold text-foreground">
-                                Collection:{" "}
+                                {isBn ? "কালেকশন: " : "Collection: "}
                                 {rule.collection_title ||
                                   `#${rule.collection}`}
                               </p>
@@ -1180,18 +1194,18 @@ export default function PromotionsTab({
 
                           <div className="flex justify-between items-center text-[10px] opacity-70 font-semibold pt-1">
                             <span>
-                              Rule:{" "}
+                              {isBn ? "অফারঃ " : "Rule: "}
                               <strong className="text-foreground">
                                 {rule.title}
                               </strong>
                             </span>
                             {!isFree && (
                               <span>
-                                Inside:{" "}
+                                {isBn ? "ঢাকার ভিতরেঃ " : "Inside: "}
                                 <strong className="text-accent">
                                   ৳{rule.inside_dhaka_charge}
                                 </strong>{" "}
-                                | Outside:{" "}
+                                | {isBn ? "ঢাকার বাইরেঃ " : "Outside: "}
                                 <strong className="text-accent">
                                   ৳{rule.outside_dhaka_charge}
                                 </strong>
@@ -1207,9 +1221,9 @@ export default function PromotionsTab({
                               e.stopPropagation();
                               handleDeleteDeliveryRule(rule.id, rule.title);
                             }}
-                            className="text-[10px] font-extrabold text-red-500 hover:underline uppercase tracking-wider"
+                            className="text-[10px] font-extrabold text-red-500 hover:underline uppercase tracking-wider cursor-pointer"
                           >
-                            Delete
+                            {isBn ? "মুছুন" : "Delete"}
                           </button>
                         </div>
                       </div>
