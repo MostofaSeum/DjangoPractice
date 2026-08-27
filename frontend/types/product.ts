@@ -32,6 +32,8 @@ export interface Product {
   description: string;
   unit_price: number;
   discount_percent?: number;
+  discount_valid_until?: string | null;
+  is_discount_active?: boolean;
   discounted_price?: number;
   inventory: number;
   collection: number | Collection;

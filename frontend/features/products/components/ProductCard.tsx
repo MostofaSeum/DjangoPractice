@@ -18,7 +18,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   const isSaved = isInWishlist(product.id);
 
   const discountPercent = Number(product.discount_percent || 0);
-  const hasDiscount = discountPercent > 0;
+  const isExpired = product.discount_valid_until && new Date() > new Date(product.discount_valid_until);
+  const hasDiscount = discountPercent > 0 && !isExpired && (product.is_discount_active !== false);
   const effectivePrice =
     product.discounted_price !== undefined
       ? product.discounted_price
