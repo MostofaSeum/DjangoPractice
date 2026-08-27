@@ -27,13 +27,24 @@ export default function LanguageToggle() {
       }}
       aria-label="Toggle Language"
       title={locale === "en" ? "বাংলা ভাষায় দেখুন" : "Switch to English"}
-      className="px-3.5 py-1.5 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-logo transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none text-[11px] font-black uppercase tracking-wider active:scale-95 shadow-sm"
+      className="p-1 rounded-full border border-white/20 bg-white/10 hover:bg-white/15 text-logo transition-all flex items-center gap-0.5 cursor-pointer select-none text-[10px] font-black uppercase tracking-wider active:scale-95 shadow-sm"
     >
-      <span className={locale === "en" ? "text-accent font-black drop-shadow-sm" : "opacity-60"}>
+      <span
+        className={`px-2.5 py-1 rounded-full transition-all duration-200 ${
+          locale === "en"
+            ? "bg-accent text-button-fg shadow-sm font-black"
+            : "text-logo opacity-50 hover:opacity-80"
+        }`}
+      >
         EN
       </span>
-      <span className="opacity-30 text-[9px] font-normal">|</span>
-      <span className={locale === "bn" ? "text-accent font-black drop-shadow-sm" : "opacity-60"}>
+      <span
+        className={`px-2.5 py-1 rounded-full transition-all duration-200 ${
+          locale === "bn"
+            ? "bg-accent text-button-fg shadow-sm font-black"
+            : "text-logo opacity-50 hover:opacity-80"
+        }`}
+      >
         বাং
       </span>
     </button>
