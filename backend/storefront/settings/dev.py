@@ -7,20 +7,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-# Development apps & middleware safely included
-try:
-    import debug_toolbar
-    INSTALLED_APPS.append('debug_toolbar')
-    MIDDLEWARE.insert(1, 'debug_toolbar.middleware.DebugToolbarMiddleware')
-except ImportError:
-    pass
-
-try:
-    import silk
-    INSTALLED_APPS.append('silk')
-    MIDDLEWARE.insert(2, 'silk.middleware.SilkyMiddleware')
-except ImportError:
-    pass
+# Development apps & middleware safely included (Silk / Debug toolbar disabled to prevent MySQL locks/conflicts)
+# If Silk profiling is needed, enable with SILKY_PYTHON_PROFILER = False
+SILKY_DYNAMIC_PROFILING = []
+SILKY_INTERCEPT_PERCENT = 0
 
 INTERNAL_IPS = [
     '127.0.0.1',

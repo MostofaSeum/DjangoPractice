@@ -41,17 +41,19 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    try:
-        import debug_toolbar
-        urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]
-    except ImportError:
-        pass
+    if 'debug_toolbar' in settings.INSTALLED_APPS:
+        try:
+            import debug_toolbar
+            urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]
+        except ImportError:
+            pass
 
-    try:
-        import silk
-        urlpatterns += [path('silk/', include('silk.urls', namespace='silk'))]
-    except ImportError:
-        pass
+    if 'silk' in settings.INSTALLED_APPS:
+        try:
+            import silk
+            urlpatterns += [path('silk/', include('silk.urls', namespace='silk'))]
+        except ImportError:
+            pass
 
 
 
