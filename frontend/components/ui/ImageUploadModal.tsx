@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { siteConfig } from '@/config/siteConfig';
+import { useLanguage } from '@/store/LanguageContext';
 import Swal from 'sweetalert2';
 
 interface ProductImage {
@@ -18,6 +19,9 @@ interface ImageUploadModalProps {
 
 export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange }: ImageUploadModalProps) {
   const { user } = useAuth();
+  const { locale } = useLanguage();
+  const isBn = locale === 'bn';
+
   const [existingImages, setExistingImages] = useState<ProductImage[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -140,17 +144,27 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
       Swal.fire({
         position: 'top-end',
         icon: 'success',
-        title: `${successCount} photo(s) uploaded successfully!`,
+        title: isBn
+          ? `${successCount.toLocaleString('bn-BD')} টি ছবি সফলভাবে আপলোড হয়েছে!`
+          : `${successCount} photo(s) uploaded successfully!`,
         showConfirmButton: false,
         timer: 2000,
         toast: true,
       });
 
-      setMessage({ type: 'success', text: `${successCount} photo(s) uploaded successfully!` });
+      setMessage({
+        type: 'success',
+        text: isBn
+          ? `${successCount.toLocaleString('bn-BD')} টি ছবি সফলভাবে আপলোড হয়েছে!`
+          : `${successCount} photo(s) uploaded successfully!`,
+      });
       fetchProductDetails();
       if (onSuccess) onSuccess();
     } catch (err: any) {
-      setMessage({ type: 'error', text: err.message || 'Something went wrong during upload.' });
+      setMessage({
+        type: 'error',
+        text: err.message || (isBn ? 'ছবি আপলোড করতে সমস্যা হয়েছে।' : 'Something went wrong during upload.'),
+      });
     } finally {
       setLoading(false);
     }
@@ -173,7 +187,9 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
         setIsPhotosPublished(newStatus);
         setMessage({
           type: 'success',
-          text: newStatus ? 'Photos published! Visible on public store.' : 'Photos set to Draft mode (hidden from public).',
+          text: newStatus
+            ? (isBn ? 'ছবি প্রকাশিত হয়েছে! গ্রাহকরা দেখতে পাবেন।' : 'Photos published! Visible on public store.')
+            : (isBn ? 'ছবি ড্রাফট মোডে রাখা হয়েছে (গ্রাহকদের থেকে লুকানো)।' : 'Photos set to Draft mode (hidden from public).'),
         });
         if (onSuccess) onSuccess();
       }
@@ -184,13 +200,14 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
 
   const handleDeleteImage = async (imageId: number) => {
     const confirmResult = await Swal.fire({
-      title: 'Delete Photo?',
-      text: "Are you sure you want to delete this photo from the store?",
+      title: isBn ? 'ছবিটি মুছে ফেলতে চান?' : 'Delete Photo?',
+      text: isBn ? 'আপনি কি নিশ্চিত যে এই ছবিটি স্টোর থেকে মুছে ফেলবেন?' : 'Are you sure you want to delete this photo from the store?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#cc5555',
       cancelButtonColor: 'var(--primary)',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonText: isBn ? 'হ্যাঁ, মুছে ফেলুন' : 'Yes, delete it!',
+      cancelButtonText: isBn ? 'বাতিল' : 'Cancel',
     });
 
     if (!confirmResult.isConfirmed) return;
@@ -205,7 +222,7 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
       });
 
       if (res.ok || res.status === 204) {
-        setMessage({ type: 'success', text: 'Photo removed!' });
+        setMessage({ type: 'success', text: isBn ? 'ছবি মুছে ফেলা হয়েছে!' : 'Photo removed!' });
         fetchProductDetails();
         if (onSuccess) onSuccess();
       }
@@ -226,7 +243,9 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
       />
 
       {fetchingImages ? (
-        <p className="text-xs text-foreground/50 animate-pulse py-4">Loading photos...</p>
+        <p className="text-xs text-foreground/50 animate-pulse py-4">
+          {isBn ? 'ছবি লোড হচ্ছে...' : 'Loading photos...'}
+        </p>
       ) : (
         <div className="space-y-4">
           {/* Photos Grid */}
@@ -237,14 +256,14 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={getImageUrl(existingImages[0].image)} alt="Main Photo" className="object-cover w-full h-full" />
                 <div className="absolute top-3 left-3 bg-background/80 backdrop-blur-md px-2.5 py-1 rounded-lg text-[9px] font-black uppercase text-accent border border-foreground/10 shadow-sm">
-                  Main Cover Photo
+                  {isBn ? 'মূল কভার ফটো' : 'Main Cover Photo'}
                 </div>
                 <button
                   type="button"
                   onClick={() => handleDeleteImage(existingImages[0].id)}
-                  className="absolute inset-0 bg-black/60 text-white text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                  className="absolute inset-0 bg-black/60 text-white text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
                 >
-                  Delete Main Photo
+                  {isBn ? 'মূল ছবি মুছুন' : 'Delete Main Photo'}
                 </button>
               </div>
             ) : previewUrls.length > 0 ? (
@@ -252,14 +271,14 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={previewUrls[0]} alt="Selected Main Preview" className="object-cover w-full h-full opacity-90" />
                 <div className="absolute top-3 left-3 bg-yellow-500 text-black font-black px-2.5 py-1 rounded-lg text-[9px] uppercase shadow-sm">
-                  Pending Upload (Cover)
+                  {isBn ? 'আপলোড অপেক্ষমাণ (কভার)' : 'Pending Upload (Cover)'}
                 </div>
                 <button
                   type="button"
                   onClick={() => handleRemoveSelectedFile(0)}
-                  className="absolute inset-0 bg-black/60 text-white text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                  className="absolute inset-0 bg-black/60 text-white text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
                 >
-                  Remove Selected
+                  {isBn ? 'বাছাই বাতিল করুন' : 'Remove Selected'}
                 </button>
               </div>
             ) : (
@@ -271,7 +290,7 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
                 <span className="text-xs font-black uppercase text-accent tracking-wider">
-                  Select Main Cover Photo
+                  {isBn ? 'মূল কভার ফটো নির্বাচন করুন' : 'Select Main Cover Photo'}
                 </span>
               </div>
             )}
@@ -287,9 +306,9 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
                     <button
                       type="button"
                       onClick={() => handleDeleteImage(img.id)}
-                      className="absolute inset-0 bg-black/60 text-white text-[9px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                      className="absolute inset-0 bg-black/60 text-white text-[9px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
                     >
-                      Delete
+                      {isBn ? 'মুছুন' : 'Delete'}
                     </button>
                   </div>
                 ))}
@@ -302,14 +321,14 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={url} alt={`Pending ${idx + 1}`} className="object-cover w-full h-full opacity-90" />
                       <div className="absolute top-1 left-1 bg-yellow-500 text-black text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm">
-                        Pending
+                        {isBn ? 'অপেক্ষমাণ' : 'Pending'}
                       </div>
                       <button
                         type="button"
                         onClick={() => handleRemoveSelectedFile(fileIdx)}
-                        className="absolute inset-0 bg-black/60 text-white text-[9px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                        className="absolute inset-0 bg-black/60 text-white text-[9px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
                       >
-                        Remove
+                        {isBn ? 'বাতিল' : 'Remove'}
                       </button>
                     </div>
                   );
@@ -329,7 +348,11 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                {totalPhotosCount === 0 ? "Select Photos" : `+ Select More Photos (${totalPhotosCount}/5)`}
+                {totalPhotosCount === 0
+                  ? (isBn ? 'ছবি নির্বাচন করুন' : 'Select Photos')
+                  : (isBn
+                      ? `+ আরও ছবি নির্বাচন করুন (${totalPhotosCount.toLocaleString('bn-BD')}/৫)`
+                      : `+ Select More Photos (${totalPhotosCount}/5)`)}
               </button>
             )}
 
@@ -343,7 +366,11 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                 </svg>
-                {loading ? 'Uploading Photos...' : `Upload Selected Photos (${selectedFiles.length})`}
+                {loading
+                  ? (isBn ? 'ছবি আপলোড হচ্ছে...' : 'Uploading Photos...')
+                  : (isBn
+                      ? `নির্বাচিত ছবি আপলোড করুন (${selectedFiles.length.toLocaleString('bn-BD')} টি)`
+                      : `Upload Selected Photos (${selectedFiles.length})`)}
               </button>
             )}
           </div>

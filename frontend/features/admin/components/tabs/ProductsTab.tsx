@@ -10,6 +10,7 @@ import ProductVariantsManager from "@/features/products/components/ProductVarian
 import ReviewsSubTab from "./ReviewsSubTab";
 import StockHealthTab from "./StockHealthTab";
 import SheetsSyncTab from "./SheetsSyncTab";
+import { useLanguage } from "@/store/LanguageContext";
 
 interface ProductsTabProps {
   productSubTab: ProductSubTab;
@@ -148,6 +149,9 @@ export default function ProductsTab({
   token,
   adminDataVersion,
 }: ProductsTabProps) {
+  const { locale, formatCurrency } = useLanguage();
+  const isBn = locale === "bn";
+
   return (
     <div className="flex flex-col gap-6">
       {/* SUBTAB 4: Stock Health Alerts */}
@@ -179,17 +183,19 @@ export default function ProductsTab({
           <div className="flex justify-between items-center mb-6 pb-3 border-b border-foreground/10">
             <div>
               <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
-                Add New Product
+                {isBn ? "নতুন পণ্য যোগ করুন" : "Add New Product"}
               </h2>
               <p className="text-xs text-foreground/60 mt-0.5">
-                Fill in the details below to create and publish a new product.
+                {isBn
+                  ? "নতুন পণ্য তৈরি ও প্রকাশ করতে নিচের বিবরণগুলো পূরণ করুন।"
+                  : "Fill in the details below to create and publish a new product."}
               </p>
             </div>
           </div>
           <form onSubmit={handleSaveProduct} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                Product Title *
+                {isBn ? "পণ্যের নাম *" : "Product Title *"}
               </label>
               <input
                 type="text"
@@ -201,7 +207,7 @@ export default function ProductsTab({
                     title: e.target.value,
                   })
                 }
-                placeholder="e.g. Neon Void Hoodie"
+                placeholder={isBn ? "যেমনঃ নিয়ন লিপস্টিক, ময়েশ্চারাইজার" : "e.g. Neon Void Hoodie"}
                 className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
               />
             </div>
@@ -209,7 +215,7 @@ export default function ProductsTab({
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  Unit Price (৳) *
+                  {isBn ? "একক মূল্য (৳) *" : "Unit Price (৳) *"}
                 </label>
                 <input
                   type="number"
@@ -230,11 +236,13 @@ export default function ProductsTab({
               <div className="flex flex-col gap-1">
                 <div className="flex justify-between items-center">
                   <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Inventory Stock *
+                    {isBn ? "স্টক পরিমাণ *" : "Inventory Stock *"}
                   </label>
                   {newProductVariants.length > 0 && (
                     <span className="text-[9px] font-bold text-accent">
-                      Sum of {newProductVariants.length} variants
+                      {isBn
+                        ? `${newProductVariants.length.toLocaleString("bn-BD")} টি ভ্যারিয়েন্টের মোট যোগফল`
+                        : `Sum of ${newProductVariants.length} variants`}
                     </span>
                   )}
                 </div>
@@ -264,7 +272,9 @@ export default function ProductsTab({
                   }`}
                   title={
                     newProductVariants.length > 0
-                      ? "Automatically calculated from the variants below"
+                      ? isBn
+                        ? "নিচের ভ্যারিয়েন্টগুলোর স্টক থেকে স্বয়ংক্রিয়ভাবে হিসাব করা হয়েছে"
+                        : "Automatically calculated from the variants below"
                       : undefined
                   }
                 />
@@ -273,7 +283,7 @@ export default function ProductsTab({
 
             <div className="flex flex-col gap-1">
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                Collection *
+                {isBn ? "কালেকশন / ক্যাটাগরি *" : "Collection *"}
               </label>
               <select
                 value={
@@ -312,14 +322,14 @@ export default function ProductsTab({
                   <div className="flex flex-col gap-1">
                     <div className="flex justify-between items-center">
                       <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                        Short Description <span className="text-red-500">*</span>
+                        {isBn ? "সংক্ষিপ্ত বিবরণ" : "Short Description"} <span className="text-red-500">*</span>
                       </label>
                       <span
                         className={`text-[10px] font-bold ${
                           shortWords > 150 ? "text-red-500" : "opacity-60"
                         }`}
                       >
-                        {shortWords}/150 words
+                        {isBn ? `${shortWords.toLocaleString("bn-BD")}/১৫০ শব্দ` : `${shortWords}/150 words`}
                       </span>
                     </div>
                     <textarea
@@ -332,7 +342,7 @@ export default function ProductsTab({
                           short_description: e.target.value,
                         })
                       }
-                      placeholder="Brief summarize your product"
+                      placeholder={isBn ? "পণ্যের মূল বৈশিষ্ট্য বা সংক্ষেপ লিখুন" : "Brief summarize your product"}
                       className={`px-4 py-2.5 border rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none transition-all ${
                         shortWords > 150
                           ? "border-red-500 ring-1 ring-red-500"
@@ -344,14 +354,14 @@ export default function ProductsTab({
                   <div className="flex flex-col gap-1">
                     <div className="flex justify-between items-center">
                       <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                        Details Description <span className="text-red-500">*</span>
+                        {isBn ? "বিস্তারিত বিবরণ" : "Details Description"} <span className="text-red-500">*</span>
                       </label>
                       <span
                         className={`text-[10px] font-bold ${
                           detailWords > 500 ? "text-red-500" : "opacity-60"
                         }`}
                       >
-                        {detailWords}/500 words
+                        {isBn ? `${detailWords.toLocaleString("bn-BD")}/৫০০ শব্দ` : `${detailWords}/500 words`}
                       </span>
                     </div>
                     <textarea
@@ -364,7 +374,7 @@ export default function ProductsTab({
                           description: e.target.value,
                         })
                       }
-                      placeholder="Full product details, materials, sizing, specifications"
+                      placeholder={isBn ? "পণ্যের সম্পূর্ণ বিবরণ, উপাদান, ব্যবহারের নিয়ম ইত্যাদি..." : "Full product details, materials, sizing, specifications"}
                       className={`px-4 py-2.5 border rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none transition-all ${
                         detailWords > 500
                           ? "border-red-500 ring-1 ring-red-500"
@@ -382,7 +392,9 @@ export default function ProductsTab({
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Product Photos ({newProductPhotos.length}/5)
+                    {isBn
+                      ? `পণ্যের ছবি (${newProductPhotos.length.toLocaleString("bn-BD")}/৫)`
+                      : `Product Photos (${newProductPhotos.length}/5)`}
                   </label>
                 </div>
 
@@ -425,7 +437,7 @@ export default function ProductsTab({
                         className="object-cover w-full h-full opacity-90"
                       />
                       <div className="absolute top-3 left-3 bg-yellow-500 text-black font-black px-2.5 py-1 rounded-lg text-[9px] uppercase shadow-sm">
-                        Cover (Main)
+                        {isBn ? "কভার (মূল ছবি)" : "Cover (Main)"}
                       </div>
                       <button
                         type="button"
@@ -440,7 +452,7 @@ export default function ProductsTab({
                         }}
                         className="absolute inset-0 bg-black/60 text-white text-[10px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
                       >
-                        Remove Selected
+                        {isBn ? "বাছাই বাতিল করুন" : "Remove Selected"}
                       </button>
                     </div>
 
@@ -475,7 +487,7 @@ export default function ProductsTab({
                                   }}
                                   className="absolute inset-0 bg-black/60 text-white text-[9px] font-bold uppercase opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
                                 >
-                                  Remove
+                                  {isBn ? "মুছুন" : "Remove"}
                                 </button>
                               </div>
                             );
@@ -491,8 +503,9 @@ export default function ProductsTab({
                       >
                         <span>+</span>
                         <span>
-                          Add More Photos ({5 - newProductPhotoPreviews.length}{" "}
-                          left)
+                          {isBn
+                            ? `আরও ছবি যোগ করুন (${(5 - newProductPhotoPreviews.length).toLocaleString("bn-BD")} টি বাকি)`
+                            : `Add More Photos (${5 - newProductPhotoPreviews.length} left)`}
                         </span>
                       </button>
                     )}
@@ -507,10 +520,12 @@ export default function ProductsTab({
                     </div>
                     <div>
                       <p className="text-xs font-black uppercase tracking-wider">
-                        Click to choose photos
+                        {isBn ? "ছবি নির্বাচন করতে ক্লিক করুন" : "Click to choose photos"}
                       </p>
                       <p className="text-[10px] opacity-60">
-                        Upload up to 5 photos (1st will be Cover Photo)
+                        {isBn
+                          ? "সর্বোচ্চ ৫টি ছবি আপলোড করতে পারবেন (১ম ছবিটি মূল কভার হবে)"
+                          : "Upload up to 5 photos (1st will be Cover Photo)"}
                       </p>
                     </div>
                   </div>
@@ -522,10 +537,10 @@ export default function ProductsTab({
                 <div className="flex justify-between items-center">
                   <div>
                     <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                      Product Variants (Optional)
+                      {isBn ? "পণ্য ভ্যারিয়েন্ট (ঐচ্ছিক)" : "Product Variants (Optional)"}
                     </label>
                     <p className="text-[9px] opacity-60">
-                      Add different colors, sizes, or prices
+                      {isBn ? "ভিন্ন ভিন্ন রঙ, শেড, সাইজ বা মূল্য যোগ করুন" : "Add different colors, sizes, or prices"}
                     </p>
                   </div>
                   <button
@@ -545,7 +560,7 @@ export default function ProductsTab({
                     }}
                     className="px-3 py-1.5 rounded-lg bg-accent/20 text-accent hover:bg-accent/30 text-[10px] font-black uppercase tracking-wider border border-accent/20 transition-colors cursor-pointer"
                   >
-                    + Add Variant
+                    {isBn ? "+ ভ্যারিয়েন্ট যোগ করুন" : "+ Add Variant"}
                   </button>
                 </div>
 
@@ -573,12 +588,12 @@ export default function ProductsTab({
                                 <span>{variant.color_name}</span>
                               )}
                               {variant.size && (
-                                <span>Size: {variant.size}</span>
+                                <span>{isBn ? `সাইজঃ ${variant.size}` : `Size: ${variant.size}`}</span>
                               )}
-                              <span>Stock: {variant.inventory}</span>
+                              <span>{isBn ? `স্টকঃ ${(parseInt(variant.inventory) || 0).toLocaleString("bn-BD")}` : `Stock: ${variant.inventory}`}</span>
                               {variant.price_override && (
                                 <span className="text-accent font-bold">
-                                  ৳{Number(variant.price_override).toFixed(2)}
+                                  {formatCurrency(Number(variant.price_override))}
                                 </span>
                               )}
                             </div>
@@ -602,7 +617,7 @@ export default function ProductsTab({
                             }}
                             className="px-2 py-1 text-[10px] font-bold text-accent hover:underline cursor-pointer"
                           >
-                            Edit
+                            {isBn ? "সম্পাদনা" : "Edit"}
                           </button>
                           <button
                             type="button"
@@ -613,7 +628,7 @@ export default function ProductsTab({
                             }
                             className="px-2 py-1 text-[10px] font-bold text-red-500 hover:underline cursor-pointer"
                           >
-                            Delete
+                            {isBn ? "মুছুন" : "Delete"}
                           </button>
                         </div>
                       </div>
@@ -621,9 +636,9 @@ export default function ProductsTab({
                   </div>
                 ) : (
                   <div className="p-3.5 rounded-xl border border-foreground/10 bg-primary/5 dark:bg-primary/20 text-[10px] opacity-60 text-center">
-                    No variants added yet. This product will use its base price
-                    (৳{Number(parseFloat(productForm.unit_price) || 0).toFixed(2)})
-                    and default inventory.
+                    {isBn
+                      ? `এখনও কোনো ভ্যারিয়েন্ট যোগ করা হয়নি। এই পণ্যটি মূল মূল্য (${formatCurrency(parseFloat(productForm.unit_price) || 0)}) এবং সাধারণ স্টক ব্যবহার করবে।`
+                      : `No variants added yet. This product will use its base price (৳${Number(parseFloat(productForm.unit_price) || 0).toFixed(2)}) and default inventory.`}
                   </div>
                 )}
               </div>
@@ -633,7 +648,7 @@ export default function ProductsTab({
               type="submit"
               className="w-full mt-4 py-4 bg-button-bg text-button-fg rounded-2xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md cursor-pointer"
             >
-              Create Product
+              {isBn ? "পণ্য তৈরি করুন" : "Create Product"}
             </button>
           </form>
         </div>
@@ -645,20 +660,21 @@ export default function ProductsTab({
           <div className="flex justify-between items-center mb-6 pb-3 border-b border-foreground/10">
             <div>
               <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
-                Edit Product
+                {isBn ? "পণ্য সম্পাদনা করুন" : "Edit Product"}
               </h2>
               <p className="text-xs text-foreground/60 mt-0.5">
-                Select a product to populate its current information, images,
-                and variants.
+                {isBn
+                  ? "তথ্য, ছবি এবং ভ্যারিয়েন্ট পরিবর্তন করতে নিচের পণ্য নির্বাচন করুন।"
+                  : "Select a product to populate its current information, images, and variants."}
               </p>
             </div>
             {editingProductId && (
               <button
                 type="button"
                 onClick={handleCancelEdit}
-                className="text-xs font-bold uppercase tracking-wider text-red-500 hover:underline"
+                className="text-xs font-bold uppercase tracking-wider text-red-500 hover:underline cursor-pointer"
               >
-                Clear Selection
+                {isBn ? "বাছাই বাতিল করুন" : "Clear Selection"}
               </button>
             )}
           </div>
@@ -667,7 +683,7 @@ export default function ProductsTab({
           <div className="mb-6 p-5 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10 flex flex-col gap-3">
             <div className="flex justify-between items-center">
               <label className="text-[10px] font-black uppercase tracking-wider opacity-70">
-                Search Product to Edit
+                {isBn ? "সম্পাদনার জন্য পণ্য খুঁজুন" : "Search Product to Edit"}
               </label>
             </div>
 
@@ -676,7 +692,7 @@ export default function ProductsTab({
                 type="text"
                 value={editProductSearch}
                 onChange={(e) => setEditProductSearch(e.target.value)}
-                placeholder="Search by product name, ID or price..."
+                placeholder={isBn ? "পণ্যের নাম, আইডি বা মূল্য দিয়ে খুঁজুন..." : "Search by product name, ID or price..."}
                 className="w-full pl-10 pr-8 py-3 border border-foreground/15 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all shadow-inner"
               />
               <div className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none flex items-center justify-center opacity-60 dark:opacity-80">
@@ -716,7 +732,9 @@ export default function ProductsTab({
                   <div className="space-y-1.5 max-h-60 overflow-y-auto pr-1">
                     <div className="flex justify-between items-center px-1 pb-1 text-[10px] font-bold opacity-60">
                       <span>
-                        Found {filteredEditProducts.length} matching products
+                        {isBn
+                          ? `${filteredEditProducts.length.toLocaleString("bn-BD")} টি পণ্য পাওয়া গেছে`
+                          : `Found ${filteredEditProducts.length} matching products`}
                       </span>
                     </div>
 
@@ -748,7 +766,7 @@ export default function ProductsTab({
                                   #{prod.id} {prod.title}
                                 </p>
                                 <p className="text-[10px] text-accent font-bold">
-                                  ৳{Number(prod.unit_price).toFixed(2)}
+                                  {formatCurrency(Number(prod.unit_price))}
                                 </p>
                               </div>
                             </div>
@@ -761,14 +779,16 @@ export default function ProductsTab({
                                   : "bg-primary/10 text-foreground/70 hover:bg-accent hover:text-white"
                               }`}
                             >
-                              {isSelected ? "Selected" : "Edit"}
+                              {isSelected ? (isBn ? "নির্বাচিত" : "Selected") : (isBn ? "সম্পাদনা" : "Edit")}
                             </button>
                           </div>
                         );
                       })
                     ) : (
                       <div className="p-4 text-center text-xs opacity-50 bg-background rounded-xl border border-foreground/10">
-                        No products found matching &ldquo;{editProductSearch}&rdquo;
+                        {isBn
+                          ? `"${editProductSearch}" দিয়ে কোনো পণ্য পাওয়া যায়নি`
+                          : `No products found matching "${editProductSearch}"`}
                       </div>
                     )}
                   </div>
@@ -801,7 +821,7 @@ export default function ProductsTab({
             <form onSubmit={handleSaveProduct} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  Product Title *
+                  {isBn ? "পণ্যের নাম *" : "Product Title *"}
                 </label>
                 <input
                   type="text"
@@ -813,7 +833,7 @@ export default function ProductsTab({
                       title: e.target.value,
                     })
                   }
-                  placeholder="e.g. Neon Void Hoodie"
+                  placeholder={isBn ? "যেমনঃ নিয়ন লিপস্টিক, ময়েশ্চারাইজার" : "e.g. Neon Void Hoodie"}
                   className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all"
                 />
               </div>
@@ -821,7 +841,7 @@ export default function ProductsTab({
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Unit Price (৳) *
+                    {isBn ? "একক মূল্য (৳) *" : "Unit Price (৳) *"}
                   </label>
                   <input
                     type="number"
@@ -852,11 +872,13 @@ export default function ProductsTab({
                     <div className="flex flex-col gap-1">
                       <div className="flex justify-between items-center">
                         <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                          Inventory Stock *
+                          {isBn ? "স্টক পরিমাণ *" : "Inventory Stock *"}
                         </label>
                         {hasVariants && (
                           <span className="text-[9px] font-bold text-accent">
-                            Managed per variant ({((currentSelectedProd as any).variants as any[]).length} variants)
+                            {isBn
+                              ? `প্রতি ভ্যারিয়েন্ট অনুযায়ী পরিচালিত (${(((currentSelectedProd as any).variants as any[]).length).toLocaleString("bn-BD")} টি ভ্যারিয়েন্ট)`
+                              : `Managed per variant (${((currentSelectedProd as any).variants as any[]).length} variants)`}
                           </span>
                         )}
                       </div>
@@ -877,7 +899,9 @@ export default function ProductsTab({
                         }`}
                         title={
                           hasVariants
-                            ? "Stock is automatically calculated from variants below"
+                            ? isBn
+                              ? "নিচের ভ্যারিয়েন্টগুলো থেকে স্টক স্বয়ংক্রিয়ভাবে হিসাব করা হচ্ছে"
+                              : "Stock is automatically calculated from variants below"
                             : undefined
                         }
                       />
@@ -888,7 +912,7 @@ export default function ProductsTab({
 
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  Collection *
+                  {isBn ? "কালেকশন / ক্যাটাগরি *" : "Collection *"}
                 </label>
                 <select
                   value={
@@ -927,14 +951,14 @@ export default function ProductsTab({
                     <div className="flex flex-col gap-1">
                       <div className="flex justify-between items-center">
                         <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                          Short Description <span className="text-red-500">*</span>
+                          {isBn ? "সংক্ষিপ্ত বিবরণ" : "Short Description"} <span className="text-red-500">*</span>
                         </label>
                         <span
                           className={`text-[10px] font-bold ${
                             shortWords > 150 ? "text-red-500" : "opacity-60"
                           }`}
                         >
-                          {shortWords}/150 words
+                          {isBn ? `${shortWords.toLocaleString("bn-BD")}/১৫০ শব্দ` : `${shortWords}/150 words`}
                         </span>
                       </div>
                       <textarea
@@ -947,7 +971,7 @@ export default function ProductsTab({
                             short_description: e.target.value,
                           })
                         }
-                        placeholder="Brief summarize your product"
+                        placeholder={isBn ? "পণ্যের মূল বৈশিষ্ট্য বা সংক্ষেপ লিখুন" : "Brief summarize your product"}
                         className={`px-4 py-2.5 border rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none transition-all ${
                           shortWords > 150
                             ? "border-red-500 ring-1 ring-red-500"
@@ -959,14 +983,14 @@ export default function ProductsTab({
                     <div className="flex flex-col gap-1">
                       <div className="flex justify-between items-center">
                         <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                          Details Description <span className="text-red-500">*</span>
+                          {isBn ? "বিস্তারিত বিবরণ" : "Details Description"} <span className="text-red-500">*</span>
                         </label>
                         <span
                           className={`text-[10px] font-bold ${
                             detailWords > 500 ? "text-red-500" : "opacity-60"
                           }`}
                         >
-                          {detailWords}/500 words
+                          {isBn ? `${detailWords.toLocaleString("bn-BD")}/৫০০ শব্দ` : `${detailWords}/500 words`}
                         </span>
                       </div>
                       <textarea
@@ -979,7 +1003,7 @@ export default function ProductsTab({
                             description: e.target.value,
                           })
                         }
-                        placeholder="Full product details, materials, sizing, specifications"
+                        placeholder={isBn ? "পণ্যের সম্পূর্ণ বিবরণ, উপাদান, ব্যবহারের নিয়ম ইত্যাদি..." : "Full product details, materials, sizing, specifications"}
                         className={`px-4 py-2.5 border rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none transition-all ${
                           detailWords > 500
                             ? "border-red-500 ring-1 ring-red-500"
@@ -1013,17 +1037,18 @@ export default function ProductsTab({
                 type="submit"
                 className="w-full mt-4 py-4 bg-button-bg text-button-fg rounded-2xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md cursor-pointer"
               >
-                Update Product
+                {isBn ? "পণ্য আপডেট করুন" : "Update Product"}
               </button>
             </form>
           ) : (
             <div className="p-10 border-2 border-dashed border-foreground/15 rounded-3xl text-center flex flex-col items-center justify-center gap-2">
               <p className="text-xs font-bold uppercase tracking-wider text-foreground/70">
-                No product selected
+                {isBn ? "কোনো পণ্য নির্বাচিত নেই" : "No product selected"}
               </p>
               <p className="text-[11px] text-foreground/50">
-                Please search for a product above or click on any product from
-                &ldquo;All Products&rdquo;.
+                {isBn
+                  ? 'উপরে পণ্যের নাম দিয়ে খুঁজুন অথবা "সকল পণ্য" তালিকা থেকে যেকোনো পণ্যে ক্লিক করুন।'
+                  : "Please search for a product above or click on any product from \"All Products\"."}
               </p>
             </div>
           )}
@@ -1039,8 +1064,8 @@ export default function ProductsTab({
               <div className="flex justify-between items-center pb-3 border-b border-foreground/10 mb-4">
                 <h4 className="text-sm font-black uppercase tracking-tight">
                   {editingNewVariantIndex !== null
-                    ? "Edit Product Variant"
-                    : "Add New Product Variant"}
+                    ? (isBn ? "পণ্য ভ্যারিয়েন্ট সম্পাদনা" : "Edit Product Variant")
+                    : (isBn ? "নতুন পণ্য ভ্যারিয়েন্ট যোগ" : "Add New Product Variant")}
                 </h4>
                 <button
                   type="button"
@@ -1077,7 +1102,7 @@ export default function ProductsTab({
                 {/* Variant Name */}
                 <div className="flex flex-col gap-1">
                   <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Variant Title / Name <span className="text-red-500">*</span>
+                    {isBn ? "ভ্যারিয়েন্ট নাম / টাইটেল" : "Variant Title / Name"} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -1089,7 +1114,7 @@ export default function ProductsTab({
                         name: e.target.value,
                       })
                     }
-                    placeholder="e.g. 01 Velvet Rose, 50ml, Medium Beige"
+                    placeholder={isBn ? "যেমনঃ ০১ ভেলভেট রোজ, ৫০ মিলি, মিডিয়াম বেইজ" : "e.g. 01 Velvet Rose, 50ml, Medium Beige"}
                     className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                   />
                 </div>
@@ -1098,8 +1123,8 @@ export default function ProductsTab({
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
                     <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                      Shade / Color Name{" "}
-                      <span className="opacity-40 lowercase">(optional)</span>
+                      {isBn ? "শেড / রঙের নাম" : "Shade / Color Name"}{" "}
+                      <span className="opacity-40 lowercase">({isBn ? "ঐচ্ছিক" : "optional"})</span>
                     </label>
                     <input
                       type="text"
@@ -1110,7 +1135,7 @@ export default function ProductsTab({
                           color_name: e.target.value,
                         })
                       }
-                      placeholder="e.g. Velvet Rose (leave blank if N/A)"
+                      placeholder={isBn ? "যেমনঃ ভেলভেট রোজ" : "e.g. Velvet Rose (leave blank if N/A)"}
                       className="w-full px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                     />
                   </div>
@@ -1118,8 +1143,8 @@ export default function ProductsTab({
                   <div className="flex flex-col gap-1">
                     <div className="flex justify-between items-center">
                       <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                        Color Hex{" "}
-                        <span className="opacity-40 lowercase">(optional)</span>
+                        {isBn ? "কালার হেক্স কোড" : "Color Hex"}{" "}
+                        <span className="opacity-40 lowercase">({isBn ? "ঐচ্ছিক" : "optional"})</span>
                       </label>
                       {newVariantForm.color_code && (
                         <button
@@ -1132,7 +1157,7 @@ export default function ProductsTab({
                           }
                           className="text-[9px] font-bold text-red-500 hover:underline cursor-pointer"
                         >
-                          Clear
+                          {isBn ? "মুছুন" : "Clear"}
                         </button>
                       )}
                     </div>
@@ -1168,8 +1193,8 @@ export default function ProductsTab({
                 <div className="grid grid-cols-3 gap-2.5">
                   <div className="flex flex-col gap-1">
                     <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                      Size / Volume{" "}
-                      <span className="opacity-40 lowercase">(opt)</span>
+                      {isBn ? "সাইজ / পরিমাণ" : "Size / Volume"}{" "}
+                      <span className="opacity-40 lowercase">({isBn ? "ঐচ্ছিক" : "opt"})</span>
                     </label>
                     <input
                       type="text"
@@ -1180,15 +1205,15 @@ export default function ProductsTab({
                           size: e.target.value,
                         })
                       }
-                      placeholder="e.g. 50ml, L"
+                      placeholder={isBn ? "যেমনঃ ৫০ মিলি, L" : "e.g. 50ml, L"}
                       className="w-full px-3 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                     />
                   </div>
 
                   <div className="flex flex-col gap-1">
                     <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                      Price (৳){" "}
-                      <span className="opacity-40 lowercase">(opt)</span>
+                      {isBn ? "মূল্য (৳)" : "Price (৳)"}{" "}
+                      <span className="opacity-40 lowercase">({isBn ? "ঐচ্ছিক" : "opt"})</span>
                     </label>
                     <input
                       type="number"
@@ -1200,14 +1225,14 @@ export default function ProductsTab({
                           price_override: e.target.value,
                         })
                       }
-                      placeholder={productForm.unit_price || "Base"}
+                      placeholder={productForm.unit_price || (isBn ? "মূল মূল্য" : "Base")}
                       className="w-full px-3 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                     />
                   </div>
 
                   <div className="flex flex-col gap-1">
                     <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                      Stock *
+                      {isBn ? "স্টক *" : "Stock *"}
                     </label>
                     <input
                       type="number"
@@ -1232,15 +1257,15 @@ export default function ProductsTab({
                     onClick={() => setIsNewVariantModalOpen(false)}
                     className="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-primary/10 transition-colors cursor-pointer"
                   >
-                    Cancel
+                    {isBn ? "বাতিল" : "Cancel"}
                   </button>
                   <button
                     type="submit"
                     className="px-5 py-2 rounded-xl bg-button-bg text-button-fg text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity shadow-md cursor-pointer"
                   >
                     {editingNewVariantIndex !== null
-                      ? "Save Changes"
-                      : "Add Variant"}
+                      ? (isBn ? "সংরক্ষণ করুন" : "Save Changes")
+                      : (isBn ? "ভ্যারিয়েন্ট যোগ করুন" : "Add Variant")}
                   </button>
                 </div>
               </form>
@@ -1254,7 +1279,7 @@ export default function ProductsTab({
         <div className="w-full bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm overflow-x-auto transition-colors duration-300">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
             <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-              All Products
+              {isBn ? "সকল পণ্য" : "All Products"}
             </h2>
             <ProductSearchBar
               mode="admin"
@@ -1273,11 +1298,11 @@ export default function ProductsTab({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-foreground/10 text-[10px] font-black uppercase tracking-wider opacity-60">
-                <th className="py-3 px-2">ID</th>
-                <th className="py-3 px-2">Title</th>
-                <th className="py-3 px-2">Price</th>
-                <th className="py-3 px-2">Stock</th>
-                <th className="py-3 px-2 text-right">Actions</th>
+                <th className="py-3 px-2">{isBn ? "আইডি" : "ID"}</th>
+                <th className="py-3 px-2">{isBn ? "পণ্যের নাম" : "Title"}</th>
+                <th className="py-3 px-2">{isBn ? "মূল্য" : "Price"}</th>
+                <th className="py-3 px-2">{isBn ? "স্টক" : "Stock"}</th>
+                <th className="py-3 px-2 text-right">{isBn ? "পদক্ষেপ" : "Actions"}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-foreground/10 text-xs font-bold">
@@ -1296,7 +1321,7 @@ export default function ProductsTab({
                   }`}
                 >
                   <td className="py-2.5 px-2 opacity-50 align-middle">
-                    #{prod.id}
+                    #{isBn ? prod.id.toLocaleString("bn-BD") : prod.id}
                   </td>
                   <td className="py-2.5 px-2 font-black align-middle">
                     <div className="flex items-center gap-3">
@@ -1314,10 +1339,10 @@ export default function ProductsTab({
                     </div>
                   </td>
                   <td className="py-2.5 px-2 text-accent font-extrabold align-middle">
-                    ৳{Number(prod.unit_price).toFixed(2)}
+                    {formatCurrency(Number(prod.unit_price))}
                   </td>
                   <td className="py-2.5 px-2 align-middle">
-                    {prod.inventory}
+                    {isBn ? Number(prod.inventory ?? 0).toLocaleString("bn-BD") : prod.inventory}
                   </td>
                   <td
                     className="py-3.5 px-2 text-right flex justify-end items-center gap-2"
@@ -1325,19 +1350,21 @@ export default function ProductsTab({
                   >
                     <button
                       onClick={() => handleToggleProductTrending(prod)}
-                      className={`px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all shadow-sm ${
+                      className={`px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all shadow-sm cursor-pointer ${
                         prod.is_trending
                           ? "bg-amber-500 text-black border border-amber-600 shadow-amber-500/20"
                           : "bg-foreground/5 text-foreground/60 hover:bg-foreground/10"
                       }`}
                     >
-                      {prod.is_trending ? " Trending" : "+ Trending"}
+                      {prod.is_trending
+                        ? (isBn ? "ট্রেন্ডিং সক্রিয়" : " Trending")
+                        : (isBn ? "+ ট্রেন্ডিং করুন" : "+ Trending")}
                     </button>
                     <button
                       onClick={() => handleDeleteProduct(prod.id)}
-                      className="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors"
+                      className="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
                     >
-                      Delete
+                      {isBn ? "মুছুন" : "Delete"}
                     </button>
                   </td>
                 </tr>
@@ -1351,13 +1378,15 @@ export default function ProductsTab({
               <button
                 onClick={() => setProdPage((prev) => Math.max(prev - 1, 1))}
                 disabled={prodPage === 1}
-                className="px-5 py-2.5 border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-button-bg hover:text-button-fg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="px-5 py-2.5 border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-button-bg hover:text-button-fg disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
               >
-                Previous
+                {isBn ? "পূর্ববর্তী" : "Previous"}
               </button>
 
               <span className="text-xs font-bold opacity-60 uppercase tracking-wider">
-                Page {prodPage} of {Math.ceil(totalProductsCount / 9)}
+                {isBn
+                  ? `পৃষ্ঠা ${prodPage.toLocaleString("bn-BD")} / ${Math.ceil(totalProductsCount / 9).toLocaleString("bn-BD")}`
+                  : `Page ${prodPage} of ${Math.ceil(totalProductsCount / 9)}`}
               </span>
 
               <button
@@ -1367,9 +1396,9 @@ export default function ProductsTab({
                   )
                 }
                 disabled={prodPage >= Math.ceil(totalProductsCount / 9)}
-                className="px-5 py-2.5 border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-button-bg hover:text-button-fg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="px-5 py-2.5 border border-foreground/15 bg-primary/5 dark:bg-primary/30 text-foreground rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-button-bg hover:text-button-fg disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
               >
-                Next
+                {isBn ? "পরবর্তী" : "Next"}
               </button>
             </div>
           )}

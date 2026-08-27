@@ -15,6 +15,7 @@ import CouponsTab from "@/features/admin/components/tabs/CouponsTab";
 import PaymentsTab from "@/features/admin/components/tabs/PaymentsTab";
 import DeliveryTab from "@/features/admin/components/tabs/DeliveryTab";
 import AnalyticsTab from "@/features/admin/components/tabs/AnalyticsTab";
+import { useLanguage } from "@/store/LanguageContext";
 
 const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
@@ -37,6 +38,8 @@ import {
 export default function AdminDashboardPage() {
   const { user, token, logout, loading: authLoading } = useAuth();
   const router = useRouter();
+  const { locale, formatCurrency } = useLanguage();
+  const isBn = locale === "bn";
 
   const handleLogout = async () => {
     logout();
@@ -1425,17 +1428,19 @@ export default function AdminDashboardPage() {
 
     if (hasFormChanges || hasUnsavedPhotos) {
       const result = await Swal.fire({
-        title: "Save Changes?",
-        text: "You have modified product details. Do you want to save your changes before leaving edit mode?",
+        title: isBn ? "পরিবর্তনগুলো সংরক্ষণ করবেন?" : "Save Changes?",
+        text: isBn
+          ? "আপনি পণ্যের তথ্যে পরিবর্তন এনেছেন। এডিট মোড ছাড়ার আগে পরিবর্তনগুলো সংরক্ষণ করতে চান?"
+          : "You have modified product details. Do you want to save your changes before leaving edit mode?",
         icon: "question",
         showDenyButton: true,
         showCancelButton: true,
         confirmButtonColor: "var(--accent)",
         denyButtonColor: "#ef4444",
         cancelButtonColor: "var(--button-bg)",
-        confirmButtonText: "Save Changes",
-        denyButtonText: "Don't Save",
-        cancelButtonText: "Stay in Edit Mode",
+        confirmButtonText: isBn ? "সংরক্ষণ করুন" : "Save Changes",
+        denyButtonText: isBn ? "সংরক্ষণ না করে ছাড়ুন" : "Don't Save",
+        cancelButtonText: isBn ? "এডিটেই থাকুন" : "Stay in Edit Mode",
       });
 
       if (result.isConfirmed) {
@@ -1467,8 +1472,10 @@ export default function AdminDashboardPage() {
     ) {
       Swal.fire({
         icon: "warning",
-        title: "Descriptions Required",
-        text: "Please enter both a Short Description and a Details Description for the product.",
+        title: isBn ? "বিবরণ আবশ্যক" : "Descriptions Required",
+        text: isBn
+          ? "অনুগ্রহ করে পণ্যের সংক্ষিপ্ত এবং বিস্তারিত উভয় বিবরণই প্রদান করুন।"
+          : "Please enter both a Short Description and a Details Description for the product.",
         confirmButtonColor: "#ef4444",
       });
       return;
@@ -1484,8 +1491,10 @@ export default function AdminDashboardPage() {
     if (shortWordCount > 150) {
       Swal.fire({
         icon: "warning",
-        title: "Short Description Limit Exceeded",
-        text: `Short description cannot exceed 150 words (currently ${shortWordCount} words).`,
+        title: isBn ? "সংক্ষিপ্ত বিবরণের সীমা অতিক্রম করেছে" : "Short Description Limit Exceeded",
+        text: isBn
+          ? `সংক্ষিপ্ত বিবরণ ১৫০ শব্দের বেশি হতে পারবে না (বর্তমানে ${shortWordCount.toLocaleString("bn-BD")} শব্দ)।`
+          : `Short description cannot exceed 150 words (currently ${shortWordCount} words).`,
         confirmButtonColor: "#ef4444",
       });
       return;
@@ -1494,8 +1503,10 @@ export default function AdminDashboardPage() {
     if (detailWordCount > 500) {
       Swal.fire({
         icon: "warning",
-        title: "Details Description Limit Exceeded",
-        text: `Details description cannot exceed 500 words (currently ${detailWordCount} words).`,
+        title: isBn ? "বিস্তারিত বিবরণের সীমা অতিক্রম করেছে" : "Details Description Limit Exceeded",
+        text: isBn
+          ? `বিস্তারিত বিবরণ ৫০০ শব্দের বেশি হতে পারবে না (বর্তমানে ${detailWordCount.toLocaleString("bn-BD")} শব্দ)।`
+          : `Details description cannot exceed 500 words (currently ${detailWordCount} words).`,
         confirmButtonColor: "#ef4444",
       });
       return;
@@ -1508,8 +1519,10 @@ export default function AdminDashboardPage() {
     if (!selectedCollectionId) {
       Swal.fire({
         icon: "warning",
-        title: "Collection Required",
-        text: "Please select a valid collection for the product.",
+        title: isBn ? "কালেকশন আবশ্যক" : "Collection Required",
+        text: isBn
+          ? "অনুগ্রহ করে পণ্যের জন্য একটি সঠিক কালেকশন নির্বাচন করুন।"
+          : "Please select a valid collection for the product.",
         confirmButtonColor: "#ef4444",
       });
       return;
@@ -1592,12 +1605,18 @@ export default function AdminDashboardPage() {
 
         await Swal.fire({
           icon: "success",
-          title: isEditing ? "Product Updated!" : "Product Created!",
+          title: isEditing
+            ? (isBn ? "পণ্য সফলভাবে আপডেট হয়েছে!" : "Product Updated!")
+            : (isBn ? "পণ্য সফলভাবে তৈরি হয়েছে!" : "Product Created!"),
           text: isEditing
-            ? `"${productForm.title}" has been updated successfully.`
-            : `"${productForm.title}" has been created successfully.`,
+            ? (isBn
+                ? `"${productForm.title}" সফলভাবে আপডেট করা হয়েছে।`
+                : `"${productForm.title}" has been updated successfully.`)
+            : (isBn
+                ? `"${productForm.title}" সফলভাবে তৈরি করা হয়েছে।`
+                : `"${productForm.title}" has been created successfully.`),
           confirmButtonColor: "var(--accent)",
-          confirmButtonText: "View All Products",
+          confirmButtonText: isBn ? "সকল পণ্য দেখুন" : "View All Products",
           timer: 2500,
           timerProgressBar: true,
         });
@@ -1609,8 +1628,8 @@ export default function AdminDashboardPage() {
         Swal.fire({
           icon: "error",
           title: isEditing
-            ? "Failed to update product"
-            : "Failed to add product",
+            ? (isBn ? "পণ্য আপডেট ব্যর্থ হয়েছে" : "Failed to update product")
+            : (isBn ? "পণ্য যোগ করা ব্যর্থ হয়েছে" : "Failed to add product"),
           text: JSON.stringify(err),
         });
       }
@@ -1624,13 +1643,14 @@ export default function AdminDashboardPage() {
     if (!token) return;
 
     const confirm = await Swal.fire({
-      title: "Delete Product?",
-      text: "This action cannot be undone.",
+      title: isBn ? "পণ্যটি মুছে ফেলতে চান?" : "Delete Product?",
+      text: isBn ? "এই কাজটি স্থায়ী এবং বাতিল করা যাবে না।" : "This action cannot be undone.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "var(--accent)",
       cancelButtonColor: "var(--button-bg)",
-      confirmButtonText: "Yes, Delete",
+      confirmButtonText: isBn ? "হ্যাঁ, মুছে ফেলুন" : "Yes, Delete",
+      cancelButtonText: isBn ? "বাতিল" : "Cancel",
     });
 
     if (confirm.isConfirmed) {
@@ -1644,7 +1664,7 @@ export default function AdminDashboardPage() {
           Swal.fire({
             position: "top-end",
             icon: "success",
-            title: "Product deleted!",
+            title: isBn ? "পণ্য মুছে ফেলা হয়েছে!" : "Product deleted!",
             showConfirmButton: false,
             timer: 1500,
             toast: true,
@@ -1653,7 +1673,9 @@ export default function AdminDashboardPage() {
         } else {
           Swal.fire({
             icon: "error",
-            title: "Cannot delete product (may be linked to orders).",
+            title: isBn
+              ? "পণ্য মোছা সম্ভব হয়নি (অর্ডারের সাথে যুক্ত থাকতে পারে)।"
+              : "Cannot delete product (may be linked to orders).",
           });
         }
       } catch (err) {
@@ -1688,8 +1710,8 @@ export default function AdminDashboardPage() {
           position: "top-end",
           icon: "success",
           title: newStatus
-            ? "Added to Trending Now!"
-            : "Removed from Trending Now",
+            ? (isBn ? "ট্রেন্ডিং তালিকায় যোগ করা হয়েছে!" : "Added to Trending Now!")
+            : (isBn ? "ট্রেন্ডিং তালিকা থেকে সরানো হয়েছে" : "Removed from Trending Now"),
           showConfirmButton: false,
           timer: 1500,
           toast: true,
