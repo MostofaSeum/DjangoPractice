@@ -5,8 +5,10 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import CartButton from "@/features/cart/components/CartButton";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import LanguageToggle from "@/components/ui/LanguageToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
+import { useLanguage } from "@/store/LanguageContext";
 import Swal from "sweetalert2";
 
 export default function Header() {
@@ -14,6 +16,7 @@ export default function Header() {
   const router = useRouter();
   const { user, logout } = useAuth();
   const { clearCart } = useCart();
+  const { t } = useLanguage();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -50,10 +53,10 @@ export default function Header() {
   };
 
   const navLinks = [
-    { name: "HOME", href: "/" },
-    { name: "SHOP", href: "/products" },
-    { name: "CATEGORIES", href: "/collections" },
-    { name: "GIFT CARDS", href: "/gift-cards" },
+    { name: t("nav.home"), href: "/" },
+    { name: t("nav.shop"), href: "/products" },
+    { name: t("nav.categories"), href: "/collections" },
+    { name: t("nav.giftCards"), href: "/gift-cards" },
   ];
 
   if (user?.is_staff) {
@@ -93,8 +96,9 @@ export default function Header() {
           })}
         </nav>
 
-        {/* Right Action Icons (Theme, Cart, Auth) */}
-        <div className="flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest">
+        {/* Right Action Icons (Language, Theme, Cart, Auth) */}
+        <div className="flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-widest">
+          <LanguageToggle />
           <ThemeToggle />
           <CartButton />
 

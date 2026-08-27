@@ -1,0 +1,53 @@
+{
+  "nav": {
+    "home": "HOME",
+    "shop": "SHOP",
+    "categories": "CATEGORIES",
+    "giftCards": "GIFT CARDS"
+  },
+  "hero": {
+    "newCollection": "New Collection",
+    "elevateYour": "Elevate Your",
+    "heroSubtitle": "Experience the intersection of high-end streetwear and premium digital aesthetics.",
+    "exploreCollection": "Explore Collection",
+    "discoverVibe": "Discover the Vibe",
+    "discoverSubtitle": "Collect exclusive pieces and immerse yourself in the next wave of streetwear.",
+    "viewExclusives": "View Exclusives",
+    "beauty": "BEAUTY",
+    "fastDelivery": "Fast Delivery",
+    "cleaning": "CLEANING",
+    "pets": "PETS",
+    "stationary": "STATIONARY"
+  },
+  "categories": {
+    "featuredTitle": "Featured Categories",
+    "viewAll": "View All",
+    "featured": "FEATURED",
+    "noCollections": "No collections available."
+  },
+  "trending": {
+    "title": "Trending Now",
+    "viewAll": "View All",
+    "off": "OFF",
+    "addToCart": "Add to Cart",
+    "noTrending": "No trending products available."
+  },
+  "whyUs": {
+    "title": "Why VibeMart?",
+    "fastShippingTitle": "Fast Shipping",
+    "fastShippingDesc": "Global expedited delivery ensures you get your gear before the hype dies.",
+    "eliteQualityTitle": "Elite Quality",
+    "eliteQualityDesc": "Uncompromising materials and construction. We only sell what we wear.",
+    "secureCheckoutTitle": "Secure Checkout",
+    "secureCheckoutDesc": "Encrypted, lightning-fast transactions to secure your limited drops."
+  },
+  "newsletter": {
+    "badge": "BE THE FIRST",
+    "title": "Join the Club",
+    "subtitle": "Get exclusive drops, private sale access, and secret discount codes sent straight to your inbox.",
+    "placeholder": "Enter your email address...",
+    "subscribe": "Subscribe",
+    "subscribing": "Subscribing...",
+    "disclaimer": "By joining, you agree to our Terms and Privacy Policy. Unsubscribe anytime."
+  }
+}

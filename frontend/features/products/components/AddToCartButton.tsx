@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useCart } from "@/hooks/useCart";
+import { useLanguage } from "@/store/LanguageContext";
 import Swal from "sweetalert2";
 
 const CartIcon = () => (
@@ -23,6 +24,7 @@ export default function AddToCartButton({
   className,
 }: AddToCartButtonProps) {
   const { addToCart } = useCart();
+  const { t, locale } = useLanguage();
   const [loading, setLoading] = useState(false);
 
   const isOutOfStock = inventory <= 0;
@@ -33,7 +35,7 @@ export default function AddToCartButton({
         disabled
         className="w-full py-3 bg-red-100 text-red-700 font-bold text-xs uppercase tracking-widest rounded-xl border border-red-300 cursor-not-allowed opacity-80 flex items-center justify-center gap-2"
       >
-        Out of Stock
+        {t("trending.outOfStock") || "Out of Stock"}
       </button>
     );
   }
@@ -79,7 +81,7 @@ export default function AddToCartButton({
       }
     >
       <CartIcon />
-      {loading ? "Adding..." : "Add to Cart"}
+      {loading ? (locale === "bn" ? "যোগ হচ্ছে..." : "Adding...") : t("trending.addToCart")}
     </button>
   );
 }

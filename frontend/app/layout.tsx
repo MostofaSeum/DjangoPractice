@@ -23,6 +23,7 @@ export const metadata: Metadata = {
 };
 
 import { ThemeProvider } from "@/store/ThemeContext";
+import { LanguageProvider } from "@/store/LanguageContext";
 
 export default function RootLayout({
   children,
@@ -36,17 +37,19 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col transition-colors duration-300">
-        <ThemeProvider>
-          <AuthProvider>
-            <CartProvider>
-              <WishlistProvider>
-                <Header />
-                <div className="flex-1">{children}</div>
-                <Footer />
-              </WishlistProvider>
-            </CartProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <AuthProvider>
+              <CartProvider>
+                <WishlistProvider>
+                  <Header />
+                  <div className="flex-1">{children}</div>
+                  <Footer />
+                </WishlistProvider>
+              </CartProvider>
+            </AuthProvider>
+          </ThemeProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

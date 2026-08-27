@@ -3,10 +3,12 @@
 import { useState, FormEvent } from "react";
 import Swal from "sweetalert2";
 import { getApiBaseUrl } from "@/config/siteConfig";
+import { useLanguage } from "@/store/LanguageContext";
 
 export default function JoinTheClub() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const { t } = useLanguage();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -98,27 +100,26 @@ export default function JoinTheClub() {
         </svg>
       </div>
       <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4 relative z-10">
-        Join the Club
+        {t("newsletter.title")}
       </h2>
       <p className="text-sm md:text-base opacity-70 font-medium mb-10 max-w-md relative z-10">
-        Get early access to exclusive drops, members-only events, and
-        behind-the-scenes content.
+        {t("newsletter.subtitle")}
       </p>
       <form onSubmit={handleSubmit} className="flex gap-2 w-full max-w-md relative z-10">
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="ENTER YOUR EMAIL"
+          placeholder={t("newsletter.placeholder")}
           required
           className="flex-1 bg-secondary border border-foreground/15 rounded-2xl px-6 py-4 text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
         />
         <button
           type="submit"
           disabled={loading}
-          className="bg-button-bg text-button-fg px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-0.5 duration-300 disabled:opacity-50"
+          className="bg-button-bg text-button-fg px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-0.5 duration-300 disabled:opacity-50 cursor-pointer"
         >
-          {loading ? "Joining..." : "Subscribe"}
+          {loading ? t("newsletter.subscribing") : t("newsletter.subscribe")}
         </button>
       </form>
     </section>
