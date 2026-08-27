@@ -112,7 +112,7 @@ export default function Header() {
                 onClick={() => setDropdownOpen((prev) => !prev)}
                 className="hover:bg-white/25 transition-all bg-white/15 px-4 py-2 rounded-full border border-white/30 font-bold flex items-center gap-2 text-logo shadow-sm"
               >
-                <span>Hi, {userName}</span>
+                <span>{t("nav.hi")}, {userName}</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="12"
@@ -144,7 +144,7 @@ export default function Header() {
                       alt="Profile"
                       className="w-4 h-4 object-contain brightness-0 invert"
                     />
-                    Profile
+                    {t("nav.profile")}
                   </Link>
 
                   <Link
@@ -157,7 +157,7 @@ export default function Header() {
                       alt="Wishlist"
                       className="w-4 h-4 object-contain"
                     />
-                    My Wishlist
+                    {t("nav.wishlist")}
                   </Link>
 
                   <div className="my-1.5 border-t border-white/15" />
@@ -172,7 +172,7 @@ export default function Header() {
                       alt="Sign Out"
                       className="w-4 h-4 object-contain"
                     />
-                    Sign Out
+                    {t("nav.signOut")}
                   </button>
                 </div>
               )}

@@ -3,7 +3,11 @@
     "home": "HOME",
     "shop": "SHOP",
     "categories": "CATEGORIES",
-    "giftCards": "GIFT CARDS"
+    "giftCards": "GIFT CARDS",
+    "profile": "PROFILE",
+    "wishlist": "MY WISHLIST",
+    "signOut": "SIGN OUT",
+    "hi": "Hi"
   },
   "hero": {
     "newCollection": "New Collection",

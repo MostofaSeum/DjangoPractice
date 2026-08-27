@@ -3,7 +3,11 @@
     "home": "হোম",
     "shop": "শপ",
     "categories": "ক্যাটাগরি",
-    "giftCards": "গিফট কার্ড"
+    "giftCards": "গিফট কার্ড",
+    "profile": "প্রোফাইল",
+    "wishlist": "আমার উইশলিস্ট",
+    "signOut": "সাইন আউট",
+    "hi": "হ্যালো"
   },
   "hero": {
     "newCollection": "নতুন কালেকশন",
