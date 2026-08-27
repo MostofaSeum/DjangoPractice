@@ -60,6 +60,8 @@ export interface Order {
   delivery_area?: string;
   delivery_charge?: number | string;
   coupon_code?: string;
+  is_edited_by_admin?: boolean;
+  edited_at?: string | null;
   items?: OrderItem[];
 }
 

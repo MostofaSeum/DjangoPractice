@@ -26,6 +26,8 @@ interface Order {
   payment_method?: string;
   transaction_id?: string;
   transaction_phone_no?: string;
+  is_edited_by_admin?: boolean;
+  edited_at?: string | null;
   items?: OrderItem[];
 }
 
@@ -368,17 +370,24 @@ export default function ProfilePage() {
                             {t("profile.placedOn").replace("{date}", placedDateText)}
                           </p>
                         </div>
-                        <span
-                          className={`px-3.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider w-fit ${
-                            ord.payment_status === "C"
-                              ? "bg-green-500/20 text-green-500 border border-green-500/30"
-                              : ord.payment_status === "F"
-                              ? "bg-red-500/20 text-red-500 border border-red-500/30"
-                              : "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
-                          }`}
-                        >
-                          {t("profile.paymentStatus")} {paymentStatusLabel}
-                        </span>
+                        <div className="flex flex-wrap items-center gap-2">
+                          {ord.is_edited_by_admin && (
+                            <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-accent/20 text-accent border border-accent/30 flex items-center gap-1">
+                              <span>✎</span> {locale === "bn" ? "অ্যাডমিন কর্তৃক সংশোধিত" : "Edited by Store"}
+                            </span>
+                          )}
+                          <span
+                            className={`px-3.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider w-fit ${
+                              ord.payment_status === "C"
+                                ? "bg-green-500/20 text-green-500 border border-green-500/30"
+                                : ord.payment_status === "F"
+                                ? "bg-red-500/20 text-red-500 border border-red-500/30"
+                                : "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
+                            }`}
+                          >
+                            {t("profile.paymentStatus")} {paymentStatusLabel}
+                          </span>
+                        </div>
                       </div>
 
                       {/* Details & Address */}

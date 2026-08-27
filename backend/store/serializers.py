@@ -291,12 +291,110 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'customer_name', 'payment_status', 'placed_at', 'shipping_address', 'phone', 'payment_method', 'transaction_id', 'transaction_phone_no', 'delivery_area', 'delivery_charge', 'coupon_code', 'items']
+        fields = ['id', 'customer', 'customer_name', 'payment_status', 'placed_at', 'shipping_address', 'phone', 'payment_method', 'transaction_id', 'transaction_phone_no', 'delivery_area', 'delivery_charge', 'coupon_code', 'is_edited_by_admin', 'edited_at', 'items']
 
     def get_customer_name(self, obj):
         if obj.customer and hasattr(obj.customer, 'user') and obj.customer.user:
             return obj.customer.user.username
         return f"Customer #{obj.customer_id}"
+
+class AdminEditOrderItemSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=False, allow_null=True)
+    product_id = serializers.IntegerField()
+    variant_id = serializers.IntegerField(required=False, allow_null=True)
+    quantity = serializers.IntegerField(min_value=1)
+    unit_price = serializers.DecimalField(max_digits=10, decimal_places=2, required=False)
+
+class AdminEditOrderSerializer(serializers.ModelSerializer):
+    items = AdminEditOrderItemSerializer(many=True, required=True)
+
+    class Meta:
+        model = Order
+        fields = ['payment_status', 'shipping_address', 'phone', 'delivery_area', 'delivery_charge', 'items']
+
+    def validate(self, attrs):
+        instance = self.instance
+        if instance and instance.payment_method != Order.PAYMENT_METHOD_COD:
+            raise serializers.ValidationError({"error": "Only Cash on Delivery (COD) orders can be edited by admin."})
+        items_data = attrs.get('items', [])
+        if not items_data:
+            raise serializers.ValidationError({"items": "An order must contain at least one item."})
+        return attrs
+
+    def update(self, instance, validated_data):
+        items_data = validated_data.pop('items', None)
+        
+        with transaction.atomic():
+            # If the order was already complete, restore previous stock before applying modifications
+            if instance.payment_status == Order.PAYMENT_STATUS_COMPLETE:
+                for old_item in instance.items.select_related('product', 'variant').all():
+                    if old_item.product_id:
+                        Product.objects.filter(pk=old_item.product_id).update(inventory=F('inventory') + old_item.quantity)
+                    if old_item.variant_id:
+                        ProductVariant.objects.filter(pk=old_item.variant_id).update(inventory=F('inventory') + old_item.quantity)
+
+            # Update Order fields
+            for attr, val in validated_data.items():
+                setattr(instance, attr, val)
+            
+            instance.is_edited_by_admin = True
+            instance.edited_at = timezone.now()
+            instance.save()
+
+            if items_data is not None:
+                # Remove previous items and recreate/re-assign
+                instance.items.all().delete()
+                
+                new_items = []
+                for item_dict in items_data:
+                    prod_id = item_dict.get('product_id')
+                    var_id = item_dict.get('variant_id')
+                    qty = item_dict.get('quantity', 1)
+                    
+                    product_obj = Product.objects.filter(pk=prod_id).first()
+                    if not product_obj:
+                        continue
+                    
+                    variant_obj = None
+                    variant_title = ''
+                    if var_id:
+                        variant_obj = ProductVariant.objects.filter(pk=var_id, product_id=prod_id).first()
+                        if variant_obj:
+                            variant_title = variant_obj.name
+
+                    # Determine unit price
+                    if 'unit_price' in item_dict and item_dict['unit_price'] is not None:
+                        unit_price = Decimal(str(item_dict['unit_price']))
+                    elif variant_obj:
+                        unit_price = variant_obj.discounted_price
+                    else:
+                        unit_price = product_obj.discounted_price
+
+                    order_item = OrderItem(
+                        order=instance,
+                        product=product_obj,
+                        variant=variant_obj,
+                        variant_title=variant_title,
+                        quantity=qty,
+                        unit_price=unit_price
+                    )
+                    new_items.append(order_item)
+
+                OrderItem.objects.bulk_create(new_items)
+
+            # If the order is currently Complete, deduct new stock
+            if instance.payment_status == Order.PAYMENT_STATUS_COMPLETE:
+                for new_item in instance.items.select_related('product', 'variant').all():
+                    if new_item.product_id:
+                        Product.objects.filter(pk=new_item.product_id).update(
+                            inventory=Greatest(F('inventory') - new_item.quantity, Value(0))
+                        )
+                    if new_item.variant_id:
+                        ProductVariant.objects.filter(pk=new_item.variant_id).update(
+                            inventory=Greatest(F('inventory') - new_item.quantity, Value(0))
+                        )
+
+        return instance
 
 class UpdateOrderSerializer(serializers.ModelSerializer):
     class Meta:

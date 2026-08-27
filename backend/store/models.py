@@ -235,6 +235,8 @@ class Order(models.Model):
     delivery_charge = models.DecimalField(
         max_digits=10, decimal_places=2, default=60.00, validators=[MinValueValidator(0)])
     coupon_code = models.CharField(max_length=50, default='', blank=True)
+    is_edited_by_admin = models.BooleanField(default=False)
+    edited_at = models.DateTimeField(null=True, blank=True)
     class Meta:
         permissions = [
             ('cancel_order', 'Can cancel order'),

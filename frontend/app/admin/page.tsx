@@ -2078,6 +2078,74 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // Edit COD Order (PATCH /store/orders/{id}/)
+  const handleSaveEditedOrder = async (
+    orderId: number,
+    payload: {
+      shipping_address?: string;
+      phone?: string;
+      delivery_area?: string;
+      delivery_charge?: number;
+      payment_status?: string;
+      items: Array<{
+        id?: number;
+        product_id: number;
+        variant_id?: number | null;
+        quantity: number;
+        unit_price?: number;
+      }>;
+    },
+  ): Promise<boolean> => {
+    if (!token) return false;
+
+    try {
+      const res = await fetch(`${API_BASE}/store/orders/${orderId}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        await Swal.fire({
+          icon: "success",
+          title: isBn ? "অর্ডার আপডেট হয়েছে!" : "Order Updated!",
+          text: isBn
+            ? `অর্ডার #${orderId.toLocaleString("bn-BD")} সফলভাবে সংশোধন করা হয়েছে। গ্রাহক তার প্রোফাইলে আপডেট দেখতে পাবেন।`
+            : `Order #${orderId} has been successfully updated. The customer will see the updated details.`,
+          confirmButtonColor: "var(--accent)",
+          confirmButtonText: isBn ? "ঠিক আছে" : "OK",
+          timer: 2500,
+          timerProgressBar: true,
+        });
+        fetchAdminData();
+        return true;
+      } else {
+        const errData = await res.json().catch(() => null);
+        const errMsg =
+          errData?.error ||
+          errData?.detail ||
+          (errData?.items ? JSON.stringify(errData.items) : "Failed to update order.");
+        Swal.fire({
+          icon: "error",
+          title: isBn ? "অর্ডার আপডেট ব্যর্থ হয়েছে" : "Failed to update order",
+          text: errMsg,
+        });
+        return false;
+      }
+    } catch (err: any) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: isBn ? "নেটওয়ার্ক ত্রুটি" : "Network Error",
+        text: err?.message || "Failed to reach the server.",
+      });
+      return false;
+    }
+  };
+
   // Delete Order (DELETE /store/orders/{id}/)
   const handleDeleteOrder = async (orderId: number) => {
     if (!token) return;
@@ -2426,7 +2494,9 @@ export default function AdminDashboardPage() {
           {activeTab === "orders" && (
             <OrdersTab
               orders={orders}
+              productsCatalog={promoProductsCatalog && promoProductsCatalog.length > 0 ? promoProductsCatalog : products}
               handleUpdateOrderStatus={handleUpdateOrderStatus}
+              handleSaveEditedOrder={handleSaveEditedOrder}
               handleDeleteOrder={handleDeleteOrder}
               targetOrderId={selectedNotificationOrderId}
             />
