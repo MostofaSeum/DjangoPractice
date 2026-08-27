@@ -147,6 +147,22 @@
     "failedUpdate": "Failed to update profile. Please check your inputs.",
     "option": "Option:"
   },
+  "wishlist": {
+    "loadingWishlist": "Loading your wishlist...",
+    "signInToView": "Sign in to view your wishlist",
+    "signInSubtitle": "Save your favorite items and access them anytime across all your devices.",
+    "signInNow": "Sign In Now",
+    "myWishlist": "My Wishlist ({count})",
+    "savedFavorites": "Your saved favorite products",
+    "continueShopping": "Continue Shopping",
+    "emptyWishlist": "Your Wishlist is Empty",
+    "emptySubtitle": "Explore our product collection and click the heart button to save items here!",
+    "browseProducts": "Browse Products",
+    "noDescription": "No description available.",
+    "qty": "Qty: {count}",
+    "viewDetails": "View Details",
+    "removeFromWishlist": "Remove from Wishlist"
+  },
   "checkout": {
     "title": "Checkout & Shipping",
     "breadcrumbCheckout": "Checkout",

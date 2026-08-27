@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useWishlist } from "@/hooks/useWishlist";
+import { useLanguage } from "@/store/LanguageContext";
 import ProductImage from "@/components/ui/ProductImage";
 import AddToCartButton from "@/features/products/components/AddToCartButton";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,11 +10,12 @@ import { useAuth } from "@/hooks/useAuth";
 export default function WishlistPage() {
   const { user, token, loading: authLoading } = useAuth();
   const { wishlistItems, loading, removeFromWishlist } = useWishlist();
+  const { t, formatCurrency, locale } = useLanguage();
 
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-8 font-bold uppercase tracking-widest text-xs transition-colors duration-300">
-        Loading your wishlist...
+        {t("wishlist.loadingWishlist")}
       </div>
     );
   }
@@ -27,17 +29,17 @@ export default function WishlistPage() {
               <img src="/love.png" alt="Wishlist" className="w-8 h-8 object-contain" />
             </div>
             <h2 className="text-xl font-black uppercase tracking-tight text-foreground">
-              Sign in to view your wishlist
+              {t("wishlist.signInToView")}
             </h2>
             <p className="text-xs text-foreground/70 font-medium">
-              Save your favorite items and access them anytime across all your devices.
+              {t("wishlist.signInSubtitle")}
             </p>
             <div>
               <Link
                 href="/login?redirect=/wishlist"
-                className="inline-block px-8 py-3.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md"
+                className="inline-block px-8 py-3.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md cursor-pointer"
               >
-                Sign In Now
+                {t("wishlist.signInNow")}
               </Link>
             </div>
           </div>
@@ -55,18 +57,23 @@ export default function WishlistPage() {
             <div className="flex items-center gap-3">
               <img src="/love.png" alt="Wishlist" className="w-6 h-6 object-contain" />
               <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-foreground">
-                My Wishlist ({wishlistItems.length})
+                {t("wishlist.myWishlist").replace(
+                  "{count}",
+                  locale === "bn"
+                    ? wishlistItems.length.toLocaleString("bn-BD")
+                    : wishlistItems.length.toString()
+                )}
               </h1>
             </div>
             <p className="text-xs opacity-70 font-bold uppercase tracking-wider mt-1">
-              Your saved favorite products
+              {t("wishlist.savedFavorites")}
             </p>
           </div>
           <Link
             href="/products"
-            className="px-5 py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-extrabold uppercase tracking-wider hover:opacity-90 transition-all shadow-sm"
+            className="px-5 py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-extrabold uppercase tracking-wider hover:opacity-90 transition-all shadow-sm cursor-pointer"
           >
-            Continue Shopping
+            {t("wishlist.continueShopping")}
           </Link>
         </div>
 
@@ -76,17 +83,17 @@ export default function WishlistPage() {
               <img src="/love.png" alt="Empty Wishlist" className="w-8 h-8 object-contain opacity-50" />
             </div>
             <h3 className="text-lg font-black uppercase tracking-tight text-foreground">
-              Your Wishlist is Empty
+              {t("wishlist.emptyWishlist")}
             </h3>
             <p className="text-xs text-foreground/60 font-medium">
-              Explore our product collection and click the heart button to save items here!
+              {t("wishlist.emptySubtitle")}
             </p>
             <div className="pt-2">
               <Link
                 href="/products"
-                className="inline-block px-8 py-3.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md"
+                className="inline-block px-8 py-3.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md cursor-pointer"
               >
-                Browse Products
+                {t("wishlist.browseProducts")}
               </Link>
             </div>
           </div>
@@ -94,6 +101,11 @@ export default function WishlistPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {wishlistItems.map((item) => {
               const product = item.product;
+              const inventoryCount =
+                locale === "bn"
+                  ? product.inventory.toLocaleString("bn-BD")
+                  : product.inventory.toString();
+
               return (
                 <div
                   key={item.id}
@@ -105,8 +117,8 @@ export default function WishlistPage() {
                       <button
                         type="button"
                         onClick={() => removeFromWishlist(product.id)}
-                        className="absolute top-2.5 right-2.5 p-2 rounded-full bg-black/60 text-white hover:bg-red-500 transition-colors shadow-md"
-                        title="Remove from Wishlist"
+                        className="absolute top-2.5 right-2.5 p-2 rounded-full bg-black/60 text-white hover:bg-red-500 transition-colors shadow-md cursor-pointer"
+                        title={t("wishlist.removeFromWishlist")}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -129,32 +141,32 @@ export default function WishlistPage() {
                       {product.title}
                     </h3>
                     <p className="text-xs opacity-70 mb-4 line-clamp-2 leading-relaxed">
-                      {product.description || "No description available."}
+                      {product.description || t("wishlist.noDescription")}
                     </p>
                   </div>
 
                   <div>
                     <div className="flex justify-between items-center mb-4 pt-3 border-t border-foreground/10">
                       <span className="text-accent font-extrabold text-base">
-                        ৳{Number(product.unit_price).toFixed(2)}
+                        {formatCurrency(product.unit_price)}
                       </span>
                       <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">
-                        Qty: {product.inventory}
+                        {t("wishlist.qty").replace("{count}", inventoryCount)}
                       </span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
                       <Link
                         href={`/products/${product.id}`}
-                        className="py-2.5 px-2 border border-current text-foreground rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-button-bg hover:text-button-fg transition-colors flex items-center justify-center text-center"
+                        className="py-2.5 px-2 border border-current text-foreground rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-button-bg hover:text-button-fg transition-colors flex items-center justify-center text-center cursor-pointer"
                       >
-                        View Details
+                        {t("wishlist.viewDetails")}
                       </Link>
                       <AddToCartButton
                         productId={product.id}
                         productTitle={product.title}
                         inventory={product.inventory}
-                        className="py-2.5 px-2 bg-button-bg text-button-fg rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center"
+                        className="py-2.5 px-2 bg-button-bg text-button-fg rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center cursor-pointer"
                       />
                     </div>
                   </div>
