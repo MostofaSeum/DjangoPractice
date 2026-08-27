@@ -486,13 +486,12 @@ export default function CollectionsTab({
                         type="button"
                         onClick={() => handleToggleCollectionFeatured(col)}
                         title={col.is_featured ? (isBn ? "ফিচার বাতিল করুন" : "Unfeature") : (isBn ? "ফিচার করুন" : "Feature")}
-                        className={`h-7 px-2.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all duration-150 flex items-center gap-1 border active:scale-95 cursor-pointer ${
+                        className={`h-7 px-2.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all duration-150 flex items-center justify-center border active:scale-95 cursor-pointer ${
                           col.is_featured
                             ? "bg-amber-500 text-black border-amber-600 shadow-xs hover:bg-amber-400 font-black"
                             : "bg-primary/5 dark:bg-primary/20 text-foreground/70 border-foreground/15 hover:bg-primary/10 dark:hover:bg-primary/30 hover:text-foreground"
                         }`}
                       >
-                        <span className="text-[9px] leading-none">{col.is_featured ? "★" : "+"}</span>
                         <span className="leading-none">{isBn ? "ফিচার্ড" : "Featured"}</span>
                       </button>
 

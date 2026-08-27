@@ -1463,13 +1463,12 @@ export default function ProductsTab({
                         type="button"
                         onClick={() => handleToggleProductTrending(prod)}
                         title={prod.is_trending ? (isBn ? "ট্রেন্ডিং তালিকা থেকে সরান" : "Remove from Trending") : (isBn ? "ট্রেন্ডিং করুন" : "Add to Trending")}
-                        className={`h-7 px-2.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all duration-150 flex items-center gap-1 border active:scale-95 cursor-pointer ${
+                        className={`h-7 px-2.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wider transition-all duration-150 flex items-center justify-center border active:scale-95 cursor-pointer ${
                           prod.is_trending
                             ? "bg-amber-500 text-black border-amber-600 shadow-xs hover:bg-amber-400 font-black"
                             : "bg-primary/5 dark:bg-primary/20 text-foreground/70 border-foreground/15 hover:bg-primary/10 dark:hover:bg-primary/30 hover:text-foreground"
                         }`}
                       >
-                        <span className="text-[9px] leading-none">{prod.is_trending ? "🔥" : "+"}</span>
                         <span className="leading-none">{isBn ? "ট্রেন্ডিং" : "Trending"}</span>
                       </button>
 
