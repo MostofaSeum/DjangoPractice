@@ -9,6 +9,7 @@ import Link from "next/link";
 import Swal from "sweetalert2";
 import BkashPaymentUI from "@/components/BkashPaymentUI";
 import NagadPaymentUI from "@/components/NagadPaymentUI";
+import { Address } from "@/types/product";
 
 const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
@@ -37,6 +38,8 @@ export default function CheckoutPage() {
 
   const [phone, setPhone] = useState("");
   const [shippingAddress, setShippingAddress] = useState("");
+  const [savedAddresses, setSavedAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<"C" | "O" | "N" | "V">(
     "C",
   );
@@ -166,16 +169,42 @@ export default function CheckoutPage() {
     const fetchCustomerInfo = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${API_BASE}/store/customers/me/`, {
-          headers: { Authorization: `JWT ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
+        const [customerRes, addressRes] = await Promise.all([
+          fetch(`${API_BASE}/store/customers/me/`, {
+            headers: { Authorization: `JWT ${token}` },
+          }),
+          fetch(`${API_BASE}/store/addresses/`, {
+            headers: { Authorization: `JWT ${token}` },
+          }),
+        ]);
+
+        if (customerRes.ok) {
+          const data = await customerRes.json();
           if (data.phone) setPhone(data.phone);
           if (data.vibe_coin !== undefined) setVibeCoin(data.vibe_coin);
         }
+
+        if (addressRes.ok) {
+          const addrData = await addressRes.json();
+          const list: Address[] = Array.isArray(addrData) ? addrData : addrData.results || [];
+          setSavedAddresses(list);
+
+          // Find default address or first address
+          const defaultAddr = list.find((a) => a.is_default) || list[0];
+          if (defaultAddr) {
+            setSelectedAddressId(String(defaultAddr.id));
+            setShippingAddress(defaultAddr.street);
+            if (defaultAddr.city) {
+              if (defaultAddr.city.toLowerCase().includes("outside")) {
+                setDeliveryArea("outside_dhaka");
+              } else if (defaultAddr.city.toLowerCase().includes("inside")) {
+                setDeliveryArea("inside_dhaka");
+              }
+            }
+          }
+        }
       } catch (err) {
-        console.error("Failed to fetch customer data:", err);
+        console.error("Failed to fetch customer/address data:", err);
       } finally {
         setLoading(false);
       }
@@ -777,14 +806,74 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="flex flex-col gap-2 sm:col-span-2">
-                  <label className="text-xs font-bold uppercase tracking-wider opacity-80">
-                    {t("checkout.shippingAddressLabel")}
-                  </label>
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-bold uppercase tracking-wider opacity-80">
+                      {t("checkout.shippingAddressLabel")}
+                    </label>
+                    {savedAddresses.length > 0 && (
+                      <Link
+                        href="/profile"
+                        target="_blank"
+                        className="text-[10px] font-bold text-accent hover:underline uppercase tracking-wider"
+                      >
+                        + {t("profile.addNewAddress")}
+                      </Link>
+                    )}
+                  </div>
+
+                  {savedAddresses.length > 1 && (
+                    <div className="flex flex-col gap-1 mb-2">
+                      <label className="text-[10px] font-bold uppercase tracking-wider opacity-60">
+                        {t("checkout.useSavedAddress")}
+                      </label>
+                      <select
+                        value={selectedAddressId}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setSelectedAddressId(val);
+                          if (val === "custom") {
+                            setShippingAddress("");
+                          } else {
+                            const found = savedAddresses.find((a) => String(a.id) === val);
+                            if (found) {
+                              setShippingAddress(found.street);
+                              if (found.city) {
+                                if (found.city.toLowerCase().includes("outside")) {
+                                  setDeliveryArea("outside_dhaka");
+                                } else if (found.city.toLowerCase().includes("inside")) {
+                                  setDeliveryArea("inside_dhaka");
+                                }
+                              }
+                            }
+                          }
+                        }}
+                        className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm cursor-pointer"
+                      >
+                        {savedAddresses.map((addr) => (
+                          <option key={addr.id} value={String(addr.id)}>
+                            {addr.title || "Address"} {addr.is_default ? `(${t("profile.defaultBadge") || "DEFAULT"})` : ""}: {addr.street.length > 40 ? addr.street.slice(0, 40) + "..." : addr.street}
+                          </option>
+                        ))}
+                        <option value="custom">
+                          {t("checkout.customAddressOption")}
+                        </option>
+                      </select>
+                    </div>
+                  )}
+
                   <textarea
                     required
                     rows={3}
                     value={shippingAddress}
-                    onChange={(e) => setShippingAddress(e.target.value)}
+                    onChange={(e) => {
+                      setShippingAddress(e.target.value);
+                      if (selectedAddressId !== "custom" && savedAddresses.length > 1) {
+                        const matching = savedAddresses.find((a) => String(a.id) === selectedAddressId);
+                        if (matching && matching.street !== e.target.value) {
+                          setSelectedAddressId("custom");
+                        }
+                      }
+                    }}
                     placeholder={t("checkout.addressPlaceholder")}
                     className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
                   />

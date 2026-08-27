@@ -31,7 +31,7 @@ interface ProductsTabProps {
     collection: string;
     short_description: string;
     description: string;
-    is_visible?: boolean;
+    is_visible: boolean;
   };
   setProductForm: React.Dispatch<
     React.SetStateAction<{
@@ -42,7 +42,7 @@ interface ProductsTabProps {
       collection: string;
       short_description: string;
       description: string;
-      is_visible?: boolean;
+      is_visible: boolean;
     }>
   >;
   handleSaveProduct: (e: React.FormEvent) => Promise<void>;

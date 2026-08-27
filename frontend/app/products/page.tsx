@@ -1,22 +1,7 @@
 import { getApiBaseUrl } from "@/config/siteConfig";
 import ProductsClient from "@/features/products/components/ProductsClient";
 
-interface Product {
-  id: number;
-  title: string;
-  unit_price: number;
-  discount_percent?: number;
-  discounted_price?: number;
-  short_description?: string;
-  description: string;
-  inventory?: number;
-  images?: { id: number; image: string }[];
-  units_sold?: number;
-  average_rating?: number;
-  review_count?: number;
-  collection?: any;
-  collection_id?: any;
-}
+import { Product } from "@/types/product";
 
 export default async function ProductsPage({
   searchParams,

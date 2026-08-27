@@ -2416,6 +2416,7 @@ export default function AdminDashboardPage() {
         collection: collections.length > 0 ? String(collections[0].id) : "",
         short_description: "",
         description: "",
+        is_visible: true,
       });
       newProductPhotoPreviews.forEach((url) => URL.revokeObjectURL(url));
       setNewProductPhotos([]);

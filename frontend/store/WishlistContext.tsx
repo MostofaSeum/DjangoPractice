@@ -13,6 +13,18 @@ export interface WishlistProduct {
   inventory: number;
   description?: string;
   images?: { id: number; image: string }[];
+  discount_percent?: number;
+  discounted_price?: number;
+  discount_valid_until?: string | null;
+  is_discount_active?: boolean;
+  variants?: {
+    id: number;
+    name: string;
+    price_override?: number | string | null;
+    discounted_price?: number;
+    inventory: number;
+    is_active?: boolean;
+  }[];
 }
 
 export interface WishlistItem {

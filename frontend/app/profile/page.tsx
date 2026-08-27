@@ -207,6 +207,141 @@ export default function ProfilePage() {
     }
   };
 
+  const handleOpenAddAddress = () => {
+    if (addresses.length >= 5) {
+      Swal.fire({
+        icon: "warning",
+        title: t("profile.addressLimitReached") || "You have reached the maximum limit of 5 addresses.",
+        confirmButtonColor: "var(--primary)",
+      });
+      return;
+    }
+    setEditingAddress(null);
+    setAddressFormData({
+      title: "Home",
+      street: "",
+      city: "Inside Dhaka",
+      is_default: addresses.length === 0,
+    });
+    setAddressModalOpen(true);
+  };
+
+  const handleOpenEditAddress = (addr: Address) => {
+    setEditingAddress(addr);
+    setAddressFormData({
+      title: addr.title || "Home",
+      street: addr.street,
+      city: addr.city || "Inside Dhaka",
+      is_default: addr.is_default,
+    });
+    setAddressModalOpen(true);
+  };
+
+  const handleSaveAddress = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token) return;
+    setAddressSaving(true);
+    try {
+      const url = editingAddress
+        ? `${API_BASE}/store/addresses/${editingAddress.id}/`
+        : `${API_BASE}/store/addresses/`;
+      const method = editingAddress ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify(addressFormData),
+      });
+
+      if (res.ok) {
+        setAddressModalOpen(false);
+        await fetchAddresses();
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: t("profile.addressSaved") || "Address saved successfully!",
+          showConfirmButton: false,
+          timer: 1800,
+          toast: true,
+        });
+      } else {
+        const errData = await res.json();
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: JSON.stringify(errData),
+          confirmButtonColor: "#ef4444",
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setAddressSaving(false);
+    }
+  };
+
+  const handleDeleteAddress = async (id: number) => {
+    if (!token) return;
+    const result = await Swal.fire({
+      title: t("profile.deleteConfirmTitle") || "Delete Address?",
+      text: t("profile.deleteConfirmText") || "Are you sure you want to delete this address?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "var(--accent)",
+      confirmButtonText: locale === "bn" ? "মুছে ফেলুন" : "Yes, Delete",
+      cancelButtonText: locale === "bn" ? "বাতিল" : "Cancel",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const res = await fetch(`${API_BASE}/store/addresses/${id}/`, {
+          method: "DELETE",
+          headers: { Authorization: `JWT ${token}` },
+        });
+        if (res.ok) {
+          await fetchAddresses();
+          Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: t("profile.addressDeleted") || "Address deleted successfully!",
+            showConfirmButton: false,
+            timer: 1800,
+            toast: true,
+          });
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
+
+  const handleSetDefaultAddress = async (id: number) => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE}/store/addresses/${id}/set_default/`, {
+        method: "POST",
+        headers: { Authorization: `JWT ${token}` },
+      });
+      if (res.ok) {
+        await fetchAddresses();
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: t("profile.defaultUpdated") || "Default address updated!",
+          showConfirmButton: false,
+          timer: 1800,
+          toast: true,
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-8 font-bold uppercase tracking-widest text-xs transition-colors duration-300">
@@ -316,6 +451,102 @@ export default function ProfilePage() {
                 {saving ? t("profile.saving") : t("profile.saveChanges")}
               </button>
             </form>
+
+            {/* Saved Addresses Section (Up to 5) */}
+            <div className="mt-10 pt-6 border-t border-foreground/10">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-base font-black uppercase tracking-tight text-foreground">
+                    {t("profile.savedAddresses")}
+                  </h3>
+                  <p className="text-[10px] opacity-70 font-bold uppercase tracking-wider mt-0.5">
+                    {t("profile.savedAddressesDesc")} ({addresses.length}/5)
+                  </p>
+                </div>
+                {addresses.length < 5 && (
+                  <button
+                    type="button"
+                    onClick={handleOpenAddAddress}
+                    className="px-3 py-1.5 bg-background text-foreground border border-foreground/15 hover:border-accent rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>+</span> {t("profile.addNewAddress")}
+                  </button>
+                )}
+              </div>
+
+              {addresses.length === 0 ? (
+                <div className="p-4 bg-background/50 border border-foreground/10 rounded-2xl text-center text-xs opacity-60 font-semibold">
+                  {t("profile.noAddresses")}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {addresses.map((addr) => (
+                    <div
+                      key={addr.id}
+                      className={`p-4 rounded-2xl border transition-all ${
+                        addr.is_default
+                          ? "bg-accent/10 border-accent/40 shadow-sm"
+                          : "bg-background border-foreground/10 hover:border-foreground/20"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-black text-xs uppercase tracking-tight text-foreground">
+                            {addr.title || "Address"}
+                          </span>
+                          {addr.is_default && (
+                            <span className="px-2 py-0.5 rounded-md bg-accent text-[9px] font-black text-white uppercase tracking-wider">
+                              {t("profile.defaultBadge")}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          {!addr.is_default && (
+                            <button
+                              type="button"
+                              onClick={() => handleSetDefaultAddress(addr.id)}
+                              className="text-[10px] font-bold text-accent hover:underline uppercase tracking-wider cursor-pointer"
+                            >
+                              {t("profile.setAsDefault")}
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditAddress(addr)}
+                            className="p-1 text-foreground/70 hover:text-foreground transition-colors cursor-pointer"
+                            title={t("profile.editAddress")}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M12 20h9"></path>
+                              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                            </svg>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteAddress(addr.id)}
+                            className="p-1 text-red-500/80 hover:text-red-500 transition-colors cursor-pointer"
+                            title={t("profile.deleteAddress")}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="3 6 5 6 21 6"></polyline>
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                      <p className="text-xs font-semibold text-foreground/90 mt-1.5 whitespace-pre-wrap">
+                        {addr.street}
+                      </p>
+                      {addr.city && (
+                        <p className="text-[10px] font-bold text-foreground/60 mt-0.5 uppercase tracking-wider">
+                          {addr.city}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* User's Own Order History & VibeCoin (2 Columns) */}
@@ -813,7 +1044,118 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
+
+      {/* Address Add / Edit Modal */}
+      {addressModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-secondary text-foreground w-full max-w-md rounded-3xl p-6 md:p-8 shadow-2xl border border-foreground/10 relative">
+            <button
+              type="button"
+              onClick={() => setAddressModalOpen(false)}
+              className="absolute top-6 right-6 text-foreground/50 hover:text-foreground transition-colors p-1"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+
+            <h3 className="text-lg font-black uppercase tracking-tight text-foreground mb-1">
+              {editingAddress ? t("profile.editAddress") : t("profile.addNewAddress")}
+            </h3>
+            <p className="text-xs opacity-70 font-semibold mb-6">
+              {t("profile.savedAddressesDesc")}
+            </p>
+
+            <form onSubmit={handleSaveAddress} className="space-y-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                  {t("profile.addressTitle")}
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={addressFormData.title}
+                  onChange={(e) =>
+                    setAddressFormData((prev) => ({ ...prev, title: e.target.value }))
+                  }
+                  placeholder="e.g. Home, Work, Office"
+                  className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                  {t("profile.addressStreet")}
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  value={addressFormData.street}
+                  onChange={(e) =>
+                    setAddressFormData((prev) => ({ ...prev, street: e.target.value }))
+                  }
+                  placeholder="e.g. House 12, Road 5, Block B, Dhanmondi"
+                  className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm resize-none"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                  {t("profile.addressCity")}
+                </label>
+                <select
+                  value={addressFormData.city}
+                  onChange={(e) =>
+                    setAddressFormData((prev) => ({ ...prev, city: e.target.value }))
+                  }
+                  className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm cursor-pointer"
+                >
+                  <option value="Inside Dhaka">{locale === "bn" ? "ঢাকার ভিতরে (Inside Dhaka)" : "Inside Dhaka"}</option>
+                  <option value="Outside Dhaka">{locale === "bn" ? "ঢাকার বাইরে (Outside Dhaka)" : "Outside Dhaka"}</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2.5 pt-2">
+                <input
+                  type="checkbox"
+                  id="is_default_checkbox"
+                  checked={addressFormData.is_default}
+                  onChange={(e) =>
+                    setAddressFormData((prev) => ({ ...prev, is_default: e.target.checked }))
+                  }
+                  className="w-4 h-4 rounded accent-accent cursor-pointer"
+                />
+                <label
+                  htmlFor="is_default_checkbox"
+                  className="text-xs font-bold text-foreground cursor-pointer select-none"
+                >
+                  {t("profile.setAsDefault")}
+                </label>
+              </div>
+
+              <div className="flex items-center gap-3 pt-4 border-t border-foreground/10">
+                <button
+                  type="button"
+                  onClick={() => setAddressModalOpen(false)}
+                  className="flex-1 py-3 border border-foreground/15 bg-background text-foreground rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-foreground/5 transition-all cursor-pointer"
+                >
+                  {locale === "bn" ? "বাতিল" : "Cancel"}
+                </button>
+                <button
+                  type="submit"
+                  disabled={addressSaving}
+                  className="flex-1 py-3 bg-button-bg text-button-fg rounded-xl font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-50 cursor-pointer"
+                >
+                  {addressSaving ? t("profile.savingAddress") : t("profile.saveAddress")}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </main>
   </div>
   );
 }
+

@@ -8,22 +8,7 @@ import AddToCartButton from "@/features/products/components/AddToCartButton";
 import ProductImage from "@/components/ui/ProductImage";
 import ProductDeliveryOfferBadge from "@/components/ProductDeliveryOfferBadge";
 import { useLanguage } from "@/store/LanguageContext";
-
-interface Product {
-  id: number;
-  title: string;
-  unit_price: number;
-  discount_percent?: number;
-  discounted_price?: number;
-  inventory: number;
-  description?: string;
-  images?: { id?: number; image: string }[];
-  units_sold?: number;
-  average_rating?: number;
-  review_count?: number;
-  collection?: any;
-  collection_id?: any;
-}
+import { Product } from "@/types/product";
 
 interface Collection {
   id: number;

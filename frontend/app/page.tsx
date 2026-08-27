@@ -3,27 +3,7 @@ export const dynamic = "force-dynamic";
 import { getApiBaseUrl } from "@/config/siteConfig";
 import HomeClient from "@/components/HomeClient";
 
-interface Product {
-  id: number;
-  title: string;
-  unit_price: number;
-  discount_percent?: number;
-  discounted_price?: number;
-  inventory: number;
-  description?: string;
-  images?: { id?: number; image: string }[];
-  units_sold?: number;
-  average_rating?: number;
-  review_count?: number;
-  collection?: any;
-  collection_id?: any;
-}
-
-interface Collection {
-  id: number;
-  title: string;
-  image?: string | null;
-}
+import { Product, Collection } from "@/types/product";
 
 export default async function Home() {
   const apiBaseUrl = getApiBaseUrl();
