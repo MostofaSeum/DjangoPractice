@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import { getApiBaseUrl } from "@/config/siteConfig";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/store/LanguageContext";
 import BkashPaymentUI from "@/components/BkashPaymentUI";
 import NagadPaymentUI from "@/components/NagadPaymentUI";
 
@@ -27,6 +28,7 @@ const GIFT_CARD_OPTIONS: GiftCardOption[] = [
 export default function GiftCardsPage() {
   const router = useRouter();
   const { user, token } = useAuth();
+  const { t, formatCurrency, locale } = useLanguage();
   const [selectedCard, setSelectedCard] = useState<GiftCardOption | null>(null);
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -77,8 +79,8 @@ export default function GiftCardsPage() {
     if (!user) {
       Swal.fire({
         icon: "warning",
-        title: "Please Sign In",
-        text: "You must be logged in to purchase a gift card.",
+        title: locale === "bn" ? "অনুগ্রহ করে সাইন ইন করুন" : "Please Sign In",
+        text: locale === "bn" ? "গিফট কার্ড ক্রয় করতে আপনাকে লগইন করতে হবে।" : "You must be logged in to purchase a gift card.",
         confirmButtonColor: "var(--button-bg)",
       }).then(() => {
         router.push(`/login?redirect=${encodeURIComponent("/gift-cards")}`);
@@ -101,8 +103,8 @@ export default function GiftCardsPage() {
     if (!user || !token) {
       Swal.fire({
         icon: "warning",
-        title: "Please Sign In",
-        text: "You must be logged in to redeem a gift card.",
+        title: locale === "bn" ? "অনুগ্রহ করে সাইন ইন করুন" : "Please Sign In",
+        text: locale === "bn" ? "গিফট কার্ড রিডিম করতে আপনাকে লগইন করতে হবে।" : "You must be logged in to redeem a gift card.",
         confirmButtonColor: "var(--button-bg)",
       }).then(() => {
         router.push(`/login?redirect=${encodeURIComponent("/gift-cards")}`);
@@ -111,12 +113,13 @@ export default function GiftCardsPage() {
     }
 
     const { value: cardCode } = await Swal.fire({
-      title: "Redeem Gift Card",
-      text: "Enter your 16-digit Gift Card code below:",
+      title: t("giftCards.redeemModalTitle") || "Redeem Gift Card",
+      text: t("giftCards.redeemModalText") || "Enter your 16-digit Gift Card code below:",
       input: "text",
       inputPlaceholder: "e.g. A1B2C3D4E5F67890",
       showCancelButton: true,
-      confirmButtonText: "Verify & Redeem",
+      confirmButtonText: t("giftCards.verifyAndRedeem") || "Verify & Redeem",
+      cancelButtonText: t("giftCards.cancel") || "Cancel",
       confirmButtonColor: "var(--button-bg)",
       inputAttributes: {
         maxlength: "16",
@@ -124,7 +127,7 @@ export default function GiftCardsPage() {
       },
       inputValidator: (value) => {
         if (!value || value.trim().length === 0) {
-          return "Please enter a valid 16-digit Gift Card code.";
+          return t("giftCards.enterValidCode") || "Please enter a valid 16-digit Gift Card code.";
         }
       },
     });
@@ -145,36 +148,36 @@ export default function GiftCardsPage() {
 
         if (res.ok) {
           Swal.fire({
-            title: "🎉 Congratulations!",
+            title: locale === "bn" ? "🎉 অভিনন্দন!" : "🎉 Congratulations!",
             html: `
               <div style="text-align: center; margin-top: 10px;">
-                <p style="font-size: 14px; font-weight: bold; color: var(--foreground); margin-bottom: 8px;">Gift Card Successfully Redeemed!</p>
+                <p style="font-size: 14px; font-weight: bold; color: var(--foreground); margin-bottom: 8px;">${locale === "bn" ? "গিফট কার্ড সফলভাবে রিডিম হয়েছে!" : "Gift Card Successfully Redeemed!"}</p>
                 <div style="background: var(--secondary); color: var(--foreground); padding: 14px; border-radius: 14px; font-family: var(--font-sans); font-size: 24px; font-weight: 900; letter-spacing: 1px; margin: 15px 0; border: 1px solid var(--foreground)/20;">
-                  +${data.vibe_coins_added} VibeCoins <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" style="width: 26px; height: 26px; display: inline-block; vertical-align: middle; margin-left: 6px;" />
+                  +${locale === "bn" ? Number(data.vibe_coins_added).toLocaleString("bn-BD") : data.vibe_coins_added} VibeCoins <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" style="width: 26px; height: 26px; display: inline-block; vertical-align: middle; margin-left: 6px;" />
                 </div>
-                <p style="font-size: 13px; font-weight: bold; color: var(--foreground); margin-bottom: 4px;">New VibeCoin Balance: <strong>${data.new_vibe_coin_balance} VC</strong></p>
-                <p style="font-size: 11px; opacity: 0.7; margin-top: 6px;">Code: <strong>${data.card_code}</strong></p>
+                <p style="font-size: 13px; font-weight: bold; color: var(--foreground); margin-bottom: 4px;">${locale === "bn" ? "নতুন ভাইবকয়েন ব্যালেন্স:" : "New VibeCoin Balance:"} <strong>${locale === "bn" ? Number(data.new_vibe_coin_balance).toLocaleString("bn-BD") : data.new_vibe_coin_balance} VC</strong></p>
+                <p style="font-size: 11px; opacity: 0.7; margin-top: 6px;">${locale === "bn" ? "কোড:" : "Code:"} <strong>${data.card_code}</strong></p>
               </div>
             `,
             icon: "success",
-            confirmButtonText: "Awesome!",
+            confirmButtonText: locale === "bn" ? "চমৎকার!" : "Awesome!",
             confirmButtonColor: "var(--button-bg)",
             customClass: {
               popup: "rounded-3xl p-6",
-              confirmButton: "rounded-xl font-bold uppercase tracking-wider px-6 py-2.5 text-xs",
+              confirmButton: "rounded-xl font-bold uppercase tracking-wider px-6 py-2.5 text-xs cursor-pointer",
             },
           });
         } else {
           Swal.fire({
-            title: "Redemption Failed",
-            text: data.error || "Invalid Gift Card code.",
+            title: locale === "bn" ? "রিডিম ব্যর্থ হয়েছে" : "Redemption Failed",
+            text: data.error || (locale === "bn" ? "ভুল গিফট কার্ড কোড।" : "Invalid Gift Card code."),
             icon: "error",
             confirmButtonColor: "var(--button-bg)",
           });
         }
       } catch (err: any) {
         Swal.fire({
-          title: "Network Error",
+          title: locale === "bn" ? "নেটওয়ার্ক সমস্যা" : "Network Error",
           text: err.message,
           icon: "error",
           confirmButtonColor: "var(--button-bg)",
@@ -188,7 +191,11 @@ export default function GiftCardsPage() {
     if (!selectedCard || !email) return;
 
     if (!transactionId.trim() || !transactionPhoneNo.trim()) {
-      setErrorMessage(`Please enter both Sender Phone Number and ${paymentMethod === 'B' ? 'bKash' : 'Nagad'} Transaction ID (TrxID).`);
+      setErrorMessage(
+        locale === "bn"
+          ? `অনুগ্রহ করে প্রেরকের মোবাইল নম্বর এবং ${paymentMethod === 'B' ? 'বিকাশ' : 'নগদ'} ট্রানজেকশন আইডি (TrxID) উভয়ই লিখুন।`
+          : `Please enter both Sender Phone Number and ${paymentMethod === 'B' ? 'bKash' : 'Nagad'} Transaction ID (TrxID).`
+      );
       return;
     }
 
@@ -233,50 +240,49 @@ export default function GiftCardsPage() {
           expiry_date: expiryFormatted,
         });
 
-        // SweetAlert2 Success Notification strictly using theme colors
         Swal.fire({
-          title: "Gift Card Purchased & Order Placed!",
+          title: locale === "bn" ? "গিফট কার্ড ক্রয় ও অর্ডার সম্পন্ন হয়েছে!" : "Gift Card Purchased & Order Placed!",
           html: `
             <div style="text-align: left; font-size: 13px; margin-top: 10px;">
-              <p style="margin-bottom: 4px;"><strong>Recipient:</strong> ${email}</p>
-              <p style="margin-bottom: 4px;"><strong>Payment Method:</strong> ${paymentMethod === 'B' ? 'bKash' : 'Nagad'}</p>
-              ${transactionPhoneNo ? `<p style="margin-bottom: 4px;"><strong>Sender Mobile:</strong> ${transactionPhoneNo}</p>` : ''}
+              <p style="margin-bottom: 4px;"><strong>${locale === "bn" ? "প্রাপক:" : "Recipient:"}</strong> ${email}</p>
+              <p style="margin-bottom: 4px;"><strong>${locale === "bn" ? "পেমেন্ট মাধ্যম:" : "Payment Method:"}</strong> ${paymentMethod === 'B' ? (locale === 'bn' ? 'বিকাশ' : 'bKash') : (locale === 'bn' ? 'নগদ' : 'Nagad')}</p>
+              ${transactionPhoneNo ? `<p style="margin-bottom: 4px;"><strong>${locale === "bn" ? "প্রেরকের মোবাইল:" : "Sender Mobile:"}</strong> ${transactionPhoneNo}</p>` : ''}
               ${transactionId ? `<p style="margin-bottom: 8px;"><strong>TrxID:</strong> ${transactionId}</p>` : ''}
-              <p style="margin-bottom: 12px;"><strong>Value:</strong> ৳${Number(data.price).toLocaleString()} BDT</p>
-              <p style="margin-bottom: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">16-Digit Card Code:</p>
+              <p style="margin-bottom: 12px;"><strong>${locale === "bn" ? "মূল্য:" : "Value:"}</strong> ৳${Number(data.price).toLocaleString()} BDT</p>
+              <p style="margin-bottom: 6px; font-weight: bold; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">${locale === "bn" ? "১৬ সংখ্যার কার্ড কোড:" : "16-Digit Card Code:"}</p>
               <div style="background: var(--primary); color: var(--logo-color); padding: 12px; border-radius: 12px; font-family: var(--font-mono); font-size: 18px; font-weight: 900; letter-spacing: 2px; text-align: center;">
                 ${data.card_code}
               </div>
-              <p style="font-size: 11px; opacity: 0.6; margin-top: 10px; text-align: center;">Order logged under your account. Code valid for 365 days.</p>
+              <p style="font-size: 11px; opacity: 0.6; margin-top: 10px; text-align: center;">${locale === "bn" ? "আপনার অ্যাকাউন্টে অর্ডার সংরক্ষণ করা হয়েছে। কোডটি ৩৬৫ দিন কার্যকর।" : "Order logged under your account. Code valid for 365 days."}</p>
             </div>
           `,
           icon: "success",
-          confirmButtonText: "Awesome!",
+          confirmButtonText: locale === "bn" ? "চমৎকার!" : "Awesome!",
           confirmButtonColor: "var(--button-bg)",
           customClass: {
             popup: "rounded-3xl p-6",
-            confirmButton: "rounded-xl font-bold uppercase tracking-wider px-6 py-2.5 text-xs",
+            confirmButton: "rounded-xl font-bold uppercase tracking-wider px-6 py-2.5 text-xs cursor-pointer",
           },
         });
       } else {
         const errText =
           typeof data === "object"
             ? Object.values(data).flat().join(" ")
-            : "Failed to generate Gift Card. Please make sure you are signed in.";
+            : (locale === "bn" ? "গিফট কার্ড তৈরি করতে ব্যর্থ হয়েছে। অনুগ্রহ করে সাইন ইন করেছেন কিনা তা নিশ্চিত করুন।" : "Failed to generate Gift Card. Please make sure you are signed in.");
         setErrorMessage(errText);
 
         Swal.fire({
-          title: "Order Failed",
+          title: locale === "bn" ? "অর্ডার ব্যর্থ হয়েছে" : "Order Failed",
           text: errText,
           icon: "error",
           confirmButtonColor: "var(--button-bg)",
         });
       }
     } catch (err: any) {
-      const msg = "Network error: " + err.message;
+      const msg = (locale === "bn" ? "নেটওয়ার্ক সমস্যা: " : "Network error: ") + err.message;
       setErrorMessage(msg);
       Swal.fire({
-        title: "Network Error",
+        title: locale === "bn" ? "নেটওয়ার্ক সমস্যা" : "Network Error",
         text: msg,
         icon: "error",
         confirmButtonColor: "var(--button-bg)",
@@ -293,7 +299,7 @@ export default function GiftCardsPage() {
       toast: true,
       position: "top-end",
       icon: "success",
-      title: "Card code copied to clipboard!",
+      title: locale === "bn" ? "কার্ড কোড ক্লিপবোর্ডে কপি করা হয়েছে!" : "Card code copied to clipboard!",
       showConfirmButton: false,
       timer: 2000,
     });
@@ -306,10 +312,10 @@ export default function GiftCardsPage() {
       <div className="bg-primary text-logo border-b border-white/5 py-4 transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2.5 font-bold uppercase tracking-wider">
           <Link href="/" className="hover:underline">
-            Home
+            {t("products.breadcrumbHome")}
           </Link>
           <span className="opacity-50">/</span>
-          <span className="opacity-80">Gift Cards</span>
+          <span className="opacity-80">{t("giftCards.breadcrumbGiftCards")}</span>
         </div>
       </div>
 
@@ -318,80 +324,87 @@ export default function GiftCardsPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-4">
           <div>
             <h1 className="text-4xl font-black uppercase tracking-tighter text-foreground">
-              VibeMart Gift Cards
+              {t("giftCards.title")}
             </h1>
           </div>
           <button
             onClick={handleRedeemGiftCard}
-            className="py-3 px-6 bg-button-bg text-button-fg rounded-xl text-xs font-black uppercase tracking-widest hover:opacity-90 transition-all shadow-md active:scale-95 border border-foreground/20"
+            className="py-3 px-6 bg-button-bg text-button-fg rounded-xl text-xs font-black uppercase tracking-widest hover:opacity-90 transition-all shadow-md active:scale-95 border border-foreground/20 cursor-pointer"
           >
-            Redeem Gift Card
+            {t("giftCards.redeemButton")}
           </button>
         </div>
 
         {/* 6 Preset Gift Card Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {GIFT_CARD_OPTIONS.map((card) => (
-            <div
-              key={card.price}
-              className="bg-secondary text-foreground rounded-3xl p-6 shadow-sm border border-foreground/10 hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between"
-            >
-              <div>
-                {/* Gift Card Visual Artwork strictly using theme tokens */}
-                <div className="aspect-[1.6/1] bg-gradient-to-br from-accent/20 via-primary/10 to-accent/30 rounded-2xl mb-6 flex flex-col justify-between p-6 relative overflow-hidden border border-foreground/15 shadow-inner group-hover:scale-[1.02] transition-transform duration-300">
-                  <div className="flex justify-between items-start z-10">
-                    <span className="font-black text-xs tracking-widest uppercase opacity-90 text-foreground">
-                      VIBEMART
-                    </span>
-                    <span className="bg-accent text-button-fg px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border border-foreground/10 shadow-sm">
-                      {card.badge}
-                    </span>
-                  </div>
+          {GIFT_CARD_OPTIONS.map((card) => {
+            const displayTitle =
+              locale === "bn"
+                ? `${formatCurrency(card.price)} গিফট কার্ড`
+                : card.title;
 
-                  <div className="z-10 my-auto">
-                    <p className="text-3xl font-black tracking-tight drop-shadow-sm text-foreground">
-                      ৳{card.price.toLocaleString()}
-                    </p>
-                    <p className="text-[10px] font-bold tracking-widest uppercase opacity-70 mt-1 text-foreground">
-                      PREPAID GIFT VOUCHER
-                    </p>
-                  </div>
-
-                  <div className="flex justify-between items-end z-10 text-[9px] font-mono opacity-60 uppercase tracking-widest text-foreground">
-                    <span>•••• •••• •••• ••••</span>
-                    <span>1 YEAR VALIDITY</span>
-                  </div>
-                </div>
-
-                {/* Card Title & Info */}
-                <h2 className="font-bold text-xl text-foreground mb-1 group-hover:text-accent transition-colors">
-                  {card.title}
-                </h2>
-                <p className="opacity-70 text-xs mb-6 font-medium leading-relaxed">
-                  Includes 16-digit instant redemption code valid for 365 days across all VibeMart categories.
-                </p>
-              </div>
-
-              {/* Action Area */}
-              <div className="pt-4 border-t border-foreground/10 flex items-center justify-between">
+            return (
+              <div
+                key={card.price}
+                className="bg-secondary text-foreground rounded-3xl p-6 shadow-sm border border-foreground/10 hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between"
+              >
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider opacity-60 block">
-                    Price Value
-                  </span>
-                  <span className="text-xl font-black text-accent">
-                    ৳{card.price.toLocaleString()}
-                  </span>
+                  {/* Gift Card Visual Artwork strictly using theme tokens */}
+                  <div className="aspect-[1.6/1] bg-gradient-to-br from-accent/20 via-primary/10 to-accent/30 rounded-2xl mb-6 flex flex-col justify-between p-6 relative overflow-hidden border border-foreground/15 shadow-inner group-hover:scale-[1.02] transition-transform duration-300">
+                    <div className="flex justify-between items-start z-10">
+                      <span className="font-black text-xs tracking-widest uppercase opacity-90 text-foreground">
+                        VIBEMART
+                      </span>
+                      <span className="bg-accent text-button-fg px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase border border-foreground/10 shadow-sm">
+                        {card.badge}
+                      </span>
+                    </div>
+
+                    <div className="z-10 my-auto">
+                      <p className="text-3xl font-black tracking-tight drop-shadow-sm text-foreground">
+                        {formatCurrency(card.price)}
+                      </p>
+                      <p className="text-[10px] font-bold tracking-widest uppercase opacity-70 mt-1 text-foreground">
+                        {t("giftCards.prepaidVoucher")}
+                      </p>
+                    </div>
+
+                    <div className="flex justify-between items-end z-10 text-[9px] font-mono opacity-60 uppercase tracking-widest text-foreground">
+                      <span>•••• •••• •••• ••••</span>
+                      <span>{t("giftCards.validity")}</span>
+                    </div>
+                  </div>
+
+                  {/* Card Title & Info */}
+                  <h2 className="font-bold text-xl text-foreground mb-1 group-hover:text-accent transition-colors">
+                    {displayTitle}
+                  </h2>
+                  <p className="opacity-70 text-xs mb-6 font-medium leading-relaxed">
+                    {t("giftCards.cardDesc")}
+                  </p>
                 </div>
 
-                <button
-                  onClick={() => handleOpenModal(card)}
-                  className="py-3 px-6 bg-button-bg text-button-fg rounded-xl text-xs font-black uppercase tracking-widest hover:opacity-90 transition-all shadow-md active:scale-95"
-                >
-                  Purchase Card
-                </button>
+                {/* Action Area */}
+                <div className="pt-4 border-t border-foreground/10 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider opacity-60 block">
+                      {t("giftCards.priceValue")}
+                    </span>
+                    <span className="text-xl font-black text-accent">
+                      {formatCurrency(card.price)}
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={() => handleOpenModal(card)}
+                    className="py-3 px-6 bg-button-bg text-button-fg rounded-xl text-xs font-black uppercase tracking-widest hover:opacity-90 transition-all shadow-md active:scale-95 cursor-pointer"
+                  >
+                    {t("giftCards.purchaseCard")}
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </main>
 
@@ -401,7 +414,7 @@ export default function GiftCardsPage() {
           <div className="bg-secondary text-foreground rounded-3xl p-8 max-w-lg w-full border border-foreground/15 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setSelectedCard(null)}
-              className="absolute top-6 right-6 text-foreground/50 hover:text-foreground text-xl font-bold p-1"
+              className="absolute top-6 right-6 text-foreground/50 hover:text-foreground text-xl font-bold p-1 cursor-pointer"
             >
               ✕
             </button>
@@ -410,13 +423,13 @@ export default function GiftCardsPage() {
               <form onSubmit={handleCreateGiftCard} className="space-y-6">
                 <div>
                   <span className="text-[10px] font-black tracking-widest uppercase text-accent block mb-1">
-                    ORDER GIFT CARD & CHECKOUT
+                    {t("giftCards.orderGiftCard")}
                   </span>
                   <h3 className="text-2xl font-black uppercase tracking-tight text-foreground">
-                    {selectedCard.title}
+                    {locale === "bn" ? `${formatCurrency(selectedCard.price)} গিফট কার্ড` : selectedCard.title}
                   </h3>
                   <p className="opacity-70 text-xs font-bold uppercase tracking-wider mt-1 text-foreground">
-                    Total Amount: ৳{selectedCard.price.toLocaleString()} BDT
+                    {t("giftCards.totalAmount")}: {formatCurrency(selectedCard.price)}
                   </p>
                 </div>
 
@@ -431,7 +444,7 @@ export default function GiftCardsPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
-                        Recipient Email *
+                        {t("giftCards.recipientEmail")} *
                       </label>
                       <input
                         type="email"
@@ -445,7 +458,7 @@ export default function GiftCardsPage() {
 
                     <div>
                       <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
-                        Recipient / Contact Phone
+                        {t("giftCards.recipientPhone")}
                       </label>
                       <input
                         type="tel"
@@ -461,13 +474,13 @@ export default function GiftCardsPage() {
                   {user?.email && email.trim().toLowerCase() === user.email.trim().toLowerCase() && (
                     <div className="w-full p-4 rounded-2xl bg-accent/10 border border-accent/30 text-foreground text-xs font-bold leading-relaxed space-y-1 animate-in fade-in slide-in-from-top-1 duration-200 shadow-sm text-center flex flex-col items-center justify-center">
                       <p className="font-black text-accent uppercase tracking-wider text-[11px] flex items-center justify-center gap-1.5">
-                        <span>💌</span> Special Note
+                        <span>💌</span> {t("giftCards.specialNote")}
                       </p>
                       <p className="opacity-90 max-w-sm">
-                        Hope that your favourite person gifts you this card soon! Now go and buy something for yourself.
+                        {t("giftCards.specialNoteBody")}
                       </p>
                       <p className="text-accent font-extrabold pt-0.5">
-                        Have a Good Day ✨
+                        {t("giftCards.haveGoodDay")}
                       </p>
                     </div>
                   )}
@@ -477,7 +490,7 @@ export default function GiftCardsPage() {
                 {(paymentSettings.bkash_active || paymentSettings.nagad_active) && (
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
-                      Payment Method *
+                      {t("giftCards.paymentMethod")} *
                     </label>
                     <div className="grid grid-cols-2 gap-3">
                       {paymentSettings.bkash_active && (
@@ -490,7 +503,7 @@ export default function GiftCardsPage() {
                               : "border-foreground/15 bg-background text-foreground/70"
                           }`}
                         >
-                          bKash Payment
+                          {t("giftCards.bkashPayment")}
                         </button>
                       )}
                       {paymentSettings.nagad_active && (
@@ -503,7 +516,7 @@ export default function GiftCardsPage() {
                               : "border-foreground/15 bg-background text-foreground/70"
                           }`}
                         >
-                          Nagad Payment
+                          {t("giftCards.nagadPayment")}
                         </button>
                       )}
                     </div>
@@ -541,16 +554,16 @@ export default function GiftCardsPage() {
                   <button
                     type="button"
                     onClick={() => setSelectedCard(null)}
-                    className="py-3 px-5 rounded-xl text-xs font-bold uppercase tracking-wider border border-foreground/20 hover:bg-foreground/5 transition-colors text-foreground"
+                    className="py-3 px-5 rounded-xl text-xs font-bold uppercase tracking-wider border border-foreground/20 hover:bg-foreground/5 transition-colors text-foreground cursor-pointer"
                   >
-                    Cancel
+                    {t("giftCards.cancel")}
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="py-3 px-6 bg-button-bg text-button-fg rounded-xl text-xs font-black uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50"
+                    className="py-3 px-6 bg-button-bg text-button-fg rounded-xl text-xs font-black uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer"
                   >
-                    {loading ? "Processing Order..." : "Place Order"}
+                    {loading ? t("giftCards.processingOrder") : t("giftCards.placeOrder")}
                   </button>
                 </div>
               </form>
@@ -563,16 +576,16 @@ export default function GiftCardsPage() {
 
                 <div>
                   <h3 className="text-2xl font-black uppercase tracking-tight text-foreground">
-                    Order Successful!
+                    {t("giftCards.orderSuccessful")}
                   </h3>
                   <p className="opacity-70 text-xs font-bold uppercase tracking-wider mt-1 text-foreground">
-                    ৳{successResult.price.toLocaleString()} BDT issued to {email}
+                    {formatCurrency(successResult.price)} {t("giftCards.issuedTo")} {email}
                   </p>
                 </div>
 
                 <div className="bg-background p-4 rounded-2xl border border-foreground/15 text-left space-y-2">
                   <span className="text-[10px] font-bold uppercase tracking-wider opacity-60 block text-foreground">
-                    Your 16-Digit Card Code:
+                    {t("giftCards.cardCodeLabel")}
                   </span>
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-mono text-lg font-black tracking-wider text-accent">
@@ -580,21 +593,21 @@ export default function GiftCardsPage() {
                     </span>
                     <button
                       onClick={() => handleCopyCode(successResult.card_code)}
-                      className="px-3 py-1.5 bg-button-bg text-button-fg text-[10px] font-black uppercase tracking-wider rounded-lg hover:opacity-80 transition-opacity"
+                      className="px-3 py-1.5 bg-button-bg text-button-fg text-[10px] font-black uppercase tracking-wider rounded-lg hover:opacity-80 transition-opacity cursor-pointer"
                     >
-                      {copied ? "Copied!" : "Copy"}
+                      {copied ? t("giftCards.copied") : t("giftCards.copy")}
                     </button>
                   </div>
                   <p className="text-[10px] opacity-60 font-medium pt-1 text-foreground">
-                    Expires on: {successResult.expiry_date}
+                    {t("giftCards.expiresOn")} {successResult.expiry_date}
                   </p>
                 </div>
 
                 <button
                   onClick={() => setSelectedCard(null)}
-                  className="w-full py-3 bg-button-bg text-button-fg rounded-xl text-xs font-black uppercase tracking-widest hover:opacity-90 transition-opacity"
+                  className="w-full py-3 bg-button-bg text-button-fg rounded-xl text-xs font-black uppercase tracking-widest hover:opacity-90 transition-opacity cursor-pointer"
                 >
-                  Close Window
+                  {t("giftCards.closeWindow")}
                 </button>
               </div>
             )}
