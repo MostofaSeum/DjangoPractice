@@ -465,8 +465,8 @@ export default function CollectionsTab({
                         }
                         className={`px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer ${
                           col.is_visible !== false
-                            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25"
-                            : "bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30 hover:bg-red-500/25 opacity-75 hover:opacity-100"
+                            ? "bg-visible/15 text-visible border border-visible/30 hover:bg-visible/25"
+                            : "bg-hidden/15 text-hidden border border-hidden/30 hover:bg-hidden/25 opacity-75 hover:opacity-100"
                         }`}
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
