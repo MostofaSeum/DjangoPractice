@@ -11,6 +11,7 @@ from datetime import timedelta
 class Promotion(models.Model):
     description = models.CharField(max_length=255)
     discount = models.FloatField()
+    valid_until = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     def __str__(self) -> str:
@@ -50,12 +51,21 @@ class Product(models.Model):
         decimal_places=2,
         default=0.00,
         validators=[MinValueValidator(0), MaxValueValidator(100)])
+    discount_valid_until = models.DateTimeField(null=True, blank=True)
     inventory = models.IntegerField(validators=[MinValueValidator(0)])
     last_update = models.DateTimeField(auto_now=True)
     collection = models.ForeignKey(Collection, on_delete=models.PROTECT)
     promotions = models.ManyToManyField(Promotion, blank=True)
     is_photos_published = models.BooleanField(default=True)
     is_trending = models.BooleanField(default=False)
+
+    @property
+    def is_discount_active(self):
+        if not self.discount_percent or self.discount_percent <= 0:
+            return False
+        if self.discount_valid_until and timezone.now() > self.discount_valid_until:
+            return False
+        return True
 
     @property
     def units_sold(self):
@@ -73,7 +83,7 @@ class Product(models.Model):
 
     @property
     def discounted_price(self):
-        if self.discount_percent and self.discount_percent > 0:
+        if self.is_discount_active:
             discount_amount = (self.unit_price * Decimal(str(self.discount_percent))) / Decimal('100')
             return round(self.unit_price - discount_amount, 2)
         return self.unit_price
@@ -117,7 +127,7 @@ class ProductVariant(models.Model):
     @property
     def discounted_price(self):
         base_price = self.effective_price
-        if self.product.discount_percent and self.product.discount_percent > 0:
+        if self.product.is_discount_active:
             discount_amount = (base_price * Decimal(str(self.product.discount_percent))) / Decimal('100')
             return round(base_price - discount_amount, 2)
         return base_price

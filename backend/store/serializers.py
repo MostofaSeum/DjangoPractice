@@ -49,7 +49,7 @@ class ProductSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'title', 'short_description', 'description', 'slug', 'inventory', 'total_inventory', 'unit_price', 'discount_percent', 'discounted_price', 'price_with_tax', 'collection', 'images', 'variants', 'is_photos_published', 'is_trending', 'units_sold', 'average_rating', 'review_count']
+        fields = ['id', 'title', 'short_description', 'description', 'slug', 'inventory', 'total_inventory', 'unit_price', 'discount_percent', 'discount_valid_until', 'is_discount_active', 'discounted_price', 'price_with_tax', 'collection', 'images', 'variants', 'is_photos_published', 'is_trending', 'units_sold', 'average_rating', 'review_count']
 
     def validate_short_description(self, value):
         if value:
@@ -82,7 +82,7 @@ class ProductSerializers(serializers.ModelSerializer):
 class PromotionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Promotion
-        fields = ['id', 'description', 'discount', 'created_at']
+        fields = ['id', 'description', 'discount', 'valid_until', 'created_at']
 
 class CollectionSerializer(serializers.ModelSerializer):
     product_count = serializers.IntegerField(read_only=True)
@@ -153,7 +153,7 @@ class SimpleProductSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'title', 'unit_price', 'discount_percent', 'discounted_price', 'inventory', 'total_inventory', 'images', 'is_photos_published', 'collection']
+        fields = ['id', 'title', 'unit_price', 'discount_percent', 'discount_valid_until', 'is_discount_active', 'discounted_price', 'inventory', 'total_inventory', 'images', 'is_photos_published', 'collection']
 
     def get_discounted_price(self, product):
         return float(product.discounted_price)
