@@ -292,9 +292,14 @@ export default function AdminDashboardPage() {
       const searchParam = searchQuery
         ? `&search=${encodeURIComponent(searchQuery)}`
         : "";
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `JWT ${token}`;
+      }
+
       const prodRes = await fetch(
         `${API_BASE}/store/products/?page=${pageNumber}${searchParam}`,
-        { cache: "no-store" },
+        { cache: "no-store", headers },
       );
       if (prodRes.ok) {
         const prodData = await prodRes.json();
@@ -309,6 +314,7 @@ export default function AdminDashboardPage() {
       // Fetch Collections
       const colRes = await fetch(`${API_BASE}/store/collections/`, {
         cache: "no-store",
+        headers,
       });
       if (colRes.ok) {
         const colData = await colRes.json();
@@ -1075,8 +1081,14 @@ export default function AdminDashboardPage() {
 
   const fetchAllProductsForPromo = async () => {
     try {
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers["Authorization"] = `JWT ${token}`;
+      }
+
       const res = await fetch(`${API_BASE}/store/products/all/`, {
         cache: "no-store",
+        headers,
       });
       if (res.ok) {
         const data = await res.json();
@@ -1084,7 +1096,7 @@ export default function AdminDashboardPage() {
       } else {
         const fallbackRes = await fetch(
           `${API_BASE}/store/products/?page_size=1000`,
-          { cache: "no-store" },
+          { cache: "no-store", headers },
         );
         if (fallbackRes.ok) {
           const fallbackData = await fallbackRes.json();
