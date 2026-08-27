@@ -147,6 +147,15 @@
     "failedUpdate": "প্রোফাইল আপডেট করতে ব্যর্থ হয়েছে। অনুগ্রহ করে তথ্য পরীক্ষা করুন।",
     "option": "ভেরিয়েন্ট:"
   },
+  "footer": {
+    "shop": "শপ",
+    "categories": "ক্যাটাগরি",
+    "giftCards": "গিফট কার্ড",
+    "privacyPolicy": "গোপনীয়তা নীতি",
+    "termsOfService": "সেবার শর্তাবলী",
+    "shippingInfo": "ডেলিভারি তথ্য",
+    "copyright": "© ২০২৬ ভাইবমার্ট।\nসর্বস্বত্ব সংরক্ষিত।"
+  },
   "wishlist": {
     "loadingWishlist": "উইশলিস্ট লোড হচ্ছে...",
     "signInToView": "উইশলিস্ট দেখতে সাইন ইন করুন",

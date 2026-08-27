@@ -6,6 +6,7 @@ import AddToCartButton from "./AddToCartButton";
 import ProductDeliveryOfferBadge from "@/components/ProductDeliveryOfferBadge";
 import { Product } from "@/types";
 import { useWishlist } from "@/hooks/useWishlist";
+import { useLanguage } from "@/store/LanguageContext";
 
 interface ProductCardProps {
   product: Product;
@@ -13,6 +14,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { t, formatCurrency, locale } = useLanguage();
   const isSaved = isInWishlist(product.id);
 
   const discountPercent = Number(product.discount_percent || 0);
@@ -35,7 +37,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 alt="Discount"
                 className="w-3.5 h-3.5 object-contain brightness-0 invert"
               />
-              -{Math.round(discountPercent)}% OFF
+              -{locale === "bn" ? Math.round(discountPercent).toLocaleString("bn-BD") : Math.round(discountPercent)}% {locale === "bn" ? "ছাড়" : "OFF"}
             </span>
           )}
           <ProductImage title={product.title} images={product.images} />
@@ -46,12 +48,12 @@ export default function ProductCard({ product }: ProductCardProps) {
               e.stopPropagation();
               toggleWishlist(product.id);
             }}
-            className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-md border transition-all duration-200 shadow-sm z-10 ${
+            className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-md border transition-all duration-200 shadow-sm z-10 cursor-pointer ${
               isSaved
                 ? "bg-red-500/20 border-red-500/40 scale-105"
                 : "bg-black/30 border-white/20 hover:bg-black/50"
             }`}
-            title={isSaved ? "Remove from Wishlist" : "Add to Wishlist"}
+            title={isSaved ? (locale === "bn" ? "উইশলিস্ট থেকে সরান" : "Remove from Wishlist") : (locale === "bn" ? "উইশলিস্টে যোগ করুন" : "Add to Wishlist")}
           >
             <img
               src={isSaved ? "/favorite.png" : "/love.png"}
@@ -69,12 +71,12 @@ export default function ProductCard({ product }: ProductCardProps) {
           {Number(product.average_rating || 0) > 0 && (
             <div className="flex items-center gap-0.5 text-amber-500 font-bold text-[11px] shrink-0 mt-0.5">
               <span>★</span>
-              <span>{Number(product.average_rating).toFixed(1)}</span>
+              <span>{locale === "bn" ? Number(product.average_rating).toLocaleString("bn-BD", { minimumFractionDigits: 1 }) : Number(product.average_rating).toFixed(1)}</span>
             </div>
           )}
         </div>
         <p className="text-[11px] opacity-70 mb-2 line-clamp-1 leading-normal">
-          {product.description || "No description available."}
+          {product.description || (locale === "bn" ? "কোনো বিবরণ নেই।" : "No description available.")}
         </p>
         <div className="mb-2">
           <ProductDeliveryOfferBadge
@@ -94,11 +96,11 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="flex justify-between items-center mb-3 pt-2.5 border-t border-foreground/10">
           <div className="flex items-baseline gap-1.5">
             <span className="text-accent font-extrabold text-sm sm:text-base">
-              ৳{Number(effectivePrice).toFixed(2)}
+              {formatCurrency(effectivePrice)}
             </span>
             {hasDiscount && (
               <span className="text-[10px] line-through opacity-50 font-bold">
-                ৳{Number(product.unit_price).toFixed(2)}
+                {formatCurrency(product.unit_price)}
               </span>
             )}
           </div>
@@ -106,15 +108,15 @@ export default function ProductCard({ product }: ProductCardProps) {
         <div className="grid grid-cols-2 gap-1.5">
           <Link
             href={`/products/${product.id}`}
-            className="py-1.5 px-2 border border-current text-foreground rounded-lg font-bold text-[9px] uppercase tracking-wider hover:bg-button-bg hover:text-button-fg transition-colors flex items-center justify-center text-center"
+            className="py-1.5 px-2 border border-current text-foreground rounded-lg font-bold text-[9px] uppercase tracking-wider hover:bg-button-bg hover:text-button-fg transition-colors flex items-center justify-center text-center cursor-pointer"
           >
-            View Details
+            {t("wishlist.viewDetails") || (locale === "bn" ? "বিস্তারিত দেখুন" : "View Details")}
           </Link>
           <AddToCartButton
             productId={product.id}
             productTitle={product.title}
             inventory={product.inventory}
-            className="py-1.5 px-2 bg-button-bg text-button-fg rounded-lg font-bold text-[9px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center"
+            className="py-1.5 px-2 bg-button-bg text-button-fg rounded-lg font-bold text-[9px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center cursor-pointer"
           />
         </div>
       </div>

@@ -147,6 +147,15 @@
     "failedUpdate": "Failed to update profile. Please check your inputs.",
     "option": "Option:"
   },
+  "footer": {
+    "shop": "Shop",
+    "categories": "Categories",
+    "giftCards": "Gift Cards",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "shippingInfo": "Shipping Info",
+    "copyright": "© 2026 VIBEMART.\nWORLDWIDE."
+  },
   "wishlist": {
     "loadingWishlist": "Loading your wishlist...",
     "signInToView": "Sign in to view your wishlist",
