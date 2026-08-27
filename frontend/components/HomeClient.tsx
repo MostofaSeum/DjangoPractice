@@ -427,14 +427,21 @@ export default function HomeClient({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {trendingProducts.length > 0 ? (
               trendingProducts.map((product) => {
+                const activeVariant = (product as any).variants?.find((v: any) => v.is_active !== false);
+                const basePrice = activeVariant?.price_override
+                  ? Number(activeVariant.price_override)
+                  : Number(product.unit_price || 0);
+
                 const discountPercent = Number(product.discount_percent || 0);
                 const hasDiscount = discountPercent > 0;
                 const effectivePrice =
-                  product.discounted_price !== undefined
-                    ? product.discounted_price
-                    : hasDiscount
-                      ? product.unit_price * (1 - discountPercent / 100)
-                      : product.unit_price;
+                  activeVariant?.discounted_price !== undefined
+                    ? Number(activeVariant.discounted_price)
+                    : product.discounted_price !== undefined
+                      ? Number(product.discounted_price)
+                      : hasDiscount
+                        ? basePrice * (1 - discountPercent / 100)
+                        : basePrice;
 
                 return (
                   <div
@@ -493,7 +500,7 @@ export default function HomeClient({
                         </span>
                         {hasDiscount && (
                           <span className="text-xs line-through opacity-50 font-bold">
-                            {formatCurrency(product.unit_price)}
+                            {formatCurrency(basePrice)}
                           </span>
                         )}
                       </div>

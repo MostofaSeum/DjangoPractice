@@ -106,24 +106,37 @@ export default function WishlistPage() {
                   ? product.inventory.toLocaleString("bn-BD")
                   : product.inventory.toString();
 
+              const activeVariant = product.variants?.find((v) => v.is_active !== false);
+              const effectivePrice =
+                activeVariant?.discounted_price !== undefined
+                  ? Number(activeVariant.discounted_price)
+                  : activeVariant?.price_override
+                    ? Number(activeVariant.price_override)
+                    : (product as any).discounted_price !== undefined
+                      ? Number((product as any).discounted_price)
+                      : Number(product.unit_price || 0);
+
               return (
                 <div
-                  key={item.id}
-                  className="bg-secondary text-foreground rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl transition-all duration-300 group flex flex-col justify-between relative"
+                  key={product.id}
+                  className="bg-secondary text-foreground rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl transition-all duration-300 group flex flex-col justify-between"
                 >
                   <div>
-                    <div className="relative w-full aspect-square rounded-xl overflow-hidden mb-4 bg-secondary border border-foreground/10 group-hover:scale-[1.02] transition-transform duration-300">
-                      <ProductImage title={product.title} images={product.images} />
+                    <div className="aspect-square bg-secondary rounded-xl mb-4 flex items-center justify-center overflow-hidden relative border border-foreground/10 group-hover:scale-[1.01] transition-transform duration-300">
+                      <ProductImage
+                        title={product.title}
+                        images={product.images}
+                      />
                       <button
                         type="button"
                         onClick={() => removeFromWishlist(product.id)}
-                        className="absolute top-2.5 right-2.5 p-2 rounded-full bg-black/60 text-white hover:bg-red-500 transition-colors shadow-md cursor-pointer"
-                        title={t("wishlist.removeFromWishlist")}
+                        className="absolute top-2 right-2 p-1.5 rounded-full bg-red-500/20 text-red-500 border border-red-500/30 hover:bg-red-500/30 transition-colors shadow-sm z-10 cursor-pointer"
+                        title={t("wishlist.remove")}
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
-                          width="14"
-                          height="14"
+                          width="16"
+                          height="16"
                           viewBox="0 0 24 24"
                           fill="none"
                           stroke="currentColor"
@@ -148,7 +161,7 @@ export default function WishlistPage() {
                   <div>
                     <div className="flex justify-between items-center mb-4 pt-3 border-t border-foreground/10">
                       <span className="text-accent font-extrabold text-base">
-                        {formatCurrency(product.unit_price)}
+                        {formatCurrency(effectivePrice)}
                       </span>
                       <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">
                         {t("wishlist.qty").replace("{count}", inventoryCount)}

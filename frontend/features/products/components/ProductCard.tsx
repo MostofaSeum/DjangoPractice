@@ -17,15 +17,23 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { t, formatCurrency, locale } = useLanguage();
   const isSaved = isInWishlist(product.id);
 
+  const activeVariant = product.variants?.find((v) => v.is_active !== false);
+  const basePrice = activeVariant?.price_override
+    ? Number(activeVariant.price_override)
+    : Number(product.unit_price || 0);
+
   const discountPercent = Number(product.discount_percent || 0);
   const isExpired = product.discount_valid_until && new Date() > new Date(product.discount_valid_until);
   const hasDiscount = discountPercent > 0 && !isExpired && (product.is_discount_active !== false);
+  
   const effectivePrice =
-    product.discounted_price !== undefined
-      ? product.discounted_price
-      : hasDiscount
-        ? product.unit_price * (1 - discountPercent / 100)
-        : product.unit_price;
+    activeVariant?.discounted_price !== undefined
+      ? Number(activeVariant.discounted_price)
+      : product.discounted_price !== undefined
+        ? Number(product.discounted_price)
+        : hasDiscount
+          ? basePrice * (1 - discountPercent / 100)
+          : basePrice;
 
   return (
     <div className="bg-secondary text-foreground rounded-xl p-3.5 shadow-sm border border-foreground/10 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group flex flex-col justify-between relative">
@@ -101,7 +109,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             </span>
             {hasDiscount && (
               <span className="text-[10px] line-through opacity-50 font-bold">
-                {formatCurrency(product.unit_price)}
+                {formatCurrency(basePrice)}
               </span>
             )}
           </div>

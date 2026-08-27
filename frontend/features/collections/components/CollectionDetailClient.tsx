@@ -74,15 +74,21 @@ export default function CollectionDetailClient({
         {collection.products && collection.products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {collection.products.map((product) => {
+              const activeVariant = product.variants?.find((v) => v.is_active !== false);
+              const basePrice = activeVariant?.price_override
+                ? Number(activeVariant.price_override)
+                : Number(product.unit_price || 0);
+
               const discountPercent = Number(product.discount_percent || 0);
-              const hasDiscount = discountPercent > 0;
-              const unitPriceNum = Number(product.unit_price);
+              const hasDiscount = discountPercent > 0 || !!activeVariant?.discounted_price;
               const effectivePrice =
-                product.discounted_price !== undefined
-                  ? product.discounted_price
-                  : hasDiscount
-                    ? unitPriceNum * (1 - discountPercent / 100)
-                    : unitPriceNum;
+                activeVariant?.discounted_price !== undefined
+                  ? Number(activeVariant.discounted_price)
+                  : product.discounted_price !== undefined
+                    ? Number(product.discounted_price)
+                    : hasDiscount
+                      ? basePrice * (1 - discountPercent / 100)
+                      : basePrice;
 
               return (
                 <div
@@ -142,7 +148,7 @@ export default function CollectionDetailClient({
                         </span>
                         {hasDiscount && (
                           <span className="text-xs line-through opacity-50 font-bold">
-                            {formatCurrency(unitPriceNum)}
+                            {formatCurrency(basePrice)}
                           </span>
                         )}
                       </div>

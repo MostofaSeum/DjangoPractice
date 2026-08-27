@@ -58,14 +58,18 @@ export default function AddToCartButton({
     try {
       setLoading(true);
       await addToCart(productId, 1, targetVariantId);
+      
+      const variantObj = variants?.find((v) => v.id === targetVariantId);
+      const displayTitle = variantObj?.name ? `${productTitle} (${variantObj.name})` : productTitle;
+
       const title =
         locale === "bn"
-          ? t("swal.addedToCart").replace("{title}", productTitle)
-          : `Added "${productTitle}" to cart!`;
+          ? t("swal.addedToCart").replace("{title}", displayTitle)
+          : `Added "${displayTitle}" to cart!`;
       Swal.fire({
         position: "top-end",
         icon: "success",
-        title: title || `Added "${productTitle}" to cart!`,
+        title: title || `Added "${displayTitle}" to cart!`,
         showConfirmButton: false,
         timer: 1800,
         toast: true,
