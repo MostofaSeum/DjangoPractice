@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ProductDetailClient from "./ProductDetailClient";
+import { getApiBaseUrl } from "@/config/siteConfig";
 
 interface Product {
   id: number;
@@ -24,19 +25,6 @@ interface CollectionDetail {
 interface PageProps {
   params: Promise<{ id: string }>;
 }
-
-const CartIcon = () => (
-  <Image
-    src="/shopping-cart-white-icon.webp"
-    width={23}
-    height={23}
-    alt="Cart"
-  />
-);
-
-import { getApiBaseUrl } from "@/config/siteConfig";
-
-import { notFound } from "next/navigation";
 
 export default async function ProductDetailPage({ params }: PageProps) {
   const { id } = await params;

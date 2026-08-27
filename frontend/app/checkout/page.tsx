@@ -16,7 +16,7 @@ const API_BASE = (
 interface DeliveryRuleItem {
   id: number;
   title: string;
-  target_type: "product" | "collection";
+  target_type: "product" | "collection" | "order_total";
   rule_type: "free" | "reduced";
   inside_dhaka_charge: number | string;
   outside_dhaka_charge: number | string;
