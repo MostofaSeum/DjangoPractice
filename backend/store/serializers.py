@@ -237,6 +237,13 @@ class AddCartItemSerializers(serializers.ModelSerializer):
         variant_id = self.validated_data.get('variant_id')
         quantity = self.validated_data['quantity']
         cart_id = self.context['cart_id']
+
+        # If no variant was explicitly selected, but product has variants, pick the first active variant
+        if variant_id is None:
+            active_variant = ProductVariant.objects.filter(product_id=product_id, is_active=True).first()
+            if active_variant:
+                variant_id = active_variant.id
+
         try:
             cart_item = CartItem.objects.get(cart_id=cart_id, product_id=product_id, variant_id=variant_id)
             cart_item.quantity += quantity

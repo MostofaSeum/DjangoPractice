@@ -117,6 +117,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             productId={product.id}
             productTitle={product.title}
             inventory={product.inventory}
+            variants={product.variants}
             className="py-1.5 px-2 bg-button-bg text-button-fg rounded-lg font-bold text-[9px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center cursor-pointer"
           />
         </div>

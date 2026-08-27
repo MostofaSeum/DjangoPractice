@@ -14,6 +14,8 @@ interface AddToCartButtonProps {
   productId: number;
   productTitle: string;
   inventory?: number;
+  variants?: Array<{ id: number; name: string; is_active?: boolean; inventory?: number }>;
+  variantId?: number | null;
   className?: string;
 }
 
@@ -21,11 +23,16 @@ export default function AddToCartButton({
   productId,
   productTitle,
   inventory = 1,
+  variants,
+  variantId,
   className,
 }: AddToCartButtonProps) {
   const { addToCart } = useCart();
   const { t, locale } = useLanguage();
   const [loading, setLoading] = useState(false);
+
+  const activeVariant = variants?.find((v) => v.is_active !== false);
+  const targetVariantId = variantId !== undefined ? variantId : activeVariant ? activeVariant.id : null;
 
   const isOutOfStock = inventory <= 0;
 
@@ -50,7 +57,7 @@ export default function AddToCartButton({
 
     try {
       setLoading(true);
-      await addToCart(productId, 1);
+      await addToCart(productId, 1, targetVariantId);
       const title =
         locale === "bn"
           ? t("swal.addedToCart").replace("{title}", productTitle)
