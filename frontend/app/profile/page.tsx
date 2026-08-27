@@ -672,60 +672,106 @@ export default function ProfilePage() {
               </div>
 
               {/* Price Calculation Summary */}
-              <div className="pt-3 border-t border-foreground/10 space-y-2">
-                <div className="flex justify-between text-xs opacity-75">
-                  <span>{locale === "bn" ? "পণ্যের সাবটোটাল:" : "Items Subtotal:"}</span>
-                  <span className="font-bold">
-                    {formatCurrency(
-                      selectedOrderDetails.items
-                        ? selectedOrderDetails.items.reduce(
-                            (sum, i) => sum + i.quantity * Number(i.unit_price),
-                            0
-                          )
-                        : 0
+              {(() => {
+                const items = selectedOrderDetails.items || [];
+                const actualSubtotal = items.reduce((sum, i) => {
+                  const origPrice = i.product?.unit_price ? Number(i.product.unit_price) : Number(i.unit_price);
+                  return sum + i.quantity * Math.max(origPrice, Number(i.unit_price));
+                }, 0);
+                
+                const discountedSubtotal = items.reduce(
+                  (sum, i) => sum + i.quantity * Number(i.unit_price),
+                  0
+                );
+
+                const itemDiscountSavings = Math.max(0, actualSubtotal - discountedSubtotal);
+                const isOutside = selectedOrderDetails.delivery_area === "outside_dhaka";
+                const baseStandardDelivery = isOutside ? 120 : 60;
+                const actualDeliveryCharge = Number(selectedOrderDetails.delivery_charge ?? baseStandardDelivery);
+                const deliveryDiscountSavings = Math.max(0, baseStandardDelivery - actualDeliveryCharge);
+
+                return (
+                  <div className="pt-3 border-t border-foreground/10 space-y-2">
+                    {/* Original Subtotal */}
+                    <div className="flex justify-between text-xs opacity-75">
+                      <span>{locale === "bn" ? "পণ্যের মূল্য (আসল সাবটোটাল):" : "Items Subtotal (Original):"}</span>
+                      <span className="font-bold">
+                        {formatCurrency(actualSubtotal)}
+                      </span>
+                    </div>
+
+                    {/* Product / Coupon Discounts (Deducted Value) */}
+                    {itemDiscountSavings > 0 && (
+                      <div className="flex justify-between text-xs text-accent font-bold">
+                        <span>
+                          {locale === "bn" ? "ডিসকাউন্ট:" : "Discount / Coupon Savings:"}
+                        </span>
+                        <span>-{formatCurrency(itemDiscountSavings)}</span>
+                      </div>
                     )}
-                  </span>
-                </div>
-                {selectedOrderDetails.delivery_charge !== undefined && (
-                  <div className="flex justify-between text-xs opacity-75">
-                    <span>
-                      {locale === "bn" ? "ডেলিভারি চার্জ (" : "Delivery Charge ("}
-                      {selectedOrderDetails.delivery_area === "outside_dhaka"
-                        ? (locale === "bn" ? "ঢাকার বাইরে" : "Outside Dhaka")
-                        : (locale === "bn" ? "ঢাকার ভিতরে" : "Inside Dhaka")}
-                      ):
-                    </span>
-                    <span className="font-bold">
-                      {formatCurrency(Number(selectedOrderDetails.delivery_charge))}
-                    </span>
+
+                    {/* Subtotal after discounts if discount exists */}
+                    {itemDiscountSavings > 0 && (
+                      <div className="flex justify-between text-xs opacity-75 font-semibold">
+                        <span>{locale === "bn" ? "ডিসকাউন্টের পর পণ্যের মূল্য:" : "Subtotal after Discounts:"}</span>
+                        <span className="font-bold">{formatCurrency(discountedSubtotal)}</span>
+                      </div>
+                    )}
+
+                    {/* Standard Delivery Charge */}
+                    <div className="flex justify-between text-xs opacity-75">
+                      <span>
+                        {locale === "bn" ? "ডেলিভারি চার্জ (" : "Delivery Charge ("}
+                        {isOutside
+                          ? (locale === "bn" ? "ঢাকার বাইরে" : "Outside Dhaka")
+                          : (locale === "bn" ? "ঢাকার ভিতরে" : "Inside Dhaka")}
+                        ):
+                      </span>
+                      <span className={`font-bold ${deliveryDiscountSavings > 0 ? "line-through opacity-50" : ""}`}>
+                        {formatCurrency(baseStandardDelivery)}
+                      </span>
+                    </div>
+
+                    {/* Free or Discounted Delivery as Minus Amount */}
+                    {deliveryDiscountSavings > 0 && (
+                      <div className="flex justify-between text-xs text-accent font-bold">
+                        <span>
+                          {actualDeliveryCharge === 0
+                            ? (locale === "bn" ? "ফ্রি ডেলিভারি অফার (ডিসকাউন্ট):" : "Free Delivery Offer:")
+                            : (locale === "bn" ? "ডেলিভারি ছাড়:" : "Delivery Fee Discount:")}
+                        </span>
+                        <span>-{formatCurrency(deliveryDiscountSavings)}</span>
+                      </div>
+                    )}
+
+                    {/* Net Delivery Fee if not 0 and had discount */}
+                    {deliveryDiscountSavings > 0 && actualDeliveryCharge > 0 && (
+                      <div className="flex justify-between text-xs opacity-75 font-semibold">
+                        <span>{locale === "bn" ? "কার্যকর ডেলিভারি চার্জ:" : "Effective Delivery Fee:"}</span>
+                        <span className="font-bold">{formatCurrency(actualDeliveryCharge)}</span>
+                      </div>
+                    )}
+
+                    {/* Grand Total */}
+                    <div className="flex justify-between items-center pt-2 border-t border-foreground/10">
+                      <span className="text-xs font-bold opacity-70 uppercase">
+                        {locale === "bn" ? "পেমেন্ট অবস্থা: " : "Payment Status: "}
+                        <strong className="uppercase font-black text-foreground">
+                          {selectedOrderDetails.payment_status === "C"
+                            ? (locale === "bn" ? "সফল (Complete)" : "Complete")
+                            : selectedOrderDetails.payment_status === "F"
+                              ? (locale === "bn" ? "ব্যর্থ (Failed)" : "Failed")
+                              : (locale === "bn" ? "পেন্ডিং (Pending)" : "Pending")}
+                        </strong>
+                      </span>
+                      <span className="text-base font-black text-foreground">
+                        {locale === "bn" ? "সর্বমোট মূল্য: " : "Grand Total: "}
+                        {formatCurrency(discountedSubtotal + actualDeliveryCharge)}
+                      </span>
+                    </div>
                   </div>
-                )}
-                <div className="flex justify-between items-center pt-2 border-t border-foreground/10">
-                  <span className="text-xs font-bold opacity-70 uppercase">
-                    {locale === "bn" ? "পেমেন্ট অবস্থা: " : "Payment Status: "}
-                    <strong className="uppercase font-black text-foreground">
-                      {selectedOrderDetails.payment_status === "C"
-                        ? (locale === "bn" ? "সফল (Complete)" : "Complete")
-                        : selectedOrderDetails.payment_status === "F"
-                          ? (locale === "bn" ? "ব্যর্থ (Failed)" : "Failed")
-                          : (locale === "bn" ? "পেন্ডিং (Pending)" : "Pending")}
-                    </strong>
-                  </span>
-                  <span className="text-base font-black text-foreground">
-                    {locale === "bn" ? "সর্বমোট মূল্য: " : "Grand Total: "}
-                    {formatCurrency(
-                      (selectedOrderDetails.items
-                        ? selectedOrderDetails.items.reduce(
-                            (sum, i) =>
-                              sum + i.quantity * Number(i.unit_price),
-                            0
-                          )
-                        : 0) +
-                      Number(selectedOrderDetails.delivery_charge || 0)
-                    )}
-                  </span>
-                </div>
-              </div>
+                );
+              })()}
             </div>
           </div>
         </div>
