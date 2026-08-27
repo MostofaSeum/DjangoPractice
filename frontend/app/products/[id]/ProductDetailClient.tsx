@@ -173,6 +173,7 @@ export default function ProductDetailClient({
                         productId={item.id}
                         productTitle={item.title}
                         inventory={item.inventory ?? 999}
+                        variants={(item as any).variants}
                         className="py-2.5 px-2 bg-button-bg text-button-fg rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center"
                       />
                     </div>

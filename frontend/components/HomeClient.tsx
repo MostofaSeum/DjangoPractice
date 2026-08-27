@@ -501,6 +501,7 @@ export default function HomeClient({
                         productId={product.id}
                         productTitle={product.title}
                         inventory={product.inventory}
+                        variants={(product as any).variants}
                         className="w-full py-3 bg-button-bg text-button-fg rounded-xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center gap-2"
                       />
                     </div>
