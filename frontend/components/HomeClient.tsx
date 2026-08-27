@@ -81,7 +81,7 @@ export default function HomeClient({
   featuredCollections,
   apiBaseUrl,
 }: HomeClientProps) {
-  const { t, formatCurrency } = useLanguage();
+  const { t, formatCurrency, locale } = useLanguage();
 
   const getCollectionImageUrl = (col: Collection) => {
     if (col.image) {
