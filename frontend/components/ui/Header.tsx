@@ -97,14 +97,16 @@ export default function Header() {
         </nav>
 
         {/* Right Action Icons (Language, Theme, Cart, Auth) */}
-        <div className="flex items-center gap-2.5 text-[11px] font-bold uppercase tracking-widest">
+        <div className="flex items-center gap-4 md:gap-5 text-[11px] font-bold uppercase tracking-widest">
           <LanguageToggle />
           <ThemeToggle />
-          <CartButton />
+          <div className="px-1">
+            <CartButton />
+          </div>
 
           {/* Auth Dropdown Logic */}
           {user ? (
-            <div className="relative ml-2" ref={dropdownRef}>
+            <div className="relative ml-2 md:ml-3" ref={dropdownRef}>
               <button
                 type="button"
                 onClick={() => setDropdownOpen((prev) => !prev)}
@@ -182,7 +184,7 @@ export default function Header() {
                   ? `/login?redirect=${encodeURIComponent(pathname)}`
                   : "/login"
               }
-              className="hover:bg-white/25 transition-all bg-white/15 px-4 py-2 rounded-full border border-white/30 font-bold"
+              className="ml-2 md:ml-3 hover:bg-white/25 transition-all bg-white/15 px-5 py-2 rounded-full border border-white/30 font-bold shadow-sm"
             >
               Sign In
             </Link>
