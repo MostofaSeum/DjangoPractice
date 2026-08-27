@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { useLanguage } from "@/store/LanguageContext";
 
 interface NagadPaymentUIProps {
   amount: number | string;
@@ -28,6 +29,7 @@ export default function NagadPaymentUI({
   isVerifying = false,
   showVerifyButton = false,
 }: NagadPaymentUIProps) {
+  const { t, formatCurrency, locale } = useLanguage();
   const [copied, setCopied] = useState(false);
 
   const handleCopyNumber = () => {
@@ -38,7 +40,11 @@ export default function NagadPaymentUI({
   };
 
   const formattedAmount =
-    typeof amount === "number" ? amount.toLocaleString() : amount;
+    typeof amount === "number"
+      ? locale === "bn"
+        ? formatCurrency(amount)
+        : `${amount.toLocaleString()} ${currency}`
+      : `${amount} ${currency}`;
 
   return (
     <div className="w-full max-w-xl mx-auto space-y-3 font-sans text-left">
@@ -61,18 +67,17 @@ export default function NagadPaymentUI({
         {/* Amount Display */}
         <div className="text-right">
           <span className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight">
-            {formattedAmount} {currency}
+            {formattedAmount}
           </span>
         </div>
       </div>
-
 
       {/* 2. Main Orange Nagad Container */}
       <div className="bg-nagad rounded-2xl p-5 sm:p-6 text-white shadow-xl space-y-5">
         {/* Title */}
         <div className="text-center">
           <h3 className="text-base sm:text-lg font-black uppercase tracking-wider text-white">
-            Enter Transaction Details
+            {t("paymentUI.enterDetails")}
           </h3>
         </div>
 
@@ -80,7 +85,7 @@ export default function NagadPaymentUI({
         <div className="space-y-3">
           <div>
             <label className="block text-[11px] font-extrabold uppercase tracking-wider text-white/90 mb-1">
-              Sender Nagad Mobile *
+              {t("paymentUI.senderNagadMobile")} *
             </label>
             <input
               type="tel"
@@ -97,7 +102,7 @@ export default function NagadPaymentUI({
 
           <div>
             <label className="block text-[11px] font-extrabold uppercase tracking-wider text-white/90 mb-1">
-              Transaction ID (TrxID) *
+              {t("paymentUI.transactionId")} *
             </label>
             <input
               type="text"
@@ -109,7 +114,7 @@ export default function NagadPaymentUI({
                   e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 11)
                 )
               }
-              placeholder="Enter Transaction ID (e.g. 9B7X2K1L8M)"
+              placeholder={t("paymentUI.enterTrxPlaceholder") || "Enter Transaction ID (e.g. 9B7X2K1L8M)"}
               className="w-full px-4 py-3 bg-secondary text-foreground uppercase rounded-xl font-mono font-bold text-sm outline-none placeholder:text-foreground/50 placeholder:font-normal focus:ring-4 focus:ring-nagad/50 shadow-inner transition-all border border-foreground/10"
             />
           </div>
@@ -118,35 +123,35 @@ export default function NagadPaymentUI({
         {/* Instructions Section */}
         <div className="pt-2 border-t border-white/20">
           <h4 className="text-xs font-black uppercase tracking-wider text-white/90 mb-3">
-            INSTRUCTIONS
+            {t("paymentUI.instructions")}
           </h4>
 
           <ul className="space-y-2.5 text-xs text-white/95 font-medium leading-relaxed">
             <li className="flex items-start gap-2 pt-1 border-t border-white/10">
               <span className="font-bold">•</span>
               <span>
-                <strong className="font-extrabold text-white">*167#</strong> dial to go to your <strong className="font-extrabold text-white">NAGAD</strong> mobile menu or open <strong className="font-extrabold text-white">NAGAD</strong> app.
+                <strong className="font-extrabold text-white">*167#</strong> {t("paymentUI.nagadStep1")}
               </span>
             </li>
 
             <li className="flex items-start gap-2 pt-2 border-t border-white/10">
               <span className="font-bold">•</span>
               <span>
-                Click <strong className="font-extrabold text-white">&quot;Send Money&quot;</strong> or <strong className="font-extrabold text-white">&quot;Merchant Pay&quot;</strong>
+                <strong className="font-extrabold text-white">{t("paymentUI.nagadStep2")}</strong>
               </span>
             </li>
 
             <li className="flex items-start gap-2 pt-2 border-t border-white/10">
               <span className="font-bold">•</span>
               <div className="flex flex-wrap items-center gap-1.5">
-                <span>Write this number as receiver number:</span>
+                <span>{t("paymentUI.step3Receiver")}</span>
                 <strong className="font-extrabold text-white font-mono text-sm px-1.5 py-0.5 bg-white/15 rounded">
                   {receiverNumber}
                 </strong>
                 <button
                   type="button"
                   onClick={handleCopyNumber}
-                  className="inline-flex items-center gap-1 bg-secondary text-nagad hover:bg-secondary/90 font-extrabold text-[10px] px-2.5 py-1 rounded-lg transition-all shadow-xs active:scale-95 border border-foreground/10"
+                  className="inline-flex items-center gap-1 bg-secondary text-nagad hover:bg-secondary/90 font-extrabold text-[10px] px-2.5 py-1 rounded-lg transition-all shadow-xs active:scale-95 border border-foreground/10 cursor-pointer"
                 >
                   <svg
                     className="w-3 h-3"
@@ -161,7 +166,7 @@ export default function NagadPaymentUI({
                       d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
                     />
                   </svg>
-                  {copied ? "Copied!" : "Copy"}
+                  {copied ? t("paymentUI.copied") : t("paymentUI.copy")}
                 </button>
               </div>
             </li>
@@ -169,14 +174,14 @@ export default function NagadPaymentUI({
             <li className="flex items-start gap-2 pt-2 border-t border-white/10">
               <span className="font-bold">•</span>
               <span>
-                Enter amount <strong className="font-extrabold text-white">{formattedAmount} {currency}</strong> and click <strong className="font-extrabold text-white">SUBMIT</strong>.
+                {t("paymentUI.step4Amount").replace("{amount}", formattedAmount)}
               </span>
             </li>
 
             <li className="flex items-start gap-2 pt-2 border-t border-white/10">
               <span className="font-bold">•</span>
               <span>
-                Now enter your <strong className="font-extrabold text-white">Sender Number</strong> and <strong className="font-extrabold text-white">Transaction ID</strong> in the box above and click <strong className="font-extrabold text-white">PLACE ORDER</strong>.
+                {t("paymentUI.step5Finish")}
               </span>
             </li>
           </ul>
@@ -194,7 +199,7 @@ export default function NagadPaymentUI({
           {isVerifying ? (
             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
           ) : (
-            "VERIFY TRANSACTION"
+            t("paymentUI.verifyTransaction")
           )}
         </button>
       )}

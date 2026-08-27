@@ -94,6 +94,24 @@
     "verifyAndRedeem": "Verify & Redeem",
     "enterValidCode": "Please enter a valid 16-digit Gift Card code."
   },
+  "paymentUI": {
+    "enterDetails": "Enter Transaction Details",
+    "senderBkashMobile": "Sender bKash Mobile",
+    "senderNagadMobile": "Sender Nagad Mobile",
+    "transactionId": "Transaction ID (TrxID)",
+    "enterTrxPlaceholder": "Enter Transaction ID (e.g. 9B7X2K1L8M)",
+    "instructions": "INSTRUCTIONS",
+    "bkashStep1": "dial to go to your BKASH mobile menu or open BKASH app.",
+    "nagadStep1": "dial to go to your NAGAD mobile menu or open NAGAD app.",
+    "bkashStep2": "Click \"Send Money\"",
+    "nagadStep2": "Click \"Send Money\" or \"Merchant Pay\"",
+    "step3Receiver": "Write this number as receiver number:",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "step4Amount": "Enter amount {amount} and click SUBMIT.",
+    "step5Finish": "Now enter your Sender Number and Transaction ID in the box above and click PLACE ORDER.",
+    "verifyTransaction": "VERIFY TRANSACTION"
+  },
   "delivery": {
     "spend": "Spend",
     "buy": "Buy",
