@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/store/LanguageContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -30,6 +31,7 @@ interface Order {
 
 export default function ProfilePage() {
   const { user, token, logout, loading: authLoading } = useAuth();
+  const { t, formatCurrency, locale } = useLanguage();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
@@ -144,17 +146,17 @@ export default function ProfilePage() {
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: "Profile updated successfully!",
+          title: t("profile.profileUpdated") || "Profile updated successfully!",
           showConfirmButton: false,
           timer: 1800,
           toast: true,
         });
       } else {
-        setError("Failed to update profile. Please check your inputs.");
+        setError(t("profile.failedUpdate") || "Failed to update profile. Please check your inputs.");
       }
     } catch (err) {
       console.error(err);
-      setError("An error occurred while saving. Please try again.");
+      setError(locale === "bn" ? "সংরক্ষণ করার সময় একটি সমস্যা দেখা দিয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।" : "An error occurred while saving. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -163,7 +165,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-8 font-bold uppercase tracking-widest text-xs transition-colors duration-300">
-        Loading profile...
+        {locale === "bn" ? "প্রোফাইল লোড হচ্ছে..." : "Loading profile..."}
       </div>
     );
   }
@@ -176,10 +178,10 @@ export default function ProfilePage() {
           <div className="bg-secondary text-foreground rounded-[2.5rem] p-8 shadow-md border border-foreground/10 transition-colors duration-300">
             <div className="text-left mb-6 pb-4 border-b border-foreground/10">
               <h2 className="text-xl font-black uppercase tracking-tight text-foreground">
-                My Profile
+                {t("profile.myProfile")}
               </h2>
               <p className="text-xs opacity-70 font-bold uppercase tracking-wider mt-1">
-                Personal details & contact info
+                {t("profile.personalDetails")}
               </p>
             </div>
 
@@ -193,28 +195,28 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    First Name
+                    {t("profile.firstName")}
                   </label>
                   <input
                     type="text"
                     name="first_name"
                     value={formData.first_name}
                     onChange={handleChange}
-                    placeholder="FIRST NAME"
+                    placeholder={t("profile.firstName")}
                     className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
                   />
                 </div>
 
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    Last Name
+                    {t("profile.lastName")}
                   </label>
                   <input
                     type="text"
                     name="last_name"
                     value={formData.last_name}
                     onChange={handleChange}
-                    placeholder="LAST NAME"
+                    placeholder={t("profile.lastName")}
                     className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
                   />
                 </div>
@@ -222,7 +224,7 @@ export default function ProfilePage() {
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  Email Address
+                  {t("profile.emailAddress")}
                 </label>
                 <input
                   type="email"
@@ -236,21 +238,21 @@ export default function ProfilePage() {
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  Phone Number
+                  {t("profile.phoneNumber")}
                 </label>
                 <input
                   type="text"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="+1 234 567 8900"
+                  placeholder="+8801XXXXXXXXX"
                   className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  Birth Date
+                  {t("profile.birthDate")}
                 </label>
                 <input
                   type="date"
@@ -264,9 +266,9 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full mt-4 py-4 bg-button-bg text-button-fg rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center"
+                className="w-full mt-4 py-4 bg-button-bg text-button-fg rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center cursor-pointer"
               >
-                {saving ? "Saving Changes..." : "Save Profile Changes"}
+                {saving ? t("profile.saving") : t("profile.saveChanges")}
               </button>
             </form>
           </div>
@@ -284,18 +286,24 @@ export default function ProfilePage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="text-lg font-black uppercase tracking-tight text-foreground">
-                        VibeCoin Balance
+                        {t("profile.vibeCoinBalance")}
                       </h3>
                     </div>
                     <p className="text-xs opacity-75 font-semibold mt-0.5">
-                      Earn VibeCoins on every order & redeem for store perks & discounts
+                      {t("profile.vibeCoinDesc")}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 bg-background px-5 py-3 rounded-2xl border border-foreground/15 shadow-sm self-stretch sm:self-auto justify-between sm:justify-start">
-                  <span className="text-xs font-bold uppercase tracking-wider opacity-60 text-foreground">Total Coins</span>
+                  <span className="text-xs font-bold uppercase tracking-wider opacity-60 text-foreground">
+                    {t("profile.totalCoins")}
+                  </span>
                   <span className="text-2xl font-black text-foreground tracking-tight flex items-center gap-1 transition-colors duration-300">
-                    <span>{Number(vibeCoin).toFixed(2)}</span>
+                    <span>
+                      {locale === "bn"
+                        ? Number(vibeCoin).toLocaleString("bn-BD", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                        : Number(vibeCoin).toFixed(2)}
+                    </span>
                     <span className="text-xs font-bold uppercase tracking-wider text-accent opacity-90">VC</span>
                   </span>
                 </div>
@@ -307,17 +315,19 @@ export default function ProfilePage() {
               <div className="flex justify-between items-center pb-4 border-b border-foreground/10 mb-6">
                 <div>
                   <h2 className="text-xl font-black uppercase tracking-tight text-foreground">
-                    My Order History ({myOrders.length})
+                    {locale === "bn"
+                      ? t("profile.myOrderHistory").replace("{count}", myOrders.length.toLocaleString("bn-BD"))
+                      : `My Order History (${myOrders.length})`}
                   </h2>
                   <p className="text-xs opacity-70 font-bold uppercase tracking-wider mt-1">
-                    Track your previous orders and payment status
+                    {t("profile.trackOrders")}
                   </p>
                 </div>
                 <Link
                   href="/products"
                   className="px-4 py-2 border border-foreground/15 bg-background text-foreground hover:bg-button-bg hover:text-button-fg rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
                 >
-                  Shop Now
+                  {t("profile.shopNow")}
                 </Link>
               </div>
 
@@ -328,6 +338,22 @@ export default function ProfilePage() {
                     ? ord.items.reduce((sum, i) => sum + i.quantity * Number(i.unit_price), 0)
                     : 0;
 
+                  const orderIdText =
+                    locale === "bn"
+                      ? t("profile.orderNum").replace("{id}", ord.id.toLocaleString("bn-BD"))
+                      : `Order #${ord.id}`;
+
+                  const placedDateText = ord.placed_at
+                    ? new Date(ord.placed_at).toLocaleString(locale === "bn" ? "bn-BD" : "en-US")
+                    : "N/A";
+
+                  const paymentStatusLabel =
+                    ord.payment_status === "C"
+                      ? t("profile.statusComplete")
+                      : ord.payment_status === "F"
+                      ? t("profile.statusFailed")
+                      : t("profile.statusPending");
+
                   return (
                     <div
                       key={ord.id}
@@ -336,10 +362,10 @@ export default function ProfilePage() {
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-foreground/15 pb-3">
                         <div>
                           <span className="font-black text-lg text-foreground uppercase tracking-tight">
-                            Order #{ord.id}
+                            {orderIdText}
                           </span>
                           <p className="text-[10px] font-bold opacity-60 uppercase tracking-wider mt-0.5">
-                            Placed on {ord.placed_at ? new Date(ord.placed_at).toLocaleString() : "N/A"}
+                            {t("profile.placedOn").replace("{date}", placedDateText)}
                           </p>
                         </div>
                         <span
@@ -351,7 +377,7 @@ export default function ProfilePage() {
                               : "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
                           }`}
                         >
-                          Payment Status: {ord.payment_status === "C" ? "Complete" : ord.payment_status === "F" ? "Failed" : "Pending"}
+                          {t("profile.paymentStatus")} {paymentStatusLabel}
                         </span>
                       </div>
 
@@ -359,34 +385,34 @@ export default function ProfilePage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium text-foreground">
                         <div>
                           <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">
-                            Shipping Details
+                            {t("profile.shippingDetails")}
                           </p>
-                          <p className="font-bold">{ord.shipping_address || "Address not specified"}</p>
-                          <p className="text-[11px] opacity-70">Phone: {ord.phone || "N/A"}</p>
+                          <p className="font-bold">{ord.shipping_address || t("profile.addressNotSpecified")}</p>
+                          <p className="text-[11px] opacity-70">{t("profile.phone")} {ord.phone || "N/A"}</p>
                         </div>
                         <div>
                           <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">
-                            Payment Method
+                            {t("profile.paymentMethod")}
                           </p>
                           <p className="font-bold">
                             {ord.payment_method === "V" ? (
                               <span className="text-accent flex items-center gap-1.5">
-                                <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" className="w-4 h-4 object-contain" /> VibeCoin Payment
+                                <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" className="w-4 h-4 object-contain" /> {t("profile.vibeCoinPayment")}
                               </span>
                             ) : ord.payment_method === "B" || ord.payment_method === "O" ? (
                               <span className="text-bkash">
-                                bKash Payment
+                                {locale === "bn" ? "বিকাশ পেমেন্ট" : "bKash Payment"}
                                 {ord.transaction_id ? ` (TrxID: ${ord.transaction_id})` : ""}
                                 {ord.transaction_phone_no ? ` [Sender: ${ord.transaction_phone_no}]` : ""}
                               </span>
                             ) : ord.payment_method === "N" ? (
                               <span className="text-nagad">
-                                Nagad Payment
+                                {locale === "bn" ? "নগদ পেমেন্ট" : "Nagad Payment"}
                                 {ord.transaction_id ? ` (TrxID: ${ord.transaction_id})` : ""}
                                 {ord.transaction_phone_no ? ` [Sender: ${ord.transaction_phone_no}]` : ""}
                               </span>
                             ) : (
-                              "Cash on Delivery (COD)"
+                              t("profile.cod")
                             )}
                           </p>
                         </div>
@@ -396,36 +422,44 @@ export default function ProfilePage() {
                       {ord.items && ord.items.length > 0 && (
                         <div className="bg-secondary rounded-2xl p-4 border border-foreground/10 space-y-2">
                           <p className="text-[10px] font-black uppercase tracking-wider opacity-60 border-b border-foreground/10 pb-1">
-                            Items Ordered ({ord.items.reduce((s, i) => s + i.quantity, 0)})
+                            {locale === "bn"
+                              ? t("profile.itemsOrdered").replace(
+                                  "{count}",
+                                  ord.items.reduce((s, i) => s + i.quantity, 0).toLocaleString("bn-BD")
+                                )
+                              : `Items Ordered (${ord.items.reduce((s, i) => s + i.quantity, 0)})`}
                           </p>
                           <div className="space-y-1">
-                            {ord.items.map((it: any) => (
-                              <div key={it.id} className="flex justify-between items-center text-xs">
-                                <div className="flex flex-col">
-                                  <span className="font-bold text-foreground">
-                                    {it.product?.title || `Product #${it.product}`} <span className="opacity-50 font-normal">x {it.quantity}</span>
-                                  </span>
-                                  {(it.variant || it.variant_title) && (
-                                    <span className="text-[10px] text-accent font-semibold flex items-center gap-1">
-                                      {it.variant?.color_code && (
-                                        <span
-                                          className="w-2.5 h-2.5 rounded-full border border-black/20 inline-block shrink-0"
-                                          style={{ backgroundColor: it.variant.color_code }}
-                                        />
-                                      )}
-                                      <span>Option: {it.variant?.name || it.variant_title}</span>
+                            {ord.items.map((it: any) => {
+                              const qtyFormatted = locale === "bn" ? it.quantity.toLocaleString("bn-BD") : it.quantity;
+                              return (
+                                <div key={it.id} className="flex justify-between items-center text-xs">
+                                  <div className="flex flex-col">
+                                    <span className="font-bold text-foreground">
+                                      {it.product?.title || `Product #${it.product}`} <span className="opacity-50 font-normal">x {qtyFormatted}</span>
                                     </span>
-                                  )}
+                                    {(it.variant || it.variant_title) && (
+                                      <span className="text-[10px] text-accent font-semibold flex items-center gap-1">
+                                        {it.variant?.color_code && (
+                                          <span
+                                            className="w-2.5 h-2.5 rounded-full border border-black/20 inline-block shrink-0"
+                                            style={{ backgroundColor: it.variant.color_code }}
+                                          />
+                                        )}
+                                        <span>{t("profile.option")} {it.variant?.name || it.variant_title}</span>
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span className="font-black text-accent">
+                                    {formatCurrency(it.quantity * Number(it.unit_price))}
+                                  </span>
                                 </div>
-                                <span className="font-black text-accent">
-                                  ৳{(it.quantity * Number(it.unit_price)).toFixed(2)}
-                                </span>
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
                           <div className="pt-2 border-t border-foreground/10 flex justify-between items-center text-xs font-black">
-                            <span className="uppercase text-foreground">Total Amount</span>
-                            <span className="text-base text-foreground">৳{orderTotal.toFixed(2)}</span>
+                            <span className="uppercase text-foreground">{t("profile.totalAmount")}</span>
+                            <span className="text-base text-foreground">{formatCurrency(orderTotal)}</span>
                           </div>
                         </div>
                       )}
@@ -435,7 +469,7 @@ export default function ProfilePage() {
               </div>
             ) : (
               <div className="py-16 text-center text-xs font-bold uppercase tracking-wider opacity-50">
-                You haven't placed any orders yet.
+                {t("profile.noOrders")}
               </div>
             )}
           </div>

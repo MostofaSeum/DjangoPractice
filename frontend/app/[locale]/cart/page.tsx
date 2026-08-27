@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/hooks/useCart";
+import { useLanguage } from "@/store/LanguageContext";
 import ProductImage from "@/components/ui/ProductImage";
 import Swal from "sweetalert2";
 
@@ -15,6 +16,7 @@ const API_BASE = (
 export default function CartPage() {
   const router = useRouter();
   const { cart, addToCart, updateQuantity, removeFromCart } = useCart();
+  const { t, formatCurrency, locale } = useLanguage();
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{
     code: string;
@@ -111,7 +113,7 @@ export default function CartPage() {
       Swal.fire({
         position: "top-end",
         icon: "info",
-        title: `Coupon "${appliedCoupon.code}" was removed because eligible items are no longer in your cart.`,
+        title: (t("cart.couponRemovedReason") || `Coupon "${appliedCoupon.code}" was removed because eligible items are no longer in your cart.`).replace("{code}", appliedCoupon.code),
         showConfirmButton: false,
         timer: 3000,
         toast: true,
@@ -121,13 +123,14 @@ export default function CartPage() {
 
   const handleRemoveItem = async (itemId: number, itemTitle: string) => {
     const confirm = await Swal.fire({
-      title: "Remove from Cart?",
-      text: `Are you sure you want to remove "${itemTitle}" from your cart?`,
+      title: t("cart.removeFromCartTitle") || "Remove from Cart?",
+      text: (t("cart.removeFromCartText") || `Are you sure you want to remove "${itemTitle}" from your cart?`).replace("{title}", itemTitle),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "var(--accent)",
       cancelButtonColor: "var(--button-bg)",
-      confirmButtonText: "Yes, Remove",
+      confirmButtonText: t("cart.yesRemove") || "Yes, Remove",
+      cancelButtonText: locale === "bn" ? "বাতিল" : "Cancel",
     });
 
     if (confirm.isConfirmed) {
@@ -135,7 +138,7 @@ export default function CartPage() {
       Swal.fire({
         position: "top-end",
         icon: "success",
-        title: "Item removed from cart",
+        title: t("cart.itemRemoved") || "Item removed from cart",
         showConfirmButton: false,
         timer: 1500,
         toast: true,
@@ -187,15 +190,15 @@ export default function CartPage() {
     const cleanCode = couponInput.trim().toUpperCase();
 
     if (!cleanCode) {
-      setCouponError("Please enter a coupon code.");
+      setCouponError(locale === "bn" ? "অনুগ্রহ করে একটি কুপন কোড লিখুন।" : "Please enter a coupon code.");
       return;
     }
 
     if (!cart || cart.items.length === 0) {
       Swal.fire({
         icon: "info",
-        title: "Cart is Empty",
-        text: "Please add products to your cart before applying a coupon.",
+        title: locale === "bn" ? "কার্ট খালি" : "Cart is Empty",
+        text: locale === "bn" ? "কুপন ব্যবহারের পূর্বে কার্টে পণ্য যোগ করুন।" : "Please add products to your cart before applying a coupon.",
         confirmButtonColor: "var(--accent)",
       });
       return;
@@ -238,17 +241,19 @@ export default function CartPage() {
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: `Coupon "${data.code}" Applied! (${data.discount_percent}% OFF)`,
+          title: locale === "bn"
+            ? `কুপন "${data.code}" যুক্ত হয়েছে! (${data.discount_percent.toLocaleString("bn-BD")}% ছাড়)`
+            : `Coupon "${data.code}" Applied! (${data.discount_percent}% OFF)`,
           showConfirmButton: false,
           timer: 2000,
           toast: true,
         });
       } else {
-        const errorMsg = data.error || "This coupon code is invalid.";
+        const errorMsg = data.error || (locale === "bn" ? "এই কুপন কোডটি সঠিক নয়।" : "This coupon code is invalid.");
         setCouponError(errorMsg);
         Swal.fire({
           icon: "error",
-          title: "Coupon Error",
+          title: locale === "bn" ? "কুপন ত্রুটি" : "Coupon Error",
           text: errorMsg,
           confirmButtonColor: "#ef4444",
         });
@@ -257,8 +262,8 @@ export default function CartPage() {
       console.error("Coupon validation error:", err);
       Swal.fire({
         icon: "error",
-        title: "Validation Error",
-        text: "Failed to validate coupon. Please check your network and try again.",
+        title: locale === "bn" ? "ভ্যালিডেশন ত্রুটি" : "Validation Error",
+        text: locale === "bn" ? "কুপন যাচাই করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।" : "Failed to validate coupon. Please check your network and try again.",
         confirmButtonColor: "#ef4444",
       });
     } finally {
@@ -393,28 +398,28 @@ export default function CartPage() {
               .join("<br/>");
 
             const popupResult = await Swal.fire({
-              title: "Free Delivery Offer",
+              title: t("cart.freeDeliveryOffer") || "Free Delivery Offer",
               customClass: {
                 popup: "rounded-3xl border border-foreground/15 shadow-2xl p-6",
               },
               html: `
                 <div class="text-left text-xs space-y-3.5 pt-2">
                   <p class="font-medium text-foreground/80 leading-relaxed">
-                    The following product(s) in your cart <span class="text-red-500 font-black">do not qualify</span> for Free Delivery:
+                    ${t("cart.nonQualifyingNotice")}
                   </p>
                   <div class="p-3.5 bg-red-500/10 dark:bg-red-500/20 border border-red-500/30 rounded-2xl font-bold text-foreground space-y-1.5 shadow-2xs">
                     ${nonFreeNames}
                   </div>
                   <p class="font-medium text-foreground/80 leading-relaxed">
-                    Remove them to get <strong class="text-accent font-black">Free Delivery (৳0)</strong> on your qualifying items, or proceed to checkout with standard delivery charges.
+                    ${t("cart.nonQualifyingSubNotice")}
                   </p>
                 </div>
               `,
               icon: "info",
               iconColor: "var(--accent)",
               showCancelButton: true,
-              confirmButtonText: "Remove Non-Free Items",
-              cancelButtonText: "Go to Checkout",
+              confirmButtonText: t("cart.removeNonFreeItems") || "Remove Non-Free Items",
+              cancelButtonText: t("cart.goToCheckout") || "Go to Checkout",
               confirmButtonColor: "#ef4444",
               cancelButtonColor: "var(--accent)",
               reverseButtons: true,
@@ -430,7 +435,7 @@ export default function CartPage() {
                 Swal.fire({
                   position: "top-end",
                   icon: "success",
-                  title: "Non-qualifying items removed. You now get Free Delivery!",
+                  title: t("cart.freeDeliveryAppliedToast") || "Non-qualifying items removed. You now get Free Delivery!",
                   showConfirmButton: false,
                   timer: 2000,
                   toast: true,
@@ -528,17 +533,16 @@ export default function CartPage() {
               />
             </div>
             <h2 className="text-2xl font-black uppercase tracking-tight mb-3">
-              Your cart is empty
+              {t("cart.emptyCartTitle")}
             </h2>
             <p className="text-sm opacity-70 font-medium mb-8 max-w-sm">
-              Looks like you haven't added anything to your cart yet. Explore
-              our latest drops and elevate your vibe!
+              {t("cart.emptyCartSubtitle")}
             </p>
             <Link
               href="/products"
               className="bg-primary text-secondary px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
             >
-              Explore Products
+              {t("cart.exploreProducts")}
             </Link>
           </div>
         ) : (
@@ -564,6 +568,8 @@ export default function CartPage() {
                 const itemTotal = effectiveUnitPrice * item.quantity;
                 const originalItemTotal = unitPrice * item.quantity;
 
+                const qtyFormatted = locale === "bn" ? item.quantity.toLocaleString("bn-BD") : item.quantity;
+
                 return (
                   <div
                     key={item.id}
@@ -581,7 +587,7 @@ export default function CartPage() {
                               alt="Discount"
                               className="w-2.5 h-2.5 object-contain brightness-0 invert"
                             />
-                            -{Math.round(discountPercent)}%
+                            -{locale === "bn" ? Math.round(discountPercent).toLocaleString("bn-BD") : Math.round(discountPercent)}%
                           </span>
                         )}
                         <ProductImage
@@ -615,11 +621,11 @@ export default function CartPage() {
 
                         <div className="flex items-baseline gap-2 mt-1">
                           <span className="text-accent font-extrabold text-sm">
-                            ৳{effectiveUnitPrice.toFixed(2)}
+                            {formatCurrency(effectiveUnitPrice)}
                           </span>
                           {hasDiscount && (
                             <span className="text-xs line-through opacity-50 font-bold">
-                              ৳{unitPrice.toFixed(2)}
+                              {formatCurrency(unitPrice)}
                             </span>
                           )}
                         </div>
@@ -637,19 +643,19 @@ export default function CartPage() {
                               Math.max(1, item.quantity - 1),
                             )
                           }
-                          className="px-3 py-1.5 hover:bg-secondary text-foreground font-black transition-colors"
+                          className="px-3 py-1.5 hover:bg-secondary text-foreground font-black transition-colors cursor-pointer"
                           type="button"
                         >
                           -
                         </button>
                         <span className="w-10 text-center font-bold text-xs text-foreground">
-                          {item.quantity}
+                          {qtyFormatted}
                         </span>
                         <button
                           onClick={() =>
                             updateQuantity(item.id, item.quantity + 1)
                           }
-                          className="px-3 py-1.5 hover:bg-secondary text-foreground font-black transition-colors"
+                          className="px-3 py-1.5 hover:bg-secondary text-foreground font-black transition-colors cursor-pointer"
                           type="button"
                         >
                           +
@@ -659,11 +665,11 @@ export default function CartPage() {
                       {/* Total Price for Item */}
                       <div className="text-right min-w-[90px]">
                         <div className="font-black text-base text-accent">
-                          ৳{itemTotal.toFixed(2)}
+                          {formatCurrency(itemTotal)}
                         </div>
                         {hasDiscount && (
                           <div className="text-[10px] line-through opacity-50 font-bold">
-                            ৳{originalItemTotal.toFixed(2)}
+                            {formatCurrency(originalItemTotal)}
                           </div>
                         )}
                       </div>
@@ -673,8 +679,8 @@ export default function CartPage() {
                         onClick={() =>
                           handleRemoveItem(item.id, item.product.title)
                         }
-                        className="opacity-50 hover:text-red-500 transition-colors p-2"
-                        title="Remove item"
+                        className="opacity-50 hover:text-red-500 transition-colors p-2 cursor-pointer"
+                        title={locale === "bn" ? "কার্ট থেকে সরান" : "Remove item"}
                         type="button"
                       >
                         <svg
@@ -702,7 +708,7 @@ export default function CartPage() {
                   <div className="flex items-center justify-between mb-6">
                     <div>
                       <h3 className="text-xl font-black uppercase tracking-tight text-foreground">
-                        You May Also Like
+                        {t("cart.youMayAlsoLike")}
                       </h3>
                     </div>
                   </div>
@@ -731,7 +737,7 @@ export default function CartPage() {
                             <div className="w-16 h-16 bg-primary/5 dark:bg-primary/40 rounded-xl flex items-center justify-center flex-shrink-0 relative overflow-hidden">
                               {hasDiscount && (
                                 <span className="absolute top-1 left-1 px-1 py-0.5 rounded bg-accent text-button-fg font-extrabold text-[7px] uppercase tracking-wider shadow-xs z-10">
-                                  -{Math.round(discountPercent)}%
+                                  -{locale === "bn" ? Math.round(discountPercent).toLocaleString("bn-BD") : Math.round(discountPercent)}%
                                 </span>
                               )}
                               <ProductImage
@@ -745,11 +751,11 @@ export default function CartPage() {
                               </h4>
                               <div className="flex items-baseline gap-1.5 mt-0.5">
                                 <span className="text-accent font-extrabold text-sm">
-                                  ৳{effectivePrice.toFixed(2)}
+                                  {formatCurrency(effectivePrice)}
                                 </span>
                                 {hasDiscount && (
                                   <span className="text-[10px] line-through opacity-50 font-bold">
-                                    ৳{unitPrice.toFixed(2)}
+                                    {formatCurrency(unitPrice)}
                                   </span>
                                 )}
                               </div>
@@ -763,7 +769,7 @@ export default function CartPage() {
                                 Swal.fire({
                                   position: "top-end",
                                   icon: "success",
-                                  title: `Added "${p.title}" to cart`,
+                                  title: (t("cart.addedToCart") || `Added "${p.title}" to cart`).replace("{title}", p.title),
                                   showConfirmButton: false,
                                   timer: 1500,
                                   toast: true,
@@ -772,10 +778,10 @@ export default function CartPage() {
                                 console.error("Failed to add to cart:", e);
                               }
                             }}
-                            className="px-3 py-2 bg-button-bg text-button-fg rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-opacity shrink-0 flex items-center gap-1 shadow-sm"
+                            className="px-3 py-2 bg-button-bg text-button-fg rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-opacity shrink-0 flex items-center gap-1 shadow-sm cursor-pointer"
                             type="button"
                           >
-                            + Add
+                            {t("cart.add")}
                           </button>
                         </div>
                       );
@@ -788,18 +794,18 @@ export default function CartPage() {
             {/* Order Summary Side Card */}
             <div className="bg-secondary text-foreground rounded-[2.5rem] p-8 shadow-md border border-foreground/10 sticky top-28 transition-colors duration-300">
               <h2 className="text-2xl font-black uppercase tracking-tight mb-6 pb-4 border-b border-foreground/10">
-                Order Summary
+                {t("cart.orderSummary")}
               </h2>
 
               <div className="space-y-3.5 text-sm font-medium mb-6">
                 <div className="flex justify-between opacity-80">
                   <span>
                     {productDiscountSavings > 0
-                      ? "Original Subtotal"
-                      : "Subtotal"}
+                      ? t("cart.originalSubtotal")
+                      : t("cart.subtotal")}
                   </span>
                   <span className="font-bold">
-                    ৳{originalSubtotal.toFixed(2)}
+                    {formatCurrency(originalSubtotal)}
                   </span>
                 </div>
 
@@ -807,15 +813,15 @@ export default function CartPage() {
                   <>
                     <div className="flex justify-between text-accent font-bold">
                       <span className="flex items-center gap-1">
-                        Product Discounts
+                        {t("cart.productDiscounts")}
                       </span>
-                      <span>-৳{productDiscountSavings.toFixed(2)}</span>
+                      <span>-{formatCurrency(productDiscountSavings)}</span>
                     </div>
 
                     <div className="flex justify-between opacity-80 pt-1 border-t border-foreground/10">
-                      <span>Discounted Subtotal</span>
+                      <span>{t("cart.discountedSubtotal")}</span>
                       <span className="font-bold">
-                        ৳{discountedSubtotal.toFixed(2)}
+                        {formatCurrency(discountedSubtotal)}
                       </span>
                     </div>
                   </>
@@ -824,7 +830,7 @@ export default function CartPage() {
                 {/* Coupon Input Form */}
                 <div className="pt-3 border-t border-foreground/10">
                   <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-                    Coupon Code
+                    {t("cart.couponCode")}
                   </label>
                   {!appliedCoupon ? (
                     <form onSubmit={handleApplyCoupon} className="flex gap-2">
@@ -833,35 +839,35 @@ export default function CartPage() {
                         maxLength={20}
                         value={couponInput}
                         onChange={(e) => setCouponInput(e.target.value.toUpperCase().slice(0, 20))}
-                        placeholder="e.g. SUMMER25"
+                        placeholder={t("cart.couponPlaceholder")}
                         disabled={couponValidating}
                         className="flex-1 bg-background border border-foreground/15 rounded-xl px-3.5 py-2.5 text-xs font-bold uppercase text-foreground outline-none focus:ring-2 focus:ring-accent"
                       />
                       <button
                         type="submit"
                         disabled={couponValidating || !couponInput.trim()}
-                        className="px-4 py-2.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-wider hover:opacity-90 transition-all shadow-sm disabled:opacity-50"
+                        className="px-4 py-2.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-wider hover:opacity-90 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
                       >
-                        {couponValidating ? "Checking..." : "Apply"}
+                        {couponValidating ? t("cart.checking") : t("cart.apply")}
                       </button>
                     </form>
                   ) : (
                     <div className="flex items-center justify-between p-3 rounded-xl bg-accent/15 border border-accent/30">
                       <div>
                         <span className="text-xs font-black text-accent uppercase tracking-wider block">
-                          {appliedCoupon.code} ({appliedCoupon.discountPercent}%
-                          OFF)
+                          {appliedCoupon.code} ({locale === "bn" ? appliedCoupon.discountPercent.toLocaleString("bn-BD") : appliedCoupon.discountPercent}%{" "}
+                          {t("cart.off")})
                         </span>
                         <span className="text-[10px] text-accent font-bold">
-                          Saved ৳{couponSavings.toFixed(2)}
+                          {t("cart.saved").replace("{amount}", formatCurrency(couponSavings))}
                         </span>
                       </div>
                       <button
                         type="button"
                         onClick={handleRemoveCoupon}
-                        className="text-xs font-bold opacity-60 hover:opacity-100 hover:underline px-2 py-1"
+                        className="text-xs font-bold opacity-60 hover:opacity-100 hover:underline px-2 py-1 cursor-pointer"
                       >
-                        Remove
+                        {t("cart.remove")}
                       </button>
                     </div>
                   )}
@@ -874,20 +880,20 @@ export default function CartPage() {
 
                 {appliedCoupon && (
                   <div className="flex justify-between text-accent font-bold">
-                    <span>Coupon Discount</span>
-                    <span>-৳{couponSavings.toFixed(2)}</span>
+                    <span>{t("cart.couponDiscount")}</span>
+                    <span>-{formatCurrency(couponSavings)}</span>
                   </div>
                 )}
 
                 <div className="flex justify-between opacity-80">
-                  <span>Estimated Taxes</span>
-                  <span className="font-bold">৳0.00</span>
+                  <span>{t("cart.estimatedTaxes")}</span>
+                  <span className="font-bold">{formatCurrency(0)}</span>
                 </div>
 
                 <div className="pt-4 border-t border-foreground/10 flex justify-between items-center text-base font-black uppercase tracking-tight">
-                  <span>Total Amount</span>
+                  <span>{t("cart.totalAmount")}</span>
                   <span className="text-2xl text-accent font-black">
-                    ৳{finalTotal.toFixed(2)}
+                    {formatCurrency(finalTotal)}
                   </span>
                 </div>
               </div>
@@ -898,7 +904,7 @@ export default function CartPage() {
                 disabled={checkingOut}
                 className="w-full bg-button-bg text-button-fg py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2 text-center disabled:opacity-50 cursor-pointer"
               >
-                {checkingOut ? "Verifying Cart..." : "Proceed to Checkout"}
+                {checkingOut ? t("cart.verifyingCart") : t("cart.proceedToCheckout")}
               </button>
             </div>
           </div>

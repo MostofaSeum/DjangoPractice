@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
+import { useLanguage } from "@/store/LanguageContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import Swal from "sweetalert2";
 
@@ -17,6 +18,7 @@ function LoginForm() {
 
   const { user, token, loading: authLoading, login } = useAuth();
   const { syncCart } = useCart();
+  const { t, locale } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -45,7 +47,7 @@ function LoginForm() {
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: "Welcome back!",
+          title: t("auth.welcomeBackAlert") || "Welcome back!",
           showConfirmButton: false,
           timer: 1800,
           toast: true,
@@ -57,11 +59,11 @@ function LoginForm() {
           router.push(redirectUrl);
         }
       } else {
-        setError("Invalid username or password. Please try again.");
+        setError(t("auth.invalidCredentials") || "Invalid username or password. Please try again.");
       }
     } catch (err) {
       console.error(err);
-      setError("An unexpected error occurred. Please try again later.");
+      setError(locale === "bn" ? "একটি সমস্যা দেখা দিয়েছে। অনুগ্রহ করে পরে আবার চেষ্টা করুন।" : "An unexpected error occurred. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -73,13 +75,13 @@ function LoginForm() {
         {/* Header */}
         <div className="text-center mb-8">
           <span className="bg-accent/20 text-foreground text-[10px] font-bold px-3.5 py-1.5 uppercase tracking-widest rounded-md inline-block mb-4">
-            Welcome Back
+            {t("auth.welcomeBack")}
           </span>
           <h1 className="text-3xl font-black uppercase tracking-tighter text-foreground">
-            Sign In
+            {t("auth.signIn")}
           </h1>
           <p className="text-xs opacity-70 mt-2 font-medium">
-            Enter your credentials to access your VibeMart account.
+            {t("auth.signInSubtitle")}
           </p>
         </div>
 
@@ -94,14 +96,14 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
             <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-              Username
+              {t("auth.username")}
             </label>
             <input
               type="text"
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="ENTER YOUR USERNAME"
+              placeholder={t("auth.usernamePlaceholder")}
               className="px-5 py-3.5 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
             />
           </div>
@@ -109,13 +111,13 @@ function LoginForm() {
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                Password
+                {t("auth.password")}
               </label>
               <Link
                 href="/forgot-password"
                 className="text-[10px] font-bold text-accent hover:underline transition-colors"
               >
-                Forgot Password?
+                {t("auth.forgotPassword")}
               </Link>
             </div>
             <div className="relative flex items-center">
@@ -149,19 +151,19 @@ function LoginForm() {
             disabled={loading}
             className="w-full mt-3 py-4 bg-button-bg text-button-fg rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center cursor-pointer"
           >
-            {loading ? "Signing In..." : "Sign In"}
+            {loading ? t("auth.signingIn") : t("auth.signIn")}
           </button>
         </form>
 
         {/* Link to Register */}
         <div className="mt-8 pt-6 border-t border-foreground/10 text-center">
           <p className="text-xs opacity-70 font-medium">
-            Don&apos;t have an account?{" "}
+            {t("auth.dontHaveAccount")}{" "}
             <Link
               href={`/register${redirectUrl !== "/" ? `?redirect=${encodeURIComponent(redirectUrl)}` : ""}`}
               className="font-bold underline hover:text-accent transition-colors"
             >
-              Sign Up
+              {t("auth.signUp")}
             </Link>
           </p>
         </div>

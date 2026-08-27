@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/store/LanguageContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import Swal from "sweetalert2";
 import EmailOTPModal from "@/features/auth/components/EmailOTPModal";
@@ -26,6 +27,7 @@ function RegisterForm() {
   const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
 
   const { user, token, loading: authLoading } = useAuth();
+  const { t, locale } = useLanguage();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -33,7 +35,7 @@ function RegisterForm() {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (authLoading) return;
+    if (!authLoading) return;
     if (token) {
       if (user?.is_staff) {
         router.push("/admin");
@@ -59,27 +61,27 @@ function RegisterForm() {
     setError("");
 
     if (!formData.username.trim()) {
-      setError("Username is required.");
+      setError(locale === "bn" ? "ব্যবহারকারীর নাম প্রয়োজন।" : "Username is required.");
       return;
     }
 
     if (!formData.email || !formData.email.includes("@")) {
-      setError("Please provide a valid email address.");
+      setError(locale === "bn" ? "অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।" : "Please provide a valid email address.");
       return;
     }
 
     if (!formData.password) {
-      setError("Password is required.");
+      setError(locale === "bn" ? "পাসওয়ার্ড প্রয়োজন।" : "Password is required.");
       return;
     }
 
     if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long.");
+      setError(t("auth.passwordMinLength") || "Password must be at least 8 characters long.");
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
+      setError(t("auth.passwordsDoNotMatch") || "Passwords do not match.");
       return;
     }
 
@@ -97,11 +99,11 @@ function RegisterForm() {
       if (res.ok) {
         setShowOTPModal(true);
       } else {
-        setError(data.error || data.detail || "Failed to send verification code.");
+        setError(data.error || data.detail || (locale === "bn" ? "ভেরিফিকেশন কোড পাঠানো যায়নি।" : "Failed to send verification code."));
       }
     } catch (err: any) {
       console.error(err);
-      setError("Failed to validate account details. Please try again.");
+      setError(locale === "bn" ? "অ্যাকাউন্টের তথ্য যাচাই করতে ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।" : "Failed to validate account details. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -116,7 +118,7 @@ function RegisterForm() {
     await Swal.fire({
       position: "top-end",
       icon: "success",
-      title: "Account created successfully! Please sign in.",
+      title: t("auth.accountCreated") || "Account created successfully! Please sign in.",
       showConfirmButton: false,
       timer: 2000,
       toast: true,
@@ -130,13 +132,13 @@ function RegisterForm() {
         {/* Header */}
         <div className="text-center mb-8">
           <span className="bg-accent/20 text-foreground text-[10px] font-bold px-3.5 py-1.5 uppercase tracking-widest rounded-md inline-block mb-4">
-            Join VibeMart
+            {t("auth.joinVibemart")}
           </span>
           <h1 className="text-3xl font-black uppercase tracking-tighter text-foreground">
-            Create Account
+            {t("auth.createAccount")}
           </h1>
           <p className="text-xs opacity-70 mt-2 font-medium">
-            Sign up to collect exclusive drops and manage your orders.
+            {t("auth.createAccountSubtitle")}
           </p>
         </div>
 
@@ -152,28 +154,28 @@ function RegisterForm() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                First Name
+                {t("auth.firstName")}
               </label>
               <input
                 type="text"
                 name="first_name"
                 value={formData.first_name}
                 onChange={handleChange}
-                placeholder="JOHN"
+                placeholder={t("auth.firstName")}
                 className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                Last Name
+                {t("auth.lastName")}
               </label>
               <input
                 type="text"
                 name="last_name"
                 value={formData.last_name}
                 onChange={handleChange}
-                placeholder="DOE"
+                placeholder={t("auth.lastName")}
                 className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
               />
             </div>
@@ -181,7 +183,7 @@ function RegisterForm() {
 
           <div className="flex flex-col gap-1.5">
             <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-              Username *
+              {t("auth.username")} *
             </label>
             <input
               type="text"
@@ -189,14 +191,14 @@ function RegisterForm() {
               required
               value={formData.username}
               onChange={handleChange}
-              placeholder="CHOOSE A USERNAME"
+              placeholder={t("auth.usernamePlaceholder")}
               className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
             <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-              Email Address *
+              {t("auth.emailAddress")} *
             </label>
             <input
               type="email"
@@ -212,7 +214,7 @@ function RegisterForm() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                Password *
+                {t("auth.password")} *
               </label>
               <div className="relative flex items-center">
                 <input
@@ -243,7 +245,7 @@ function RegisterForm() {
 
             <div className="flex flex-col gap-1.5">
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                Confirm Password *
+                {t("auth.confirmPassword")} *
               </label>
               <div className="relative flex items-center">
                 <input
@@ -276,9 +278,9 @@ function RegisterForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-4 py-4 bg-button-bg text-button-fg rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center"
+            className="w-full mt-4 py-4 bg-button-bg text-button-fg rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center cursor-pointer"
           >
-            {loading ? "Sending Verification..." : "Create Account"}
+            {loading ? t("auth.sendingVerification") : t("auth.createAccount")}
           </button>
         </form>
 
@@ -299,12 +301,12 @@ function RegisterForm() {
         {/* Link to Login */}
         <div className="mt-8 pt-6 border-t border-foreground/10 text-center">
           <p className="text-xs opacity-70 font-medium">
-            Already have an account?{" "}
+            {t("auth.alreadyHaveAccount")}{" "}
             <Link
               href={`/login${redirectUrl !== "/" ? `?redirect=${encodeURIComponent(redirectUrl)}` : ""}`}
               className="font-bold underline hover:text-accent transition-colors"
             >
-              Sign In
+              {t("auth.signIn")}
             </Link>
           </p>
         </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { siteConfig } from "@/config/siteConfig";
 import { useCart } from "@/hooks/useCart";
+import { useLanguage } from "@/store/LanguageContext";
 import { useRouter } from "next/navigation";
 
 interface EmailOTPModalProps {
@@ -23,6 +24,7 @@ export default function EmailOTPModal({
   extraPayload = {},
 }: EmailOTPModalProps) {
   const { syncCart } = useCart();
+  const { t, locale } = useLanguage();
   const router = useRouter();
   const [email, setEmail] = useState(initialEmail);
   const [otpCode, setOtpCode] = useState("");
@@ -57,7 +59,7 @@ export default function EmailOTPModal({
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes("@")) {
-      setMessage({ type: "error", text: "Please enter a valid email address." });
+      setMessage({ type: "error", text: locale === "bn" ? "অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা দিন।" : "Please enter a valid email address." });
       return;
     }
 
@@ -73,14 +75,14 @@ export default function EmailOTPModal({
 
       const data = await res.json();
       if (res.ok) {
-        setMessage({ type: "success", text: "Verification code sent to your email!" });
+        setMessage({ type: "success", text: locale === "bn" ? "আপনার ইমেইলে ভেরিফিকেশন কোড পাঠানো হয়েছে!" : "Verification code sent to your email!" });
         setStep(2);
         setTimer(30);
       } else {
-        throw new Error(data.error || "Failed to send verification code.");
+        throw new Error(data.error || (locale === "bn" ? "ভেরিফিকেশন কোড পাঠানো যায়নি।" : "Failed to send verification code."));
       }
     } catch (err: any) {
-      setMessage({ type: "error", text: err.message || "Something went wrong." });
+      setMessage({ type: "error", text: err.message || (locale === "bn" ? "একটি সমস্যা দেখা দিয়েছে।" : "Something went wrong.") });
     } finally {
       setLoading(false);
     }
@@ -89,7 +91,7 @@ export default function EmailOTPModal({
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!otpCode || otpCode.length < 6) {
-      setMessage({ type: "error", text: "Please enter the complete 6-digit verification code." });
+      setMessage({ type: "error", text: locale === "bn" ? "অনুগ্রহ করে সম্পূর্ণ ৬ সংখ্যার কোড লিখুন।" : "Please enter the complete 6-digit verification code." });
       return;
     }
 
@@ -122,10 +124,10 @@ export default function EmailOTPModal({
           router.push("/");
         }
       } else {
-        throw new Error(data.error || "Invalid or expired verification code.");
+        throw new Error(data.error || (locale === "bn" ? "ভুল বা মেয়াদোত্তীর্ণ ভেরিফিকেশন কোড।" : "Invalid or expired verification code."));
       }
     } catch (err: any) {
-      setMessage({ type: "error", text: err.message || "Invalid or expired verification code." });
+      setMessage({ type: "error", text: err.message || (locale === "bn" ? "ভুল বা মেয়াদোত্তীর্ণ ভেরিফিকেশন কোড।" : "Invalid or expired verification code.") });
     } finally {
       setLoading(false);
     }
@@ -137,7 +139,7 @@ export default function EmailOTPModal({
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 text-foreground/40 hover:text-foreground font-bold text-lg transition-colors"
+          className="absolute top-5 right-5 text-foreground/40 hover:text-foreground font-bold text-lg transition-colors cursor-pointer"
         >
           ✕
         </button>
@@ -149,12 +151,12 @@ export default function EmailOTPModal({
             </svg>
           </div>
           <h3 className="text-2xl font-black uppercase tracking-tight text-foreground">
-            {step === 1 ? "Email Login & Sign Up" : "Enter Verification Code"}
+            {step === 1 ? t("auth.emailLoginSignUp") : t("auth.enterVerificationCode")}
           </h3>
           <p className="text-xs font-semibold text-foreground/60 mt-1">
             {step === 1
-              ? "Enter your email to receive a 6-digit one-time password"
-              : `We sent a 6-digit code to ${email}`}
+              ? t("auth.otpSubtitleStep1")
+              : t("auth.otpSubtitleStep2").replace("{email}", email)}
           </p>
         </div>
 
@@ -162,7 +164,7 @@ export default function EmailOTPModal({
           <form onSubmit={handleSendOTP} className="space-y-4">
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">
-                Email Address
+                {t("auth.emailAddress")}
               </label>
               <input
                 type="email"
@@ -177,16 +179,16 @@ export default function EmailOTPModal({
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 bg-primary text-secondary rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-primary/80 disabled:opacity-50 transition-colors shadow-md"
+              className="w-full py-3.5 bg-primary text-secondary rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-primary/80 disabled:opacity-50 transition-colors shadow-md cursor-pointer"
             >
-              {loading ? "Sending Code..." : "Send Verification Code"}
+              {loading ? t("auth.sendingCode") : t("auth.sendVerificationCode")}
             </button>
           </form>
         ) : (
           <form onSubmit={handleVerifyOTP} className="space-y-4">
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">
-                6-Digit OTP Code
+                {t("auth.otpCodeLabel")}
               </label>
               <input
                 type="text"
@@ -202,28 +204,30 @@ export default function EmailOTPModal({
             <button
               type="submit"
               disabled={loading || otpCode.length < 6}
-              className="w-full py-3.5 bg-accent hover:bg-accent/80 text-white rounded-xl text-xs font-bold uppercase tracking-widest disabled:opacity-40 transition-colors shadow-md"
+              className="w-full py-3.5 bg-accent hover:bg-accent/80 text-white rounded-xl text-xs font-bold uppercase tracking-widest disabled:opacity-40 transition-colors shadow-md cursor-pointer"
             >
-              {loading ? "Verifying..." : "Verify & Log In"}
+              {loading ? t("auth.verifying") : t("auth.verifyAndLogIn")}
             </button>
 
             <div className="flex justify-between items-center text-xs font-bold pt-2">
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="text-foreground/60 hover:text-foreground underline"
+                className="text-foreground/60 hover:text-foreground underline cursor-pointer"
               >
-                Change Email
+                {t("auth.changeEmail")}
               </button>
               {timer > 0 ? (
-                <span className="text-foreground/40 font-mono">Resend in {timer}s</span>
+                <span className="text-foreground/40 font-mono">
+                  {t("auth.resendIn").replace("{timer}", timer.toString())}
+                </span>
               ) : (
                 <button
                   type="button"
                   onClick={handleSendOTP}
-                  className="text-accent hover:underline"
+                  className="text-accent hover:underline cursor-pointer"
                 >
-                  Resend Code
+                  {t("auth.resendCode")}
                 </button>
               )}
             </div>

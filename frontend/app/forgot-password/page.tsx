@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/store/LanguageContext";
 import Swal from "sweetalert2";
 import { siteConfig } from "@/config/siteConfig";
 
@@ -11,6 +12,7 @@ const API_BASE = siteConfig.apiBaseUrl.replace(/\/+$/, "");
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
+  const { t, locale } = useLanguage();
 
   // Inputs
   const [username, setUsername] = useState("");
@@ -47,13 +49,13 @@ export default function ForgotPasswordPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "No matching account found.");
+        throw new Error(data.error || (locale === "bn" ? "কোনো অ্যাকাউন্ট পাওয়া যায়নি।" : "No matching account found."));
       }
 
       setIsVerified(true);
-      setSuccessMsg("Account verified! Please set your new password below.");
+      setSuccessMsg(t("auth.accountVerified") || "Account verified! Please set your new password below.");
     } catch (err: any) {
-      setError(err.message || "Failed to verify account details.");
+      setError(err.message || (locale === "bn" ? "অ্যাকাউন্টের তথ্য যাচাই করতে ব্যর্থ হয়েছে।" : "Failed to verify account details."));
     } finally {
       setLoading(false);
     }
@@ -66,17 +68,17 @@ export default function ForgotPasswordPage() {
     setSuccessMsg("");
 
     if (!newPassword || !confirmPassword) {
-      setError("Please fill in both password fields.");
+      setError(locale === "bn" ? "উভয় পাসওয়ার্ড ফিল্ড পূরণ করুন।" : "Please fill in both password fields.");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError("New password and confirm password do not match.");
+      setError(t("auth.passwordsDoNotMatch") || "New password and confirm password do not match.");
       return;
     }
 
     if (newPassword.length < 8) {
-      setError("Password must be at least 8 characters long.");
+      setError(t("auth.passwordMinLength") || "Password must be at least 8 characters long.");
       return;
     }
 
@@ -101,14 +103,14 @@ export default function ForgotPasswordPage() {
         if (Array.isArray(errMessage)) {
           errMessage = errMessage.join(" ");
         }
-        throw new Error(errMessage || "Failed to reset password.");
+        throw new Error(errMessage || (locale === "bn" ? "পাসওয়ার্ড রিসেট করতে ব্যর্থ হয়েছে।" : "Failed to reset password."));
       }
 
       Swal.fire({
         position: "center",
         icon: "success",
-        title: "Password Changed!",
-        text: "Your password has been successfully updated. Redirecting to sign in...",
+        title: t("auth.passwordChanged") || "Password Changed!",
+        text: t("auth.passwordChangedText") || "Your password has been successfully updated. Redirecting to sign in...",
         showConfirmButton: false,
         timer: 2200,
       });
@@ -117,7 +119,7 @@ export default function ForgotPasswordPage() {
         router.push("/login");
       }, 2000);
     } catch (err: any) {
-      setError(err.message || "An unexpected error occurred. Please try again.");
+      setError(err.message || (locale === "bn" ? "একটি সমস্যা দেখা দিয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।" : "An unexpected error occurred. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -130,15 +132,15 @@ export default function ForgotPasswordPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <span className="bg-accent/20 text-foreground text-[10px] font-bold px-3.5 py-1.5 uppercase tracking-widest rounded-md inline-block mb-4">
-            Security & Recovery
+            {t("auth.securityRecovery")}
           </span>
           <h1 className="text-3xl font-black uppercase tracking-tighter text-foreground">
-            Reset Password
+            {t("auth.resetPassword")}
           </h1>
           <p className="text-xs opacity-70 mt-2 font-medium">
             {!isVerified
-              ? "Enter your registered username and email to verify your identity."
-              : "Enter and confirm your new password below."}
+              ? t("auth.verifyIdentitySubtitle")
+              : t("auth.enterNewPasswordSubtitle")}
           </p>
         </div>
 
@@ -151,8 +153,7 @@ export default function ForgotPasswordPage() {
                 : "bg-accent/20 text-accent font-bold"
             }`}
           >
-            <span>1</span>
-            <span>Verify Info</span>
+            <span>{t("auth.step1Verify")}</span>
           </div>
           <div className="w-4 h-[1px] bg-foreground/20" />
           <div
@@ -162,8 +163,7 @@ export default function ForgotPasswordPage() {
                 : "bg-foreground/10 text-foreground/40"
             }`}
           >
-            <span>2</span>
-            <span>New Password</span>
+            <span>{t("auth.step2NewPassword")}</span>
           </div>
         </div>
 
@@ -186,21 +186,21 @@ export default function ForgotPasswordPage() {
           <form onSubmit={handleVerifyAccount} className="flex flex-col gap-5">
             <div className="flex flex-col gap-1.5">
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                Username
+                {t("auth.username")}
               </label>
               <input
                 type="text"
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="ENTER YOUR USERNAME"
+                placeholder={t("auth.usernamePlaceholder")}
                 className="px-5 py-3.5 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/40 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                Email Address
+                {t("auth.emailAddress")}
               </label>
               <input
                 type="email"
@@ -217,7 +217,7 @@ export default function ForgotPasswordPage() {
               disabled={loading}
               className="w-full mt-3 py-4 bg-button-bg text-button-fg rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center cursor-pointer"
             >
-              {loading ? "Checking Account..." : "Verify & Continue"}
+              {loading ? t("auth.checkingAccount") : t("auth.verifyAndContinue")}
             </button>
           </form>
         ) : (
@@ -236,15 +236,15 @@ export default function ForgotPasswordPage() {
                   setNewPassword("");
                   setConfirmPassword("");
                 }}
-                className="text-[10px] uppercase font-bold text-accent hover:underline"
+                className="text-[10px] uppercase font-bold text-accent hover:underline cursor-pointer"
               >
-                Change
+                {t("auth.change")}
               </button>
             </div>
 
             <div className="flex flex-col gap-1.5">
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                New Password
+                {t("auth.newPassword")}
               </label>
               <div className="relative flex items-center">
                 <input
@@ -274,7 +274,7 @@ export default function ForgotPasswordPage() {
 
             <div className="flex flex-col gap-1.5">
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                Confirm New Password
+                {t("auth.confirmNewPassword")}
               </label>
               <div className="relative flex items-center">
                 <input
@@ -307,7 +307,7 @@ export default function ForgotPasswordPage() {
               disabled={loading}
               className="w-full mt-3 py-4 bg-button-bg text-button-fg rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 flex items-center justify-center cursor-pointer"
             >
-              {loading ? "Updating Password..." : "Reset Password"}
+              {loading ? t("auth.updatingPassword") : t("auth.resetPassword")}
             </button>
           </form>
         )}
@@ -315,12 +315,12 @@ export default function ForgotPasswordPage() {
         {/* Back to Login Link */}
         <div className="mt-8 pt-6 border-t border-foreground/10 text-center flex flex-col gap-2">
           <p className="text-xs opacity-70 font-medium">
-            Remember your password?{" "}
+            {t("auth.rememberPassword")}{" "}
             <Link
               href="/login"
               className="font-bold underline hover:text-accent transition-colors"
             >
-              Sign In
+              {t("auth.signIn")}
             </Link>
           </p>
         </div>

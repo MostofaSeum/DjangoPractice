@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
+import { useLanguage } from "@/store/LanguageContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -31,6 +32,7 @@ interface DeliveryRuleItem {
 export default function CheckoutPage() {
   const { user, token, loading: authLoading } = useAuth();
   const { cart, clearCart } = useCart();
+  const { t, formatCurrency, locale } = useLanguage();
   const router = useRouter();
 
   const [phone, setPhone] = useState("");
@@ -154,8 +156,8 @@ export default function CheckoutPage() {
     if (!token) {
       Swal.fire({
         icon: "warning",
-        title: "Please Sign In",
-        text: "You must be logged in to proceed to checkout.",
+        title: locale === "bn" ? "অনুগ্রহ করে সাইন ইন করুন" : "Please Sign In",
+        text: locale === "bn" ? "চেকআউটে এগিয়ে যেতে আপনাকে অবশ্যই লগইন করতে হবে।" : "You must be logged in to proceed to checkout.",
       });
       router.push("/login?redirect=/checkout");
       return;
@@ -180,7 +182,7 @@ export default function CheckoutPage() {
     };
 
     fetchCustomerInfo();
-  }, [token, authLoading, router]);
+  }, [token, authLoading, router, locale]);
 
   // Automatically remove coupon if no eligible items remain in cart
   useEffect(() => {
@@ -202,13 +204,13 @@ export default function CheckoutPage() {
       Swal.fire({
         position: "top-end",
         icon: "info",
-        title: `Coupon "${appliedCoupon.code}" was removed because eligible items are no longer in your cart.`,
+        title: (t("cart.couponRemovedReason") || `Coupon "${appliedCoupon.code}" was removed because eligible items are no longer in your cart.`).replace("{code}", appliedCoupon.code),
         showConfirmButton: false,
         timer: 3000,
         toast: true,
       });
     }
-  }, [cart, appliedCoupon]);
+  }, [cart, appliedCoupon, t]);
 
   const isCartEmpty = !cart || cart.items.length === 0;
 
@@ -573,8 +575,8 @@ export default function CheckoutPage() {
 
         await Swal.fire({
           icon: "success",
-          title: "Order Placed Successfully!",
-          text: `Your Order #${orderData.id} has been received. Thank you for shopping with VibeMart!`,
+          title: t("checkout.orderPlacedSuccess") || "Order Placed Successfully!",
+          text: (t("checkout.orderPlacedText") || `Your Order #${orderData.id} has been received. Thank you for shopping with VibeMart!`).replace("{id}", locale === "bn" ? orderData.id.toLocaleString("bn-BD") : orderData.id),
           confirmButtonColor: "var(--primary)",
         });
 
@@ -583,7 +585,7 @@ export default function CheckoutPage() {
         const errData = await res.json();
         Swal.fire({
           icon: "error",
-          title: "Order Placement Failed",
+          title: t("checkout.orderFailed") || "Order Placement Failed",
           text: JSON.stringify(errData),
           confirmButtonColor: "#ef4444",
         });
@@ -592,8 +594,8 @@ export default function CheckoutPage() {
       console.error(err);
       Swal.fire({
         icon: "error",
-        title: "An Error Occurred",
-        text: "Could not submit your order. Please try again.",
+        title: locale === "bn" ? "সমস্যা দেখা দিয়েছে" : "An Error Occurred",
+        text: locale === "bn" ? "অর্ডার সাবমিট করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।" : "Could not submit your order. Please try again.",
         confirmButtonColor: "#ef4444",
       });
     } finally {
@@ -604,7 +606,7 @@ export default function CheckoutPage() {
   if (loading || authLoading) {
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-8 font-bold text-xs uppercase tracking-widest transition-colors duration-300">
-        Loading Checkout...
+        {t("checkout.loadingCheckout")}
       </div>
     );
   }
@@ -613,16 +615,16 @@ export default function CheckoutPage() {
     return (
       <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-8 text-center transition-colors duration-300">
         <h2 className="text-2xl font-black uppercase tracking-tight mb-4">
-          Your Cart is Empty
+          {t("checkout.cartEmpty")}
         </h2>
         <p className="text-sm font-medium opacity-70 mb-6">
-          Please add items to your cart before proceeding to checkout.
+          {t("checkout.cartEmptySubtitle")}
         </p>
         <Link
           href="/products"
-          className="bg-primary text-secondary px-8 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-colors shadow-md"
+          className="bg-primary text-secondary px-8 py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-colors shadow-md cursor-pointer"
         >
-          Browse Products
+          {t("checkout.browseProducts")}
         </Link>
       </div>
     );
@@ -634,20 +636,20 @@ export default function CheckoutPage() {
       <div className="bg-primary text-background dark:text-foreground border-b border-white/5 py-4 transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2.5 font-bold uppercase tracking-wider">
           <Link href="/" className="hover:underline">
-            Home
+            {t("nav.home")}
           </Link>
           <span className="opacity-50">/</span>
           <Link href="/cart" className="hover:underline">
-            Cart
+            {t("nav.cart") || "Cart"}
           </Link>
           <span className="opacity-50">/</span>
-          <span className="opacity-80">Checkout</span>
+          <span className="opacity-80">{t("checkout.breadcrumbCheckout")}</span>
         </div>
       </div>
 
       <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-12">
         <h1 className="text-4xl font-black mb-10 uppercase tracking-tighter">
-          Checkout & Shipping
+          {t("checkout.title")}
         </h1>
 
         <form
@@ -662,13 +664,13 @@ export default function CheckoutPage() {
                 <span className="w-8 h-8 rounded-full bg-button-bg text-button-fg font-black flex items-center justify-center text-xs">
                   1
                 </span>
-                Shipping Information
+                {t("checkout.shippingInfo")}
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
                   <label className="text-xs font-bold uppercase tracking-wider opacity-80">
-                    Phone Number (11 Digits) *
+                    {t("checkout.phoneNumberLabel")}
                   </label>
                   <input
                     type="tel"
@@ -678,7 +680,7 @@ export default function CheckoutPage() {
                     onChange={(e) =>
                       setPhone(e.target.value.replace(/\D/g, "").slice(0, 11))
                     }
-                    placeholder="e.g. 01700000000"
+                    placeholder={t("checkout.phonePlaceholder")}
                     className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
                   />
                 </div>
@@ -687,7 +689,7 @@ export default function CheckoutPage() {
                 <div className="flex flex-col gap-2.5 sm:col-span-2 pt-2 border-t border-foreground/10">
                   <div className="flex justify-between items-center">
                     <label className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-1.5">
-                      Delivery Area & Charges *
+                      {t("checkout.deliveryAreaTitle")}
                     </label>
                   </div>
 
@@ -712,21 +714,21 @@ export default function CheckoutPage() {
                         <div>
                           <div className="flex items-center gap-1.5">
                             <span className="font-black text-xs uppercase tracking-tight block text-foreground">
-                              In Side Dhaka
+                              {t("checkout.insideDhaka")}
                             </span>
                           </div>
                           <span className="text-[10px] opacity-70 font-medium block">
-                            Est. {deliverySettings.estimated_days_inside || "1-2 Days"}
+                            {locale === "bn" ? "আনুমানিক সময়ঃ ১-২ দিন" : `Est. ${deliverySettings.estimated_days_inside || "1-2 Days"}`}
                           </span>
                         </div>
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-black text-accent">
-                          {effectiveInsideCharge === 0 ? "FREE" : `৳${effectiveInsideCharge}`}
+                          {effectiveInsideCharge === 0 ? t("checkout.free") : formatCurrency(effectiveInsideCharge)}
                         </div>
                         {matchingInsideRule && effectiveInsideCharge < baseInsideCharge && (
                           <div className="text-[10px] line-through opacity-50">
-                            ৳{baseInsideCharge}
+                            {formatCurrency(baseInsideCharge)}
                           </div>
                         )}
                       </div>
@@ -752,21 +754,21 @@ export default function CheckoutPage() {
                         <div>
                           <div className="flex items-center gap-1.5">
                             <span className="font-black text-xs uppercase tracking-tight block text-foreground">
-                              Out Side Dhaka
+                              {t("checkout.outsideDhaka")}
                             </span>
                           </div>
                           <span className="text-[10px] opacity-70 font-medium block">
-                            Est. {deliverySettings.estimated_days_outside || "3-5 Days"}
+                            {locale === "bn" ? "আনুমানিক সময়ঃ ৩-৫ দিন" : `Est. ${deliverySettings.estimated_days_outside || "3-5 Days"}`}
                           </span>
                         </div>
                       </div>
                       <div className="text-right">
                         <div className="text-sm font-black text-accent">
-                          {effectiveOutsideCharge === 0 ? "FREE" : `৳${effectiveOutsideCharge}`}
+                          {effectiveOutsideCharge === 0 ? t("checkout.free") : formatCurrency(effectiveOutsideCharge)}
                         </div>
                         {matchingOutsideRule && effectiveOutsideCharge < baseOutsideCharge && (
                           <div className="text-[10px] line-through opacity-50">
-                            ৳{baseOutsideCharge}
+                            {formatCurrency(baseOutsideCharge)}
                           </div>
                         )}
                       </div>
@@ -776,14 +778,14 @@ export default function CheckoutPage() {
 
                 <div className="flex flex-col gap-2 sm:col-span-2">
                   <label className="text-xs font-bold uppercase tracking-wider opacity-80">
-                    Shipping Address (Street, House/Flat, City/District) *
+                    {t("checkout.shippingAddressLabel")}
                   </label>
                   <textarea
                     required
                     rows={3}
                     value={shippingAddress}
                     onChange={(e) => setShippingAddress(e.target.value)}
-                    placeholder="e.g. House 12, Road 5, Block B, Dhanmondi, Dhaka"
+                    placeholder={t("checkout.addressPlaceholder")}
                     className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
                   />
                 </div>
@@ -796,7 +798,7 @@ export default function CheckoutPage() {
                 <span className="w-8 h-8 rounded-full bg-button-bg text-button-fg font-black flex items-center justify-center text-xs">
                   2
                 </span>
-                Payment Method
+                {t("checkout.paymentMethod")}
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -812,7 +814,7 @@ export default function CheckoutPage() {
                   >
                     <div className="flex items-center justify-between mb-3">
                       <span className="font-black text-xs uppercase tracking-tight">
-                        Cash on Delivery (COD)
+                        {t("checkout.cod")}
                       </span>
                       <input
                         type="radio"
@@ -823,7 +825,7 @@ export default function CheckoutPage() {
                       />
                     </div>
                     <p className="text-xs opacity-70 font-medium">
-                      Pay in cash when delivered.
+                      {t("checkout.codDesc")}
                     </p>
                   </div>
                 )}
@@ -840,7 +842,7 @@ export default function CheckoutPage() {
                   >
                     <div className="flex items-center justify-between mb-3">
                       <span className="font-black text-xs uppercase tracking-tight text-bkash">
-                        bKash Payment
+                        {t("checkout.bkash")}
                       </span>
                       <input
                         type="radio"
@@ -851,7 +853,7 @@ export default function CheckoutPage() {
                       />
                     </div>
                     <p className="text-xs opacity-70 font-medium">
-                      Pay via bKash TrxID.
+                      {t("checkout.bkashDesc")}
                     </p>
                   </div>
                 )}
@@ -868,7 +870,7 @@ export default function CheckoutPage() {
                   >
                     <div className="flex items-center justify-between mb-3">
                       <span className="font-black text-xs uppercase tracking-tight text-nagad">
-                        Nagad Payment
+                        {t("checkout.nagad")}
                       </span>
                       <input
                         type="radio"
@@ -879,7 +881,7 @@ export default function CheckoutPage() {
                       />
                     </div>
                     <p className="text-xs opacity-70 font-medium">
-                      Pay via Nagad TrxID.
+                      {t("checkout.nagadDesc")}
                     </p>
                   </div>
                 )}
@@ -905,7 +907,7 @@ export default function CheckoutPage() {
                           alt="VibeCoin"
                           className="w-5 h-5 object-contain"
                         />{" "}
-                        VIBECOIN
+                        {t("checkout.vibeCoin")}
                       </span>
                       <input
                         type="radio"
@@ -921,13 +923,13 @@ export default function CheckoutPage() {
                     <p className="text-xs font-medium text-foreground">
                       {!hasSufficientVibeCoin ? (
                         <span className="opacity-70 font-bold block">
-                          Blocked (Balance: {Number(vibeCoin).toFixed(2)} VC,
-                          Needed: {requiredCoins.toFixed(2)} VC)
+                          {t("checkout.vibeCoinBlocked")
+                            .replace("{balance}", locale === "bn" ? Number(vibeCoin).toLocaleString("bn-BD", { minimumFractionDigits: 2 }) : Number(vibeCoin).toFixed(2))
+                            .replace("{needed}", locale === "bn" ? requiredCoins.toLocaleString("bn-BD", { minimumFractionDigits: 2 }) : requiredCoins.toFixed(2))}
                         </span>
                       ) : (
                         <span className="opacity-80">
-                          Pay with VibeCoins ({Number(vibeCoin).toFixed(2)} VC
-                          available).
+                          {t("checkout.vibeCoinAvailable").replace("{coins}", locale === "bn" ? Number(vibeCoin).toLocaleString("bn-BD", { minimumFractionDigits: 2 }) : Number(vibeCoin).toFixed(2))}
                         </span>
                       )}
                     </p>
@@ -944,14 +946,12 @@ export default function CheckoutPage() {
                       alt="VibeCoin"
                       className="w-4 h-4 object-contain"
                     />{" "}
-                    VibeCoin Payment Ready
+                    {t("checkout.vibeCoinReady")}
                   </p>
                   <p className="text-xs font-semibold text-foreground opacity-80">
-                    Your order total of{" "}
-                    <strong>{requiredCoins.toFixed(2)} VC</strong> will be
-                    automatically deducted from your VibeCoin profile balance
-                    (Current: <strong>{Number(vibeCoin).toFixed(2)} VC</strong>)
-                    upon order confirmation.
+                    {t("checkout.vibeCoinReadyDesc")
+                      .replace("{coins}", locale === "bn" ? requiredCoins.toLocaleString("bn-BD", { minimumFractionDigits: 2 }) : requiredCoins.toFixed(2))
+                      .replace("{balance}", locale === "bn" ? Number(vibeCoin).toLocaleString("bn-BD", { minimumFractionDigits: 2 }) : Number(vibeCoin).toFixed(2))}
                   </p>
                 </div>
               )}
@@ -991,56 +991,64 @@ export default function CheckoutPage() {
           {/* Order Summary Side Card (1 Column) */}
           <div className="bg-secondary text-foreground rounded-3xl p-8 border border-foreground/10 shadow-md sticky top-28 space-y-6 transition-colors duration-300">
             <h2 className="text-2xl font-black uppercase tracking-tight pb-4 border-b border-foreground/10">
-              Order Summary
+              {t("checkout.orderSummary")}
             </h2>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between opacity-80 font-medium">
                 <span>
                   {productDiscountSavings > 0
-                    ? "Original Subtotal"
-                    : "Subtotal"}
+                    ? t("checkout.originalSubtotal")
+                    : t("checkout.subtotal")}
                 </span>
                 <span className="font-bold text-foreground">
-                  ৳{originalSubtotal.toFixed(2)}
+                  {formatCurrency(originalSubtotal)}
                 </span>
               </div>
 
               {productDiscountSavings > 0 && (
                 <div className="flex justify-between text-accent font-bold">
-                  <span>Product Discounts</span>
-                  <span>-৳{productDiscountSavings.toFixed(2)}</span>
+                  <span>{t("checkout.productDiscounts")}</span>
+                  <span>-{formatCurrency(productDiscountSavings)}</span>
                 </div>
               )}
 
               {appliedCoupon && couponSavings > 0 && (
                 <div className="flex justify-between text-accent font-bold">
                   <span>
-                    Coupon ({appliedCoupon.code} -{" "}
-                    {appliedCoupon.discountPercent}% OFF)
+                    {t("checkout.coupon")
+                      .replace("{code}", appliedCoupon.code)
+                      .replace("{percent}", locale === "bn" ? appliedCoupon.discountPercent.toLocaleString("bn-BD") : appliedCoupon.discountPercent.toString())}
                   </span>
-                  <span>-৳{couponSavings.toFixed(2)}</span>
+                  <span>-{formatCurrency(couponSavings)}</span>
                 </div>
               )}
 
               <div className="flex justify-between items-center opacity-80 font-medium">
                 <div>
                   <span>
-                    Delivery Charge ({deliveryArea === "outside_dhaka" ? "Outside Dhaka" : "Inside Dhaka"})
+                    {t("checkout.deliveryCharge").replace(
+                      "{area}",
+                      deliveryArea === "outside_dhaka"
+                        ? t("checkout.outsideDhaka")
+                        : t("checkout.insideDhaka")
+                    )}
                   </span>
                   {currentAppliedRule && (
                     <span className="ml-1.5 px-1.5 py-0.2 rounded bg-accent/20 text-accent text-[9px] font-black uppercase inline-block">
-                      {(currentAppliedRule as DeliveryRuleItem).rule_type === "free" ? "Free Delivery Offer" : "Delivery Charge Discount"}
+                      {(currentAppliedRule as DeliveryRuleItem).rule_type === "free"
+                        ? t("checkout.freeDeliveryOffer")
+                        : t("checkout.deliveryDiscount")}
                     </span>
                   )}
                 </div>
                 <span className="font-bold text-accent">
-                  {deliveryCharge === 0 ? "FREE (৳0.00)" : `+৳${deliveryCharge.toFixed(2)}`}
+                  {deliveryCharge === 0 ? t("checkout.freeZero") : `+${formatCurrency(deliveryCharge)}`}
                 </span>
               </div>
               <div className="pt-3 border-t border-foreground/10 flex justify-between items-center text-base font-black">
-                <span>Total Amount</span>
+                <span>{t("checkout.totalAmount")}</span>
                 <span className="text-2xl text-accent">
-                  ৳{finalTotal.toFixed(2)}
+                  {formatCurrency(finalTotal)}
                 </span>
               </div>
             </div>
@@ -1048,9 +1056,9 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={loading || !isOrderValid}
-              className="w-full py-4 bg-button-bg text-button-fg rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-4 bg-button-bg text-button-fg rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
             >
-              {submitting ? "Processing Order..." : "Confirm & Place Order"}
+              {submitting ? t("checkout.processingOrder") : t("checkout.confirmOrder")}
             </button>
           </div>
         </form>
