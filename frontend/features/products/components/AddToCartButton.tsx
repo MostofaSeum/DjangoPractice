@@ -33,9 +33,12 @@ export default function AddToCartButton({
     return (
       <button
         disabled
-        className="w-full py-3 bg-red-100 text-red-700 font-bold text-xs uppercase tracking-widest rounded-xl border border-red-300 cursor-not-allowed opacity-80 flex items-center justify-center gap-2"
+        className={
+          className ||
+          "w-full py-3 bg-red-100 text-red-700 font-bold text-xs uppercase tracking-widest rounded-xl border border-red-300 cursor-not-allowed opacity-80 flex items-center justify-center gap-2"
+        }
       >
-        {t("trending.outOfStock") || "Out of Stock"}
+        {t("trending.outOfStock")}
       </button>
     );
   }
