@@ -167,6 +167,7 @@ export default function AdminDashboardPage() {
     useState<boolean>(false);
   const [promoDiscountPercent, setPromoDiscountPercent] =
     useState<string>("20");
+  const [promoValidUntil, setPromoValidUntil] = useState<string>("");
   const [promoApplying, setPromoApplying] = useState<boolean>(false);
   const [promoSearch, setPromoSearch] = useState("");
   const [activePromoSearch, setActivePromoSearch] = useState("");
@@ -1149,6 +1150,7 @@ export default function AdminDashboardPage() {
           target_type: "product",
           product_ids: promoSelectedProductIds,
           discount_percent: pct,
+          valid_until: promoValidUntil ? new Date(promoValidUntil).toISOString() : null,
         }),
       });
 
@@ -1161,6 +1163,7 @@ export default function AdminDashboardPage() {
         );
         setPromoSelectedProductIds([]);
         setPromoSearchInput("");
+        setPromoValidUntil("");
         fetchAdminData();
         fetchAllProductsForPromo();
       } else {
@@ -2525,6 +2528,8 @@ export default function AdminDashboardPage() {
               setIsPromoDropdownOpen={setIsPromoDropdownOpen}
               promoDiscountPercent={promoDiscountPercent}
               setPromoDiscountPercent={setPromoDiscountPercent}
+              promoValidUntil={promoValidUntil}
+              setPromoValidUntil={setPromoValidUntil}
               promoApplying={promoApplying}
               handleApplyPromotion={handleApplyPromotion}
               handleRemovePromotion={handleRemovePromotion}
