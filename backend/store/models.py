@@ -266,10 +266,16 @@ class OrderItem(models.Model):
 
 
 class Address(models.Model):
+    title = models.CharField(max_length=100, default='Home', blank=True)
     street = models.CharField(max_length=255)
-    city = models.CharField(max_length=255)
+    city = models.CharField(max_length=255, default='', blank=True)
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
     customer = models.ForeignKey(
-        Customer, on_delete=models.CASCADE)
+        Customer, on_delete=models.CASCADE, related_name='addresses')
+
+    class Meta:
+        ordering = ['-is_default', '-created_at']
 
 
 class Cart(models.Model):

@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Swal from "sweetalert2";
 
+import { Address } from "@/types/product";
+
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/+$/, "");
 
 interface OrderItem {
@@ -52,9 +54,35 @@ export default function ProfilePage() {
   const [myOrders, setMyOrders] = useState<Order[]>([]);
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<Order | null>(null);
   const [vibeCoin, setVibeCoin] = useState<number>(0);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+  const [addressModalOpen, setAddressModalOpen] = useState(false);
+  const [addressFormData, setAddressFormData] = useState({
+    title: "Home",
+    street: "",
+    city: "Inside Dhaka",
+    is_default: false,
+  });
+  const [addressSaving, setAddressSaving] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const fetchAddresses = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE}/store/addresses/`, {
+        headers: { Authorization: `JWT ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAddresses(Array.isArray(data) ? data : data.results || []);
+      }
+    } catch (e) {
+      console.error("Failed to load addresses:", e);
+    }
+  };
 
   // Load user profile & customer info on mount
   useEffect(() => {
@@ -87,6 +115,15 @@ export default function ProfilePage() {
         if (ordersRes.ok) {
           const ordersData = await ordersRes.json();
           setMyOrders(Array.isArray(ordersData) ? ordersData : ordersData.results || []);
+        }
+
+        // Fetch Saved Addresses
+        const addrRes = await fetch(`${API_BASE}/store/addresses/`, {
+          headers: { Authorization: `JWT ${token}` },
+        });
+        if (addrRes.ok) {
+          const addrData = await addrRes.json();
+          setAddresses(Array.isArray(addrData) ? addrData : addrData.results || []);
         }
 
         setVibeCoin(customerData.vibe_coin ?? 0);

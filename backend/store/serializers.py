@@ -4,8 +4,44 @@ from django.db.models.functions import Greatest
 from django.utils import timezone
 from .signals import order_created
 from rest_framework import serializers
-from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,Notification
+from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,Notification,Address
 from decimal import Decimal
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = ['id', 'title', 'street', 'city', 'is_default', 'created_at']
+
+    def validate(self, attrs):
+        customer = self.context.get('customer')
+        # Check limit of 5 addresses per customer on creation
+        if not self.instance and customer:
+            if customer.addresses.count() >= 5:
+                raise serializers.ValidationError("You can only save up to 5 addresses.")
+        return attrs
+
+    def create(self, validated_data):
+        customer = self.context['customer']
+        is_default = validated_data.get('is_default', False)
+        
+        # If this is the user's first address, force is_default to True
+        if not customer.addresses.exists():
+            is_default = True
+            validated_data['is_default'] = True
+            
+        if is_default:
+            customer.addresses.filter(is_default=True).update(is_default=False)
+            
+        return Address.objects.create(customer=customer, **validated_data)
+
+    def update(self, instance, validated_data):
+        is_default = validated_data.get('is_default', instance.is_default)
+        customer = instance.customer
+        
+        if is_default:
+            customer.addresses.exclude(pk=instance.pk).filter(is_default=True).update(is_default=False)
+            
+        return super().update(instance, validated_data)
 
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -621,6 +657,22 @@ class CreateOrderSerializer(serializers.Serializer):
                 print(f"Failed to create notification: {notif_err}")
 
             order_created.send_robust(self.__class__, order=order)
+
+            # If the customer has no saved addresses yet and provided a shipping address, save it as default
+            try:
+                shipping_addr_str = self.validated_data.get('shipping_address', '').strip()
+                if shipping_addr_str and not customer.addresses.exists():
+                    city_val = "Inside Dhaka" if delivery_area == 'inside_dhaka' else "Outside Dhaka"
+                    Address.objects.create(
+                        customer=customer,
+                        title="Home",
+                        street=shipping_addr_str,
+                        city=city_val,
+                        is_default=True
+                    )
+            except Exception as addr_err:
+                print(f"Failed to auto-save customer address from order: {addr_err}")
+
             return order
 
 

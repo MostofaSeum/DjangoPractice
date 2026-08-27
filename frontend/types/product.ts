@@ -58,3 +58,12 @@ export interface PaymentSetting {
   vibecoin_active: boolean;
   last_updated?: string;
 }
+
+export interface Address {
+  id: number;
+  title: string;
+  street: string;
+  city: string;
+  is_default: boolean;
+  created_at?: string;
+}

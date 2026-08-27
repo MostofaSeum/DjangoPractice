@@ -10,8 +10,8 @@ from django.http import HttpResponse, request
 from .permissions import ViewCustomerHistoryPermission
 from rest_framework.decorators import action
 from store.models import OrderItem
-from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,AdminEditOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer,PaymentSettingSerializer,DeliverySettingSerializer,DeliveryRuleSerializer,NotificationSerializer
-from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,GoogleSheetSyncSetting,Notification
+from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,AdminEditOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer,PaymentSettingSerializer,DeliverySettingSerializer,DeliveryRuleSerializer,NotificationSerializer,AddressSerializer
+from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,GoogleSheetSyncSetting,Notification,Address
 from datetime import timedelta
 from django.utils import timezone
 from django.db.models import Count
@@ -617,6 +617,43 @@ class CustomerViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+
+
+class AddressViewSet(ModelViewSet):
+    serializer_class = AddressSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = None
+
+    def get_queryset(self):
+        return Address.objects.filter(customer__user=self.request.user)
+
+    def get_serializer_context(self):
+        customer = Customer.objects.filter(user=self.request.user).first()
+        return {'customer': customer, 'request': self.request}
+
+    def perform_create(self, serializer):
+        customer, _ = Customer.objects.get_or_create(user=self.request.user)
+        serializer.save(customer=customer)
+
+    def perform_destroy(self, instance):
+        customer = instance.customer
+        was_default = instance.is_default
+        instance.delete()
+        if was_default:
+            first_remaining = customer.addresses.first()
+            if first_remaining:
+                first_remaining.is_default = True
+                first_remaining.save()
+
+    @action(detail=True, methods=['POST'], permission_classes=[IsAuthenticated])
+    def set_default(self, request, pk=None):
+        address = self.get_object()
+        customer = address.customer
+        customer.addresses.filter(is_default=True).update(is_default=False)
+        address.is_default = True
+        address.save()
+        serializer = self.get_serializer(address)
+        return Response(serializer.data)
 
 
 class OrderViewSet(ModelViewSet):
