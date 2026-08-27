@@ -31,6 +31,7 @@ interface ProductsTabProps {
     collection: string;
     short_description: string;
     description: string;
+    is_visible?: boolean;
   };
   setProductForm: React.Dispatch<
     React.SetStateAction<{
@@ -41,6 +42,7 @@ interface ProductsTabProps {
       collection: string;
       short_description: string;
       description: string;
+      is_visible?: boolean;
     }>
   >;
   handleSaveProduct: (e: React.FormEvent) => Promise<void>;
@@ -646,6 +648,46 @@ export default function ProductsTab({
               </div>
             </div>
 
+            {/* Public Visibility Setting */}
+            <div className="pt-4 border-t border-foreground/10 flex items-center justify-between p-3.5 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10">
+              <div>
+                <label className="text-[11px] font-black uppercase tracking-wider text-foreground">
+                  {isBn ? "পাবলিক দৃশ্যমানতা" : "Public Visibility"}
+                </label>
+                <p className="text-[10px] opacity-60">
+                  {productForm.is_visible !== false
+                    ? (isBn
+                        ? "এই পণ্যটি গ্রাহকদের কাছে শপে প্রদর্শিত হবে।"
+                        : "This product will be visible to all customers in the shop.")
+                    : (isBn
+                        ? "এই পণ্যটি পাবলিক ও শপ থেকে লুকানো থাকবে।"
+                        : "This product will be hidden from public and catalog.")}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setProductForm((prev) => ({
+                    ...prev,
+                    is_visible: prev.is_visible === false ? true : false,
+                  }))
+                }
+                className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 border ${
+                  productForm.is_visible !== false
+                    ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 shadow-xs"
+                    : "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30 shadow-xs"
+                }`}
+              >
+                <span className="w-2 h-2 rounded-full bg-current"></span>
+                <span>
+                  {productForm.is_visible !== false
+                    ? (isBn ? "দৃশ্যমান (Visible)" : "Visible")
+                    : (isBn ? "লুকানো (Hidden)" : "Hidden")}
+                </span>
+              </button>
+            </div>
+
             <button
               type="submit"
               className="w-full mt-4 py-4 bg-button-bg text-button-fg rounded-2xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors shadow-md cursor-pointer"
@@ -1033,6 +1075,46 @@ export default function ProductsTab({
                   onVariantsUpdated={fetchAdminData}
                   refreshTrigger={adminDataVersion}
                 />
+              </div>
+
+              {/* Public Visibility Setting in Edit Mode */}
+              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-primary/5 dark:bg-primary/20 border border-foreground/10">
+                <div>
+                  <label className="text-[11px] font-black uppercase tracking-wider text-foreground">
+                    {isBn ? "পাবলিক দৃশ্যমানতা" : "Public Visibility"}
+                  </label>
+                  <p className="text-[10px] opacity-60">
+                    {productForm.is_visible !== false
+                      ? (isBn
+                          ? "এই পণ্যটি গ্রাহকদের কাছে শপে প্রদর্শিত হচ্ছে।"
+                          : "This product is currently visible to customers.")
+                      : (isBn
+                          ? "এই পণ্যটি পাবলিক ও শপ থেকে লুকানো আছে।"
+                          : "This product is currently hidden from public.")}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setProductForm((prev) => ({
+                      ...prev,
+                      is_visible: prev.is_visible === false ? true : false,
+                    }))
+                  }
+                  className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 border ${
+                    productForm.is_visible !== false
+                      ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 shadow-xs"
+                      : "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30 shadow-xs"
+                  }`}
+                >
+                  <span className="w-2 h-2 rounded-full bg-current"></span>
+                  <span>
+                    {productForm.is_visible !== false
+                      ? (isBn ? "দৃশ্যমান (Visible)" : "Visible")
+                      : (isBn ? "লুকানো (Hidden)" : "Hidden")}
+                  </span>
+                </button>
               </div>
 
               <button

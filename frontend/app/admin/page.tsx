@@ -229,6 +229,7 @@ export default function AdminDashboardPage() {
     collection: "",
     short_description: "",
     description: "",
+    is_visible: true,
   });
   const [initialProductForm, setInitialProductForm] = useState({
     title: "",
@@ -238,6 +239,7 @@ export default function AdminDashboardPage() {
     collection: "",
     short_description: "",
     description: "",
+    is_visible: true,
   });
 
   // Pending Photos & Variants for Creation Mode
@@ -1332,7 +1334,7 @@ export default function AdminDashboardPage() {
   };
 
   // Select Product to populate left form for editing
-  const handleSelectProduct = async (prod: Product | any) => {
+  const handleSelectProduct = async (prod: Product) => {
     if (editingProductId === prod.id) {
       setProductSubTab("edit");
       return;
@@ -1363,6 +1365,7 @@ export default function AdminDashboardPage() {
       collection: String(prod.collection || 1),
       short_description: prod.short_description || "",
       description: prod.description || "",
+      is_visible: prod.is_visible !== false,
     };
     setProductForm(baselineData);
     setInitialProductForm(baselineData);
@@ -1382,6 +1385,7 @@ export default function AdminDashboardPage() {
           collection: String(fullProd.collection || 1),
           short_description: fullProd.short_description || "",
           description: fullProd.description || "",
+          is_visible: fullProd.is_visible !== false,
         };
         setProductForm(freshData);
         setInitialProductForm(freshData);
@@ -1403,6 +1407,7 @@ export default function AdminDashboardPage() {
       collection: collections.length > 0 ? String(collections[0].id) : "",
       short_description: "",
       description: "",
+      is_visible: true,
     };
     setProductForm(emptyForm);
     setInitialProductForm(emptyForm);
@@ -1427,7 +1432,8 @@ export default function AdminDashboardPage() {
         productForm.inventory !== initialProductForm.inventory ||
         productForm.collection !== initialProductForm.collection ||
         productForm.short_description !== initialProductForm.short_description ||
-        productForm.description !== initialProductForm.description);
+        productForm.description !== initialProductForm.description ||
+        productForm.is_visible !== initialProductForm.is_visible);
 
     if (hasFormChanges || hasUnsavedPhotos) {
       const result = await Swal.fire({
@@ -1542,6 +1548,7 @@ export default function AdminDashboardPage() {
         collection: selectedCollectionId,
         short_description: productForm.short_description,
         description: productForm.description,
+        is_visible: productForm.is_visible !== false,
       };
 
       const isEditing = editingProductId !== null;
@@ -1748,7 +1755,7 @@ export default function AdminDashboardPage() {
         p.id === product.id ? { ...p, is_visible: newStatus } : p,
       ),
     );
-    setPromoProductsCatalog((prev) =>
+    setAllProductsForPromo((prev) =>
       prev.map((p) =>
         p.id === product.id ? { ...p, is_visible: newStatus } : p,
       ),
@@ -1782,7 +1789,7 @@ export default function AdminDashboardPage() {
             p.id === product.id ? { ...p, is_visible: currentStatus } : p,
           ),
         );
-        setPromoProductsCatalog((prev) =>
+        setAllProductsForPromo((prev) =>
           prev.map((p) =>
             p.id === product.id ? { ...p, is_visible: currentStatus } : p,
           ),
@@ -1795,7 +1802,7 @@ export default function AdminDashboardPage() {
           p.id === product.id ? { ...p, is_visible: currentStatus } : p,
         ),
       );
-      setPromoProductsCatalog((prev) =>
+      setAllProductsForPromo((prev) =>
         prev.map((p) =>
           p.id === product.id ? { ...p, is_visible: currentStatus } : p,
         ),
