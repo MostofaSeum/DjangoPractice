@@ -7,22 +7,7 @@ import ProductDeliveryOfferBadge from "@/components/ProductDeliveryOfferBadge";
 import CollectionDeliveryBanner from "@/components/CollectionDeliveryBanner";
 import { useLanguage } from "@/store/LanguageContext";
 
-interface Product {
-  id: number;
-  title: string;
-  short_description?: string | null;
-  description: string | null;
-  slug: string;
-  inventory: number;
-  unit_price: string | number;
-  discount_percent?: number;
-  discounted_price?: number;
-  price_with_tax: number;
-  images?: Array<{ id?: number; image: string }>;
-  units_sold?: number;
-  average_rating?: number;
-  review_count?: number;
-}
+import { Product } from "@/types/product";
 
 interface Collection {
   id: number;
