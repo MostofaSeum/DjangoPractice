@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/store/LanguageContext";
 
 interface ProductSortSelectProps {
   currentOrdering?: string;
@@ -16,6 +17,7 @@ export default function ProductSortSelect({
   search,
 }: ProductSortSelectProps) {
   const router = useRouter();
+  const { t } = useLanguage();
 
   const handleSortChange = (newOrdering: string) => {
     const params = new URLSearchParams();
@@ -33,7 +35,7 @@ export default function ProductSortSelect({
         htmlFor="product-sort"
         className="text-[10px] font-bold uppercase tracking-wider opacity-70"
       >
-        Sort Ordering
+        {t("products.sortOrdering")}
       </label>
       <select
         id="product-sort"
@@ -42,25 +44,25 @@ export default function ProductSortSelect({
         className="px-4 py-2.5 border border-foreground/15 rounded-xl bg-secondary text-sm text-foreground outline-none focus:border-accent transition-colors w-full cursor-pointer shadow-sm"
       >
         <option value="" className="bg-secondary text-foreground">
-          Default sorting
+          {t("products.sort.default")}
         </option>
         <option value="unit_price" className="bg-secondary text-foreground">
-          Price: Low to High
+          {t("products.sort.priceLowHigh")}
         </option>
         <option value="-unit_price" className="bg-secondary text-foreground">
-          Price: High to Low
+          {t("products.sort.priceHighLow")}
         </option>
         <option value="id" className="bg-secondary text-foreground">
-          Product: Old First
+          {t("products.sort.oldFirst")}
         </option>
         <option value="-id" className="bg-secondary text-foreground">
-          Product: New First
+          {t("products.sort.newFirst")}
         </option>
         <option value="-popularity" className="bg-secondary text-foreground">
-          Popularity: Most Popular First
+          {t("products.sort.mostPopular")}
         </option>
         <option value="popularity" className="bg-secondary text-foreground">
-          Popularity: Less Popular First
+          {t("products.sort.lessPopular")}
         </option>
       </select>
     </div>

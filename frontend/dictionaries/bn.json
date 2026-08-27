@@ -63,5 +63,34 @@
     "specialOffer": "বিশেষ অফার",
     "onAllItems": "সব পণ্যে",
     "sold": "বিক্রি হয়েছে"
+  },
+  "products": {
+    "title": "পণ্য ক্যাটালগ",
+    "breadcrumbHome": "হোম",
+    "breadcrumbShop": "শপ",
+    "filterByPrice": "মূল্য অনুযায়ী ফিল্টার",
+    "minPrice": "সর্বনিম্ন মূল্য (৳)",
+    "maxPrice": "সর্বোচ্চ মূল্য (৳)",
+    "minPlaceholder": "যেমন: ১০",
+    "maxPlaceholder": "যেমন: ১০০",
+    "applyPrice": "মূল্য প্রয়োগ করুন",
+    "sortOrdering": "ক্রমানুসারে সাজান",
+    "clearAllFilters": "সব ফিল্টার মুছুন",
+    "searchPlaceholder": "পণ্যের নাম বা বিবরণ দিয়ে খুঁজুন...",
+    "search": "অনুসন্ধান",
+    "noProductsFound": "আপনার ফিল্টার বা অনুসন্ধানের সাথে কোনো পণ্য মেলেনি।",
+    "clearFiltersToSee": "আরও পণ্য দেখতে ফিল্টার মুছে আবার চেষ্টা করুন।",
+    "viewAllProducts": "সব পণ্য দেখুন",
+    "prev": "পূর্ববর্তী",
+    "next": "পরবর্তী",
+    "sort": {
+      "default": "পূর্বনির্ধারিত ক্রম",
+      "priceLowHigh": "মূল্য: কম থেকে বেশি",
+      "priceHighLow": "মূল্য: বেশি থেকে কম",
+      "oldFirst": "পণ্য: পুরাতন আগে",
+      "newFirst": "পণ্য: নতুন আগে",
+      "mostPopular": "জনপ্রিয়তা: সবচেয়ে জনপ্রিয় আগে",
+      "lessPopular": "জনপ্রিয়তা: কম জনপ্রিয় আগে"
+    }
   }
 }

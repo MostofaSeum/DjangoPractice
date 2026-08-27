@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useLanguage } from "@/store/LanguageContext";
 
 export interface ProductSuggestion {
   id: number;
@@ -45,6 +46,7 @@ export default function ProductSearchBar({
   className = "",
 }: ProductSearchBarProps) {
   const router = useRouter();
+  const { t } = useLanguage();
   const [query, setQuery] = useState(initialSearch);
   const [suggestions, setSuggestions] = useState<ProductSuggestion[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
@@ -277,7 +279,7 @@ export default function ProductSearchBar({
               placeholder ||
               (isAdmin
                 ? "Search product..."
-                : "Search products by title or description...")
+                : t("products.searchPlaceholder"))
             }
             autoComplete="off"
             className={
@@ -342,7 +344,7 @@ export default function ProductSearchBar({
               />
             </svg>
           )}
-          Search
+          {isAdmin ? "Search" : t("products.search")}
         </button>
 
         {isAdmin && initialSearch && (
