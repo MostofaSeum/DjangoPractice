@@ -42,6 +42,15 @@ class ProductViewSet(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
     def get_serializer_context(self):
         return {'request': self.request}
+
+    def get_queryset(self):
+        qs = Product.objects.prefetch_related('images', 'variants').annotate(popularity=Count('orderitem'))
+        # If user is not admin staff, only show visible products and products from visible collections
+        user = self.request.user if hasattr(self.request, 'user') else None
+        is_staff = user and user.is_authenticated and user.is_staff
+        if not is_staff:
+            qs = qs.filter(is_visible=True, collection__is_visible=True)
+        return qs.all()
     
     @action(detail=False, methods=['get'], pagination_class=None)
     def all(self, request):
@@ -426,9 +435,19 @@ class CollectionViewSet(ModelViewSet):
     ordering = ['title']
 
     def get_queryset(self):
+        user = self.request.user if hasattr(self.request, 'user') else None
+        is_staff = user and user.is_authenticated and user.is_staff
+
         if self.action == 'retrieve' and self.request.query_params.get('include_products') == 'true':
-            return Collection.objects.prefetch_related('product_set__images', 'product_set__variants').all()
-        return Collection.objects.annotate(product_count=Count('product')).all()
+            qs = Collection.objects.prefetch_related('product_set__images', 'product_set__variants')
+            if not is_staff:
+                qs = qs.filter(is_visible=True)
+            return qs.all()
+
+        qs = Collection.objects.annotate(product_count=Count('product'))
+        if not is_staff:
+            qs = qs.filter(is_visible=True)
+        return qs.all()
 
     def get_serializer_class(self):
         if self.action == 'retrieve' and self.request.query_params.get('include_products') == 'true':

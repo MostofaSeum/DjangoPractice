@@ -8,5 +8,6 @@ class ProductFilter(FilterSet):
             'collection_id': ['exact'],
             'unit_price': ['gt', 'lt'],
             'is_trending': ['exact'],
+            'is_visible': ['exact'],
         }
 

@@ -13,6 +13,7 @@ export interface Product {
   description?: string;
   images?: { id?: number; image: string }[];
   is_trending?: boolean;
+  is_visible?: boolean;
 }
 
 export interface Collection {
@@ -21,6 +22,7 @@ export interface Collection {
   product_count: number;
   image?: string | null;
   is_featured?: boolean;
+  is_visible?: boolean;
 }
 
 export interface OrderItem {

@@ -22,6 +22,7 @@ export interface Collection {
   id: number;
   title: string;
   products_count?: number;
+  is_visible?: boolean;
 }
 
 export interface Product {
@@ -41,6 +42,7 @@ export interface Product {
   variants?: ProductVariant[];
   is_photos_published?: boolean;
   is_trending?: boolean;
+  is_visible?: boolean;
   units_sold?: number;
   average_rating?: number;
   review_count?: number;

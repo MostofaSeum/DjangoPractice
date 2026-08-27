@@ -24,6 +24,7 @@ class Collection(models.Model):
         'Product', on_delete=models.SET_NULL, null=True, related_name='+', blank=True)
     image = models.ImageField(upload_to='store/collections/images', null=True, blank=True)
     is_featured = models.BooleanField(default=False)
+    is_visible = models.BooleanField(default=True)
 
     def __str__(self) -> str:
         return self.title
@@ -58,6 +59,7 @@ class Product(models.Model):
     promotions = models.ManyToManyField(Promotion, blank=True)
     is_photos_published = models.BooleanField(default=True)
     is_trending = models.BooleanField(default=False)
+    is_visible = models.BooleanField(default=True)
 
     @property
     def is_discount_active(self):

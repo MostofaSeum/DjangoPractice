@@ -46,6 +46,7 @@ interface ProductsTabProps {
   handleSaveProduct: (e: React.FormEvent) => Promise<void>;
   handleDeleteProduct: (id: number) => Promise<void>;
   handleToggleProductTrending: (prod: Product) => Promise<void>;
+  handleToggleProductVisibility?: (prod: Product) => Promise<void>;
   handleSelectProduct: (prod: Product) => void;
   handleCancelEdit: () => void;
   editProductSearch: string;
@@ -126,6 +127,7 @@ export default function ProductsTab({
   handleSaveProduct,
   handleDeleteProduct,
   handleToggleProductTrending,
+  handleToggleProductVisibility,
   handleSelectProduct,
   handleCancelEdit,
   editProductSearch,
@@ -1348,6 +1350,28 @@ export default function ProductsTab({
                     className="py-3.5 px-2 text-right flex justify-end items-center gap-2"
                     onClick={(e) => e.stopPropagation()}
                   >
+                    {handleToggleProductVisibility && (
+                      <button
+                        onClick={() => handleToggleProductVisibility(prod)}
+                        title={
+                          prod.is_visible !== false
+                            ? (isBn ? "পাবলিক থেকে লুকাতে ক্লিক করুন" : "Click to hide from public")
+                            : (isBn ? "পাবলিকে দেখাতে ক্লিক করুন" : "Click to show to public")
+                        }
+                        className={`px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer ${
+                          prod.is_visible !== false
+                            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25"
+                            : "bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30 hover:bg-red-500/25 opacity-75 hover:opacity-100"
+                        }`}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                        <span>
+                          {prod.is_visible !== false
+                            ? (isBn ? "দৃশ্যমান" : "Visible")
+                            : (isBn ? "লুকানো" : "Hidden")}
+                        </span>
+                      </button>
+                    )}
                     <button
                       onClick={() => handleToggleProductTrending(prod)}
                       className={`px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all shadow-sm cursor-pointer ${

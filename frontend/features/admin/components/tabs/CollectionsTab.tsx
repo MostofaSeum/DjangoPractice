@@ -15,6 +15,7 @@ interface CollectionsTabProps {
   handleSaveCollection: (e: React.FormEvent) => Promise<void>;
   handleDeleteCollection: (col: Collection) => Promise<void>;
   handleToggleCollectionFeatured: (col: Collection) => Promise<void>;
+  handleToggleCollectionVisibility?: (col: Collection) => Promise<void>;
   newCollectionTitle: string;
   setNewCollectionTitle: (title: string) => void;
   editingCollectionId: number | null;
@@ -38,6 +39,7 @@ export default function CollectionsTab({
   handleSaveCollection,
   handleDeleteCollection,
   handleToggleCollectionFeatured,
+  handleToggleCollectionVisibility,
   newCollectionTitle,
   setNewCollectionTitle,
   editingCollectionId,
@@ -453,6 +455,28 @@ export default function CollectionsTab({
                     className="py-3.5 px-2 text-right flex justify-end items-center gap-2"
                     onClick={(e) => e.stopPropagation()}
                   >
+                    {handleToggleCollectionVisibility && (
+                      <button
+                        onClick={() => handleToggleCollectionVisibility(col)}
+                        title={
+                          col.is_visible !== false
+                            ? (isBn ? "পাবলিক থেকে লুকাতে ক্লিক করুন" : "Click to hide from public")
+                            : (isBn ? "পাবলিকে দেখাতে ক্লিক করুন" : "Click to show to public")
+                        }
+                        className={`px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer ${
+                          col.is_visible !== false
+                            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25"
+                            : "bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30 hover:bg-red-500/25 opacity-75 hover:opacity-100"
+                        }`}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                        <span>
+                          {col.is_visible !== false
+                            ? (isBn ? "দৃশ্যমান" : "Visible")
+                            : (isBn ? "লুকানো" : "Hidden")}
+                        </span>
+                      </button>
+                    )}
                     <button
                       onClick={() => handleToggleCollectionFeatured(col)}
                       className={`px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all shadow-sm cursor-pointer ${

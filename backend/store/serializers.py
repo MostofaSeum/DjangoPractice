@@ -49,7 +49,7 @@ class ProductSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ['id', 'title', 'short_description', 'description', 'slug', 'inventory', 'total_inventory', 'unit_price', 'discount_percent', 'discount_valid_until', 'is_discount_active', 'discounted_price', 'price_with_tax', 'collection', 'images', 'variants', 'is_photos_published', 'is_trending', 'units_sold', 'average_rating', 'review_count']
+        fields = ['id', 'title', 'short_description', 'description', 'slug', 'inventory', 'total_inventory', 'unit_price', 'discount_percent', 'discount_valid_until', 'is_discount_active', 'discounted_price', 'price_with_tax', 'collection', 'images', 'variants', 'is_photos_published', 'is_trending', 'is_visible', 'units_sold', 'average_rating', 'review_count']
 
     def validate_short_description(self, value):
         if value:
@@ -88,13 +88,13 @@ class CollectionSerializer(serializers.ModelSerializer):
     product_count = serializers.IntegerField(read_only=True)
     class Meta:
         model = Collection
-        fields = ['id', 'title', 'featured_product', 'product_count', 'image', 'is_featured']
+        fields = ['id', 'title', 'featured_product', 'product_count', 'image', 'is_featured', 'is_visible']
 
 class CollectionDetailSerializer(serializers.ModelSerializer):
     products = ProductSerializers(many=True, read_only=True, source='product_set')
     class Meta:
         model = Collection
-        fields = ['id', 'title', 'featured_product', 'products', 'image']
+        fields = ['id', 'title', 'featured_product', 'products', 'image', 'is_visible']
 
 
 class ReviewImageSerializer(serializers.ModelSerializer):

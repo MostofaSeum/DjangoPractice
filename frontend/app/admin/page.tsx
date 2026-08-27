@@ -1737,6 +1737,72 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleToggleProductVisibility = async (product: Product) => {
+    if (!token) return;
+    const currentStatus = product.is_visible !== false;
+    const newStatus = !currentStatus;
+
+    // Optimistic UI
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id === product.id ? { ...p, is_visible: newStatus } : p,
+      ),
+    );
+    setPromoProductsCatalog((prev) =>
+      prev.map((p) =>
+        p.id === product.id ? { ...p, is_visible: newStatus } : p,
+      ),
+    );
+
+    try {
+      const res = await fetch(`${API_BASE}/store/products/${product.id}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify({ is_visible: newStatus }),
+      });
+
+      if (res.ok) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: newStatus
+            ? (isBn ? "পণ্যটি পাবলিকলি প্রদর্শিত হচ্ছে" : "Product is now visible to public")
+            : (isBn ? "পণ্যটি পাবলিক থেকে লুকানো হয়েছে" : "Product is now hidden from public"),
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+        });
+      } else {
+        // Revert on error
+        setProducts((prev) =>
+          prev.map((p) =>
+            p.id === product.id ? { ...p, is_visible: currentStatus } : p,
+          ),
+        );
+        setPromoProductsCatalog((prev) =>
+          prev.map((p) =>
+            p.id === product.id ? { ...p, is_visible: currentStatus } : p,
+          ),
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === product.id ? { ...p, is_visible: currentStatus } : p,
+        ),
+      );
+      setPromoProductsCatalog((prev) =>
+        prev.map((p) =>
+          p.id === product.id ? { ...p, is_visible: currentStatus } : p,
+        ),
+      );
+    }
+  };
+
   const handleToggleCollectionFeatured = async (col: Collection) => {
     if (!token) return;
     const newStatus = !col.is_featured;
@@ -1761,8 +1827,8 @@ export default function AdminDashboardPage() {
           position: "top-end",
           icon: "success",
           title: newStatus
-            ? "Set as Featured Category!"
-            : "Removed from Featured Categories",
+            ? (isBn ? "ফিচার্ড ক্যাটাগরি হিসেবে যুক্ত!" : "Set as Featured Category!")
+            : (isBn ? "ফিচার্ড তালিকা থেকে সরানো হয়েছে" : "Removed from Featured Categories"),
           showConfirmButton: false,
           timer: 1500,
           toast: true,
@@ -1780,6 +1846,55 @@ export default function AdminDashboardPage() {
       setCollections((prev) =>
         prev.map((c) =>
           c.id === col.id ? { ...c, is_featured: !newStatus } : c,
+        ),
+      );
+    }
+  };
+
+  const handleToggleCollectionVisibility = async (col: Collection) => {
+    if (!token) return;
+    const currentStatus = col.is_visible !== false;
+    const newStatus = !currentStatus;
+
+    // Optimistic UI
+    setCollections((prev) =>
+      prev.map((c) => (c.id === col.id ? { ...c, is_visible: newStatus } : c)),
+    );
+
+    try {
+      const res = await fetch(`${API_BASE}/store/collections/${col.id}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify({ is_visible: newStatus }),
+      });
+
+      if (res.ok) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: newStatus
+            ? (isBn ? "কালেকশনটি পাবলিকলি প্রদর্শিত হচ্ছে" : "Collection is now visible to public")
+            : (isBn ? "কালেকশনটি পাবলিক থেকে লুকানো হয়েছে" : "Collection is now hidden from public"),
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+        });
+      } else {
+        // Revert on error
+        setCollections((prev) =>
+          prev.map((c) =>
+            c.id === col.id ? { ...c, is_visible: currentStatus } : c,
+          ),
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      setCollections((prev) =>
+        prev.map((c) =>
+          c.id === col.id ? { ...c, is_visible: currentStatus } : c,
         ),
       );
     }
@@ -2445,6 +2560,7 @@ export default function AdminDashboardPage() {
               handleSaveProduct={handleSaveProduct}
               handleDeleteProduct={handleDeleteProduct}
               handleToggleProductTrending={handleToggleProductTrending}
+              handleToggleProductVisibility={handleToggleProductVisibility}
               handleSelectProduct={handleSelectProduct}
               handleCancelEdit={handleCancelEdit}
               editProductSearch={editProductSearch}
@@ -2481,6 +2597,7 @@ export default function AdminDashboardPage() {
               handleSaveCollection={handleSaveCollection}
               handleDeleteCollection={handleDeleteCollection}
               handleToggleCollectionFeatured={handleToggleCollectionFeatured}
+              handleToggleCollectionVisibility={handleToggleCollectionVisibility}
               newCollectionTitle={newCollectionTitle}
               setNewCollectionTitle={setNewCollectionTitle}
               editingCollectionId={editingCollectionId}
