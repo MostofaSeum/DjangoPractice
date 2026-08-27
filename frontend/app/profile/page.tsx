@@ -11,7 +11,9 @@ const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").re
 
 interface OrderItem {
   id: number;
-  product: { id: number; title: string; unit_price: number };
+  product: { id: number; title: string; unit_price: number; images?: { id?: number; image: string }[] };
+  variant?: { id: number; name: string; color_code?: string; color_name?: string; size?: string } | null;
+  variant_title?: string;
   quantity: number;
   unit_price: number;
 }
@@ -26,6 +28,9 @@ interface Order {
   payment_method?: string;
   transaction_id?: string;
   transaction_phone_no?: string;
+  delivery_area?: string;
+  delivery_charge?: number | string;
+  coupon_code?: string;
   is_edited_by_admin?: boolean;
   edited_at?: string | null;
   items?: OrderItem[];
@@ -45,6 +50,7 @@ export default function ProfilePage() {
   });
 
   const [myOrders, setMyOrders] = useState<Order[]>([]);
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState<Order | null>(null);
   const [vibeCoin, setVibeCoin] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -466,9 +472,18 @@ export default function ProfilePage() {
                               );
                             })}
                           </div>
-                          <div className="pt-2 border-t border-foreground/10 flex justify-between items-center text-xs font-black">
-                            <span className="uppercase text-foreground">{t("profile.totalAmount")}</span>
-                            <span className="text-base text-foreground">{formatCurrency(orderTotal)}</span>
+                          <div className="pt-2 border-t border-foreground/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs font-black">
+                            <div className="flex items-center gap-2">
+                              <span className="uppercase text-foreground">{t("profile.totalAmount")}</span>
+                              <span className="text-base text-foreground">{formatCurrency(orderTotal + Number(ord.delivery_charge || 0))}</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedOrderDetails(ord)}
+                              className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
+                            >
+                              {locale === "bn" ? "বিস্তারিত দেখুন" : "View Details"}
+                            </button>
                           </div>
                         </div>
                       )}
@@ -484,6 +499,252 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Customer Order Details Modal */}
+      {selectedOrderDetails && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+          <div className="bg-secondary text-foreground rounded-3xl p-6 md:p-8 max-w-xl w-full shadow-2xl border border-foreground/10 relative my-8 max-h-[90vh] flex flex-col animate-in fade-in duration-200">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center pb-4 border-b border-foreground/10 mb-5">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-black uppercase tracking-tight">
+                    {locale === "bn"
+                      ? `অর্ডার #${selectedOrderDetails.id.toLocaleString("bn-BD")}`
+                      : `Order #${selectedOrderDetails.id}`}
+                  </h3>
+                  {selectedOrderDetails.is_edited_by_admin && (
+                    <span className="bg-accent/20 text-accent text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
+                      {locale === "bn" ? "সংশোধিত" : "Edited by Store"}
+                    </span>
+                  )}
+                </div>
+                <p className="text-[10px] font-bold opacity-60 uppercase tracking-wider mt-0.5">
+                  {selectedOrderDetails.placed_at
+                    ? new Date(selectedOrderDetails.placed_at).toLocaleString(locale === "bn" ? "bn-BD" : "en-US")
+                    : "N/A"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedOrderDetails(null)}
+                className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3 py-1.5 rounded-xl transition-colors uppercase cursor-pointer"
+              >
+                {locale === "bn" ? "বন্ধ করুন" : "Close"}
+              </button>
+            </div>
+
+            {/* Modal Body: Scrollable */}
+            <div className="flex-1 overflow-y-auto space-y-5 pr-1">
+              {/* Shipping & Payment Info Card */}
+              <div className="bg-primary/5 dark:bg-primary/20 p-4 rounded-2xl text-xs space-y-2 border border-foreground/10">
+                <p>
+                  <strong>{locale === "bn" ? "মোবাইল নম্বর:" : "Phone:"}</strong>{" "}
+                  {selectedOrderDetails.phone || (locale === "bn" ? "নেই" : "N/A")}
+                </p>
+                <p>
+                  <strong>{locale === "bn" ? "ডেলিভারি ঠিকানা:" : "Shipping Address:"}</strong>{" "}
+                  {selectedOrderDetails.shipping_address || (locale === "bn" ? "নেই" : "N/A")}
+                </p>
+                <p>
+                  <strong>{locale === "bn" ? "ডেলিভারি এলাকা:" : "Delivery Zone:"}</strong>{" "}
+                  <span className="font-black text-accent uppercase">
+                    {selectedOrderDetails.delivery_area === "outside_dhaka"
+                      ? (locale === "bn" ? "ঢাকার বাইরে" : "Outside Dhaka")
+                      : (locale === "bn" ? "ঢাকার ভিতরে" : "Inside Dhaka")}
+                  </span>
+                  {selectedOrderDetails.delivery_charge !== undefined && (
+                    <span className="ml-2 px-2 py-0.5 rounded-md bg-secondary border border-foreground/10 text-[10px] font-bold">
+                      {locale === "bn" ? "ডেলিভারি ফি: " : "Delivery Fee: "}
+                      {formatCurrency(Number(selectedOrderDetails.delivery_charge))}
+                    </span>
+                  )}
+                </p>
+                <p>
+                  <strong>{locale === "bn" ? "পেমেন্ট পদ্ধতি:" : "Payment Method:"}</strong>{" "}
+                  {selectedOrderDetails.payment_method === "V" ? (
+                    <span className="text-accent font-black uppercase inline-flex items-center gap-1">
+                      <img
+                        src="/VibeCoin/VibeCoin.png"
+                        alt="VibeCoin"
+                        className="w-3.5 h-3.5 object-contain"
+                      />{" "}
+                      {locale === "bn" ? "ভাইবকয়েন পেমেন্ট" : "VibeCoin Payment"}
+                    </span>
+                  ) : selectedOrderDetails.payment_method === "O" ||
+                    selectedOrderDetails.payment_method === "B" ? (
+                    <span className="text-bkash font-black uppercase">
+                      {locale === "bn" ? "বিকাশ পেমেন্ট" : "Online / bKash Payment"}
+                    </span>
+                  ) : selectedOrderDetails.payment_method === "N" ? (
+                    <span className="text-nagad font-black uppercase">
+                      {locale === "bn" ? "নগদ পেমেন্ট" : "Nagad Payment"}
+                    </span>
+                  ) : (
+                    <span className="font-black uppercase">
+                      {locale === "bn" ? "ক্যাশ অন ডেলিভারি (সিওডি)" : "Cash on Delivery (COD)"}
+                    </span>
+                  )}
+                </p>
+                {(selectedOrderDetails.payment_method === "O" ||
+                  selectedOrderDetails.payment_method === "B") && (
+                  <p>
+                    <strong>{locale === "bn" ? "বিকাশ TrxID:" : "bKash TrxID:"}</strong>{" "}
+                    <code className="bg-secondary px-2 py-0.5 rounded font-mono font-bold text-bkash">
+                      {selectedOrderDetails.transaction_id || "N/A"}
+                    </code>{" "}
+                    {selectedOrderDetails.transaction_phone_no
+                      ? `[${locale === "bn" ? "প্রেরক" : "Sender"}: ${selectedOrderDetails.transaction_phone_no}]`
+                      : ""}
+                  </p>
+                )}
+                {selectedOrderDetails.payment_method === "N" && (
+                  <p>
+                    <strong>{locale === "bn" ? "নগদ TrxID:" : "Nagad TrxID:"}</strong>{" "}
+                    <code className="bg-secondary px-2 py-0.5 rounded font-mono font-bold text-nagad">
+                      {selectedOrderDetails.transaction_id || "N/A"}
+                    </code>{" "}
+                    {selectedOrderDetails.transaction_phone_no
+                      ? `[${locale === "bn" ? "প্রেরক" : "Sender"}: ${selectedOrderDetails.transaction_phone_no}]`
+                      : ""}
+                  </p>
+                )}
+                {selectedOrderDetails.coupon_code && (
+                  <p>
+                    <strong>{locale === "bn" ? "ব্যবহৃত কুপন:" : "Applied Coupon:"}</strong>{" "}
+                    <code className="bg-secondary px-2 py-0.5 rounded font-mono font-bold text-accent">
+                      {selectedOrderDetails.coupon_code}
+                    </code>
+                  </p>
+                )}
+              </div>
+
+              {/* Items Breakdown Table */}
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-wider opacity-60">
+                  {locale === "bn" ? "পণ্যের বিবরণ" : "Itemized Breakdown"}
+                </label>
+                <div className="overflow-x-auto border border-foreground/10 rounded-2xl">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-foreground/10 bg-primary/5 dark:bg-primary/20 text-[10px] font-black uppercase opacity-60">
+                        <th className="py-2.5 px-3">{locale === "bn" ? "পণ্য" : "Product"}</th>
+                        <th className="py-2.5 px-2 text-center">{locale === "bn" ? "পরিমাণ" : "Qty"}</th>
+                        <th className="py-2.5 px-2">{locale === "bn" ? "একক মূল্য" : "Unit Price"}</th>
+                        <th className="py-2.5 px-3 text-right">{locale === "bn" ? "মোট মূল্য" : "Subtotal"}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-foreground/10">
+                      {selectedOrderDetails.items &&
+                      selectedOrderDetails.items.length > 0 ? (
+                        selectedOrderDetails.items.map((item) => (
+                          <tr key={item.id}>
+                            <td className="py-2.5 px-3 font-bold">
+                              <div>
+                                {item.product?.title || (locale === "bn" ? `পণ্য #${item.product}` : `Product #${item.product}`)}
+                              </div>
+                              {(item.variant || item.variant_title) && (
+                                <div className="text-[10px] text-accent font-semibold flex items-center gap-1 mt-0.5">
+                                  {item.variant?.color_code && (
+                                    <span
+                                      className="w-2.5 h-2.5 rounded-full border border-black/20 inline-block shrink-0"
+                                      style={{
+                                        backgroundColor: item.variant.color_code,
+                                      }}
+                                    />
+                                  )}
+                                  <span>
+                                    {locale === "bn" ? "ভেরিয়েন্ট: " : "Option: "}
+                                    {item.variant?.name || item.variant_title}
+                                  </span>
+                                </div>
+                              )}
+                            </td>
+                            <td className="py-2.5 px-2 text-center">
+                              {locale === "bn" ? `${item.quantity.toLocaleString("bn-BD")} টি` : item.quantity}
+                            </td>
+                            <td className="py-2.5 px-2">
+                              {formatCurrency(item.unit_price)}
+                            </td>
+                            <td className="py-2.5 px-3 text-right font-black text-accent">
+                              {formatCurrency(item.quantity * Number(item.unit_price))}
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td
+                            colSpan={4}
+                            className="py-4 text-center text-xs opacity-50"
+                          >
+                            {locale === "bn" ? "পণ্যের বিবরণ পাওয়া যায়নি।" : "No item breakdown available."}
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Price Calculation Summary */}
+              <div className="pt-3 border-t border-foreground/10 space-y-2">
+                <div className="flex justify-between text-xs opacity-75">
+                  <span>{locale === "bn" ? "পণ্যের সাবটোটাল:" : "Items Subtotal:"}</span>
+                  <span className="font-bold">
+                    {formatCurrency(
+                      selectedOrderDetails.items
+                        ? selectedOrderDetails.items.reduce(
+                            (sum, i) => sum + i.quantity * Number(i.unit_price),
+                            0
+                          )
+                        : 0
+                    )}
+                  </span>
+                </div>
+                {selectedOrderDetails.delivery_charge !== undefined && (
+                  <div className="flex justify-between text-xs opacity-75">
+                    <span>
+                      {locale === "bn" ? "ডেলিভারি চার্জ (" : "Delivery Charge ("}
+                      {selectedOrderDetails.delivery_area === "outside_dhaka"
+                        ? (locale === "bn" ? "ঢাকার বাইরে" : "Outside Dhaka")
+                        : (locale === "bn" ? "ঢাকার ভিতরে" : "Inside Dhaka")}
+                      ):
+                    </span>
+                    <span className="font-bold">
+                      {formatCurrency(Number(selectedOrderDetails.delivery_charge))}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center pt-2 border-t border-foreground/10">
+                  <span className="text-xs font-bold opacity-70 uppercase">
+                    {locale === "bn" ? "পেমেন্ট অবস্থা: " : "Payment Status: "}
+                    <strong className="uppercase font-black text-foreground">
+                      {selectedOrderDetails.payment_status === "C"
+                        ? (locale === "bn" ? "সফল (Complete)" : "Complete")
+                        : selectedOrderDetails.payment_status === "F"
+                          ? (locale === "bn" ? "ব্যর্থ (Failed)" : "Failed")
+                          : (locale === "bn" ? "পেন্ডিং (Pending)" : "Pending")}
+                    </strong>
+                  </span>
+                  <span className="text-base font-black text-foreground">
+                    {locale === "bn" ? "সর্বমোট মূল্য: " : "Grand Total: "}
+                    {formatCurrency(
+                      (selectedOrderDetails.items
+                        ? selectedOrderDetails.items.reduce(
+                            (sum, i) =>
+                              sum + i.quantity * Number(i.unit_price),
+                            0
+                          )
+                        : 0) +
+                      Number(selectedOrderDetails.delivery_charge || 0)
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   </div>
   );
