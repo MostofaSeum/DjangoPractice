@@ -259,20 +259,44 @@ export default function AdminNotificationBell({
                 >
                   <div className="mt-0.5 shrink-0">
                     {item.notification_type === "order" ? (
-                      <div className="w-7 h-7 rounded-lg bg-accent/15 text-accent flex items-center justify-center font-bold text-xs">
-                        🛒
+                      <div className="w-7 h-7 rounded-lg bg-accent/15 flex items-center justify-center p-1.5 border border-accent/20">
+                        <Image
+                          src="/admin/orders.png"
+                          alt="Order"
+                          width={16}
+                          height={16}
+                          className="object-contain filter dark:invert"
+                        />
                       </div>
                     ) : item.notification_type === "promotion" ? (
-                      <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-500 flex items-center justify-center font-bold text-xs">
-                        🏷️
+                      <div className="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center p-1.5 border border-amber-500/20">
+                        <Image
+                          src="/admin/sales.png"
+                          alt="Promotion"
+                          width={16}
+                          height={16}
+                          className="object-contain filter dark:invert"
+                        />
                       </div>
                     ) : item.notification_type === "coupon" ? (
-                      <div className="w-7 h-7 rounded-lg bg-purple-500/15 text-purple-500 flex items-center justify-center font-bold text-xs">
-                        🎟️
+                      <div className="w-7 h-7 rounded-lg bg-purple-500/15 flex items-center justify-center p-1.5 border border-purple-500/20">
+                        <Image
+                          src="/admin/coupons.png"
+                          alt="Coupon"
+                          width={16}
+                          height={16}
+                          className="object-contain filter dark:invert"
+                        />
                       </div>
                     ) : (
-                      <div className="w-7 h-7 rounded-lg bg-accent/15 text-accent flex items-center justify-center font-bold text-xs">
-                        🔔
+                      <div className="w-7 h-7 rounded-lg bg-accent/15 flex items-center justify-center p-1.5 border border-accent/20">
+                        <Image
+                          src="/notification.png"
+                          alt="Notification"
+                          width={16}
+                          height={16}
+                          className="object-contain filter dark:invert"
+                        />
                       </div>
                     )}
                   </div>
