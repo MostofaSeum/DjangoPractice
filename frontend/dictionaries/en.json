@@ -405,5 +405,22 @@
     "cancel": "Cancel",
     "maxPhotosAllowed": "Maximum 5 photos allowed per review.",
     "networkError": "Network error. Please try again."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "newBadge": "{count} new",
+    "markAllRead": "Mark all as read",
+    "noNotifications": "No notifications yet",
+    "justNow": "Just now",
+    "minsAgo": "{count}m ago",
+    "hoursAgo": "{count}h ago",
+    "newOrderTitle": "New Order #{orderId}",
+    "newOrderMsg": "Customer {phone} placed an order for ৳{total} ({paymentMethod}).",
+    "promoExpiringTitle": "Promotion Expiring Soon!",
+    "promoExpiringMsg": "Only {mins} min left before promotion '{desc}' ({discount}% OFF) expires.",
+    "prodPromoExpiringTitle": "Product Promotion Expiring Soon!",
+    "prodPromoExpiringMsg": "Only {mins} min left before {discount}% discount on '{title}' expires.",
+    "couponExpiringTitle": "Coupon Code Expiring Soon!",
+    "couponExpiringMsg": "Only {mins} min left before coupon '{code}' ({discount}% OFF) expires."
   }
 }

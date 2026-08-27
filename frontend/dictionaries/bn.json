@@ -405,5 +405,22 @@
     "cancel": "বাতিল",
     "maxPhotosAllowed": "প্রতিটি রিভিউতে সর্বোচ্চ ৫টি ছবি দেওয়া যাবে।",
     "networkError": "নেটওয়ার্ক সমস্যা। অনুগ্রহ করে আবার চেষ্টা করুন।"
+  },
+  "notifications": {
+    "title": "নোটিফিকেশন",
+    "newBadge": "{count}টি নতুন",
+    "markAllRead": "সব পড়া হয়েছে চিহ্নিত করুন",
+    "noNotifications": "কোন নোটিফিকেশন নেই",
+    "justNow": "এইমাত্র",
+    "minsAgo": "{count} মিনিট আগে",
+    "hoursAgo": "{count} ঘণ্টা আগে",
+    "newOrderTitle": "নতুন অর্ডার #{orderId}",
+    "newOrderMsg": "গ্রাহক {phone} ৳{total} ({paymentMethod})-এর একটি নতুন অর্ডার সম্পন্ন করেছেন।",
+    "promoExpiringTitle": "প্রমোশনের মেয়াদ দ্রুত শেষ হচ্ছে!",
+    "promoExpiringMsg": "'{desc}' প্রমোশনটি ({discount}% ছাড়) শেষ হতে আর মাত্র {mins} মিনিট বাকি আছে।",
+    "prodPromoExpiringTitle": "পণ্যের প্রমোশনের মেয়াদ দ্রুত শেষ হচ্ছে!",
+    "prodPromoExpiringMsg": "'{title}' পণ্যে {discount}% ছাড়ের অফার শেষ হতে আর মাত্র {mins} মিনিট বাকি আছে।",
+    "couponExpiringTitle": "কুপন কোডের মেয়াদ দ্রুত শেষ হচ্ছে!",
+    "couponExpiringMsg": "'{code}' কুপন কোডটি ({discount}% ছাড়) শেষ হতে আর মাত্র {mins} মিনিট বাকি আছে।"
   }
 }
