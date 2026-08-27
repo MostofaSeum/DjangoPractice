@@ -80,15 +80,24 @@ export default function CollectionDetailClient({
                 : Number(product.unit_price || 0);
 
               const discountPercent = Number(product.discount_percent || 0);
-              const hasDiscount = discountPercent > 0 || !!activeVariant?.discounted_price;
-              const effectivePrice =
-                activeVariant?.discounted_price !== undefined
-                  ? Number(activeVariant.discounted_price)
-                  : product.discounted_price !== undefined
-                    ? Number(product.discounted_price)
-                    : hasDiscount
-                      ? basePrice * (1 - discountPercent / 100)
-                      : basePrice;
+              const isExpired = (product as any).discount_valid_until && new Date() > new Date((product as any).discount_valid_until);
+              const isDiscountActive = (product as any).is_discount_active !== false && !isExpired;
+
+              let effectivePrice = basePrice;
+              if (activeVariant?.discounted_price !== undefined) {
+                effectivePrice = Number(activeVariant.discounted_price);
+              } else if (product.discounted_price !== undefined) {
+                effectivePrice = Number(product.discounted_price);
+              } else if (discountPercent > 0 && isDiscountActive) {
+                effectivePrice = basePrice * (1 - discountPercent / 100);
+              }
+
+              const hasDiscount = isDiscountActive && basePrice > effectivePrice;
+              const computedDiscountPercent = hasDiscount
+                ? discountPercent > 0
+                  ? discountPercent
+                  : Math.round(((basePrice - effectivePrice) / basePrice) * 100)
+                : 0;
 
               return (
                 <div
@@ -97,14 +106,14 @@ export default function CollectionDetailClient({
                 >
                   <div>
                     <div className="aspect-square bg-secondary rounded-xl mb-6 flex items-center justify-center overflow-hidden relative border border-foreground/10 group-hover:scale-[1.02] transition-transform duration-300">
-                      {hasDiscount && (
+                      {hasDiscount && computedDiscountPercent > 0 && (
                         <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-accent text-button-fg font-extrabold text-[9px] uppercase tracking-wider shadow-md z-10 flex items-center gap-1">
                           <img
                             src="/discount.png"
                             alt="Discount"
                             className="w-3.5 h-3.5 object-contain brightness-0 invert"
                           />
-                          -{Math.round(discountPercent)}% {t("trending.off")}
+                          -{locale === "bn" ? Math.round(computedDiscountPercent).toLocaleString("bn-BD") : Math.round(computedDiscountPercent)}% {t("trending.off")}
                         </span>
                       )}
                       <ProductImage

@@ -24,29 +24,36 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const discountPercent = Number(product.discount_percent || 0);
   const isExpired = product.discount_valid_until && new Date() > new Date(product.discount_valid_until);
-  const hasDiscount = discountPercent > 0 && !isExpired && (product.is_discount_active !== false);
-  
-  const effectivePrice =
-    activeVariant?.discounted_price !== undefined
-      ? Number(activeVariant.discounted_price)
-      : product.discounted_price !== undefined
-        ? Number(product.discounted_price)
-        : hasDiscount
-          ? basePrice * (1 - discountPercent / 100)
-          : basePrice;
+  const isDiscountActive = product.is_discount_active !== false && !isExpired;
+
+  let effectivePrice = basePrice;
+  if (activeVariant?.discounted_price !== undefined) {
+    effectivePrice = Number(activeVariant.discounted_price);
+  } else if (product.discounted_price !== undefined) {
+    effectivePrice = Number(product.discounted_price);
+  } else if (discountPercent > 0 && isDiscountActive) {
+    effectivePrice = basePrice * (1 - discountPercent / 100);
+  }
+
+  const hasDiscount = isDiscountActive && basePrice > effectivePrice;
+  const computedDiscountPercent = hasDiscount
+    ? discountPercent > 0
+      ? discountPercent
+      : Math.round(((basePrice - effectivePrice) / basePrice) * 100)
+    : 0;
 
   return (
     <div className="bg-secondary text-foreground rounded-xl p-3.5 shadow-sm border border-foreground/10 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 group flex flex-col justify-between relative">
       <div>
         <div className="relative w-full aspect-square rounded-lg overflow-hidden mb-3 bg-secondary border border-foreground/10 group-hover:scale-[1.01] transition-transform duration-300">
-          {hasDiscount && (
+          {hasDiscount && computedDiscountPercent > 0 && (
             <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-accent text-button-fg font-extrabold text-[9px] uppercase tracking-wider shadow-md z-10 flex items-center gap-1">
               <img
                 src="/discount.png"
                 alt="Discount"
                 className="w-3.5 h-3.5 object-contain brightness-0 invert"
               />
-              -{locale === "bn" ? Math.round(discountPercent).toLocaleString("bn-BD") : Math.round(discountPercent)}% {locale === "bn" ? "ছাড়" : "OFF"}
+              -{locale === "bn" ? Math.round(computedDiscountPercent).toLocaleString("bn-BD") : Math.round(computedDiscountPercent)}% {locale === "bn" ? "ছাড়" : "OFF"}
             </span>
           )}
           <ProductImage title={product.title} images={product.images} />
