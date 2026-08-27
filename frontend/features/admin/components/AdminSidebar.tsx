@@ -234,17 +234,6 @@ export default function AdminSidebar({
 
                 {!isSidebarCollapsed && (
                   <div className="flex items-center gap-1.5 shrink-0">
-                    {typeof tab.count !== "undefined" && (
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-black transition-all duration-200 ${
-                          isActive
-                            ? "bg-accent text-white dark:text-primary shadow-xs border border-accent/30 scale-105"
-                            : "bg-white/10 text-background/80 dark:text-foreground/80"
-                        }`}
-                      >
-                        {tab.count.toLocaleString(isBn ? "bn-BD" : undefined)}
-                      </span>
-                    )}
                     {(isProductsTab || isCollectionsTab || isAnalyticsTab) && (
                       <svg
                         className={`w-3.5 h-3.5 transition-transform duration-200 opacity-70 ${
