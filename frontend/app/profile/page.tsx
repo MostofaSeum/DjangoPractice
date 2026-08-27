@@ -378,8 +378,7 @@ export default function ProfilePage() {
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
                           {ord.is_edited_by_admin && (
-                            <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-accent/20 text-accent border border-accent/30 flex items-center gap-1">
-                              <span>✎</span> {locale === "bn" ? "অ্যাডমিন কর্তৃক সংশোধিত" : "Edited by Store"}
+                            <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-accent/20 text-accent border border-accent/30 flex items-center gap-1">{locale === "bn" ? "অ্যাডমিন কর্তৃক সংশোধিত" : "Edited by Store"}
                             </span>
                           )}
                           <span
@@ -545,20 +544,6 @@ export default function ProfilePage() {
                 <p>
                   <strong>{locale === "bn" ? "ডেলিভারি ঠিকানা:" : "Shipping Address:"}</strong>{" "}
                   {selectedOrderDetails.shipping_address || (locale === "bn" ? "নেই" : "N/A")}
-                </p>
-                <p>
-                  <strong>{locale === "bn" ? "ডেলিভারি এলাকা:" : "Delivery Zone:"}</strong>{" "}
-                  <span className="font-black text-accent uppercase">
-                    {selectedOrderDetails.delivery_area === "outside_dhaka"
-                      ? (locale === "bn" ? "ঢাকার বাইরে" : "Outside Dhaka")
-                      : (locale === "bn" ? "ঢাকার ভিতরে" : "Inside Dhaka")}
-                  </span>
-                  {selectedOrderDetails.delivery_charge !== undefined && (
-                    <span className="ml-2 px-2 py-0.5 rounded-md bg-secondary border border-foreground/10 text-[10px] font-bold">
-                      {locale === "bn" ? "ডেলিভারি ফি: " : "Delivery Fee: "}
-                      {formatCurrency(Number(selectedOrderDetails.delivery_charge))}
-                    </span>
-                  )}
                 </p>
                 <p>
                   <strong>{locale === "bn" ? "পেমেন্ট পদ্ধতি:" : "Payment Method:"}</strong>{" "}
