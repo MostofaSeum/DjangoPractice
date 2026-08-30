@@ -28,7 +28,7 @@ export default function CustomersTab({
   customerHistoryModal,
   setCustomerHistoryModal,
 }: CustomersTabProps) {
-  const { locale, formatCurrency } = useLanguage();
+  const { locale, t, formatCurrency } = useLanguage();
   const isBn = locale === "bn";
 
   const [activeCustomerQuery, setActiveCustomerQuery] = useState("");
@@ -62,9 +62,9 @@ export default function CustomersTab({
     <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
         <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-          {isBn
-            ? `নিবন্ধিত গ্রাহকবৃন্দ (${filteredCustomers.length.toLocaleString("bn-BD")})`
-            : `Registered Customers (${filteredCustomers.length})`}
+          {locale === "bn"
+            ? `${t("admin.customers.title")} (${filteredCustomers.length.toLocaleString("bn-BD")})`
+            : `${t("admin.customers.title")} (${filteredCustomers.length})`}
         </h2>
         <CustomerSearchBar
           token={token}
@@ -85,10 +85,10 @@ export default function CustomersTab({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-foreground/10 text-[10px] font-black uppercase tracking-wider opacity-60">
-                <th className="py-3 px-2">{isBn ? "গ্রাহকের নাম" : "Customer Name"}</th>
-                <th className="py-3 px-2">{isBn ? "মোবাইল নম্বর" : "Phone"}</th>
-                <th className="py-3 px-2">{isBn ? "মেম্বারশিপ" : "Membership"}</th>
-                <th className="py-3 px-2 text-right">{isBn ? "কার্যক্রম" : "Actions"}</th>
+                <th className="py-3 px-2">{t("admin.customers.name")}</th>
+                <th className="py-3 px-2">{t("admin.customers.contact")}</th>
+                <th className="py-3 px-2">{t("admin.customers.membership")}</th>
+                <th className="py-3 px-2 text-right">{t("admin.customers.actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-foreground/10 text-xs font-bold">
@@ -111,7 +111,7 @@ export default function CustomersTab({
                         <div className="font-black text-foreground">
                           {cust.first_name || cust.last_name
                             ? `${cust.first_name || ""} ${cust.last_name || ""}`.trim()
-                            : cust.customer_name || (isBn ? `গ্রাহক #${cust.id}` : `Customer #${cust.id}`)}
+                            : cust.customer_name || (locale === "bn" ? `গ্রাহক #${cust.id}` : `Customer #${cust.id}`)}
                         </div>
                         <div className="text-[10px] opacity-60 flex items-center gap-1.5 font-medium">
                           <span>@{cust.customer_name}</span>
@@ -121,15 +121,15 @@ export default function CustomersTab({
                     </div>
                   </td>
                   <td className="py-3.5 px-2 opacity-80">
-                    {cust.phone || (isBn ? "ফোন নম্বর যুক্ত নেই" : "No Phone Registered")}
+                    {cust.phone || (locale === "bn" ? "ফোন নম্বর যুক্ত নেই" : "No Phone Registered")}
                   </td>
                   <td className="py-3.5 px-2">
                     <span className="px-3 py-1 bg-amber-500/20 text-amber-500 rounded-full text-[10px] uppercase font-black tracking-wider">
                       {cust.membership === "G"
-                        ? (isBn ? "গোল্ড (G)" : "Gold (G)")
+                        ? (locale === "bn" ? "গোল্ড (G)" : "Gold (G)")
                         : cust.membership === "S"
-                          ? (isBn ? "সিলভার (S)" : "Silver (S)")
-                          : (isBn ? "ব্রোঞ্জ (B)" : "Bronze (B)")}
+                          ? (locale === "bn" ? "সিলভার (S)" : "Silver (S)")
+                          : (locale === "bn" ? "ব্রোঞ্জ (B)" : "Bronze (B)")}
                     </span>
                   </td>
                   <td className="py-3.5 px-2 text-right">
@@ -137,7 +137,7 @@ export default function CustomersTab({
                       onClick={() => handleViewCustomerHistory(cust.id)}
                       className="px-3.5 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
                     >
-                      {isBn ? "অর্ডার ইতিহাস দেখুন" : "View Order History"}
+                      {t("admin.customers.viewHistory")}
                     </button>
                   </td>
                 </tr>
@@ -147,7 +147,7 @@ export default function CustomersTab({
         </div>
       ) : (
         <div className="py-12 text-center text-xs font-bold uppercase tracking-wider opacity-50">
-          {isBn ? "কোনো গ্রাহক পাওয়া যায়নি।" : "No customers found."}
+          {t("admin.customers.noCustomers")}
         </div>
       )}
 

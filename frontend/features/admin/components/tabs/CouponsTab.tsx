@@ -68,7 +68,7 @@ export default function CouponsTab({
   promoProductsCatalog,
   collections,
 }: CouponsTabProps) {
-  const { locale } = useLanguage();
+  const { locale, t } = useLanguage();
   const isBn = locale === "bn";
 
   const [couponFilterSearch, setCouponFilterSearch] = useState("");
@@ -90,8 +90,8 @@ export default function CouponsTab({
         <div className="flex justify-between items-center mb-6 pb-2 border-b border-foreground/10">
           <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
             {editingCouponId
-              ? (isBn ? `কুপন #${editingCouponId} সম্পাদনা` : `Edit Coupon #${editingCouponId}`)
-              : (isBn ? "নতুন কুপন তৈরি করুন" : "Create New Coupon")}
+              ? `${t("admin.coupons.editTitle")} #${editingCouponId}`
+              : t("admin.coupons.createTitle")}
           </h2>
           {editingCouponId && (
             <button
@@ -99,7 +99,7 @@ export default function CouponsTab({
               onClick={handleCancelEditCoupon}
               className="text-[10px] font-bold uppercase tracking-wider text-red-500 hover:underline cursor-pointer"
             >
-              {isBn ? "সম্পাদনা বাতিল" : "Cancel Edit"}
+              {t("admin.coupons.cancelEdit")}
             </button>
           )}
         </div>
@@ -108,7 +108,7 @@ export default function CouponsTab({
           {/* Coupon Code Input */}
           <div>
             <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-              {isBn ? "কুপন কোড *" : "Coupon Code *"}
+              {t("admin.coupons.code")}
             </label>
             <input
               type="text"
@@ -118,7 +118,7 @@ export default function CouponsTab({
               onChange={(e) =>
                 setCouponCode(e.target.value.toUpperCase().slice(0, 20))
               }
-              placeholder={isBn ? "যেমনঃ EID25, VIP50" : "e.g. SUMMER25, VIP50"}
+              placeholder={t("admin.coupons.codePlaceholder")}
               className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-3 text-sm font-black uppercase tracking-wider text-foreground outline-none focus:ring-2 focus:ring-accent shadow-inner"
             />
           </div>
@@ -126,7 +126,7 @@ export default function CouponsTab({
           {/* Discount Percentage */}
           <div>
             <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-              {isBn ? "ছাড়ের শতকরা হার (%) *" : "Discount Percentage (%) *"}
+              {t("admin.coupons.discount")}
             </label>
             <div className="relative">
               <input
@@ -137,7 +137,7 @@ export default function CouponsTab({
                 required
                 value={couponDiscountPercent}
                 onChange={(e) => setCouponDiscountPercent(e.target.value)}
-                placeholder={isBn ? "যেমনঃ ২০" : "e.g. 20"}
+                placeholder="e.g. 20"
                 className="w-full bg-background border border-foreground/15 rounded-xl px-4 pr-20 py-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none shadow-inner"
               />
               <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none px-2 py-1 rounded-lg bg-accent/20 text-accent font-extrabold text-[10px] uppercase tracking-wider">

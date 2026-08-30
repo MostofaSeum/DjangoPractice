@@ -27,31 +27,30 @@ export default function AdminHeader({
   onNavigateToOrder,
   onNavigateToTab,
 }: AdminHeaderProps) {
-  const { locale } = useLanguage();
-  const isBn = locale === "bn";
+  const { t } = useLanguage();
 
   const getTabDisplayName = (tab?: AdminTab) => {
     switch (tab) {
       case "products":
-        return isBn ? "পণ্যসমূহ" : "Products";
+        return t("admin.tabs.products");
       case "collections":
-        return isBn ? "কালেকশন / ক্যাটাগরি" : "Collections";
+        return t("admin.tabs.collections");
       case "orders":
-        return isBn ? "অর্ডারসমূহ" : "Orders";
+        return t("admin.tabs.orders");
       case "customers":
-        return isBn ? "গ্রাহকবৃন্দ" : "Customers";
+        return t("admin.tabs.customers");
       case "promotions":
-        return isBn ? "প্রমোশন ও অফার" : "Promotions";
+        return t("admin.tabs.promotions");
       case "coupons":
-        return isBn ? "কুপন কোড" : "Coupons";
+        return t("admin.tabs.coupons");
       case "payments":
-        return isBn ? "পেমেন্ট মাধ্যম" : "Payment Methods";
+        return t("admin.tabs.payments");
       case "delivery":
-        return isBn ? "ডেলিভারি সেটিংস" : "Delivery Settings";
+        return t("admin.tabs.delivery");
       case "analytics":
-        return isBn ? "রিপোর্ট ও অ্যানালিটিক্স" : "Analytics";
+        return t("admin.tabs.analytics");
       default:
-        return isBn ? "বর্তমান ট্যাব" : "Current Tab";
+        return t("admin.tabs.current");
     }
   };
 
@@ -62,10 +61,10 @@ export default function AdminHeader({
           <div>
             <div className="flex items-center gap-2">
               <span className="bg-accent text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest rounded-md">
-                {isBn ? "অ্যাডমিন প্যানেল" : "Staff Portal"}
+                {t("admin.header.staffPortal")}
               </span>
               <h1 className="text-lg md:text-xl font-black uppercase tracking-tight">
-                {isBn ? "অ্যাডমিন ড্যাশবোর্ড" : "Admin Dashboard"}
+                {t("admin.header.dashboard")}
               </h1>
             </div>
           </div>
@@ -77,7 +76,7 @@ export default function AdminHeader({
             <button
               onClick={onRefresh}
               disabled={isRefreshing}
-              title={`${isBn ? "রিফ্রেশ করুন" : "Refresh"} ${getTabDisplayName(activeTab)}`}
+              title={`${t("admin.header.refresh")} ${getTabDisplayName(activeTab)}`}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border border-white/15 bg-white/10 text-white dark:text-foreground hover:bg-white/20 active:scale-95 cursor-pointer ${
                 isRefreshing ? "opacity-60 cursor-not-allowed" : ""
               }`}
@@ -98,7 +97,7 @@ export default function AdminHeader({
                 />
               </svg>
               <span className="hidden sm:inline">
-                {isRefreshing ? (isBn ? "রিফ্রেশ হচ্ছে..." : "Refreshing...") : `${isBn ? "রিফ্রেশ" : "Refresh"} ${getTabDisplayName(activeTab)}`}
+                {isRefreshing ? t("admin.header.refreshing") : `${t("admin.header.refresh")} ${getTabDisplayName(activeTab)}`}
               </span>
             </button>
           )}
@@ -119,7 +118,7 @@ export default function AdminHeader({
             onClick={onLogout}
             className="bg-accent/20 text-accent hover:bg-accent/30 px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider border border-accent/20 transition-colors cursor-pointer"
           >
-            {isBn ? "লগআউট" : "Logout"}
+            {t("admin.header.logout")}
           </button>
         </div>
       </div>

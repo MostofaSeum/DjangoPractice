@@ -19,8 +19,7 @@ export default function PaymentsTab({
   savingPaymentSettings,
   handleSavePaymentSettings,
 }: PaymentsTabProps) {
-  const { locale } = useLanguage();
-  const isBn = locale === "bn";
+  const { t } = useLanguage();
 
   const hasPaymentChanges =
     paymentSettings.bkash_number !== initialPaymentSettings.bkash_number ||
@@ -36,12 +35,10 @@ export default function PaymentsTab({
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-foreground/10">
           <div>
             <h2 className="text-sm font-black uppercase tracking-widest text-foreground flex items-center gap-2">
-              {isBn ? "পেমেন্ট গেটওয়ে ও মার্চেন্ট সেটিংস" : "Payment Gateway & Merchant Settings"}
+              {t("admin.payments.title")}
             </h2>
             <p className="text-xs opacity-60 mt-1">
-              {isBn
-                ? "গ্রাহকদের থেকে পেমেন্ট গ্রহণের নম্বর ও পেমেন্ট অপশনগুলো চালু বা বন্ধ রাখুন।"
-                : "Manage receiver mobile numbers and enable or disable payment options across checkout and gift cards in real time."}
+              {t("admin.payments.subtitle")}
             </p>
           </div>
 
@@ -56,10 +53,10 @@ export default function PaymentsTab({
             }`}
           >
             {savingPaymentSettings
-              ? (isBn ? "সংরক্ষণ হচ্ছে..." : "Saving...")
+              ? t("admin.payments.saving")
               : hasPaymentChanges
-                ? (isBn ? "পরিবর্তন সংরক্ষণ করুন" : "Save Changes")
-                : (isBn ? "কোনো পরিবর্তন নেই" : "No Changes")}
+                ? t("admin.payments.saveChanges")
+                : t("admin.payments.noChanges")}
           </button>
         </div>
 
@@ -79,7 +76,7 @@ export default function PaymentsTab({
                 </div>
                 <div>
                   <h3 className="font-black text-sm text-foreground">
-                    {isBn ? "বিকাশ পেমেন্ট" : "bKash Payment"}
+                    {t("admin.payments.bkashTitle")}
                   </h3>
                   <span
                     className={`text-[10px] font-bold uppercase tracking-wider ${
@@ -89,8 +86,8 @@ export default function PaymentsTab({
                     }`}
                   >
                     {paymentSettings.bkash_active
-                      ? (isBn ? "সক্রিয় (Active)" : "Active")
-                      : (isBn ? "নিষ্ক্রিয় (Disabled)" : "Disabled")}
+                      ? t("admin.payments.active")
+                      : t("admin.payments.disabled")}
                   </span>
                 </div>
               </div>
@@ -122,7 +119,7 @@ export default function PaymentsTab({
 
             <div className="space-y-1.5 pt-2">
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                {isBn ? "বিকাশ প্রাপক / মার্চেন্ট নম্বর" : "bKash Receiver / Merchant Number"}
+                {t("admin.payments.bkashReceiver")}
               </label>
               <input
                 type="tel"
@@ -136,13 +133,11 @@ export default function PaymentsTab({
                       .slice(0, 11),
                   })
                 }
-                placeholder={isBn ? "যেমনঃ 017XXXXXXXX" : "e.g. 01700000000"}
+                placeholder={t("admin.payments.bkashPlaceholder")}
                 className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
               />
               <p className="text-[10px] opacity-50 font-medium">
-                {isBn
-                  ? "চেকআউটের সময় গ্রাহকরা টাকা পাঠানোর জন্য এই নম্বরটি দেখতে পাবেন।"
-                  : "This number is displayed to customers to send money during bKash checkout."}
+                {t("admin.payments.bkashHint")}
               </p>
             </div>
           </div>
@@ -162,7 +157,7 @@ export default function PaymentsTab({
                 </div>
                 <div>
                   <h3 className="font-black text-sm text-foreground">
-                    {isBn ? "নগদ পেমেন্ট" : "Nagad Payment"}
+                    {t("admin.payments.nagadTitle")}
                   </h3>
                   <span
                     className={`text-[10px] font-bold uppercase tracking-wider ${
@@ -172,8 +167,8 @@ export default function PaymentsTab({
                     }`}
                   >
                     {paymentSettings.nagad_active
-                      ? (isBn ? "সক্রিয় (Active)" : "Active")
-                      : (isBn ? "নিষ্ক্রিয় (Disabled)" : "Disabled")}
+                      ? t("admin.payments.active")
+                      : t("admin.payments.disabled")}
                   </span>
                 </div>
               </div>
@@ -205,7 +200,7 @@ export default function PaymentsTab({
 
             <div className="space-y-1.5 pt-2">
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                {isBn ? "নগদ প্রাপক / মার্চেন্ট নম্বর" : "Nagad Receiver / Merchant Number"}
+                {t("admin.payments.nagadReceiver")}
               </label>
               <input
                 type="tel"
@@ -219,13 +214,11 @@ export default function PaymentsTab({
                       .slice(0, 11),
                   })
                 }
-                placeholder={isBn ? "যেমনঃ 018XXXXXXXX" : "e.g. 01800000000"}
+                placeholder={t("admin.payments.nagadPlaceholder")}
                 className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
               />
               <p className="text-[10px] opacity-50 font-medium">
-                {isBn
-                  ? "চেকআউটের সময় গ্রাহকরা টাকা পাঠানোর জন্য এই নম্বরটি দেখতে পাবেন।"
-                  : "This number is displayed to customers to send money during Nagad checkout."}
+                {t("admin.payments.nagadHint")}
               </p>
             </div>
           </div>
@@ -238,7 +231,7 @@ export default function PaymentsTab({
               </div>
               <div>
                 <h3 className="font-black text-sm text-foreground">
-                  {isBn ? "ক্যাশ অন ডেলিভারি (সিওডি)" : "Cash On Delivery (COD)"}
+                  {t("admin.payments.codTitle")}
                 </h3>
                 <span
                   className={`text-[10px] font-bold uppercase tracking-wider ${
@@ -248,8 +241,8 @@ export default function PaymentsTab({
                   }`}
                 >
                   {paymentSettings.cod_active
-                    ? (isBn ? "সক্রিয় (Active)" : "Active")
-                    : (isBn ? "নিষ্ক্রিয় (Disabled)" : "Disabled")}
+                    ? t("admin.payments.active")
+                    : t("admin.payments.disabled")}
                 </span>
               </div>
             </div>
@@ -292,7 +285,7 @@ export default function PaymentsTab({
               </div>
               <div>
                 <h3 className="font-black text-sm text-foreground">
-                  {isBn ? "ভাইবকয়েন ব্যালেন্স পেমেন্ট" : "VibeCoin Balance Payment"}
+                  {t("admin.payments.vibecoinTitle")}
                 </h3>
                 <span
                   className={`text-[10px] font-bold uppercase tracking-wider ${
@@ -302,8 +295,8 @@ export default function PaymentsTab({
                   }`}
                 >
                   {paymentSettings.vibecoin_active
-                    ? (isBn ? "সক্রিয় (Active)" : "Active")
-                    : (isBn ? "নিষ্ক্রিয় (Disabled)" : "Disabled")}
+                    ? t("admin.payments.active")
+                    : t("admin.payments.disabled")}
                 </span>
               </div>
             </div>

@@ -68,60 +68,60 @@ export default function AdminSidebar({
   couponsCount,
   deliveryRulesCount,
 }: AdminSidebarProps) {
-  const { locale } = useLanguage();
+  const { locale, t } = useLanguage();
   const isBn = locale === "bn";
 
   const tabs = [
     {
       id: "products" as AdminTab,
-      label: isBn ? "পণ্যসমূহ" : "Products",
+      label: t("admin.sidebar.products"),
       count: productsCount,
       icon: "/admin/products.png",
     },
     {
       id: "collections" as AdminTab,
-      label: isBn ? "কালেকশন / ক্যাটাগরি" : "Collections",
+      label: t("admin.sidebar.collections"),
       count: collectionsCount,
       icon: "/admin/collections.png",
     },
     {
       id: "orders" as AdminTab,
-      label: isBn ? "অর্ডার তালিকা" : "Orders",
+      label: t("admin.sidebar.orders"),
       count: ordersCount,
       icon: "/admin/orders.png",
     },
     {
       id: "customers" as AdminTab,
-      label: isBn ? "গ্রাহকবৃন্দ" : "Customers",
+      label: t("admin.sidebar.customers"),
       count: customersCount,
       icon: "/admin/customers.png",
     },
     {
       id: "promotions" as AdminTab,
-      label: isBn ? "প্রমোশন ও অফার" : "Promotions",
+      label: t("admin.sidebar.promotions"),
       count: promosCount,
       icon: "/admin/sales.png",
     },
     {
       id: "coupons" as AdminTab,
-      label: isBn ? "কুপন কোড" : "Coupons",
+      label: t("admin.sidebar.coupons"),
       count: couponsCount,
       icon: "/admin/coupons.png",
     },
     {
       id: "payments" as AdminTab,
-      label: isBn ? "পেমেন্ট মাধ্যম" : "Payment Methods",
+      label: t("admin.sidebar.payments"),
       icon: "/admin/payment_settings.png",
     },
     {
       id: "delivery" as AdminTab,
-      label: isBn ? "ডেলিভারি সেটিংস" : "Manage Delivery",
+      label: t("admin.sidebar.delivery"),
       count: deliveryRulesCount > 0 ? deliveryRulesCount : undefined,
       icon: "/admin/manage_delivery.png",
     },
     {
       id: "analytics" as AdminTab,
-      label: isBn ? "রিপোর্ট ও অ্যানালিটিক্স" : "Analytics",
+      label: t("admin.sidebar.analytics"),
       icon: "/admin/analytics.png",
     },
   ];
@@ -136,7 +136,7 @@ export default function AdminSidebar({
       <button
         onClick={() => setIsSidebarCollapsed((prev) => !prev)}
         className="absolute -right-3.5 top-6 z-20 w-7 h-7 rounded-full bg-accent text-white border-2 border-primary flex items-center justify-center shadow-md hover:scale-110 active:scale-95 transition-all cursor-pointer"
-        title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+        title={isSidebarCollapsed ? t("admin.sidebar.expand") : t("admin.sidebar.collapse")}
       >
         <svg
           className={`w-3.5 h-3.5 transition-transform duration-300 ${

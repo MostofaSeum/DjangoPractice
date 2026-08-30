@@ -18,8 +18,7 @@ export default function DeliveryTab({
   savingDeliverySettings,
   handleSaveDeliverySettings,
 }: DeliveryTabProps) {
-  const { locale } = useLanguage();
-  const isBn = locale === "bn";
+  const { t } = useLanguage();
 
   const hasDeliveryChanges =
     deliverySettings.inside_dhaka_charge !==
@@ -40,13 +39,11 @@ export default function DeliveryTab({
           <div>
             <div className="flex items-center gap-2 mb-1">
               <h2 className="text-lg font-black uppercase tracking-tight text-foreground">
-                {isBn ? "ডেলিভারি ও শিপিং চার্জ সেটিংস" : "Manage Delivery & Shipping Charges"}
+                {t("admin.delivery.title")}
               </h2>
             </div>
             <p className="text-xs opacity-60 font-medium">
-              {isBn
-                ? "ঢাকার ভিতরে ও ঢাকার বাইরের জন্য ডেলিভারি ফি এবং আনুমানিক সময় নির্ধারণ করুন।"
-                : "Configure delivery fees and estimated timeframes for Inside Dhaka and Outside Dhaka. Customers will select these during checkout."}
+              {t("admin.delivery.subtitle")}
             </p>
           </div>
 
@@ -57,7 +54,7 @@ export default function DeliveryTab({
                 onClick={() => setDeliverySettings(initialDeliverySettings)}
                 className="px-4 py-2.5 rounded-xl border border-foreground/15 text-xs font-bold uppercase tracking-wider hover:bg-foreground/5 transition-all text-foreground/70 cursor-pointer"
               >
-                {isBn ? "রিসেট" : "Reset"}
+                {t("admin.delivery.reset")}
               </button>
             )}
             <button
@@ -69,10 +66,10 @@ export default function DeliveryTab({
               {savingDeliverySettings ? (
                 <>
                   <span className="animate-spin text-sm">⏳</span>
-                  <span>{isBn ? "সংরক্ষণ হচ্ছে..." : "Saving..."}</span>
+                  <span>{t("admin.delivery.saving")}</span>
                 </>
               ) : (
-                <span>{isBn ? "সংরক্ষণ করুন" : "Save"}</span>
+                <span>{t("admin.delivery.saveSettings")}</span>
               )}
             </button>
           </div>
@@ -86,17 +83,14 @@ export default function DeliveryTab({
               <div className="flex items-center gap-3">
                 <div>
                   <h3 className="font-black text-sm text-foreground">
-                    {isBn ? "ঢাকার ভিতরে ডেলিভারি" : "In Side Dhaka Delivery"}
+                    {t("admin.delivery.insideDhakaTitle")}
                   </h3>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-accent">
-                    {isBn ? "ডিফল্ট এলাকা" : "Default Standard Area"}
-                  </span>
                 </div>
               </div>
 
               <div className="space-y-2 pt-2">
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  {isBn ? "ডেলিভারি চার্জ (টাকা / BDT) *" : "Delivery Charge (Taka / BDT) *"}
+                  {t("admin.delivery.insideDhakaCharge")}
                 </label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 font-black text-sm text-foreground/50">
@@ -114,20 +108,15 @@ export default function DeliveryTab({
                         inside_dhaka_charge: e.target.value,
                       })
                     }
-                    placeholder={isBn ? "যেমনঃ ৬০" : "e.g. 60"}
+                    placeholder="e.g. 60"
                     className="w-full pl-9 pr-4 py-3 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
                   />
                 </div>
-                <p className="text-[10px] opacity-50 font-medium">
-                  {isBn
-                    ? "ঢাকার ভেতরে ডেলিভারি সিলেক্ট করলে অর্ডারে এই চার্জ যুক্ত হবে।"
-                    : "Amount added to customer order when Inside Dhaka is chosen (e.g. 60 tk)."}
-                </p>
               </div>
 
               <div className="space-y-2">
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  {isBn ? "আনুমানিক ডেলিভারির সময়সীমা" : "Estimated Delivery Timeframe"}
+                  {t("admin.delivery.insideEstimated")}
                 </label>
                 <input
                   type="text"
@@ -138,7 +127,7 @@ export default function DeliveryTab({
                       estimated_days_inside: e.target.value,
                     })
                   }
-                  placeholder={isBn ? "যেমনঃ ১-২ দিন" : "e.g. 1-2 Days"}
+                  placeholder="e.g. 1-2 Days"
                   className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
                 />
               </div>
@@ -149,17 +138,14 @@ export default function DeliveryTab({
               <div className="flex items-center gap-3">
                 <div>
                   <h3 className="font-black text-sm text-foreground">
-                    {isBn ? "ঢাকার বাইরে ডেলিভারি" : "Out Side Dhaka Delivery"}
+                    {t("admin.delivery.outsideDhakaTitle")}
                   </h3>
-                  <span className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    {isBn ? "সারাদেশে / অন্যান্য জেলা" : "Nationwide / Regional Area"}
-                  </span>
                 </div>
               </div>
 
               <div className="space-y-2 pt-2">
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  {isBn ? "ডেলিভারি চার্জ (টাকা / BDT) *" : "Delivery Charge (Taka / BDT) *"}
+                  {t("admin.delivery.outsideDhakaCharge")}
                 </label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 font-black text-sm text-foreground/50">
@@ -177,20 +163,15 @@ export default function DeliveryTab({
                         outside_dhaka_charge: e.target.value,
                       })
                     }
-                    placeholder={isBn ? "যেমনঃ ১৩০" : "e.g. 130"}
+                    placeholder="e.g. 130"
                     className="w-full pl-9 pr-4 py-3 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
                   />
                 </div>
-                <p className="text-[10px] opacity-50 font-medium">
-                  {isBn
-                    ? "ঢাকার বাইরে ডেলিভারি সিলেক্ট করলে অর্ডারে এই চার্জ যুক্ত হবে।"
-                    : "Amount added to customer order when Outside Dhaka is chosen (e.g. 130 tk)."}
-                </p>
               </div>
 
               <div className="space-y-2">
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  {isBn ? "আনুমানিক ডেলিভারির সময়সীমা" : "Estimated Delivery Timeframe"}
+                  {t("admin.delivery.outsideEstimated")}
                 </label>
                 <input
                   type="text"
@@ -201,7 +182,7 @@ export default function DeliveryTab({
                       estimated_days_outside: e.target.value,
                     })
                   }
-                  placeholder={isBn ? "যেমনঃ ৩-৫ দিন" : "e.g. 3-5 Days"}
+                  placeholder="e.g. 3-5 Days"
                   className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
                 />
               </div>
