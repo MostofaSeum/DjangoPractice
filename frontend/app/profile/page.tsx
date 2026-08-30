@@ -44,9 +44,9 @@ export default function ProfilePage() {
   const router = useRouter();
 
   const [formData, setFormData] = useState({
-    first_name: "",
-    last_name: "",
-    email: "",
+    first_name: user?.first_name || "",
+    last_name: user?.last_name || "",
+    email: user?.email || "",
     phone: "",
     birth_date: "",
   });
@@ -65,7 +65,7 @@ export default function ProfilePage() {
   });
   const [addressSaving, setAddressSaving] = useState(false);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!user);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -95,9 +95,6 @@ export default function ProfilePage() {
 
     const loadProfile = async () => {
       try {
-        if (!formData.email) {
-          setLoading(true);
-        }
         // Fetch User Info 
         const userRes = await fetch(`${API_BASE}/auth/users/me/`, {
           headers: { Authorization: `JWT ${token}` },
