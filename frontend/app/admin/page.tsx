@@ -1262,7 +1262,7 @@ export default function AdminDashboardPage() {
     }
 
     fetchAdminData(prodPage, activeProductQuery, products.length === 0);
-  }, [user, token, authLoading, router, prodPage, activeProductQuery]);
+  }, [user, token, authLoading, prodPage, activeProductQuery]);
 
   const filteredCollections = collections.filter(
     (c) =>
