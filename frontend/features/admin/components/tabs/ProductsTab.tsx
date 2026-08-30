@@ -198,8 +198,8 @@ export default function ProductsTab({
           </div>
           <form onSubmit={handleSaveProduct} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                {isBn ? "পণ্যের নাম *" : "Product Title *"}
+              <label className="text-[10px] font-bold uppercase tracking-wider text-foreground/90">
+                {isBn ? "পণ্যের নাম / শিরোনাম *" : "Product Title *"}
               </label>
               <input
                 type="text"
@@ -218,8 +218,8 @@ export default function ProductsTab({
 
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  {isBn ? "একক মূল্য (৳) *" : "Unit Price (৳) *"}
+                <label className="text-[10px] font-bold uppercase tracking-wider text-foreground/90">
+                  {isBn ? "মূল্য (টাকা / BDT) *" : "Unit Price (BDT) *"}
                 </label>
                 <input
                   type="number"
@@ -239,8 +239,8 @@ export default function ProductsTab({
 
               <div className="flex flex-col gap-1">
                 <div className="flex justify-between items-center">
-                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    {isBn ? "স্টক পরিমাণ *" : "Inventory Stock *"}
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-foreground/90">
+                    {isBn ? "মজুত পরিমাণ *" : "Inventory Stock *"}
                   </label>
                   {newProductVariants.length > 0 && (
                     <span className="text-[9px] font-bold text-accent">
@@ -286,8 +286,8 @@ export default function ProductsTab({
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                {isBn ? "কালেকশন / ক্যাটাগরি *" : "Collection *"}
+              <label className="text-[10px] font-bold uppercase tracking-wider text-foreground/90">
+                {isBn ? "কালেকশন / ক্যাটাগরি *" : "Collection Category *"}
               </label>
               <select
                 value={

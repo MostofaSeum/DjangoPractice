@@ -107,7 +107,7 @@ export default function CouponsTab({
         <form onSubmit={handleSaveCoupon} className="space-y-5">
           {/* Coupon Code Input */}
           <div>
-            <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+            <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 text-foreground/90">
               {t("admin.coupons.code")}
             </label>
             <input
@@ -125,7 +125,7 @@ export default function CouponsTab({
 
           {/* Discount Percentage */}
           <div>
-            <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+            <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 text-foreground/90">
               {t("admin.coupons.discount")}
             </label>
             <div className="relative">
@@ -148,7 +148,7 @@ export default function CouponsTab({
 
           {/* Expiry Date & Time */}
           <div>
-            <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+            <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 text-foreground/90">
               {isBn ? "মেয়াদ শেষ হওয়ার তারিখ ও সময় *" : "Valid Until (Expiration Date & Time) *"}
             </label>
             <input
@@ -192,7 +192,7 @@ export default function CouponsTab({
 
           {/* Target Scope Switcher */}
           <div>
-            <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+            <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 text-foreground/90">
               {isBn ? "কুপন প্রযোজ্য হবে *" : "Apply Coupon To *"}
             </label>
             <div className="grid grid-cols-2 gap-2 p-1 bg-primary/5 dark:bg-primary/20 rounded-xl border border-foreground/10">
@@ -225,7 +225,7 @@ export default function CouponsTab({
           {couponTargetType === "product" && (
             <div className="relative">
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-[10px] font-extrabold uppercase tracking-wider opacity-70">
+                <label className="block text-[10px] font-extrabold uppercase tracking-wider text-foreground/90">
                   {isBn
                     ? `প্রযোজ্য পণ্য নির্বাচন করুন (মোট ${promoProductsCatalog.length.toLocaleString("bn-BD")} টি)`
                     : `Select Eligible Products (${promoProductsCatalog.length} available)`}

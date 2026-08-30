@@ -151,7 +151,7 @@ export default function PromotionsTab({
           <form onSubmit={handleApplyPromotion} className="space-y-5">
             <div className="relative">
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-[10px] font-extrabold uppercase tracking-wider opacity-70">
+                <label className="block text-[10px] font-extrabold uppercase tracking-wider text-foreground/90">
                   {isBn
                     ? `পণ্য নির্বাচন করুন (মোট ${promoProductsCatalog.length.toLocaleString("bn-BD")} টি রয়েছে)`
                     : `Select Products (${promoProductsCatalog.length} available)`}
@@ -336,8 +336,8 @@ export default function PromotionsTab({
             </div>
 
             <div>
-              <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-                {isBn ? "ছাড়ের শতকরা হার (%)" : "Discount Percentage (%)"}
+              <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 text-foreground/90">
+                {isBn ? "ছাড়ের শতকরা হার (%) *" : "Discount Percentage (%) *"}
               </label>
               <div className="relative">
                 <input
@@ -360,8 +360,8 @@ export default function PromotionsTab({
             {/* Valid Until Date & Time */}
             <div>
               <div className="flex justify-between items-center mb-2">
-                <label className="block text-[10px] font-extrabold uppercase tracking-wider opacity-70">
-                  {isBn ? "মেয়াদ উত্তীর্ণের তারিখ ও সময় (ঐচ্ছিক)" : "Valid Until Date & Time (Optional)"}
+                <label className="block text-[10px] font-extrabold uppercase tracking-wider text-foreground/90">
+                  {isBn ? "মেয়াদ শেষ হওয়ার তারিখ ও সময় *" : "Offer Valid Until *"}
                 </label>
                 {promoValidUntil && (
                   <button
@@ -603,7 +603,7 @@ export default function PromotionsTab({
 
             <form onSubmit={handleSaveDeliveryRule} className="space-y-4">
               <div>
-                <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 opacity-70">
+                <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 text-foreground/90">
                   {t("admin.promotions.ruleTitle")}
                 </label>
                 <input
@@ -617,7 +617,7 @@ export default function PromotionsTab({
               </div>
 
               <div>
-                <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+                <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 text-foreground/90">
                   {t("admin.promotions.applyOfferTo")}
                 </label>
                 <div className="grid grid-cols-3 gap-1.5 p-1 bg-primary/5 dark:bg-primary/20 rounded-xl border border-foreground/10">
@@ -690,7 +690,7 @@ export default function PromotionsTab({
               {deliveryRuleTargetType === "product" && (
                 <div className="relative">
                   <div className="flex justify-between items-center mb-1.5">
-                    <label className="block text-[10px] font-extrabold uppercase tracking-wider opacity-70">
+                    <label className="block text-[10px] font-extrabold uppercase tracking-wider text-foreground/90">
                       {isBn ? "পণ্য নির্বাচন করুন" : "Select Products"}
                     </label>
                     {deliveryRuleSelectedProductIds.length > 0 && (
@@ -875,7 +875,7 @@ export default function PromotionsTab({
               )}
 
               <div>
-                <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
+                <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 text-foreground/90">
                   {isBn ? "অফারের ধরন *" : "Offer Type *"}
                 </label>
                 <div className="grid grid-cols-2 gap-2 p-1 bg-primary/5 dark:bg-primary/20 rounded-xl border border-foreground/10">
@@ -956,7 +956,7 @@ export default function PromotionsTab({
               {deliveryRuleTargetType !== "order_total" && (
                 <div className="space-y-4 p-4 rounded-2xl bg-secondary/80 border border-foreground/10">
                   <div>
-                    <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 opacity-70">
+                    <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 text-foreground/90">
                       {isBn ? "শর্ত নির্ধারণ *" : "Offer Trigger Condition *"}
                     </label>
                     <div className="grid grid-cols-2 gap-2 p-1 bg-primary/5 dark:bg-primary/20 rounded-xl border border-foreground/10">
