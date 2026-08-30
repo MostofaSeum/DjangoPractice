@@ -268,16 +268,35 @@ export default function ProfilePage() {
           toast: true,
         });
       } else {
-        const errData = await res.json();
+        let errMessage = "Failed to save address. Please try again.";
+        try {
+          const contentType = res.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const errData = await res.json();
+            errMessage = typeof errData === "string" ? errData : JSON.stringify(errData);
+          } else {
+            const textData = await res.text();
+            errMessage = `Server error (${res.status}): ${textData.substring(0, 150)}`;
+          }
+        } catch {
+          errMessage = `Server responded with status ${res.status}`;
+        }
+
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: JSON.stringify(errData),
+          text: errMessage,
           confirmButtonColor: "#ef4444",
         });
       }
     } catch (e) {
       console.error(e);
+      Swal.fire({
+        icon: "error",
+        title: "Network Error",
+        text: "Could not connect to backend server. Please ensure Django is running.",
+        confirmButtonColor: "#ef4444",
+      });
     } finally {
       setAddressSaving(false);
     }
