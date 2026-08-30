@@ -51,16 +51,20 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("vibemart_locale", newLocale);
     document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
 
-    // Seamlessly navigate URL between /... and /bn/...
-    if (newLocale === "bn") {
-      if (!pathname.startsWith("/bn")) {
-        const target = pathname === "/" ? "/bn" : `/bn${pathname}`;
-        router.push(target);
+    // Seamlessly navigate URL between /... and /bn/... without triggering a full page remount
+    if (typeof window !== "undefined") {
+      let targetPath = pathname;
+      if (newLocale === "bn") {
+        if (!pathname.startsWith("/bn")) {
+          targetPath = pathname === "/" ? "/bn" : `/bn${pathname}`;
+        }
+      } else {
+        if (pathname.startsWith("/bn")) {
+          targetPath = pathname.replace(/^\/bn/, "") || "/";
+        }
       }
-    } else {
-      if (pathname.startsWith("/bn")) {
-        const target = pathname.replace(/^\/bn/, "") || "/";
-        router.push(target);
+      if (targetPath !== pathname) {
+        window.history.pushState(null, "", targetPath);
       }
     }
   };
