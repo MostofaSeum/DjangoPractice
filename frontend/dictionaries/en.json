@@ -443,10 +443,10 @@
     "newOrderTitle": "New Order #{orderId}",
     "newOrderMsg": "Customer {phone} placed an order for ৳{total} ({paymentMethod}).",
     "promoExpiringTitle": "Promotion Expiring Soon!",
-    "promoExpiringMsg": "Only {mins} min left before promotion '{desc}' ({discount}% OFF) expires.",
+    "promoExpiringMsg": "Only {timeLeft} left before promotion '{desc}' ({discount}% OFF) expires.",
     "prodPromoExpiringTitle": "Product Promotion Expiring Soon!",
-    "prodPromoExpiringMsg": "Only {mins} min left before {discount}% discount on '{title}' expires.",
+    "prodPromoExpiringMsg": "Only {timeLeft} left before {discount}% discount on '{title}' expires.",
     "couponExpiringTitle": "Coupon Code Expiring Soon!",
-    "couponExpiringMsg": "Only {mins} min left before coupon '{code}' ({discount}% OFF) expires."
+    "couponExpiringMsg": "Only {timeLeft} left before coupon '{code}' ({discount}% OFF) expires."
   }
 }

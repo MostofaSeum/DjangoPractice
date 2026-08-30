@@ -97,40 +97,57 @@ export default function AdminNotificationBell({
       });
     }
 
-    // Pattern 2: Only <min> min left before promotion '<desc>' (<discount>% OFF) expires.
-    const promoMatch = message.match(/Only\s+(\d+)\s+min left before promotion\s+'([^']+)'\s+\((\d+)%\s+OFF\)\s+expires\./i);
+    // Helper to translate time left string (e.g. '23h 45m', '5 hours', '45 min')
+    const formatTimeLeftBn = (timeStr: string) => {
+      if (!isBn) return timeStr;
+      let res = timeStr;
+      // Replace numbers
+      res = toBnDigits(res);
+      // Replace units
+      res = res.replace(/hours?/gi, "ঘণ্টা")
+               .replace(/mins?|minutes?/gi, "মিনিট")
+               .replace(/h\b/g, " ঘণ্টা")
+               .replace(/m\b/g, " মিনিট");
+      return res;
+    };
+
+    // Pattern 2: Only <timeLeft> left before promotion '<desc>' (<discount>% OFF) expires.
+    const promoMatch = message.match(/Only\s+([^l]+?)\s+left before promotion\s+'([^']+)'\s+\((\d+)%\s+OFF\)\s+expires\./i);
     if (promoMatch) {
-      const mins = toBnDigits(promoMatch[1]);
+      const timeLeft = formatTimeLeftBn(promoMatch[1].trim());
       const desc = promoMatch[2];
       const discount = toBnDigits(promoMatch[3]);
       translatedMessage = formatTemplate(t("notifications.promoExpiringMsg"), {
-        mins,
+        mins: timeLeft,
+        timeLeft,
         desc,
         discount,
       });
     }
 
-    // Pattern 3: Only <min> min left before <discount>% discount on '<title>' expires.
-    const prodPromoMatch = message.match(/Only\s+(\d+)\s+min left before\s+(\d+)%\s+discount on\s+'([^']+)'\s+expires\./i);
+    // Pattern 3: Only <timeLeft> left before <discount>% discount on '<title>' expires.
+    const prodPromoMatch = message.match(/Only\s+([^l]+?)\s+left before\s+(\d+)%\s+discount on\s+'([^']+)'\s+expires\./i);
     if (prodPromoMatch) {
-      const mins = toBnDigits(prodPromoMatch[1]);
+      const timeLeft = formatTimeLeftBn(prodPromoMatch[1].trim());
       const discount = toBnDigits(prodPromoMatch[2]);
       const prodTitle = prodPromoMatch[3];
       translatedMessage = formatTemplate(t("notifications.prodPromoExpiringMsg"), {
-        mins,
+        mins: timeLeft,
+        timeLeft,
         discount,
         title: prodTitle,
       });
     }
 
-    // Pattern 4: Only <min> min left before coupon '<code_name>' (<discount>% OFF) expires.
-    const couponMatch = message.match(/Only\s+(\d+)\s+min left before coupon\s+'([^']+)'\s+\((\d+)%\s+OFF\)\s+expires\./i);
+    // Pattern 4: Only <timeLeft> left before coupon '<code_name>' (<discount>% OFF) expires.
+    const couponMatch = message.match(/Only\s+([^l]+?)\s+left before coupon\s+'([^']+)'\s+\((\d+)%\s+OFF\)\s+expires\./i);
     if (couponMatch) {
-      const mins = toBnDigits(couponMatch[1]);
+      const timeLeft = formatTimeLeftBn(couponMatch[1].trim());
       const codeName = couponMatch[2];
       const discount = toBnDigits(couponMatch[3]);
       translatedMessage = formatTemplate(t("notifications.couponExpiringMsg"), {
-        mins,
+        mins: timeLeft,
+        timeLeft,
         code: codeName,
         discount,
       });

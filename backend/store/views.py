@@ -1071,25 +1071,35 @@ class NotificationViewSet(ModelViewSet):
         return qs[:50]
 
     def _check_expiring_items(self):
-        """Check for active promotions and coupons expiring within 1 hour and generate notifications."""
+        """Check for active promotions and coupons expiring within 24 hours and generate notifications."""
         now = timezone.now()
-        one_hour_later = now + timedelta(hours=1)
-        two_hours_ago = now - timedelta(hours=2)
+        twenty_four_hours_later = now + timedelta(hours=24)
+
+        def format_time_left(total_seconds):
+            total_minutes = max(1, int(total_seconds / 60))
+            hours = total_minutes // 60
+            mins = total_minutes % 60
+            if hours > 0 and mins > 0:
+                return f"{hours}h {mins}m"
+            elif hours > 0:
+                return f"{hours} hours"
+            else:
+                return f"{mins} min"
 
         # 1. Check Expiring Promotions
         expiring_promos = Promotion.objects.filter(
             valid_until__isnull=False,
             valid_until__gt=now,
-            valid_until__lte=one_hour_later
+            valid_until__lte=twenty_four_hours_later
         )
         for promo in expiring_promos:
             target_key = f"promo_exp_{promo.id}_{promo.valid_until.strftime('%Y%m%d%H%M')}"
             # Check if notification already exists
             if not Notification.objects.filter(notification_type=Notification.TYPE_PROMOTION, target_id=target_key).exists():
-                minutes_left = max(1, int((promo.valid_until - now).total_seconds() / 60))
+                time_left_str = format_time_left((promo.valid_until - now).total_seconds())
                 Notification.objects.create(
                     title=f"Promotion Expiring Soon!",
-                    message=f"Only {minutes_left} min left before promotion '{promo.description}' ({promo.discount}% OFF) expires.",
+                    message=f"Only {time_left_str} left before promotion '{promo.description}' ({promo.discount}% OFF) expires.",
                     notification_type=Notification.TYPE_PROMOTION,
                     target_id=target_key,
                     is_read=False
@@ -1100,15 +1110,15 @@ class NotificationViewSet(ModelViewSet):
             discount_percent__gt=0,
             discount_valid_until__isnull=False,
             discount_valid_until__gt=now,
-            discount_valid_until__lte=one_hour_later
+            discount_valid_until__lte=twenty_four_hours_later
         )
         for prod in expiring_products:
             target_key = f"prod_promo_exp_{prod.id}_{prod.discount_valid_until.strftime('%Y%m%d%H%M')}"
             if not Notification.objects.filter(notification_type=Notification.TYPE_PROMOTION, target_id=target_key).exists():
-                minutes_left = max(1, int((prod.discount_valid_until - now).total_seconds() / 60))
+                time_left_str = format_time_left((prod.discount_valid_until - now).total_seconds())
                 Notification.objects.create(
                     title=f"Product Promotion Expiring Soon!",
-                    message=f"Only {minutes_left} min left before {prod.discount_percent}% discount on '{prod.title}' expires.",
+                    message=f"Only {time_left_str} left before {prod.discount_percent}% discount on '{prod.title}' expires.",
                     notification_type=Notification.TYPE_PROMOTION,
                     target_id=target_key,
                     is_read=False
@@ -1119,15 +1129,15 @@ class NotificationViewSet(ModelViewSet):
             is_active=True,
             valid_to__isnull=False,
             valid_to__gt=now,
-            valid_to__lte=one_hour_later
+            valid_to__lte=twenty_four_hours_later
         )
         for coupon in expiring_coupons:
             target_key = f"coupon_exp_{coupon.id}_{coupon.valid_to.strftime('%Y%m%d%H%M')}"
             if not Notification.objects.filter(notification_type=Notification.TYPE_COUPON, target_id=target_key).exists():
-                minutes_left = max(1, int((coupon.valid_to - now).total_seconds() / 60))
+                time_left_str = format_time_left((coupon.valid_to - now).total_seconds())
                 Notification.objects.create(
                     title=f"Coupon Code Expiring Soon!",
-                    message=f"Only {minutes_left} min left before coupon '{coupon.code}' ({coupon.discount_percent}% OFF) expires.",
+                    message=f"Only {time_left_str} left before coupon '{coupon.code}' ({coupon.discount_percent}% OFF) expires.",
                     notification_type=Notification.TYPE_COUPON,
                     target_id=target_key,
                     is_read=False
