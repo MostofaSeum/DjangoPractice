@@ -113,7 +113,7 @@ export default function PromotionsTab({
   handleToggleDeliveryRule,
   handleDeleteDeliveryRule,
 }: PromotionsTabProps) {
-  const { locale, formatCurrency } = useLanguage();
+  const { locale, formatCurrency, t } = useLanguage();
   const isBn = locale === "bn";
 
   const [promoSearch, setPromoSearch] = useState("");
@@ -604,13 +604,13 @@ export default function PromotionsTab({
             <form onSubmit={handleSaveDeliveryRule} className="space-y-4">
               <div>
                 <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-1.5 opacity-70">
-                  {isBn ? "অফারের শিরোনাম *" : "Rule Title *"}
+                  {t("admin.promotions.ruleTitle")}
                 </label>
                 <input
                   type="text"
                   value={deliveryRuleTitle}
                   onChange={(e) => setDeliveryRuleTitle(e.target.value)}
-                  placeholder={isBn ? "যেমনঃ উইন্টার জ্যাকেটে ফ্রি ডেলিভারি" : "e.g. Free Delivery on Winter Jacket"}
+                  placeholder={t("admin.promotions.ruleTitlePlaceholder")}
                   required
                   className="w-full bg-background border border-foreground/15 rounded-xl px-4 py-2.5 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                 />
@@ -618,7 +618,7 @@ export default function PromotionsTab({
 
               <div>
                 <label className="block text-[10px] font-extrabold uppercase tracking-wider mb-2 opacity-70">
-                  {isBn ? "অফার প্রযোজ্য হবে *" : "Apply Offer To *"}
+                  {t("admin.promotions.applyOfferTo")}
                 </label>
                 <div className="grid grid-cols-3 gap-1.5 p-1 bg-primary/5 dark:bg-primary/20 rounded-xl border border-foreground/10">
                   <button
@@ -630,7 +630,7 @@ export default function PromotionsTab({
                         : "text-foreground/60 hover:text-foreground"
                     }`}
                   >
-                    {isBn ? "অর্ডার মোট" : "Order Total"}
+                    {t("admin.promotions.orderTotal")}
                   </button>
                   <button
                     type="button"
@@ -641,7 +641,7 @@ export default function PromotionsTab({
                         : "text-foreground/60 hover:text-foreground"
                     }`}
                   >
-                    {isBn ? "পণ্যসমূহ" : "Products"}
+                    {t("admin.promotions.products")}
                   </button>
                   <button
                     type="button"
@@ -652,7 +652,7 @@ export default function PromotionsTab({
                         : "text-foreground/60 hover:text-foreground"
                     }`}
                   >
-                    {isBn ? "কালেকশন" : "Collection"}
+                    {t("admin.promotions.collection")}
                   </button>
                 </div>
               </div>

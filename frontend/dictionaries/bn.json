@@ -449,5 +449,26 @@
     "prodPromoExpiringMsg": "'{title}' পণ্যে {discount}% ছাড়ের অফার শেষ হতে আর মাত্র {timeLeft} বাকি আছে।",
     "couponExpiringTitle": "কুপন কোডের মেয়াদ দ্রুত শেষ হচ্ছে!",
     "couponExpiringMsg": "'{code}' কুপন কোডটি ({discount}% ছাড়) শেষ হতে আর মাত্র {timeLeft} বাকি আছে।"
+  },
+  "admin": {
+    "promotions": {
+      "ruleTitle": "অফারের শিরোনাম *",
+      "ruleTitlePlaceholder": "যেমনঃ উইন্টার জ্যাকেটে ফ্রি ডেলিভারি",
+      "applyOfferTo": "অফার প্রযোজ্য হবে *",
+      "orderTotal": "অর্ডার মোট",
+      "products": "পণ্যসমূহ",
+      "collection": "কালেকশন",
+      "minOrderAmount": "সর্বনিম্ন অর্ডারের পরিমাণ (৳) *",
+      "minOrderPlaceholder": "যেমনঃ ১০০০",
+      "minSpendEligible": "প্রযোজ্য পণ্যে সর্বনিম্ন খরচ (৳) *",
+      "offerType": "অফারের ধরন *",
+      "freeDelivery": "ফ্রি ডেলিভারি",
+      "customCharge": "কাস্টম চার্জ",
+      "offerTriggerCondition": "অফারের শর্ত *",
+      "byQuantity": "পরিমাণ অনুযায়ী",
+      "byMinimumSpend": "সর্বনিম্ন খরচ অনুযায়ী (৳)",
+      "ruleActive": "অফার সক্রিয়",
+      "ruleActiveDesc": "চেকআউটে অফারটি কার্যকর থাকবে"
+    }
   }
 }

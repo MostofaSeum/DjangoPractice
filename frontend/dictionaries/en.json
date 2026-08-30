@@ -449,5 +449,26 @@
     "prodPromoExpiringMsg": "Only {timeLeft} left before {discount}% discount on '{title}' expires.",
     "couponExpiringTitle": "Coupon Code Expiring Soon!",
     "couponExpiringMsg": "Only {timeLeft} left before coupon '{code}' ({discount}% OFF) expires."
+  },
+  "admin": {
+    "promotions": {
+      "ruleTitle": "Rule Title *",
+      "ruleTitlePlaceholder": "e.g. Free Delivery on Winter Jacket",
+      "applyOfferTo": "Apply Offer To *",
+      "orderTotal": "Order Total",
+      "products": "Products",
+      "collection": "Collection",
+      "minOrderAmount": "Minimum Order Amount (৳) *",
+      "minOrderPlaceholder": "e.g. 1000",
+      "minSpendEligible": "Minimum Spend on Eligible Items (৳) *",
+      "offerType": "Offer Type *",
+      "freeDelivery": "Free Delivery",
+      "customCharge": "Custom Charge",
+      "offerTriggerCondition": "Offer Trigger Condition *",
+      "byQuantity": "By Quantity",
+      "byMinimumSpend": "By Minimum Spend (৳)",
+      "ruleActive": "Rule Active",
+      "ruleActiveDesc": "Offer is active for checkout"
+    }
   }
 }
