@@ -47,18 +47,18 @@ export default function ProductsClient({
 
       <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-12">
         {/* Top Header with Title and Search Bar Aligned Side-by-Side */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-8 mb-8 w-full">
           <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter text-foreground shrink-0">
             {t("products.title")}
           </h1>
 
-          <div className="w-full md:max-w-md lg:max-w-lg">
+          <div className="w-full flex-1 min-w-0">
             <ProductSearchBar
               initialSearch={search || ""}
               minPrice={minPrice}
               maxPrice={maxPrice}
               ordering={ordering}
-              className="!mb-0 !max-w-full"
+              className="!mb-0 !max-w-none w-full"
             />
           </div>
         </div>
