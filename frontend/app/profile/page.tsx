@@ -453,59 +453,57 @@ export default function ProfilePage() {
             </form>
 
             {/* Saved Addresses Section (Up to 5) */}
-            <div className="mt-10 pt-6 border-t border-foreground/10">
+            <div className="mt-8 pt-6 border-t border-foreground/10">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-base font-black uppercase tracking-tight text-foreground">
-                    {t("profile.savedAddresses")}
+                  <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+                    {t("profile.savedAddresses")} ({addresses.length}/5)
                   </h3>
-                  <p className="text-[10px] opacity-70 font-bold uppercase tracking-wider mt-0.5">
-                    {t("profile.savedAddressesDesc")} ({addresses.length}/5)
-                  </p>
                 </div>
                 {addresses.length < 5 && (
                   <button
                     type="button"
                     onClick={handleOpenAddAddress}
-                    className="px-3 py-1.5 bg-background text-foreground border border-foreground/15 hover:border-accent rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all shadow-sm flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-bold text-accent hover:underline uppercase tracking-wider cursor-pointer"
                   >
-                    <span>+</span> {t("profile.addNewAddress")}
+                    + {t("profile.addNewAddress")}
                   </button>
                 )}
               </div>
 
               {addresses.length === 0 ? (
-                <div className="p-4 bg-background/50 border border-foreground/10 rounded-2xl text-center text-xs opacity-60 font-semibold">
+                <div className="p-4 bg-background/50 border border-foreground/10 rounded-xl text-center text-xs opacity-60 font-semibold">
                   {t("profile.noAddresses")}
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {addresses.map((addr) => (
                     <div
                       key={addr.id}
-                      className={`p-4 rounded-2xl border transition-all ${
+                      className={`p-3.5 rounded-xl border transition-all ${
                         addr.is_default
-                          ? "bg-accent/10 border-accent/40 shadow-sm"
-                          : "bg-background border-foreground/10 hover:border-foreground/20"
+                          ? "bg-secondary border-accent/40"
+                          : "bg-background border-foreground/10"
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <span className="font-black text-xs uppercase tracking-tight text-foreground">
+                          <span className="font-bold text-xs uppercase text-foreground">
                             {addr.title || "Address"}
                           </span>
                           {addr.is_default && (
-                            <span className="px-2 py-0.5 rounded-md bg-accent text-[9px] font-black text-white uppercase tracking-wider">
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-accent/20 text-accent uppercase tracking-wider">
                               {t("profile.defaultBadge")}
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-1.5">
+
+                        <div className="flex items-center gap-2">
                           {!addr.is_default && (
                             <button
                               type="button"
                               onClick={() => handleSetDefaultAddress(addr.id)}
-                              className="text-[10px] font-bold text-accent hover:underline uppercase tracking-wider cursor-pointer"
+                              className="text-[10px] font-bold text-accent hover:underline uppercase cursor-pointer"
                             >
                               {t("profile.setAsDefault")}
                             </button>
@@ -513,10 +511,10 @@ export default function ProfilePage() {
                           <button
                             type="button"
                             onClick={() => handleOpenEditAddress(addr)}
-                            className="p-1 text-foreground/70 hover:text-foreground transition-colors cursor-pointer"
+                            className="text-foreground/50 hover:text-foreground transition-colors cursor-pointer"
                             title={t("profile.editAddress")}
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <path d="M12 20h9"></path>
                               <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
                             </svg>
@@ -524,21 +522,22 @@ export default function ProfilePage() {
                           <button
                             type="button"
                             onClick={() => handleDeleteAddress(addr.id)}
-                            className="p-1 text-red-500/80 hover:text-red-500 transition-colors cursor-pointer"
+                            className="text-red-500/60 hover:text-red-500 transition-colors cursor-pointer"
                             title={t("profile.deleteAddress")}
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <polyline points="3 6 5 6 21 6"></polyline>
                               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                             </svg>
                           </button>
                         </div>
                       </div>
-                      <p className="text-xs font-semibold text-foreground/90 mt-1.5 whitespace-pre-wrap">
+
+                      <p className="text-xs text-foreground/80 mt-1.5 whitespace-pre-wrap">
                         {addr.street}
                       </p>
                       {addr.city && (
-                        <p className="text-[10px] font-bold text-foreground/60 mt-0.5 uppercase tracking-wider">
+                        <p className="text-[10px] text-foreground/50 mt-0.5 uppercase tracking-wider">
                           {addr.city}
                         </p>
                       )}
