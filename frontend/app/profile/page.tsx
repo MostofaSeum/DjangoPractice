@@ -95,7 +95,9 @@ export default function ProfilePage() {
 
     const loadProfile = async () => {
       try {
-        setLoading(true);
+        if (!formData.email) {
+          setLoading(true);
+        }
         // Fetch User Info 
         const userRes = await fetch(`${API_BASE}/auth/users/me/`, {
           headers: { Authorization: `JWT ${token}` },
@@ -143,7 +145,7 @@ export default function ProfilePage() {
     };
 
     loadProfile();
-  }, [token, authLoading, router]);
+  }, [token, authLoading]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({

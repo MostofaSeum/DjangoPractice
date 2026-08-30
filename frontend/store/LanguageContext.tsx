@@ -27,23 +27,21 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname() || "/";
   
-  // Detect initial locale from URL prefix or cookie / localStorage
+  // Detect initial locale from URL prefix
   const urlIsBn = pathname.startsWith("/bn") || pathname === "/bn";
   const [locale, setLocaleState] = useState<Locale>(urlIsBn ? "bn" : "en");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (pathname.startsWith("/bn") || pathname === "/bn") {
+    const isBnInPath = pathname.startsWith("/bn") || pathname === "/bn";
+    if (isBnInPath) {
       setLocaleState("bn");
       localStorage.setItem("vibemart_locale", "bn");
       document.cookie = "NEXT_LOCALE=bn; path=/; max-age=31536000; SameSite=Lax";
     } else {
-      const savedLocale = localStorage.getItem("vibemart_locale") as Locale;
-      if (savedLocale === "bn") {
-        setLocaleState("bn");
-      } else {
-        setLocaleState("en");
-      }
+      setLocaleState("en");
+      localStorage.setItem("vibemart_locale", "en");
+      document.cookie = "NEXT_LOCALE=en; path=/; max-age=31536000; SameSite=Lax";
     }
     setMounted(true);
   }, [pathname]);

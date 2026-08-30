@@ -12,7 +12,7 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <LanguageProvider>{children}</LanguageProvider>
+      {children}
     </NextIntlClientProvider>
   );
 }
