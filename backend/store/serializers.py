@@ -13,7 +13,11 @@ class AddressSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'street', 'city', 'is_default', 'created_at']
 
     def validate(self, attrs):
+        request = self.context.get('request')
         customer = self.context.get('customer')
+        if not customer and request and request.user.is_authenticated:
+            customer, _ = Customer.objects.get_or_create(user=request.user)
+        
         # Check limit of 5 addresses per customer on creation
         if not self.instance and customer:
             if customer.addresses.count() >= 5:
@@ -21,7 +25,14 @@ class AddressSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        customer = self.context['customer']
+        request = self.context.get('request')
+        customer = self.context.get('customer')
+        if not customer and request and request.user.is_authenticated:
+            customer, _ = Customer.objects.get_or_create(user=request.user)
+            
+        if not customer:
+            raise serializers.ValidationError("Authenticated customer profile required.")
+
         is_default = validated_data.get('is_default', False)
         
         # If this is the user's first address, force is_default to True

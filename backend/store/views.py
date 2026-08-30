@@ -625,10 +625,15 @@ class AddressViewSet(ModelViewSet):
     pagination_class = None
 
     def get_queryset(self):
-        return Address.objects.filter(customer__user=self.request.user)
+        if not self.request.user.is_authenticated:
+            return Address.objects.none()
+        customer, _ = Customer.objects.get_or_create(user=self.request.user)
+        return Address.objects.filter(customer=customer)
 
     def get_serializer_context(self):
-        customer = Customer.objects.filter(user=self.request.user).first()
+        customer = None
+        if self.request.user and self.request.user.is_authenticated:
+            customer, _ = Customer.objects.get_or_create(user=self.request.user)
         return {'customer': customer, 'request': self.request}
 
     def perform_create(self, serializer):
@@ -639,7 +644,7 @@ class AddressViewSet(ModelViewSet):
         customer = instance.customer
         was_default = instance.is_default
         instance.delete()
-        if was_default:
+        if was_default and customer:
             first_remaining = customer.addresses.first()
             if first_remaining:
                 first_remaining.is_default = True
@@ -1170,4 +1175,4 @@ class NotificationViewSet(ModelViewSet):
     @action(detail=False, methods=['post'])
     def mark_all_read(self, request):
         Notification.objects.filter(is_read=False).update(is_read=True)
-        return Response({'message': 'All notifications marked as read.'}, status=status.HTTP_200_OK)
+        return Response({'message': 'All notifications marked as read.'}, status=status.HTTP_200_OK)
