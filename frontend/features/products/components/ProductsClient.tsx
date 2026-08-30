@@ -45,10 +45,24 @@ export default function ProductsClient({
         </div>
       </div>
 
-      <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-16">
-        <h1 className="text-4xl font-black mb-10 uppercase tracking-tighter text-foreground">
-          {t("products.title")}
-        </h1>
+      <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-12">
+        {/* Top Header with Title and Search Bar Aligned Side-by-Side */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+          <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tighter text-foreground shrink-0">
+            {t("products.title")}
+          </h1>
+
+          <div className="w-full md:max-w-md lg:max-w-lg">
+            <ProductSearchBar
+              initialSearch={search || ""}
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              ordering={ordering}
+              className="!mb-0 !max-w-full"
+            />
+          </div>
+        </div>
+
         <div className="flex flex-col lg:flex-row gap-10 items-start">
           {/* Left Sidebar: Filters & Sorting */}
           <div className="w-full lg:w-64 flex-shrink-0 flex flex-col gap-6">
@@ -126,16 +140,8 @@ export default function ProductsClient({
             )}
           </div>
 
-          {/* Right Panel*/}
+          {/* Right Panel: Product Grid */}
           <div className="flex-1 w-full">
-            {/* Search Bar with Live Suggestions Dropdown */}
-            <ProductSearchBar
-              initialSearch={search || ""}
-              minPrice={minPrice}
-              maxPrice={maxPrice}
-              ordering={ordering}
-            />
-
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.length > 0 ? (
                 products.map((product) => {
