@@ -52,6 +52,7 @@ export default function ProfilePage() {
   });
 
   const [myOrders, setMyOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState<boolean>(true);
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<Order | null>(null);
   const [vibeCoin, setVibeCoin] = useState<number>(0);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -95,6 +96,7 @@ export default function ProfilePage() {
 
     const loadProfile = async () => {
       try {
+        setOrdersLoading(true);
         // Fetch User Info 
         const userRes = await fetch(`${API_BASE}/auth/users/me/`, {
           headers: { Authorization: `JWT ${token}` },
@@ -106,15 +108,6 @@ export default function ProfilePage() {
           headers: { Authorization: `JWT ${token}` },
         });
         const customerData = customerRes.ok ? await customerRes.json() : {};
-
-        // Fetch User's Own Orders
-        const ordersRes = await fetch(`${API_BASE}/store/orders/`, {
-          headers: { Authorization: `JWT ${token}` },
-        });
-        if (ordersRes.ok) {
-          const ordersData = await ordersRes.json();
-          setMyOrders(Array.isArray(ordersData) ? ordersData : ordersData.results || []);
-        }
 
         // Fetch Saved Addresses
         const addrRes = await fetch(`${API_BASE}/store/addresses/`, {
@@ -134,10 +127,20 @@ export default function ProfilePage() {
           phone: customerData.phone || "",
           birth_date: customerData.birth_date || "",
         });
+
+        // Fetch User's Own Orders
+        const ordersRes = await fetch(`${API_BASE}/store/orders/`, {
+          headers: { Authorization: `JWT ${token}` },
+        });
+        if (ordersRes.ok) {
+          const ordersData = await ordersRes.json();
+          setMyOrders(Array.isArray(ordersData) ? ordersData : ordersData.results || []);
+        }
       } catch (err) {
         console.error("Failed to load profile:", err);
       } finally {
         setLoading(false);
+        setOrdersLoading(false);
       }
     };
 
@@ -624,165 +627,196 @@ export default function ProfilePage() {
                 </Link>
               </div>
 
-            {myOrders.length > 0 ? (
-              <div className="space-y-6">
-                {myOrders.map((ord) => {
-                  const orderTotal = ord.items
-                    ? ord.items.reduce((sum, i) => sum + i.quantity * Number(i.unit_price), 0)
-                    : 0;
-
-                  const orderIdText =
-                    locale === "bn"
-                      ? t("profile.orderNum").replace("{id}", ord.id.toLocaleString("bn-BD"))
-                      : `Order #${ord.id}`;
-
-                  const placedDateText = ord.placed_at
-                    ? new Date(ord.placed_at).toLocaleString(locale === "bn" ? "bn-BD" : "en-US")
-                    : "N/A";
-
-                  const paymentStatusLabel =
-                    ord.payment_status === "C"
-                      ? t("profile.statusComplete")
-                      : ord.payment_status === "F"
-                      ? t("profile.statusFailed")
-                      : t("profile.statusPending");
-
-                  return (
+              {ordersLoading ? (
+                <div className="space-y-4">
+                  {[1, 2].map((i) => (
                     <div
-                      key={ord.id}
-                      className="p-6 rounded-3xl bg-background border border-foreground/15 space-y-4 shadow-sm"
+                      key={i}
+                      className="p-6 rounded-2xl border border-foreground/10 bg-background/50 space-y-4 animate-pulse"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-foreground/15 pb-3">
-                        <div>
-                          <span className="font-black text-lg text-foreground uppercase tracking-tight">
-                            {orderIdText}
-                          </span>
-                          <p className="text-[10px] font-bold opacity-60 uppercase tracking-wider mt-0.5">
-                            {t("profile.placedOn").replace("{date}", placedDateText)}
-                          </p>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-foreground/5">
+                        <div className="space-y-2">
+                          <div className="h-4 w-32 bg-foreground/10 rounded-md" />
+                          <div className="h-3 w-48 bg-foreground/10 rounded-md" />
                         </div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          {ord.is_edited_by_admin && (
-                            <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-accent/20 text-accent border border-accent/30 flex items-center gap-1">{locale === "bn" ? "অ্যাডমিন কর্তৃক সংশোধিত" : "Edited by Store"}
-                            </span>
-                          )}
+                        <div className="h-6 w-24 bg-foreground/10 rounded-full self-start sm:self-auto" />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <div className="h-3 w-20 bg-foreground/10 rounded-md" />
+                          <div className="h-3.5 w-40 bg-foreground/10 rounded-md" />
+                          <div className="h-3 w-28 bg-foreground/10 rounded-md" />
+                        </div>
+                        <div className="space-y-1.5">
+                          <div className="h-3 w-24 bg-foreground/10 rounded-md" />
+                          <div className="h-3.5 w-32 bg-foreground/10 rounded-md" />
+                        </div>
+                      </div>
+                      <div className="p-3.5 rounded-xl bg-foreground/5 space-y-2.5">
+                        <div className="h-3 w-28 bg-foreground/10 rounded-md" />
+                        <div className="flex justify-between items-center">
+                          <div className="h-3.5 w-36 bg-foreground/10 rounded-md" />
+                          <div className="h-3.5 w-16 bg-foreground/10 rounded-md" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : myOrders.length > 0 ? (
+                <div className="space-y-6">
+                  {myOrders.map((ord) => {
+                    const orderTotal = ord.items
+                      ? ord.items.reduce((sum, i) => sum + i.quantity * Number(i.unit_price), 0)
+                      : 0;
+
+                    const orderIdText =
+                      locale === "bn"
+                        ? t("profile.orderNum").replace("{id}", ord.id.toLocaleString("bn-BD"))
+                        : `Order #${ord.id}`;
+
+                    const placedDateText = ord.placed_at
+                      ? new Date(ord.placed_at).toLocaleString(locale === "bn" ? "bn-BD" : "en-US")
+                      : "N/A";
+
+                    const paymentStatusLabel =
+                      ord.payment_status === "C"
+                        ? t("profile.statusComplete")
+                        : ord.payment_status === "P"
+                        ? t("profile.statusPending")
+                        : t("profile.statusFailed");
+
+                    return (
+                      <div
+                        key={ord.id}
+                        className="p-6 rounded-2xl border border-foreground/10 bg-background/50 hover:bg-background space-y-4 transition-all duration-300 shadow-sm"
+                      >
+                        {/* Top Summary Bar */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-foreground/10">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-black text-sm uppercase tracking-tight text-foreground">
+                                {orderIdText}
+                              </span>
+                              {ord.is_edited_by_admin && (
+                                <span className="bg-accent/20 text-accent text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                  {locale === "bn" ? "সংশোধিত" : "Edited"}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[10px] opacity-60 font-bold uppercase tracking-wider mt-0.5">
+                              {placedDateText}
+                            </p>
+                          </div>
                           <span
-                            className={`px-3.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider w-fit ${
+                            className={`self-start sm:self-auto px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
                               ord.payment_status === "C"
-                                ? "bg-green-500/20 text-green-500 border border-green-500/30"
-                                : ord.payment_status === "F"
-                                ? "bg-red-500/20 text-red-500 border border-red-500/30"
-                                : "bg-yellow-500/20 text-yellow-500 border border-yellow-500/30"
+                                ? "bg-green-500/10 text-green-500 border border-green-500/20"
+                                : ord.payment_status === "P"
+                                ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                                : "bg-red-500/10 text-red-500 border border-red-500/20"
                             }`}
                           >
-                            {t("profile.paymentStatus")} {paymentStatusLabel}
+                            {paymentStatusLabel}
                           </span>
                         </div>
-                      </div>
 
-                      {/* Details & Address */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium text-foreground">
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">
-                            {t("profile.shippingDetails")}
-                          </p>
-                          <p className="font-bold">{ord.shipping_address || t("profile.addressNotSpecified")}</p>
-                          <p className="text-[11px] opacity-70">{t("profile.phone")} {ord.phone || "N/A"}</p>
+                        {/* Details & Address */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium text-foreground">
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">
+                              {t("profile.shippingDetails")}
+                            </p>
+                            <p className="font-bold">{ord.shipping_address || t("profile.addressNotSpecified")}</p>
+                            <p className="text-[11px] opacity-70">{t("profile.phone")} {ord.phone || "N/A"}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">
+                              {t("profile.paymentMethod")}
+                            </p>
+                            <p className="font-bold">
+                              {ord.payment_method === "V" ? (
+                                <span className="text-accent flex items-center gap-1.5">
+                                  <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" className="w-4 h-4 object-contain" /> {t("profile.vibeCoinPayment")}
+                                </span>
+                              ) : ord.payment_method === "B" || ord.payment_method === "O" ? (
+                                <span className="text-bkash">
+                                  {locale === "bn" ? "বিকাশ পেমেন্ট" : "bKash Payment"}
+                                  {ord.transaction_id ? ` (TrxID: ${ord.transaction_id})` : ""}
+                                  {ord.transaction_phone_no ? ` [Sender: ${ord.transaction_phone_no}]` : ""}
+                                </span>
+                              ) : ord.payment_method === "N" ? (
+                                <span className="text-nagad">
+                                  {locale === "bn" ? "নগদ পেমেন্ট" : "Nagad Payment"}
+                                  {ord.transaction_id ? ` (TrxID: ${ord.transaction_id})` : ""}
+                                  {ord.transaction_phone_no ? ` [Sender: ${ord.transaction_phone_no}]` : ""}
+                                </span>
+                              ) : (
+                                t("profile.cod")
+                              )}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">
-                            {t("profile.paymentMethod")}
-                          </p>
-                          <p className="font-bold">
-                            {ord.payment_method === "V" ? (
-                              <span className="text-accent flex items-center gap-1.5">
-                                <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" className="w-4 h-4 object-contain" /> {t("profile.vibeCoinPayment")}
-                              </span>
-                            ) : ord.payment_method === "B" || ord.payment_method === "O" ? (
-                              <span className="text-bkash">
-                                {locale === "bn" ? "বিকাশ পেমেন্ট" : "bKash Payment"}
-                                {ord.transaction_id ? ` (TrxID: ${ord.transaction_id})` : ""}
-                                {ord.transaction_phone_no ? ` [Sender: ${ord.transaction_phone_no}]` : ""}
-                              </span>
-                            ) : ord.payment_method === "N" ? (
-                              <span className="text-nagad">
-                                {locale === "bn" ? "নগদ পেমেন্ট" : "Nagad Payment"}
-                                {ord.transaction_id ? ` (TrxID: ${ord.transaction_id})` : ""}
-                                {ord.transaction_phone_no ? ` [Sender: ${ord.transaction_phone_no}]` : ""}
-                              </span>
-                            ) : (
-                              t("profile.cod")
-                            )}
-                          </p>
-                        </div>
-                      </div>
 
-                      {/* Items Breakdown */}
-                      {ord.items && ord.items.length > 0 && (
-                        <div className="bg-secondary rounded-2xl p-4 border border-foreground/10 space-y-2">
-                          <p className="text-[10px] font-black uppercase tracking-wider opacity-60 border-b border-foreground/10 pb-1">
-                            {locale === "bn"
-                              ? t("profile.itemsOrdered").replace(
-                                  "{count}",
-                                  ord.items.reduce((s, i) => s + i.quantity, 0).toLocaleString("bn-BD")
-                                )
-                              : `Items Ordered (${ord.items.reduce((s, i) => s + i.quantity, 0)})`}
-                          </p>
-                          <div className="space-y-1">
-                            {ord.items.map((it: any) => {
-                              const qtyFormatted = locale === "bn" ? it.quantity.toLocaleString("bn-BD") : it.quantity;
-                              return (
-                                <div key={it.id} className="flex justify-between items-center text-xs">
-                                  <div className="flex flex-col">
-                                    <span className="font-bold text-foreground">
-                                      {it.product?.title || `Product #${it.product}`} <span className="opacity-50 font-normal">x {qtyFormatted}</span>
-                                    </span>
-                                    {(it.variant || it.variant_title) && (
-                                      <span className="text-[10px] text-accent font-semibold flex items-center gap-1">
-                                        {it.variant?.color_code && (
-                                          <span
-                                            className="w-2.5 h-2.5 rounded-full border border-black/20 inline-block shrink-0"
-                                            style={{ backgroundColor: it.variant.color_code }}
-                                          />
-                                        )}
-                                        <span>{t("profile.option")} {it.variant?.name || it.variant_title}</span>
+                        {/* Items Breakdown */}
+                        {ord.items && ord.items.length > 0 && (
+                          <div className="bg-secondary rounded-2xl p-4 border border-foreground/10 space-y-2">
+                            <p className="text-[10px] font-black uppercase tracking-wider opacity-60 border-b border-foreground/10 pb-1">
+                              {locale === "bn"
+                                ? t("profile.itemsOrdered").replace(
+                                    "{count}",
+                                    ord.items.reduce((s, i) => s + i.quantity, 0).toLocaleString("bn-BD")
+                                  )
+                                : `Items Ordered (${ord.items.reduce((s, i) => s + i.quantity, 0)})`}
+                            </p>
+                            <div className="space-y-1">
+                              {ord.items.map((it: any) => {
+                                const qtyFormatted = locale === "bn" ? it.quantity.toLocaleString("bn-BD") : it.quantity;
+                                return (
+                                  <div key={it.id} className="flex justify-between items-center text-xs">
+                                    <div className="flex flex-col">
+                                      <span className="font-bold text-foreground">
+                                        {it.product?.title || `Product #${it.product}`} <span className="opacity-50 font-normal">x {qtyFormatted}</span>
                                       </span>
-                                    )}
+                                      {it.variant && (
+                                        <span className="text-[10px] opacity-60 font-semibold">
+                                          {it.variant.name || it.variant.color_name || it.variant.size}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <span className="font-bold text-foreground opacity-80">
+                                      {formatCurrency(Number(it.unit_price) * it.quantity)}
+                                    </span>
                                   </div>
-                                  <span className="font-black text-accent">
-                                    {formatCurrency(it.quantity * Number(it.unit_price))}
-                                  </span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                          <div className="pt-2 border-t border-foreground/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs font-black">
-                            <div className="flex items-center gap-2">
-                              <span className="uppercase text-foreground">{t("profile.totalAmount")}</span>
-                              <span className="text-base text-foreground">{formatCurrency(orderTotal + Number(ord.delivery_charge || 0))}</span>
+                                );
+                              })}
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => setSelectedOrderDetails(ord)}
-                              className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
-                            >
-                              {locale === "bn" ? "বিস্তারিত দেখুন" : "View Details"}
-                            </button>
+                            <div className="pt-2 border-t border-foreground/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs font-black">
+                              <div className="flex items-center gap-2">
+                                <span className="uppercase text-foreground">{t("profile.totalAmount")}</span>
+                                <span className="text-base text-foreground">{formatCurrency(orderTotal + Number(ord.delivery_charge || 0))}</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setSelectedOrderDetails(ord)}
+                                className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
+                              >
+                                {locale === "bn" ? "বিস্তারিত দেখুন" : "View Details"}
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="py-16 text-center text-xs font-bold uppercase tracking-wider opacity-50">
-                {t("profile.noOrders")}
-              </div>
-            )}
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="py-16 text-center text-xs font-bold uppercase tracking-wider opacity-50">
+                  {t("profile.noOrders")}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
       {/* Customer Order Details Modal */}
       {selectedOrderDetails && (
