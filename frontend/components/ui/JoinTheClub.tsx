@@ -81,7 +81,7 @@ export default function JoinTheClub() {
   };
 
   return (
-    <section className="bg-secondary text-foreground border border-foreground/10 py-20 px-8 md:px-12 mx-4 md:mx-12 lg:mx-20 rounded-[3rem] shadow-xl flex flex-col items-center text-center relative overflow-hidden group transition-colors duration-300">
+    <section className="bg-secondary text-foreground border border-foreground/10 py-12 md:py-14 px-8 md:px-12 mx-4 md:mx-12 lg:mx-20 rounded-[3rem] shadow-xl flex flex-col items-center text-center relative overflow-hidden group transition-colors duration-300">
       <div className="absolute top-0 right-0 p-12 opacity-5 transform group-hover:rotate-12 transition-transform duration-700 pointer-events-none group-hover:scale-110">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -99,10 +99,10 @@ export default function JoinTheClub() {
           <path d="M12 22 16 9l-3-6" />
         </svg>
       </div>
-      <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4 relative z-10">
+      <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter mb-3 relative z-10">
         {t("newsletter.title")}
       </h2>
-      <p className="text-sm md:text-base opacity-70 font-medium mb-10 max-w-md relative z-10">
+      <p className="text-sm opacity-70 font-medium mb-6 md:mb-8 max-w-md relative z-10">
         {t("newsletter.subtitle")}
       </p>
       <form onSubmit={handleSubmit} className="flex gap-2 w-full max-w-md relative z-10">

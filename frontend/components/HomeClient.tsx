@@ -288,10 +288,10 @@ export default function HomeClient({
         </div>
       </section>
 
-      <main className="pb-24">
+      <main className="pb-12">
         {/* Featured Categories */}
-        <section className="max-w-[1400px] mx-auto px-8 md:px-12 mt-32">
-          <div className="flex justify-between items-end mb-10">
+        <section className="max-w-[1400px] mx-auto px-8 md:px-12 mt-16 md:mt-20">
+          <div className="flex justify-between items-end mb-6 md:mb-8">
             <h2 className="text-3xl font-black uppercase tracking-tighter">
               {t("categories.featuredTitle")}
             </h2>
@@ -396,8 +396,8 @@ export default function HomeClient({
         </section>
 
         {/* Trending Now */}
-        <section className="max-w-[1400px] mx-auto px-8 md:px-12 mt-32">
-          <div className="flex justify-between items-end mb-10">
+        <section className="max-w-[1400px] mx-auto px-8 md:px-12 mt-16 md:mt-20">
+          <div className="flex justify-between items-end mb-6 md:mb-8">
             <h2 className="text-3xl font-black uppercase tracking-tighter">
               {t("trending.title")}
             </h2>
@@ -518,17 +518,17 @@ export default function HomeClient({
         </section>
 
         {/* Why Choose Us */}
-        <section className="bg-secondary text-foreground border border-foreground/10 mt-24 mb-16 py-20 px-8 md:px-12 rounded-[3rem] mx-4 md:mx-12 lg:mx-20 shadow-2xl transition-colors duration-300">
+        <section className="bg-secondary text-foreground border border-foreground/10 mt-16 md:mt-20 py-14 md:py-16 px-8 md:px-12 rounded-[3rem] mx-4 md:mx-12 lg:mx-20 shadow-2xl transition-colors duration-300">
           <div className="max-w-[1200px] mx-auto">
-            <h2 className="text-3xl font-black text-center mb-16 uppercase tracking-tighter">
+            <h2 className="text-3xl font-black text-center mb-10 md:mb-12 uppercase tracking-tighter">
               {t("whyUs.title")}
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12 text-center">
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-accent/20 text-foreground rounded-2xl flex items-center justify-center mb-8 transform rotate-3 hover:rotate-0 transition-transform duration-300 shadow-md">
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-accent/20 text-foreground rounded-2xl flex items-center justify-center mb-6 transform rotate-3 hover:rotate-0 transition-transform duration-300 shadow-md">
                   <TruckIcon />
                 </div>
-                <h3 className="text-xl font-black mb-4 uppercase tracking-widest">
+                <h3 className="text-xl font-black mb-3 uppercase tracking-widest">
                   {t("whyUs.fastShippingTitle")}
                 </h3>
                 <p className="opacity-70 leading-relaxed text-sm font-medium">
@@ -536,10 +536,10 @@ export default function HomeClient({
                 </p>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-accent/20 text-foreground rounded-2xl flex items-center justify-center mb-8 transform -rotate-3 hover:rotate-0 transition-transform duration-300 shadow-md">
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-accent/20 text-foreground rounded-2xl flex items-center justify-center mb-6 transform -rotate-3 hover:rotate-0 transition-transform duration-300 shadow-md">
                   <DiamondIcon />
                 </div>
-                <h3 className="text-xl font-black mb-4 uppercase tracking-widest">
+                <h3 className="text-xl font-black mb-3 uppercase tracking-widest">
                   {t("whyUs.eliteQualityTitle")}
                 </h3>
                 <p className="opacity-70 leading-relaxed text-sm font-medium">
@@ -547,10 +547,10 @@ export default function HomeClient({
                 </p>
               </div>
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-accent/20 text-foreground rounded-2xl flex items-center justify-center mb-8 transform rotate-3 hover:rotate-0 transition-transform duration-300 shadow-md">
+                <div className="w-16 h-16 md:w-20 md:h-20 bg-accent/20 text-foreground rounded-2xl flex items-center justify-center mb-6 transform rotate-3 hover:rotate-0 transition-transform duration-300 shadow-md">
                   <ShieldIcon />
                 </div>
-                <h3 className="text-xl font-black mb-4 uppercase tracking-widest">
+                <h3 className="text-xl font-black mb-3 uppercase tracking-widest">
                   {t("whyUs.secureCheckoutTitle")}
                 </h3>
                 <p className="opacity-70 leading-relaxed text-sm font-medium">
@@ -563,7 +563,9 @@ export default function HomeClient({
       </main>
 
       {/* Join the Club Section */}
-      <JoinTheClub />
+      <div className="mb-14 md:mb-16">
+        <JoinTheClub />
+      </div>
     </div>
   );
 }
