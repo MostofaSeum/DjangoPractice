@@ -37,8 +37,20 @@ export default function AdminNotificationBell({
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const [activeFilter, setActiveFilter] = useState<"all" | "order" | "promotion" | "coupon">("all");
+
   const lastSeenIdRef = useRef<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Filtered notifications list based on active filter tab
+  const filteredNotifications = notifications.filter((item) => {
+    if (activeFilter === "all") return true;
+    return item.notification_type === activeFilter;
+  });
+
+  const ordersCount = notifications.filter((n) => n.notification_type === "order").length;
+  const promosCount = notifications.filter((n) => n.notification_type === "promotion").length;
+  const couponsCount = notifications.filter((n) => n.notification_type === "coupon").length;
 
   // Helper to convert English numbers to Bengali digits
   const toBnDigits = (numStr: string | number) => {
@@ -88,6 +100,7 @@ export default function AdminNotificationBell({
         else if (payMethod.toLowerCase().includes("nagad")) payMethod = "নগদ";
         else if (payMethod.toLowerCase().includes("rocket")) payMethod = "রকেট";
         else if (payMethod.toLowerCase().includes("sslcommerz")) payMethod = "এসএসএলকমার্জ";
+        else if (payMethod.toLowerCase().includes("vibecoin")) payMethod = "ভাইবকয়েন";
       }
       
       translatedMessage = formatTemplate(t("notifications.newOrderMsg"), {
@@ -383,14 +396,103 @@ export default function AdminNotificationBell({
             )}
           </div>
 
+          {/* Filter Bar */}
+          <div className="px-3 py-2 bg-primary/5 dark:bg-primary/20 border-b border-foreground/10 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+            <button
+              type="button"
+              onClick={() => setActiveFilter("all")}
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
+                activeFilter === "all"
+                  ? "bg-secondary text-foreground shadow-xs border border-foreground/15"
+                  : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
+              }`}
+            >
+              <span>{t("notifications.filterAll")}</span>
+              <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
+                activeFilter === "all" ? "bg-primary/10 text-foreground" : "opacity-60"
+              }`}>
+                {toBnDigits(notifications.length)}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveFilter("order")}
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
+                activeFilter === "order"
+                  ? "bg-secondary text-foreground shadow-xs border border-foreground/15"
+                  : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block"></span>
+              <span>{t("notifications.filterOrders")}</span>
+              {ordersCount > 0 && (
+                <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
+                  activeFilter === "order" ? "bg-primary/10 text-foreground" : "opacity-60"
+                }`}>
+                  {toBnDigits(ordersCount)}
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveFilter("promotion")}
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
+                activeFilter === "promotion"
+                  ? "bg-secondary text-foreground shadow-xs border border-foreground/15"
+                  : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span>
+              <span>{t("notifications.filterPromotions")}</span>
+              {promosCount > 0 && (
+                <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
+                  activeFilter === "promotion" ? "bg-primary/10 text-foreground" : "opacity-60"
+                }`}>
+                  {toBnDigits(promosCount)}
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveFilter("coupon")}
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
+                activeFilter === "coupon"
+                  ? "bg-secondary text-foreground shadow-xs border border-foreground/15"
+                  : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-500 inline-block"></span>
+              <span>{t("notifications.filterCoupons")}</span>
+              {couponsCount > 0 && (
+                <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
+                  activeFilter === "coupon" ? "bg-primary/10 text-foreground" : "opacity-60"
+                }`}>
+                  {toBnDigits(couponsCount)}
+                </span>
+              )}
+            </button>
+          </div>
+
           {/* List of Notifications */}
           <div className="max-h-[380px] overflow-y-auto divide-y divide-foreground/5">
-            {notifications.length === 0 ? (
+            {filteredNotifications.length === 0 ? (
               <div className="p-8 text-center text-xs opacity-60 font-bold uppercase tracking-wider">
-                {t("notifications.noNotifications")}
+                {notifications.length === 0
+                  ? t("notifications.noNotifications")
+                  : formatTemplate(t("notifications.noFilterResults"), {
+                      type:
+                        activeFilter === "order"
+                          ? t("notifications.filterOrders")
+                          : activeFilter === "promotion"
+                            ? t("notifications.filterPromotions")
+                            : t("notifications.filterCoupons"),
+                    })}
               </div>
             ) : (
-              notifications.map((item) => {
+              filteredNotifications.map((item) => {
                 const { title: itemTitle, message: itemMessage } = translateNotification(
                   item.title,
                   item.message
