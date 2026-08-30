@@ -43,6 +43,7 @@ class AddressSerializer(serializers.ModelSerializer):
         if is_default:
             customer.addresses.filter(is_default=True).update(is_default=False)
             
+        validated_data.pop('customer', None)
         return Address.objects.create(customer=customer, **validated_data)
 
     def update(self, instance, validated_data):
