@@ -444,7 +444,7 @@ export default function AdminNotificationBell({
                   : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
               }`}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block opacity-80"></span>
               <span>{t("notifications.filterPromotions")}</span>
               {promosCount > 0 && (
                 <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
@@ -464,7 +464,7 @@ export default function AdminNotificationBell({
                   : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
               }`}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-500 inline-block"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block opacity-60"></span>
               <span>{t("notifications.filterCoupons")}</span>
               {couponsCount > 0 && (
                 <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
@@ -517,7 +517,7 @@ export default function AdminNotificationBell({
                           />
                         </div>
                       ) : item.notification_type === "promotion" ? (
-                        <div className="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center p-1.5 border border-amber-500/20">
+                        <div className="w-7 h-7 rounded-lg bg-accent/15 flex items-center justify-center p-1.5 border border-accent/20">
                           <Image
                             src="/admin/sales.png"
                             alt="Promotion"
@@ -527,7 +527,7 @@ export default function AdminNotificationBell({
                           />
                         </div>
                       ) : item.notification_type === "coupon" ? (
-                        <div className="w-7 h-7 rounded-lg bg-purple-500/15 flex items-center justify-center p-1.5 border border-purple-500/20">
+                        <div className="w-7 h-7 rounded-lg bg-accent/15 flex items-center justify-center p-1.5 border border-accent/20">
                           <Image
                             src="/admin/coupons.png"
                             alt="Coupon"
