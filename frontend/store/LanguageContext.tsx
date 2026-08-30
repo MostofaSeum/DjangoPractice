@@ -21,21 +21,50 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+import { useRouter, usePathname } from "next/navigation";
+
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("en");
+  const router = useRouter();
+  const pathname = usePathname() || "/";
+  
+  // Detect initial locale from URL prefix or cookie / localStorage
+  const urlIsBn = pathname.startsWith("/bn") || pathname === "/bn";
+  const [locale, setLocaleState] = useState<Locale>(urlIsBn ? "bn" : "en");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const savedLocale = localStorage.getItem("vibemart_locale") as Locale;
-    if (savedLocale === "en" || savedLocale === "bn") {
-      setLocaleState(savedLocale);
+    if (pathname.startsWith("/bn") || pathname === "/bn") {
+      setLocaleState("bn");
+      localStorage.setItem("vibemart_locale", "bn");
+      document.cookie = "NEXT_LOCALE=bn; path=/; max-age=31536000; SameSite=Lax";
+    } else {
+      const savedLocale = localStorage.getItem("vibemart_locale") as Locale;
+      if (savedLocale === "bn") {
+        setLocaleState("bn");
+      } else {
+        setLocaleState("en");
+      }
     }
     setMounted(true);
-  }, []);
+  }, [pathname]);
 
   const setLocale = (newLocale: Locale) => {
     setLocaleState(newLocale);
     localStorage.setItem("vibemart_locale", newLocale);
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
+
+    // Seamlessly navigate URL between /... and /bn/...
+    if (newLocale === "bn") {
+      if (!pathname.startsWith("/bn")) {
+        const target = pathname === "/" ? "/bn" : `/bn${pathname}`;
+        router.push(target);
+      }
+    } else {
+      if (pathname.startsWith("/bn")) {
+        const target = pathname.replace(/^\/bn/, "") || "/";
+        router.push(target);
+      }
+    }
   };
 
   const toggleLocale = () => {
