@@ -38,10 +38,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     fetchUser();
   }, []);
 
-  // Fetch Current User via HttpOnly cookie
-  const fetchUser = async (): Promise<User | null> => {
+  // Fetch Current User via HttpOnly cookie (or explicit authToken on login)
+  const fetchUser = async (authToken?: string): Promise<User | null> => {
     try {
+      const headers: Record<string, string> = {};
+      if (authToken) {
+        headers["Authorization"] = `JWT ${authToken}`;
+      }
       const res = await fetch(`${API_BASE}/auth/users/me/`, {
+        headers,
         credentials: "include",
       });
       if (res.ok) {
@@ -63,22 +68,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Sign In / Login
   const login = async (username: string, password: string): Promise<User | null> => {
-    const res = await fetch(`${API_BASE}/auth/jwt/create/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-      credentials: "include",
-    });
+    try {
+      const res = await fetch(`${API_BASE}/auth/jwt/create/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+        credentials: "include",
+      });
 
-    if (res.ok) {
-      const data = await res.json();
-      if (data.access) {
-        setToken(data.access);
+      if (res.ok) {
+        const data = await res.json();
+        const access = data.access;
+        if (access) {
+          setToken(access);
+        }
+        // Fetch user passing explicit Authorization header in case cross-origin cookies are delayed
+        const userData = await fetchUser(access);
+        return userData;
       }
-      const userData = await fetchUser();
-      return userData;
+      return null;
+    } catch (e) {
+      console.error("Login fetch error:", e);
+      return null;
     }
-    return null;
   };
 
   // Sign Up / Register
