@@ -129,6 +129,11 @@ export default function AdminSidebar({
       label: t("admin.sidebar.analytics"),
       icon: "/admin/analytics.png",
     },
+    {
+      id: "settings" as AdminTab,
+      label: isBn ? "স্টোর সেটিংস" : "Settings",
+      icon: "/admin/settings.png",
+    },
   ];
 
   return (

@@ -156,7 +156,8 @@ export type AdminTab =
   | "coupons"
   | "payments"
   | "delivery"
-  | "analytics";
+  | "analytics"
+  | "settings";
 
 export type ProductSubTab =
   | "all"

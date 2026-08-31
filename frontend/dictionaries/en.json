@@ -476,6 +476,7 @@
       "payments": "Payment Methods",
       "delivery": "Manage Delivery",
       "analytics": "Analytics",
+      "settings": "Store Settings",
       "collapse": "Collapse Sidebar",
       "expand": "Expand Sidebar"
     },
@@ -490,6 +491,7 @@
       "payments": "Payment Methods",
       "delivery": "Delivery Settings",
       "analytics": "Analytics",
+      "settings": "Store Settings",
       "current": "Current Tab"
     },
     "payments": {

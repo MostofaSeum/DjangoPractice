@@ -51,6 +51,8 @@ export default function AdminHeader({
         return t("admin.tabs.delivery");
       case "analytics":
         return t("admin.tabs.analytics");
+      case "settings":
+        return t("admin.tabs.settings");
       default:
         return t("admin.tabs.current");
     }

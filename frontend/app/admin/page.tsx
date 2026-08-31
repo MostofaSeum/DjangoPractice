@@ -16,6 +16,7 @@ import PaymentsTab from "@/features/admin/components/tabs/PaymentsTab";
 import DeliveryTab from "@/features/admin/components/tabs/DeliveryTab";
 import AnalyticsTab from "@/features/admin/components/tabs/AnalyticsTab";
 import DashboardOverviewTab from "@/features/admin/components/tabs/DashboardOverviewTab";
+import StoreSettingsTab from "@/features/admin/components/tabs/StoreSettingsTab";
 import { useLanguage } from "@/store/LanguageContext";
 
 const API_BASE = (
@@ -2800,6 +2801,9 @@ export default function AdminDashboardPage() {
               onSubTabChange={setAnalyticsSubTab}
             />
           )}
+
+          {/* 10. GENERAL STORE SETTINGS TAB */}
+          {activeTab === "settings" && <StoreSettingsTab />}
         </main>
       </div>
     </div>
