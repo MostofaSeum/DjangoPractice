@@ -138,19 +138,41 @@ export default function Footer() {
             </div>
 
             {/* Payment & Courier Partner Badges */}
-            <div className="pt-3 flex items-center gap-2 flex-wrap">
-              <div className="px-2.5 py-1 rounded bg-secondary text-foreground text-[10px] font-black uppercase tracking-widest border border-foreground/20 shadow-xs">
-                SSLCOMMERZ
+            <div className="pt-3 flex items-center gap-2.5 flex-wrap">
+              {/* bKash */}
+              <div className="h-7 px-2.5 py-1 rounded-md bg-white flex items-center justify-center shadow-xs border border-white/20">
+                <img
+                  src="/Footer/bKash.png"
+                  alt="bKash"
+                  className="h-full max-h-5 object-contain"
+                />
               </div>
-              <div className="px-2.5 py-1 rounded bg-[#e2136e] text-white text-[10px] font-black uppercase tracking-widest shadow-xs">
-                bKash
+
+              {/* Nagad */}
+              <div className="h-7 px-2.5 py-1 rounded-md bg-white flex items-center justify-center shadow-xs border border-white/20">
+                <img
+                  src="/Footer/nagad.webp"
+                  alt="Nagad"
+                  className="h-full max-h-5 object-contain"
+                />
               </div>
-              <div className="px-2.5 py-1 rounded bg-[#f15a24] text-white text-[10px] font-black uppercase tracking-widest shadow-xs">
-                Nagad
+
+              {/* VibeCoin */}
+              <div className="h-7 px-2.5 py-1 rounded-md bg-white flex items-center justify-center shadow-xs border border-white/20">
+                <img
+                  src="/Footer/VibeCoin.png"
+                  alt="VibeCoin"
+                  className="h-full max-h-5 object-contain"
+                />
               </div>
-              <div className="px-2.5 py-1 rounded bg-secondary text-foreground text-[10px] font-black uppercase tracking-widest border border-foreground/20 shadow-xs flex items-center gap-1">
-                <span>🤝</span>
-                <span>COD</span>
+
+              {/* COD */}
+              <div className="h-7 px-2.5 py-1 rounded-md bg-white flex items-center justify-center shadow-xs border border-white/20">
+                <img
+                  src="/Footer/COD.webp"
+                  alt="Cash on Delivery"
+                  className="h-full max-h-5 object-contain"
+                />
               </div>
             </div>
           </div>
@@ -239,14 +261,6 @@ export default function Footer() {
             <p className="opacity-80 leading-relaxed font-medium">
               {t("footer.brandDescription")}
             </p>
-            <div>
-              <Link
-                href="/products"
-                className="inline-block text-[11px] font-black uppercase tracking-widest text-accent hover:underline"
-              >
-                {t("footer.readMore")}
-              </Link>
-            </div>
           </div>
         </div>
 
