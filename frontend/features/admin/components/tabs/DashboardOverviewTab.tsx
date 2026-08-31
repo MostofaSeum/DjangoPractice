@@ -6,8 +6,6 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   Tooltip,
@@ -40,7 +38,6 @@ export default function DashboardOverviewTab({
 
   // 1. Calculate Core Financial & Inventory Metrics
   const metrics = useMemo(() => {
-    // Total Revenue from completed or all placed orders
     let totalRevenue = 0;
     let completedRevenue = 0;
     let pendingOrdersCount = 0;
@@ -147,25 +144,25 @@ export default function DashboardOverviewTab({
     switch (status) {
       case "C":
         return (
-          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-visible/15 text-visible border border-visible/30">
             {isBn ? "সম্পন্ন" : "Complete"}
           </span>
         );
       case "P":
         return (
-          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 animate-pulse">
+          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-accent/20 text-accent border border-accent/40 animate-pulse">
             {isBn ? "পেন্ডিং" : "Pending"}
           </span>
         );
       case "F":
         return (
-          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30">
+          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-hidden/15 text-hidden border border-hidden/30">
             {isBn ? "ব্যর্থ" : "Failed"}
           </span>
         );
       default:
         return (
-          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gray-500/15 text-gray-500 border border-gray-500/30">
+          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-foreground/10 text-foreground/70 border border-foreground/20">
             {status}
           </span>
         );
@@ -175,11 +172,11 @@ export default function DashboardOverviewTab({
   return (
     <div className="space-y-8 animate-in fade-in duration-300 pb-12">
       {/* 🌟 Welcome Banner with Quick Shortcuts */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-primary via-primary/95 to-accent/20 rounded-3xl p-6 sm:p-8 text-background dark:text-foreground border border-white/10 shadow-lg">
+      <div className="relative overflow-hidden bg-primary rounded-3xl p-6 sm:p-8 text-button-fg border border-foreground/10 shadow-lg">
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+              <span className="w-2.5 h-2.5 rounded-full bg-visible animate-ping" />
               <span className="text-[11px] font-black uppercase tracking-widest text-accent">
                 {isBn ? "লাইভ স্টোর সামারি" : "Live Store Overview"}
               </span>
@@ -198,16 +195,16 @@ export default function DashboardOverviewTab({
           <div className="flex flex-wrap gap-2.5">
             <button
               onClick={() => onNavigateTab("orders")}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-white text-xs font-bold uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all shadow-sm cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-button-fg text-xs font-bold uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all shadow-sm cursor-pointer"
             >
               <span>{isBn ? "অর্ডার দেখুন" : "View Orders"}</span>
-              <span className="px-1.5 py-0.5 rounded-full bg-white/20 text-[10px]">
+              <span className="px-1.5 py-0.5 rounded-full bg-primary text-button-fg text-[10px] font-black">
                 {metrics.pendingOrdersCount}
               </span>
             </button>
             <button
               onClick={() => onNavigateTab("analytics")}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white dark:text-foreground text-xs font-bold uppercase tracking-wider border border-white/15 transition-all cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary/15 hover:bg-secondary/25 text-button-fg text-xs font-bold uppercase tracking-wider border border-foreground/15 transition-all cursor-pointer"
             >
               <span>{isBn ? "পুরো রিপোর্ট" : "Full Analytics"}</span>
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -217,8 +214,8 @@ export default function DashboardOverviewTab({
           </div>
         </div>
 
-        {/* Decorative ambient gradient backdrop */}
-        <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-accent/20 rounded-full blur-3xl pointer-events-none" />
+        {/* Decorative ambient backdrop */}
+        <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-accent/15 rounded-full blur-3xl pointer-events-none" />
       </div>
 
       {/* 📊 KPI Metric Cards (Clickable to jump to specific tabs) */}
@@ -252,30 +249,30 @@ export default function DashboardOverviewTab({
         {/* Total & Pending Orders */}
         <div
           onClick={() => onNavigateTab("orders")}
-          className="group p-5 sm:p-6 rounded-2xl bg-secondary border border-foreground/10 hover:border-amber-500/50 shadow-sm transition-all hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+          className="group p-5 sm:p-6 rounded-2xl bg-secondary border border-foreground/10 hover:border-accent/50 shadow-sm transition-all hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
         >
           <div className="flex items-center justify-between gap-2 mb-3">
             <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider opacity-70">
               {isBn ? "মোট অর্ডার" : "Total Orders"}
             </span>
-            <div className="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <div className="w-8 h-8 rounded-xl bg-accent/15 text-accent flex items-center justify-center group-hover:scale-110 transition-transform">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
             </div>
           </div>
           <div>
-            <div className="text-xl sm:text-2xl font-black text-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors flex items-baseline gap-2">
+            <div className="text-xl sm:text-2xl font-black text-foreground group-hover:text-accent transition-colors flex items-baseline gap-2">
               <span>{metrics.totalOrders}</span>
               {metrics.pendingOrdersCount > 0 && (
-                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-accent/20 text-accent font-bold">
                   {metrics.pendingOrdersCount} {isBn ? "পেন্ডিং" : "Pending"}
                 </span>
               )}
             </div>
             <div className="flex items-center justify-between text-[11px] opacity-60 mt-1 font-medium">
               <span>{metrics.completedOrdersCount} {isBn ? "সম্পন্ন অর্ডার" : "Completed"}</span>
-              <span className="text-amber-500 font-bold group-hover:underline">➔</span>
+              <span className="text-accent font-bold group-hover:underline">➔</span>
             </div>
           </div>
         </div>
@@ -283,30 +280,30 @@ export default function DashboardOverviewTab({
         {/* Active Products & Stock Status */}
         <div
           onClick={() => onNavigateTab("products")}
-          className="group p-5 sm:p-6 rounded-2xl bg-secondary border border-foreground/10 hover:border-blue-500/50 shadow-sm transition-all hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+          className="group p-5 sm:p-6 rounded-2xl bg-secondary border border-foreground/10 hover:border-accent/50 shadow-sm transition-all hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
         >
           <div className="flex items-center justify-between gap-2 mb-3">
             <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider opacity-70">
               {isBn ? "পণ্য ও স্টক" : "Active Products"}
             </span>
-            <div className="w-8 h-8 rounded-xl bg-blue-500/15 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <div className="w-8 h-8 rounded-xl bg-accent/15 text-accent flex items-center justify-center group-hover:scale-110 transition-transform">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
             </div>
           </div>
           <div>
-            <div className="text-xl sm:text-2xl font-black text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex items-baseline gap-2">
+            <div className="text-xl sm:text-2xl font-black text-foreground group-hover:text-accent transition-colors flex items-baseline gap-2">
               <span>{metrics.totalProducts}</span>
               {metrics.lowStockCount > 0 && (
-                <span className="text-xs px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-600 dark:text-rose-400 font-bold">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-hidden/15 text-hidden font-bold">
                   {metrics.lowStockCount} {isBn ? "লো স্টক" : "Low Stock"}
                 </span>
               )}
             </div>
             <div className="flex items-center justify-between text-[11px] opacity-60 mt-1 font-medium">
               <span>{metrics.totalCollections} {isBn ? "কালেকশন / ক্যাটাগরি" : "Collections"}</span>
-              <span className="text-blue-500 font-bold group-hover:underline">➔</span>
+              <span className="text-accent font-bold group-hover:underline">➔</span>
             </div>
           </div>
         </div>
@@ -314,25 +311,25 @@ export default function DashboardOverviewTab({
         {/* Registered Customers */}
         <div
           onClick={() => onNavigateTab("customers")}
-          className="group p-5 sm:p-6 rounded-2xl bg-secondary border border-foreground/10 hover:border-purple-500/50 shadow-sm transition-all hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
+          className="group p-5 sm:p-6 rounded-2xl bg-secondary border border-foreground/10 hover:border-accent/50 shadow-sm transition-all hover:-translate-y-1 cursor-pointer flex flex-col justify-between"
         >
           <div className="flex items-center justify-between gap-2 mb-3">
             <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider opacity-70">
               {isBn ? "গ্রাহক সংখ্যা" : "Registered Customers"}
             </span>
-            <div className="w-8 h-8 rounded-xl bg-purple-500/15 text-purple-600 dark:text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+            <div className="w-8 h-8 rounded-xl bg-accent/15 text-accent flex items-center justify-center group-hover:scale-110 transition-transform">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
           </div>
           <div>
-            <div className="text-xl sm:text-2xl font-black text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+            <div className="text-xl sm:text-2xl font-black text-foreground group-hover:text-accent transition-colors">
               {metrics.totalCustomers}
             </div>
             <div className="flex items-center justify-between text-[11px] opacity-60 mt-1 font-medium">
               <span>{metrics.activeCoupons} {isBn ? "সক্রিয় কুপন কোড" : "Active Coupons"}</span>
-              <span className="text-purple-500 font-bold group-hover:underline">➔</span>
+              <span className="text-accent font-bold group-hover:underline">➔</span>
             </div>
           </div>
         </div>
@@ -399,7 +396,7 @@ export default function DashboardOverviewTab({
                     if (active && payload && payload.length) {
                       const data = payload[0].payload;
                       return (
-                        <div className="bg-primary text-background dark:text-foreground p-3 rounded-xl border border-white/10 shadow-xl text-xs space-y-1 font-bold">
+                        <div className="bg-primary text-button-fg p-3 rounded-xl border border-foreground/10 shadow-xl text-xs space-y-1 font-bold">
                           <p className="opacity-70 text-[10px] uppercase">{data.label}</p>
                           <p className="text-accent text-sm">{formatCurrency(data.revenue)}</p>
                           <p className="opacity-80 font-normal">
@@ -429,7 +426,7 @@ export default function DashboardOverviewTab({
           <div>
             <div className="flex items-center justify-between gap-2 mb-4">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-blue-500" />
+                <span className="w-2 h-2 rounded-full bg-accent" />
                 <h2 className="text-base font-black uppercase tracking-tight text-foreground">
                   {isBn ? "সেরা বিক্রিত পণ্য" : "Top Selling Products"}
                 </h2>
@@ -511,7 +508,7 @@ export default function DashboardOverviewTab({
           <div className="flex items-center justify-between gap-2 mb-6">
             <div>
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span className="w-2 h-2 rounded-full bg-visible" />
                 <h2 className="text-base sm:text-lg font-black uppercase tracking-tight text-foreground">
                   {isBn ? "সাম্প্রতিক অর্ডারসমূহ" : "Recent Orders"}
                 </h2>
@@ -602,7 +599,7 @@ export default function DashboardOverviewTab({
           <div>
             <div className="flex items-center justify-between gap-2 mb-4">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-rose-500" />
+                <span className="w-2 h-2 rounded-full bg-hidden" />
                 <h2 className="text-base font-black uppercase tracking-tight text-foreground">
                   {isBn ? "স্টক অ্যালার্ট" : "Stock Alert Watch"}
                 </h2>
@@ -623,9 +620,9 @@ export default function DashboardOverviewTab({
 
             <div className="space-y-3">
               {metrics.lowStockProducts.length === 0 && metrics.outOfStockCount === 0 ? (
-                <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-center space-y-1">
+                <div className="p-6 rounded-2xl bg-visible/10 border border-visible/20 text-center space-y-1">
                   <span className="text-lg">✅</span>
-                  <h4 className="text-xs font-black uppercase text-emerald-600 dark:text-emerald-400">
+                  <h4 className="text-xs font-black uppercase text-visible">
                     {isBn ? "সকল পণ্যের স্বাস্থ্যকর স্টক রয়েছে" : "Stock Levels Healthy"}
                   </h4>
                   <p className="text-[10px] opacity-70">
@@ -646,7 +643,7 @@ export default function DashboardOverviewTab({
                         </h4>
                         <span className="text-[10px] opacity-60">ID: #{p.id}</span>
                       </div>
-                      <div className="shrink-0 px-2.5 py-1 rounded-xl bg-rose-500/15 text-rose-600 dark:text-rose-400 text-xs font-black">
+                      <div className="shrink-0 px-2.5 py-1 rounded-xl bg-hidden/15 text-hidden text-xs font-black">
                         {p.inventory} {isBn ? "টি বাকি" : "left"}
                       </div>
                     </div>
