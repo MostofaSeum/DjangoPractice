@@ -15,7 +15,7 @@ const API_BASE = (
 
 export default function CartPage() {
   const router = useRouter();
-  const { cart, addToCart, updateQuantity, removeFromCart } = useCart();
+  const { cart, loading: cartLoading, addToCart, updateQuantity, removeFromCart } = useCart();
   const { t, formatCurrency, locale } = useLanguage();
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{
@@ -523,6 +523,19 @@ export default function CartPage() {
 
     router.push("/checkout");
   };
+
+  if (cartLoading && !cart) {
+    return (
+      <div className="min-h-screen bg-background text-foreground font-sans transition-colors duration-300">
+        <main className="max-w-[1400px] mx-auto px-4 md:px-12 py-16 flex items-center justify-center">
+          <div className="animate-pulse flex flex-col items-center gap-4 text-xs font-bold uppercase tracking-widest opacity-60">
+            <div className="w-12 h-12 rounded-full border-4 border-foreground/20 border-t-accent animate-spin" />
+            <span>{locale === "bn" ? "কার্ট লোড হচ্ছে..." : "Loading cart..."}</span>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans transition-colors duration-300">

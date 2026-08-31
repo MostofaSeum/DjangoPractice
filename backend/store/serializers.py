@@ -90,14 +90,29 @@ class ProductSerializers(serializers.ModelSerializer):
     variants = ProductVariantSerializer(many=True, read_only=True)
     price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax')
     discounted_price = serializers.SerializerMethodField()
-    units_sold = serializers.IntegerField(read_only=True)
-    average_rating = serializers.FloatField(read_only=True)
-    review_count = serializers.IntegerField(read_only=True)
+    units_sold = serializers.SerializerMethodField()
+    average_rating = serializers.SerializerMethodField()
+    review_count = serializers.SerializerMethodField()
     total_inventory = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Product
         fields = ['id', 'title', 'short_description', 'description', 'slug', 'inventory', 'total_inventory', 'unit_price', 'discount_percent', 'discount_valid_until', 'is_discount_active', 'discounted_price', 'price_with_tax', 'collection', 'images', 'variants', 'is_photos_published', 'is_trending', 'is_visible', 'units_sold', 'average_rating', 'review_count']
+
+    def get_units_sold(self, product):
+        if hasattr(product, 'annotated_units_sold'):
+            return int(product.annotated_units_sold or 0)
+        return product.units_sold
+
+    def get_average_rating(self, product):
+        if hasattr(product, 'annotated_avg_rating'):
+            return round(float(product.annotated_avg_rating or 0.0), 1)
+        return product.average_rating
+
+    def get_review_count(self, product):
+        if hasattr(product, 'annotated_review_count'):
+            return int(product.annotated_review_count or 0)
+        return product.review_count
 
     def validate_short_description(self, value):
         if value:

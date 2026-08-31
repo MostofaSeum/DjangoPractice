@@ -42,6 +42,7 @@ interface Cart {
 interface CartContextType {
   cart: Cart | null;
   itemCount: number;
+  loading: boolean;
   addToCart: (productId: number, quantity?: number, variantId?: number | null) => Promise<void>;
   updateQuantity: (itemId: number, quantity: number) => Promise<void>;
   removeFromCart: (itemId: number) => Promise<void>;
@@ -55,7 +56,8 @@ export const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<Cart | null>(null);
-  const { token } = useAuth();
+  const [loading, setLoading] = useState<boolean>(true);
+  const { user, loading: authLoading } = useAuth();
 
   // Create a new Cart ID from API
   const createNewCart = async (): Promise<string> => {
@@ -95,6 +97,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
     } catch (err) {
       console.error("Failed to fetch cart:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,40 +112,48 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // Sync Guest Cart to User Cart
   const syncCart = async (authToken?: string) => {
     const currentCartId = localStorage.getItem("cart_id");
-    try {
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      if (authToken) {
-        headers["Authorization"] = `JWT ${authToken}`;
-      }
+    if (authLoading) return;
 
-      const res = await fetch(`${API_BASE}/store/carts/sync/`, {
-        method: "POST",
-        headers,
-        credentials: "include",
-        body: JSON.stringify({ cart_id: currentCartId }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem("cart_id", data.id);
-        setCart(data);
-        return data;
+    try {
+      if (user) {
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        if (authToken) {
+          headers["Authorization"] = `JWT ${authToken}`;
+        }
+
+        const res = await fetch(`${API_BASE}/store/carts/sync/`, {
+          method: "POST",
+          headers,
+          credentials: "include",
+          body: JSON.stringify({ cart_id: currentCartId }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          localStorage.setItem("cart_id", data.id);
+          setCart(data);
+          setLoading(false);
+          return data;
+        }
+      } else {
+        if (currentCartId) {
+          await refreshCart(currentCartId);
+        } else {
+          setCart(null);
+          setLoading(false);
+        }
       }
     } catch (err) {
       console.error("Cart sync failed:", err);
-    }
-
-    if (currentCartId) {
-      await refreshCart(currentCartId);
-    } else {
-      setCart(null);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     syncCart();
-  }, [token]);
+  }, [user?.id, authLoading]);
 
   // Helper to recompute cart total price optimistically
   const calculateOptimisticCart = (items: CartItem[], cartId: string): Cart => {
@@ -259,7 +271,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const itemCount = cart?.items.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
   return (
-    <CartContext.Provider value={{ cart, itemCount, addToCart, updateQuantity, removeFromCart, clearCart, syncCart }}>
+    <CartContext.Provider value={{ cart, itemCount, loading, addToCart, updateQuantity, removeFromCart, clearCart, syncCart }}>
       {children}
     </CartContext.Provider>
   );
@@ -271,6 +283,7 @@ export function useCart() {
     return {
       cart: null,
       itemCount: 0,
+      loading: false,
       addToCart: async () => {},
       updateQuantity: async () => {},
       removeFromCart: async () => {},

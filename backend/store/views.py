@@ -14,7 +14,8 @@ from store.serializers import ProductSerializers,CollectionSerializer,Collection
 from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,GoogleSheetSyncSetting,Notification,Address,AuditLog
 from datetime import timedelta
 from django.utils import timezone
-from django.db.models import Count
+from django.db.models import Count, Sum, Avg
+from django.db.models.functions import Coalesce
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter,OrderingFilter
 from rest_framework.mixins import CreateModelMixin,RetrieveModelMixin, DestroyModelMixin,UpdateModelMixin
@@ -44,7 +45,12 @@ class ProductViewSet(ModelViewSet):
         return {'request': self.request}
 
     def get_queryset(self):
-        qs = Product.objects.prefetch_related('images', 'variants').annotate(popularity=Count('orderitem'))
+        qs = Product.objects.prefetch_related('images', 'variants').annotate(
+            popularity=Count('orderitem', distinct=True),
+            annotated_units_sold=Coalesce(Sum('orderitem__quantity'), 0),
+            annotated_avg_rating=Coalesce(Avg('reviews__rating'), 0.0),
+            annotated_review_count=Count('reviews', distinct=True),
+        )
         # If user is not admin staff, only show visible products and products from visible collections
         user = self.request.user if hasattr(self.request, 'user') else None
         is_staff = user and user.is_authenticated and user.is_staff
