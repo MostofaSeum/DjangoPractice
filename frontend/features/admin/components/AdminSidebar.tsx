@@ -224,8 +224,8 @@ export default function AdminSidebar({
                       sizes="20px"
                       className={`object-contain w-full h-full transition-all duration-200 ${
                         isActive
-                          ? "brightness-0 dark:brightness-0 dark:invert"
-                          : "brightness-0 invert dark:brightness-0 dark:opacity-60 group-hover:dark:opacity-100"
+                          ? "brightness-0 invert opacity-100"
+                          : "brightness-0 invert opacity-70 group-hover:opacity-100"
                       }`}
                     />
                   </div>
