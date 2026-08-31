@@ -492,12 +492,15 @@ class ReviewViewSet(ModelViewSet):
 
 
 class CartViewSet(CreateModelMixin,GenericViewSet, RetrieveModelMixin, DestroyModelMixin):
-    queryset = Cart.objects.prefetch_related('items__product', 'items__variant').all()
+    queryset = Cart.objects.prefetch_related(
+        'items__product__images',
+        'items__variant'
+    ).all()
     serializer_class = CartSerializers
 
     def perform_create(self, serializer):
         if self.request.user and self.request.user.is_authenticated:
-            customer = Customer.objects.get(user_id=self.request.user.id)
+            customer, _ = Customer.objects.get_or_create(user_id=self.request.user.id)
             user_cart = Cart.objects.filter(customer=customer).first()
             if user_cart:
                 serializer.instance = user_cart

@@ -35,6 +35,7 @@ export default function CartPage() {
       return;
     }
 
+    // Only run if the set of item IDs actually changed
     const cartProductIds = new Set(cart.items.map((i) => i.product.id));
     const collectionIds = Array.from(
       new Set(
@@ -47,11 +48,12 @@ export default function CartPage() {
           })
           .filter(Boolean),
       ),
-    );
+    ).slice(0, 2); // Limit to top 2 collections to avoid excessive parallel calls
+
+    const controller = new AbortController();
 
     if (collectionIds.length === 0) {
-      // If no explicit collection, fetch popular products not already in cart
-      fetch(`${API_BASE}/store/products/?page_size=6`)
+      fetch(`${API_BASE}/store/products/?page_size=6`, { signal: controller.signal })
         .then((res) => res.json())
         .then((data) => {
           const list = Array.isArray(data) ? data : data.results || [];
@@ -59,13 +61,15 @@ export default function CartPage() {
             list.filter((p: any) => !cartProductIds.has(p.id)).slice(0, 4),
           );
         })
-        .catch((e) => console.error("Failed to fetch related products:", e));
-      return;
+        .catch((e) => {
+          if (e.name !== "AbortError") console.error("Failed to fetch related products:", e);
+        });
+      return () => controller.abort();
     }
 
     Promise.all(
       collectionIds.map((cid) =>
-        fetch(`${API_BASE}/store/products/?collection_id=${cid}&page_size=6`)
+        fetch(`${API_BASE}/store/products/?collection_id=${cid}&page_size=4`, { signal: controller.signal })
           .then((res) => res.json())
           .then((data) => (Array.isArray(data) ? data : data.results || []))
           .catch(() => []),
@@ -79,8 +83,12 @@ export default function CartPage() {
         }
       }
       setRelatedProducts(Array.from(unique.values()).slice(0, 4));
+    }).catch((e) => {
+      if (e.name !== "AbortError") console.error(e);
     });
-  }, [cart?.items]);
+
+    return () => controller.abort();
+  }, [cart?.items?.length]);
 
   useEffect(() => {
     try {

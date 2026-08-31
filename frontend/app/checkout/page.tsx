@@ -612,10 +612,18 @@ export default function CheckoutPage() {
         router.push("/profile");
       } else {
         const errData = await res.json();
+        let errorMsg = locale === "bn" ? "অর্ডার সম্পন্ন করতে সমস্যা হয়েছে।" : "Order Placement Failed.";
+        if (typeof errData === "object" && errData !== null) {
+          const messages = Object.entries(errData).map(([key, val]) => {
+            const text = Array.isArray(val) ? val.join(" ") : String(val);
+            return text;
+          });
+          errorMsg = messages.join("\n");
+        }
         Swal.fire({
           icon: "error",
           title: t("checkout.orderFailed") || "Order Placement Failed",
-          text: JSON.stringify(errData),
+          text: errorMsg,
           confirmButtonColor: "#ef4444",
         });
       }
