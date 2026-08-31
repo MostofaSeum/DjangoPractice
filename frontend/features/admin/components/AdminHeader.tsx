@@ -31,6 +31,8 @@ export default function AdminHeader({
 
   const getTabDisplayName = (tab?: AdminTab) => {
     switch (tab) {
+      case "dashboard":
+        return t("admin.tabs.dashboard");
       case "products":
         return t("admin.tabs.products");
       case "collections":

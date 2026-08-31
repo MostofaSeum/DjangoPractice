@@ -73,6 +73,11 @@ export default function AdminSidebar({
 
   const tabs = [
     {
+      id: "dashboard" as AdminTab,
+      label: isBn ? "ওভারভিউ ড্যাশবোর্ড" : "Dashboard",
+      icon: "/admin/dashboard.png",
+    },
+    {
       id: "products" as AdminTab,
       label: t("admin.sidebar.products"),
       count: productsCount,

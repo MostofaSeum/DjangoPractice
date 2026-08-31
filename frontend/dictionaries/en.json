@@ -466,6 +466,7 @@
       "logout": "Logout"
     },
     "sidebar": {
+      "dashboard": "Overview Dashboard",
       "products": "Products",
       "collections": "Collections",
       "orders": "Orders",
@@ -479,6 +480,7 @@
       "expand": "Expand Sidebar"
     },
     "tabs": {
+      "dashboard": "Overview Dashboard",
       "products": "Products",
       "collections": "Collections",
       "orders": "Orders",

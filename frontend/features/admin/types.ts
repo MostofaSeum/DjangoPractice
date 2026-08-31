@@ -14,6 +14,9 @@ export interface Product {
   images?: { id?: number; image: string }[];
   is_trending?: boolean;
   is_visible?: boolean;
+  units_sold?: number;
+  average_rating?: number;
+  review_count?: number;
 }
 
 export interface Collection {
@@ -144,6 +147,7 @@ export interface DeliverySettingsState {
 }
 
 export type AdminTab =
+  | "dashboard"
   | "products"
   | "collections"
   | "orders"

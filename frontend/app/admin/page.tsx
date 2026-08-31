@@ -15,6 +15,7 @@ import CouponsTab from "@/features/admin/components/tabs/CouponsTab";
 import PaymentsTab from "@/features/admin/components/tabs/PaymentsTab";
 import DeliveryTab from "@/features/admin/components/tabs/DeliveryTab";
 import AnalyticsTab from "@/features/admin/components/tabs/AnalyticsTab";
+import DashboardOverviewTab from "@/features/admin/components/tabs/DashboardOverviewTab";
 import { useLanguage } from "@/store/LanguageContext";
 
 const API_BASE = (
@@ -46,7 +47,7 @@ export default function AdminDashboardPage() {
     router.push("/login");
   };
 
-  const [activeTab, setActiveTab] = useState<AdminTab>("products");
+  const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
   const [productSubTab, setProductSubTab] = useState<ProductSubTab>("all");
   const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(true);
   const [collectionSubTab, setCollectionSubTab] = useState<CollectionSubTab>("all");
@@ -2562,6 +2563,22 @@ export default function AdminDashboardPage() {
 
         {/* Right Main Content Area */}
         <main className="flex-1 p-6 md:p-10 max-w-[1600px] w-full overflow-x-hidden transition-all duration-300">
+          {/* 0. OVERVIEW DASHBOARD TAB */}
+          {activeTab === "dashboard" && (
+            <DashboardOverviewTab
+              orders={orders}
+              products={promoProductsCatalog.length > 0 ? promoProductsCatalog : products}
+              customers={customers}
+              coupons={couponsList}
+              collections={collections}
+              onNavigateTab={(tab) => handleTabSwitch(tab)}
+              onNavigateOrder={(ord) => {
+                setSelectedOrderDetails(ord);
+                handleTabSwitch("orders");
+              }}
+            />
+          )}
+
           {/* 1. PRODUCTS TAB */}
           {activeTab === "products" && (
             <ProductsTab
