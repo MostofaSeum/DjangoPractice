@@ -48,6 +48,8 @@ class TestRetriveCollcetion:
             'id': collection.id,
             'title': collection.title,
             'featured_product': None,
-            'products': [],
-            'image': None
+            'product_count': 0,
+            'image': None,
+            'is_featured': False,
+            'is_visible': True
         }

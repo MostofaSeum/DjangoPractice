@@ -150,3 +150,22 @@ class SubscriberAdmin(admin.ModelAdmin):
     ordering = ['-created_at']
 
 
+@admin.register(models.AuditLog)
+class AuditLogAdmin(admin.ModelAdmin):
+    list_display = ['id', 'action', 'entity_name', 'entity_id', 'performed_by_name', 'created_at']
+    list_filter = ['action', 'entity_name', 'created_at']
+    search_fields = ['entity_name', 'entity_id', 'performed_by_name']
+    readonly_fields = ['entity_name', 'entity_id', 'action', 'performed_by', 'performed_by_name', 'changes', 'ip_address', 'created_at']
+    ordering = ['-created_at']
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+

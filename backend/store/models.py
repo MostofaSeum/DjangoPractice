@@ -522,3 +522,36 @@ class Notification(models.Model):
         ordering = ['-created_at']
 
 
+class AuditLog(models.Model):
+    ACTION_CREATE = 'create'
+    ACTION_UPDATE = 'update'
+    ACTION_DELETE = 'delete'
+    ACTION_CHOICES = [
+        (ACTION_CREATE, 'Create'),
+        (ACTION_UPDATE, 'Update'),
+        (ACTION_DELETE, 'Delete'),
+    ]
+
+    entity_name = models.CharField(max_length=100)
+    entity_id = models.CharField(max_length=100)
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    performed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='audit_logs'
+    )
+    performed_by_name = models.CharField(max_length=255, blank=True, default='')
+    changes = models.JSONField(default=dict, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"[{self.action.upper()}] {self.entity_name} #{self.entity_id} by {self.performed_by_name or 'System'} at {self.created_at}"
+
+    class Meta:
+        ordering = ['-created_at']
+
+
+

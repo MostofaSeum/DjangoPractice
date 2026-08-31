@@ -4,7 +4,7 @@ from django.db.models.functions import Greatest
 from django.utils import timezone
 from .signals import order_created
 from rest_framework import serializers
-from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,Notification,Address
+from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,Notification,Address,AuditLog
 from decimal import Decimal
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -629,6 +629,27 @@ class CreateOrderSerializer(serializers.Serializer):
                 customer.vibe_coin -= order_total
                 customer.save()
 
+            # Lock and validate inventory using select_for_update() to prevent race conditions & overselling
+            for item in cart_items:
+                if item.variant_id:
+                    # Lock variant row
+                    locked_variant = ProductVariant.objects.select_for_update().get(pk=item.variant_id)
+                    if locked_variant.inventory < item.quantity:
+                        raise serializers.ValidationError({
+                            'cart_id': f'Sorry, only {locked_variant.inventory} units available for "{locked_variant.product.title} - {locked_variant.name}".'
+                        })
+                    locked_variant.inventory -= item.quantity
+                    locked_variant.save()
+                else:
+                    # Lock product row
+                    locked_product = Product.objects.select_for_update().get(pk=item.product_id)
+                    if locked_product.inventory < item.quantity:
+                        raise serializers.ValidationError({
+                            'cart_id': f'Sorry, only {locked_product.inventory} units available for "{locked_product.title}".'
+                        })
+                    locked_product.inventory -= item.quantity
+                    locked_product.save()
+
             order = Order.objects.create(
                 customer=customer,
                 shipping_address=self.validated_data.get('shipping_address', ''),
@@ -655,6 +676,25 @@ class CreateOrderSerializer(serializers.Serializer):
 
             OrderItem.objects.bulk_create(order_items)
             Cart.objects.filter(pk=cart_id).delete()
+
+            # Record AuditLog for order placement
+            try:
+                AuditLog.objects.create(
+                    entity_name="Order",
+                    entity_id=str(order.id),
+                    action=AuditLog.ACTION_CREATE,
+                    performed_by=customer.user,
+                    performed_by_name=f"{customer.user.first_name} {customer.user.last_name}".strip() or customer.user.username,
+                    changes={
+                        "order_id": order.id,
+                        "items_count": len(order_items),
+                        "total_amount": float(order_total),
+                        "payment_method": order.payment_method,
+                        "delivery_area": order.delivery_area
+                    }
+                )
+            except Exception as audit_err:
+                print(f"Failed to record audit log: {audit_err}")
 
             # Create an admin notification for the new order
             try:
@@ -885,6 +925,24 @@ class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
         fields = ['id', 'title', 'message', 'notification_type', 'target_id', 'is_read', 'created_at']
+
+
+class AuditLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AuditLog
+        fields = [
+            'id',
+            'entity_name',
+            'entity_id',
+            'action',
+            'performed_by',
+            'performed_by_name',
+            'changes',
+            'ip_address',
+            'created_at'
+        ]
+        read_only_fields = fields
+
 
 
 

@@ -10,8 +10,8 @@ from django.http import HttpResponse, request
 from .permissions import ViewCustomerHistoryPermission
 from rest_framework.decorators import action
 from store.models import OrderItem
-from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,AdminEditOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer,PaymentSettingSerializer,DeliverySettingSerializer,DeliveryRuleSerializer,NotificationSerializer,AddressSerializer
-from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,GoogleSheetSyncSetting,Notification,Address
+from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,AdminEditOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer,PaymentSettingSerializer,DeliverySettingSerializer,DeliveryRuleSerializer,NotificationSerializer,AddressSerializer,AuditLogSerializer
+from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,GoogleSheetSyncSetting,Notification,Address,AuditLog
 from datetime import timedelta
 from django.utils import timezone
 from django.db.models import Count
@@ -1176,3 +1176,26 @@ class NotificationViewSet(ModelViewSet):
     def mark_all_read(self, request):
         Notification.objects.filter(is_read=False).update(is_read=True)
         return Response({'message': 'All notifications marked as read.'}, status=status.HTTP_200_OK)
+
+
+class AuditLogViewSet(ModelViewSet):
+    """
+    Read-only viewset for staff/admin to view audit trails and revisions.
+    """
+    queryset = AuditLog.objects.select_related('performed_by').all()
+    serializer_class = AuditLogSerializer
+    permission_classes = [IsAdminUser]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    search_fields = ['entity_name', 'entity_id', 'performed_by_name', 'action']
+    ordering_fields = ['created_at', 'action', 'entity_name']
+    ordering = ['-created_at']
+
+    def create(self, request, *args, **kwargs):
+        return Response({'error': 'Audit logs cannot be manually created via API.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def update(self, request, *args, **kwargs):
+        return Response({'error': 'Audit logs are immutable and cannot be edited.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def destroy(self, request, *args, **kwargs):
+        return Response({'error': 'Audit logs cannot be deleted.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+

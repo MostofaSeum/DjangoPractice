@@ -52,10 +52,16 @@ CELERY_BEAT_SCHEDULE = {
     }
 }
 
+# Cache Settings with resilient fallback if Redis local server is offline
+redis_url = os.environ.get('REDIS_CACHE_URL', 'redis://127.0.0.1:6379/2')
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.environ.get('REDIS_CACHE_URL', 'redis://127.0.0.1:6379/2'),
+        "LOCATION": redis_url,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "IGNORE_EXCEPTIONS": True,  # Fallback gracefully if Redis is not running
+        }
     }
 }
 
