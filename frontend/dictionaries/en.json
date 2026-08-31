@@ -6,6 +6,7 @@
     "giftCards": "GIFT CARDS",
     "profile": "PROFILE",
     "wishlist": "MY WISHLIST",
+    "cart": "CART",
     "signIn": "SIGN IN",
     "signOut": "SIGN OUT",
     "hi": "Hi"
@@ -244,6 +245,7 @@
     "loadingCheckout": "Loading Checkout..."
   },
   "cart": {
+    "breadcrumbCart": "Cart",
     "emptyCartTitle": "Your cart is empty",
     "emptyCartSubtitle": "Looks like you haven't added anything to your cart yet. Explore our latest drops and elevate your vibe!",
     "exploreProducts": "Explore Products",

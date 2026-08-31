@@ -6,6 +6,7 @@
     "giftCards": "গিফট কার্ড",
     "profile": "প্রোফাইল",
     "wishlist": "আমার উইশলিস্ট",
+    "cart": "কার্ট",
     "signIn": "সাইন ইন",
     "signOut": "সাইন আউট",
     "hi": "হ্যালো"
@@ -244,6 +245,7 @@
     "loadingCheckout": "চেকআউট লোড হচ্ছে..."
   },
   "cart": {
+    "breadcrumbCart": "কার্ট",
     "emptyCartTitle": "আপনার কার্ট খালি",
     "emptyCartSubtitle": "মনে হচ্ছে আপনি এখনও কার্টে কোনো পণ্য যোগ করেননি। আমাদের লেটেস্ট পণ্যগুলো ঘুরে দেখুন!",
     "exploreProducts": "পণ্যসমূহ দেখুন",
