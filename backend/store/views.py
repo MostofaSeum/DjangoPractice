@@ -10,8 +10,11 @@ from django.http import HttpResponse, request
 from .permissions import ViewCustomerHistoryPermission
 from rest_framework.decorators import action
 from store.models import OrderItem
-from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,AdminEditOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer,PaymentSettingSerializer,DeliverySettingSerializer,DeliveryRuleSerializer,NotificationSerializer,AddressSerializer,AuditLogSerializer
 from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,GoogleSheetSyncSetting,Notification,Address,AuditLog
+from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,AdminEditOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer,PaymentSettingSerializer,DeliverySettingSerializer,DeliveryRuleSerializer,NotificationSerializer,AddressSerializer,AuditLogSerializer
+from django.views.decorators.csrf import csrf_exempt
+from store.idempotency import idempotent_action
+from store.webhooks import require_signed_webhook
 from datetime import timedelta
 from django.utils import timezone
 from django.db.models import Count, Sum, Avg
@@ -707,12 +710,13 @@ class OrderViewSet(ModelViewSet):
             return [IsAdminUser()]
         return [IsAuthenticated()]
 
-    def create(self,request, *args, **kwargs):
-        serializer = CreateOrderSerializer(data = request.data, context = {'user_id' : request.user.id})
+    @idempotent_action(timeout=300)
+    def create(self, request, *args, **kwargs):
+        serializer = CreateOrderSerializer(data=request.data, context={'user_id': request.user.id})
         serializer.is_valid(raise_exception=True)
         order = serializer.save()
         serializer = OrderSerializer(order)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
     pagination_class = None

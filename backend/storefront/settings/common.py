@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'rest_framework',
+    'drf_spectacular',
     'djoser',
     'playground',
     'store',
@@ -102,6 +103,7 @@ REST_FRAMEWORK = {
     'COERCE_DECIMAL_TO_STRING': False,
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 9,
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'core.authentication.CookieJWTAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -115,6 +117,14 @@ REST_FRAMEWORK = {
         'user': '1000/minute',
         'auth_burst': '10/minute',
     },
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Storefront E-Commerce API',
+    'DESCRIPTION': 'Comprehensive REST API documentation for Storefront online store (Products, Orders, Carts, Delivery, Payments, Auth)',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
 }
 
 AUTH_USER_MODEL = 'core.User'
