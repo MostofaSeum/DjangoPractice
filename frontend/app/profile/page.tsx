@@ -89,7 +89,7 @@ export default function ProfilePage() {
   useEffect(() => {
     if (authLoading) return;
 
-    if (!token) {
+    if (!user) {
       router.push("/login?redirect=/profile");
       return;
     }
@@ -97,22 +97,17 @@ export default function ProfilePage() {
     const loadProfile = async () => {
       try {
         setOrdersLoading(true);
-        // Fetch User Info 
-        const userRes = await fetch(`${API_BASE}/auth/users/me/`, {
-          headers: { Authorization: `JWT ${token}` },
-        });
-        const userData = userRes.ok ? await userRes.json() : {};
+        // Fetch User Info, Customer Info, Saved Addresses, and Orders simultaneously in a single fast parallel bundle
+        const [userRes, customerRes, addrRes, ordersRes] = await Promise.all([
+          fetch(`${API_BASE}/auth/users/me/`, { credentials: "include" }),
+          fetch(`${API_BASE}/store/customers/me/`, { credentials: "include" }),
+          fetch(`${API_BASE}/store/addresses/`, { credentials: "include" }),
+          fetch(`${API_BASE}/store/orders/`, { credentials: "include" }),
+        ]);
 
-        // Fetch Customer Info
-        const customerRes = await fetch(`${API_BASE}/store/customers/me/`, {
-          headers: { Authorization: `JWT ${token}` },
-        });
+        const userData = userRes.ok ? await userRes.json() : {};
         const customerData = customerRes.ok ? await customerRes.json() : {};
 
-        // Fetch Saved Addresses
-        const addrRes = await fetch(`${API_BASE}/store/addresses/`, {
-          headers: { Authorization: `JWT ${token}` },
-        });
         if (addrRes.ok) {
           const addrData = await addrRes.json();
           setAddresses(Array.isArray(addrData) ? addrData : addrData.results || []);
@@ -128,10 +123,6 @@ export default function ProfilePage() {
           birth_date: customerData.birth_date || "",
         });
 
-        // Fetch User's Own Orders
-        const ordersRes = await fetch(`${API_BASE}/store/orders/`, {
-          headers: { Authorization: `JWT ${token}` },
-        });
         if (ordersRes.ok) {
           const ordersData = await ordersRes.json();
           setMyOrders(Array.isArray(ordersData) ? ordersData : ordersData.results || []);
@@ -145,7 +136,7 @@ export default function ProfilePage() {
     };
 
     loadProfile();
-  }, [token, authLoading]);
+  }, [user, authLoading, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({

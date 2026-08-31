@@ -97,66 +97,9 @@ export default function CheckoutPage() {
       console.error("Failed to load applied coupon:", e);
     }
 
-    // Fetch Delivery Settings & Rules
-    const fetchDeliveryData = async () => {
-      try {
-        const [settingsRes, rulesRes] = await Promise.all([
-          fetch(`${API_BASE}/store/delivery-settings/`, { cache: "no-store" }),
-          fetch(`${API_BASE}/store/delivery-rules/`, { cache: "no-store" }),
-        ]);
-
-        if (settingsRes.ok) {
-          const data = await settingsRes.json();
-          setDeliverySettings({
-            inside_dhaka_charge: Number(data.inside_dhaka_charge ?? 60),
-            outside_dhaka_charge: Number(data.outside_dhaka_charge ?? 130),
-            estimated_days_inside: data.estimated_days_inside || "1-2 Days",
-            estimated_days_outside: data.estimated_days_outside || "3-5 Days",
-          });
-        }
-
-        if (rulesRes.ok) {
-          const rulesData = await rulesRes.json();
-          const list = Array.isArray(rulesData) ? rulesData : rulesData.results || [];
-          setDeliveryRules(list.filter((r: DeliveryRuleItem) => r.is_active));
-        }
-      } catch (err) {
-        console.error("Failed to fetch delivery settings/rules:", err);
-      }
-    };
-    fetchDeliveryData();
-
-    // Fetch Payment Settings
-    const fetchPaymentSettings = async () => {
-      try {
-        const res = await fetch(`${API_BASE}/store/payment-settings/`, { cache: "no-store" });
-        if (res.ok) {
-          const data = await res.json();
-          setPaymentSettings({
-            bkash_number: data.bkash_number || "01711111111",
-            bkash_active: data.bkash_active ?? true,
-            nagad_number: data.nagad_number || "01711111111",
-            nagad_active: data.nagad_active ?? true,
-            cod_active: data.cod_active ?? true,
-            vibecoin_active: data.vibecoin_active ?? true,
-          });
-
-          // Auto-select first available payment method if default COD is disabled
-          if (data.cod_active === false) {
-            if (data.bkash_active) setPaymentMethod("O");
-            else if (data.nagad_active) setPaymentMethod("N");
-            else if (data.vibecoin_active) setPaymentMethod("V");
-          }
-        }
-      } catch (err) {
-        console.error("Failed to fetch payment settings:", err);
-      }
-    };
-    fetchPaymentSettings();
-
     if (authLoading) return;
 
-    if (!token) {
+    if (!user) {
       Swal.fire({
         icon: "warning",
         title: locale === "bn" ? "অনুগ্রহ করে সাইন ইন করুন" : "Please Sign In",
@@ -166,30 +109,63 @@ export default function CheckoutPage() {
       return;
     }
 
-    const fetchCustomerInfo = async () => {
+    // Load all checkout configuration, customer profile, and addresses in a single fast parallel bundle
+    const initializeCheckout = async () => {
       try {
         setLoading(true);
-        const [customerRes, addressRes] = await Promise.all([
-          fetch(`${API_BASE}/store/customers/me/`, {
-            headers: { Authorization: `JWT ${token}` },
-          }),
-          fetch(`${API_BASE}/store/addresses/`, {
-            headers: { Authorization: `JWT ${token}` },
-          }),
+        const [delivSetRes, delivRuleRes, paySetRes, custRes, addrRes] = await Promise.all([
+          fetch(`${API_BASE}/store/delivery-settings/`),
+          fetch(`${API_BASE}/store/delivery-rules/`),
+          fetch(`${API_BASE}/store/payment-settings/`),
+          fetch(`${API_BASE}/store/customers/me/`, { credentials: "include" }),
+          fetch(`${API_BASE}/store/addresses/`, { credentials: "include" }),
         ]);
 
-        if (customerRes.ok) {
-          const data = await customerRes.json();
+        if (delivSetRes.ok) {
+          const data = await delivSetRes.json();
+          setDeliverySettings({
+            inside_dhaka_charge: Number(data.inside_dhaka_charge ?? 60),
+            outside_dhaka_charge: Number(data.outside_dhaka_charge ?? 130),
+            estimated_days_inside: data.estimated_days_inside || "1-2 Days",
+            estimated_days_outside: data.estimated_days_outside || "3-5 Days",
+          });
+        }
+
+        if (delivRuleRes.ok) {
+          const rulesData = await delivRuleRes.json();
+          const list = Array.isArray(rulesData) ? rulesData : rulesData.results || [];
+          setDeliveryRules(list.filter((r: DeliveryRuleItem) => r.is_active));
+        }
+
+        if (paySetRes.ok) {
+          const data = await paySetRes.json();
+          setPaymentSettings({
+            bkash_number: data.bkash_number || "01711111111",
+            bkash_active: data.bkash_active ?? true,
+            nagad_number: data.nagad_number || "01711111111",
+            nagad_active: data.nagad_active ?? true,
+            cod_active: data.cod_active ?? true,
+            vibecoin_active: data.vibecoin_active ?? true,
+          });
+
+          if (data.cod_active === false) {
+            if (data.bkash_active) setPaymentMethod("O");
+            else if (data.nagad_active) setPaymentMethod("N");
+            else if (data.vibecoin_active) setPaymentMethod("V");
+          }
+        }
+
+        if (custRes.ok) {
+          const data = await custRes.json();
           if (data.phone) setPhone(data.phone);
           if (data.vibe_coin !== undefined) setVibeCoin(data.vibe_coin);
         }
 
-        if (addressRes.ok) {
-          const addrData = await addressRes.json();
+        if (addrRes.ok) {
+          const addrData = await addrRes.json();
           const list: Address[] = Array.isArray(addrData) ? addrData : addrData.results || [];
           setSavedAddresses(list);
 
-          // Find default address or first address
           const defaultAddr = list.find((a) => a.is_default) || list[0];
           if (defaultAddr) {
             setSelectedAddressId(String(defaultAddr.id));
@@ -204,14 +180,14 @@ export default function CheckoutPage() {
           }
         }
       } catch (err) {
-        console.error("Failed to fetch customer/address data:", err);
+        console.error("Failed to initialize checkout:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCustomerInfo();
-  }, [token, authLoading, router]);
+    initializeCheckout();
+  }, [user, authLoading, router]);
 
   // Automatically remove coupon if no eligible items remain in cart
   useEffect(() => {

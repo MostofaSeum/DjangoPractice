@@ -53,17 +53,16 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState<boolean>(false);
 
   const fetchWishlist = useCallback(async () => {
-    if (!token || !user) {
+    if (!user) {
       setWishlistItems([]);
       setWishlistProductIds(new Set());
       return;
     }
 
     try {
-      setLoading(true);
       const apiBaseUrl = getApiBaseUrl();
       const res = await fetch(`${apiBaseUrl}/store/wishlist/`, {
-        headers: { Authorization: `JWT ${token}` },
+        credentials: "include",
       });
 
       if (res.ok) {
@@ -78,7 +77,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [token, user]);
+  }, [user]);
 
   useEffect(() => {
     fetchWishlist();
@@ -92,7 +91,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   );
 
   const toggleWishlist = async (productId: number): Promise<boolean> => {
-    if (!token || !user) {
+    if (!user) {
       Swal.fire({
         position: "top-end",
         icon: "warning",
@@ -104,77 +103,78 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       return false;
     }
 
+    const isSaved = wishlistProductIds.has(productId);
+
+    // ⚡ Optimistic Update: Instantly toggle heart icon in UI without waiting
+    setWishlistProductIds((prev) => {
+      const next = new Set(prev);
+      if (isSaved) {
+        next.delete(productId);
+      } else {
+        next.add(productId);
+      }
+      return next;
+    });
+
+    if (isSaved) {
+      setWishlistItems((prev) => prev.filter((i) => i.product.id !== productId));
+    }
+
     try {
       const apiBaseUrl = getApiBaseUrl();
-      const isSaved = wishlistProductIds.has(productId);
+      const endpoint = isSaved ? `${apiBaseUrl}/store/wishlist/toggle/` : `${apiBaseUrl}/store/wishlist/`;
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ product_id: productId }),
+      });
 
-      if (isSaved) {
-        // Toggle OFF 
-        const res = await fetch(`${apiBaseUrl}/store/wishlist/toggle/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `JWT ${token}`,
-          },
-          body: JSON.stringify({ product_id: productId }),
+      if (res.ok) {
+        Swal.fire({
+          position: "top-end",
+          icon: isSaved ? "info" : "success",
+          title: isSaved
+            ? t("swal.removedFromWishlist") || "Removed from wishlist."
+            : t("swal.savedToWishlist") || "Saved to your wishlist!",
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
         });
-
-        if (res.ok) {
-          Swal.fire({
-            position: "top-end",
-            icon: "info",
-            title: t("swal.removedFromWishlist") || "Removed from wishlist.",
-            showConfirmButton: false,
-            timer: 1800,
-            toast: true,
-          });
-          await fetchWishlist();
-          return false;
-        }
+        return !isSaved;
       } else {
-        // Toggle ON
-        const res = await fetch(`${apiBaseUrl}/store/wishlist/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `JWT ${token}`,
-          },
-          body: JSON.stringify({ product_id: productId }),
-        });
-
-        if (res.ok) {
-          Swal.fire({
-            position: "top-end",
-            icon: "success",
-            title: t("swal.savedToWishlist") || "Saved to your wishlist!",
-            showConfirmButton: false,
-            timer: 1800,
-            toast: true,
-          });
-          await fetchWishlist();
-          return true;
-        }
+        // Rollback on server error
+        fetchWishlist();
+        return isSaved;
       }
     } catch (err) {
+      fetchWishlist();
       console.error("Wishlist toggle error:", err);
+      return isSaved;
     }
-    return false;
   };
 
   const removeFromWishlist = async (productId: number) => {
-    if (!token) return;
+    if (!user) return;
+
+    // ⚡ Optimistic Remove: Instantly remove from UI
+    setWishlistProductIds((prev) => {
+      const next = new Set(prev);
+      next.delete(productId);
+      return next;
+    });
+    setWishlistItems((prev) => prev.filter((i) => i.product.id !== productId));
+
     try {
       const apiBaseUrl = getApiBaseUrl();
       await fetch(`${apiBaseUrl}/store/wishlist/toggle/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `JWT ${token}`,
-        },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ product_id: productId }),
       });
-      await fetchWishlist();
     } catch (err) {
+      fetchWishlist();
       console.error("Failed to remove wishlist item:", err);
     }
   };

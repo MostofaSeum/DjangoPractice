@@ -11,27 +11,23 @@ export default async function Home() {
   let featuredCollections: Collection[] = [];
 
   try {
-    const res = await fetch(
-      `${apiBaseUrl}/store/products/?is_trending=true&page_size=8`,
-      {
+    const [prodRes, colRes] = await Promise.all([
+      fetch(`${apiBaseUrl}/store/products/?is_trending=true&page_size=8`, {
         cache: "no-store",
-      },
-    );
-    if (res.ok) {
-      const data = await res.json();
+      }),
+      fetch(`${apiBaseUrl}/store/collections/`, {
+        cache: "no-store",
+      }),
+    ]);
+
+    if (prodRes.ok) {
+      const data = await prodRes.json();
       const products: Product[] = Array.isArray(data)
         ? data
         : data.results || [];
       trendingProducts = products.filter((p: any) => p.is_trending).slice(0, 8);
     }
-  } catch (err) {
-    console.error("Failed to fetch trending products:", err);
-  }
 
-  try {
-    const colRes = await fetch(`${apiBaseUrl}/store/collections/`, {
-      cache: "no-store",
-    });
     if (colRes.ok) {
       const colData = await colRes.json();
       const collections: Collection[] = Array.isArray(colData)
@@ -42,7 +38,7 @@ export default async function Home() {
         .slice(0, 3);
     }
   } catch (err) {
-    console.error("Failed to fetch collections:", err);
+    console.error("Failed to fetch home page data:", err);
   }
 
   return (
