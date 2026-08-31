@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import Image from "next/image";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -11,7 +10,7 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
-import { Order, Product, CustomerItem, CouponItem, Collection, AdminTab } from "../../types";
+import { Order, Product, CustomerItem, CouponItem, Collection, DeliveryRuleItem, AdminTab } from "../../types";
 import { useLanguage } from "@/store/LanguageContext";
 
 interface DashboardOverviewTabProps {
@@ -20,6 +19,7 @@ interface DashboardOverviewTabProps {
   customers?: CustomerItem[];
   coupons?: CouponItem[];
   collections?: Collection[];
+  deliveryRules?: DeliveryRuleItem[];
   onNavigateTab: (tab: AdminTab) => void;
   onNavigateOrder?: (order: Order) => void;
 }
@@ -30,6 +30,7 @@ export default function DashboardOverviewTab({
   customers = [],
   coupons = [],
   collections = [],
+  deliveryRules = [],
   onNavigateTab,
   onNavigateOrder,
 }: DashboardOverviewTabProps) {
@@ -71,6 +72,16 @@ export default function DashboardOverviewTab({
       (p) => (Number(p.inventory) || 0) <= 0,
     );
 
+    // Active promotions (products with discount_percent > 0 and discount active)
+    const activePromotions = products.filter(
+      (p) =>
+        (Number(p.discount_percent) || 0) > 0 &&
+        (p.is_discount_active !== false),
+    );
+
+    // Active coupons
+    const activeCouponsList = coupons.filter((c) => c.is_active);
+
     return {
       totalRevenue,
       completedRevenue,
@@ -81,14 +92,17 @@ export default function DashboardOverviewTab({
       totalProducts: products.length,
       totalCustomers: customers.length,
       totalCollections: collections.length,
-      activeCoupons: coupons.filter((c) => c.is_active).length,
+      activeCouponsCount: activeCouponsList.length,
+      activeCouponsList,
+      activePromotionsCount: activePromotions.length,
+      activePromotionsList: activePromotions,
       lowStockCount: lowStockProducts.length,
       outOfStockCount: outOfStockProducts.length,
       lowStockProducts,
     };
   }, [orders, products, customers, coupons, collections]);
 
-  // 2. 7-Day Revenue & Orders Sparkline / Area Chart
+  // 2. 7-Day Revenue Trend
   const salesChartData = useMemo(() => {
     const days: { label: string; dateStr: string; revenue: number; orders: number }[] = [];
     const now = new Date();
@@ -171,7 +185,7 @@ export default function DashboardOverviewTab({
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300 pb-12">
-      {/* 🌟 Welcome Banner with Quick Shortcuts */}
+      {/* 🌟 Welcome Banner */}
       <div className="relative overflow-hidden bg-primary rounded-3xl p-6 sm:p-8 text-button-fg border border-foreground/10 shadow-lg">
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
@@ -191,7 +205,7 @@ export default function DashboardOverviewTab({
             </p>
           </div>
 
-          {/* Quick Action Pills */}
+          {/* Quick Action Buttons without arrows */}
           <div className="flex flex-wrap gap-2.5">
             <button
               onClick={() => onNavigateTab("orders")}
@@ -207,18 +221,15 @@ export default function DashboardOverviewTab({
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary/15 hover:bg-secondary/25 text-button-fg text-xs font-bold uppercase tracking-wider border border-foreground/15 transition-all cursor-pointer"
             >
               <span>{isBn ? "পুরো রিপোর্ট" : "Full Analytics"}</span>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
             </button>
           </div>
         </div>
 
-        {/* Decorative ambient backdrop */}
+        {/* Decorative backdrop */}
         <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-accent/15 rounded-full blur-3xl pointer-events-none" />
       </div>
 
-      {/* 📊 KPI Metric Cards (Clickable to jump to specific tabs) */}
+      {/* 📊 4 Core Metric Cards (No arrows, clean layout) */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {/* Total Sales / Revenue */}
         <div
@@ -239,9 +250,8 @@ export default function DashboardOverviewTab({
             <div className="text-xl sm:text-2xl font-black text-foreground group-hover:text-accent transition-colors">
               {formatCurrency(metrics.totalRevenue)}
             </div>
-            <div className="flex items-center justify-between text-[11px] opacity-60 mt-1 font-medium">
+            <div className="text-[11px] opacity-60 mt-1 font-medium">
               <span>{isBn ? "পরিশোধিত:" : "Paid:"} {formatCurrency(metrics.completedRevenue)}</span>
-              <span className="text-accent font-bold group-hover:underline">➔</span>
             </div>
           </div>
         </div>
@@ -270,9 +280,8 @@ export default function DashboardOverviewTab({
                 </span>
               )}
             </div>
-            <div className="flex items-center justify-between text-[11px] opacity-60 mt-1 font-medium">
+            <div className="text-[11px] opacity-60 mt-1 font-medium">
               <span>{metrics.completedOrdersCount} {isBn ? "সম্পন্ন অর্ডার" : "Completed"}</span>
-              <span className="text-accent font-bold group-hover:underline">➔</span>
             </div>
           </div>
         </div>
@@ -301,9 +310,8 @@ export default function DashboardOverviewTab({
                 </span>
               )}
             </div>
-            <div className="flex items-center justify-between text-[11px] opacity-60 mt-1 font-medium">
+            <div className="text-[11px] opacity-60 mt-1 font-medium">
               <span>{metrics.totalCollections} {isBn ? "কালেকশন / ক্যাটাগরি" : "Collections"}</span>
-              <span className="text-accent font-bold group-hover:underline">➔</span>
             </div>
           </div>
         </div>
@@ -327,11 +335,163 @@ export default function DashboardOverviewTab({
             <div className="text-xl sm:text-2xl font-black text-foreground group-hover:text-accent transition-colors">
               {metrics.totalCustomers}
             </div>
-            <div className="flex items-center justify-between text-[11px] opacity-60 mt-1 font-medium">
-              <span>{metrics.activeCoupons} {isBn ? "সক্রিয় কুপন কোড" : "Active Coupons"}</span>
-              <span className="text-accent font-bold group-hover:underline">➔</span>
+            <div className="text-[11px] opacity-60 mt-1 font-medium">
+              <span>{metrics.activeCouponsCount} {isBn ? "সক্রিয় কুপন" : "Active Coupons"}</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* 🎟️ Active Promotions & Active Coupons Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+        {/* 1. Active Promotions List (Click to open Promotions tab) */}
+        <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between gap-2 mb-4">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-accent" />
+                <h2 className="text-base font-black uppercase tracking-tight text-foreground">
+                  {isBn ? "সক্রিয় প্রমোশন ও ছাড়" : "Active Product Promotions"}
+                </h2>
+              </div>
+              <button
+                onClick={() => onNavigateTab("promotions")}
+                className="text-xs font-bold text-accent hover:underline cursor-pointer"
+              >
+                {isBn ? "ম্যানেজ করুন" : "Manage"}
+              </button>
+            </div>
+
+            <p className="text-xs opacity-70 mb-4">
+              {isBn
+                ? "বর্তমানে যেসব পণ্যে সরাসরি ছাড় ও অফার চলছে"
+                : "Products with ongoing direct promotional discounts"}
+            </p>
+
+            <div className="divide-y divide-foreground/10">
+              {metrics.activePromotionsList.length === 0 ? (
+                <div className="py-8 text-center text-xs opacity-60">
+                  {isBn ? "বর্তমানে কোনো সক্রিয় প্রমোশন নেই" : "No active promotions right now"}
+                </div>
+              ) : (
+                metrics.activePromotionsList.slice(0, 4).map((p) => (
+                  <div
+                    key={p.id}
+                    onClick={() => onNavigateTab("promotions")}
+                    className="py-3 flex items-center justify-between gap-3 hover:bg-foreground/5 px-2 rounded-xl transition-colors cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-xl bg-foreground/10 overflow-hidden shrink-0 relative">
+                        {p.images && p.images[0] ? (
+                          <img
+                            src={p.images[0].image}
+                            alt={p.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[10px] opacity-40">
+                            IMG
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-xs font-bold text-foreground truncate group-hover:text-accent transition-colors">
+                          {p.title}
+                        </h4>
+                        <span className="text-[10px] opacity-60">
+                          {formatCurrency(p.discounted_price || p.unit_price)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="shrink-0 text-right">
+                      <span className="px-2.5 py-1 rounded-xl bg-accent/15 text-accent text-xs font-black">
+                        {p.discount_percent}% {isBn ? "ছাড়" : "OFF"}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <button
+            onClick={() => onNavigateTab("promotions")}
+            className="w-full mt-4 py-2.5 rounded-xl bg-button-bg text-button-fg text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-all text-center cursor-pointer shadow-xs"
+          >
+            {isBn ? "সকল প্রমোশন দেখুন" : "View All Promotions"}
+          </button>
+        </div>
+
+        {/* 2. Active Coupons List (Click to open Coupons tab) */}
+        <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between gap-2 mb-4">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-visible" />
+                <h2 className="text-base font-black uppercase tracking-tight text-foreground">
+                  {isBn ? "সক্রিয় কুপন কোডসমূহ" : "Active Coupon Codes"}
+                </h2>
+              </div>
+              <button
+                onClick={() => onNavigateTab("coupons")}
+                className="text-xs font-bold text-accent hover:underline cursor-pointer"
+              >
+                {isBn ? "ম্যানেজ করুন" : "Manage"}
+              </button>
+            </div>
+
+            <p className="text-xs opacity-70 mb-4">
+              {isBn
+                ? "গ্রাহকরা চেকআউটে যেসব কুপন কোড ব্যবহার করতে পারবেন"
+                : "Coupons currently active and available for customer checkout"}
+            </p>
+
+            <div className="divide-y divide-foreground/10">
+              {metrics.activeCouponsList.length === 0 ? (
+                <div className="py-8 text-center text-xs opacity-60">
+                  {isBn ? "কোনো সক্রিয় কুপন নেই" : "No active coupons created"}
+                </div>
+              ) : (
+                metrics.activeCouponsList.slice(0, 4).map((c) => (
+                  <div
+                    key={c.id}
+                    onClick={() => onNavigateTab("coupons")}
+                    className="py-3 flex items-center justify-between gap-3 hover:bg-foreground/5 px-2 rounded-xl transition-colors cursor-pointer group"
+                  >
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded-lg bg-accent text-button-fg font-mono text-xs font-black tracking-widest uppercase">
+                          {c.code}
+                        </span>
+                        <span className="text-[10px] font-bold text-visible">
+                          {isBn ? "সক্রিয়" : "Active"}
+                        </span>
+                      </div>
+                      <p className="text-[10px] opacity-60 mt-1 truncate">
+                        {c.target_type === "collection"
+                          ? isBn ? "কালেকশন ছাড়" : "Collection Discount"
+                          : isBn ? "সিলেক্টেড পণ্য ছাড়" : "Product Discount"}
+                      </p>
+                    </div>
+
+                    <div className="shrink-0 text-right">
+                      <span className="text-xs font-black text-accent">
+                        {c.discount_percent}% {isBn ? "ছাড়" : "OFF"}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <button
+            onClick={() => onNavigateTab("coupons")}
+            className="w-full mt-4 py-2.5 rounded-xl bg-button-bg text-button-fg text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-all text-center cursor-pointer shadow-xs"
+          >
+            {isBn ? "সকল কুপন ম্যানেজ করুন" : "Manage All Coupons"}
+          </button>
         </div>
       </div>
 
@@ -355,12 +515,9 @@ export default function DashboardOverviewTab({
             </div>
             <button
               onClick={() => onNavigateTab("analytics")}
-              className="text-xs font-bold text-accent hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs font-bold text-accent hover:underline cursor-pointer"
             >
               <span>{isBn ? "বিস্তারিত অ্যানালিটিক্স" : "Detailed Analytics"}</span>
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
             </button>
           </div>
 
@@ -449,7 +606,7 @@ export default function DashboardOverviewTab({
                   <div
                     key={prod.id}
                     onClick={() => onNavigateTab("products")}
-                    className="py-3 flex items-center justify-between gap-3 hover:bg-foreground/5 px-2 rounded-xl transition-colors cursor-pointer"
+                    className="py-3 flex items-center justify-between gap-3 hover:bg-foreground/5 px-2 rounded-xl transition-colors cursor-pointer group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <span className="text-xs font-black w-4 text-center opacity-50">
@@ -469,7 +626,7 @@ export default function DashboardOverviewTab({
                         )}
                       </div>
                       <div className="min-w-0">
-                        <h4 className="text-xs font-bold text-foreground truncate">
+                        <h4 className="text-xs font-bold text-foreground truncate group-hover:text-accent transition-colors">
                           {prod.title}
                         </h4>
                         <span className="text-[10px] text-accent font-extrabold">
@@ -503,7 +660,7 @@ export default function DashboardOverviewTab({
 
       {/* 📦 Bottom Row: Recent Orders & Stock Alert Watchlist */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-        {/* Recent Orders Table (Clickable to jump into Orders Tab) */}
+        {/* Recent Orders Table (No arrow icons) */}
         <div className="lg:col-span-2 bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm">
           <div className="flex items-center justify-between gap-2 mb-6">
             <div>
@@ -582,7 +739,7 @@ export default function DashboardOverviewTab({
                         </td>
                         <td className="py-3.5 px-2 text-right">
                           <span className="text-xs font-bold text-accent group-hover:underline">
-                            {isBn ? "বিস্তারিত" : "Manage"} ➔
+                            {isBn ? "বিস্তারিত দেখুন" : "Manage Order"}
                           </span>
                         </td>
                       </tr>
