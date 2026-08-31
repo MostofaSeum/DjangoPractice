@@ -1,21 +1,103 @@
 import os
 import requests
 import random
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.mail import send_mail
 from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework.throttling import ScopedRateThrottle
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from .models import User, OTPToken
 
+class AuthBurstThrottle(ScopedRateThrottle):
+    throttle_scope = 'auth_burst'
+
+
+class CookieTokenObtainPairView(TokenObtainPairView):
+    """
+    Login endpoint that issues JWT tokens and sets them as HttpOnly cookies.
+    """
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == status.HTTP_200_OK:
+            access_token = response.data.get('access')
+            refresh_token = response.data.get('refresh')
+            is_secure = not settings.DEBUG
+
+            # Set HttpOnly Cookie for Access Token (1 day)
+            response.set_cookie(
+                key='access_token',
+                value=access_token,
+                httponly=True,
+                secure=is_secure,
+                samesite='Lax',
+                max_age=60 * 60 * 24,
+                path='/'
+            )
+            # Set HttpOnly Cookie for Refresh Token (7 days)
+            response.set_cookie(
+                key='refresh_token',
+                value=refresh_token,
+                httponly=True,
+                secure=is_secure,
+                samesite='Lax',
+                max_age=60 * 60 * 24 * 7,
+                path='/'
+            )
+        return response
+
+
+class CookieTokenRefreshView(TokenRefreshView):
+    """
+    Refresh endpoint that reads refresh_token from body OR HttpOnly cookie,
+    and updates the access_token HttpOnly cookie.
+    """
+    def post(self, request, *args, **kwargs):
+        data = request.data.copy() if hasattr(request.data, 'copy') else {}
+        if not data.get('refresh'):
+            cookie_refresh = request.COOKIES.get('refresh_token')
+            if cookie_refresh:
+                data['refresh'] = cookie_refresh
+                request._full_data = data
+
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == status.HTTP_200_OK:
+            access_token = response.data.get('access')
+            is_secure = not settings.DEBUG
+            response.set_cookie(
+                key='access_token',
+                value=access_token,
+                httponly=True,
+                secure=is_secure,
+                samesite='Lax',
+                max_age=60 * 60 * 24,
+                path='/'
+            )
+        return response
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
+def logout_view(request):
+    """
+    Logout endpoint that clears HttpOnly cookies.
+    """
+    response = Response({'detail': 'Logged out successfully.'}, status=status.HTTP_200_OK)
+    response.delete_cookie('access_token', path='/')
+    response.delete_cookie('refresh_token', path='/')
+    return response
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@throttle_classes([AuthBurstThrottle])
 def send_otp(request):
     try:
         email = request.data.get('email')
@@ -150,6 +232,7 @@ def send_otp(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([AuthBurstThrottle])
 def verify_otp(request):
     email = request.data.get('email')
     otp_code = request.data.get('otp_code')
@@ -200,10 +283,12 @@ def verify_otp(request):
 
     # Issue JWT tokens
     refresh = RefreshToken.for_user(user)
+    access_token = str(refresh.access_token)
+    refresh_token = str(refresh)
 
-    return Response({
-        'access': str(refresh.access_token),
-        'refresh': str(refresh),
+    response = Response({
+        'access': access_token,
+        'refresh': refresh_token,
         'user': {
             'id': user.id,
             'username': user.username,
@@ -214,9 +299,32 @@ def verify_otp(request):
         }
     }, status=status.HTTP_200_OK)
 
+    # Also attach HttpOnly cookies
+    is_secure = not settings.DEBUG
+    response.set_cookie(
+        key='access_token',
+        value=access_token,
+        httponly=True,
+        secure=is_secure,
+        samesite='Lax',
+        max_age=60 * 60 * 24,
+        path='/'
+    )
+    response.set_cookie(
+        key='refresh_token',
+        value=refresh_token,
+        httponly=True,
+        secure=is_secure,
+        samesite='Lax',
+        max_age=60 * 60 * 24 * 7,
+        path='/'
+    )
+    return response
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@throttle_classes([AuthBurstThrottle])
 def reset_password(request):
     try:
         username = request.data.get('username', '').strip()

@@ -20,7 +20,7 @@ from django.urls import path, include
 import debug_toolbar
 from django.views.static import serve
 from django.urls import re_path
-from core.views import send_otp, verify_otp, reset_password
+from core.views import send_otp, verify_otp, reset_password, CookieTokenObtainPairView, CookieTokenRefreshView, logout_view
 
 
 admin.site.site_header = 'Storefront Admin'
@@ -36,6 +36,9 @@ urlpatterns = [
     path('auth/otp/send/', send_otp, name='send_otp'),
     path('auth/otp/verify/', verify_otp, name='verify_otp'),
     path('auth/reset-password/', reset_password, name='reset_password'),
+    path('auth/jwt/create/', CookieTokenObtainPairView.as_view(), name='jwt-create'),
+    path('auth/jwt/refresh/', CookieTokenRefreshView.as_view(), name='jwt-refresh'),
+    path('auth/logout/', logout_view, name='logout'),
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.jwt')),
 ]

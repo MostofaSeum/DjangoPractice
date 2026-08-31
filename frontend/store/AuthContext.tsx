@@ -35,29 +35,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const savedToken = localStorage.getItem("access_token");
     if (savedToken) {
       setToken(savedToken);
-      setLoading(false);
-      fetchUser(savedToken);
-    } else {
-      setLoading(false);
     }
+    fetchUser(savedToken || undefined);
   }, []);
 
   // Fetch Current User
-  const fetchUser = async (authToken: string): Promise<User | null> => {
+  const fetchUser = async (authToken?: string): Promise<User | null> => {
     try {
+      const headers: Record<string, string> = {};
+      if (authToken) {
+        headers["Authorization"] = `JWT ${authToken}`;
+      }
       const res = await fetch(`${API_BASE}/auth/users/me/`, {
-        headers: { Authorization: `JWT ${authToken}` },
+        headers,
+        credentials: "include",
       });
       if (res.ok) {
         const userData = await res.json();
         setUser(userData);
+        setLoading(false);
         return userData;
       } else {
-        logout();
+        if (authToken) {
+          logout();
+        }
+        setUser(null);
+        setLoading(false);
         return null;
       }
     } catch (err) {
       console.error(err);
+      setLoading(false);
       return null;
     }
   };
@@ -68,13 +76,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
+      credentials: "include",
     });
 
     if (res.ok) {
       const data = await res.json();
-      localStorage.setItem("access_token", data.access);
-      localStorage.setItem("refresh_token", data.refresh);
-      setToken(data.access);
+      if (data.access) {
+        localStorage.setItem("access_token", data.access);
+        setToken(data.access);
+      }
+      if (data.refresh) {
+        localStorage.setItem("refresh_token", data.refresh);
+      }
       const userData = await fetchUser(data.access);
       return userData;
     }
@@ -90,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),
+        credentials: "include",
       });
 
       if (res.ok) {
@@ -123,6 +137,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Logout
   const logout = () => {
+    try {
+      fetch(`${API_BASE}/auth/logout/`, {
+        method: "POST",
+        credentials: "include",
+      }).catch(() => {});
+    } catch (e) {}
+
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("cart_id");
