@@ -1,5 +1,19 @@
+import type { Metadata } from "next";
 import { getApiBaseUrl } from "@/config/siteConfig";
 import CollectionsClient from "@/features/collections/components/CollectionsClient";
+
+export const metadata: Metadata = {
+  title: "Featured Collections | VibeMart",
+  description: "Explore curated clothing, streetwear collections, and aesthetic drop categories.",
+  alternates: {
+    canonical: "/collections",
+  },
+  openGraph: {
+    title: "Featured Collections | VibeMart",
+    description: "Explore curated clothing, streetwear collections, and aesthetic drop categories.",
+    url: "/collections",
+  },
+};
 
 interface Collection {
   id: number;

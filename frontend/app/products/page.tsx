@@ -1,7 +1,20 @@
+import type { Metadata } from "next";
 import { getApiBaseUrl } from "@/config/siteConfig";
 import ProductsClient from "@/features/products/components/ProductsClient";
-
 import { Product } from "@/types/product";
+
+export const metadata: Metadata = {
+  title: "Shop All Products | VibeMart",
+  description: "Browse our exclusive catalog of trendy streetwear, hoodies, apparel, and premium accessories.",
+  alternates: {
+    canonical: "/products",
+  },
+  openGraph: {
+    title: "Shop All Products | VibeMart",
+    description: "Browse our exclusive catalog of trendy streetwear, hoodies, apparel, and premium accessories.",
+    url: "/products",
+  },
+};
 
 export default async function ProductsPage({
   searchParams,

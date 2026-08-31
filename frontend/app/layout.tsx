@@ -17,9 +17,54 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "VibeMart - Electric Premium Storefront",
-  description: "High-end streetwear and premium digital aesthetics.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "VibeMart - Electric Premium Storefront",
+    template: "%s | VibeMart",
+  },
+  description: "High-end streetwear, accessories, and premium digital aesthetic merchandise.",
+  keywords: ["e-commerce", "streetwear", "fashion", "shopping", "storefront", "accessories"],
+  authors: [{ name: "VibeMart" }],
+  creator: "VibeMart",
+  publisher: "VibeMart",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: siteUrl,
+    title: "VibeMart - Electric Premium Storefront",
+    description: "High-end streetwear, accessories, and premium digital aesthetic merchandise.",
+    siteName: "VibeMart",
+    images: [
+      {
+        url: "/HomePage/shopping-cart.png",
+        width: 800,
+        height: 600,
+        alt: "VibeMart Store",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "VibeMart - Electric Premium Storefront",
+    description: "High-end streetwear, accessories, and premium digital aesthetic merchandise.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 import { ThemeProvider } from "@/store/ThemeContext";

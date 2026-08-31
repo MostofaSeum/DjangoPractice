@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import ProductDetailClient from "./ProductDetailClient";
 import { getApiBaseUrl } from "@/config/siteConfig";
@@ -14,24 +15,74 @@ interface Product {
   collection: number | { id: number; title: string };
   images?: { id: number; image: string }[];
   units_sold?: number;
-}
-
-interface CollectionDetail {
-  id: number;
-  title: string;
-  products: Product[];
+  average_rating?: number;
+  review_count?: number;
 }
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params;
+  const apiBaseUrl = getApiBaseUrl();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+  try {
+    const res = await fetch(`${apiBaseUrl}/store/products/${id}/`, {
+      next: { revalidate: 60 },
+    });
+    if (res.ok) {
+      const product: Product = await res.json();
+      const title = `${product.title} | VibeMart`;
+      const description = product.short_description || product.description?.slice(0, 160) || "Explore this premium product on VibeMart.";
+      const image = product.images?.[0]?.image || `${siteUrl}/HomePage/shopping-cart.png`;
+
+      return {
+        title,
+        description,
+        alternates: {
+          canonical: `${siteUrl}/products/${product.id}`,
+        },
+        openGraph: {
+          title,
+          description,
+          url: `${siteUrl}/products/${product.id}`,
+          siteName: "VibeMart",
+          images: [
+            {
+              url: image,
+              width: 800,
+              height: 800,
+              alt: product.title,
+            },
+          ],
+          type: "website",
+        },
+        twitter: {
+          card: "summary_large_image",
+          title,
+          description,
+          images: [image],
+        },
+      };
+    }
+  } catch (err) {
+    console.error("Failed to generate product metadata:", err);
+  }
+
+  return {
+    title: "Product Details | VibeMart",
+    description: "View product details and exclusive collections on VibeMart.",
+  };
+}
+
 export default async function ProductDetailPage({ params }: PageProps) {
   const { id } = await params;
-
   const apiBaseUrl = getApiBaseUrl();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-  // Fetch product detail dynamically (no stale cached response)
+  // Fetch product detail dynamically
   const res = await fetch(`${apiBaseUrl}/store/products/${id}/`, {
     cache: "no-store",
   });
@@ -106,12 +157,47 @@ export default async function ProductDetailPage({ params }: PageProps) {
     }
   }
 
+  // Schema.org JSON-LD Structured Data for Rich Snippets
+  const priceValue = product.discounted_price || product.unit_price;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    image: product.images?.map((i) => i.image) || [],
+    description: product.short_description || product.description,
+    sku: `PROD-${product.id}`,
+    offers: {
+      "@type": "Offer",
+      url: `${siteUrl}/products/${product.id}`,
+      priceCurrency: "BDT",
+      price: priceValue.toString(),
+      availability: product.inventory > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      itemCondition: "https://schema.org/NewCondition",
+    },
+    ...(product.review_count && product.review_count > 0 && product.average_rating
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: product.average_rating.toString(),
+            reviewCount: product.review_count.toString(),
+          },
+        }
+      : {}),
+  };
+
   return (
-    <ProductDetailClient
-      product={product}
-      collectionId={collectionId ? Number(collectionId) : null}
-      collectionTitle={collectionTitle}
-      relatedProducts={relatedProducts}
-    />
+    <>
+      {/* Schema.org Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ProductDetailClient
+        product={product}
+        collectionId={collectionId ? Number(collectionId) : null}
+        collectionTitle={collectionTitle}
+        relatedProducts={relatedProducts}
+      />
+    </>
   );
 }
