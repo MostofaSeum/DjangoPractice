@@ -3,13 +3,15 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
+const isDev = process.env.NODE_ENV !== "production";
+
 const cspHeader = `
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline';
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     img-src 'self' blob: data: http://localhost:8000 http://127.0.0.1:8000 https:;
     font-src 'self' https://fonts.gstatic.com data:;
-    connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 https:;
+    connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 http://localhost:3000 http://127.0.0.1:3000 ws://localhost:3000 ws://127.0.0.1:3000 https:;
     frame-ancestors 'none';
     form-action 'self';
     base-uri 'self';

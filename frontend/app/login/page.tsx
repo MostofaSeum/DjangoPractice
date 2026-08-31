@@ -26,12 +26,12 @@ function LoginForm() {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (!authLoading && (token || user)) {
+    if (!authLoading && user) {
       router.replace(redirectUrl);
     }
-  }, [token, user, authLoading, router, redirectUrl]);
+  }, [user, authLoading, router, redirectUrl]);
 
-  if (authLoading || token) {
+  if (authLoading || user) {
     return null;
   }
 

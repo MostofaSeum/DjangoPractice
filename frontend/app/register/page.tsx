@@ -35,17 +35,17 @@ function RegisterForm() {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (!authLoading) return;
-    if (token) {
-      if (user?.is_staff) {
+    if (authLoading) return;
+    if (user) {
+      if (user.is_staff) {
         router.push("/admin");
       } else {
         router.push(redirectUrl);
       }
     }
-  }, [token, user, authLoading, router, redirectUrl]);
+  }, [user, authLoading, router, redirectUrl]);
 
-  if (authLoading || token) {
+  if (authLoading || user) {
     return null;
   }
 
