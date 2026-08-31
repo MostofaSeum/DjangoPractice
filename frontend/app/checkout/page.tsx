@@ -211,7 +211,7 @@ export default function CheckoutPage() {
     };
 
     fetchCustomerInfo();
-  }, [token, authLoading, router, locale]);
+  }, [token, authLoading, router]);
 
   // Automatically remove coupon if no eligible items remain in cart
   useEffect(() => {
