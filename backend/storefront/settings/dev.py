@@ -52,16 +52,11 @@ CELERY_BEAT_SCHEDULE = {
     }
 }
 
-# Cache Settings with resilient fallback if Redis local server is offline
-redis_url = os.environ.get('REDIS_CACHE_URL', 'redis://127.0.0.1:6379/2')
+# Cache Settings: Use ultra-fast in-memory cache (LocMemCache) for instant response without Redis port timeout
 CACHES = {
     "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": redis_url,
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "IGNORE_EXCEPTIONS": True,  # Fallback gracefully if Redis is not running
-        }
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-storefront-cache",
     }
 }
 
