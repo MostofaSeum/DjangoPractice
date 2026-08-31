@@ -173,13 +173,21 @@
     "defaultUpdated": "Default address updated!"
   },
   "footer": {
-    "shop": "Shop",
-    "categories": "Categories",
-    "giftCards": "Gift Cards",
+    "aboutUs": "About Us",
+    "contactUs": "Contact Us",
+    "myAccount": "My Account",
+    "orderTracking": "Order Tracking",
+    "refundPolicy": "Refund & Return Policy",
     "privacyPolicy": "Privacy Policy",
-    "termsOfService": "Terms of Service",
-    "shippingInfo": "Shipping Info",
-    "copyright": "© 2026 VIBEMART.\nWORLDWIDE."
+    "terms": "Terms & Conditions",
+    "faq": "FAQ",
+    "phone": "+880 1700-000000",
+    "address": "Homestead Gulshan Link Tower, 99 Gulshan Badda Link Rd, Dhaka 1212",
+    "email": "support@vibemart.com",
+    "hours": "Sat - Thu: 10:00 - 18:00",
+    "brandDescription": "VibeMart is a recognized multi-category fashion and lifestyle store built on the principle of \"best price at the highest quality\". Our collections are curated with premium materials that are durable, stylish, and perfect for your vibe.",
+    "readMore": "Read More",
+    "copyright": "© 2026 VIBEMART. All rights reserved."
   },
   "wishlist": {
     "loadingWishlist": "Loading your wishlist...",

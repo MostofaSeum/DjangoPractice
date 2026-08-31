@@ -29,38 +29,6 @@ export default function StoreSettingsTab() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300 pb-12">
-      {/* 🌟 Header Banner */}
-      <div className="relative overflow-hidden bg-primary rounded-3xl p-6 sm:p-8 text-button-fg border border-foreground/10 shadow-lg">
-        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse" />
-              <span className="text-[11px] font-black uppercase tracking-widest text-accent">
-                {isBn ? "কাস্টমাইজেশন প্যানেল" : "Branding & Customization"}
-              </span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">
-              {isBn ? "স্টোর সেটিংস ও ব্র্যান্ডিং" : "General Store Settings"}
-            </h1>
-            <p className="text-xs sm:text-sm opacity-80 mt-1 max-w-xl font-medium">
-              {isBn
-                ? "ওয়েবসাইটের লোগো, টাইটেল, ফুটার তথ্য, হেল্পলাইন ও সোশ্যাল লিংক পরিবর্তন করুন।"
-                : "Manage website logo, brand title, footer information, contact details, and social links."}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            className="px-5 py-2.5 rounded-xl bg-accent text-button-fg text-xs font-bold uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all shadow-sm cursor-pointer"
-          >
-            {isBn ? "সংরক্ষণ করুন (ডেমো)" : "Save Settings (Demo)"}
-          </button>
-        </div>
-
-        {/* Ambient background decoration */}
-        <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-accent/15 rounded-full blur-3xl pointer-events-none" />
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         {/* Left Column: Logo Upload & Brand Meta */}
         <div className="space-y-6">
