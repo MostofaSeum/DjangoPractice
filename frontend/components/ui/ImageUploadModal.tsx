@@ -116,7 +116,6 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
     setLoading(true);
     setMessage(null);
 
-    const token = localStorage.getItem('access_token') || localStorage.getItem('jwt');
     let successCount = 0;
 
     try {
@@ -126,9 +125,7 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
 
         const response = await fetch(`${apiBaseUrl}/store/products/${productId}/images/`, {
           method: 'POST',
-          headers: {
-            ...(token ? { Authorization: `JWT ${token}` } : {}),
-          },
+          credentials: 'include',
           body: formData,
         });
 
@@ -171,15 +168,14 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
   };
 
   const handleTogglePublishPhotos = async () => {
-    const token = localStorage.getItem('access_token') || localStorage.getItem('jwt');
     try {
       const newStatus = !isPhotosPublished;
       const res = await fetch(`${apiBaseUrl}/store/products/${productId}/`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { Authorization: `JWT ${token}` } : {}),
         },
+        credentials: 'include',
         body: JSON.stringify({ is_photos_published: newStatus }),
       });
 
@@ -212,13 +208,10 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
 
     if (!confirmResult.isConfirmed) return;
 
-    const token = localStorage.getItem('access_token') || localStorage.getItem('jwt');
     try {
       const res = await fetch(`${apiBaseUrl}/store/products/${productId}/images/${imageId}/`, {
         method: 'DELETE',
-        headers: {
-          ...(token ? { Authorization: `JWT ${token}` } : {}),
-        },
+        credentials: 'include',
       });
 
       if (res.ok || res.status === 204) {

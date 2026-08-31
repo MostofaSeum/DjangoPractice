@@ -30,24 +30,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Load token and user on startup
+  // Load user from HttpOnly cookie on startup
   useEffect(() => {
-    const savedToken = localStorage.getItem("access_token");
-    if (savedToken) {
-      setToken(savedToken);
-    }
-    fetchUser(savedToken || undefined);
+    // Clean up any legacy tokens from localStorage to prevent XSS exposure
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    fetchUser();
   }, []);
 
-  // Fetch Current User
-  const fetchUser = async (authToken?: string): Promise<User | null> => {
+  // Fetch Current User via HttpOnly cookie
+  const fetchUser = async (): Promise<User | null> => {
     try {
-      const headers: Record<string, string> = {};
-      if (authToken) {
-        headers["Authorization"] = `JWT ${authToken}`;
-      }
       const res = await fetch(`${API_BASE}/auth/users/me/`, {
-        headers,
         credentials: "include",
       });
       if (res.ok) {
@@ -56,9 +50,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
         return userData;
       } else {
-        if (authToken) {
-          logout();
-        }
         setUser(null);
         setLoading(false);
         return null;
@@ -82,13 +73,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (res.ok) {
       const data = await res.json();
       if (data.access) {
-        localStorage.setItem("access_token", data.access);
         setToken(data.access);
       }
-      if (data.refresh) {
-        localStorage.setItem("refresh_token", data.refresh);
-      }
-      const userData = await fetchUser(data.access);
+      const userData = await fetchUser();
       return userData;
     }
     return null;

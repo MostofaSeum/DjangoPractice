@@ -204,22 +204,14 @@ export default function GiftCardsPage() {
 
     try {
       const apiBaseUrl = getApiBaseUrl();
-      const authToken =
-        token ||
-        (typeof window !== "undefined"
-          ? localStorage.getItem("access_token") || localStorage.getItem("jwt") || localStorage.getItem("token")
-          : null);
-
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
       };
-      if (authToken) {
-        headers["Authorization"] = `JWT ${authToken}`;
-      }
 
       const res = await fetch(`${apiBaseUrl}/store/gift-cards/`, {
         method: "POST",
         headers,
+        credentials: "include",
         body: JSON.stringify({
           user_email: email,
           price: selectedCard.price,

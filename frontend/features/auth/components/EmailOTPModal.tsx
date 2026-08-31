@@ -108,12 +108,6 @@ export default function EmailOTPModal({
       const data = await res.json();
 
       if (res.ok) {
-        if (data.access) {
-          localStorage.setItem("access_token", data.access);
-          localStorage.setItem("jwt", data.access);
-          if (data.refresh) localStorage.setItem("refresh_token", data.refresh);
-        }
-
         await syncCart(data.access);
 
         if (onSuccess) {
