@@ -107,33 +107,35 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // Sync Guest Cart to User Cart
   const syncCart = async (authToken?: string) => {
-    const activeToken = authToken || token || localStorage.getItem("access_token");
     const currentCartId = localStorage.getItem("cart_id");
-    if (activeToken) {
-      try {
-        const res = await fetch(`${API_BASE}/store/carts/sync/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `JWT ${activeToken}`,
-          },
-          body: JSON.stringify({ cart_id: currentCartId }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          localStorage.setItem("cart_id", data.id);
-          setCart(data);
-          return data;
-        }
-      } catch (err) {
-        console.error("Cart sync failed:", err);
+    try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (authToken) {
+        headers["Authorization"] = `JWT ${authToken}`;
       }
+
+      const res = await fetch(`${API_BASE}/store/carts/sync/`, {
+        method: "POST",
+        headers,
+        credentials: "include",
+        body: JSON.stringify({ cart_id: currentCartId }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem("cart_id", data.id);
+        setCart(data);
+        return data;
+      }
+    } catch (err) {
+      console.error("Cart sync failed:", err);
+    }
+
+    if (currentCartId) {
+      await refreshCart(currentCartId);
     } else {
-      if (currentCartId) {
-        await refreshCart(currentCartId);
-      } else {
-        setCart(null);
-      }
+      setCart(null);
     }
   };
 
@@ -141,7 +143,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
     syncCart();
   }, [token]);
 
-  // Add Item to Cart 
+  // Helper to recompute cart total price optimistically
+  const calculateOptimisticCart = (items: CartItem[], cartId: string): Cart => {
+    const total_price = items.reduce((sum, item) => sum + item.total_price, 0);
+    return {
+      id: cartId,
+      items,
+      total_price,
+    };
+  };
+
+  // Add Item to Cart (with Optimistic UI)
   const addToCart = async (productId: number, quantity = 1, variantId?: number | null) => {
     let cartId = await getOrCreateCartId();
     const payload: any = { product_id: productId, quantity };
@@ -149,48 +161,98 @@ export function CartProvider({ children }: { children: ReactNode }) {
       payload.variant_id = variantId;
     }
 
-    let res = await fetch(`${API_BASE}/store/carts/${cartId}/items/`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (res.status === 404) {
-      localStorage.removeItem("cart_id");
-      cartId = await createNewCart();
-      res = await fetch(`${API_BASE}/store/carts/${cartId}/items/`, {
+    try {
+      let res = await fetch(`${API_BASE}/store/carts/${cartId}/items/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(payload),
       });
-    }
 
-    if (res.ok) {
-      await refreshCart(cartId);
+      if (res.status === 404) {
+        localStorage.removeItem("cart_id");
+        cartId = await createNewCart();
+        res = await fetch(`${API_BASE}/store/carts/${cartId}/items/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        });
+      }
+
+      if (res.ok) {
+        const updatedCart = await res.json();
+        setCart(updatedCart);
+      }
+    } catch (err) {
+      console.error("Add to cart error:", err);
     }
   };
 
-  // Update Item Quantity
+  // Update Item Quantity (with Instant Optimistic UI)
   const updateQuantity = async (itemId: number, quantity: number) => {
     if (!cart) return;
-    const res = await fetch(`${API_BASE}/store/carts/${cart.id}/items/${itemId}/`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ quantity }),
+
+    // ⚡ Optimistic Update: Instantly update UI without waiting for network response
+    const previousCart = cart;
+    const updatedItems = cart.items.map((item) => {
+      if (item.id === itemId) {
+        const unitPrice = item.variant
+          ? Number(item.variant.discounted_price || item.variant.effective_price || item.product.discounted_price || item.product.unit_price)
+          : Number(item.product.discounted_price || item.product.unit_price);
+        return {
+          ...item,
+          quantity,
+          total_price: quantity * unitPrice,
+        };
+      }
+      return item;
     });
-    if (res.ok) {
-      await refreshCart(cart.id);
+
+    setCart(calculateOptimisticCart(updatedItems, cart.id));
+
+    try {
+      const res = await fetch(`${API_BASE}/store/carts/${cart.id}/items/${itemId}/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ quantity }),
+      });
+      if (res.ok) {
+        const updatedCart = await res.json();
+        setCart(updatedCart);
+      } else {
+        setCart(previousCart);
+      }
+    } catch (err) {
+      setCart(previousCart);
+      console.error("Update quantity error:", err);
     }
   };
 
-  // Remove Item from Cart
+  // Remove Item from Cart (with Instant Optimistic UI)
   const removeFromCart = async (itemId: number) => {
     if (!cart) return;
-    const res = await fetch(`${API_BASE}/store/carts/${cart.id}/items/${itemId}/`, {
-      method: "DELETE",
-    });
-    if (res.ok) {
-      await refreshCart(cart.id);
+
+    // ⚡ Optimistic Update: Instantly remove item from UI
+    const previousCart = cart;
+    const updatedItems = cart.items.filter((item) => item.id !== itemId);
+    setCart(calculateOptimisticCart(updatedItems, cart.id));
+
+    try {
+      const res = await fetch(`${API_BASE}/store/carts/${cart.id}/items/${itemId}/`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        const updatedCart = await res.json();
+        setCart(updatedCart);
+      } else {
+        setCart(previousCart);
+      }
+    } catch (err) {
+      setCart(previousCart);
+      console.error("Remove from cart error:", err);
     }
   };
 

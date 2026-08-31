@@ -554,10 +554,33 @@ class CartItemViewSet(ModelViewSet):
         elif self.request.method == 'PATCH':
             return UpdateCartItemSerializers
         return CartItemSerializers
+
     def get_serializer_context(self):
-        return {'cart_id' : self.kwargs['cart_pk']}
+        return {'cart_id': self.kwargs['cart_pk']}
+
     def get_queryset(self):
         return CartItem.objects.filter(cart_id=self.kwargs['cart_pk']).select_related('product', 'variant')
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        # Return full updated cart in single round-trip
+        cart = Cart.objects.prefetch_related('items__product__images', 'items__variant').get(id=self.kwargs['cart_pk'])
+        cart_serializer = CartSerializers(cart)
+        return Response(cart_serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        cart = Cart.objects.prefetch_related('items__product__images', 'items__variant').get(id=self.kwargs['cart_pk'])
+        cart_serializer = CartSerializers(cart)
+        return Response(cart_serializer.data, status=status.HTTP_200_OK)
+
+    def destroy(self, request, *args, **kwargs):
+        super().destroy(request, *args, **kwargs)
+        cart = Cart.objects.prefetch_related('items__product__images', 'items__variant').get(id=self.kwargs['cart_pk'])
+        cart_serializer = CartSerializers(cart)
+        return Response(cart_serializer.data, status=status.HTTP_200_OK)
 
 class ProductVariantViewSet(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]

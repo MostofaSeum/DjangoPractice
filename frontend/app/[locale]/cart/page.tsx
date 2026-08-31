@@ -325,9 +325,7 @@ export default function CartPage() {
 
     // Check delivery rules for mixed cart items (some free delivery, some non-free delivery)
     try {
-      const rulesRes = await fetch(`${API_BASE}/store/delivery-rules/`, {
-        cache: "no-store",
-      });
+      const rulesRes = await fetch(`${API_BASE}/store/delivery-rules/`);
       if (rulesRes.ok) {
         const rulesData = await rulesRes.json();
         const activeRules: any[] = (
@@ -341,7 +339,7 @@ export default function CartPage() {
             finalTotal >= Number(rule.min_order_amount || 0)
         );
 
-        if (isCartTotalFree) {
+        if (isCartTotalFree || activeRules.length === 0) {
           router.push("/checkout");
           return;
         }
