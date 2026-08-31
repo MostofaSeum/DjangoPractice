@@ -30,20 +30,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Load user from HttpOnly cookie on startup
+  // Load user from localStorage or cookie on startup
   useEffect(() => {
-    // Clean up any legacy tokens from localStorage to prevent XSS exposure
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    fetchUser();
+    const savedToken = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+    if (savedToken) {
+      setToken(savedToken);
+    }
+    fetchUser(savedToken || undefined);
   }, []);
 
-  // Fetch Current User via HttpOnly cookie (or explicit authToken on login)
+  // Fetch Current User (via explicit token in Authorization header and HttpOnly cookie)
   const fetchUser = async (authToken?: string): Promise<User | null> => {
     try {
+      const activeToken = authToken || (typeof window !== "undefined" ? localStorage.getItem("access_token") : null);
       const headers: Record<string, string> = {};
-      if (authToken) {
-        headers["Authorization"] = `JWT ${authToken}`;
+      if (activeToken) {
+        headers["Authorization"] = `JWT ${activeToken}`;
       }
       const res = await fetch(`${API_BASE}/auth/users/me/`, {
         headers,
@@ -52,15 +54,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const userData = await res.json();
         setUser(userData);
+        if (activeToken) {
+          setToken(activeToken);
+        }
         setLoading(false);
         return userData;
       } else {
+        // If the access token expired, try refreshing it via refresh_token
+        const refreshToken = typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null;
+        if (refreshToken) {
+          const refreshRes = await fetch(`${API_BASE}/auth/jwt/refresh/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refresh: refreshToken }),
+            credentials: "include",
+          });
+          if (refreshRes.ok) {
+            const refreshData = await refreshRes.json();
+            const newAccess = refreshData.access;
+            if (newAccess) {
+              setToken(newAccess);
+              if (typeof window !== "undefined") {
+                localStorage.setItem("access_token", newAccess);
+              }
+              return fetchUser(newAccess);
+            }
+          }
+        }
+        // Token invalid and cannot be refreshed
         setUser(null);
+        setToken(null);
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+        }
         setLoading(false);
         return null;
       }
     } catch (err) {
-      console.error(err);
+      console.error("Auth fetchUser error:", err);
       setLoading(false);
       return null;
     }
@@ -79,10 +111,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         const access = data.access;
+        const refresh = data.refresh;
         if (access) {
           setToken(access);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("access_token", access);
+          }
         }
-        // Fetch user passing explicit Authorization header in case cross-origin cookies are delayed
+        if (refresh && typeof window !== "undefined") {
+          localStorage.setItem("refresh_token", refresh);
+        }
+        // Fetch user with newly issued access token
         const userData = await fetchUser(access);
         return userData;
       }
@@ -143,9 +182,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }).catch(() => {});
     } catch (e) {}
 
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("cart_id");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      localStorage.removeItem("cart_id");
+    }
     setToken(null);
     setUser(null);
   };
