@@ -136,11 +136,21 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
         });
       } else {
         const errData = await res.json().catch(() => ({}));
-        Swal.fire(
-          "Error",
-          errData.detail || "Failed to update settings. Please check your inputs.",
-          "error"
-        );
+        let errorMsg = "Failed to update settings. Please check your inputs.";
+        if (typeof errData === "object" && errData !== null) {
+          const formatted = Object.entries(errData)
+            .map(([field, msgs]) => {
+              const msg = Array.isArray(msgs) ? msgs.join(" ") : String(msgs);
+              return `${field.replace("_", " ").toUpperCase()}: ${msg}`;
+            })
+            .join("\n");
+          if (formatted) errorMsg = formatted;
+        }
+        Swal.fire({
+          icon: "error",
+          title: isBn ? "ভুল ইনপুট পাওয়া গেছে" : "Validation Error",
+          text: errorMsg,
+        });
       }
     } catch (err) {
       console.error(err);

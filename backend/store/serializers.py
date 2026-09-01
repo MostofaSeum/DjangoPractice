@@ -961,6 +961,18 @@ class AuditLogSerializer(serializers.ModelSerializer):
 
 
 class SiteSettingSerializer(serializers.ModelSerializer):
+    site_title = serializers.CharField(max_length=15, required=False)
+    tagline = serializers.CharField(max_length=30, required=False, allow_blank=True)
+    support_phone = serializers.CharField(max_length=30, required=False, allow_blank=True)
+    support_email = serializers.EmailField(max_length=100, required=False, allow_blank=True)
+    store_address = serializers.CharField(max_length=200, required=False, allow_blank=True)
+    working_hours = serializers.CharField(max_length=60, required=False, allow_blank=True)
+    facebook_url = serializers.URLField(max_length=255, required=False, allow_blank=True)
+    instagram_url = serializers.URLField(max_length=255, required=False, allow_blank=True)
+    youtube_url = serializers.URLField(max_length=255, required=False, allow_blank=True)
+    whatsapp_number = serializers.CharField(max_length=50, required=False, allow_blank=True)
+    footer_copyright = serializers.CharField(max_length=100, required=False, allow_blank=True)
+
     class Meta:
         model = SiteSetting
         fields = [
@@ -980,6 +992,27 @@ class SiteSettingSerializer(serializers.ModelSerializer):
             'footer_copyright',
             'last_updated',
         ]
+
+    def validate_brand_description(self, value):
+        if value:
+            # Enforce 70 words maximum limit
+            words = value.strip().split()
+            if len(words) > 70:
+                raise serializers.ValidationError(
+                    f"Brand description cannot exceed 70 words. Current count: {len(words)} words."
+                )
+        return value
+
+    def validate_site_title(self, value):
+        if value and len(value.strip()) > 15:
+            raise serializers.ValidationError("Website title cannot exceed 15 characters.")
+        return value.strip()
+
+    def validate_tagline(self, value):
+        if value and len(value.strip()) > 30:
+            raise serializers.ValidationError("Tagline cannot exceed 30 characters.")
+        return value.strip()
+
 
 
 
