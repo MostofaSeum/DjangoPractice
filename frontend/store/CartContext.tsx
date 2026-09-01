@@ -57,7 +57,7 @@ export const CartContext = createContext<CartContextType | undefined>(undefined)
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const { user, loading: authLoading } = useAuth();
+  const { user, token, loading: authLoading } = useAuth();
 
   // Create a new Cart ID from API
   const createNewCart = async (): Promise<string> => {
@@ -119,8 +119,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const headers: Record<string, string> = {
           "Content-Type": "application/json",
         };
-        if (authToken) {
-          headers["Authorization"] = `JWT ${authToken}`;
+        const activeToken = authToken || token;
+        if (activeToken) {
+          headers["Authorization"] = `JWT ${activeToken}`;
         }
 
         const res = await fetch(`${API_BASE}/store/carts/sync/`, {

@@ -15,7 +15,11 @@ export async function fetcher<T>(endpoint: string, options: RequestInit = {}): P
     headers["Authorization"] = `JWT ${token}`;
   }
 
-  const response = await fetch(url, { ...options, headers });
+  const response = await fetch(url, {
+    credentials: "include",
+    ...options,
+    headers,
+  });
   
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ detail: response.statusText }));

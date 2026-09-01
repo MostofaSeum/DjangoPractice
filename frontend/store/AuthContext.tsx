@@ -30,22 +30,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Load user from localStorage or cookie on startup
+  // Load user from HttpOnly cookie on startup
   useEffect(() => {
-    const savedToken = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-    if (savedToken) {
-      setToken(savedToken);
-    }
-    fetchUser(savedToken || undefined);
+    fetchUser();
   }, []);
 
-  // Fetch Current User (via explicit token in Authorization header and HttpOnly cookie)
+  // Fetch Current User (via HttpOnly cookie)
   const fetchUser = async (authToken?: string): Promise<User | null> => {
     try {
-      const activeToken = authToken || (typeof window !== "undefined" ? localStorage.getItem("access_token") : null);
       const headers: Record<string, string> = {};
-      if (activeToken) {
-        headers["Authorization"] = `JWT ${activeToken}`;
+      if (authToken) {
+        headers["Authorization"] = `JWT ${authToken}`;
       }
       const res = await fetch(`${API_BASE}/auth/users/me/`, {
         headers,
@@ -54,40 +49,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const userData = await res.json();
         setUser(userData);
-        if (activeToken) {
-          setToken(activeToken);
+        if (authToken) {
+          setToken(authToken);
         }
         setLoading(false);
         return userData;
       } else {
-        // If the access token expired, try refreshing it via refresh_token
-        const refreshToken = typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null;
-        if (refreshToken) {
-          const refreshRes = await fetch(`${API_BASE}/auth/jwt/refresh/`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ refresh: refreshToken }),
-            credentials: "include",
-          });
-          if (refreshRes.ok) {
-            const refreshData = await refreshRes.json();
-            const newAccess = refreshData.access;
-            if (newAccess) {
-              setToken(newAccess);
-              if (typeof window !== "undefined") {
-                localStorage.setItem("access_token", newAccess);
-              }
-              return fetchUser(newAccess);
-            }
+        // If the access token expired, try refreshing it via refresh_token HttpOnly cookie
+        const refreshRes = await fetch(`${API_BASE}/auth/jwt/refresh/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+          credentials: "include",
+        });
+        if (refreshRes.ok) {
+          const refreshData = await refreshRes.json();
+          const newAccess = refreshData.access;
+          if (newAccess) {
+            setToken(newAccess);
+            return fetchUser(newAccess);
           }
+          return fetchUser();
         }
         // Token invalid and cannot be refreshed
         setUser(null);
         setToken(null);
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
-        }
         setLoading(false);
         return null;
       }
@@ -111,17 +97,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         const access = data.access;
-        const refresh = data.refresh;
         if (access) {
           setToken(access);
-          if (typeof window !== "undefined") {
-            localStorage.setItem("access_token", access);
-          }
         }
-        if (refresh && typeof window !== "undefined") {
-          localStorage.setItem("refresh_token", refresh);
+        // Clean any legacy tokens from localStorage
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
         }
-        // Fetch user with newly issued access token
+        // Fetch user with newly issued session/token
         const userData = await fetchUser(access);
         return userData;
       }

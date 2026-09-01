@@ -61,7 +61,11 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
 
     try {
       const apiBaseUrl = getApiBaseUrl();
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `JWT ${token}`;
+
       const res = await fetch(`${apiBaseUrl}/store/wishlist/`, {
+        headers,
         credentials: "include",
       });
 
@@ -77,7 +81,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, token]);
 
   useEffect(() => {
     fetchWishlist();
@@ -123,9 +127,12 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     try {
       const apiBaseUrl = getApiBaseUrl();
       const endpoint = isSaved ? `${apiBaseUrl}/store/wishlist/toggle/` : `${apiBaseUrl}/store/wishlist/`;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `JWT ${token}`;
+
       const res = await fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         credentials: "include",
         body: JSON.stringify({ product_id: productId }),
       });
@@ -167,9 +174,12 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
 
     try {
       const apiBaseUrl = getApiBaseUrl();
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `JWT ${token}`;
+
       await fetch(`${apiBaseUrl}/store/wishlist/toggle/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         credentials: "include",
         body: JSON.stringify({ product_id: productId }),
       });

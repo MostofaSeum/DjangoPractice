@@ -71,10 +71,12 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
 
   const fetchAddresses = async () => {
-    if (!token) return;
     try {
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `JWT ${token}`;
       const res = await fetch(`${API_BASE}/store/addresses/`, {
-        headers: { Authorization: `JWT ${token}` },
+        headers,
+        credentials: "include",
       });
       if (res.ok) {
         const data = await res.json();
@@ -97,15 +99,18 @@ export default function ProfilePage() {
     const loadProfile = async () => {
       try {
         setOrdersLoading(true);
+        const headers: Record<string, string> = {};
+        if (token) headers["Authorization"] = `JWT ${token}`;
+
         // Fetch User Info, Customer Info, Saved Addresses, and Orders simultaneously in a single fast parallel bundle
         const [userRes, customerRes, addrRes, ordersRes] = await Promise.all([
-          fetch(`${API_BASE}/auth/users/me/`, { credentials: "include" }),
-          fetch(`${API_BASE}/store/customers/me/`, { credentials: "include" }),
-          fetch(`${API_BASE}/store/addresses/`, { credentials: "include" }),
-          fetch(`${API_BASE}/store/orders/`, { credentials: "include" }),
+          fetch(`${API_BASE}/auth/users/me/`, { headers, credentials: "include" }),
+          fetch(`${API_BASE}/store/customers/me/`, { headers, credentials: "include" }),
+          fetch(`${API_BASE}/store/addresses/`, { headers, credentials: "include" }),
+          fetch(`${API_BASE}/store/orders/`, { headers, credentials: "include" }),
         ]);
 
-        const userData = userRes.ok ? await userRes.json() : {};
+        const userData = userRes.ok ? await userRes.json() : (user || {});
         const customerData = customerRes.ok ? await customerRes.json() : {};
 
         if (addrRes.ok) {
@@ -116,9 +121,9 @@ export default function ProfilePage() {
         setVibeCoin(customerData.vibe_coin ?? 0);
 
         setFormData({
-          first_name: userData.first_name || "",
-          last_name: userData.last_name || "",
-          email: userData.email || "",
+          first_name: userData.first_name || user?.first_name || "",
+          last_name: userData.last_name || user?.last_name || "",
+          email: userData.email || user?.email || "",
           phone: customerData.phone || "",
           birth_date: customerData.birth_date || "",
         });
@@ -136,7 +141,7 @@ export default function ProfilePage() {
     };
 
     loadProfile();
-  }, [user, authLoading, router]);
+  }, [user, token, authLoading, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
