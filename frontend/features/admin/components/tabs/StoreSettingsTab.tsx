@@ -78,19 +78,18 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
       if (res.ok) {
         const data = await res.json();
         const loaded: SiteSettingsState = {
-          siteTitle: data.site_title || "VibeMart",
-          tagline: data.tagline || "MAKE-UP STYLE",
-          brandDescription: data.brand_description || DEFAULT_SETTINGS.brandDescription,
-          supportPhone: data.support_phone || "+880 1700-000000",
-          supportEmail: data.support_email || "support@vibemart.com",
-          storeAddress:
-            data.store_address || "Homestead Gulshan Link Tower, 99 Gulshan Badda Link Rd, Dhaka 1212",
-          workingHours: data.working_hours || "Sat - Thu: 10:00 - 18:00",
-          footerCopyright: data.footer_copyright || "© 2026 VIBEMART. ALL RIGHTS RESERVED.",
-          facebookUrl: data.facebook_url || "https://facebook.com",
-          instagramUrl: data.instagram_url || "https://instagram.com",
-          youtubeUrl: data.youtube_url || "https://youtube.com",
-          whatsappNumber: data.whatsapp_number || "+8801700000000",
+          siteTitle: data.site_title !== undefined && data.site_title !== null ? data.site_title : "VibeMart",
+          tagline: data.tagline !== undefined && data.tagline !== null ? data.tagline : "",
+          brandDescription: data.brand_description !== undefined && data.brand_description !== null ? data.brand_description : "",
+          supportPhone: data.support_phone !== undefined && data.support_phone !== null ? data.support_phone : "",
+          supportEmail: data.support_email !== undefined && data.support_email !== null ? data.support_email : "",
+          storeAddress: data.store_address !== undefined && data.store_address !== null ? data.store_address : "",
+          workingHours: data.working_hours !== undefined && data.working_hours !== null ? data.working_hours : "",
+          footerCopyright: data.footer_copyright !== undefined && data.footer_copyright !== null ? data.footer_copyright : "",
+          facebookUrl: data.facebook_url !== undefined && data.facebook_url !== null ? data.facebook_url : "",
+          instagramUrl: data.instagram_url !== undefined && data.instagram_url !== null ? data.instagram_url : "",
+          youtubeUrl: data.youtube_url !== undefined && data.youtube_url !== null ? data.youtube_url : "",
+          whatsappNumber: data.whatsapp_number !== undefined && data.whatsapp_number !== null ? data.whatsapp_number : "",
         };
 
         setInitialSettings(loaded);

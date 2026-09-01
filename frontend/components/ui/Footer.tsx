@@ -12,17 +12,16 @@ export default function Footer() {
 
   const [siteData, setSiteData] = useState({
     site_title: "VibeMart",
-    tagline: "MAKE-UP STYLE",
-    brand_description:
-      "VibeMart is a recognized multi-category fashion and lifestyle store built on the principle of \"best price at the highest quality\". Our collections are curated with premium materials that are durable, stylish, and perfect for your vibe.",
-    support_phone: "+880 1700-000000",
-    support_email: "support@vibemart.com",
-    store_address: "Homestead Gulshan Link Tower, 99 Gulshan Badda Link Rd, Dhaka 1212",
-    working_hours: "Sat - Thu: 10:00 - 18:00",
-    facebook_url: "https://facebook.com",
-    instagram_url: "https://instagram.com",
-    youtube_url: "https://youtube.com",
-    whatsapp_number: "+8801700000000",
+    tagline: "",
+    brand_description: "",
+    support_phone: "",
+    support_email: "",
+    store_address: "",
+    working_hours: "",
+    facebook_url: "",
+    instagram_url: "",
+    youtube_url: "",
+    whatsapp_number: "",
     footer_copyright: "© 2026 VIBEMART. ALL RIGHTS RESERVED.",
     logo: null as string | null,
   });
@@ -35,22 +34,21 @@ export default function Footer() {
         });
         if (res.ok) {
           const data = await res.json();
-          setSiteData((prev) => ({
-            ...prev,
-            site_title: data.site_title || prev.site_title,
-            tagline: data.tagline || prev.tagline,
-            brand_description: data.brand_description || prev.brand_description,
-            support_phone: data.support_phone || prev.support_phone,
-            support_email: data.support_email || prev.support_email,
-            store_address: data.store_address || prev.store_address,
-            working_hours: data.working_hours || prev.working_hours,
-            facebook_url: data.facebook_url || prev.facebook_url,
-            instagram_url: data.instagram_url || prev.instagram_url,
-            youtube_url: data.youtube_url || prev.youtube_url,
-            whatsapp_number: data.whatsapp_number || prev.whatsapp_number,
-            footer_copyright: data.footer_copyright || prev.footer_copyright,
+          setSiteData({
+            site_title: data.site_title !== undefined && data.site_title !== null ? data.site_title : "VibeMart",
+            tagline: data.tagline || "",
+            brand_description: data.brand_description || "",
+            support_phone: data.support_phone || "",
+            support_email: data.support_email || "",
+            store_address: data.store_address || "",
+            working_hours: data.working_hours || "",
+            facebook_url: data.facebook_url || "",
+            instagram_url: data.instagram_url || "",
+            youtube_url: data.youtube_url || "",
+            whatsapp_number: data.whatsapp_number || "",
+            footer_copyright: data.footer_copyright || "© 2026 VIBEMART. ALL RIGHTS RESERVED.",
             logo: data.logo || null,
-          }));
+          });
         }
       } catch (err) {
         console.error("Failed to load footer settings:", err);
@@ -69,6 +67,18 @@ export default function Footer() {
   const whatsappHref = siteData.whatsapp_number.startsWith("http")
     ? siteData.whatsapp_number
     : `https://wa.me/${siteData.whatsapp_number.replace(/[^0-9]/g, "")}`;
+
+  const hasContactInfo =
+    Boolean(siteData.support_phone) ||
+    Boolean(siteData.store_address) ||
+    Boolean(siteData.support_email) ||
+    Boolean(siteData.working_hours);
+
+  const hasSocialLinks =
+    Boolean(siteData.facebook_url) ||
+    Boolean(siteData.instagram_url) ||
+    Boolean(siteData.youtube_url) ||
+    Boolean(siteData.whatsapp_number);
 
   return (
     <footer className="relative bg-primary text-button-fg border-t border-foreground/15 mt-auto transition-colors duration-300 overflow-hidden">
@@ -118,82 +128,90 @@ export default function Footer() {
           {/* Left Column: Contact Details & Payment Badges */}
           <div className="md:col-span-4 space-y-4 text-xs">
             {/* Phone */}
-            <div className="flex items-start gap-3">
-              <span className="shrink-0 mt-0.5 text-accent">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                  />
-                </svg>
-              </span>
-              <a
-                href={`tel:${siteData.support_phone.replace(/[^0-9+]/g, "")}`}
-                className="font-bold hover:text-accent transition-colors tracking-wider"
-              >
-                {siteData.support_phone}
-              </a>
-            </div>
+            {siteData.support_phone && (
+              <div className="flex items-start gap-3">
+                <span className="shrink-0 mt-0.5 text-accent">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                    />
+                  </svg>
+                </span>
+                <a
+                  href={`tel:${siteData.support_phone.replace(/[^0-9+]/g, "")}`}
+                  className="font-bold hover:text-accent transition-colors tracking-wider"
+                >
+                  {siteData.support_phone}
+                </a>
+              </div>
+            )}
 
             {/* Address */}
-            <div className="flex items-start gap-3">
-              <span className="shrink-0 mt-0.5 text-accent">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-              </span>
-              <p className="opacity-80 leading-relaxed font-medium">
-                {siteData.store_address}
-              </p>
-            </div>
+            {siteData.store_address && (
+              <div className="flex items-start gap-3">
+                <span className="shrink-0 mt-0.5 text-accent">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                </span>
+                <p className="opacity-80 leading-relaxed font-medium">
+                  {siteData.store_address}
+                </p>
+              </div>
+            )}
 
             {/* Email */}
-            <div className="flex items-start gap-3">
-              <span className="shrink-0 mt-0.5 text-accent">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
-              </span>
-              <a
-                href={`mailto:${siteData.support_email}`}
-                className="opacity-80 hover:text-accent hover:opacity-100 transition-colors font-medium"
-              >
-                {siteData.support_email}
-              </a>
-            </div>
+            {siteData.support_email && (
+              <div className="flex items-start gap-3">
+                <span className="shrink-0 mt-0.5 text-accent">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
+                  </svg>
+                </span>
+                <a
+                  href={`mailto:${siteData.support_email}`}
+                  className="opacity-80 hover:text-accent hover:opacity-100 transition-colors font-medium"
+                >
+                  {siteData.support_email}
+                </a>
+              </div>
+            )}
 
             {/* Working Hours */}
-            <div className="flex items-start gap-3">
-              <span className="shrink-0 mt-0.5 text-accent">
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </span>
-              <p className="opacity-80 font-medium">{siteData.working_hours}</p>
-            </div>
+            {siteData.working_hours && (
+              <div className="flex items-start gap-3">
+                <span className="shrink-0 mt-0.5 text-accent">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </span>
+                <p className="opacity-80 font-medium">{siteData.working_hours}</p>
+              </div>
+            )}
 
             {/* Payment & Courier Partner Badges */}
             <div className="pt-3 flex items-center gap-2.5 flex-wrap">
@@ -257,82 +275,86 @@ export default function Footer() {
             </Link>
 
             {/* Social Icons Row */}
-            <div className="flex items-center justify-center gap-5 text-button-fg">
-              {/* Facebook */}
-              {siteData.facebook_url && (
-                <a
-                  href={siteData.facebook_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-6 h-6 relative shrink-0 hover:scale-110 transition-all opacity-80 hover:opacity-100 cursor-pointer"
-                  aria-label="Facebook"
-                >
-                  <img
-                    src="/Footer/social-media.png"
-                    alt="Facebook"
-                    className="w-full h-full object-contain brightness-0 invert"
-                  />
-                </a>
-              )}
+            {hasSocialLinks && (
+              <div className="flex items-center justify-center gap-5 text-button-fg">
+                {/* Facebook */}
+                {siteData.facebook_url && (
+                  <a
+                    href={siteData.facebook_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-6 h-6 relative shrink-0 hover:scale-110 transition-all opacity-80 hover:opacity-100 cursor-pointer"
+                    aria-label="Facebook"
+                  >
+                    <img
+                      src="/Footer/social-media.png"
+                      alt="Facebook"
+                      className="w-full h-full object-contain brightness-0 invert"
+                    />
+                  </a>
+                )}
 
-              {/* Instagram */}
-              {siteData.instagram_url && (
-                <a
-                  href={siteData.instagram_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-6 h-6 relative shrink-0 hover:scale-110 transition-all opacity-80 hover:opacity-100 cursor-pointer"
-                  aria-label="Instagram"
-                >
-                  <img
-                    src="/Footer/instagram.png"
-                    alt="Instagram"
-                    className="w-full h-full object-contain brightness-0 invert"
-                  />
-                </a>
-              )}
+                {/* Instagram */}
+                {siteData.instagram_url && (
+                  <a
+                    href={siteData.instagram_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-6 h-6 relative shrink-0 hover:scale-110 transition-all opacity-80 hover:opacity-100 cursor-pointer"
+                    aria-label="Instagram"
+                  >
+                    <img
+                      src="/Footer/instagram.png"
+                      alt="Instagram"
+                      className="w-full h-full object-contain brightness-0 invert"
+                    />
+                  </a>
+                )}
 
-              {/* YouTube */}
-              {siteData.youtube_url && (
-                <a
-                  href={siteData.youtube_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-6 h-6 relative shrink-0 hover:scale-110 transition-all opacity-80 hover:opacity-100 cursor-pointer"
-                  aria-label="YouTube"
-                >
-                  <img
-                    src="/Footer/youtube.png"
-                    alt="YouTube"
-                    className="w-full h-full object-contain brightness-0 invert"
-                  />
-                </a>
-              )}
+                {/* YouTube */}
+                {siteData.youtube_url && (
+                  <a
+                    href={siteData.youtube_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-6 h-6 relative shrink-0 hover:scale-110 transition-all opacity-80 hover:opacity-100 cursor-pointer"
+                    aria-label="YouTube"
+                  >
+                    <img
+                      src="/Footer/youtube.png"
+                      alt="YouTube"
+                      className="w-full h-full object-contain brightness-0 invert"
+                    />
+                  </a>
+                )}
 
-              {/* WhatsApp */}
-              {siteData.whatsapp_number && (
-                <a
-                  href={whatsappHref}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-6 h-6 relative shrink-0 hover:scale-110 transition-all opacity-80 hover:opacity-100 cursor-pointer"
-                  aria-label="WhatsApp"
-                >
-                  <img
-                    src="/Footer/whatsapp.png"
-                    alt="WhatsApp"
-                    className="w-full h-full object-contain brightness-0 invert"
-                  />
-                </a>
-              )}
-            </div>
+                {/* WhatsApp */}
+                {siteData.whatsapp_number && (
+                  <a
+                    href={whatsappHref}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-6 h-6 relative shrink-0 hover:scale-110 transition-all opacity-80 hover:opacity-100 cursor-pointer"
+                    aria-label="WhatsApp"
+                  >
+                    <img
+                      src="/Footer/whatsapp.png"
+                      alt="WhatsApp"
+                      className="w-full h-full object-contain brightness-0 invert"
+                    />
+                  </a>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Right Column: Brand Philosophy Description */}
           <div className="md:col-span-4 text-center md:text-right space-y-4 text-xs">
-            <p className="opacity-80 leading-relaxed font-medium">
-              {siteData.brand_description}
-            </p>
+            {siteData.brand_description && (
+              <p className="opacity-80 leading-relaxed font-medium">
+                {siteData.brand_description}
+              </p>
+            )}
           </div>
         </div>
 
