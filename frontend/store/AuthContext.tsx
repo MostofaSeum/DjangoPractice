@@ -30,17 +30,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Load user from HttpOnly cookie on startup
+  // Load user from HttpOnly cookie and token fallback on startup
   useEffect(() => {
-    fetchUser();
+    const savedToken = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+    fetchUser(savedToken || undefined);
   }, []);
 
-  // Fetch Current User (via HttpOnly cookie)
+  // Fetch Current User (via HttpOnly cookie + Authorization header)
   const fetchUser = async (authToken?: string): Promise<User | null> => {
     try {
+      const activeToken = authToken || token || (typeof window !== "undefined" ? localStorage.getItem("auth_token") : null);
       const headers: Record<string, string> = {};
-      if (authToken) {
-        headers["Authorization"] = `JWT ${authToken}`;
+      if (activeToken) {
+        headers["Authorization"] = `JWT ${activeToken}`;
       }
       const res = await fetch(`${API_BASE}/auth/users/me/`, {
         headers,
@@ -49,13 +51,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const userData = await res.json();
         setUser(userData);
-        if (authToken) {
-          setToken(authToken);
+        if (activeToken) {
+          setToken(activeToken);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("auth_token", activeToken);
+          }
         }
         setLoading(false);
         return userData;
       } else {
-        // If the access token expired, try refreshing it via refresh_token HttpOnly cookie
+        // If the access token expired, try refreshing it via refresh_token HttpOnly cookie or saved token
         const refreshRes = await fetch(`${API_BASE}/auth/jwt/refresh/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -67,6 +72,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const newAccess = refreshData.access;
           if (newAccess) {
             setToken(newAccess);
+            if (typeof window !== "undefined") {
+              localStorage.setItem("auth_token", newAccess);
+            }
             return fetchUser(newAccess);
           }
           return fetchUser();
@@ -74,6 +82,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Token invalid and cannot be refreshed
         setUser(null);
         setToken(null);
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("auth_token");
+        }
         setLoading(false);
         return null;
       }
@@ -99,11 +110,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const access = data.access;
         if (access) {
           setToken(access);
-        }
-        // Clean any legacy tokens from localStorage
-        if (typeof window !== "undefined") {
-          localStorage.removeItem("access_token");
-          localStorage.removeItem("refresh_token");
+          if (typeof window !== "undefined") {
+            localStorage.setItem("auth_token", access);
+          }
         }
         // Fetch user with newly issued session/token
         const userData = await fetchUser(access);
@@ -167,6 +176,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (e) {}
 
     if (typeof window !== "undefined") {
+      localStorage.removeItem("auth_token");
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
       localStorage.removeItem("cart_id");
