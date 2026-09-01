@@ -193,6 +193,9 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
 
       if (logoFile) {
         formData.append("logo", logoFile);
+      } else if (!logoPreview && initialLogoUrl) {
+        // Logo was explicitly cleared/deleted
+        formData.append("remove_logo", "true");
       }
 
       const res = await fetch(`${apiBase}/store/site-settings/update_settings/`, {
@@ -220,10 +223,8 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
           whatsappNumber,
         };
         setInitialSettings(updated);
-        if (data.logo) {
-          setInitialLogoUrl(data.logo);
-          setLogoPreview(data.logo);
-        }
+        setInitialLogoUrl(data.logo || null);
+        setLogoPreview(data.logo || null);
         setLogoFile(null);
 
         Swal.fire({
@@ -329,9 +330,17 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
                   setLogoPreview(null);
                   setLogoFile(null);
                 }}
-                className="w-full py-2 text-xs font-bold text-red-500 hover:underline text-center cursor-pointer"
+                className="w-full py-2.5 px-3 rounded-xl bg-hidden/10 hover:bg-hidden/20 text-hidden text-xs font-bold transition-all text-center cursor-pointer flex items-center justify-center gap-1.5"
               >
-                {isBn ? "লোগো রিমুভ করুন" : "Clear preview"}
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+                <span>{isBn ? "লোগো ডিলিট করুন" : "Delete / Remove Logo"}</span>
               </button>
             )}
           </div>

@@ -91,19 +91,20 @@ export default function Header() {
   return (
     <header className="w-full z-50 py-5 px-8 md:px-12 bg-primary text-logo sticky top-0 shadow-md border-b border-white/5 transition-colors duration-300">
       <div className="max-w-[1400px] mx-auto flex items-center justify-between">
-        {/* Brand Logo */}
+        {/* Brand Logo & Title */}
         <Link
           href="/"
-          className="flex items-center gap-3 hover:opacity-90 transition-opacity"
+          className="flex items-center gap-3 hover:opacity-90 transition-opacity group"
         >
-          {brandLogo ? (
+          {brandLogo && (
             <img
               src={brandLogo}
               alt={brandTitle}
-              className="h-8 md:h-10 max-w-[160px] object-contain"
+              className="h-8 md:h-9 max-w-[120px] object-contain group-hover:scale-105 transition-transform"
             />
-          ) : (
-            <span className="text-xl md:text-2xl font-black tracking-tighter uppercase">
+          )}
+          {brandTitle && (
+            <span className="text-xl md:text-2xl font-black tracking-tighter uppercase text-logo">
               {brandTitle}
             </span>
           )}

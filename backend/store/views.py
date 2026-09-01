@@ -1263,6 +1263,14 @@ class SiteSettingViewSet(GenericViewSet):
     @action(detail=False, methods=['put', 'post', 'patch'])
     def update_settings(self, request):
         settings_obj = SiteSetting.get_settings()
+
+        # Handle explicit logo removal
+        if request.data.get('remove_logo') == 'true' or request.data.get('remove_logo') is True:
+            if settings_obj.logo:
+                settings_obj.logo.delete(save=False)
+            settings_obj.logo = None
+            settings_obj.save(update_fields=['logo', 'last_updated'])
+
         serializer = SiteSettingSerializer(
             settings_obj,
             data=request.data,
@@ -1287,5 +1295,16 @@ class SiteSettingViewSet(GenericViewSet):
             pass
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['delete', 'post'])
+    def remove_logo(self, request):
+        settings_obj = SiteSetting.get_settings()
+        if settings_obj.logo:
+            settings_obj.logo.delete(save=False)
+        settings_obj.logo = None
+        settings_obj.save(update_fields=['logo', 'last_updated'])
+        serializer = SiteSettingSerializer(settings_obj, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 

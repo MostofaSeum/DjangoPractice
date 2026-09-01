@@ -249,27 +249,33 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Middle Column: Brand Logo & Social Icons */}
-          <div className="md:col-span-4 text-center flex flex-col items-center justify-center space-y-5">
-            <Link href="/" className="inline-block group">
-              {siteData.logo ? (
+          {/* Middle Column: Brand Logo, Title & Tagline + Social Icons */}
+          <div className="md:col-span-4 text-center flex flex-col items-center justify-center space-y-4">
+            <Link href="/" className="inline-flex flex-col items-center group">
+              {/* 1. Logo on top */}
+              {siteData.logo && (
                 <img
                   src={siteData.logo}
                   alt={siteData.site_title}
-                  className="h-12 md:h-14 max-w-[220px] object-contain mx-auto group-hover:scale-105 transition-transform"
+                  className="h-10 md:h-12 max-w-[180px] object-contain mx-auto mb-2 group-hover:scale-105 transition-transform"
                 />
-              ) : (
-                <span className="text-3xl sm:text-4xl font-black tracking-tight text-button-fg group-hover:text-accent transition-colors block">
+              )}
+
+              {/* 2. Title in middle */}
+              {siteData.site_title && (
+                <span className="text-2xl sm:text-3xl font-black tracking-tight text-button-fg group-hover:text-accent transition-colors block uppercase">
                   {siteData.site_title}
                 </span>
               )}
+
+              {/* 3. Tagline on bottom */}
               {siteData.tagline && (
                 <div className="flex items-center justify-center gap-2 mt-1.5">
-                  <span className="h-[1px] w-6 bg-accent" />
+                  <span className="h-[1px] w-5 bg-accent" />
                   <span className="text-[10px] font-bold tracking-[0.25em] text-accent uppercase">
                     {siteData.tagline}
                   </span>
-                  <span className="h-[1px] w-6 bg-accent" />
+                  <span className="h-[1px] w-5 bg-accent" />
                 </div>
               )}
             </Link>
