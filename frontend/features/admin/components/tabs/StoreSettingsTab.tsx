@@ -251,8 +251,9 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
               </label>
               <input
                 type="text"
+                maxLength={15}
                 value={siteTitle}
-                onChange={(e) => setSiteTitle(e.target.value)}
+                onChange={(e) => setSiteTitle(e.target.value.slice(0, 15))}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-bold border border-foreground/15 focus:outline-none focus:border-accent"
                 placeholder="e.g. VibeMart"
                 required
@@ -265,8 +266,9 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
               </label>
               <input
                 type="text"
+                maxLength={30}
                 value={tagline}
-                onChange={(e) => setTagline(e.target.value)}
+                onChange={(e) => setTagline(e.target.value.slice(0, 30))}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
                 placeholder="e.g. MAKE-UP STYLE"
               />
@@ -279,7 +281,13 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
               <textarea
                 rows={4}
                 value={brandDescription}
-                onChange={(e) => setBrandDescription(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const words = val.trim().split(/\s+/).filter(Boolean);
+                  if (words.length <= 70 || val.length < brandDescription.length) {
+                    setBrandDescription(val);
+                  }
+                }}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent resize-none leading-relaxed"
                 placeholder="Enter store brand philosophy..."
               />
@@ -310,8 +318,9 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
                 </label>
                 <input
                   type="text"
+                  maxLength={30}
                   value={supportPhone}
-                  onChange={(e) => setSupportPhone(e.target.value)}
+                  onChange={(e) => setSupportPhone(e.target.value.slice(0, 30))}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-bold border border-foreground/15 focus:outline-none focus:border-accent"
                   placeholder="+880 1700-000000"
                 />
@@ -323,8 +332,9 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
                 </label>
                 <input
                   type="email"
+                  maxLength={100}
                   value={supportEmail}
-                  onChange={(e) => setSupportEmail(e.target.value)}
+                  onChange={(e) => setSupportEmail(e.target.value.slice(0, 100))}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-bold border border-foreground/15 focus:outline-none focus:border-accent"
                   placeholder="support@vibemart.com"
                 />
@@ -338,8 +348,9 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
                 </label>
                 <textarea
                   rows={2}
+                  maxLength={200}
                   value={storeAddress}
-                  onChange={(e) => setStoreAddress(e.target.value)}
+                  onChange={(e) => setStoreAddress(e.target.value.slice(0, 200))}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent resize-none"
                   placeholder="Enter physical address..."
                 />
@@ -351,8 +362,9 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
                 </label>
                 <input
                   type="text"
+                  maxLength={60}
                   value={workingHours}
-                  onChange={(e) => setWorkingHours(e.target.value)}
+                  onChange={(e) => setWorkingHours(e.target.value.slice(0, 60))}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
                   placeholder="Sat - Thu: 10:00 - 18:00"
                 />
@@ -365,8 +377,9 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
               </label>
               <input
                 type="text"
+                maxLength={100}
                 value={footerCopyright}
-                onChange={(e) => setFooterCopyright(e.target.value)}
+                onChange={(e) => setFooterCopyright(e.target.value.slice(0, 100))}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
                 placeholder="© 2026 VIBEMART. ALL RIGHTS RESERVED."
               />
@@ -394,8 +407,9 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
                 </label>
                 <input
                   type="text"
+                  maxLength={255}
                   value={facebookUrl}
-                  onChange={(e) => setFacebookUrl(e.target.value)}
+                  onChange={(e) => setFacebookUrl(e.target.value.slice(0, 255))}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
                   placeholder="https://facebook.com/..."
                 />
@@ -407,8 +421,9 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
                 </label>
                 <input
                   type="text"
+                  maxLength={255}
                   value={instagramUrl}
-                  onChange={(e) => setInstagramUrl(e.target.value)}
+                  onChange={(e) => setInstagramUrl(e.target.value.slice(0, 255))}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
                   placeholder="https://instagram.com/..."
                 />
@@ -420,8 +435,9 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
                 </label>
                 <input
                   type="text"
+                  maxLength={255}
                   value={youtubeUrl}
-                  onChange={(e) => setYoutubeUrl(e.target.value)}
+                  onChange={(e) => setYoutubeUrl(e.target.value.slice(0, 255))}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
                   placeholder="https://youtube.com/..."
                 />
@@ -433,8 +449,9 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
                 </label>
                 <input
                   type="text"
+                  maxLength={50}
                   value={whatsappNumber}
-                  onChange={(e) => setWhatsappNumber(e.target.value)}
+                  onChange={(e) => setWhatsappNumber(e.target.value.slice(0, 50))}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
                   placeholder="+8801700000000"
                 />
