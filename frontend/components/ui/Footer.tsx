@@ -26,14 +26,23 @@ export default function Footer() {
     logo: null as string | null,
   });
 
+  const [paymentMethods, setPaymentMethods] = useState({
+    bkash_active: true,
+    nagad_active: true,
+    cod_active: true,
+    vibecoin_active: true,
+  });
+
   useEffect(() => {
     const fetchSiteSettings = async () => {
       try {
-        const res = await fetch(`${API_BASE}/store/site-settings/`, {
-          cache: "no-store",
-        });
-        if (res.ok) {
-          const data = await res.json();
+        const [siteRes, paymentRes] = await Promise.all([
+          fetch(`${API_BASE}/store/site-settings/`, { cache: "no-store" }),
+          fetch(`${API_BASE}/store/payment-settings/`, { cache: "no-store" }),
+        ]);
+
+        if (siteRes.ok) {
+          const data = await siteRes.json();
           setSiteData({
             site_title: data.site_title !== undefined && data.site_title !== null ? data.site_title : "VibeMart",
             tagline: data.tagline || "",
@@ -48,6 +57,16 @@ export default function Footer() {
             whatsapp_number: data.whatsapp_number || "",
             footer_copyright: data.footer_copyright || "© 2026 VIBEMART. ALL RIGHTS RESERVED.",
             logo: data.logo || null,
+          });
+        }
+
+        if (paymentRes.ok) {
+          const pData = await paymentRes.json();
+          setPaymentMethods({
+            bkash_active: pData.bkash_active !== false,
+            nagad_active: pData.nagad_active !== false,
+            cod_active: pData.cod_active !== false,
+            vibecoin_active: pData.vibecoin_active !== false,
           });
         }
       } catch (err) {
@@ -214,39 +233,56 @@ export default function Footer() {
             )}
 
             {/* Payment & Courier Partner Badges */}
-            <div className="pt-3 flex items-center gap-2.5 flex-wrap">
-              <div className="h-7 px-2.5 py-1 rounded-md bg-white flex items-center justify-center shadow-xs border border-white/20">
-                <img
-                  src="/Footer/bKash.png"
-                  alt="bKash"
-                  className="h-full max-h-5 object-contain"
-                />
-              </div>
+            {(paymentMethods.bkash_active ||
+              paymentMethods.nagad_active ||
+              paymentMethods.vibecoin_active ||
+              paymentMethods.cod_active) && (
+              <div className="pt-3 flex items-center gap-2.5 flex-wrap">
+                {/* bKash */}
+                {paymentMethods.bkash_active && (
+                  <div className="h-7 px-2.5 py-1 rounded-md bg-white flex items-center justify-center shadow-xs border border-white/20">
+                    <img
+                      src="/Footer/bKash.png"
+                      alt="bKash"
+                      className="h-full max-h-5 object-contain"
+                    />
+                  </div>
+                )}
 
-              <div className="h-7 px-2.5 py-1 rounded-md bg-white flex items-center justify-center shadow-xs border border-white/20">
-                <img
-                  src="/Footer/nagad.webp"
-                  alt="Nagad"
-                  className="h-full max-h-5 object-contain"
-                />
-              </div>
+                {/* Nagad */}
+                {paymentMethods.nagad_active && (
+                  <div className="h-7 px-2.5 py-1 rounded-md bg-white flex items-center justify-center shadow-xs border border-white/20">
+                    <img
+                      src="/Footer/nagad.webp"
+                      alt="Nagad"
+                      className="h-full max-h-5 object-contain"
+                    />
+                  </div>
+                )}
 
-              <div className="h-7 px-2.5 py-1 rounded-md bg-white flex items-center justify-center shadow-xs border border-white/20">
-                <img
-                  src="/Footer/VibeCoin.png"
-                  alt="VibeCoin"
-                  className="h-full max-h-5 object-contain"
-                />
-              </div>
+                {/* VibeCoin */}
+                {paymentMethods.vibecoin_active && (
+                  <div className="h-7 px-2.5 py-1 rounded-md bg-white flex items-center justify-center shadow-xs border border-white/20">
+                    <img
+                      src="/Footer/VibeCoin.png"
+                      alt="VibeCoin"
+                      className="h-full max-h-5 object-contain"
+                    />
+                  </div>
+                )}
 
-              <div className="h-7 px-2.5 py-1 rounded-md bg-white flex items-center justify-center shadow-xs border border-white/20">
-                <img
-                  src="/Footer/COD.webp"
-                  alt="Cash on Delivery"
-                  className="h-full max-h-5 object-contain"
-                />
+                {/* COD */}
+                {paymentMethods.cod_active && (
+                  <div className="h-7 px-2.5 py-1 rounded-md bg-white flex items-center justify-center shadow-xs border border-white/20">
+                    <img
+                      src="/Footer/COD.webp"
+                      alt="Cash on Delivery"
+                      className="h-full max-h-5 object-contain"
+                    />
+                  </div>
+                )}
               </div>
-            </div>
+            )}
           </div>
 
           {/* Middle Column: Brand Logo, Title & Tagline + Social Icons */}
