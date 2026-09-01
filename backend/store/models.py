@@ -8,6 +8,9 @@ from decimal import Decimal
 from .validators import validate_file_size
 from django.utils import timezone
 from datetime import timedelta
+import random
+import string
+
 class Promotion(models.Model):
     description = models.CharField(max_length=255)
     discount = models.FloatField()
@@ -103,6 +106,7 @@ class Product(models.Model):
     class Meta:
         ordering = ['title']
 
+
 class ProductVariant(models.Model):
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name='variants')
@@ -139,7 +143,6 @@ class ProductVariant(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        # Automatically sync parent product inventory to total variants stock
         total_var_stock = self.product.variants.filter(is_active=True).aggregate(total=Sum('inventory'))['total']
         if total_var_stock is not None:
             Product.objects.filter(pk=self.product_id).update(inventory=total_var_stock)
@@ -149,7 +152,6 @@ class ProductVariant(models.Model):
             self.image.delete(save=False)
         product_id = self.product_id
         super().delete(*args, **kwargs)
-        # Re-sync parent product inventory
         total_var_stock = ProductVariant.objects.filter(product_id=product_id, is_active=True).aggregate(total=Sum('inventory'))['total']
         if total_var_stock is not None:
             Product.objects.filter(pk=product_id).update(inventory=total_var_stock)
@@ -194,11 +196,10 @@ class Customer(models.Model):
     def last_name(self):
         return self.user.last_name
 
-
     class Meta:
         ordering = ['user__first_name', 'user__last_name']
         permissions = [
-            ('view_history','Can view order history')
+            ('view_history', 'Can view order history')
         ]
 
 
@@ -249,6 +250,7 @@ class Order(models.Model):
     coupon_code = models.CharField(max_length=50, default='', blank=True)
     is_edited_by_admin = models.BooleanField(default=False)
     edited_at = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         permissions = [
             ('cancel_order', 'Can cancel order'),
@@ -285,7 +287,7 @@ class Cart(models.Model):
 
 
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name = 'items')
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     variant = models.ForeignKey(
         ProductVariant, on_delete=models.CASCADE, null=True, blank=True, related_name='cart_items')
@@ -309,14 +311,14 @@ class ReviewImage(models.Model):
     review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='store/reviews/images')
 
-import random
-import string
 
 def default_gift_card_expiry():
     return timezone.now() + timedelta(days=365)
 
+
 def generate_16_digit_card_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=16))
+
 
 class GiftCard(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
@@ -511,7 +513,7 @@ class Notification(models.Model):
     title = models.CharField(max_length=255)
     message = models.TextField()
     notification_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default=TYPE_ORDER)
-    target_id = models.CharField(max_length=100, blank=True, default='')  # e.g., order ID or product ID
+    target_id = models.CharField(max_length=100, blank=True, default='')
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -552,6 +554,3 @@ class AuditLog(models.Model):
 
     class Meta:
         ordering = ['-created_at']
-
-
-
