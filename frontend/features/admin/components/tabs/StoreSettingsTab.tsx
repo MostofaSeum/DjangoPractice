@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLanguage } from "@/store/LanguageContext";
 import Swal from "sweetalert2";
 
@@ -9,31 +9,62 @@ interface StoreSettingsTabProps {
   token: string | null;
 }
 
+interface SiteSettingsState {
+  siteTitle: string;
+  tagline: string;
+  brandDescription: string;
+  supportPhone: string;
+  supportEmail: string;
+  storeAddress: string;
+  workingHours: string;
+  footerCopyright: string;
+  facebookUrl: string;
+  instagramUrl: string;
+  youtubeUrl: string;
+  whatsappNumber: string;
+}
+
+const DEFAULT_SETTINGS: SiteSettingsState = {
+  siteTitle: "VibeMart",
+  tagline: "MAKE-UP STYLE",
+  brandDescription:
+    "VibeMart is a recognized multi-category fashion and lifestyle store built on the principle of \"best price at the highest quality\". Our collections are curated with premium materials that are durable, stylish, and perfect for your vibe.",
+  supportPhone: "+880 1700-000000",
+  supportEmail: "support@vibemart.com",
+  storeAddress: "Homestead Gulshan Link Tower, 99 Gulshan Badda Link Rd, Dhaka 1212",
+  workingHours: "Sat - Thu: 10:00 - 18:00",
+  footerCopyright: "© 2026 VIBEMART. ALL RIGHTS RESERVED.",
+  facebookUrl: "https://facebook.com",
+  instagramUrl: "https://instagram.com",
+  youtubeUrl: "https://youtube.com",
+  whatsappNumber: "+8801700000000",
+};
+
 export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabProps) {
   const { locale } = useLanguage();
   const isBn = locale === "bn";
 
+  // Initial loaded states (for change detection)
+  const [initialSettings, setInitialSettings] = useState<SiteSettingsState>(DEFAULT_SETTINGS);
+
   // Form states
-  const [siteTitle, setSiteTitle] = useState("VibeMart");
-  const [tagline, setTagline] = useState("MAKE-UP STYLE");
-  const [brandDescription, setBrandDescription] = useState(
-    "VibeMart is a recognized multi-category fashion and lifestyle store built on the principle of \"best price at the highest quality\". Our collections are curated with premium materials that are durable, stylish, and perfect for your vibe."
-  );
-  const [supportPhone, setSupportPhone] = useState("+880 1700-000000");
-  const [supportEmail, setSupportEmail] = useState("support@vibemart.com");
-  const [storeAddress, setStoreAddress] = useState(
-    "Homestead Gulshan Link Tower, 99 Gulshan Badda Link Rd, Dhaka 1212"
-  );
-  const [workingHours, setWorkingHours] = useState("Sat - Thu: 10:00 - 18:00");
-  const [footerCopyright, setFooterCopyright] = useState("© 2026 VIBEMART. ALL RIGHTS RESERVED.");
-  const [facebookUrl, setFacebookUrl] = useState("https://facebook.com");
-  const [instagramUrl, setInstagramUrl] = useState("https://instagram.com");
-  const [youtubeUrl, setYoutubeUrl] = useState("https://youtube.com");
-  const [whatsappNumber, setWhatsappNumber] = useState("+8801700000000");
+  const [siteTitle, setSiteTitle] = useState(DEFAULT_SETTINGS.siteTitle);
+  const [tagline, setTagline] = useState(DEFAULT_SETTINGS.tagline);
+  const [brandDescription, setBrandDescription] = useState(DEFAULT_SETTINGS.brandDescription);
+  const [supportPhone, setSupportPhone] = useState(DEFAULT_SETTINGS.supportPhone);
+  const [supportEmail, setSupportEmail] = useState(DEFAULT_SETTINGS.supportEmail);
+  const [storeAddress, setStoreAddress] = useState(DEFAULT_SETTINGS.storeAddress);
+  const [workingHours, setWorkingHours] = useState(DEFAULT_SETTINGS.workingHours);
+  const [footerCopyright, setFooterCopyright] = useState(DEFAULT_SETTINGS.footerCopyright);
+  const [facebookUrl, setFacebookUrl] = useState(DEFAULT_SETTINGS.facebookUrl);
+  const [instagramUrl, setInstagramUrl] = useState(DEFAULT_SETTINGS.instagramUrl);
+  const [youtubeUrl, setYoutubeUrl] = useState(DEFAULT_SETTINGS.youtubeUrl);
+  const [whatsappNumber, setWhatsappNumber] = useState(DEFAULT_SETTINGS.whatsappNumber);
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [currentLogoUrl, setCurrentLogoUrl] = useState<string | null>(null);
+  const [initialLogoUrl, setInitialLogoUrl] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -46,22 +77,38 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
       });
       if (res.ok) {
         const data = await res.json();
-        setSiteTitle(data.site_title || "VibeMart");
-        setTagline(data.tagline || "MAKE-UP STYLE");
-        if (data.brand_description) setBrandDescription(data.brand_description);
-        setSupportPhone(data.support_phone || "+880 1700-000000");
-        setSupportEmail(data.support_email || "support@vibemart.com");
-        setStoreAddress(
-          data.store_address || "Homestead Gulshan Link Tower, 99 Gulshan Badda Link Rd, Dhaka 1212"
-        );
-        setWorkingHours(data.working_hours || "Sat - Thu: 10:00 - 18:00");
-        setFooterCopyright(data.footer_copyright || "© 2026 VIBEMART. ALL RIGHTS RESERVED.");
-        setFacebookUrl(data.facebook_url || "https://facebook.com");
-        setInstagramUrl(data.instagram_url || "https://instagram.com");
-        setYoutubeUrl(data.youtube_url || "https://youtube.com");
-        setWhatsappNumber(data.whatsapp_number || "+8801700000000");
+        const loaded: SiteSettingsState = {
+          siteTitle: data.site_title || "VibeMart",
+          tagline: data.tagline || "MAKE-UP STYLE",
+          brandDescription: data.brand_description || DEFAULT_SETTINGS.brandDescription,
+          supportPhone: data.support_phone || "+880 1700-000000",
+          supportEmail: data.support_email || "support@vibemart.com",
+          storeAddress:
+            data.store_address || "Homestead Gulshan Link Tower, 99 Gulshan Badda Link Rd, Dhaka 1212",
+          workingHours: data.working_hours || "Sat - Thu: 10:00 - 18:00",
+          footerCopyright: data.footer_copyright || "© 2026 VIBEMART. ALL RIGHTS RESERVED.",
+          facebookUrl: data.facebook_url || "https://facebook.com",
+          instagramUrl: data.instagram_url || "https://instagram.com",
+          youtubeUrl: data.youtube_url || "https://youtube.com",
+          whatsappNumber: data.whatsapp_number || "+8801700000000",
+        };
+
+        setInitialSettings(loaded);
+        setSiteTitle(loaded.siteTitle);
+        setTagline(loaded.tagline);
+        setBrandDescription(loaded.brandDescription);
+        setSupportPhone(loaded.supportPhone);
+        setSupportEmail(loaded.supportEmail);
+        setStoreAddress(loaded.storeAddress);
+        setWorkingHours(loaded.workingHours);
+        setFooterCopyright(loaded.footerCopyright);
+        setFacebookUrl(loaded.facebookUrl);
+        setInstagramUrl(loaded.instagramUrl);
+        setYoutubeUrl(loaded.youtubeUrl);
+        setWhatsappNumber(loaded.whatsappNumber);
+
         if (data.logo) {
-          setCurrentLogoUrl(data.logo);
+          setInitialLogoUrl(data.logo);
           setLogoPreview(data.logo);
         }
       }
@@ -76,6 +123,42 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
     fetchSettings();
   }, [apiBase]);
 
+  // Check if any change has been made
+  const hasChanges = useMemo(() => {
+    if (logoFile !== null) return true;
+    if (logoPreview !== initialLogoUrl) return true;
+    if (siteTitle !== initialSettings.siteTitle) return true;
+    if (tagline !== initialSettings.tagline) return true;
+    if (brandDescription !== initialSettings.brandDescription) return true;
+    if (supportPhone !== initialSettings.supportPhone) return true;
+    if (supportEmail !== initialSettings.supportEmail) return true;
+    if (storeAddress !== initialSettings.storeAddress) return true;
+    if (workingHours !== initialSettings.workingHours) return true;
+    if (footerCopyright !== initialSettings.footerCopyright) return true;
+    if (facebookUrl !== initialSettings.facebookUrl) return true;
+    if (instagramUrl !== initialSettings.instagramUrl) return true;
+    if (youtubeUrl !== initialSettings.youtubeUrl) return true;
+    if (whatsappNumber !== initialSettings.whatsappNumber) return true;
+    return false;
+  }, [
+    logoFile,
+    logoPreview,
+    initialLogoUrl,
+    siteTitle,
+    tagline,
+    brandDescription,
+    supportPhone,
+    supportEmail,
+    storeAddress,
+    workingHours,
+    footerCopyright,
+    facebookUrl,
+    instagramUrl,
+    youtubeUrl,
+    whatsappNumber,
+    initialSettings,
+  ]);
+
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -86,6 +169,8 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
 
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!hasChanges) return;
+
     if (!token) {
       Swal.fire("Error", "You must be authenticated as admin to save settings.", "error");
       return;
@@ -121,11 +206,27 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
 
       if (res.ok) {
         const data = await res.json();
+        const updated: SiteSettingsState = {
+          siteTitle,
+          tagline,
+          brandDescription,
+          supportPhone,
+          supportEmail,
+          storeAddress,
+          workingHours,
+          footerCopyright,
+          facebookUrl,
+          instagramUrl,
+          youtubeUrl,
+          whatsappNumber,
+        };
+        setInitialSettings(updated);
         if (data.logo) {
-          setCurrentLogoUrl(data.logo);
+          setInitialLogoUrl(data.logo);
           setLogoPreview(data.logo);
         }
         setLogoFile(null);
+
         Swal.fire({
           position: "top-end",
           icon: "success",
@@ -463,8 +564,12 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
           <div className="flex justify-end gap-3 pt-2">
             <button
               type="submit"
-              disabled={saving}
-              className="px-8 py-3.5 rounded-xl bg-accent text-button-fg text-xs font-black uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all shadow-md cursor-pointer disabled:opacity-50 flex items-center gap-2"
+              disabled={!hasChanges || saving}
+              className={`px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center gap-2 ${
+                !hasChanges || saving
+                  ? "bg-foreground/10 text-foreground/40 cursor-not-allowed opacity-60 shadow-none"
+                  : "bg-accent text-button-fg hover:opacity-90 active:scale-95 cursor-pointer"
+              }`}
             >
               {saving ? (
                 <>
