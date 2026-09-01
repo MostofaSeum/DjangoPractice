@@ -10,8 +10,9 @@ from django.http import HttpResponse, request
 from .permissions import ViewCustomerHistoryPermission
 from rest_framework.decorators import action
 from store.models import OrderItem
-from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,GoogleSheetSyncSetting,Notification,Address,AuditLog
-from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,AdminEditOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer,PaymentSettingSerializer,DeliverySettingSerializer,DeliveryRuleSerializer,NotificationSerializer,AddressSerializer,AuditLogSerializer
+from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,GoogleSheetSyncSetting,Notification,Address,AuditLog,SiteSetting
+from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,AdminEditOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer,PaymentSettingSerializer,DeliverySettingSerializer,DeliveryRuleSerializer,NotificationSerializer,AddressSerializer,AuditLogSerializer,SiteSettingSerializer
+
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import cache_page
 from django.utils.decorators import method_decorator
@@ -1236,4 +1237,55 @@ class AuditLogViewSet(ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         return Response({'error': 'Audit logs cannot be deleted.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class SiteSettingViewSet(GenericViewSet):
+    """
+    ViewSet to retrieve and update site & footer settings.
+    GET: Public (AllowAny) - Allows Frontend Header & Footer to read settings.
+    POST / PUT / PATCH: Protected (IsAdminUser) - Only Admins can modify settings or upload logo.
+    """
+    serializer_class = SiteSettingSerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            return [AllowAny()]
+        return [IsAdminUser()]
+
+    def list(self, request):
+        settings_obj = SiteSetting.get_settings()
+        serializer = SiteSettingSerializer(settings_obj, context={'request': request})
+        return Response(serializer.data)
+
+    def create(self, request):
+        return self.update_settings(request)
+
+    @action(detail=False, methods=['put', 'post', 'patch'])
+    def update_settings(self, request):
+        settings_obj = SiteSetting.get_settings()
+        serializer = SiteSettingSerializer(
+            settings_obj,
+            data=request.data,
+            partial=True,
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        # Record Audit Log
+        try:
+            performed_by_name = f"{request.user.first_name} {request.user.last_name}".strip() or request.user.username
+            AuditLog.objects.create(
+                entity_name="SiteSetting",
+                entity_id=str(settings_obj.id),
+                action=AuditLog.ACTION_UPDATE,
+                performed_by=request.user,
+                performed_by_name=performed_by_name,
+                changes={"fields": list(request.data.keys())}
+            )
+        except Exception:
+            pass
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 

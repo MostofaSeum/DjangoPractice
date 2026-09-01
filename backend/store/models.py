@@ -554,3 +554,44 @@ class AuditLog(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class SiteSetting(models.Model):
+    site_title = models.CharField(max_length=255, default='VibeMart')
+    tagline = models.CharField(max_length=255, default='MAKE-UP STYLE', blank=True)
+    brand_description = models.TextField(
+        default='VibeMart is a recognized multi-category fashion and lifestyle store built on the principle of "best price at the highest quality". Our collections are curated with premium materials that are durable, stylish, and perfect for your vibe.',
+        blank=True
+    )
+    logo = models.ImageField(upload_to='store/settings/logos', null=True, blank=True)
+    support_phone = models.CharField(max_length=50, default='+880 1700-000000', blank=True)
+    support_email = models.EmailField(default='support@vibemart.com', blank=True)
+    store_address = models.CharField(
+        max_length=500,
+        default='Homestead Gulshan Link Tower, 99 Gulshan Badda Link Rd, Dhaka 1212',
+        blank=True
+    )
+    working_hours = models.CharField(max_length=100, default='Sat - Thu: 10:00 - 18:00', blank=True)
+    facebook_url = models.URLField(max_length=500, default='https://facebook.com', blank=True)
+    instagram_url = models.URLField(max_length=500, default='https://instagram.com', blank=True)
+    youtube_url = models.URLField(max_length=500, default='https://youtube.com', blank=True)
+    whatsapp_number = models.CharField(max_length=50, default='+8801700000000', blank=True)
+    footer_copyright = models.CharField(
+        max_length=255,
+        default='© 2026 VIBEMART. ALL RIGHTS RESERVED.',
+        blank=True
+    )
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Site Setting'
+        verbose_name_plural = 'Site Settings'
+
+    def __str__(self):
+        return f"Site Settings ({self.site_title})"
+
+    @classmethod
+    def get_settings(cls):
+        obj, _ = cls.objects.get_or_create(id=1)
+        return obj
+

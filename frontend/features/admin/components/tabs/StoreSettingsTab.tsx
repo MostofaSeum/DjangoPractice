@@ -1,36 +1,167 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/store/LanguageContext";
+import Swal from "sweetalert2";
 
-export default function StoreSettingsTab() {
+interface StoreSettingsTabProps {
+  apiBase: string;
+  token: string | null;
+}
+
+export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabProps) {
   const { locale } = useLanguage();
   const isBn = locale === "bn";
 
-  // Mock initial UI states (Non-functional template as requested)
+  // Form states
   const [siteTitle, setSiteTitle] = useState("VibeMart");
-  const [tagline, setTagline] = useState("Your modern multi-category ecommerce store");
+  const [tagline, setTagline] = useState("MAKE-UP STYLE");
+  const [brandDescription, setBrandDescription] = useState(
+    "VibeMart is a recognized multi-category fashion and lifestyle store built on the principle of \"best price at the highest quality\". Our collections are curated with premium materials that are durable, stylish, and perfect for your vibe."
+  );
   const [supportPhone, setSupportPhone] = useState("+880 1700-000000");
   const [supportEmail, setSupportEmail] = useState("support@vibemart.com");
-  const [storeAddress, setStoreAddress] = useState("Level 4, House 12, Road 5, Dhanmondi, Dhaka-1205");
-  const [footerCopyright, setFooterCopyright] = useState("© 2026 VibeMart Inc. All rights reserved.");
-  const [facebookUrl, setFacebookUrl] = useState("https://facebook.com/vibemart");
-  const [instagramUrl, setInstagramUrl] = useState("https://instagram.com/vibemart");
-  const [youtubeUrl, setYoutubeUrl] = useState("https://youtube.com/@vibemart");
+  const [storeAddress, setStoreAddress] = useState(
+    "Homestead Gulshan Link Tower, 99 Gulshan Badda Link Rd, Dhaka 1212"
+  );
+  const [workingHours, setWorkingHours] = useState("Sat - Thu: 10:00 - 18:00");
+  const [footerCopyright, setFooterCopyright] = useState("© 2026 VIBEMART. ALL RIGHTS RESERVED.");
+  const [facebookUrl, setFacebookUrl] = useState("https://facebook.com");
+  const [instagramUrl, setInstagramUrl] = useState("https://instagram.com");
+  const [youtubeUrl, setYoutubeUrl] = useState("https://youtube.com");
+  const [whatsappNumber, setWhatsappNumber] = useState("+8801700000000");
 
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [currentLogoUrl, setCurrentLogoUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  // Fetch initial settings
+  const fetchSettings = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${apiBase}/store/site-settings/`, {
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSiteTitle(data.site_title || "VibeMart");
+        setTagline(data.tagline || "MAKE-UP STYLE");
+        if (data.brand_description) setBrandDescription(data.brand_description);
+        setSupportPhone(data.support_phone || "+880 1700-000000");
+        setSupportEmail(data.support_email || "support@vibemart.com");
+        setStoreAddress(
+          data.store_address || "Homestead Gulshan Link Tower, 99 Gulshan Badda Link Rd, Dhaka 1212"
+        );
+        setWorkingHours(data.working_hours || "Sat - Thu: 10:00 - 18:00");
+        setFooterCopyright(data.footer_copyright || "© 2026 VIBEMART. ALL RIGHTS RESERVED.");
+        setFacebookUrl(data.facebook_url || "https://facebook.com");
+        setInstagramUrl(data.instagram_url || "https://instagram.com");
+        setYoutubeUrl(data.youtube_url || "https://youtube.com");
+        setWhatsappNumber(data.whatsapp_number || "+8801700000000");
+        if (data.logo) {
+          setCurrentLogoUrl(data.logo);
+          setLogoPreview(data.logo);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load site settings:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSettings();
+  }, [apiBase]);
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      setLogoFile(file);
       setLogoPreview(URL.createObjectURL(file));
     }
   };
 
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token) {
+      Swal.fire("Error", "You must be authenticated as admin to save settings.", "error");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const formData = new FormData();
+      formData.append("site_title", siteTitle);
+      formData.append("tagline", tagline);
+      formData.append("brand_description", brandDescription);
+      formData.append("support_phone", supportPhone);
+      formData.append("support_email", supportEmail);
+      formData.append("store_address", storeAddress);
+      formData.append("working_hours", workingHours);
+      formData.append("footer_copyright", footerCopyright);
+      formData.append("facebook_url", facebookUrl);
+      formData.append("instagram_url", instagramUrl);
+      formData.append("youtube_url", youtubeUrl);
+      formData.append("whatsapp_number", whatsappNumber);
+
+      if (logoFile) {
+        formData.append("logo", logoFile);
+      }
+
+      const res = await fetch(`${apiBase}/store/site-settings/update_settings/`, {
+        method: "POST",
+        headers: {
+          Authorization: `JWT ${token}`,
+        },
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.logo) {
+          setCurrentLogoUrl(data.logo);
+          setLogoPreview(data.logo);
+        }
+        setLogoFile(null);
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: isBn ? "সেটিংস সফলভাবে সংরক্ষিত হয়েছে!" : "Store settings updated successfully!",
+          showConfirmButton: false,
+          timer: 2000,
+          toast: true,
+        });
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        Swal.fire(
+          "Error",
+          errData.detail || "Failed to update settings. Please check your inputs.",
+          "error"
+        );
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "Network error while saving settings.", "error");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-12 text-center text-xs font-bold uppercase tracking-widest text-foreground/60 animate-pulse">
+        {isBn ? "সেটিংস লোড হচ্ছে..." : "Loading store settings..."}
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8 animate-in fade-in duration-300 pb-12">
+    <form onSubmit={handleSaveSettings} className="space-y-8 animate-in fade-in duration-300 pb-12">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-        {/* Left Column: Logo Upload & Brand Meta */}
+        {/* Left Column: Logo Upload & Brand Identity */}
         <div className="space-y-6">
           {/* Logo Upload Card */}
           <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm space-y-5">
@@ -84,20 +215,23 @@ export default function StoreSettingsTab() {
             {logoPreview && (
               <button
                 type="button"
-                onClick={() => setLogoPreview(null)}
-                className="w-full py-2 text-xs font-bold text-hidden hover:underline text-center cursor-pointer"
+                onClick={() => {
+                  setLogoPreview(null);
+                  setLogoFile(null);
+                }}
+                className="w-full py-2 text-xs font-bold text-red-500 hover:underline text-center cursor-pointer"
               >
-                {isBn ? "লোগো রিমুভ করুন" : "Remove uploaded logo"}
+                {isBn ? "লোগো রিমুভ করুন" : "Clear preview"}
               </button>
             )}
           </div>
 
-          {/* Website Title & Tagline */}
+          {/* Website Title, Tagline & Philosophy */}
           <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm space-y-4">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-accent" />
               <h2 className="text-base font-black uppercase tracking-tight text-foreground">
-                {isBn ? "ব্র্যান্ড টাইটেল" : "Brand Identity"}
+                {isBn ? "ব্র্যান্ড ও পরিচয়" : "Brand & Identity"}
               </h2>
             </div>
 
@@ -111,6 +245,7 @@ export default function StoreSettingsTab() {
                 onChange={(e) => setSiteTitle(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-bold border border-foreground/15 focus:outline-none focus:border-accent"
                 placeholder="e.g. VibeMart"
+                required
               />
             </div>
 
@@ -123,7 +258,20 @@ export default function StoreSettingsTab() {
                 value={tagline}
                 onChange={(e) => setTagline(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
-                placeholder="e.g. Your modern multi-category ecommerce store"
+                placeholder="e.g. MAKE-UP STYLE"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
+                {isBn ? "ব্র্যান্ড বিবরণ (ফুটারে প্রদর্শিত)" : "Brand Philosophy (Footer Description)"}
+              </label>
+              <textarea
+                rows={4}
+                value={brandDescription}
+                onChange={(e) => setBrandDescription(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent resize-none leading-relaxed"
+                placeholder="Enter store brand philosophy..."
               />
             </div>
           </div>
@@ -173,48 +321,63 @@ export default function StoreSettingsTab() {
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
-                {isBn ? "অফিস / শোরুমের ঠিকানা" : "Store Office Address"}
-              </label>
-              <textarea
-                rows={3}
-                value={storeAddress}
-                onChange={(e) => setStoreAddress(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent resize-none"
-                placeholder="Enter physical address..."
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
+                  {isBn ? "অফিস / শোরুমের ঠিকানা" : "Store Office Address"}
+                </label>
+                <textarea
+                  rows={2}
+                  value={storeAddress}
+                  onChange={(e) => setStoreAddress(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent resize-none"
+                  placeholder="Enter physical address..."
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
+                  {isBn ? "কাজের সময় (Working Hours)" : "Working / Support Hours"}
+                </label>
+                <input
+                  type="text"
+                  value={workingHours}
+                  onChange={(e) => setWorkingHours(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
+                  placeholder="Sat - Thu: 10:00 - 18:00"
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">
               <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
-                {isBn ? "কপিরাইট টেক্সট" : "Copyright Notice"}
+                {isBn ? "কপিরাইট নোটিশ" : "Copyright Notice"}
               </label>
               <input
                 type="text"
                 value={footerCopyright}
                 onChange={(e) => setFooterCopyright(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
-                placeholder="© 2026 VibeMart. All rights reserved."
+                placeholder="© 2026 VIBEMART. ALL RIGHTS RESERVED."
               />
             </div>
           </div>
 
-          {/* Social Media Links */}
+          {/* Social Media Links & WhatsApp */}
           <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm space-y-5">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-accent" />
               <h2 className="text-base font-black uppercase tracking-tight text-foreground">
-                {isBn ? "সোশ্যাল মিডিয়া লিংকস" : "Social Media Links"}
+                {isBn ? "সোশ্যাল মিডিয়া ও মেসেজিং লিংকস" : "Social Media & Messaging Links"}
               </h2>
             </div>
             <p className="text-xs opacity-70">
               {isBn
                 ? "ফুটার ও হেডারে সোশ্যাল আইকনের সাথে সংযুক্ত করার লিংকসমূহ।"
-                : "Provide profile URLs for Facebook, Instagram, and YouTube."}
+                : "Provide official URLs for Facebook, Instagram, YouTube, and WhatsApp."}
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
                   Facebook URL
@@ -253,20 +416,44 @@ export default function StoreSettingsTab() {
                   placeholder="https://youtube.com/..."
                 />
               </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
+                  WhatsApp Number / Link
+                </label>
+                <input
+                  type="text"
+                  value={whatsappNumber}
+                  onChange={(e) => setWhatsappNumber(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
+                  placeholder="+8801700000000"
+                />
+              </div>
             </div>
           </div>
 
           {/* Action Button */}
           <div className="flex justify-end gap-3 pt-2">
             <button
-              type="button"
-              className="px-6 py-3 rounded-xl bg-button-bg text-button-fg text-xs font-black uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all shadow-sm cursor-pointer"
+              type="submit"
+              disabled={saving}
+              className="px-8 py-3.5 rounded-xl bg-accent text-button-fg text-xs font-black uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all shadow-md cursor-pointer disabled:opacity-50 flex items-center gap-2"
             >
-              {isBn ? "সকল সেটিংস সংরক্ষণ করুন" : "Save All Settings"}
+              {saving ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-current" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  <span>{isBn ? "সংরক্ষণ করা হচ্ছে..." : "Saving..."}</span>
+                </>
+              ) : (
+                <span>{isBn ? "সকল সেটিংস সংরক্ষণ করুন" : "Save All Settings"}</span>
+              )}
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </form>
   );
 }

@@ -1,16 +1,74 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/store/LanguageContext";
+import { siteConfig } from "@/config/siteConfig";
+
+const API_BASE = siteConfig.apiBaseUrl.replace(/\/+$/, "");
 
 export default function Footer() {
   const { t } = useLanguage();
+
+  const [siteData, setSiteData] = useState({
+    site_title: "VibeMart",
+    tagline: "MAKE-UP STYLE",
+    brand_description:
+      "VibeMart is a recognized multi-category fashion and lifestyle store built on the principle of \"best price at the highest quality\". Our collections are curated with premium materials that are durable, stylish, and perfect for your vibe.",
+    support_phone: "+880 1700-000000",
+    support_email: "support@vibemart.com",
+    store_address: "Homestead Gulshan Link Tower, 99 Gulshan Badda Link Rd, Dhaka 1212",
+    working_hours: "Sat - Thu: 10:00 - 18:00",
+    facebook_url: "https://facebook.com",
+    instagram_url: "https://instagram.com",
+    youtube_url: "https://youtube.com",
+    whatsapp_number: "+8801700000000",
+    footer_copyright: "© 2026 VIBEMART. ALL RIGHTS RESERVED.",
+    logo: null as string | null,
+  });
+
+  useEffect(() => {
+    const fetchSiteSettings = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/store/site-settings/`, {
+          cache: "no-store",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setSiteData((prev) => ({
+            ...prev,
+            site_title: data.site_title || prev.site_title,
+            tagline: data.tagline || prev.tagline,
+            brand_description: data.brand_description || prev.brand_description,
+            support_phone: data.support_phone || prev.support_phone,
+            support_email: data.support_email || prev.support_email,
+            store_address: data.store_address || prev.store_address,
+            working_hours: data.working_hours || prev.working_hours,
+            facebook_url: data.facebook_url || prev.facebook_url,
+            instagram_url: data.instagram_url || prev.instagram_url,
+            youtube_url: data.youtube_url || prev.youtube_url,
+            whatsapp_number: data.whatsapp_number || prev.whatsapp_number,
+            footer_copyright: data.footer_copyright || prev.footer_copyright,
+            logo: data.logo || null,
+          }));
+        }
+      } catch (err) {
+        console.error("Failed to load footer settings:", err);
+      }
+    };
+
+    fetchSiteSettings();
+  }, []);
 
   const scrollToTop = () => {
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
+
+  const whatsappHref = siteData.whatsapp_number.startsWith("http")
+    ? siteData.whatsapp_number
+    : `https://wa.me/${siteData.whatsapp_number.replace(/[^0-9]/g, "")}`;
 
   return (
     <footer className="relative bg-primary text-button-fg border-t border-foreground/15 mt-auto transition-colors duration-300 overflow-hidden">
@@ -72,10 +130,10 @@ export default function Footer() {
                 </svg>
               </span>
               <a
-                href="tel:+8801700000000"
+                href={`tel:${siteData.support_phone.replace(/[^0-9+]/g, "")}`}
                 className="font-bold hover:text-accent transition-colors tracking-wider"
               >
-                {t("footer.phone")}
+                {siteData.support_phone}
               </a>
             </div>
 
@@ -98,7 +156,7 @@ export default function Footer() {
                 </svg>
               </span>
               <p className="opacity-80 leading-relaxed font-medium">
-                {t("footer.address")}
+                {siteData.store_address}
               </p>
             </div>
 
@@ -115,10 +173,10 @@ export default function Footer() {
                 </svg>
               </span>
               <a
-                href="mailto:support@vibemart.com"
+                href={`mailto:${siteData.support_email}`}
                 className="opacity-80 hover:text-accent hover:opacity-100 transition-colors font-medium"
               >
-                {t("footer.email")}
+                {siteData.support_email}
               </a>
             </div>
 
@@ -134,12 +192,11 @@ export default function Footer() {
                   />
                 </svg>
               </span>
-              <p className="opacity-80 font-medium">{t("footer.hours")}</p>
+              <p className="opacity-80 font-medium">{siteData.working_hours}</p>
             </div>
 
             {/* Payment & Courier Partner Badges */}
             <div className="pt-3 flex items-center gap-2.5 flex-wrap">
-              {/* bKash */}
               <div className="h-7 px-2.5 py-1 rounded-md bg-white flex items-center justify-center shadow-xs border border-white/20">
                 <img
                   src="/Footer/bKash.png"
@@ -148,7 +205,6 @@ export default function Footer() {
                 />
               </div>
 
-              {/* Nagad */}
               <div className="h-7 px-2.5 py-1 rounded-md bg-white flex items-center justify-center shadow-xs border border-white/20">
                 <img
                   src="/Footer/nagad.webp"
@@ -157,7 +213,6 @@ export default function Footer() {
                 />
               </div>
 
-              {/* VibeCoin */}
               <div className="h-7 px-2.5 py-1 rounded-md bg-white flex items-center justify-center shadow-xs border border-white/20">
                 <img
                   src="/Footer/VibeCoin.png"
@@ -166,7 +221,6 @@ export default function Footer() {
                 />
               </div>
 
-              {/* COD */}
               <div className="h-7 px-2.5 py-1 rounded-md bg-white flex items-center justify-center shadow-xs border border-white/20">
                 <img
                   src="/Footer/COD.webp"
@@ -180,91 +234,109 @@ export default function Footer() {
           {/* Middle Column: Brand Logo & Social Icons */}
           <div className="md:col-span-4 text-center flex flex-col items-center justify-center space-y-5">
             <Link href="/" className="inline-block group">
-              <span className="text-3xl sm:text-4xl font-black tracking-tight text-button-fg group-hover:text-accent transition-colors block">
-                VibeMart
-              </span>
-              <div className="flex items-center justify-center gap-2 mt-1">
-                <span className="h-[1px] w-6 bg-accent" />
-                <span className="text-[10px] font-bold tracking-[0.25em] text-accent uppercase">
-                  MAKE-UP STYLE
+              {siteData.logo ? (
+                <img
+                  src={siteData.logo}
+                  alt={siteData.site_title}
+                  className="h-12 md:h-14 max-w-[220px] object-contain mx-auto group-hover:scale-105 transition-transform"
+                />
+              ) : (
+                <span className="text-3xl sm:text-4xl font-black tracking-tight text-button-fg group-hover:text-accent transition-colors block">
+                  {siteData.site_title}
                 </span>
-                <span className="h-[1px] w-6 bg-accent" />
-              </div>
+              )}
+              {siteData.tagline && (
+                <div className="flex items-center justify-center gap-2 mt-1.5">
+                  <span className="h-[1px] w-6 bg-accent" />
+                  <span className="text-[10px] font-bold tracking-[0.25em] text-accent uppercase">
+                    {siteData.tagline}
+                  </span>
+                  <span className="h-[1px] w-6 bg-accent" />
+                </div>
+              )}
             </Link>
 
             {/* Social Icons Row */}
             <div className="flex items-center justify-center gap-5 text-button-fg">
               {/* Facebook */}
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noreferrer"
-                className="w-6 h-6 relative shrink-0 hover:scale-110 transition-all opacity-80 hover:opacity-100 cursor-pointer"
-                aria-label="Facebook"
-              >
-                <img
-                  src="/Footer/social-media.png"
-                  alt="Facebook"
-                  className="w-full h-full object-contain brightness-0 invert"
-                />
-              </a>
+              {siteData.facebook_url && (
+                <a
+                  href={siteData.facebook_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-6 h-6 relative shrink-0 hover:scale-110 transition-all opacity-80 hover:opacity-100 cursor-pointer"
+                  aria-label="Facebook"
+                >
+                  <img
+                    src="/Footer/social-media.png"
+                    alt="Facebook"
+                    className="w-full h-full object-contain brightness-0 invert"
+                  />
+                </a>
+              )}
 
               {/* Instagram */}
-              <a
-                href="https://instagram.com"
-                target="_blank"
-                rel="noreferrer"
-                className="w-6 h-6 relative shrink-0 hover:scale-110 transition-all opacity-80 hover:opacity-100 cursor-pointer"
-                aria-label="Instagram"
-              >
-                <img
-                  src="/Footer/instagram.png"
-                  alt="Instagram"
-                  className="w-full h-full object-contain brightness-0 invert"
-                />
-              </a>
+              {siteData.instagram_url && (
+                <a
+                  href={siteData.instagram_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-6 h-6 relative shrink-0 hover:scale-110 transition-all opacity-80 hover:opacity-100 cursor-pointer"
+                  aria-label="Instagram"
+                >
+                  <img
+                    src="/Footer/instagram.png"
+                    alt="Instagram"
+                    className="w-full h-full object-contain brightness-0 invert"
+                  />
+                </a>
+              )}
 
               {/* YouTube */}
-              <a
-                href="https://youtube.com"
-                target="_blank"
-                rel="noreferrer"
-                className="w-6 h-6 relative shrink-0 hover:scale-110 transition-all opacity-80 hover:opacity-100 cursor-pointer"
-                aria-label="YouTube"
-              >
-                <img
-                  src="/Footer/youtube.png"
-                  alt="YouTube"
-                  className="w-full h-full object-contain brightness-0 invert"
-                />
-              </a>
+              {siteData.youtube_url && (
+                <a
+                  href={siteData.youtube_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-6 h-6 relative shrink-0 hover:scale-110 transition-all opacity-80 hover:opacity-100 cursor-pointer"
+                  aria-label="YouTube"
+                >
+                  <img
+                    src="/Footer/youtube.png"
+                    alt="YouTube"
+                    className="w-full h-full object-contain brightness-0 invert"
+                  />
+                </a>
+              )}
 
               {/* WhatsApp */}
-              <a
-                href="https://whatsapp.com"
-                target="_blank"
-                rel="noreferrer"
-                className="w-6 h-6 relative shrink-0 hover:scale-110 transition-all opacity-80 hover:opacity-100 cursor-pointer"
-                aria-label="WhatsApp"
-              >
-                <img
-                  src="/Footer/whatsapp.png"
-                  alt="WhatsApp"
-                  className="w-full h-full object-contain brightness-0 invert"
-                />
-              </a>
+              {siteData.whatsapp_number && (
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-6 h-6 relative shrink-0 hover:scale-110 transition-all opacity-80 hover:opacity-100 cursor-pointer"
+                  aria-label="WhatsApp"
+                >
+                  <img
+                    src="/Footer/whatsapp.png"
+                    alt="WhatsApp"
+                    className="w-full h-full object-contain brightness-0 invert"
+                  />
+                </a>
+              )}
             </div>
           </div>
 
-          {/* Right Column: Brand Philosophy Description & Read More */}
+          {/* Right Column: Brand Philosophy Description */}
           <div className="md:col-span-4 text-center md:text-right space-y-4 text-xs">
             <p className="opacity-80 leading-relaxed font-medium">
-              {t("footer.brandDescription")}
+              {siteData.brand_description}
             </p>
           </div>
         </div>
 
-        {/* 🌟 Floating Scroll To Top Button (Right Aligned Floating Pill) */}
+        {/* 🌟 Floating Scroll To Top Button */}
         <button
           onClick={scrollToTop}
           className="absolute right-4 md:right-8 bottom-6 w-11 h-11 rounded-full bg-accent text-button-fg flex items-center justify-center shadow-lg hover:opacity-90 hover:scale-110 active:scale-95 transition-all cursor-pointer z-10"
@@ -295,7 +367,7 @@ export default function Footer() {
           </div>
 
           <div className="opacity-60 text-[10px] tracking-widest text-center">
-            {t("footer.copyright")}
+            {siteData.footer_copyright}
           </div>
         </div>
       </div>

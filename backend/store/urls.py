@@ -21,6 +21,8 @@ router.register('delivery-rules', views.DeliveryRuleViewSet, basename='delivery-
 router.register('notifications', views.NotificationViewSet, basename='notifications')
 router.register('addresses', views.AddressViewSet, basename='addresses')
 router.register('audit-logs', views.AuditLogViewSet, basename='audit-logs')
+router.register('site-settings', views.SiteSettingViewSet, basename='site-settings')
+
 
 
 products_router = routers.NestedDefaultRouter(router, 'products', lookup='product')

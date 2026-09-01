@@ -9,7 +9,10 @@ import LanguageToggle from "@/components/ui/LanguageToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
 import { useLanguage } from "@/store/LanguageContext";
+import { siteConfig } from "@/config/siteConfig";
 import Swal from "sweetalert2";
+
+const API_BASE = siteConfig.apiBaseUrl.replace(/\/+$/, "");
 
 export default function Header() {
   const pathname = usePathname();
@@ -19,6 +22,26 @@ export default function Header() {
   const { t } = useLanguage();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [brandTitle, setBrandTitle] = useState("VIBEMART");
+  const [brandLogo, setBrandLogo] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSiteBrand = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/store/site-settings/`, {
+          cache: "no-store",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.site_title) setBrandTitle(data.site_title);
+          if (data.logo) setBrandLogo(data.logo);
+        }
+      } catch (e) {
+        console.error("Failed to load header brand settings:", e);
+      }
+    };
+    fetchSiteBrand();
+  }, []);
 
   useEffect(() => {
     if (user?.is_staff && !pathname.includes("/admin")) {
@@ -71,9 +94,19 @@ export default function Header() {
         {/* Brand Logo */}
         <Link
           href="/"
-          className="text-xl md:text-2xl font-black tracking-tighter uppercase hover:opacity-90 transition-opacity"
+          className="flex items-center gap-3 hover:opacity-90 transition-opacity"
         >
-          VIBEMART
+          {brandLogo ? (
+            <img
+              src={brandLogo}
+              alt={brandTitle}
+              className="h-8 md:h-10 max-w-[160px] object-contain"
+            />
+          ) : (
+            <span className="text-xl md:text-2xl font-black tracking-tighter uppercase">
+              {brandTitle}
+            </span>
+          )}
         </Link>
 
         {/* Desktop Navigation Links */}
