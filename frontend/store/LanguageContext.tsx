@@ -3,6 +3,9 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import en from "@/dictionaries/en.json";
 import bn from "@/dictionaries/bn.json";
+import { siteConfig } from "@/config/siteConfig";
+
+const API_BASE = siteConfig.apiBaseUrl.replace(/\/+$/, "");
 
 export type Locale = "en" | "bn";
 
@@ -11,9 +14,35 @@ const dictionaries: Record<Locale, any> = {
   bn,
 };
 
+// Fallback exchange rates against BDT (1 BDT = X Target Currency)
+const DEFAULT_RATES_FROM_BDT: Record<string, number> = {
+  BDT: 1,
+  USD: 0.0082, // ~1 USD = 122 BDT
+  EUR: 0.0076, // ~1 EUR = 131 BDT
+  GBP: 0.0065, // ~1 GBP = 153 BDT
+  INR: 0.70,   // ~1 INR = 1.43 BDT
+  SAR: 0.031,  // ~1 SAR = 32.5 BDT
+  AED: 0.030,  // ~1 AED = 33.2 BDT
+  CAD: 0.011,  // ~1 CAD = 90.5 BDT
+};
+
+// Currency Symbols and placement
+const CURRENCY_CONFIG: Record<string, { symbol: string; prefix: boolean }> = {
+  BDT: { symbol: "৳", prefix: true },
+  USD: { symbol: "$", prefix: true },
+  EUR: { symbol: "€", prefix: true },
+  GBP: { symbol: "£", prefix: true },
+  INR: { symbol: "₹", prefix: true },
+  SAR: { symbol: "﷼", prefix: false },
+  AED: { symbol: "د.إ", prefix: false },
+  CAD: { symbol: "CA$", prefix: true },
+};
+
 interface LanguageContextType {
   locale: Locale;
+  currency: string;
   setLocale: (locale: Locale) => void;
+  setCurrency: (currency: string) => void;
   toggleLocale: () => void;
   t: (path: string) => string;
   formatCurrency: (amount: number | string) => string;
@@ -26,11 +55,50 @@ import { useRouter, usePathname } from "next/navigation";
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname() || "/";
-  
+
   // Detect initial locale from URL prefix
   const urlIsBn = pathname.startsWith("/bn") || pathname === "/bn";
   const [locale, setLocaleState] = useState<Locale>(urlIsBn ? "bn" : "en");
+  const [currency, setCurrencyState] = useState<string>("BDT");
+  const [rates, setRates] = useState<Record<string, number>>(DEFAULT_RATES_FROM_BDT);
   const [mounted, setMounted] = useState(false);
+
+  // Fetch Live Site Settings (Active Currency) + Live Forex Rates
+  useEffect(() => {
+    const fetchCurrencyAndRates = async () => {
+      try {
+        // 1. Fetch Active Currency from Site Setting
+        const settingRes = await fetch(`${API_BASE}/store/site-settings/`, {
+          cache: "no-store",
+        }).catch(() => null);
+
+        let activeCurr = "BDT";
+        if (settingRes && settingRes.ok) {
+          const data = await settingRes.json();
+          if (data.currency_code) {
+            activeCurr = data.currency_code;
+            setCurrencyState(data.currency_code);
+          }
+        }
+
+        // 2. Fetch Live Forex Rates from Open Exchange API
+        const rateRes = await fetch("https://open.er-api.com/v6/latest/BDT").catch(() => null);
+        if (rateRes && rateRes.ok) {
+          const rateData = await rateRes.json();
+          if (rateData && rateData.rates) {
+            setRates((prev) => ({
+              ...prev,
+              ...rateData.rates,
+            }));
+          }
+        }
+      } catch (err) {
+        console.error("Forex rate fetch error:", err);
+      }
+    };
+
+    fetchCurrencyAndRates();
+  }, []);
 
   useEffect(() => {
     const isBnInPath = pathname.startsWith("/bn") || pathname === "/bn";
@@ -51,7 +119,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("vibemart_locale", newLocale);
     document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
 
-    // Seamlessly navigate URL between /... and /bn/... without triggering a full page remount
     if (typeof window !== "undefined") {
       let targetPath = pathname;
       if (newLocale === "bn") {
@@ -69,12 +136,16 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const setCurrency = (newCurrency: string) => {
+    setCurrencyState(newCurrency);
+  };
+
   const toggleLocale = () => {
     const nextLocale = locale === "en" ? "bn" : "en";
     setLocale(nextLocale);
   };
 
-  // Helper to resolve nested keys like "hero.newCollection"
+  // Helper to resolve nested dictionary keys
   const t = (path: string): string => {
     const keys = path.split(".");
     let current: any = dictionaries[locale] || dictionaries.en;
@@ -83,7 +154,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       if (current && typeof current === "object" && key in current) {
         current = current[key];
       } else {
-        // Fallback to English dictionary
         let fallback: any = dictionaries.en;
         for (const fbKey of keys) {
           if (fallback && typeof fallback === "object" && fbKey in fallback) {
@@ -99,17 +169,41 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     return typeof current === "string" ? current : path;
   };
 
-  // Currency & number formatting in Bengali / English
+  // Dynamic Multi-Currency Converter & Formatter
   const formatCurrency = (amount: number | string): string => {
-    const num = Number(amount) || 0;
+    const baseAmountInBDT = Number(amount) || 0;
+    const rate = rates[currency] || DEFAULT_RATES_FROM_BDT[currency] || 1;
+    const convertedAmount = currency === "BDT" ? baseAmountInBDT : baseAmountInBDT * rate;
+
+    const config = CURRENCY_CONFIG[currency] || { symbol: currency, prefix: true };
+
     if (locale === "bn") {
-      return `৳${num.toLocaleString("bn-BD", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const bnFormatted = convertedAmount.toLocaleString("bn-BD", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+      return config.prefix ? `${config.symbol}${bnFormatted}` : `${bnFormatted} ${config.symbol}`;
     }
-    return `৳${num.toFixed(2)}`;
+
+    const enFormatted = convertedAmount.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+    return config.prefix ? `${config.symbol}${enFormatted}` : `${enFormatted} ${config.symbol}`;
   };
 
   return (
-    <LanguageContext.Provider value={{ locale, setLocale, toggleLocale, t, formatCurrency }}>
+    <LanguageContext.Provider
+      value={{
+        locale,
+        currency,
+        setLocale,
+        setCurrency,
+        toggleLocale,
+        t,
+        formatCurrency,
+      }}
+    >
       {children}
     </LanguageContext.Provider>
   );
@@ -118,27 +212,14 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 export function useLanguage() {
   const context = useContext(LanguageContext);
   if (!context) {
-    // Safe fallback so components outside provider or during hot reload don't crash
     return {
       locale: "en" as Locale,
+      currency: "BDT",
       setLocale: () => {},
+      setCurrency: () => {},
       toggleLocale: () => {},
-      t: (path: string) => {
-        const keys = path.split(".");
-        let current: any = dictionaries.en;
-        for (const k of keys) {
-          if (current && typeof current === "object" && k in current) {
-            current = current[k];
-          } else {
-            return path;
-          }
-        }
-        return typeof current === "string" ? current : path;
-      },
-      formatCurrency: (amount: number | string) => {
-        const num = Number(amount) || 0;
-        return `৳${num.toFixed(2)}`;
-      },
+      t: (path: string) => path,
+      formatCurrency: (amount: number | string) => `৳${(Number(amount) || 0).toFixed(2)}`,
     };
   }
   return context;

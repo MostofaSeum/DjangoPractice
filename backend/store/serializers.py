@@ -990,6 +990,7 @@ class SiteSettingSerializer(serializers.ModelSerializer):
             'youtube_url',
             'whatsapp_number',
             'footer_copyright',
+            'currency_code',
             'last_updated',
         ]
 

@@ -13,6 +13,7 @@ interface SiteSettingsState {
   siteTitle: string;
   tagline: string;
   brandDescription: string;
+  currencyCode: string;
   supportPhone: string;
   supportEmail: string;
   storeAddress: string;
@@ -29,6 +30,7 @@ const DEFAULT_SETTINGS: SiteSettingsState = {
   tagline: "MAKE-UP STYLE",
   brandDescription:
     "VibeMart is a recognized multi-category fashion and lifestyle store built on the principle of \"best price at the highest quality\". Our collections are curated with premium materials that are durable, stylish, and perfect for your vibe.",
+  currencyCode: "BDT",
   supportPhone: "+880 1700-000000",
   supportEmail: "support@vibemart.com",
   storeAddress: "Homestead Gulshan Link Tower, 99 Gulshan Badda Link Rd, Dhaka 1212",
@@ -40,8 +42,19 @@ const DEFAULT_SETTINGS: SiteSettingsState = {
   whatsappNumber: "+8801700000000",
 };
 
+const AVAILABLE_CURRENCIES = [
+  { code: "BDT", label: "BDT (৳) - Bangladeshi Taka", symbol: "৳" },
+  { code: "USD", label: "USD ($) - US Dollar", symbol: "$" },
+  { code: "EUR", label: "EUR (€) - Euro", symbol: "€" },
+  { code: "GBP", label: "GBP (£) - British Pound", symbol: "£" },
+  { code: "INR", label: "INR (₹) - Indian Rupee", symbol: "₹" },
+  { code: "SAR", label: "SAR (﷼) - Saudi Riyal", symbol: "﷼" },
+  { code: "AED", label: "AED (د.إ) - UAE Dirham", symbol: "د.إ" },
+  { code: "CAD", label: "CAD ($) - Canadian Dollar", symbol: "CA$" },
+];
+
 export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabProps) {
-  const { locale } = useLanguage();
+  const { locale, setCurrency } = useLanguage();
   const isBn = locale === "bn";
 
   // Initial loaded states (for change detection)
@@ -51,6 +64,7 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
   const [siteTitle, setSiteTitle] = useState(DEFAULT_SETTINGS.siteTitle);
   const [tagline, setTagline] = useState(DEFAULT_SETTINGS.tagline);
   const [brandDescription, setBrandDescription] = useState(DEFAULT_SETTINGS.brandDescription);
+  const [currencyCode, setCurrencyCode] = useState(DEFAULT_SETTINGS.currencyCode);
   const [supportPhone, setSupportPhone] = useState(DEFAULT_SETTINGS.supportPhone);
   const [supportEmail, setSupportEmail] = useState(DEFAULT_SETTINGS.supportEmail);
   const [storeAddress, setStoreAddress] = useState(DEFAULT_SETTINGS.storeAddress);
@@ -81,6 +95,7 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
           siteTitle: data.site_title !== undefined && data.site_title !== null ? data.site_title : "VibeMart",
           tagline: data.tagline !== undefined && data.tagline !== null ? data.tagline : "",
           brandDescription: data.brand_description !== undefined && data.brand_description !== null ? data.brand_description : "",
+          currencyCode: data.currency_code || "BDT",
           supportPhone: data.support_phone !== undefined && data.support_phone !== null ? data.support_phone : "",
           supportEmail: data.support_email !== undefined && data.support_email !== null ? data.support_email : "",
           storeAddress: data.store_address !== undefined && data.store_address !== null ? data.store_address : "",
@@ -96,6 +111,7 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
         setSiteTitle(loaded.siteTitle);
         setTagline(loaded.tagline);
         setBrandDescription(loaded.brandDescription);
+        setCurrencyCode(loaded.currencyCode);
         setSupportPhone(loaded.supportPhone);
         setSupportEmail(loaded.supportEmail);
         setStoreAddress(loaded.storeAddress);
@@ -129,6 +145,7 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
     if (siteTitle !== initialSettings.siteTitle) return true;
     if (tagline !== initialSettings.tagline) return true;
     if (brandDescription !== initialSettings.brandDescription) return true;
+    if (currencyCode !== initialSettings.currencyCode) return true;
     if (supportPhone !== initialSettings.supportPhone) return true;
     if (supportEmail !== initialSettings.supportEmail) return true;
     if (storeAddress !== initialSettings.storeAddress) return true;
@@ -146,6 +163,7 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
     siteTitle,
     tagline,
     brandDescription,
+    currencyCode,
     supportPhone,
     supportEmail,
     storeAddress,
@@ -181,6 +199,7 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
       formData.append("site_title", siteTitle);
       formData.append("tagline", tagline);
       formData.append("brand_description", brandDescription);
+      formData.append("currency_code", currencyCode);
       formData.append("support_phone", supportPhone);
       formData.append("support_email", supportEmail);
       formData.append("store_address", storeAddress);
@@ -194,7 +213,6 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
       if (logoFile) {
         formData.append("logo", logoFile);
       } else if (!logoPreview && initialLogoUrl) {
-        // Logo was explicitly cleared/deleted
         formData.append("remove_logo", "true");
       }
 
@@ -212,6 +230,7 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
           siteTitle,
           tagline,
           brandDescription,
+          currencyCode,
           supportPhone,
           supportEmail,
           storeAddress,
@@ -227,10 +246,15 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
         setLogoPreview(data.logo || null);
         setLogoFile(null);
 
+        // Update global context currency
+        if (data.currency_code) {
+          setCurrency(data.currency_code);
+        }
+
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: isBn ? "সেটিংস সফলভাবে সংরক্ষিত হয়েছে!" : "Store settings updated successfully!",
+          title: isBn ? "সেটিংস ও কারেন্সি সফলভাবে সংরক্ষিত হয়েছে!" : "Store settings & currency updated successfully!",
           showConfirmButton: false,
           timer: 2000,
           toast: true,
@@ -272,8 +296,40 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
   return (
     <form onSubmit={handleSaveSettings} className="space-y-8 animate-in fade-in duration-300 pb-12">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-        {/* Left Column: Logo Upload & Brand Identity */}
+        {/* Left Column: Logo Upload & Brand Identity & Currency */}
         <div className="space-y-6">
+          {/* Currency Configuration Card */}
+          <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-accent" />
+              <h2 className="text-base font-black uppercase tracking-tight text-foreground">
+                {isBn ? "ওয়েবসাইট কারেন্সি (Currency)" : "Store Currency"}
+              </h2>
+            </div>
+            <p className="text-xs opacity-70">
+              {isBn
+                ? "ওয়েবসাইটের প্রধান মুদ্রা নির্বাচন করুন। পণ্যের দাম এবং হিসাব লাইভ ফরেক্স রেটে স্বয়ংক্রিয়ভাবে পরিবর্তিত হবে।"
+                : "Select primary currency. Product prices and checkouts will dynamically convert using live exchange rates."}
+            </p>
+
+            <div className="space-y-1.5 pt-1">
+              <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
+                {isBn ? "সক্রিয় মুদ্রা / Currency" : "Active Currency"}
+              </label>
+              <select
+                value={currencyCode}
+                onChange={(e) => setCurrencyCode(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-bold border border-foreground/15 focus:outline-none focus:border-accent cursor-pointer"
+              >
+                {AVAILABLE_CURRENCIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           {/* Logo Upload Card */}
           <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm space-y-5">
             <div className="flex items-center gap-2">

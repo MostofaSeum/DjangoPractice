@@ -581,7 +581,19 @@ class SiteSetting(models.Model):
         default='© 2026 VIBEMART. ALL RIGHTS RESERVED.',
         blank=True
     )
+    CURRENCY_CHOICES = [
+        ('BDT', 'BDT (৳) - Bangladeshi Taka'),
+        ('USD', 'USD ($) - US Dollar'),
+        ('EUR', 'EUR (€) - Euro'),
+        ('GBP', 'GBP (£) - British Pound'),
+        ('INR', 'INR (₹) - Indian Rupee'),
+        ('SAR', 'SAR (﷼) - Saudi Riyal'),
+        ('AED', 'AED (د.إ) - UAE Dirham'),
+        ('CAD', 'CAD ($) - Canadian Dollar'),
+    ]
+    currency_code = models.CharField(max_length=10, choices=CURRENCY_CHOICES, default='BDT')
     last_updated = models.DateTimeField(auto_now=True)
+
 
     class Meta:
         verbose_name = 'Site Setting'
