@@ -1054,7 +1054,7 @@ export default function ProfilePage() {
                           </div>
 
                           <div className="flex items-center gap-2 flex-wrap self-end sm:self-auto">
-                            {ord.payment_status === "C" && (
+                            {ord.payment_status === "C" && ord.tracking_status !== "delivered" && (
                               <button
                                 type="button"
                                 onClick={() => setTrackingOrder(ord)}
@@ -1250,10 +1250,10 @@ export default function ProfilePage() {
               </button>
             </div>
 
-            {/* Quick Actions (Track / Review) */}
+            {/* Quick Actions (Track / Review / Return) */}
             {(selectedOrderDetails.payment_status === "C" || selectedOrderDetails.tracking_status === "delivered") && (
               <div className="flex items-center gap-2 mb-4 p-2.5 rounded-2xl bg-primary/5 border border-foreground/10 flex-wrap">
-                {selectedOrderDetails.payment_status === "C" && (
+                {selectedOrderDetails.payment_status === "C" && selectedOrderDetails.tracking_status !== "delivered" && (
                   <button
                     type="button"
                     onClick={() => {
