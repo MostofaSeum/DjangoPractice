@@ -2851,6 +2851,12 @@ export default function AdminDashboardPage() {
         token={token}
         onNavigateToOrder={(orderId) => {
           setSelectedNotificationOrderId(orderId);
+          setOrderSubTab("all");
+          handleTabSwitch("orders");
+        }}
+        onNavigateToReturn={(orderId) => {
+          setSelectedNotificationOrderId(orderId);
+          setOrderSubTab("returns");
           handleTabSwitch("orders");
         }}
         onNavigateToTab={(tab) => {
