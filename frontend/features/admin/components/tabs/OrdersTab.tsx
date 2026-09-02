@@ -427,11 +427,7 @@ export default function OrdersTab({
                             } else if (order.tracking_code) {
                               initialCourier = "manual";
                             } else if (activeCouriers.length > 0) {
-                              const defaultPartner =
-                                order.delivery_area === "outside_dhaka"
-                                  ? activeCouriers.find((c) => c.is_default_outside_dhaka)
-                                  : activeCouriers.find((c) => c.is_default_inside_dhaka);
-                              initialCourier = defaultPartner ? defaultPartner.id : activeCouriers[0].id;
+                              initialCourier = activeCouriers[0].id;
                             }
 
                             setSelectedCourierId(initialCourier);
@@ -735,12 +731,9 @@ export default function OrdersTab({
                     } else if (ord.tracking_code) {
                       initialCourier = "manual";
                     } else if (activeCouriers.length > 0) {
-                      const defaultPartner =
-                        ord.delivery_area === "outside_dhaka"
-                          ? activeCouriers.find((c) => c.is_default_outside_dhaka)
-                          : activeCouriers.find((c) => c.is_default_inside_dhaka);
-                      initialCourier = defaultPartner ? defaultPartner.id : activeCouriers[0].id;
+                      initialCourier = activeCouriers[0].id;
                     }
+
                     setSelectedCourierId(initialCourier);
                     setTrackingCodeInput(ord.tracking_code || "");
                     setTrackingStatusInput((ord.tracking_status as any) || "in_transit");

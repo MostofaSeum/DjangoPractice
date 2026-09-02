@@ -550,8 +550,162 @@ export default function AnalyticsTab({
     };
   }, [products, orders, productSearch, productLimit]);
 
+  // 5. DELIVERY SERVICES & ORDERS LOGISTICS ANALYTICS
+  const deliveryAnalytics = useMemo(() => {
+    let totalDispatched = 0;
+    let deliveredCount = 0;
+    let ongoingCount = 0; // in_transit, out_for_delivery, packed, pending
+    let returnedCount = 0;
+    let totalDeliveryRevenue = 0;
+
+    const courierMap: Record<
+      string,
+      {
+        name: string;
+        code: string;
+        logo: string;
+        totalOrders: number;
+        delivered: number;
+        ongoing: number;
+        returned: number;
+        pending: number;
+        totalValue: number;
+      }
+    > = {};
+
+    const PRESET_LOGOS: Record<string, string> = {
+      steadfast: "/DeliveryPartner/steadfast.jpg",
+      pathao: "/DeliveryPartner/pathaocourier.png",
+      redx: "/DeliveryPartner/redx.png",
+      paperfly: "/DeliveryPartner/paperfly.png",
+      manual: "/DeliveryPartner/steadfast.jpg",
+    };
+
+    orders.forEach((o) => {
+      const charge = Number(o.delivery_charge) || 0;
+      totalDeliveryRevenue += charge;
+
+      // Identify Courier Service
+      let courierKey = "manual";
+      let courierName = isBn ? "ম্যানুয়াল ট্র্যাকিং (ইন-হাউস)" : "Manual Tracking (In-House)";
+      let providerCode = "manual";
+
+      if (o.courier_partner_details) {
+        courierKey = String(o.courier_partner_details.provider_code || o.courier_partner_details.id);
+        courierName = o.courier_partner_details.name;
+        providerCode = o.courier_partner_details.provider_code;
+      } else if (o.courier_partner) {
+        courierKey = `partner-${o.courier_partner}`;
+        courierName = `Courier Partner #${o.courier_partner}`;
+      }
+
+      if (!courierMap[courierKey]) {
+        courierMap[courierKey] = {
+          name: courierName,
+          code: providerCode,
+          logo: PRESET_LOGOS[providerCode] || PRESET_LOGOS.manual,
+          totalOrders: 0,
+          delivered: 0,
+          ongoing: 0,
+          returned: 0,
+          pending: 0,
+          totalValue: 0,
+        };
+      }
+
+      const st = o.tracking_status || "pending";
+      const stat = courierMap[courierKey];
+      stat.totalOrders += 1;
+      stat.totalValue += getOrderTotal(o);
+      totalDispatched += 1;
+
+      if (st === "delivered") {
+        stat.delivered += 1;
+        deliveredCount += 1;
+      } else if (st === "returned") {
+        stat.returned += 1;
+        returnedCount += 1;
+      } else if (st === "pending") {
+        stat.pending += 1;
+        ongoingCount += 1;
+      } else {
+        // packed, in_transit, out_for_delivery
+        stat.ongoing += 1;
+        ongoingCount += 1;
+      }
+    });
+
+    const courierList = Object.values(courierMap).map((c) => {
+      const finished = c.delivered + c.returned;
+      const successRate =
+        finished > 0
+          ? Math.round((c.delivered / finished) * 100)
+          : c.delivered > 0
+          ? 100
+          : 0;
+      return {
+        ...c,
+        successRate,
+      };
+    });
+
+    // Sort by most used (highest totalOrders)
+    courierList.sort((a, b) => b.totalOrders - a.totalOrders);
+
+    // Chart Data for Courier Comparison (Most Used vs Success Rate)
+    const courierVolumeChart = courierList.map((c) => ({
+      name: c.name,
+      shortName: c.name.length > 12 ? c.name.substring(0, 10) + "..." : c.name,
+      orders: c.totalOrders,
+      delivered: c.delivered,
+      ongoing: c.ongoing + c.pending,
+      returned: c.returned,
+      successRate: c.successRate,
+    }));
+
+    // Chart Data for Ongoing vs Delivered vs Returned status breakdown
+    const statusPieData = [
+      {
+        name: isBn ? "সফলভাবে ডেলিভার্ড" : "Delivered",
+        value: deliveredCount,
+        color: "var(--visible)",
+      },
+      {
+        name: isBn ? "চলমান ডেলিভারি (On Going)" : "On Going / In Transit",
+        value: ongoingCount,
+        color: "var(--accent)",
+      },
+      {
+        name: isBn ? "ফেরত / ব্যর্থ (Returned)" : "Returned / Failed",
+        value: returnedCount,
+        color: "var(--hidden)",
+      },
+    ].filter((d) => d.value > 0);
+
+    const overallSuccessRate =
+      deliveredCount + returnedCount > 0
+        ? Math.round((deliveredCount / (deliveredCount + returnedCount)) * 100)
+        : deliveredCount > 0
+        ? 100
+        : 0;
+
+    return {
+      totalDispatched,
+      deliveredCount,
+      ongoingCount,
+      returnedCount,
+      totalDeliveryRevenue,
+      overallSuccessRate,
+      mostUsedCourier: courierList[0] || null,
+      courierList,
+      courierVolumeChart,
+      statusPieData,
+    };
+  }, [orders, isBn]);
+
   return (
     <div className="space-y-8">
+
 
       {/* 1. SALES & REVENUE ANALYTICS SUBSECTION */}
       {activeSubTab === "sales" && (
@@ -1705,6 +1859,328 @@ export default function AnalyticsTab({
           </div>
         </div>
       )}
+
+      {/* 5. COURIER LOGISTICS & DELIVERY ORDERS ANALYTICS */}
+      {activeSubTab === "delivery-orders" && (
+        <div className="bg-secondary text-foreground p-6 sm:p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300 space-y-8">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-foreground/10">
+            <div>
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-3 w-3 relative">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
+                </span>
+                <h2 className="text-base font-black uppercase tracking-widest text-foreground">
+                  {isBn ? "কুরিয়ার ও ডেলিভারি পারফর্মেন্স অ্যানালিটিক্স" : "Courier & Delivery Analytics"}
+                </h2>
+              </div>
+              <p className="text-xs opacity-60 mt-1">
+                {isBn
+                  ? "কুরিয়ার সার্ভিসের ব্যবহার, সফল ডেলিভারির হার এবং চলমান পার্সেল ট্র্যাকিং সংক্রান্ত বিস্তারিত রিপোর্ট।"
+                  : "Comprehensive analytics on most used courier services, delivery success rates, and on-going parcels."}
+              </p>
+            </div>
+          </div>
+
+          {/* KPI Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Total Orders Dispatched */}
+            <div className="p-5 bg-background rounded-2xl border border-foreground/10 shadow-xs flex flex-col justify-between">
+              <span className="text-[10px] font-black uppercase tracking-wider opacity-60">
+                {isBn ? "মোট পার্সেল / অর্ডার" : "Total Parcels Handled"}
+              </span>
+              <div className="mt-3 flex items-baseline justify-between">
+                <span className="text-2xl font-black text-foreground">
+                  {deliveryAnalytics.totalDispatched.toLocaleString(isBn ? "bn-BD" : undefined)}
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-foreground/70">
+                  {isBn ? "সর্বমোট" : "All Time"}
+                </span>
+              </div>
+            </div>
+
+            {/* Most Used Courier Service */}
+            <div className="p-5 bg-background rounded-2xl border border-foreground/10 shadow-xs flex flex-col justify-between">
+              <span className="text-[10px] font-black uppercase tracking-wider opacity-60">
+                {isBn ? "সর্বাধিক ব্যবহৃত কুরিয়ার" : "Most Used Courier"}
+              </span>
+              <div className="mt-3 flex items-center gap-3">
+                {deliveryAnalytics.mostUsedCourier && (
+                  <div className="w-8 h-8 relative rounded-lg overflow-hidden bg-white shrink-0 p-0.5 border border-foreground/10 flex items-center justify-center">
+                    <img
+                      src={deliveryAnalytics.mostUsedCourier.logo}
+                      alt={deliveryAnalytics.mostUsedCourier.name}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <div className="text-base font-black text-foreground truncate">
+                    {deliveryAnalytics.mostUsedCourier ? deliveryAnalytics.mostUsedCourier.name : "N/A"}
+                  </div>
+                  <div className="text-[10px] font-bold text-accent">
+                    {deliveryAnalytics.mostUsedCourier
+                      ? `${deliveryAnalytics.mostUsedCourier.totalOrders.toLocaleString(isBn ? "bn-BD" : undefined)} ${isBn ? "টি পার্সেল" : "orders"}`
+                      : ""}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Delivery Success Rate */}
+            <div className="p-5 bg-background rounded-2xl border border-foreground/10 shadow-xs flex flex-col justify-between">
+              <span className="text-[10px] font-black uppercase tracking-wider opacity-60">
+                {isBn ? "ডেলিভারি সাফল্যের হার" : "Delivery Success Rate"}
+              </span>
+              <div className="mt-3 flex items-baseline justify-between">
+                <span className="text-2xl font-black text-visible">
+                  {deliveryAnalytics.overallSuccessRate}%
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-visible/15 text-visible">
+                  {deliveryAnalytics.deliveredCount.toLocaleString(isBn ? "bn-BD" : undefined)} {isBn ? "ডেলিভার্ড" : "Delivered"}
+                </span>
+              </div>
+            </div>
+
+            {/* On-going Parcels */}
+            <div className="p-5 bg-background rounded-2xl border border-foreground/10 shadow-xs flex flex-col justify-between">
+              <span className="text-[10px] font-black uppercase tracking-wider opacity-60">
+                {isBn ? "চলমান ডেলিভারি (On Going)" : "On Going Delivery"}
+              </span>
+              <div className="mt-3 flex items-baseline justify-between">
+                <span className="text-2xl font-black text-accent">
+                  {deliveryAnalytics.ongoingCount.toLocaleString(isBn ? "bn-BD" : undefined)}
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent/15 text-accent">
+                  {isBn ? "পাইপলাইনে সক্রিয়" : "In Pipeline"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Recharts Visualizations Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Courier Volume Comparison (Bar Chart) */}
+            <div className="lg:col-span-2 p-6 bg-background rounded-3xl border border-foreground/10 shadow-xs flex flex-col justify-between">
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-wider text-foreground">
+                    {isBn ? "কুরিয়ার অনুযায়ী পার্সেল বিতরণ ও কার্যকারিতা" : "Courier Volume & Delivery Breakdown"}
+                  </h3>
+                  <p className="text-[11px] opacity-60 mt-0.5">
+                    {isBn
+                      ? "প্রতিটি সার্ভিসের মোট পার্সেল সংখ্যা এবং ডেলিভার্ড ও চলমান অবস্থা।"
+                      : "Total dispatched volume, successfully delivered, and ongoing orders per courier."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="h-72 w-full">
+                {deliveryAnalytics.courierVolumeChart.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={deliveryAnalytics.courierVolumeChart}
+                      margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" opacity={0.15} vertical={false} />
+                      <XAxis
+                        dataKey="shortName"
+                        stroke="currentColor"
+                        opacity={0.6}
+                        tick={{ fontSize: 11, fontWeight: 700 }}
+                      />
+                      <YAxis
+                        stroke="currentColor"
+                        opacity={0.6}
+                        tick={{ fontSize: 11, fontWeight: 700 }}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "var(--secondary)",
+                          borderColor: "var(--foreground)",
+                          borderRadius: "16px",
+                          boxShadow: "0 10px 25px -5px rgba(0,0,0,0.3)",
+                          color: "var(--foreground)",
+                          fontSize: "12px",
+                          fontWeight: "bold",
+                        }}
+                      />
+                      <Legend
+                        wrapperStyle={{ fontSize: "11px", fontWeight: "bold", paddingTop: "10px" }}
+                      />
+                      <Bar dataKey="delivered" name={isBn ? "ডেলিভার্ড" : "Delivered"} fill="var(--visible)" radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="ongoing" name={isBn ? "চলমান / ইন-ট্রানজিট" : "On Going"} fill="var(--accent)" radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="returned" name={isBn ? "ফেরত / ব্যর্থ" : "Returned"} fill="var(--hidden)" radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-full flex items-center justify-center opacity-50 text-xs font-bold">
+                    {isBn ? "কোনো ডেলিভারি ডেটা পাওয়া যায়নি।" : "No courier delivery data available."}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Overall Delivery Status Breakdown (Pie Chart) */}
+            <div className="p-6 bg-background rounded-3xl border border-foreground/10 shadow-xs flex flex-col justify-between">
+              <div className="mb-4">
+                <h3 className="text-sm font-black uppercase tracking-wider text-foreground">
+                  {isBn ? "ডেলিভারি স্ট্যাটাস অনুপাত" : "Status Ratio"}
+                </h3>
+                <p className="text-[11px] opacity-60 mt-0.5">
+                  {isBn ? "চলমান বনাম সফল বনাম ফেরত পার্সেল।" : "Active vs Delivered vs Failed breakdown."}
+                </p>
+              </div>
+
+              <div className="h-56 w-full relative flex items-center justify-center">
+                {deliveryAnalytics.statusPieData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={deliveryAnalytics.statusPieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={55}
+                        outerRadius={80}
+                        paddingAngle={4}
+                        dataKey="value"
+                      >
+                        {deliveryAnalytics.statusPieData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "var(--secondary)",
+                          borderColor: "var(--foreground)",
+                          borderRadius: "16px",
+                          color: "var(--foreground)",
+                          fontSize: "11px",
+                          fontWeight: "bold",
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="opacity-50 text-xs font-bold text-center">
+                    {isBn ? "কোনো স্ট্যাটাস তথ্য নেই" : "No status breakdown"}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2 pt-3 border-t border-foreground/10">
+                {deliveryAnalytics.statusPieData.map((item, idx) => (
+                  <div key={idx} className="flex justify-between items-center text-xs font-bold">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full inline-block"
+                        style={{ backgroundColor: item.color }}
+                      />
+                      <span className="opacity-80">{item.name}</span>
+                    </div>
+                    <span className="font-black text-foreground">
+                      {item.value.toLocaleString(isBn ? "bn-BD" : undefined)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Courier Performance Detailed Table */}
+          <div className="p-6 bg-background rounded-3xl border border-foreground/10 shadow-xs space-y-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="text-sm font-black uppercase tracking-wider text-foreground">
+                  {isBn ? "কুরিয়ার পার্টনার পারফর্মেন্স মেট্রিক্স" : "Courier Partner Performance Metrics"}
+                </h3>
+                <p className="text-[11px] opacity-60 mt-0.5">
+                  {isBn
+                    ? "প্রতিটি কুরিয়ার সার্ভিসের ডেলিভারি সাফল্যের হার, চলমান সংখ্যা ও মোট পণ্যের মূল্য।"
+                    : "Individual success rate, active pipeline, and revenue handled by each service."}
+                </p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-foreground/10 text-[10px] font-black uppercase tracking-wider opacity-60">
+                    <th className="py-3 px-3">{isBn ? "কুরিয়ার সার্ভিস" : "Courier Service"}</th>
+                    <th className="py-3 px-3">{isBn ? "মোট পার্সেল" : "Total Parcels"}</th>
+                    <th className="py-3 px-3">{isBn ? "সফল ডেলিভারি" : "Delivered"}</th>
+                    <th className="py-3 px-3">{isBn ? "চলমান (On Going)" : "On Going"}</th>
+                    <th className="py-3 px-3">{isBn ? "ফেরত / ব্যর্থ" : "Returned"}</th>
+                    <th className="py-3 px-3">{isBn ? "সাফল্যের হার" : "Success Rate"}</th>
+                    <th className="py-3 px-3 text-right">{isBn ? "হ্যান্ডেলকৃত অর্ডার মূল্য" : "Total Value"}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-foreground/10 font-bold">
+                  {deliveryAnalytics.courierList.length > 0 ? (
+                    deliveryAnalytics.courierList.map((courier, idx) => (
+                      <tr key={idx} className="hover:bg-primary/5 transition-colors">
+                        <td className="py-3.5 px-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 relative rounded-xl overflow-hidden bg-white shrink-0 p-1 border border-foreground/10 flex items-center justify-center">
+                              <img
+                                src={courier.logo}
+                                alt={courier.name}
+                                className="w-full h-full object-contain"
+                              />
+                            </div>
+                            <div>
+                              <div className="font-extrabold text-foreground">{courier.name}</div>
+                              <div className="text-[10px] opacity-60 uppercase font-mono tracking-wider">
+                                {courier.code}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-3 font-black text-foreground">
+                          {courier.totalOrders.toLocaleString(isBn ? "bn-BD" : undefined)}
+                        </td>
+                        <td className="py-3.5 px-3 text-visible font-extrabold">
+                          {courier.delivered.toLocaleString(isBn ? "bn-BD" : undefined)}
+                        </td>
+                        <td className="py-3.5 px-3 text-accent font-extrabold">
+                          {(courier.ongoing + courier.pending).toLocaleString(isBn ? "bn-BD" : undefined)}
+                        </td>
+                        <td className="py-3.5 px-3 text-hidden font-extrabold">
+                          {courier.returned.toLocaleString(isBn ? "bn-BD" : undefined)}
+                        </td>
+                        <td className="py-3.5 px-3">
+                          <div className="flex items-center gap-2">
+                            <div className="w-16 h-2 bg-foreground/10 rounded-full overflow-hidden">
+                              <div
+                                className="h-full bg-visible transition-all rounded-full"
+                                style={{ width: `${courier.successRate}%` }}
+                              />
+                            </div>
+                            <span className="text-xs font-black text-visible">
+                              {courier.successRate}%
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-3 text-right font-black text-foreground">
+                          {formatCurrency(courier.totalValue)}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={7} className="py-8 text-center text-xs opacity-50 font-bold">
+                        {isBn ? "কোনো কুরিয়ার ডেটা পাওয়া যায়নি।" : "No courier performance records available."}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

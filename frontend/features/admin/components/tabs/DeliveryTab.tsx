@@ -491,20 +491,6 @@ export default function DeliveryTab({
                         </div>
                       </div>
 
-                      {/* Default Badges */}
-                      <div className="flex flex-wrap gap-1.5 mt-4">
-                        {provider.is_default_inside_dhaka && (
-                          <span className="px-2.5 py-1 rounded-lg bg-accent/15 text-accent font-extrabold text-[10px] uppercase tracking-wider">
-                            {t("admin.delivery.defaultInsideBadge")}
-                          </span>
-                        )}
-                        {provider.is_default_outside_dhaka && (
-                          <span className="px-2.5 py-1 rounded-lg bg-accent/15 text-accent font-extrabold text-[10px] uppercase tracking-wider">
-                            {t("admin.delivery.defaultOutsideBadge")}
-                          </span>
-                        )}
-                      </div>
-
                       {/* Tracking Template Info */}
                       {provider.tracking_url_template && (
                         <div className="mt-4 p-2.5 rounded-xl bg-background border border-foreground/10 text-[10px] opacity-75 truncate">
@@ -514,37 +500,9 @@ export default function DeliveryTab({
                       )}
                     </div>
 
-                    {/* Actions & Defaults Menu */}
+                    {/* Actions Menu */}
                     <div className="pt-4 border-t border-foreground/10 space-y-3">
-                      {/* Set As Default Action */}
-                      <div className="flex items-center gap-2">
-                        {handleSetDefaultCourier && (
-                          <>
-                            {!provider.is_default_inside_dhaka && (
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  handleSetDefaultCourier(provider.id, "inside")
-                                }
-                                className="flex-1 py-1.5 px-2 bg-background hover:bg-foreground/5 border border-foreground/10 rounded-lg text-[10px] font-bold text-foreground/70 uppercase tracking-wider transition-all cursor-pointer"
-                              >
-                                {t("admin.delivery.setInside")}
-                              </button>
-                            )}
-                            {!provider.is_default_outside_dhaka && (
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  handleSetDefaultCourier(provider.id, "outside")
-                                }
-                                className="flex-1 py-1.5 px-2 bg-background hover:bg-foreground/5 border border-foreground/10 rounded-lg text-[10px] font-bold text-foreground/70 uppercase tracking-wider transition-all cursor-pointer"
-                              >
-                                {t("admin.delivery.setOutside")}
-                              </button>
-                            )}
-                          </>
-                        )}
-                      </div>
+
 
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
@@ -786,30 +744,6 @@ export default function DeliveryTab({
                 <label className="flex items-center gap-2 p-3 rounded-2xl bg-background border border-foreground/10 cursor-pointer select-none">
                   <input
                     type="checkbox"
-                    checked={isDefaultInsideDhaka}
-                    onChange={(e) => setIsDefaultInsideDhaka(e.target.checked)}
-                    className="w-4 h-4 rounded text-accent cursor-pointer"
-                  />
-                  <span className="text-xs font-bold text-foreground">
-                    {t("admin.delivery.isDefaultInside")}
-                  </span>
-                </label>
-
-                <label className="flex items-center gap-2 p-3 rounded-2xl bg-background border border-foreground/10 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={isDefaultOutsideDhaka}
-                    onChange={(e) => setIsDefaultOutsideDhaka(e.target.checked)}
-                    className="w-4 h-4 rounded text-accent cursor-pointer"
-                  />
-                  <span className="text-xs font-bold text-foreground">
-                    {t("admin.delivery.isDefaultOutside")}
-                  </span>
-                </label>
-
-                <label className="flex items-center gap-2 p-3 rounded-2xl bg-background border border-foreground/10 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
                     checked={isSandbox}
                     onChange={(e) => setIsSandbox(e.target.checked)}
                     className="w-4 h-4 rounded text-accent cursor-pointer"
@@ -831,6 +765,7 @@ export default function DeliveryTab({
                   </span>
                 </label>
               </div>
+
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-foreground/10">
                 <button

@@ -210,5 +210,6 @@ export type ProductSubTab =
   | "stock-health"
   | "sheets-sync";
 export type CollectionSubTab = "all" | "add" | "edit";
-export type AnalyticsSubTab = "sales" | "coupons" | "payments" | "top-products";
+export type AnalyticsSubTab = "sales" | "coupons" | "payments" | "top-products" | "delivery-orders";
+
 
