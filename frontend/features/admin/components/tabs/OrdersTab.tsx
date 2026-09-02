@@ -1665,13 +1665,15 @@ export default function OrdersTab({
                   : (isBn ? "রিফান্ড সফলভাবে সম্পন্ন হয়েছে।" : "Refund processed successfully.")
               );
               // Update local order data
-              reviewingReturnOrder.return_requests[0] = {
-                ...ret,
-                status: updatedData.status,
-                status_display: updatedData.status_display,
-                admin_note: updatedData.admin_note,
-                refund_amount: String(updatedData.refund_amount),
-              };
+              if (reviewingReturnOrder.return_requests && reviewingReturnOrder.return_requests.length > 0) {
+                reviewingReturnOrder.return_requests[0] = {
+                  ...ret,
+                  status: updatedData.status,
+                  status_display: updatedData.status_display,
+                  admin_note: updatedData.admin_note,
+                  refund_amount: String(updatedData.refund_amount),
+                };
+              }
               setTimeout(() => {
                 setReviewingReturnOrder(null);
                 setReturnActionSuccess("");

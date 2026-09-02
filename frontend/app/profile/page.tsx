@@ -47,6 +47,17 @@ interface Order {
   tracking_status?: string;
   tracking_status_display?: string;
   courier_consignment_id?: string;
+  return_requests?: {
+    id: number;
+    status: string;
+    status_display: string;
+    reason: string;
+    reason_display: string;
+    refund_method: string;
+    refund_amount: string;
+    created_at?: string | null;
+    admin_note?: string;
+  }[];
 }
 
 const PRESET_COURIER_LOGOS: Record<string, string> = {
@@ -324,6 +335,23 @@ export default function ProfilePage() {
       setReturnErrorMsg(err.message || (locale === "bn" ? "নেটওয়ার্ক ত্রুটি। আবার চেষ্টা করুন।" : "Network error. Please try again."));
     } finally {
       setSubmittingReturn(false);
+    }
+  };
+
+  const loadMyOrders = async () => {
+    try {
+      setOrdersLoading(true);
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `JWT ${token}`;
+      const ordersRes = await fetch(`${API_BASE}/store/orders/`, { headers, credentials: "include" });
+      if (ordersRes.ok) {
+        const ordersData = await ordersRes.json();
+        setMyOrders(Array.isArray(ordersData) ? ordersData : ordersData.results || []);
+      }
+    } catch (e) {
+      console.error("Failed to load orders:", e);
+    } finally {
+      setOrdersLoading(false);
     }
   };
 

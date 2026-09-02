@@ -778,7 +778,6 @@ export default function DashboardOverviewTab({
             <div className="space-y-3">
               {metrics.lowStockProducts.length === 0 && metrics.outOfStockCount === 0 ? (
                 <div className="p-6 rounded-2xl bg-visible/10 border border-visible/20 text-center space-y-1">
-                  <span className="text-lg">✅</span>
                   <h4 className="text-xs font-black uppercase text-visible">
                     {isBn ? "সকল পণ্যের স্বাস্থ্যকর স্টক রয়েছে" : "Stock Levels Healthy"}
                   </h4>

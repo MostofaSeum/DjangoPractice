@@ -4,7 +4,7 @@ from django.db.models.functions import Greatest
 from django.utils import timezone
 from .signals import order_created
 from rest_framework import serializers
-from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,Notification,Address,AuditLog,SiteSetting,CourierProvider
+from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,Notification,Address,AuditLog,SiteSetting,CourierProvider,ReturnRequest,ReturnItem
 
 from decimal import Decimal
 
