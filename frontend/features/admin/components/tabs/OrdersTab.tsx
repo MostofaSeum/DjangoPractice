@@ -82,7 +82,7 @@ export default function OrdersTab({
   const [orderSearch, setOrderSearch] = useState("");
   const [activeOrderQuery, setActiveOrderQuery] = useState("");
   const [orderStatusFilter, setOrderStatusFilter] = useState<
-    "ALL" | "P" | "F" | "C"
+    "ALL" | "P" | "F" | "C" | "RETURN"
   >("ALL");
   const [currentOrdersPage, setCurrentOrdersPage] = useState<number>(1);
   const ORDERS_PER_PAGE = 50;
@@ -157,11 +157,20 @@ export default function OrdersTab({
   const filteredOrders = orders
     .filter((o) => {
       if (orderStatusFilter === "ALL") return true;
+      if (orderStatusFilter === "RETURN") {
+        return (o.return_requests && o.return_requests.length > 0) || o.tracking_status === "returned";
+      }
       return o.payment_status === orderStatusFilter;
     })
     .filter((o) => {
       if (!activeOrderQuery) return true;
       const q = activeOrderQuery.trim().toLowerCase();
+      const hasMatchingReturnItem = o.return_requests?.some((r) =>
+        r.items?.some((it) => it.product_title.toLowerCase().includes(q)) ||
+        r.reason.toLowerCase().includes(q) ||
+        r.reason_display.toLowerCase().includes(q)
+      );
+
       return (
         String(o.id).includes(q) ||
         (o.customer_name &&
@@ -185,7 +194,8 @@ export default function OrdersTab({
         (o.tracking_status &&
           o.tracking_status
             .toLowerCase()
-            .includes(q))
+            .includes(q)) ||
+        Boolean(hasMatchingReturnItem)
       );
     });
 
@@ -215,7 +225,7 @@ export default function OrdersTab({
     for (let i = start; i <= end; i++) {
       pages.push(i);
     }
-    if (currentPage < totalPages - 2) {
+    if (currentPage > totalPages - 2) {
       pages.push("...");
     }
     pages.push(totalPages);
@@ -251,6 +261,12 @@ export default function OrdersTab({
                 label: isBn ? "ব্যর্থ / বাতিল" : "Failed",
                 count: orders.filter((o) => o.payment_status === "F").length,
                 color: "text-red-500",
+              },
+              {
+                id: "RETURN" as const,
+                label: isBn ? "রিটার্ন / রিফান্ড" : "Returns",
+                count: orders.filter((o) => (o.return_requests && o.return_requests.length > 0) || o.tracking_status === "returned").length,
+                color: "text-accent font-black",
               },
             ].map((statusBtn) => {
               const isSelected = orderStatusFilter === statusBtn.id;
