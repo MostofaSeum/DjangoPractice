@@ -436,10 +436,30 @@ class OrderSerializer(serializers.ModelSerializer):
                 'status_display': r.get_status_display(),
                 'reason': r.reason,
                 'reason_display': r.get_reason_display(),
+                'customer_note': r.customer_note,
                 'refund_method': r.refund_method,
+                'refund_method_display': r.get_refund_method_display(),
+                'refund_account_number': r.refund_account_number,
                 'refund_amount': str(r.refund_amount),
-                'created_at': r.created_at.isoformat() if r.created_at else None,
                 'admin_note': r.admin_note,
+                'refund_transaction_id': r.refund_transaction_id,
+                'proof_image_1': r.proof_image_1.url if r.proof_image_1 else None,
+                'proof_image_2': r.proof_image_2.url if r.proof_image_2 else None,
+                'proof_image_3': r.proof_image_3.url if r.proof_image_3 else None,
+                'created_at': r.created_at.isoformat() if r.created_at else None,
+                'items': [
+                    {
+                        'id': item.id,
+                        'order_item_id': item.order_item_id,
+                        'product_title': item.order_item.product.title if item.order_item and item.order_item.product else f"Item #{item.order_item_id}",
+                        'variant_name': (item.order_item.variant.name if item.order_item and item.order_item.variant else item.order_item.variant_title) if item.order_item else '',
+                        'product_image': item.order_item.product.images.first().image.url if (item.order_item and item.order_item.product and item.order_item.product.images.exists() and item.order_item.product.images.first().image) else None,
+                        'quantity': item.quantity,
+                        'unit_price': str(item.unit_price),
+                        'refund_amount': str(item.refund_amount),
+                    }
+                    for item in r.items.all()
+                ]
             }
             for r in obj.return_requests.all()
         ]

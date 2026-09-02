@@ -1754,13 +1754,86 @@ export default function OrdersTab({
                   </div>
                   <div className="flex justify-between">
                     <span className="opacity-60 font-semibold">{isBn ? "পছন্দকৃত রিফান্ড মাধ্যম:" : "Refund Method:"}</span>
-                    <span className="font-bold text-foreground uppercase">{ret.refund_method}</span>
+                    <span className="font-bold text-foreground uppercase">{ret.refund_method_display || ret.refund_method}</span>
                   </div>
+                  {ret.refund_account_number && (
+                    <div className="flex justify-between">
+                      <span className="opacity-60 font-semibold">{isBn ? "বিকাশ/নগদ নম্বর:" : "Account Number:"}</span>
+                      <span className="font-black text-accent">{ret.refund_account_number}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span className="opacity-60 font-semibold">{isBn ? "প্রস্তাবিত রিফান্ড মূল্য:" : "Requested Refund:"}</span>
                     <span className="font-black text-accent">{formatCurrency(Number(ret.refund_amount))}</span>
                   </div>
                 </div>
+
+                {/* Return Items List */}
+                {ret.items && ret.items.length > 0 && (
+                  <div className="p-4 rounded-2xl bg-background border border-foreground/10 space-y-2.5">
+                    <span className="text-[10px] font-black uppercase tracking-wider opacity-60 block">
+                      {isBn ? "রিটার্নকৃত পণ্যের তালিকা" : "Returned Items List"}
+                    </span>
+                    <div className="space-y-2">
+                      {ret.items.map((it) => (
+                        <div key={it.id} className="flex items-center justify-between p-2 rounded-xl bg-primary/5 border border-foreground/10 gap-2">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            {it.product_image ? (
+                              <img src={it.product_image} alt={it.product_title} className="w-8 h-8 rounded-lg object-contain bg-background border border-foreground/10 p-0.5 shrink-0" />
+                            ) : (
+                              <div className="w-8 h-8 rounded-lg bg-background border border-foreground/10 flex items-center justify-center text-[10px] font-black opacity-50 shrink-0">#</div>
+                            )}
+                            <div className="min-w-0">
+                              <p className="text-xs font-black text-foreground truncate">{it.product_title}</p>
+                              <span className="text-[10px] opacity-60 font-bold block">
+                                {it.variant_name ? `${it.variant_name} • ` : ""}{isBn ? `পরিমাণ: ${it.quantity.toLocaleString("bn-BD")} টি` : `Qty: ${it.quantity}`}
+                              </span>
+                            </div>
+                          </div>
+                          <span className="text-xs font-black text-accent shrink-0">
+                            {formatCurrency(Number(it.refund_amount))}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Customer Explanation & Proof Images */}
+                {(ret.customer_note || ret.proof_image_1 || ret.proof_image_2 || ret.proof_image_3) && (
+                  <div className="p-4 rounded-2xl bg-background border border-foreground/10 space-y-2.5">
+                    {ret.customer_note && (
+                      <div>
+                        <span className="text-[10px] font-black uppercase tracking-wider opacity-60 block">
+                          {isBn ? "গ্রাহকের মন্তব্য / ব্যাখ্যা" : "Customer Explanation"}
+                        </span>
+                        <p className="font-medium text-foreground mt-1 bg-primary/5 p-2.5 rounded-xl border border-foreground/10">
+                          {ret.customer_note}
+                        </p>
+                      </div>
+                    )}
+                    {(ret.proof_image_1 || ret.proof_image_2 || ret.proof_image_3) && (
+                      <div className="pt-2 border-t border-foreground/10">
+                        <span className="text-[10px] font-black uppercase tracking-wider opacity-60 block mb-2">
+                          {isBn ? "সংযুক্ত প্রমাণ ছবি" : "Proof Photos"}
+                        </span>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[ret.proof_image_1, ret.proof_image_2, ret.proof_image_3].filter(Boolean).map((imgUrl, i) => (
+                            <a
+                              key={i}
+                              href={imgUrl!}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="h-16 rounded-xl border border-foreground/15 overflow-hidden bg-background block hover:opacity-80 transition-opacity"
+                            >
+                              <img src={imgUrl!} alt={`Proof ${i + 1}`} className="w-full h-full object-cover" />
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Admin Note Input (200 words max) */}
                 <div className="space-y-1.5">

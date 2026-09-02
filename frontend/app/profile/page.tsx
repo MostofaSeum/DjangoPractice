@@ -2368,7 +2368,7 @@ export default function ProfilePage() {
               {/* Step 5: Upload Proof Photos */}
               <div className="space-y-2">
                 <label className="text-[11px] font-black uppercase tracking-wider text-foreground">
-                  5. {t("profile.returnUploadPhotos") || (locale === "bn" ? "প্রমাণস্বরূপ ছবি সংযুক্ত করুন (সর্বোচ্চ ৩টি)" : "Upload Proof Photos (Optional, max 3 photos)")}
+                  5. {t("profile.returnUploadPhotos") || (locale === "bn" ? "প্রমাণস্বরূপ ছবি সংযুক্ত করুন (সর্বোচ্চ ৩টি)" : "Upload Proof Photos (Optional)")}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {[

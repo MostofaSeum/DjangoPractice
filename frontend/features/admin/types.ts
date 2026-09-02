@@ -89,10 +89,27 @@ export interface Order {
     status_display: string;
     reason: string;
     reason_display: string;
+    customer_note?: string;
     refund_method: string;
+    refund_method_display?: string;
+    refund_account_number?: string;
     refund_amount: string;
     created_at?: string | null;
     admin_note?: string;
+    refund_transaction_id?: string;
+    proof_image_1?: string | null;
+    proof_image_2?: string | null;
+    proof_image_3?: string | null;
+    items?: {
+      id: number;
+      order_item_id: number;
+      product_title: string;
+      variant_name: string;
+      product_image?: string | null;
+      quantity: number;
+      unit_price: string;
+      refund_amount: string;
+    }[];
   }[];
 }
 
