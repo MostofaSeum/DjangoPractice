@@ -1,7 +1,17 @@
 import { useState, useEffect } from "react";
 import { Order, OrderItem, Product, CourierProvider } from "../../types";
 import { useLanguage } from "@/store/LanguageContext";
+import { siteConfig } from "@/config/siteConfig";
 import Image from "next/image";
+
+const getImageUrl = (url?: string | null): string => {
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("blob:") || url.startsWith("data:")) {
+    return url;
+  }
+  const baseUrl = siteConfig.apiBaseUrl.replace(/\/+$/, "");
+  return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
+};
 
 const PRESET_COURIERS: Record<string, { logo: string }> = {
   steadfast: { logo: "/DeliveryPartner/steadfast.jpg" },
@@ -953,7 +963,7 @@ export default function OrdersTab({
                   <div className="p-4 rounded-2xl bg-primary/5 border border-accent/30 space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
+                        <span className="w-2 h-2 rounded-full bg-accent shrink-0" />
                         <span className="text-xs font-black uppercase tracking-wider text-accent">
                           {isBn ? "রিটার্ন অনুরোধের তথ্য" : "Return & Refund Information"}
                         </span>
@@ -1900,7 +1910,7 @@ export default function OrdersTab({
               <div className="flex justify-between items-start pb-4 border-b border-foreground/10 mb-4 gap-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-accent animate-ping" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-accent shrink-0" />
                     <h3 className="text-base md:text-lg font-black uppercase tracking-tight text-foreground">
                       {isBn ? "রিটার্ন ও রিফান্ড পর্যালোচনা" : "Review Return & Refund"}
                     </h3>
@@ -1979,26 +1989,36 @@ export default function OrdersTab({
                       {isBn ? "রিটার্নকৃত পণ্যের তালিকা" : "Returned Items List"}
                     </span>
                     <div className="space-y-2">
-                      {ret.items.map((it) => (
-                        <div key={it.id} className="flex items-center justify-between p-2 rounded-xl bg-primary/5 border border-foreground/10 gap-2">
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            {it.product_image ? (
-                              <img src={it.product_image} alt={it.product_title} className="w-8 h-8 rounded-lg object-contain bg-background border border-foreground/10 p-0.5 shrink-0" />
-                            ) : (
-                              <div className="w-8 h-8 rounded-lg bg-background border border-foreground/10 flex items-center justify-center text-[10px] font-black opacity-50 shrink-0">#</div>
-                            )}
-                            <div className="min-w-0">
-                              <p className="text-xs font-black text-foreground truncate">{it.product_title}</p>
-                              <span className="text-[10px] opacity-60 font-bold block">
-                                {it.variant_name ? `${it.variant_name} • ` : ""}{isBn ? `পরিমাণ: ${it.quantity.toLocaleString("bn-BD")} টি` : `Qty: ${it.quantity}`}
-                              </span>
+                      {ret.items.map((it) => {
+                        const itemImgSrc = getImageUrl(it.product_image);
+                        return (
+                          <div key={it.id} className="flex items-center justify-between p-2 rounded-xl bg-primary/5 border border-foreground/10 gap-2">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              {itemImgSrc ? (
+                                <img
+                                  src={itemImgSrc}
+                                  alt={it.product_title}
+                                  className="w-9 h-9 rounded-lg object-contain bg-background border border-foreground/10 p-0.5 shrink-0"
+                                  onError={(e) => {
+                                    (e.target as HTMLElement).style.display = "none";
+                                  }}
+                                />
+                              ) : (
+                                <div className="w-9 h-9 rounded-lg bg-background border border-foreground/10 flex items-center justify-center text-[10px] font-black opacity-50 shrink-0">#</div>
+                              )}
+                              <div className="min-w-0">
+                                <p className="text-xs font-black text-foreground truncate">{it.product_title}</p>
+                                <span className="text-[10px] opacity-60 font-bold block">
+                                  {it.variant_name ? `${it.variant_name} • ` : ""}{isBn ? `পরিমাণ: ${it.quantity.toLocaleString("bn-BD")} টি` : `Qty: ${it.quantity}`}
+                                </span>
+                              </div>
                             </div>
+                            <span className="text-xs font-black text-accent shrink-0">
+                              {formatCurrency(Number(it.refund_amount))}
+                            </span>
                           </div>
-                          <span className="text-xs font-black text-accent shrink-0">
-                            {formatCurrency(Number(it.refund_amount))}
-                          </span>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -2022,17 +2042,27 @@ export default function OrdersTab({
                           {isBn ? "সংযুক্ত প্রমাণ ছবি" : "Proof Photos"}
                         </span>
                         <div className="grid grid-cols-3 gap-2">
-                          {[ret.proof_image_1, ret.proof_image_2, ret.proof_image_3].filter(Boolean).map((imgUrl, i) => (
-                            <a
-                              key={i}
-                              href={imgUrl!}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="h-16 rounded-xl border border-foreground/15 overflow-hidden bg-background block hover:opacity-80 transition-opacity"
-                            >
-                              <img src={imgUrl!} alt={`Proof ${i + 1}`} className="w-full h-full object-cover" />
-                            </a>
-                          ))}
+                          {[ret.proof_image_1, ret.proof_image_2, ret.proof_image_3].filter(Boolean).map((rawUrl, i) => {
+                            const fullImgUrl = getImageUrl(rawUrl);
+                            return (
+                              <a
+                                key={i}
+                                href={fullImgUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="h-20 rounded-xl border border-foreground/15 overflow-hidden bg-background block hover:opacity-80 transition-opacity"
+                              >
+                                <img
+                                  src={fullImgUrl}
+                                  alt={`Proof ${i + 1}`}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLElement).style.display = "none";
+                                  }}
+                                />
+                              </a>
+                            );
+                          })}
                         </div>
                       </div>
                     )}
