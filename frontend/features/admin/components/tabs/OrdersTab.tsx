@@ -150,18 +150,31 @@ export default function OrdersTab({
     })
     .filter((o) => {
       if (!activeOrderQuery) return true;
+      const q = activeOrderQuery.trim().toLowerCase();
       return (
-        String(o.id).includes(activeOrderQuery) ||
+        String(o.id).includes(q) ||
         (o.customer_name &&
           o.customer_name
             .toLowerCase()
-            .includes(activeOrderQuery.toLowerCase())) ||
-        String(o.customer).includes(activeOrderQuery) ||
-        (o.phone && o.phone.includes(activeOrderQuery)) ||
+            .includes(q)) ||
+        String(o.customer).includes(q) ||
+        (o.phone && o.phone.toLowerCase().includes(q)) ||
         (o.shipping_address &&
           o.shipping_address
             .toLowerCase()
-            .includes(activeOrderQuery.toLowerCase()))
+            .includes(q)) ||
+        (o.tracking_code &&
+          o.tracking_code
+            .toLowerCase()
+            .includes(q)) ||
+        (o.courier_partner_details?.name &&
+          o.courier_partner_details.name
+            .toLowerCase()
+            .includes(q)) ||
+        (o.tracking_status &&
+          o.tracking_status
+            .toLowerCase()
+            .includes(q))
       );
     });
 

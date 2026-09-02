@@ -703,8 +703,17 @@ class OrderViewSet(ModelViewSet):
     http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
     pagination_class = None
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ['payment_status', 'payment_method']
-    search_fields = ['id', 'customer__user__first_name', 'customer__user__last_name', 'customer__user__email', 'phone', 'shipping_address']
+    filterset_fields = ['payment_status', 'payment_method', 'tracking_status']
+    search_fields = [
+        'id',
+        'customer__user__first_name',
+        'customer__user__last_name',
+        'customer__user__email',
+        'phone',
+        'shipping_address',
+        'tracking_code',
+        'courier_partner__name',
+    ]
     ordering_fields = ['placed_at', 'id', 'payment_status']
     ordering = ['-placed_at']
 
