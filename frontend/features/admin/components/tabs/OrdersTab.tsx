@@ -271,6 +271,7 @@ export default function OrdersTab({
                 <th className="py-3 px-2">{isBn ? "পেমেন্ট মাধ্যম" : "Method"}</th>
                 <th className="py-3 px-2">{isBn ? "পণ্যের সংখ্যা" : "Items Count"}</th>
                 <th className="py-3 px-2">{isBn ? "পেমেন্ট স্ট্যাটাস" : "Payment Status"}</th>
+                <th className="py-3 px-2">{isBn ? "অর্ডার স্ট্যাটাস" : "Order Status"}</th>
                 <th className="py-3 px-2 text-right">{isBn ? "কার্যক্রম" : "Actions"}</th>
               </tr>
             </thead>
@@ -326,56 +327,61 @@ export default function OrdersTab({
                     </td>
                     <td className="py-3.5 px-2">{displayItemCount}</td>
                     <td className="py-3.5 px-2">
-                      <div className="space-y-1">
-                        <select
-                          value={order.payment_status || "P"}
-                          onChange={(e) =>
-                            handleUpdateOrderStatus(order.id, e.target.value)
-                          }
-                          className={`px-3 py-1 rounded-full text-[10px] uppercase font-black tracking-wider outline-none cursor-pointer border ${
-                            order.payment_status === "C"
-                              ? "bg-green-500/20 text-green-500 border-green-500/30"
-                              : order.payment_status === "F"
-                                ? "bg-red-500/20 text-red-500 border-red-500/30"
-                                : "bg-yellow-500/20 text-yellow-500 border-yellow-500/30"
+                      <select
+                        value={order.payment_status || "P"}
+                        onChange={(e) =>
+                          handleUpdateOrderStatus(order.id, e.target.value)
+                        }
+                        className={`px-3 py-1 rounded-full text-[10px] uppercase font-black tracking-wider outline-none cursor-pointer border ${
+                          order.payment_status === "C"
+                            ? "bg-visible/15 text-visible border-visible/30"
+                            : order.payment_status === "F"
+                              ? "bg-hidden/15 text-hidden border-hidden/30"
+                              : "bg-accent/15 text-accent border-accent/30"
+                        }`}
+                      >
+                        <option
+                          value="P"
+                          className="bg-secondary text-foreground"
+                        >
+                          {isBn ? "পেন্ডিং (P)" : "Pending (P)"}
+                        </option>
+                        <option
+                          value="C"
+                          className="bg-secondary text-foreground"
+                        >
+                          {isBn ? "কমপ্লিট (C)" : "Complete (C)"}
+                        </option>
+                        <option
+                          value="F"
+                          className="bg-secondary text-foreground"
+                        >
+                          {isBn ? "ফেইল্ড / বাতিল (F)" : "Failed (F)"}
+                        </option>
+                      </select>
+                    </td>
+                    <td className="py-3.5 px-2">
+                      <div className="flex flex-col items-start gap-1">
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
+                            order.tracking_status === "delivered"
+                              ? "bg-visible/15 text-visible border-visible/30"
+                              : order.tracking_status === "returned"
+                                ? "bg-hidden/15 text-hidden border-hidden/30"
+                                : order.tracking_status
+                                  ? "bg-accent/15 text-accent border-accent/30"
+                                  : "bg-primary/10 text-foreground/70 border-foreground/15"
                           }`}
                         >
-                          <option
-                            value="P"
-                            className="bg-secondary text-foreground"
-                          >
-                            {isBn ? "পেন্ডিং (P)" : "Pending (P)"}
-                          </option>
-                          <option
-                            value="C"
-                            className="bg-secondary text-foreground"
-                          >
-                            {isBn ? "কমপ্লিট (C)" : "Complete (C)"}
-                          </option>
-                          <option
-                            value="F"
-                            className="bg-secondary text-foreground"
-                          >
-                            {isBn ? "ফেইল্ড / বাতিল (F)" : "Failed (F)"}
-                          </option>
-                        </select>
-
-                        {/* Courier / Tracking Status Badge */}
-                        {order.tracking_code ? (
-                          <div className="flex items-center gap-1 mt-1">
-                            <span
-                              className={`text-[9px] font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider ${
-                                order.tracking_status === "delivered"
-                                  ? "bg-visible/15 text-visible"
-                                  : order.tracking_status === "returned"
-                                    ? "bg-hidden/15 text-hidden"
-                                    : "bg-accent/15 text-accent"
-                              }`}
-                            >
-                              {getCourierPartnerLabel(order.courier_partner_details?.name)}: {getTrackingStatusLabel(order.tracking_status, order.tracking_status_display)}
-                            </span>
-                          </div>
-                        ) : null}
+                          <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                          {getTrackingStatusLabel(order.tracking_status, order.tracking_status_display)}
+                        </span>
+                        {order.courier_partner_details && (
+                          <span className="text-[9px] font-bold opacity-60 uppercase tracking-tight flex items-center gap-1">
+                            {getCourierPartnerLabel(order.courier_partner_details.name)}
+                            {order.tracking_code ? ` • #${order.tracking_code}` : ""}
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="py-3.5 px-2 text-right">
