@@ -474,7 +474,7 @@ export default function AdminNotificationBell({
                   : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
               }`}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block animate-ping"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block"></span>
               <span>{t("notifications.filterReturns")}</span>
               {returnsCount > 0 && (
                 <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
