@@ -63,6 +63,7 @@ interface OrdersTabProps {
     }
   ) => Promise<boolean>;
   targetOrderId?: string | null;
+  onClearTargetOrder?: () => void;
 }
 
 interface EditableItem {
@@ -89,6 +90,7 @@ export default function OrdersTab({
   handleDispatchOrderCourier,
   handleUpdateOrderTracking,
   targetOrderId = null,
+  onClearTargetOrder,
 }: OrdersTabProps) {
   const { locale, formatCurrency, t } = useLanguage();
   const isBn = locale === "bn";
@@ -175,9 +177,12 @@ export default function OrdersTab({
       const match = orders.find((o) => String(o.id) === String(targetOrderId));
       if (match) {
         setSelectedOrderDetails(match);
+        if (onClearTargetOrder) {
+          onClearTargetOrder();
+        }
       }
     }
-  }, [targetOrderId, orders]);
+  }, [targetOrderId, orders, onClearTargetOrder]);
 
   const allReturnOrders = orders.filter(
     (o) => (o.return_requests && o.return_requests.length > 0) || o.tracking_status === "returned"
@@ -662,33 +667,6 @@ export default function OrdersTab({
                             >
                               {isBn ? "ট্র্যাক" : "Track"}
                             </button>
-
-                            {/* Return Request Button if order has active returns */}
-                            {order.return_requests && order.return_requests.length > 0 && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setReviewingReturnOrder(order);
-                                  setAdminNoteInput(order.return_requests?.[0]?.admin_note || "");
-                                  setCustomRefundAmount(order.return_requests?.[0]?.refund_amount || "");
-                                  setRefundTrxInput("");
-                                  setReturnActionError("");
-                                  setReturnActionSuccess("");
-                                }}
-                                className={`px-3 py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer border ${
-                                  order.return_requests[0].status === "pending"
-                                    ? "bg-accent text-button-fg border-accent hover:opacity-90 animate-pulse"
-                                    : order.return_requests[0].status === "approved"
-                                    ? "bg-visible/20 text-visible border-visible/30 hover:bg-visible hover:text-button-fg"
-                                    : order.return_requests[0].status === "refunded"
-                                    ? "bg-visible/10 text-visible border-visible/20 opacity-80"
-                                    : "bg-hidden/15 text-hidden border-hidden/30"
-                                }`}
-                                title={isBn ? "রিটার্ন অনুরোধ" : "Return Request"}
-                              >
-                                {isBn ? "রিটার্ন" : "Return"}
-                              </button>
-                            )}
 
                             {/* 3. View Details Button */}
                             <button

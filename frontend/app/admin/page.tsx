@@ -3023,6 +3023,7 @@ export default function AdminDashboardPage() {
               handleDispatchOrderCourier={handleDispatchOrderCourier}
               handleUpdateOrderTracking={handleUpdateOrderTracking}
               targetOrderId={selectedNotificationOrderId}
+              onClearTargetOrder={() => setSelectedNotificationOrderId(null)}
             />
           )}
 

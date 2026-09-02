@@ -694,7 +694,7 @@ class ReturnRequest(models.Model):
 
     STATUS_CHOICES = [
         (STATUS_PENDING, 'Return Requested'),
-        (STATUS_APPROVED, 'Return Approved / Pickup Scheduled'),
+        (STATUS_APPROVED, 'Return Approved & Pickup Scheduled'),
         (STATUS_PICKED_UP, 'Parcel Picked Up'),
         (STATUS_REFUNDED, 'Returned & Refund Completed'),
         (STATUS_REJECTED, 'Return Rejected'),
