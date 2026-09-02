@@ -356,18 +356,77 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
         fields = ['id', 'product', 'variant', 'variant_title', 'quantity', 'unit_price']
 
+class CourierProviderSerializer(serializers.ModelSerializer):
+    provider_code_display = serializers.CharField(source='get_provider_code_display', read_only=True)
+
+    class Meta:
+        model = CourierProvider
+        fields = [
+            'id',
+            'name',
+            'provider_code',
+            'provider_code_display',
+            'api_key',
+            'secret_key',
+            'client_id',
+            'base_url',
+            'tracking_url_template',
+            'is_active',
+            'is_default_inside_dhaka',
+            'is_default_outside_dhaka',
+            'is_sandbox',
+            'notes',
+            'created_at',
+            'updated_at',
+        ]
+
+    def create(self, validated_data):
+        inside_default = validated_data.get('is_default_inside_dhaka', False)
+        outside_default = validated_data.get('is_default_outside_dhaka', False)
+
+        if inside_default:
+            CourierProvider.objects.filter(is_default_inside_dhaka=True).update(is_default_inside_dhaka=False)
+        if outside_default:
+            CourierProvider.objects.filter(is_default_outside_dhaka=True).update(is_default_outside_dhaka=False)
+
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        inside_default = validated_data.get('is_default_inside_dhaka', False)
+        outside_default = validated_data.get('is_default_outside_dhaka', False)
+
+        if inside_default and not instance.is_default_inside_dhaka:
+            CourierProvider.objects.exclude(pk=instance.pk).filter(is_default_inside_dhaka=True).update(is_default_inside_dhaka=False)
+        if outside_default and not instance.is_default_outside_dhaka:
+            CourierProvider.objects.exclude(pk=instance.pk).filter(is_default_outside_dhaka=True).update(is_default_outside_dhaka=False)
+
+        return super().update(instance, validated_data)
+
+
 class OrderSerializer(serializers.ModelSerializer):
+
     items = OrderItemSerializer(many=True)
     customer_name = serializers.SerializerMethodField()
+    courier_partner_details = CourierProviderSerializer(source='courier_partner', read_only=True)
+    tracking_status_display = serializers.CharField(source='get_tracking_status_display', read_only=True)
 
     class Meta:
         model = Order
-        fields = ['id', 'customer', 'customer_name', 'payment_status', 'placed_at', 'shipping_address', 'phone', 'payment_method', 'transaction_id', 'transaction_phone_no', 'delivery_area', 'delivery_charge', 'coupon_code', 'is_edited_by_admin', 'edited_at', 'items']
+        fields = [
+            'id', 'customer', 'customer_name', 'payment_status', 'placed_at',
+            'shipping_address', 'phone', 'payment_method', 'transaction_id',
+            'transaction_phone_no', 'delivery_area', 'delivery_charge',
+            'coupon_code', 'is_edited_by_admin', 'edited_at', 'items',
+            'courier_partner', 'courier_partner_details', 'tracking_code',
+            'tracking_status', 'tracking_status_display', 'courier_consignment_id',
+            'courier_response'
+        ]
 
     def get_customer_name(self, obj):
         if obj.customer and hasattr(obj.customer, 'user') and obj.customer.user:
             return obj.customer.user.username
         return f"Customer #{obj.customer_id}"
+
 
 class AdminEditOrderItemSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=False, allow_null=True)
@@ -1014,52 +1073,6 @@ class SiteSettingSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Tagline cannot exceed 30 characters.")
         return value.strip()
 
-
-class CourierProviderSerializer(serializers.ModelSerializer):
-    provider_code_display = serializers.CharField(source='get_provider_code_display', read_only=True)
-
-    class Meta:
-        model = CourierProvider
-        fields = [
-            'id',
-            'name',
-            'provider_code',
-            'provider_code_display',
-            'api_key',
-            'secret_key',
-            'client_id',
-            'base_url',
-            'tracking_url_template',
-            'is_active',
-            'is_default_inside_dhaka',
-            'is_default_outside_dhaka',
-            'is_sandbox',
-            'notes',
-            'created_at',
-            'updated_at',
-        ]
-
-    def create(self, validated_data):
-        inside_default = validated_data.get('is_default_inside_dhaka', False)
-        outside_default = validated_data.get('is_default_outside_dhaka', False)
-
-        if inside_default:
-            CourierProvider.objects.filter(is_default_inside_dhaka=True).update(is_default_inside_dhaka=False)
-        if outside_default:
-            CourierProvider.objects.filter(is_default_outside_dhaka=True).update(is_default_outside_dhaka=False)
-
-        return super().create(validated_data)
-
-    def update(self, instance, validated_data):
-        inside_default = validated_data.get('is_default_inside_dhaka', False)
-        outside_default = validated_data.get('is_default_outside_dhaka', False)
-
-        if inside_default and not instance.is_default_inside_dhaka:
-            CourierProvider.objects.exclude(pk=instance.pk).filter(is_default_inside_dhaka=True).update(is_default_inside_dhaka=False)
-        if outside_default and not instance.is_default_outside_dhaka:
-            CourierProvider.objects.exclude(pk=instance.pk).filter(is_default_outside_dhaka=True).update(is_default_outside_dhaka=False)
-
-        return super().update(instance, validated_data)
 
 
 

@@ -233,6 +233,21 @@ class Order(models.Model):
         (DELIVERY_AREA_OUTSIDE_DHAKA, 'Outside Dhaka'),
     ]
 
+    TRACKING_PENDING = 'pending'
+    TRACKING_PACKED = 'packed'
+    TRACKING_IN_TRANSIT = 'in_transit'
+    TRACKING_OUT_FOR_DELIVERY = 'out_for_delivery'
+    TRACKING_DELIVERED = 'delivered'
+    TRACKING_RETURNED = 'returned'
+    TRACKING_STATUS_CHOICES = [
+        (TRACKING_PENDING, 'Pending Dispatch'),
+        (TRACKING_PACKED, 'Packed / Ready'),
+        (TRACKING_IN_TRANSIT, 'Dispatched / In Transit'),
+        (TRACKING_OUT_FOR_DELIVERY, 'Out for Delivery'),
+        (TRACKING_DELIVERED, 'Delivered'),
+        (TRACKING_RETURNED, 'Returned / Failed'),
+    ]
+
     placed_at = models.DateTimeField(auto_now_add=True)
     payment_status = models.CharField(
         max_length=1, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING)
@@ -250,6 +265,24 @@ class Order(models.Model):
     coupon_code = models.CharField(max_length=50, default='', blank=True)
     is_edited_by_admin = models.BooleanField(default=False)
     edited_at = models.DateTimeField(null=True, blank=True)
+
+    # Courier Logistics & Tracking Fields
+    courier_partner = models.ForeignKey(
+        'CourierProvider',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders'
+    )
+    tracking_code = models.CharField(max_length=100, default='', blank=True)
+    tracking_status = models.CharField(
+        max_length=30,
+        choices=TRACKING_STATUS_CHOICES,
+        default=TRACKING_PENDING
+    )
+    courier_consignment_id = models.CharField(max_length=100, default='', blank=True)
+    courier_response = models.JSONField(null=True, blank=True)
+
 
     class Meta:
         permissions = [

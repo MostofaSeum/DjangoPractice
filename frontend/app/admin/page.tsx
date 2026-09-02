@@ -2544,6 +2544,106 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleDispatchOrderCourier = async (
+    orderId: number,
+    payload: {
+      courier_id?: number | null;
+      tracking_code?: string;
+      tracking_status?: string;
+    }
+  ): Promise<boolean> => {
+    if (!token) return false;
+    try {
+      const res = await fetch(`${API_BASE}/store/orders/${orderId}/dispatch_courier/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: isBn ? "কুরিয়ারে পাঠানো হয়েছে!" : "Dispatched to Courier!",
+          showConfirmButton: false,
+          timer: 2000,
+          toast: true,
+        });
+        fetchAdminData();
+        return true;
+      } else {
+        const errData = await res.json().catch(() => null);
+        Swal.fire({
+          icon: "error",
+          title: isBn ? "ব্যর্থ হয়েছে" : "Dispatch Failed",
+          text: errData?.error || "Failed to dispatch order.",
+        });
+        return false;
+      }
+    } catch (err: any) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: isBn ? "নেটওয়ার্ক ত্রুটি" : "Network Error",
+        text: err?.message || "Failed to dispatch order.",
+      });
+      return false;
+    }
+  };
+
+  const handleUpdateOrderTracking = async (
+    orderId: number,
+    payload: {
+      tracking_code?: string;
+      tracking_status?: string;
+    }
+  ): Promise<boolean> => {
+    if (!token) return false;
+    try {
+      const res = await fetch(`${API_BASE}/store/orders/${orderId}/update_tracking/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: isBn ? "ট্র্যাকিং আপডেট হয়েছে!" : "Tracking Updated!",
+          showConfirmButton: false,
+          timer: 2000,
+          toast: true,
+        });
+        fetchAdminData();
+        return true;
+      } else {
+        const errData = await res.json().catch(() => null);
+        Swal.fire({
+          icon: "error",
+          title: isBn ? "আপডেট ব্যর্থ হয়েছে" : "Update Failed",
+          text: errData?.error || "Failed to update tracking.",
+        });
+        return false;
+      }
+    } catch (err: any) {
+      console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: isBn ? "নেটওয়ার্ক ত্রুটি" : "Network Error",
+        text: err?.message || "Failed to update tracking.",
+      });
+      return false;
+    }
+  };
+
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center font-bold text-xs uppercase tracking-widest">
@@ -2881,12 +2981,16 @@ export default function AdminDashboardPage() {
             <OrdersTab
               orders={orders}
               productsCatalog={promoProductsCatalog && promoProductsCatalog.length > 0 ? promoProductsCatalog : products}
+              courierProviders={courierProviders}
               handleUpdateOrderStatus={handleUpdateOrderStatus}
               handleSaveEditedOrder={handleSaveEditedOrder}
               handleDeleteOrder={handleDeleteOrder}
+              handleDispatchOrderCourier={handleDispatchOrderCourier}
+              handleUpdateOrderTracking={handleUpdateOrderTracking}
               targetOrderId={selectedNotificationOrderId}
             />
           )}
+
 
           {/* 4. CUSTOMERS TAB */}
           {activeTab === "customers" && (

@@ -736,14 +736,75 @@ class OrderViewSet(ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
-            return Order.objects.select_related('customer__user').prefetch_related('items__product', 'items__variant').all()
+            return Order.objects.select_related('customer__user', 'courier_partner').prefetch_related('items__product', 'items__variant').all()
         customer_id = Customer.objects.only('id').get(user_id = user.id)
-        return Order.objects.select_related('customer__user').prefetch_related('items__product', 'items__variant').filter(customer_id=customer_id)
+        return Order.objects.select_related('customer__user', 'courier_partner').prefetch_related('items__product', 'items__variant').filter(customer_id=customer_id)
 
     def destroy(self, request, *args, **kwargs):
         order = self.get_object()
         order.items.all().delete()
         return super().destroy(request, *args, **kwargs)
+
+    @action(detail=True, methods=['POST'], permission_classes=[IsAdminUser])
+    def dispatch_courier(self, request, pk=None):
+        order = self.get_object()
+        courier_id = request.data.get('courier_id')
+        tracking_code = request.data.get('tracking_code', '').strip()
+        tracking_status = request.data.get('tracking_status', Order.TRACKING_IN_TRANSIT)
+
+        if courier_id:
+            try:
+                provider = CourierProvider.objects.get(id=courier_id, is_active=True)
+                order.courier_partner = provider
+                
+                # Auto-generate tracking code if not provided
+                if not tracking_code:
+                    prefix = provider.provider_code.upper()[:3]
+                    tracking_code = f"{prefix}-{order.id}-{int(timezone.now().timestamp())}"
+                
+                order.tracking_code = tracking_code
+                order.tracking_status = tracking_status
+                order.courier_consignment_id = tracking_code
+                order.courier_response = {
+                    'dispatched_at': timezone.now().isoformat(),
+                    'provider': provider.name,
+                    'provider_code': provider.provider_code,
+                    'status': 'Dispatched Successfully'
+                }
+                order.save()
+                return Response(OrderSerializer(order).data, status=status.HTTP_200_OK)
+            except CourierProvider.DoesNotExist:
+                return Response({'error': 'Active courier partner not found.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            # Manual Tracking Dispatch
+            order.courier_partner = None
+            if not tracking_code:
+                tracking_code = f"MANUAL-{order.id}-{int(timezone.now().timestamp())}"
+            order.tracking_code = tracking_code
+            order.tracking_status = tracking_status
+            order.courier_consignment_id = tracking_code
+            order.courier_response = {
+                'dispatched_at': timezone.now().isoformat(),
+                'provider': 'Manual Tracking',
+                'status': 'Manual Tracking Configured'
+            }
+            order.save()
+            return Response(OrderSerializer(order).data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['PATCH'], permission_classes=[IsAdminUser])
+    def update_tracking(self, request, pk=None):
+        order = self.get_object()
+        tracking_status = request.data.get('tracking_status')
+        tracking_code = request.data.get('tracking_code')
+
+        if tracking_status:
+            order.tracking_status = tracking_status
+        if tracking_code is not None:
+            order.tracking_code = tracking_code.strip()
+
+        order.save()
+        return Response(OrderSerializer(order).data, status=status.HTTP_200_OK)
+
 
 class ProductImageViewSet(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]

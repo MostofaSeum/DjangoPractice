@@ -70,7 +70,22 @@ export interface Order {
   is_edited_by_admin?: boolean;
   edited_at?: string | null;
   items?: OrderItem[];
+  courier_partner?: number | null;
+  courier_partner_details?: CourierProvider | null;
+  tracking_code?: string;
+  tracking_status?:
+    | "pending"
+    | "packed"
+    | "in_transit"
+    | "out_for_delivery"
+    | "delivered"
+    | "returned";
+  tracking_status_display?: string;
+  courier_consignment_id?: string;
+  courier_response?: any;
 }
+
+
 
 export interface CustomerItem {
   id: number;

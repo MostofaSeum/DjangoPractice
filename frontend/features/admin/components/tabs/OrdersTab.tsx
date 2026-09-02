@@ -1,13 +1,21 @@
-"use client";
-
 import { useState, useEffect } from "react";
-import { Order, OrderItem, Product } from "../../types";
+import { Order, OrderItem, Product, CourierProvider } from "../../types";
 import { useLanguage } from "@/store/LanguageContext";
 import Image from "next/image";
+
+const PRESET_COURIERS: Record<string, { logo: string }> = {
+  steadfast: { logo: "/DeliveryPartner/steadfast.jpg" },
+  pathao: { logo: "/DeliveryPartner/pathaocourier.png" },
+  redX: { logo: "/DeliveryPartner/redx.png" },
+  redx: { logo: "/DeliveryPartner/redx.png" },
+  paperfly: { logo: "/DeliveryPartner/paperfly.png" },
+};
 
 interface OrdersTabProps {
   orders: Order[];
   productsCatalog?: Product[];
+  courierProviders?: CourierProvider[];
+
   handleUpdateOrderStatus: (orderId: number, status: string) => Promise<void>;
   handleSaveEditedOrder?: (
     orderId: number,
@@ -27,6 +35,21 @@ interface OrdersTabProps {
     }
   ) => Promise<boolean>;
   handleDeleteOrder: (orderId: number) => Promise<void>;
+  handleDispatchOrderCourier?: (
+    orderId: number,
+    payload: {
+      courier_id?: number | null;
+      tracking_code?: string;
+      tracking_status?: string;
+    }
+  ) => Promise<boolean>;
+  handleUpdateOrderTracking?: (
+    orderId: number,
+    payload: {
+      tracking_code?: string;
+      tracking_status?: string;
+    }
+  ) => Promise<boolean>;
   targetOrderId?: string | null;
 }
 
@@ -45,12 +68,15 @@ interface EditableItem {
 export default function OrdersTab({
   orders,
   productsCatalog = [],
+  courierProviders = [],
   handleUpdateOrderStatus,
   handleSaveEditedOrder,
   handleDeleteOrder,
+  handleDispatchOrderCourier,
+  handleUpdateOrderTracking,
   targetOrderId = null,
 }: OrdersTabProps) {
-  const { locale, formatCurrency } = useLanguage();
+  const { locale, formatCurrency, t } = useLanguage();
   const isBn = locale === "bn";
 
   const [orderSearch, setOrderSearch] = useState("");
@@ -61,6 +87,15 @@ export default function OrdersTab({
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<Order | null>(
     null
   );
+
+  // Dispatch / Track Modal State
+  const [dispatchOrder, setDispatchOrder] = useState<Order | null>(null);
+  const [selectedCourierId, setSelectedCourierId] = useState<number | "manual">("manual");
+  const [trackingCodeInput, setTrackingCodeInput] = useState("");
+  const [trackingStatusInput, setTrackingStatusInput] = useState<
+    "pending" | "packed" | "in_transit" | "out_for_delivery" | "delivered" | "returned"
+  >("in_transit");
+  const [isDispatching, setIsDispatching] = useState(false);
 
   // Edit Order Modal State
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
@@ -78,6 +113,9 @@ export default function OrdersTab({
   const [addQuantity, setAddQuantity] = useState<number>(1);
   const [addCustomPrice, setAddCustomPrice] = useState<string>("");
   const [productSearchQuery, setProductSearchQuery] = useState<string>("");
+
+  const activeCouriers = courierProviders.filter((p) => p.is_active);
+
 
   useEffect(() => {
     if (targetOrderId && orders.length > 0) {
@@ -271,40 +309,76 @@ export default function OrdersTab({
                     </td>
                     <td className="py-3.5 px-2">{displayItemCount}</td>
                     <td className="py-3.5 px-2">
-                      <select
-                        value={order.payment_status || "P"}
-                        onChange={(e) =>
-                          handleUpdateOrderStatus(order.id, e.target.value)
-                        }
-                        className={`px-3 py-1 rounded-full text-[10px] uppercase font-black tracking-wider outline-none cursor-pointer border ${
-                          order.payment_status === "C"
-                            ? "bg-green-500/20 text-green-500 border-green-500/30"
-                            : order.payment_status === "F"
-                              ? "bg-red-500/20 text-red-500 border-red-500/30"
-                              : "bg-yellow-500/20 text-yellow-500 border-yellow-500/30"
-                        }`}
-                      >
-                        <option
-                          value="P"
-                          className="bg-secondary text-foreground"
+                      <div className="space-y-1">
+                        <select
+                          value={order.payment_status || "P"}
+                          onChange={(e) =>
+                            handleUpdateOrderStatus(order.id, e.target.value)
+                          }
+                          className={`px-3 py-1 rounded-full text-[10px] uppercase font-black tracking-wider outline-none cursor-pointer border ${
+                            order.payment_status === "C"
+                              ? "bg-green-500/20 text-green-500 border-green-500/30"
+                              : order.payment_status === "F"
+                                ? "bg-red-500/20 text-red-500 border-red-500/30"
+                                : "bg-yellow-500/20 text-yellow-500 border-yellow-500/30"
+                          }`}
                         >
-                          {isBn ? "পেন্ডিং (P)" : "Pending (P)"}
-                        </option>
-                        <option
-                          value="C"
-                          className="bg-secondary text-foreground"
-                        >
-                          {isBn ? "কমপ্লিট (C)" : "Complete (C)"}
-                        </option>
-                        <option
-                          value="F"
-                          className="bg-secondary text-foreground"
-                        >
-                          {isBn ? "ফেইল্ড / বাতিল (F)" : "Failed (F)"}
-                        </option>
-                      </select>
+                          <option
+                            value="P"
+                            className="bg-secondary text-foreground"
+                          >
+                            {isBn ? "পেন্ডিং (P)" : "Pending (P)"}
+                          </option>
+                          <option
+                            value="C"
+                            className="bg-secondary text-foreground"
+                          >
+                            {isBn ? "কমপ্লিট (C)" : "Complete (C)"}
+                          </option>
+                          <option
+                            value="F"
+                            className="bg-secondary text-foreground"
+                          >
+                            {isBn ? "ফেইল্ড / বাতিল (F)" : "Failed (F)"}
+                          </option>
+                        </select>
+
+                        {/* Courier / Tracking Status Badge */}
+                        {order.tracking_code ? (
+                          <div className="flex items-center gap-1 mt-1">
+                            <span
+                              className={`text-[9px] font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider ${
+                                order.tracking_status === "delivered"
+                                  ? "bg-visible/15 text-visible"
+                                  : order.tracking_status === "returned"
+                                    ? "bg-hidden/15 text-hidden"
+                                    : "bg-accent/15 text-accent"
+                              }`}
+                            >
+                              {order.courier_partner_details?.name || "Manual"}: {order.tracking_status_display || order.tracking_status}
+                            </span>
+                          </div>
+                        ) : null}
+                      </div>
                     </td>
                     <td className="py-3.5 px-2 text-right flex justify-end items-center gap-2">
+                      {/* Dispatch / Track Button */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDispatchOrder(order);
+                          setSelectedCourierId(order.courier_partner || (activeCouriers.length > 0 ? activeCouriers[0].id : "manual"));
+                          setTrackingCodeInput(order.tracking_code || "");
+                          setTrackingStatusInput(
+                            (order.tracking_status as any) || "in_transit"
+                          );
+                        }}
+                        className="px-3 py-1.5 bg-accent/15 hover:bg-accent/25 text-accent border border-accent/20 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
+                        title={t("admin.delivery.dispatchBtn")}
+                      >
+                        {t("admin.delivery.dispatchBtn")}
+                      </button>
+
                       {order.payment_method === "C" ? (
                         <button
                           onClick={() => {
@@ -363,6 +437,7 @@ export default function OrdersTab({
           {isBn ? "কোনো অর্ডার পাওয়া যায়নি।" : "No orders found."}
         </div>
       )}
+
 
       {/* Order Details Modal */}
       {selectedOrderDetails && (
@@ -583,6 +658,46 @@ export default function OrdersTab({
                   )}
                 </span>
               </div>
+
+              {/* Courier & Tracking Summary Section */}
+              <div className="pt-3 border-t border-foreground/10 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-wider opacity-60 block">
+                    {t("admin.delivery.trackingHistory")}
+                  </span>
+                  {selectedOrderDetails.tracking_code ? (
+                    <div className="text-xs font-bold mt-0.5 flex items-center gap-2">
+                      <span className="text-accent">{selectedOrderDetails.courier_partner_details?.name || "Manual Tracking"}:</span>
+                      <code className="font-mono bg-background px-2 py-0.5 rounded border border-foreground/10">
+                        {selectedOrderDetails.tracking_code}
+                      </code>
+                      <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-visible/15 text-visible rounded-md">
+                        {selectedOrderDetails.tracking_status_display || selectedOrderDetails.tracking_status}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-xs opacity-60 font-medium">
+                      {isBn ? "কোনো কুরিয়ার যুক্ত করা হয়নি" : "Not yet dispatched to courier"}
+                    </span>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const ord = selectedOrderDetails;
+                    setSelectedOrderDetails(null);
+                    setDispatchOrder(ord);
+                    setSelectedCourierId(ord.courier_partner || (activeCouriers.length > 0 ? activeCouriers[0].id : "manual"));
+                    setTrackingCodeInput(ord.tracking_code || "");
+                    setTrackingStatusInput((ord.tracking_status as any) || "in_transit");
+                  }}
+                  className="px-3.5 py-1.5 bg-accent text-white rounded-xl text-[11px] font-black uppercase tracking-wider hover:opacity-90 transition-opacity cursor-pointer"
+                >
+                  {t("admin.delivery.dispatchBtn")}
+                </button>
+              </div>
+
             </div>
           </div>
         </div>
@@ -1072,6 +1187,205 @@ export default function OrdersTab({
                     : (isBn ? "পরিবর্তন সংরক্ষণ করুন" : "Save Changes")}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DISPATCH / PARCEL TRACKING MODAL */}
+      {dispatchOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-lg bg-secondary text-foreground rounded-3xl p-6 sm:p-8 border border-foreground/15 shadow-2xl max-h-[90vh] overflow-y-auto space-y-6">
+            <div className="flex justify-between items-center pb-4 border-b border-foreground/10">
+              <div>
+                <h3 className="text-base sm:text-lg font-black uppercase tracking-tight text-foreground">
+                  {t("admin.delivery.dispatchTitle")}
+                </h3>
+                <p className="text-xs opacity-60 mt-0.5">
+                  {isBn
+                    ? `অর্ডার #${dispatchOrder.id.toLocaleString("bn-BD")} • ${dispatchOrder.customer_name || "গ্রাহক"}`
+                    : `Order #${dispatchOrder.id} • ${dispatchOrder.customer_name || "Customer"}`}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDispatchOrder(null)}
+                className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3 py-1.5 rounded-xl transition-colors uppercase cursor-pointer"
+              >
+                {t("admin.delivery.cancelBtn")}
+              </button>
+            </div>
+
+            {/* Recipient Snapshot Box */}
+            <div className="p-4 rounded-2xl bg-background border border-foreground/10 text-xs space-y-1">
+              <div className="flex justify-between">
+                <span className="opacity-60">{isBn ? "ঠিকানা:" : "Address:"}</span>
+                <span className="font-bold text-right truncate max-w-[220px]">
+                  {dispatchOrder.shipping_address || "N/A"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="opacity-60">{isBn ? "মোবাইল:" : "Phone:"}</span>
+                <span className="font-bold">{dispatchOrder.phone || "N/A"}</span>
+              </div>
+              <div className="flex justify-between pt-1 border-t border-foreground/5">
+                <span className="opacity-60">{isBn ? "সিওডি / বিলের পরিমাণ:" : "COD / Amount:"}</span>
+                <span className="font-black text-accent">
+                  {formatCurrency(
+                    (dispatchOrder.items
+                      ? dispatchOrder.items.reduce((s, i) => s + i.quantity * Number(i.unit_price), 0)
+                      : 0) + Number(dispatchOrder.delivery_charge || 0)
+                  )}
+                </span>
+              </div>
+            </div>
+
+            {/* Courier Provider Choice */}
+            <div className="space-y-3">
+              <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
+                {t("admin.delivery.selectCourier")}
+              </label>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {activeCouriers.map((cp) => {
+                  const isSelected = selectedCourierId === cp.id;
+                  const logo = PRESET_COURIERS[cp.provider_code]?.logo || "/DeliveryPartner/steadfast.jpg";
+                  return (
+                    <button
+                      key={cp.id}
+                      type="button"
+                      onClick={() => setSelectedCourierId(cp.id)}
+                      className={`p-3 rounded-2xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
+                        isSelected
+                          ? "bg-accent/15 border-accent text-accent shadow-xs"
+                          : "bg-background border-foreground/10 text-foreground hover:border-foreground/30"
+                      }`}
+                    >
+                      <div className="w-9 h-9 relative rounded-xl overflow-hidden bg-white shrink-0 p-1 flex items-center justify-center border border-foreground/10">
+                        <Image
+                          src={logo}
+                          alt={cp.name}
+                          fill
+                          sizes="36px"
+                          className="object-contain"
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-xs font-black truncate">{cp.name}</div>
+                        <div className="text-[9px] opacity-60 uppercase tracking-wider font-bold">
+                          {cp.provider_code}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+
+                {/* Manual Tracking Option */}
+                <button
+                  type="button"
+                  onClick={() => setSelectedCourierId("manual")}
+                  className={`p-3 rounded-2xl border text-left flex items-center gap-3 transition-all cursor-pointer ${
+                    selectedCourierId === "manual"
+                      ? "bg-accent/15 border-accent text-accent shadow-xs"
+                      : "bg-background border-foreground/10 text-foreground hover:border-foreground/30"
+                  }`}
+                >
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 shrink-0 flex items-center justify-center font-black text-xs">
+                    MNL
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs font-black truncate">{t("admin.delivery.manualTrackingOption")}</div>
+                    <div className="text-[9px] opacity-60 uppercase tracking-wider font-bold">
+                      In-House
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Tracking Code Input */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 block">
+                {t("admin.delivery.trackingCode")}
+              </label>
+              <input
+                type="text"
+                value={trackingCodeInput}
+                onChange={(e) => setTrackingCodeInput(e.target.value)}
+                placeholder={t("admin.delivery.trackingCodePlaceholder")}
+                className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-mono font-bold outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
+
+            {/* Tracking Status Milestones */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 block">
+                {t("admin.delivery.trackingStatus")}
+              </label>
+              <select
+                value={trackingStatusInput}
+                onChange={(e) => setTrackingStatusInput(e.target.value as any)}
+                className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent cursor-pointer"
+              >
+                <option value="pending">{t("admin.delivery.statusPending")}</option>
+                <option value="packed">{t("admin.delivery.statusPacked")}</option>
+                <option value="in_transit">{t("admin.delivery.statusInTransit")}</option>
+                <option value="out_for_delivery">{t("admin.delivery.statusOutForDelivery")}</option>
+                <option value="delivered">{t("admin.delivery.statusDelivered")}</option>
+                <option value="returned">{t("admin.delivery.statusReturned")}</option>
+              </select>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-foreground/10">
+              <button
+                type="button"
+                onClick={() => setDispatchOrder(null)}
+                className="px-5 py-2.5 rounded-xl border border-foreground/15 text-xs font-bold uppercase tracking-wider text-foreground/70 hover:bg-foreground/5 transition-all cursor-pointer"
+              >
+                {t("admin.delivery.cancelBtn")}
+              </button>
+
+              <button
+                type="button"
+                disabled={isDispatching}
+                onClick={async () => {
+                  if (!dispatchOrder) return;
+                  setIsDispatching(true);
+
+                  if (handleDispatchOrderCourier) {
+                    const payload = {
+                      courier_id: selectedCourierId === "manual" ? null : Number(selectedCourierId),
+                      tracking_code: trackingCodeInput,
+                      tracking_status: trackingStatusInput,
+                    };
+                    const success = await handleDispatchOrderCourier(dispatchOrder.id, payload);
+                    if (success) {
+                      setDispatchOrder(null);
+                    }
+                  } else if (handleUpdateOrderTracking) {
+                    const success = await handleUpdateOrderTracking(dispatchOrder.id, {
+                      tracking_code: trackingCodeInput,
+                      tracking_status: trackingStatusInput,
+                    });
+                    if (success) {
+                      setDispatchOrder(null);
+                    }
+                  }
+                  setIsDispatching(false);
+                }}
+                className="px-6 py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-black uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+              >
+                {isDispatching ? (
+                  <span>{t("admin.delivery.dispatching")}</span>
+                ) : (
+                  <span>
+                    {dispatchOrder.tracking_code
+                      ? t("admin.delivery.updateTrackingBtn")
+                      : t("admin.delivery.confirmDispatch")}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
         </div>
