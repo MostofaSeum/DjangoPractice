@@ -116,6 +116,23 @@ export default function OrdersTab({
 
   const activeCouriers = courierProviders.filter((p) => p.is_active);
 
+  const getTrackingStatusLabel = (status?: string, fallbackDisplay?: string) => {
+    const raw = (status || fallbackDisplay || "").toLowerCase().replace(/[\s/-]+/g, "_");
+    if (raw.includes("pending")) return t("admin.delivery.statusPending");
+    if (raw.includes("pack")) return t("admin.delivery.statusPacked");
+    if (raw.includes("transit") || raw.includes("dispatch")) return t("admin.delivery.statusInTransit");
+    if (raw.includes("out_for_delivery") || raw.includes("out")) return t("admin.delivery.statusOutForDelivery");
+    if (raw.includes("deliver")) return t("admin.delivery.statusDelivered");
+    if (raw.includes("return") || raw.includes("fail")) return t("admin.delivery.statusReturned");
+    return fallbackDisplay || status || "";
+  };
+
+  const getCourierPartnerLabel = (courierName?: string | null) => {
+    if (!courierName || courierName.trim().toLowerCase() === "manual" || courierName.trim().toLowerCase() === "manual tracking") {
+      return isBn ? "ম্যানুয়াল" : "Manual";
+    }
+    return courierName;
+  };
 
   useEffect(() => {
     if (targetOrderId && orders.length > 0) {
@@ -355,7 +372,7 @@ export default function OrdersTab({
                                     : "bg-accent/15 text-accent"
                               }`}
                             >
-                              {order.courier_partner_details?.name || "Manual"}: {order.tracking_status_display || order.tracking_status}
+                              {getCourierPartnerLabel(order.courier_partner_details?.name)}: {getTrackingStatusLabel(order.tracking_status, order.tracking_status_display)}
                             </span>
                           </div>
                         ) : null}
@@ -704,12 +721,23 @@ export default function OrdersTab({
                   </span>
                   {selectedOrderDetails.tracking_code ? (
                     <div className="text-xs font-bold mt-0.5 flex items-center gap-2">
-                      <span className="text-accent">{selectedOrderDetails.courier_partner_details?.name || "Manual Tracking"}:</span>
+                      <span className="text-accent">{getCourierPartnerLabel(selectedOrderDetails.courier_partner_details?.name)}:</span>
                       <code className="font-mono bg-background px-2 py-0.5 rounded border border-foreground/10">
                         {selectedOrderDetails.tracking_code}
                       </code>
-                      <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-visible/15 text-visible rounded-md">
-                        {selectedOrderDetails.tracking_status_display || selectedOrderDetails.tracking_status}
+                      <span
+                        className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md ${
+                          selectedOrderDetails.tracking_status === "delivered"
+                            ? "bg-visible/15 text-visible"
+                            : selectedOrderDetails.tracking_status === "returned"
+                              ? "bg-hidden/15 text-hidden"
+                              : "bg-accent/15 text-accent"
+                        }`}
+                      >
+                        {getTrackingStatusLabel(
+                          selectedOrderDetails.tracking_status,
+                          selectedOrderDetails.tracking_status_display
+                        )}
                       </span>
                     </div>
                   ) : (
@@ -1343,7 +1371,7 @@ export default function OrdersTab({
                   <div className="min-w-0">
                     <div className="text-xs font-black truncate">{t("admin.delivery.manualTrackingOption")}</div>
                     <div className="text-[9px] opacity-60 uppercase tracking-wider font-bold">
-                      In-House
+                      {isBn ? "ইন-হাউস" : "In-House"}
                     </div>
                   </div>
                 </button>
