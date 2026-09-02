@@ -36,7 +36,25 @@ interface Order {
   is_edited_by_admin?: boolean;
   edited_at?: string | null;
   items?: OrderItem[];
+  courier_partner?: number | null;
+  courier_partner_details?: {
+    id: number;
+    name: string;
+    provider_code: string;
+    tracking_url?: string;
+  } | null;
+  tracking_code?: string;
+  tracking_status?: string;
+  tracking_status_display?: string;
+  courier_consignment_id?: string;
 }
+
+const PRESET_COURIER_LOGOS: Record<string, string> = {
+  steadfast: "/DeliveryPartner/steadfast.jpg",
+  pathao: "/DeliveryPartner/pathaocourier.png",
+  redx: "/DeliveryPartner/redx.png",
+  paperfly: "/DeliveryPartner/paperfly.png",
+};
 
 export default function ProfilePage() {
   const { user, token, logout, loading: authLoading } = useAuth();
@@ -53,7 +71,11 @@ export default function ProfilePage() {
 
   const [myOrders, setMyOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState<boolean>(true);
+  const [currentOrdersPage, setCurrentOrdersPage] = useState<number>(1);
+  const ORDERS_PER_PAGE = 5;
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<Order | null>(null);
+  const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
+  const [copiedTrackingId, setCopiedTrackingId] = useState(false);
   const [vibeCoin, setVibeCoin] = useState<number>(0);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
@@ -69,6 +91,76 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(!user);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+
+  const handleCopyTrackingId = (code: string) => {
+    if (!code) return;
+    navigator.clipboard.writeText(code);
+    setCopiedTrackingId(true);
+    setTimeout(() => setCopiedTrackingId(false), 2000);
+  };
+
+  const getExternalTrackingUrl = (order: Order) => {
+    if (!order.tracking_code) return null;
+    const template = order.courier_partner_details?.tracking_url;
+    if (template && template.includes("{tracking_code}")) {
+      return template.replace("{tracking_code}", encodeURIComponent(order.tracking_code));
+    }
+    if (template && template.trim()) {
+      return `${template}${encodeURIComponent(order.tracking_code)}`;
+    }
+    const code = order.courier_partner_details?.provider_code?.toLowerCase();
+    if (code === "steadfast") {
+      return `https://steadfast.com.bd/t/${encodeURIComponent(order.tracking_code)}`;
+    }
+    if (code === "pathao") {
+      return `https://merchant.pathao.com/tracking?consignment_id=${encodeURIComponent(order.tracking_code)}`;
+    }
+    if (code === "redx") {
+      return `https://redx.com.bd/track-order?trackingId=${encodeURIComponent(order.tracking_code)}`;
+    }
+    if (code === "paperfly") {
+      return `https://paperfly.com.bd/track?tracking_id=${encodeURIComponent(order.tracking_code)}`;
+    }
+    return null;
+  };
+
+  const getTrackingMilestoneState = (status?: string) => {
+    const normalized = (status || "").toLowerCase().replace(/[\s/-]+/g, "_");
+    if (normalized.includes("return") || normalized.includes("fail")) {
+      return { stepIndex: -1, isReturned: true, progressPercent: 100 };
+    }
+    if (normalized.includes("deliver")) {
+      return { stepIndex: 4, isReturned: false, progressPercent: 100 };
+    }
+    if (normalized.includes("out_for_delivery") || normalized.includes("out")) {
+      return { stepIndex: 3, isReturned: false, progressPercent: 85 };
+    }
+    if (normalized.includes("transit") || normalized.includes("dispatch")) {
+      return { stepIndex: 2, isReturned: false, progressPercent: 66.66 };
+    }
+    if (normalized.includes("pack")) {
+      return { stepIndex: 1, isReturned: false, progressPercent: 33.33 };
+    }
+    return { stepIndex: 0, isReturned: false, progressPercent: 0 };
+  };
+
+  const getCourierPartnerName = (order: Order) => {
+    if (order.courier_partner_details?.name) {
+      return order.courier_partner_details.name;
+    }
+    return locale === "bn" ? "ম্যানুয়াল ট্র্যাকিং (ইন-হাউস)" : "Manual Tracking (In-House)";
+  };
+
+  const getTrackingStatusLabel = (status?: string, fallbackDisplay?: string) => {
+    const raw = (status || fallbackDisplay || "").toLowerCase().replace(/[\s/-]+/g, "_");
+    if (raw.includes("pending")) return t("profile.statusPending") || (locale === "bn" ? "পেন্ডিং (অপেক্ষারত)" : "Pending Dispatch");
+    if (raw.includes("pack")) return t("profile.step1Title") || (locale === "bn" ? "প্যাকড ও প্রস্তুত" : "Packed & Ready");
+    if (raw.includes("transit") || raw.includes("dispatch")) return t("profile.step2Title") || (locale === "bn" ? "কুরিয়ারে পাঠানো হয়েছে" : "Dispatched / In Transit");
+    if (raw.includes("out_for_delivery") || raw.includes("out")) return t("profile.step3Title") || (locale === "bn" ? "ডেলিভারির জন্য বের হয়েছে" : "Out for Delivery");
+    if (raw.includes("deliver")) return t("profile.step4Title") || (locale === "bn" ? "ডেলিভারি সম্পন্ন" : "Delivered");
+    if (raw.includes("return") || raw.includes("fail")) return t("profile.statusReturnedBadge") || (locale === "bn" ? "ফেরত / বাতিল" : "Returned / Cancelled");
+    return fallbackDisplay || status || (locale === "bn" ? "প্রস্তুত হচ্ছে" : "Processing");
+  };
 
   const fetchAddresses = async () => {
     try {
@@ -658,12 +750,20 @@ export default function ProfilePage() {
                     </div>
                   ))}
                 </div>
-              ) : myOrders.length > 0 ? (
-                <div className="space-y-6">
-                  {myOrders.map((ord) => {
-                    const orderTotal = ord.items
-                      ? ord.items.reduce((sum, i) => sum + i.quantity * Number(i.unit_price), 0)
-                      : 0;
+              ) : myOrders.length > 0 ? (() => {
+                const totalOrders = myOrders.length;
+                const totalOrdersPages = Math.ceil(totalOrders / ORDERS_PER_PAGE) || 1;
+                const startOrderIndex = (currentOrdersPage - 1) * ORDERS_PER_PAGE;
+                const paginatedOrders = myOrders.slice(startOrderIndex, startOrderIndex + ORDERS_PER_PAGE);
+                const endOrderIndex = Math.min(startOrderIndex + ORDERS_PER_PAGE, totalOrders);
+
+                return (
+                  <div className="space-y-6">
+                    <div className="space-y-6">
+                      {paginatedOrders.map((ord) => {
+                        const orderTotal = ord.items
+                          ? ord.items.reduce((sum, i) => sum + i.quantity * Number(i.unit_price), 0)
+                          : 0;
 
                     const orderIdText =
                       locale === "bn"
@@ -704,12 +804,12 @@ export default function ProfilePage() {
                             </p>
                           </div>
                           <span
-                            className={`self-start sm:self-auto px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                            className={`self-start sm:self-auto px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
                               ord.payment_status === "C"
-                                ? "bg-green-500/10 text-green-500 border border-green-500/20"
+                                ? "bg-visible/10 text-visible border-visible/20"
                                 : ord.payment_status === "P"
-                                ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
-                                : "bg-red-500/10 text-red-500 border border-red-500/20"
+                                ? "bg-accent/15 text-accent border-accent/25"
+                                : "bg-hidden/10 text-hidden border-hidden/20"
                             }`}
                           >
                             {paymentStatusLabel}
@@ -791,21 +891,104 @@ export default function ProfilePage() {
                                 <span className="uppercase text-foreground">{t("profile.totalAmount")}</span>
                                 <span className="text-base text-foreground">{formatCurrency(orderTotal + Number(ord.delivery_charge || 0))}</span>
                               </div>
-                              <button
-                                type="button"
-                                onClick={() => setSelectedOrderDetails(ord)}
-                                className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
-                              >
-                                {locale === "bn" ? "বিস্তারিত দেখুন" : "View Details"}
-                              </button>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                {ord.payment_status === "C" && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setTrackingOrder(ord)}
+                                    className="px-4 py-1.5 bg-accent/15 text-accent hover:bg-accent hover:text-button-fg border border-accent/30 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                      <circle cx="12" cy="12" r="10"></circle>
+                                      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                                    </svg>
+                                    <span>{t("profile.trackOrderBtn") || (locale === "bn" ? "ট্র্যাক করুন" : "Track")}</span>
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() => setSelectedOrderDetails(ord)}
+                                  className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
+                                >
+                                  {locale === "bn" ? "বিস্তারিত দেখুন" : "View Details"}
+                                </button>
+                              </div>
                             </div>
                           </div>
                         )}
                       </div>
                     );
                   })}
-                </div>
-              ) : (
+                    </div>
+
+                    {/* Pagination Controls (5 Orders Per Page) */}
+                    {totalOrdersPages > 1 && (
+                      <div className="pt-6 border-t border-foreground/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <p className="text-xs opacity-70 font-semibold">
+                          {locale === "bn"
+                            ? (t("profile.showingOrders") || "মোট {total}টির মধ্যে {start} - {end}টি অর্ডার প্রদর্শিত হচ্ছে")
+                                .replace("{start}", (startOrderIndex + 1).toLocaleString("bn-BD"))
+                                .replace("{end}", endOrderIndex.toLocaleString("bn-BD"))
+                                .replace("{total}", totalOrders.toLocaleString("bn-BD"))
+                            : (t("profile.showingOrders") || "Showing {start} - {end} of {total} orders")
+                                .replace("{start}", String(startOrderIndex + 1))
+                                .replace("{end}", String(endOrderIndex))
+                                .replace("{total}", String(totalOrders))}
+                        </p>
+
+                        <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                          {/* Previous Page Button */}
+                          <button
+                            type="button"
+                            disabled={currentOrdersPage === 1}
+                            onClick={() => setCurrentOrdersPage((prev) => Math.max(1, prev - 1))}
+                            className="px-3 py-1.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold uppercase tracking-wider hover:bg-foreground/5 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center gap-1 cursor-pointer shadow-xs"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="15 18 9 12 15 6"></polyline>
+                            </svg>
+                            <span>{t("profile.prev") || (locale === "bn" ? "পূর্ববর্তী" : "Previous")}</span>
+                          </button>
+
+                          {/* Page Number Buttons */}
+                          <div className="flex items-center gap-1">
+                            {Array.from({ length: totalOrdersPages }, (_, idx) => idx + 1).map((pageNum) => {
+                              const isActive = pageNum === currentOrdersPage;
+                              return (
+                                <button
+                                  key={pageNum}
+                                  type="button"
+                                  onClick={() => setCurrentOrdersPage(pageNum)}
+                                  className={`w-8 h-8 rounded-xl text-xs font-black transition-all flex items-center justify-center cursor-pointer ${
+                                    isActive
+                                      ? "bg-accent text-button-fg shadow-xs border border-accent"
+                                      : "bg-background border border-foreground/15 text-foreground hover:bg-foreground/5"
+                                  }`}
+                                >
+                                  {locale === "bn" ? pageNum.toLocaleString("bn-BD") : pageNum}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Next Page Button */}
+                          <button
+                            type="button"
+                            disabled={currentOrdersPage === totalOrdersPages}
+                            onClick={() => setCurrentOrdersPage((prev) => Math.min(totalOrdersPages, prev + 1))}
+                            className="px-3 py-1.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold uppercase tracking-wider hover:bg-foreground/5 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center gap-1 cursor-pointer shadow-xs"
+                          >
+                            <span>{t("profile.next") || (locale === "bn" ? "পরবর্তী" : "Next")}</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })() : (
                 <div className="py-16 text-center text-xs font-bold uppercase tracking-wider opacity-50">
                   {t("profile.noOrders")}
                 </div>
@@ -839,13 +1022,32 @@ export default function ProfilePage() {
                     : "N/A"}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => setSelectedOrderDetails(null)}
-                className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3 py-1.5 rounded-xl transition-colors uppercase cursor-pointer"
-              >
-                {locale === "bn" ? "বন্ধ করুন" : "Close"}
-              </button>
+              <div className="flex items-center gap-2">
+                {selectedOrderDetails.payment_status === "C" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const ord = selectedOrderDetails;
+                      setSelectedOrderDetails(null);
+                      setTrackingOrder(ord);
+                    }}
+                    className="text-xs font-bold bg-accent/15 text-accent hover:bg-accent hover:text-button-fg border border-accent/30 px-3 py-1.5 rounded-xl transition-all uppercase flex items-center gap-1 cursor-pointer"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                    </svg>
+                    <span>{t("profile.trackOrderBtn") || (locale === "bn" ? "ট্র্যাক করুন" : "Track")}</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setSelectedOrderDetails(null)}
+                  className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3.5 py-1.5 rounded-xl transition-colors uppercase cursor-pointer"
+                >
+                  {locale === "bn" ? "বন্ধ করুন" : "Close"}
+                </button>
+              </div>
             </div>
 
             {/* Modal Body: Scrollable */}
@@ -1201,6 +1403,334 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
+      {/* Live Order Parcel Tracking Modal */}
+      {trackingOrder && (() => {
+        const milestoneState = getTrackingMilestoneState(trackingOrder.tracking_status);
+        const externalTrackingUrl = getExternalTrackingUrl(trackingOrder);
+        const courierPartnerName = getCourierPartnerName(trackingOrder);
+        const courierCode = trackingOrder.courier_partner_details?.provider_code?.toLowerCase() || "manual";
+        const courierLogo = PRESET_COURIER_LOGOS[courierCode];
+
+        const steps = [
+          {
+            index: 1,
+            title: t("profile.step1Title") || (locale === "bn" ? "প্যাকড ও প্রস্তুত" : "Packed & Ready"),
+            desc: t("profile.step1Desc") || (locale === "bn" ? "অর্ডারটি ওয়্যারহাউসে প্রস্তুত ও প্যাকেজিং সম্পন্ন" : "Parcel packed at store warehouse"),
+            icon: (
+              <svg className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m7.5 4.27 9 5.15"></path>
+                <polyline points="3.29 7 12 12 20.71 7"></polyline>
+                <line x1="12" y1="22" x2="12" y2="12"></line>
+                <path d="M21 8.5V17a2 2 0 0 1-1 1.73l-7 4a2 2 0 0 1-2 0l-7-4A2 2 0 0 1 3 17V8.5a2 2 0 0 1 1-1.73l7-4a2 2 0 0 1 2 0l7 4A2 2 0 0 1 21 8.5z"></path>
+              </svg>
+            ),
+          },
+          {
+            index: 2,
+            title: t("profile.step2Title") || (locale === "bn" ? "কুরিয়ারে পাঠানো হয়েছে" : "Dispatched / In Transit"),
+            desc: t("profile.step2Desc") || (locale === "bn" ? "পার্সেলটি কুরিয়ার সার্ভিস সেন্টারে স্থানান্তর করা হয়েছে" : "Handed over to courier hub"),
+            icon: (
+              <svg className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="1" y="3" width="15" height="13"></rect>
+                <polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon>
+                <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                <circle cx="18.5" cy="18.5" r="2.5"></circle>
+              </svg>
+            ),
+          },
+          {
+            index: 3,
+            title: t("profile.step3Title") || (locale === "bn" ? "ডেলিভারির জন্য বের হয়েছে" : "Out for Delivery"),
+            desc: t("profile.step3Desc") || (locale === "bn" ? "ডেলিভারি রাইডার আপনার ঠিকানায় আসার পথে রয়েছে" : "Rider out for final delivery"),
+            icon: (
+              <svg className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            ),
+          },
+          {
+            index: 4,
+            title: t("profile.step4Title") || (locale === "bn" ? "ডেলিভারি সম্পন্ন" : "Delivered"),
+            desc: t("profile.step4Desc") || (locale === "bn" ? "পার্সেলটি সফলভাবে আপনার কাছে পৌঁছে দেওয়া হয়েছে" : "Parcel safely delivered to recipient"),
+            icon: (
+              <svg className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            ),
+          },
+        ];
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+            <div className="bg-secondary text-foreground rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl border border-foreground/10 relative my-8 max-h-[90vh] flex flex-col animate-in fade-in duration-200">
+              {/* Modal Header */}
+              <div className="flex justify-between items-center pb-4 border-b border-foreground/10 mb-5">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-accent animate-ping" />
+                    <h3 className="text-base md:text-lg font-black uppercase tracking-tight">
+                      {t("profile.trackOrderModalTitle") || (locale === "bn" ? "লাইভ পার্সেল ট্র্যাকিং" : "Live Parcel Tracking")}
+                    </h3>
+                    <span className="bg-accent/15 text-accent text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
+                      {locale === "bn" ? `অর্ডার #${trackingOrder.id.toLocaleString("bn-BD")}` : `Order #${trackingOrder.id}`}
+                    </span>
+                  </div>
+                  <p className="text-[10px] font-bold opacity-60 uppercase tracking-wider mt-0.5">
+                    {trackingOrder.placed_at
+                      ? new Date(trackingOrder.placed_at).toLocaleString(locale === "bn" ? "bn-BD" : "en-US")
+                      : "N/A"}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setTrackingOrder(null)}
+                  className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3.5 py-1.5 rounded-xl transition-colors uppercase cursor-pointer"
+                >
+                  {locale === "bn" ? "বন্ধ করুন" : "Close"}
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="flex-1 overflow-y-auto space-y-6 pr-1">
+                {/* Courier & Consignment ID Hero Card */}
+                <div className="p-5 rounded-2xl bg-background border border-foreground/10 shadow-xs space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-foreground/10 overflow-hidden shrink-0 flex items-center justify-center p-1">
+                        {courierLogo ? (
+                          <img
+                            src={courierLogo}
+                            alt={courierPartnerName}
+                            className="w-full h-full object-contain rounded-xl"
+                          />
+                        ) : (
+                          <svg className="w-6 h-6 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="1" y="3" width="15" height="13"></rect>
+                            <polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon>
+                            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                          </svg>
+                        )}
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider opacity-60 block">
+                          {t("profile.courierPartner") || (locale === "bn" ? "কুরিয়ার পার্টনার" : "Courier Partner")}
+                        </span>
+                        <h4 className="text-sm font-black text-foreground">
+                          {courierPartnerName}
+                        </h4>
+                      </div>
+                    </div>
+
+                    {/* Current Status Badge */}
+                    <div className="self-start sm:self-auto">
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider border ${
+                          milestoneState.isReturned
+                            ? "bg-hidden/15 text-hidden border-hidden/30"
+                            : milestoneState.stepIndex === 4
+                            ? "bg-visible/15 text-visible border-visible/30"
+                            : "bg-accent/15 text-accent border-accent/30"
+                        }`}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+                        {getTrackingStatusLabel(trackingOrder.tracking_status, trackingOrder.tracking_status_display)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Consignment Code Box */}
+                  <div className="pt-3 border-t border-foreground/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider opacity-60 block">
+                        {t("profile.trackingId") || (locale === "bn" ? "ট্র্যাকিং / কনসাইনমেন্ট নম্বর" : "Tracking ID / Consignment No")}
+                      </span>
+                      {trackingOrder.tracking_code ? (
+                        <div className="flex items-center gap-2 mt-1">
+                          <code className="font-mono bg-secondary px-3 py-1 rounded-lg border border-foreground/10 text-xs font-black tracking-wider text-accent select-all">
+                            {trackingOrder.tracking_code}
+                          </code>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyTrackingId(trackingOrder.tracking_code || "")}
+                            className="p-1.5 rounded-lg bg-secondary hover:bg-foreground/10 text-foreground/70 hover:text-foreground transition-colors cursor-pointer"
+                            title={t("profile.copyTrackingCode") || (locale === "bn" ? "ট্র্যাকিং নম্বর কপি করুন" : "Copy Tracking ID")}
+                          >
+                            {copiedTrackingId ? (
+                              <svg className="w-3.5 h-3.5 text-visible" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                              </svg>
+                            ) : (
+                              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                              </svg>
+                            )}
+                          </button>
+                          {copiedTrackingId && (
+                            <span className="text-[10px] font-bold text-visible animate-fadeIn">
+                              {t("profile.codeCopied") || (locale === "bn" ? "কপি হয়েছে!" : "Copied!")}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-xs font-semibold text-foreground/70 mt-0.5">
+                          {locale === "bn" ? "কুরিয়ার ট্র্যাকিং কোড প্রস্তুত হচ্ছে..." : "Tracking code will be updated once dispatched"}
+                        </p>
+                      )}
+                    </div>
+
+                    {externalTrackingUrl && (
+                      <a
+                        href={externalTrackingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-button-bg hover:text-button-fg text-foreground text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 border border-foreground/10 shadow-xs"
+                      >
+                        <span>{t("profile.openCourierTracking") || (locale === "bn" ? "কুরিয়ার ট্র্যাকিং পেজ দেখুন" : "Open Courier Tracking")}</span>
+                        <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                          <polyline points="15 3 21 3 21 9"></polyline>
+                          <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                {/* 4-Stoppage Visual Milestone Line Tracker */}
+                <div className="p-6 rounded-2xl bg-background border border-foreground/10 shadow-xs space-y-6">
+                  <div className="flex items-center justify-between border-b border-foreground/10 pb-3">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-foreground flex items-center gap-2">
+                      <svg className="w-4 h-4 text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                      </svg>
+                      {t("profile.trackingMilestoneTitle") || (locale === "bn" ? "ডেলিভারি অগ্রগতি" : "Delivery Progress")}
+                    </h4>
+                    {milestoneState.isReturned ? (
+                      <span className="text-[10px] font-bold text-hidden uppercase px-2 py-0.5 rounded bg-hidden/10">
+                        {t("profile.statusReturnedBadge") || (locale === "bn" ? "পার্সেল ফেরত" : "Parcel Returned")}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-bold text-accent uppercase">
+                        {milestoneState.stepIndex === 4
+                          ? (locale === "bn" ? "৪/৪ ধাপ সম্পন্ন" : "Step 4/4 Completed")
+                          : (locale === "bn" ? `${milestoneState.stepIndex.toLocaleString("bn-BD")}/৪ ধাপ সম্পন্ন` : `Step ${milestoneState.stepIndex}/4 Completed`)}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Desktop / Tablet Horizontal Line Stepper */}
+                  <div className="relative pt-2 pb-4">
+                    {/* Track Background Line */}
+                    <div className="absolute top-6 left-6 right-6 h-1 bg-foreground/10 rounded-full z-0" />
+
+                    {/* Active Progress Bar Line */}
+                    <div
+                      className={`absolute top-6 left-6 h-1 rounded-full z-0 transition-all duration-700 ease-out ${
+                        milestoneState.isReturned
+                          ? "bg-hidden"
+                          : milestoneState.stepIndex === 4
+                          ? "bg-visible"
+                          : "bg-accent"
+                      }`}
+                      style={{
+                        width: milestoneState.isReturned
+                          ? "calc(100% - 3rem)"
+                          : `calc(${Math.min(100, Math.max(0, milestoneState.progressPercent))}% - ${
+                              milestoneState.progressPercent === 100 ? "3rem" : "1.5rem"
+                            })`,
+                      }}
+                    />
+
+                    {/* 4 Stop Nodes */}
+                    <div className="relative z-10 grid grid-cols-4 gap-2">
+                      {steps.map((step) => {
+                        const isCompleted = milestoneState.stepIndex >= step.index;
+                        const isCurrent =
+                          (milestoneState.stepIndex === step.index) ||
+                          (milestoneState.stepIndex === 0 && step.index === 1);
+
+                        return (
+                          <div key={step.index} className="flex flex-col items-center text-center">
+                            {/* Node Circle */}
+                            <div
+                              className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-sm ${
+                                isCompleted
+                                  ? milestoneState.stepIndex === 4
+                                    ? "bg-visible text-button-fg border-2 border-visible shadow-sm"
+                                    : "bg-accent text-button-fg border-2 border-accent shadow-sm"
+                                  : isCurrent
+                                  ? "bg-background text-accent border-2 border-accent ring-4 ring-accent/20"
+                                  : "bg-secondary text-foreground/30 border-2 border-foreground/15"
+                              }`}
+                            >
+                              {isCompleted && milestoneState.stepIndex > step.index ? (
+                                <svg className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                              ) : (
+                                step.icon
+                              )}
+                            </div>
+
+                            {/* Node Label & Description */}
+                            <div className="mt-3 space-y-0.5">
+                              <p
+                                className={`text-[11px] md:text-xs font-black uppercase tracking-tight leading-tight ${
+                                  isCompleted || isCurrent ? "text-foreground" : "text-foreground/40"
+                                }`}
+                              >
+                                {step.title}
+                              </p>
+                              <p className="text-[9px] md:text-[10px] text-foreground/60 hidden sm:block leading-snug">
+                                {step.desc}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Shipping Destination & Summary Card */}
+                <div className="p-4 rounded-2xl bg-background border border-foreground/10 text-xs space-y-2">
+                  <div className="flex items-center justify-between border-b border-foreground/10 pb-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider opacity-60">
+                      {t("profile.shippingDetails")}
+                    </span>
+                    <span className="text-[10px] font-bold text-accent uppercase">
+                      {trackingOrder.delivery_area === "outside_dhaka"
+                        ? (locale === "bn" ? "ঢাকার বাইরে" : "Outside Dhaka")
+                        : (locale === "bn" ? "ঢাকার ভিতরে" : "Inside Dhaka")}
+                    </span>
+                  </div>
+                  <p className="font-bold text-foreground">
+                    {trackingOrder.shipping_address || t("profile.addressNotSpecified")}
+                  </p>
+                  <p className="text-[11px] opacity-75 font-medium">
+                    {t("profile.phone")} {trackingOrder.phone || "N/A"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="pt-4 border-t border-foreground/10 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setTrackingOrder(null)}
+                  className="px-6 py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-all cursor-pointer shadow-md"
+                >
+                  {locale === "bn" ? "বন্ধ করুন" : "Close"}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </main>
   </div>
   );
