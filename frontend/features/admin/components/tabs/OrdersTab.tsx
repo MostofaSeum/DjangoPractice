@@ -361,73 +361,97 @@ export default function OrdersTab({
                         ) : null}
                       </div>
                     </td>
-                    <td className="py-3.5 px-2 text-right flex justify-end items-center gap-2">
-                      {/* Dispatch / Track Button */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setDispatchOrder(order);
-                          setSelectedCourierId(order.courier_partner || (activeCouriers.length > 0 ? activeCouriers[0].id : "manual"));
-                          setTrackingCodeInput(order.tracking_code || "");
-                          setTrackingStatusInput(
-                            (order.tracking_status as any) || "in_transit"
-                          );
-                        }}
-                        className="px-3 py-1.5 bg-accent/15 hover:bg-accent/25 text-accent border border-accent/20 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
-                        title={t("admin.delivery.dispatchBtn")}
-                      >
-                        {t("admin.delivery.dispatchBtn")}
-                      </button>
+                    <td className="py-3.5 px-2 text-right">
+                      <div className="flex justify-end items-center gap-2">
+                        {/* 1. Edit Button (Active for COD, Disabled with explanation for Online/bKash/Nagad) */}
+                        {order.payment_method === "C" ? (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingOrder(order);
+                              setEditShippingAddress(order.shipping_address || "");
+                              setEditPhone(order.phone || "");
+                              setEditDeliveryArea(order.delivery_area || "inside_dhaka");
+                              setEditDeliveryCharge(Number(order.delivery_charge) || 60);
+                              setEditPaymentStatus(order.payment_status || "P");
+                              setEditItems(
+                                order.items
+                                  ? order.items.map((i) => ({
+                                      id: i.id,
+                                      product_id: i.product?.id || 0,
+                                      product_title: i.product?.title || `Product #${i.product}`,
+                                      product_image: i.product?.images?.[0]?.image,
+                                      variant_id: i.variant?.id || null,
+                                      variant_name: i.variant?.name || i.variant_title,
+                                      variant_color_code: i.variant?.color_code,
+                                      quantity: i.quantity,
+                                      unit_price: Number(i.unit_price),
+                                    }))
+                                  : []
+                              );
+                              setSelectedAddProductId("");
+                              setSelectedAddVariantId("");
+                              setAddQuantity(1);
+                              setAddCustomPrice("");
+                            }}
+                            className="px-3 py-1.5 bg-accent text-white hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
+                          >
+                            {isBn ? "সম্পাদনা" : "Edit"}
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled
+                            title={
+                              isBn
+                                ? "শুধুমাত্র ক্যাশ অন ডেলিভারি (সিওডি) অর্ডার সম্পাদনা করা সম্ভব।"
+                                : "Only Cash on Delivery (COD) orders can be edited."
+                            }
+                            className="px-3 py-1.5 bg-foreground/10 text-foreground/40 rounded-lg font-bold text-[10px] uppercase tracking-wider cursor-not-allowed select-none"
+                          >
+                            {isBn ? "সম্পাদনা" : "Edit"}
+                          </button>
+                        )}
 
-                      {order.payment_method === "C" ? (
+                        {/* 2. Dispatch / Track Button */}
                         <button
+                          type="button"
                           onClick={() => {
-                            setEditingOrder(order);
-                            setEditShippingAddress(order.shipping_address || "");
-                            setEditPhone(order.phone || "");
-                            setEditDeliveryArea(order.delivery_area || "inside_dhaka");
-                            setEditDeliveryCharge(Number(order.delivery_charge) || 60);
-                            setEditPaymentStatus(order.payment_status || "P");
-                            setEditItems(
-                              order.items
-                                ? order.items.map((i) => ({
-                                    id: i.id,
-                                    product_id: i.product?.id || 0,
-                                    product_title: i.product?.title || `Product #${i.product}`,
-                                    product_image: i.product?.images?.[0]?.image,
-                                    variant_id: i.variant?.id || null,
-                                    variant_name: i.variant?.name || i.variant_title,
-                                    variant_color_code: i.variant?.color_code,
-                                    quantity: i.quantity,
-                                    unit_price: Number(i.unit_price),
-                                  }))
-                                : []
+                            setDispatchOrder(order);
+                            setSelectedCourierId(order.courier_partner || (activeCouriers.length > 0 ? activeCouriers[0].id : "manual"));
+                            setTrackingCodeInput(order.tracking_code || "");
+                            setTrackingStatusInput(
+                              (order.tracking_status as any) || "in_transit"
                             );
-                            setSelectedAddProductId("");
-                            setSelectedAddVariantId("");
-                            setAddQuantity(1);
-                            setAddCustomPrice("");
                           }}
-                          className="px-3 py-1.5 bg-accent text-white hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
+                          className="px-3 py-1.5 bg-accent/15 hover:bg-accent/25 text-accent border border-accent/20 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
+                          title={t("admin.delivery.dispatchBtn")}
                         >
-                          {isBn ? "সম্পাদনা" : "Edit"}
+                          {t("admin.delivery.dispatchBtn")}
                         </button>
-                      ) : null}
-                      <button
-                        onClick={() => setSelectedOrderDetails(order)}
-                        className="px-3 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
-                      >
-                        {isBn ? "বিস্তারিত দেখুন" : "View Details"}
-                      </button>
-                      <button
-                        onClick={() => handleDeleteOrder(order.id)}
-                        className="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
-                      >
-                        {isBn ? "মুছুন" : "Delete"}
-                      </button>
+
+                        {/* 3. View Details Button */}
+                        <button
+                          type="button"
+                          onClick={() => setSelectedOrderDetails(order)}
+                          className="px-3 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
+                        >
+                          {isBn ? "বিস্তারিত দেখুন" : "View Details"}
+                        </button>
+
+                        {/* 4. Delete Button */}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteOrder(order.id)}
+                          className="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
+                        >
+                          {isBn ? "মুছুন" : "Delete"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
+
               })}
             </tbody>
           </table>
