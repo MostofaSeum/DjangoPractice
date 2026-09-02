@@ -418,7 +418,23 @@ export default function OrdersTab({
                           type="button"
                           onClick={() => {
                             setDispatchOrder(order);
-                            setSelectedCourierId(order.courier_partner || (activeCouriers.length > 0 ? activeCouriers[0].id : "manual"));
+                            // If order has an assigned courier partner, select it
+                            // If order was dispatched with a tracking code but NO courier partner, select 'manual'
+                            // Otherwise, fallback to default courier for area or first active courier or 'manual'
+                            let initialCourier: number | "manual" = "manual";
+                            if (order.courier_partner) {
+                              initialCourier = order.courier_partner;
+                            } else if (order.tracking_code) {
+                              initialCourier = "manual";
+                            } else if (activeCouriers.length > 0) {
+                              const defaultPartner =
+                                order.delivery_area === "outside_dhaka"
+                                  ? activeCouriers.find((c) => c.is_default_outside_dhaka)
+                                  : activeCouriers.find((c) => c.is_default_inside_dhaka);
+                              initialCourier = defaultPartner ? defaultPartner.id : activeCouriers[0].id;
+                            }
+
+                            setSelectedCourierId(initialCourier);
                             setTrackingCodeInput(order.tracking_code || "");
                             setTrackingStatusInput(
                               (order.tracking_status as any) || "in_transit"
@@ -429,6 +445,7 @@ export default function OrdersTab({
                         >
                           {t("admin.delivery.dispatchBtn")}
                         </button>
+
 
                         {/* 3. View Details Button */}
                         <button
@@ -712,7 +729,19 @@ export default function OrdersTab({
                     const ord = selectedOrderDetails;
                     setSelectedOrderDetails(null);
                     setDispatchOrder(ord);
-                    setSelectedCourierId(ord.courier_partner || (activeCouriers.length > 0 ? activeCouriers[0].id : "manual"));
+                    let initialCourier: number | "manual" = "manual";
+                    if (ord.courier_partner) {
+                      initialCourier = ord.courier_partner;
+                    } else if (ord.tracking_code) {
+                      initialCourier = "manual";
+                    } else if (activeCouriers.length > 0) {
+                      const defaultPartner =
+                        ord.delivery_area === "outside_dhaka"
+                          ? activeCouriers.find((c) => c.is_default_outside_dhaka)
+                          : activeCouriers.find((c) => c.is_default_inside_dhaka);
+                      initialCourier = defaultPartner ? defaultPartner.id : activeCouriers[0].id;
+                    }
+                    setSelectedCourierId(initialCourier);
                     setTrackingCodeInput(ord.tracking_code || "");
                     setTrackingStatusInput((ord.tracking_status as any) || "in_transit");
                   }}
@@ -720,6 +749,7 @@ export default function OrdersTab({
                 >
                   {t("admin.delivery.dispatchBtn")}
                 </button>
+
               </div>
 
             </div>
