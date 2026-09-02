@@ -192,7 +192,12 @@
     "notDispatchedDesc": "Your order is confirmed and being prepared for shipment. Tracking code will be available once handed over to the courier.",
     "prev": "Previous",
     "next": "Next",
-    "showingOrders": "Showing {start} - {end} of {total} orders"
+    "showingOrders": "Showing {start} - {end} of {total} orders",
+    "reviewProductBtn": "Review Product",
+    "writeReview": "Write Review",
+    "selectProductToReviewTitle": "Select Product to Review",
+    "selectProductToReviewSubtitle": "Choose which product from this delivered order you'd like to review first.",
+    "itemQty": "Qty: {count}"
   },
   "footer": {
     "aboutUs": "About Us",

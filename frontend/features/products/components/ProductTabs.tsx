@@ -73,6 +73,18 @@ export default function ProductTabs({
   useEffect(() => {
     // Fetch initial reviews count on mount
     fetchReviews();
+
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("tab") === "reviews" || window.location.hash === "#reviews") {
+        setActiveTab("reviews");
+        setTimeout(() => {
+          document
+            .getElementById("write-review-section")
+            ?.scrollIntoView({ behavior: "smooth" });
+        }, 350);
+      }
+    }
   }, [fetchReviews]);
 
   useEffect(() => {

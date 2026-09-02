@@ -192,7 +192,12 @@
     "notDispatchedDesc": "আপনার অর্ডারটি নিশ্চিত হয়েছে এবং প্যাকেজিং চলছে। কুরিয়ারে হস্তান্তরের সাথে সাথেই ট্র্যাকিং তথ্য সক্রিয় হবে।",
     "prev": "পূর্ববর্তী",
     "next": "পরবর্তী",
-    "showingOrders": "মোট {total}টির মধ্যে {start} - {end}টি অর্ডার প্রদর্শিত হচ্ছে"
+    "showingOrders": "মোট {total}টির মধ্যে {start} - {end}টি অর্ডার প্রদর্শিত হচ্ছে",
+    "reviewProductBtn": "রিভিউ দিন",
+    "writeReview": "রিভিউ লিখুন",
+    "selectProductToReviewTitle": "রিভিউ দেওয়ার পণ্য নির্বাচন করুন",
+    "selectProductToReviewSubtitle": "এই ডেলিভারড অর্ডারের কোন পণ্যটির রিভিউ আপনি আগে দিতে চান তা নির্বাচন করুন।",
+    "itemQty": "পরিমাণ: {count} টি"
   },
   "footer": {
     "aboutUs": "আমাদের সম্পর্কে",
