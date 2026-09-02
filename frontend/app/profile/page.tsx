@@ -2075,6 +2075,434 @@ export default function ProfilePage() {
           </div>
         </div>
       )}
+
+      {/* Customer Return & Refund Request Modal */}
+      {returnOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn overflow-y-auto">
+          <div className="bg-secondary text-foreground w-full max-w-xl rounded-3xl p-6 md:p-8 shadow-2xl border border-foreground/10 relative my-8 max-h-[90vh] flex flex-col animate-in fade-in duration-200">
+            {/* Modal Header */}
+            <div className="flex justify-between items-start pb-4 border-b border-foreground/10 mb-4 gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-accent/15 text-accent flex items-center justify-center shrink-0 border border-accent/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="1 4 1 10 7 10"></polyline>
+                      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-base md:text-lg font-black uppercase tracking-tight text-foreground">
+                      {t("profile.returnModalTitle") || (locale === "bn" ? "পণ্য রিটার্ন ও রিফান্ড অনুরোধ" : "Request Return & Refund")}
+                    </h3>
+                    <p className="text-[10px] opacity-60 font-bold uppercase tracking-wider">
+                      {locale === "bn" ? `অর্ডার #${returnOrder.id.toLocaleString("bn-BD")}` : `Order #${returnOrder.id}`}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-[11px] opacity-70 font-semibold mt-2">
+                  {t("profile.returnModalSubtitle") || (locale === "bn" ? "ডেলিভারড হওয়া পণ্যে কোনো সমস্যা থাকলে তা রিটার্ন করার জন্য নিচের তথ্যগুলো পূরণ করুন।" : "Submit a return request for eligible delivered products. Please select items and reason.")}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setReturnOrder(null)}
+                className="w-8 h-8 rounded-full bg-primary/5 hover:bg-button-bg hover:text-button-fg text-foreground/70 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            {/* Error / Success Feedback */}
+            {returnErrorMsg && (
+              <div className="mb-4 p-3 rounded-xl bg-hidden/15 border border-hidden/30 text-hidden text-xs font-bold">
+                {returnErrorMsg}
+              </div>
+            )}
+            {returnSuccessMsg && (
+              <div className="mb-4 p-3 rounded-xl bg-visible/15 border border-visible/30 text-visible text-xs font-bold">
+                {returnSuccessMsg}
+              </div>
+            )}
+
+            {/* Form */}
+            <form onSubmit={handleSubmitReturnRequest} className="flex-1 overflow-y-auto space-y-5 pr-1">
+              {/* Step 1: Select Items */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-black uppercase tracking-wider text-foreground">
+                  1. {t("profile.returnSelectItems") || (locale === "bn" ? "যে পণ্যগুলো রিটার্ন করতে চান তা নির্বাচন করুন *" : "Select Items to Return *")}
+                </label>
+                <div className="space-y-2">
+                  {(returnOrder.items || []).map((it) => {
+                    const sel = returnItemsSelection[it.id] || { selected: false, quantity: it.quantity };
+                    const pTitle = getProductTitle(it);
+                    const pImg = getProductImage(it);
+
+                    return (
+                      <div
+                        key={it.id}
+                        className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                          sel.selected
+                            ? "bg-accent/10 border-accent/40"
+                            : "bg-background border-foreground/10 opacity-70"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <input
+                            type="checkbox"
+                            id={`item_chk_${it.id}`}
+                            checked={sel.selected}
+                            onChange={(e) =>
+                              setReturnItemsSelection((prev) => ({
+                                ...prev,
+                                [it.id]: { ...sel, selected: e.target.checked },
+                              }))
+                            }
+                            className="w-4 h-4 rounded accent-accent cursor-pointer shrink-0"
+                          />
+                          <div className="w-10 h-10 rounded-xl bg-primary/5 border border-foreground/10 overflow-hidden shrink-0 flex items-center justify-center p-1">
+                            {pImg ? (
+                              <img src={pImg} alt={pTitle} className="w-full h-full object-contain rounded-lg" />
+                            ) : (
+                              <span className="text-xs font-black opacity-40">#</span>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <label htmlFor={`item_chk_${it.id}`} className="text-xs font-black text-foreground truncate block cursor-pointer">
+                              {pTitle}
+                            </label>
+                            <span className="text-[10px] opacity-60 font-bold block">
+                              {formatCurrency(Number(it.unit_price))} • {locale === "bn" ? `অর্ডার ছিল: ${it.quantity.toLocaleString("bn-BD")} টি` : `Ordered: ${it.quantity}`}
+                            </span>
+                          </div>
+                        </div>
+
+                        {sel.selected && it.quantity > 1 && (
+                          <div className="flex items-center gap-1.5 shrink-0 bg-secondary px-2 py-1 rounded-xl border border-foreground/10">
+                            <span className="text-[10px] font-bold opacity-60 uppercase">{locale === "bn" ? "পরিমাণ:" : "Qty:"}</span>
+                            <select
+                              value={sel.quantity}
+                              onChange={(e) =>
+                                setReturnItemsSelection((prev) => ({
+                                  ...prev,
+                                  [it.id]: { ...sel, quantity: Number(e.target.value) },
+                                }))
+                              }
+                              className="bg-transparent text-xs font-black text-foreground outline-none cursor-pointer"
+                            >
+                              {Array.from({ length: it.quantity }, (_, i) => i + 1).map((q) => (
+                                <option key={q} value={q} className="bg-secondary text-foreground">
+                                  {locale === "bn" ? q.toLocaleString("bn-BD") : q}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Step 2: Return Reason */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black uppercase tracking-wider text-foreground">
+                  2. {t("profile.returnReasonLabel") || (locale === "bn" ? "রিটার্নের কারণ *" : "Reason for Return *")}
+                </label>
+                <select
+                  value={returnReason}
+                  onChange={(e) => setReturnReason(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent transition-all cursor-pointer shadow-xs"
+                >
+                  <option value="damaged">{t("profile.returnReasonDamaged") || (locale === "bn" ? "ভাঙা বা নষ্ট পণ্য" : "Damaged / Defective Product")}</option>
+                  <option value="wrong_item">{t("profile.returnReasonWrong") || (locale === "bn" ? "ভুল পণ্য বা সাইজ ডেলিভারি" : "Wrong Product or Variant Delivered")}</option>
+                  <option value="not_as_described">{t("profile.returnReasonNotAsDescribed") || (locale === "bn" ? "ছবির সাথে পণ্যের অমিল" : "Item Does Not Match Description")}</option>
+                  <option value="missing_items">{t("profile.returnReasonMissing") || (locale === "bn" ? "প্যাকেজে আইটেম কম এসেছে" : "Missing Accessories / Items")}</option>
+                  <option value="size_fit">{t("profile.returnReasonSize") || (locale === "bn" ? "সাইজ বা ফিটিং সমস্যা" : "Size / Fit Issue")}</option>
+                  <option value="other">{t("profile.returnReasonOther") || (locale === "bn" ? "অন্যান্য কারণ" : "Other Reason")}</option>
+                </select>
+              </div>
+
+              {/* Step 3: Customer Comments */}
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black uppercase tracking-wider text-foreground">
+                  3. {t("profile.returnNoteLabel") || (locale === "bn" ? "অতিরিক্ত মন্তব্য বা বিবরণ" : "Additional Comments / Explanation")}
+                </label>
+                <textarea
+                  rows={2}
+                  value={returnNote}
+                  onChange={(e) => setReturnNote(e.target.value)}
+                  placeholder={t("profile.returnNotePlaceholder") || (locale === "bn" ? "পণ্যের সমস্যার বিস্তারিত বিবরণ লিখুন..." : "Describe the issue with the product in detail...")}
+                  className="w-full px-4 py-2.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-medium outline-none focus:ring-2 focus:ring-accent transition-all shadow-xs resize-none"
+                />
+              </div>
+
+              {/* Step 4: Refund Method */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-black uppercase tracking-wider text-foreground">
+                  4. {t("profile.refundMethodLabel") || (locale === "bn" ? "রিফান্ডের মাধ্যম *" : "Refund Method *")}
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {/* VibeCoin Option */}
+                  <label
+                    className={`p-3 rounded-2xl border cursor-pointer flex flex-col justify-between transition-all ${
+                      refundMethod === "vibecoin"
+                        ? "bg-accent/15 border-accent text-foreground shadow-xs"
+                        : "bg-background border-foreground/10 opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-1.5">
+                        <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" className="w-4 h-4 object-contain" />
+                        <span className="text-xs font-black uppercase tracking-tight">VibeCoin</span>
+                      </div>
+                      <input
+                        type="radio"
+                        name="refundMethod"
+                        checked={refundMethod === "vibecoin"}
+                        onChange={() => setRefundMethod("vibecoin")}
+                        className="accent-accent"
+                      />
+                    </div>
+                    <span className="text-[10px] opacity-70 font-semibold">
+                      {locale === "bn" ? "তাৎক্ষণিক ওয়ালেট ক্রেডিট" : "Instant Store Credit"}
+                    </span>
+                  </label>
+
+                  {/* bKash Option */}
+                  <label
+                    className={`p-3 rounded-2xl border cursor-pointer flex flex-col justify-between transition-all ${
+                      refundMethod === "bkash"
+                        ? "bg-accent/15 border-accent text-foreground shadow-xs"
+                        : "bg-background border-foreground/10 opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-black text-bkash uppercase tracking-tight">bKash</span>
+                      <input
+                        type="radio"
+                        name="refundMethod"
+                        checked={refundMethod === "bkash"}
+                        onChange={() => setRefundMethod("bkash")}
+                        className="accent-accent"
+                      />
+                    </div>
+                    <span className="text-[10px] opacity-70 font-semibold">
+                      {locale === "bn" ? "বিকাশ মোবাইল রিফান্ড" : "bKash MFS Refund"}
+                    </span>
+                  </label>
+
+                  {/* Nagad Option */}
+                  <label
+                    className={`p-3 rounded-2xl border cursor-pointer flex flex-col justify-between transition-all ${
+                      refundMethod === "nagad"
+                        ? "bg-accent/15 border-accent text-foreground shadow-xs"
+                        : "bg-background border-foreground/10 opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-black text-nagad uppercase tracking-tight">Nagad</span>
+                      <input
+                        type="radio"
+                        name="refundMethod"
+                        checked={refundMethod === "nagad"}
+                        onChange={() => setRefundMethod("nagad")}
+                        className="accent-accent"
+                      />
+                    </div>
+                    <span className="text-[10px] opacity-70 font-semibold">
+                      {locale === "bn" ? "নগদ মোবাইল রিফান্ড" : "Nagad MFS Refund"}
+                    </span>
+                  </label>
+                </div>
+
+                {/* Account Number input for MFS */}
+                {(refundMethod === "bkash" || refundMethod === "nagad") && (
+                  <div className="pt-2 animate-fadeIn">
+                    <label className="text-[10px] font-bold opacity-70 uppercase tracking-wider block mb-1">
+                      {t("profile.refundAccountLabel") || (locale === "bn" ? "বিকাশ / নগদ মোবাইল নম্বর *" : "bKash / Nagad Mobile Number *")}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={refundAccountNumber}
+                      onChange={(e) => setRefundAccountNumber(e.target.value)}
+                      placeholder={t("profile.refundAccountPlaceholder") || "017XXXXXXXX"}
+                      className="w-full px-4 py-2 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Step 5: Upload Proof Photos */}
+              <div className="space-y-2">
+                <label className="text-[11px] font-black uppercase tracking-wider text-foreground">
+                  5. {t("profile.returnUploadPhotos") || (locale === "bn" ? "প্রমাণস্বরূপ ছবি সংযুক্ত করুন (সর্বোচ্চ ৩টি)" : "Upload Proof Photos (Optional, max 3 photos)")}
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { state: proofImage1, setter: setProofImage1, label: "Photo 1" },
+                    { state: proofImage2, setter: setProofImage2, label: "Photo 2" },
+                    { state: proofImage3, setter: setProofImage3, label: "Photo 3" },
+                  ].map((p, idx) => (
+                    <label
+                      key={idx}
+                      className="h-20 rounded-2xl border-2 border-dashed border-foreground/20 bg-background hover:border-accent flex flex-col items-center justify-center p-2 text-center cursor-pointer transition-all overflow-hidden"
+                    >
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => p.setter(e.target.files?.[0] || null)}
+                        className="hidden"
+                      />
+                      {p.state ? (
+                        <div className="text-[10px] font-bold text-accent truncate w-full px-1">
+                          ✓ {p.state.name}
+                        </div>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5 opacity-40 mb-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                            <circle cx="9" cy="9" r="2" />
+                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                          </svg>
+                          <span className="text-[9px] font-black uppercase opacity-60">{locale === "bn" ? `ছবি ${idx + 1}` : p.label}</span>
+                        </>
+                      )}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Estimated Refund Summary & Submit */}
+              <div className="pt-4 border-t border-foreground/10 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold opacity-60 uppercase">
+                    {t("profile.returnEstimatedRefund") || (locale === "bn" ? "আনুমানিক রিফান্ড মূল্য:" : "Estimated Refund:")}
+                  </span>
+                  <span className="text-base font-black text-accent">
+                    {formatCurrency(calculateReturnTotal(returnOrder))}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <button
+                    type="button"
+                    onClick={() => setReturnOrder(null)}
+                    className="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold uppercase tracking-wider hover:bg-foreground/5 transition-all cursor-pointer"
+                  >
+                    {locale === "bn" ? "বাতিল" : "Cancel"}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submittingReturn}
+                    className="flex-1 sm:flex-initial px-6 py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-black uppercase tracking-wider hover:opacity-90 transition-all shadow-md cursor-pointer disabled:opacity-50"
+                  >
+                    {submittingReturn
+                      ? (t("profile.returnSubmitting") || (locale === "bn" ? "অনুরোধ পাঠানো হচ্ছে..." : "Submitting..."))
+                      : (t("profile.returnSubmitBtn") || (locale === "bn" ? "রিটার্ন অনুরোধ জমা দিন" : "Submit Return"))}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Return Request Status Modal (Active/Previous Return) */}
+      {returnStatusOrder && returnStatusOrder.return_requests && returnStatusOrder.return_requests.length > 0 && (() => {
+        const ret = returnStatusOrder.return_requests[0];
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
+            <div className="bg-secondary text-foreground w-full max-w-md rounded-3xl p-6 md:p-8 shadow-2xl border border-foreground/10 relative max-h-[90vh] flex flex-col animate-in fade-in duration-200">
+              <div className="flex justify-between items-start pb-4 border-b border-foreground/10 mb-4 gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-accent/15 text-accent flex items-center justify-center shrink-0 border border-accent/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="1 4 1 10 7 10"></polyline>
+                      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black uppercase tracking-tight text-foreground">
+                      {t("profile.viewReturnStatus") || (locale === "bn" ? "রিটার্ন অনুরোধের বর্তমান অবস্থা" : "Return Request Status")}
+                    </h3>
+                    <p className="text-[10px] opacity-60 font-bold uppercase tracking-wider">
+                      {locale === "bn" ? `অর্ডার #${returnStatusOrder.id.toLocaleString("bn-BD")}` : `Order #${returnStatusOrder.id}`}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setReturnStatusOrder(null)}
+                  className="w-8 h-8 rounded-full bg-primary/5 hover:bg-button-bg hover:text-button-fg text-foreground/70 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-4 text-xs">
+                {/* Status Badge Hero */}
+                <div className="p-4 rounded-2xl bg-background border border-foreground/10 flex items-center justify-between">
+                  <span className="font-bold opacity-70 uppercase tracking-wider text-[10px]">
+                    {locale === "bn" ? "বর্তমান অবস্থা:" : "Current Status:"}
+                  </span>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border ${
+                      ret.status === "approved"
+                        ? "bg-visible/15 text-visible border-visible/30"
+                        : ret.status === "refunded"
+                        ? "bg-visible/15 text-visible border-visible/30"
+                        : ret.status === "rejected"
+                        ? "bg-hidden/15 text-hidden border-hidden/30"
+                        : "bg-accent/15 text-accent border-accent/30"
+                    }`}
+                  >
+                    {ret.status_display}
+                  </span>
+                </div>
+
+                {/* Details Summary */}
+                <div className="p-4 rounded-2xl bg-background border border-foreground/10 space-y-2.5 text-xs">
+                  <div className="flex justify-between">
+                    <span className="opacity-60 font-semibold">{locale === "bn" ? "রিটার্নের কারণ:" : "Reason:"}</span>
+                    <span className="font-bold text-foreground">{ret.reason_display}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="opacity-60 font-semibold">{locale === "bn" ? "রিফান্ডের মাধ্যম:" : "Refund Method:"}</span>
+                    <span className="font-bold text-foreground uppercase">{ret.refund_method}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="opacity-60 font-semibold">{locale === "bn" ? "রিফান্ড মূল্য:" : "Refund Amount:"}</span>
+                    <span className="font-black text-accent">{formatCurrency(Number(ret.refund_amount))}</span>
+                  </div>
+                  {ret.admin_note && (
+                    <div className="pt-2 border-t border-foreground/10">
+                      <span className="opacity-60 font-semibold block text-[10px] uppercase">{locale === "bn" ? "স্টোর নোট:" : "Store Note:"}</span>
+                      <p className="font-medium text-foreground mt-0.5">{ret.admin_note}</p>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setReturnStatusOrder(null)}
+                  className="w-full py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-all cursor-pointer shadow-md"
+                >
+                  {locale === "bn" ? "বন্ধ করুন" : "Close"}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </main>
   </div>
   );

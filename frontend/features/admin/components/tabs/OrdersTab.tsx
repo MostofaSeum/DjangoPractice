@@ -99,6 +99,15 @@ export default function OrdersTab({
   >("in_transit");
   const [isDispatching, setIsDispatching] = useState(false);
 
+  // Return Request Management Modal State
+  const [reviewingReturnOrder, setReviewingReturnOrder] = useState<Order | null>(null);
+  const [adminNoteInput, setAdminNoteInput] = useState<string>("");
+  const [refundTrxInput, setRefundTrxInput] = useState<string>("");
+  const [customRefundAmount, setCustomRefundAmount] = useState<string>("");
+  const [isProcessingReturn, setIsProcessingReturn] = useState<boolean>(false);
+  const [returnActionSuccess, setReturnActionSuccess] = useState<string>("");
+  const [returnActionError, setReturnActionError] = useState<string>("");
+
   // Edit Order Modal State
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [editShippingAddress, setEditShippingAddress] = useState("");
@@ -513,6 +522,33 @@ export default function OrdersTab({
                           {isBn ? "ট্র্যাক" : "Track"}
                         </button>
 
+
+                        {/* Return Request Button if order has active returns */}
+                        {order.return_requests && order.return_requests.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setReviewingReturnOrder(order);
+                              setAdminNoteInput(order.return_requests?.[0]?.admin_note || "");
+                              setCustomRefundAmount(order.return_requests?.[0]?.refund_amount || "");
+                              setRefundTrxInput("");
+                              setReturnActionError("");
+                              setReturnActionSuccess("");
+                            }}
+                            className={`px-3 py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer border ${
+                              order.return_requests[0].status === "pending"
+                                ? "bg-accent text-button-fg border-accent hover:opacity-90 animate-pulse"
+                                : order.return_requests[0].status === "approved"
+                                ? "bg-visible/20 text-visible border-visible/30 hover:bg-visible hover:text-button-fg"
+                                : order.return_requests[0].status === "refunded"
+                                ? "bg-visible/10 text-visible border-visible/20 opacity-80"
+                                : "bg-hidden/15 text-hidden border-hidden/30"
+                            }`}
+                            title={isBn ? "রিটার্ন অনুরোধ" : "Return Request"}
+                          >
+                            {isBn ? "রিটার্ন" : "Return"}
+                          </button>
+                        )}
 
                         {/* 3. View Details Button */}
                         <button
@@ -1583,6 +1619,237 @@ export default function OrdersTab({
           </div>
         </div>
       )}
+      {/* Return Request Admin Review & Refund Modal */}
+      {reviewingReturnOrder && reviewingReturnOrder.return_requests && reviewingReturnOrder.return_requests.length > 0 && (() => {
+        const ret = reviewingReturnOrder.return_requests[0];
+        const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+
+        const handleReturnAction = async (actionType: "approve" | "reject" | "refund") => {
+          setIsProcessingReturn(true);
+          setReturnActionError("");
+          setReturnActionSuccess("");
+
+          try {
+            const headers: Record<string, string> = {
+              "Content-Type": "application/json",
+            };
+            if (token) headers["Authorization"] = `JWT ${token}`;
+
+            let endpoint = `/store/return-requests/${ret.id}/approve_return/`;
+            let body: any = { admin_note: adminNoteInput };
+
+            if (actionType === "reject") {
+              endpoint = `/store/return-requests/${ret.id}/reject_return/`;
+            } else if (actionType === "refund") {
+              endpoint = `/store/return-requests/${ret.id}/process_refund/`;
+              body = {
+                admin_note: adminNoteInput,
+                refund_amount: customRefundAmount ? Number(customRefundAmount) : undefined,
+                refund_transaction_id: refundTrxInput,
+              };
+            }
+
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}${endpoint}`, {
+              method: "POST",
+              headers,
+              body: JSON.stringify(body),
+            });
+
+            if (res.ok) {
+              const updatedData = await res.json();
+              setReturnActionSuccess(
+                actionType === "approve"
+                  ? (isBn ? "রিটার্ন অনুরোধ সফলভাবে অনুমোদিত হয়েছে।" : "Return request approved successfully.")
+                  : actionType === "reject"
+                  ? (isBn ? "রিটার্ন অনুরোধ বাতিল করা হয়েছে।" : "Return request rejected.")
+                  : (isBn ? "রিফান্ড সফলভাবে সম্পন্ন হয়েছে।" : "Refund processed successfully.")
+              );
+              // Update local order data
+              reviewingReturnOrder.return_requests[0] = {
+                ...ret,
+                status: updatedData.status,
+                status_display: updatedData.status_display,
+                admin_note: updatedData.admin_note,
+                refund_amount: String(updatedData.refund_amount),
+              };
+              setTimeout(() => {
+                setReviewingReturnOrder(null);
+                setReturnActionSuccess("");
+              }, 1500);
+            } else {
+              const err = await res.json().catch(() => ({}));
+              setReturnActionError(err.error || err.detail || (isBn ? "কার্যক্রম সম্পন্ন করা যায়নি।" : "Failed to process return action."));
+            }
+          } catch (e: any) {
+            setReturnActionError(e.message || (isBn ? "নেটওয়ার্ক ত্রুটি।" : "Network error."));
+          } finally {
+            setIsProcessingReturn(false);
+          }
+        };
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn overflow-y-auto">
+            <div className="bg-secondary text-foreground w-full max-w-lg rounded-3xl p-6 md:p-8 shadow-2xl border border-foreground/10 relative my-8 max-h-[90vh] flex flex-col animate-in fade-in duration-200">
+              {/* Header */}
+              <div className="flex justify-between items-start pb-4 border-b border-foreground/10 mb-4 gap-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-accent animate-ping" />
+                    <h3 className="text-base md:text-lg font-black uppercase tracking-tight text-foreground">
+                      {isBn ? "রিটার্ন ও রিফান্ড পর্যালোচনা" : "Review Return & Refund"}
+                    </h3>
+                  </div>
+                  <p className="text-[10px] opacity-60 font-bold uppercase tracking-wider mt-1">
+                    {isBn ? `অর্ডার #${reviewingReturnOrder.id.toLocaleString("bn-BD")}` : `Order #${reviewingReturnOrder.id}`} • {isBn ? `গ্রাহক: @${reviewingReturnOrder.customer_name || reviewingReturnOrder.customer}` : `Customer: @${reviewingReturnOrder.customer_name || reviewingReturnOrder.customer}`}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setReviewingReturnOrder(null)}
+                  className="w-8 h-8 rounded-full bg-primary/5 hover:bg-button-bg hover:text-button-fg text-foreground/70 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+
+              {/* Feedback messages */}
+              {returnActionError && (
+                <div className="mb-4 p-3 rounded-xl bg-hidden/15 border border-hidden/30 text-hidden text-xs font-bold">
+                  {returnActionError}
+                </div>
+              )}
+              {returnActionSuccess && (
+                <div className="mb-4 p-3 rounded-xl bg-visible/15 border border-visible/30 text-visible text-xs font-bold">
+                  {returnActionSuccess}
+                </div>
+              )}
+
+              {/* Modal Body */}
+              <div className="flex-1 overflow-y-auto space-y-4 pr-1 text-xs">
+                {/* Status and Reason */}
+                <div className="p-4 rounded-2xl bg-background border border-foreground/10 space-y-2.5">
+                  <div className="flex justify-between items-center">
+                    <span className="opacity-60 font-semibold">{isBn ? "অনুরোধের বর্তমান অবস্থা:" : "Current Status:"}</span>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${
+                      ret.status === "approved"
+                        ? "bg-visible/15 text-visible border-visible/30"
+                        : ret.status === "refunded"
+                        ? "bg-visible/15 text-visible border-visible/30"
+                        : ret.status === "rejected"
+                        ? "bg-hidden/15 text-hidden border-hidden/30"
+                        : "bg-accent/15 text-accent border-accent/30"
+                    }`}>
+                      {ret.status_display}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="opacity-60 font-semibold">{isBn ? "রিটার্নের কারণ:" : "Reason:"}</span>
+                    <span className="font-bold text-foreground">{ret.reason_display}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="opacity-60 font-semibold">{isBn ? "পছন্দকৃত রিফান্ড মাধ্যম:" : "Refund Method:"}</span>
+                    <span className="font-bold text-foreground uppercase">{ret.refund_method}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="opacity-60 font-semibold">{isBn ? "প্রস্তাবিত রিফান্ড মূল্য:" : "Requested Refund:"}</span>
+                    <span className="font-black text-accent">{formatCurrency(Number(ret.refund_amount))}</span>
+                  </div>
+                </div>
+
+                {/* Admin Note Input (200 words max) */}
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-wider opacity-60 block">
+                    {isBn ? "স্টোর নোট / গ্রাহককে মেসেজ" : "Staff Note / Message to Customer"}
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={adminNoteInput}
+                    onChange={(e) => setAdminNoteInput(e.target.value)}
+                    placeholder={isBn ? "গ্রাহকের জন্য নোট লিখুন..." : "Enter note for customer or internal record..."}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-medium outline-none focus:ring-2 focus:ring-accent transition-all resize-none shadow-xs"
+                  />
+                </div>
+
+                {/* Refund Fields when Processing Refund */}
+                {ret.status !== "refunded" && (
+                  <div className="p-4 rounded-2xl bg-primary/5 border border-foreground/10 space-y-3">
+                    <span className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
+                      {isBn ? "রিফান্ড চূড়ান্তকরণ তথ্য" : "Refund Disbursement Settings"}
+                    </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <div>
+                        <label className="text-[9px] font-bold opacity-60 uppercase block mb-1">
+                          {isBn ? "চূড়ান্ত রিফান্ড মূল্য (৳)" : "Final Refund Amount (৳)"}
+                        </label>
+                        <input
+                          type="number"
+                          value={customRefundAmount}
+                          onChange={(e) => setCustomRefundAmount(e.target.value)}
+                          className="w-full px-3 py-1.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
+                        />
+                      </div>
+                      {ret.refund_method !== "vibecoin" && (
+                        <div>
+                          <label className="text-[9px] font-bold opacity-60 uppercase block mb-1">
+                            {isBn ? "বিকাশ / নগদ TrxID" : "MFS Refund TrxID"}
+                          </label>
+                          <input
+                            type="text"
+                            value={refundTrxInput}
+                            onChange={(e) => setRefundTrxInput(e.target.value)}
+                            placeholder="e.g. 9J8KL4M5"
+                            className="w-full px-3 py-1.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="pt-4 border-t border-foreground/10 flex items-center justify-between gap-2 flex-wrap">
+                <button
+                  type="button"
+                  disabled={isProcessingReturn}
+                  onClick={() => handleReturnAction("reject")}
+                  className="px-4 py-2 rounded-xl bg-hidden/15 hover:bg-hidden hover:text-button-fg text-hidden border border-hidden/30 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {isBn ? "বাতিল করুন" : "Reject"}
+                </button>
+
+                <div className="flex items-center gap-2">
+                  {ret.status === "pending" && (
+                    <button
+                      type="button"
+                      disabled={isProcessingReturn}
+                      onClick={() => handleReturnAction("approve")}
+                      className="px-4 py-2 rounded-xl bg-accent/20 hover:bg-accent hover:text-button-fg text-accent border border-accent/40 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      {isBn ? "অনুমোদন করুন" : "Approve Return"}
+                    </button>
+                  )}
+
+                  {ret.status !== "refunded" && (
+                    <button
+                      type="button"
+                      disabled={isProcessingReturn}
+                      onClick={() => handleReturnAction("refund")}
+                      className="px-5 py-2 rounded-xl bg-button-bg hover:opacity-90 text-button-fg text-xs font-black uppercase tracking-wider transition-all shadow-md cursor-pointer disabled:opacity-50"
+                    >
+                      {isBn ? "রিফান্ড সম্পন্ন করুন" : "Disburse Refund"}
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
