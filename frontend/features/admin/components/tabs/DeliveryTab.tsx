@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {
   DeliverySettingsState,
   CourierProvider,
@@ -31,6 +32,7 @@ interface DeliveryTabProps {
 const PRESET_COURIERS: Array<{
   code: DeliveryProviderCode;
   name: string;
+  logo: string;
   defaultTrackingUrl: string;
   defaultBaseUrl: string;
   description: string;
@@ -38,6 +40,7 @@ const PRESET_COURIERS: Array<{
   {
     code: "steadfast",
     name: "Steadfast Courier",
+    logo: "/DeliveryPartner/steadfast.jpg",
     defaultTrackingUrl: "https://steadfast.com.bd/t/{tracking_code}",
     defaultBaseUrl: "https://portal.steadfast.com.bd/api/v1",
     description: "Full automated parcel dispatch across Bangladesh with instant COD tracking.",
@@ -45,6 +48,7 @@ const PRESET_COURIERS: Array<{
   {
     code: "pathao",
     name: "Pathao Courier",
+    logo: "/DeliveryPartner/pathaocourier.png",
     defaultTrackingUrl: "https://merchant.pathao.com/tracking?consignment_id={tracking_code}",
     defaultBaseUrl: "https://courier-api.pathao.com/aladdin/api/v1",
     description: "Reliable express courier service inside Dhaka and nationwide hubs.",
@@ -52,6 +56,7 @@ const PRESET_COURIERS: Array<{
   {
     code: "redx",
     name: "RedX Delivery",
+    logo: "/DeliveryPartner/redx.png",
     defaultTrackingUrl: "https://redx.com.bd/track-order?trackingId={tracking_code}",
     defaultBaseUrl: "https://openapi.redx.com.bd/v1.0.0-beta",
     description: "Doorstep delivery partner with live parcel tracking and doorstep exchange.",
@@ -59,11 +64,13 @@ const PRESET_COURIERS: Array<{
   {
     code: "paperfly",
     name: "Paperfly",
+    logo: "/DeliveryPartner/paperfly.png",
     defaultTrackingUrl: "https://paperfly.com.bd/track?tracking_id={tracking_code}",
     defaultBaseUrl: "https://api.paperfly.com.bd/v1",
     description: "Nationwide doorstep courier coverage with smart return management.",
   },
 ];
+
 
 export default function DeliveryTab({
   deliverySubTab = "rates",
@@ -458,13 +465,30 @@ export default function DeliveryTab({
                         )}
                       </div>
 
-                      {/* Name & Provider Type */}
-                      <h4 className="font-black text-base text-foreground group-hover:text-accent transition-colors">
-                        {provider.name}
-                      </h4>
-                      <p className="text-xs opacity-60 font-bold uppercase tracking-wider mt-0.5">
-                        {provider.provider_code_display || provider.provider_code}
-                      </p>
+                      {/* Name & Provider Type with Logo */}
+                      <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 relative rounded-2xl overflow-hidden bg-white shrink-0 p-1 flex items-center justify-center border border-foreground/10">
+                          <Image
+                            src={
+                              PRESET_COURIERS.find((p) => p.code === provider.provider_code)?.logo ||
+                              "/DeliveryPartner/steadfast.jpg"
+                            }
+                            alt={provider.name}
+                            fill
+                            sizes="44px"
+                            className="object-contain p-0.5"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="font-black text-base text-foreground group-hover:text-accent transition-colors truncate">
+                            {provider.name}
+                          </h4>
+                          <p className="text-[10px] opacity-60 font-bold uppercase tracking-wider mt-0.5">
+                            {provider.provider_code_display || provider.provider_code}
+                          </p>
+                        </div>
+                      </div>
+
 
                       {/* Default Badges */}
                       <div className="flex flex-wrap gap-1.5 mt-4">
@@ -616,26 +640,38 @@ export default function DeliveryTab({
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 block">
                 {t("admin.delivery.courierType")}
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {PRESET_COURIERS.map((preset) => (
                   <button
                     key={preset.code}
                     type="button"
                     onClick={() => handleSelectPresetProvider(preset.code)}
-                    className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                    className={`p-3 rounded-2xl border flex flex-col items-center text-center gap-2 transition-all cursor-pointer ${
                       courierProviderCode === preset.code
                         ? "bg-accent/15 border-accent text-accent font-black shadow-xs"
                         : "bg-background border-foreground/10 text-foreground hover:border-foreground/30 font-bold"
                     }`}
                   >
-                    <div className="text-xs">{preset.name}</div>
-                    <div className="text-[9px] opacity-60 uppercase tracking-widest mt-0.5">
-                      {preset.code}
+                    <div className="w-10 h-10 relative rounded-xl overflow-hidden bg-white shrink-0 p-1 flex items-center justify-center border border-foreground/10">
+                      <Image
+                        src={preset.logo}
+                        alt={preset.name}
+                        fill
+                        sizes="40px"
+                        className="object-contain p-0.5"
+                      />
+                    </div>
+                    <div>
+                      <div className="text-xs leading-tight font-black">{preset.name}</div>
+                      <div className="text-[9px] opacity-60 uppercase tracking-widest mt-0.5 font-bold">
+                        {preset.code}
+                      </div>
                     </div>
                   </button>
                 ))}
               </div>
             </div>
+
 
             <form onSubmit={handleSubmitCourierForm} className="space-y-4">
               <div>
