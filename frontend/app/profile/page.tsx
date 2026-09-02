@@ -766,7 +766,7 @@ export default function ProfilePage() {
                   {[1, 2].map((i) => (
                     <div
                       key={i}
-                      className="p-4 sm:p-5 rounded-2xl border border-foreground/10 bg-secondary/80 space-y-3 animate-pulse"
+                      className="p-4 sm:p-5 rounded-2xl border border-foreground/12 bg-background/40 space-y-3 animate-pulse"
                     >
                       <div className="flex justify-between items-center pb-2.5 border-b border-foreground/5">
                         <div className="h-4 w-44 bg-foreground/10 rounded-md" />
@@ -817,7 +817,7 @@ export default function ProfilePage() {
                     return (
                       <div
                         key={ord.id}
-                        className="p-4 sm:p-5 rounded-2xl border border-foreground/10 bg-secondary/80 hover:bg-secondary hover:border-foreground/20 space-y-3 transition-all duration-200 shadow-xs"
+                        className="p-4 sm:p-5 rounded-2xl border border-foreground/12 bg-background/50 hover:bg-background/80 hover:border-foreground/25 space-y-3 transition-all duration-200 shadow-xs"
                       >
                         {/* Row 1: Header (Order ID, Date, Payment Method on Left, Status Badge on Right) */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-foreground/10">
