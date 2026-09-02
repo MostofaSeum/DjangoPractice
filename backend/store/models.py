@@ -531,12 +531,14 @@ class GoogleSheetSyncSetting(models.Model):
 
 class Notification(models.Model):
     TYPE_ORDER = 'order'
+    TYPE_RETURN = 'return'
     TYPE_STOCK = 'stock'
     TYPE_SYSTEM = 'system'
     TYPE_PROMOTION = 'promotion'
     TYPE_COUPON = 'coupon'
     TYPE_CHOICES = [
         (TYPE_ORDER, 'New Order'),
+        (TYPE_RETURN, 'Return Request'),
         (TYPE_STOCK, 'Low Stock Alert'),
         (TYPE_SYSTEM, 'System Alert'),
         (TYPE_PROMOTION, 'Promotion Expiry Alert'),

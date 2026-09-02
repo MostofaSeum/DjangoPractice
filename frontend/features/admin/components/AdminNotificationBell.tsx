@@ -10,7 +10,7 @@ interface NotificationItem {
   id: number;
   title: string;
   message: string;
-  notification_type: "order" | "stock" | "system" | "promotion" | "coupon";
+  notification_type: "order" | "return" | "stock" | "system" | "promotion" | "coupon";
   target_id: string;
   is_read: boolean;
   created_at: string;
@@ -20,6 +20,7 @@ interface AdminNotificationBellProps {
   apiBase: string;
   token: string | null;
   onNavigateToOrder?: (orderId: string) => void;
+  onNavigateToReturn?: (orderId: string) => void;
   onNavigateToTab?: (tab: "orders" | "promotions" | "coupons" | "products") => void;
 }
 
@@ -27,6 +28,7 @@ export default function AdminNotificationBell({
   apiBase,
   token,
   onNavigateToOrder,
+  onNavigateToReturn,
   onNavigateToTab,
 }: AdminNotificationBellProps) {
   const { locale, t } = useLanguage();
@@ -37,7 +39,7 @@ export default function AdminNotificationBell({
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [activeFilter, setActiveFilter] = useState<"all" | "order" | "promotion" | "coupon">("all");
+  const [activeFilter, setActiveFilter] = useState<"all" | "order" | "return" | "promotion" | "coupon">("all");
 
   const lastSeenIdRef = useRef<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -49,6 +51,7 @@ export default function AdminNotificationBell({
   });
 
   const ordersCount = notifications.filter((n) => n.notification_type === "order").length;
+  const returnsCount = notifications.filter((n) => n.notification_type === "return").length;
   const promosCount = notifications.filter((n) => n.notification_type === "promotion").length;
   const couponsCount = notifications.filter((n) => n.notification_type === "coupon").length;
 
@@ -79,6 +82,11 @@ export default function AdminNotificationBell({
       translatedTitle = formatTemplate(t("notifications.newOrderTitle"), {
         orderId: toBnDigits(orderNum),
       });
+    } else if (title.startsWith("New Return Request for Order #")) {
+      const orderNum = title.replace("New Return Request for Order #", "");
+      translatedTitle = formatTemplate(t("notifications.newReturnTitle"), {
+        orderId: toBnDigits(orderNum),
+      });
     } else if (title === "Promotion Expiring Soon!") {
       translatedTitle = t("notifications.promoExpiringTitle");
     } else if (title === "Product Promotion Expiring Soon!") {
@@ -88,6 +96,21 @@ export default function AdminNotificationBell({
     }
 
     // Message translations via dictionary
+    // Pattern 0: Customer @<username> requested a return for Order #<id> (Amount: ৳<amount>). Reason: <reason>.
+    const returnMatch = message.match(/Customer\s+@([^\s]+)\s+requested a return for Order #(\d+)\s+\(Amount:\s+৳([\d,.]+)\)\.\s+Reason:\s+(.+)\./i);
+    if (returnMatch) {
+      const customer = returnMatch[1];
+      const orderId = toBnDigits(returnMatch[2]);
+      const total = toBnDigits(returnMatch[3]);
+      const reason = returnMatch[4];
+      translatedMessage = formatTemplate(t("notifications.newReturnMsg"), {
+        customer,
+        orderId,
+        total,
+        reason,
+      });
+    }
+
     // Pattern 1: Customer <phone> placed an order for ৳<total> (<payment_method>).
     const orderMatch = message.match(/Customer\s+([\d\w+]+)\s+placed an order for\s+৳([\d,.]+)\s+\(([^)]+)\)\./i);
     if (orderMatch) {
@@ -277,6 +300,13 @@ export default function AdminNotificationBell({
     if (item.notification_type === "order" && item.target_id && onNavigateToOrder) {
       onNavigateToOrder(item.target_id);
       setIsOpen(false);
+    } else if (item.notification_type === "return" && item.target_id) {
+      if (onNavigateToReturn) {
+        onNavigateToReturn(item.target_id);
+      } else if (onNavigateToOrder) {
+        onNavigateToOrder(item.target_id);
+      }
+      setIsOpen(false);
     } else if (item.notification_type === "promotion" && onNavigateToTab) {
       onNavigateToTab("promotions");
       setIsOpen(false);
@@ -437,6 +467,26 @@ export default function AdminNotificationBell({
 
             <button
               type="button"
+              onClick={() => setActiveFilter("return")}
+              className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
+                activeFilter === "return"
+                  ? "bg-secondary text-foreground shadow-xs border border-foreground/15"
+                  : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
+              }`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block animate-ping"></span>
+              <span>{t("notifications.filterReturns")}</span>
+              {returnsCount > 0 && (
+                <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
+                  activeFilter === "return" ? "bg-primary/10 text-foreground" : "opacity-60"
+                }`}>
+                  {toBnDigits(returnsCount)}
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
               onClick={() => setActiveFilter("promotion")}
               className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
                 activeFilter === "promotion"
@@ -486,9 +536,11 @@ export default function AdminNotificationBell({
                       type:
                         activeFilter === "order"
                           ? t("notifications.filterOrders")
-                          : activeFilter === "promotion"
-                            ? t("notifications.filterPromotions")
-                            : t("notifications.filterCoupons"),
+                          : activeFilter === "return"
+                            ? t("notifications.filterReturns")
+                            : activeFilter === "promotion"
+                              ? t("notifications.filterPromotions")
+                              : t("notifications.filterCoupons"),
                     })}
               </div>
             ) : (
@@ -515,6 +567,13 @@ export default function AdminNotificationBell({
                             height={16}
                             className="object-contain filter dark:invert"
                           />
+                        </div>
+                      ) : item.notification_type === "return" ? (
+                        <div className="w-7 h-7 rounded-lg bg-accent/15 flex items-center justify-center p-1.5 border border-accent/20">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent">
+                            <polyline points="1 4 1 10 7 10"></polyline>
+                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                          </svg>
                         </div>
                       ) : item.notification_type === "promotion" ? (
                         <div className="w-7 h-7 rounded-lg bg-accent/15 flex items-center justify-center p-1.5 border border-accent/20">

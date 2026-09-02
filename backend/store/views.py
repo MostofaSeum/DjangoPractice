@@ -1552,9 +1552,10 @@ class ReturnRequestViewSet(ModelViewSet):
 
         # Create Admin notification
         Notification.objects.create(
-            notification_type=Notification.TYPE_ORDER,
+            notification_type=Notification.TYPE_RETURN,
             title=f"New Return Request for Order #{order.id}",
-            message=f"Customer @{customer.user.username} requested a return for Order #{order.id} (Amount: ৳{total_refund_calculated}). Reason: {return_request.get_reason_display()}."
+            message=f"Customer @{customer.user.username} requested a return for Order #{order.id} (Amount: ৳{total_refund_calculated}). Reason: {return_request.get_reason_display()}.",
+            target_id=str(order.id)
         )
 
         return Response(ReturnRequestSerializer(return_request).data, status=status.HTTP_201_CREATED)
