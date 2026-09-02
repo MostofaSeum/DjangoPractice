@@ -813,6 +813,76 @@ export default function OrdersTab({
               </table>
             </div>
 
+            {/* Return Request Details Card if this order has a return request */}
+            {selectedOrderDetails.return_requests && selectedOrderDetails.return_requests.length > 0 && (() => {
+              const ret = selectedOrderDetails.return_requests[0];
+              return (
+                <div className="mb-6 p-4 rounded-2xl bg-primary/5 border border-accent/30 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
+                      <span className="text-xs font-black uppercase tracking-wider text-accent">
+                        {isBn ? "রিটার্ন অনুরোধের তথ্য" : "Return & Refund Information"}
+                      </span>
+                    </div>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${
+                      ret.status === "approved"
+                        ? "bg-visible/15 text-visible border-visible/30"
+                        : ret.status === "refunded"
+                        ? "bg-visible/15 text-visible border-visible/30"
+                        : ret.status === "rejected"
+                        ? "bg-hidden/15 text-hidden border-hidden/30"
+                        : "bg-accent/15 text-accent border-accent/30"
+                    }`}>
+                      {ret.status_display}
+                    </span>
+                  </div>
+
+                  <div className="text-xs space-y-1.5 pt-1">
+                    <div className="flex justify-between">
+                      <span className="opacity-60 font-semibold">{isBn ? "কারণ:" : "Reason:"}</span>
+                      <span className="font-bold text-foreground">{ret.reason_display}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="opacity-60 font-semibold">{isBn ? "রিফান্ড মাধ্যম:" : "Refund Method:"}</span>
+                      <span className="font-bold text-foreground uppercase">{ret.refund_method_display || ret.refund_method} {ret.refund_account_number ? `(${ret.refund_account_number})` : ""}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="opacity-60 font-semibold">{isBn ? "রিফান্ড মূল্য:" : "Refund Amount:"}</span>
+                      <span className="font-black text-accent">{formatCurrency(Number(ret.refund_amount))}</span>
+                    </div>
+                    {ret.customer_note && (
+                      <div className="pt-1.5 border-t border-foreground/10">
+                        <span className="opacity-60 font-semibold block text-[10px] uppercase">{isBn ? "গ্রাহকের বক্তব্য:" : "Customer Note:"}</span>
+                        <p className="font-medium text-foreground mt-0.5">{ret.customer_note}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Returned Items List */}
+                  {ret.items && ret.items.length > 0 && (
+                    <div className="pt-2 border-t border-foreground/10 space-y-1.5">
+                      <span className="text-[10px] font-black uppercase tracking-wider opacity-60 block">
+                        {isBn ? "রিটার্নকৃত নির্দিষ্ট পণ্যসমূহ:" : "Specific Returned Items:"}
+                      </span>
+                      <div className="space-y-1.5">
+                        {ret.items.map((it) => (
+                          <div key={it.id} className="flex items-center justify-between p-2 rounded-xl bg-background border border-foreground/10 text-xs">
+                            <span className="font-bold text-foreground truncate max-w-[200px]">
+                              {it.product_title} {it.variant_name ? `(${it.variant_name})` : ""}
+                            </span>
+                            <span className="font-black text-accent">
+                              {isBn ? `${it.quantity.toLocaleString("bn-BD")} টি` : `Qty: ${it.quantity}`} • {formatCurrency(Number(it.refund_amount))}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
             <div className="pt-4 border-t border-foreground/10 space-y-2">
               <div className="flex justify-between text-xs opacity-75">
                 <span>{isBn ? "পণ্যের সাবটোটাল:" : "Items Subtotal:"}</span>
