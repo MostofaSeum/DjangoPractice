@@ -1754,7 +1754,7 @@ export default function ProfilePage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
             <div className="bg-secondary text-foreground rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl border border-foreground/10 relative my-8 max-h-[90vh] flex flex-col animate-in fade-in duration-200">
               {/* Modal Header */}
-              <div className="flex justify-between items-center pb-4 border-b border-foreground/10 mb-5">
+              <div className="flex justify-between items-start pb-4 border-b border-foreground/10 mb-5 gap-3">
                 <div>
                   <div className="flex items-center gap-2">
                     <div className="w-2.5 h-2.5 rounded-full bg-accent animate-ping" />
@@ -1774,9 +1774,13 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => setTrackingOrder(null)}
-                  className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3.5 py-1.5 rounded-xl transition-colors uppercase cursor-pointer"
+                  className="w-8 h-8 rounded-full bg-primary/5 hover:bg-button-bg hover:text-button-fg text-foreground/70 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                  title={locale === "bn" ? "বন্ধ করুন" : "Close"}
                 >
-                  {locale === "bn" ? "বন্ধ করুন" : "Close"}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
                 </button>
               </div>
 
@@ -2005,9 +2009,9 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Modal Footer */}
-              <div className="pt-4 border-t border-foreground/10 flex items-center justify-between gap-3">
-                {trackingOrder.tracking_status === "delivered" ? (
+              {/* Modal Footer (Only shown if delivered action exists) */}
+              {trackingOrder.tracking_status === "delivered" && (
+                <div className="pt-4 border-t border-foreground/10 flex items-center justify-end">
                   <button
                     type="button"
                     onClick={() => {
@@ -2022,16 +2026,8 @@ export default function ProfilePage() {
                     </svg>
                     <span>{t("profile.reviewProductBtn") || (locale === "bn" ? "রিভিউ দিন" : "Review Product")}</span>
                   </button>
-                ) : <div />}
-
-                <button
-                  type="button"
-                  onClick={() => setTrackingOrder(null)}
-                  className="px-6 py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-all cursor-pointer shadow-md"
-                >
-                  {locale === "bn" ? "বন্ধ করুন" : "Close"}
-                </button>
-              </div>
+                </div>
+              )}
             </div>
           </div>
         );
