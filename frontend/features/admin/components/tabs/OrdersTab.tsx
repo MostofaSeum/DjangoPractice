@@ -79,10 +79,16 @@ export default function OrdersTab({
   const { locale, formatCurrency, t } = useLanguage();
   const isBn = locale === "bn";
 
+  // Dedicated Sub-Tabs: "all_orders" vs "returns"
+  const [activeSubTab, setActiveSubTab] = useState<"all_orders" | "returns">("all_orders");
+
   const [orderSearch, setOrderSearch] = useState("");
   const [activeOrderQuery, setActiveOrderQuery] = useState("");
   const [orderStatusFilter, setOrderStatusFilter] = useState<
-    "ALL" | "P" | "F" | "C" | "RETURN"
+    "ALL" | "P" | "F" | "C"
+  >("ALL");
+  const [returnStatusSubFilter, setReturnStatusSubFilter] = useState<
+    "ALL" | "pending" | "approved" | "refunded" | "rejected"
   >("ALL");
   const [currentOrdersPage, setCurrentOrdersPage] = useState<number>(1);
   const ORDERS_PER_PAGE = 50;
@@ -154,12 +160,19 @@ export default function OrdersTab({
     }
   }, [targetOrderId, orders]);
 
+  const allReturnOrders = orders.filter(
+    (o) => (o.return_requests && o.return_requests.length > 0) || o.tracking_status === "returned"
+  );
+
   const filteredOrders = orders
     .filter((o) => {
-      if (orderStatusFilter === "ALL") return true;
-      if (orderStatusFilter === "RETURN") {
-        return (o.return_requests && o.return_requests.length > 0) || o.tracking_status === "returned";
+      if (activeSubTab === "returns") {
+        const hasReturn = (o.return_requests && o.return_requests.length > 0) || o.tracking_status === "returned";
+        if (!hasReturn) return false;
+        if (returnStatusSubFilter === "ALL") return true;
+        return o.return_requests?.some((r) => r.status === returnStatusSubFilter);
       }
+      if (orderStatusFilter === "ALL") return true;
       return o.payment_status === orderStatusFilter;
     })
     .filter((o) => {
@@ -201,7 +214,7 @@ export default function OrdersTab({
 
   useEffect(() => {
     setCurrentOrdersPage(1);
-  }, [activeOrderQuery, orderStatusFilter]);
+  }, [activeOrderQuery, orderStatusFilter, activeSubTab, returnStatusSubFilter]);
 
   const totalOrders = filteredOrders.length;
   const totalOrdersPages = Math.ceil(totalOrders / ORDERS_PER_PAGE) || 1;
@@ -234,68 +247,174 @@ export default function OrdersTab({
 
   return (
     <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
+      {/* Top Level Sub-Tabs: All Orders vs Return & Refund Management */}
+      <div className="flex items-center justify-between pb-6 mb-6 border-b border-foreground/10 flex-wrap gap-4">
+        <div className="flex items-center gap-2 p-1.5 bg-primary/5 rounded-2xl border border-foreground/10">
+          <button
+            type="button"
+            onClick={() => setActiveSubTab("all_orders")}
+            className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
+              activeSubTab === "all_orders"
+                ? "bg-button-bg text-button-fg shadow-sm"
+                : "text-foreground/70 hover:text-foreground hover:bg-primary/5"
+            }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
+              <path d="M3 6h18" />
+              <path d="M16 10a4 4 0 0 1-8 0" />
+            </svg>
+            <span>{isBn ? "সকল অর্ডার" : "All Orders"}</span>
+            <span className="px-2 py-0.5 rounded-full text-[10px] bg-background/50 font-bold">
+              {isBn ? orders.length.toLocaleString("bn-BD") : orders.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveSubTab("returns")}
+            className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
+              activeSubTab === "returns"
+                ? "bg-button-bg text-button-fg shadow-sm"
+                : "text-foreground/70 hover:text-foreground hover:bg-primary/5"
+            }`}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="1 4 1 10 7 10"></polyline>
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </svg>
+            <span>{isBn ? "রিটার্ন ও রিফান্ড" : "Returns & Refunds"}</span>
+            {allReturnOrders.length > 0 && (
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                allReturnOrders.some((o) => o.return_requests?.some((r) => r.status === "pending"))
+                  ? "bg-accent text-button-fg animate-pulse"
+                  : "bg-background/50"
+              }`}>
+                {isBn ? allReturnOrders.length.toLocaleString("bn-BD") : allReturnOrders.length}
+              </span>
+            )}
+          </button>
+        </div>
+      </div>
+
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 pb-4 border-b border-foreground/10">
         <div className="flex flex-wrap items-center gap-4">
-          {/* Status Filter Buttons */}
-          <div className="flex items-center gap-1.5 p-1 bg-primary/5 dark:bg-primary/30 rounded-xl border border-foreground/10">
-            {[
-              {
-                id: "ALL" as const,
-                label: isBn ? "সকল অর্ডার" : "All Orders",
-                count: orders.length,
-              },
-              {
-                id: "P" as const,
-                label: isBn ? "পেন্ডিং (অপেক্ষারত)" : "Pending",
-                count: orders.filter((o) => o.payment_status === "P").length,
-                color: "text-amber-500",
-              },
-              {
-                id: "C" as const,
-                label: isBn ? "সফল (কমপ্লিট)" : "Complete",
-                count: orders.filter((o) => o.payment_status === "C").length,
-                color: "text-emerald-500",
-              },
-              {
-                id: "F" as const,
-                label: isBn ? "ব্যর্থ / বাতিল" : "Failed",
-                count: orders.filter((o) => o.payment_status === "F").length,
-                color: "text-red-500",
-              },
-              {
-                id: "RETURN" as const,
-                label: isBn ? "রিটার্ন / রিফান্ড" : "Returns",
-                count: orders.filter((o) => (o.return_requests && o.return_requests.length > 0) || o.tracking_status === "returned").length,
-                color: "text-accent font-black",
-              },
-            ].map((statusBtn) => {
-              const isSelected = orderStatusFilter === statusBtn.id;
-              const displayCount = isBn ? statusBtn.count.toLocaleString("bn-BD") : statusBtn.count;
-              return (
-                <button
-                  key={statusBtn.id}
-                  type="button"
-                  onClick={() => setOrderStatusFilter(statusBtn.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                    isSelected
-                      ? "bg-button-bg text-button-fg shadow-xs scale-102"
-                      : "hover:bg-primary/10 text-foreground/70 hover:text-foreground"
-                  }`}
-                >
-                  <span>{statusBtn.label}</span>
-                  <span
-                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+          {/* Status Filter Buttons depending on active sub tab */}
+          {activeSubTab === "all_orders" ? (
+            <div className="flex items-center gap-1.5 p-1 bg-primary/5 dark:bg-primary/30 rounded-xl border border-foreground/10">
+              {[
+                {
+                  id: "ALL" as const,
+                  label: isBn ? "সকল অর্ডার" : "All Orders",
+                  count: orders.length,
+                },
+                {
+                  id: "P" as const,
+                  label: isBn ? "পেন্ডিং (অপেক্ষারত)" : "Pending",
+                  count: orders.filter((o) => o.payment_status === "P").length,
+                  color: "text-amber-500",
+                },
+                {
+                  id: "C" as const,
+                  label: isBn ? "সফল (কমপ্লিট)" : "Complete",
+                  count: orders.filter((o) => o.payment_status === "C").length,
+                  color: "text-emerald-500",
+                },
+                {
+                  id: "F" as const,
+                  label: isBn ? "ব্যর্থ / বাতিল" : "Failed",
+                  count: orders.filter((o) => o.payment_status === "F").length,
+                  color: "text-red-500",
+                },
+              ].map((statusBtn) => {
+                const isSelected = orderStatusFilter === statusBtn.id;
+                const displayCount = isBn ? statusBtn.count.toLocaleString("bn-BD") : statusBtn.count;
+                return (
+                  <button
+                    key={statusBtn.id}
+                    type="button"
+                    onClick={() => setOrderStatusFilter(statusBtn.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                       isSelected
-                        ? "bg-white/20 text-button-fg"
-                        : "bg-foreground/10 text-foreground/80"
+                        ? "bg-button-bg text-button-fg shadow-xs scale-102"
+                        : "hover:bg-primary/10 text-foreground/70 hover:text-foreground"
                     }`}
                   >
-                    {displayCount}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+                    <span>{statusBtn.label}</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                        isSelected
+                          ? "bg-button-fg/20 text-button-fg"
+                          : "bg-primary/10 text-foreground/60"
+                      }`}
+                    >
+                      {displayCount}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 p-1 bg-primary/5 dark:bg-primary/30 rounded-xl border border-foreground/10">
+              {[
+                {
+                  id: "ALL" as const,
+                  label: isBn ? "সকল রিটার্ন" : "All Returns",
+                  count: allReturnOrders.length,
+                },
+                {
+                  id: "pending" as const,
+                  label: isBn ? "পেন্ডিং" : "Pending Review",
+                  count: allReturnOrders.filter((o) => o.return_requests?.some((r) => r.status === "pending")).length,
+                  color: "text-accent",
+                },
+                {
+                  id: "approved" as const,
+                  label: isBn ? "অনুমোদিত" : "Approved",
+                  count: allReturnOrders.filter((o) => o.return_requests?.some((r) => r.status === "approved")).length,
+                  color: "text-visible",
+                },
+                {
+                  id: "refunded" as const,
+                  label: isBn ? "রিফান্ড সম্পন্ন" : "Refunded",
+                  count: allReturnOrders.filter((o) => o.return_requests?.some((r) => r.status === "refunded")).length,
+                  color: "text-visible",
+                },
+                {
+                  id: "rejected" as const,
+                  label: isBn ? "বাতিল" : "Rejected",
+                  count: allReturnOrders.filter((o) => o.return_requests?.some((r) => r.status === "rejected")).length,
+                  color: "text-hidden",
+                },
+              ].map((subBtn) => {
+                const isSelected = returnStatusSubFilter === subBtn.id;
+                const displayCount = isBn ? subBtn.count.toLocaleString("bn-BD") : subBtn.count;
+                return (
+                  <button
+                    key={subBtn.id}
+                    type="button"
+                    onClick={() => setReturnStatusSubFilter(subBtn.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                      isSelected
+                        ? "bg-button-bg text-button-fg shadow-xs scale-102"
+                        : "hover:bg-primary/10 text-foreground/70 hover:text-foreground"
+                    }`}
+                  >
+                    <span>{subBtn.label}</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                        isSelected
+                          ? "bg-button-fg/20 text-button-fg"
+                          : "bg-primary/10 text-foreground/60"
+                      }`}
+                    >
+                      {displayCount}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <form
