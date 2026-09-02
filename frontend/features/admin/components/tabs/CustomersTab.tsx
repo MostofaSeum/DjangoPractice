@@ -32,6 +32,8 @@ export default function CustomersTab({
   const isBn = locale === "bn";
 
   const [activeCustomerQuery, setActiveCustomerQuery] = useState("");
+  const [currentCustomersPage, setCurrentCustomersPage] = useState<number>(1);
+  const CUSTOMERS_PER_PAGE = 50;
 
   const filteredCustomers = customers.filter(
     (c) =>
@@ -58,6 +60,35 @@ export default function CustomersTab({
         c.membership.toLowerCase().includes(activeCustomerQuery.toLowerCase()))
   );
 
+  const totalCustomers = filteredCustomers.length;
+  const totalCustomersPages = Math.ceil(totalCustomers / CUSTOMERS_PER_PAGE) || 1;
+  const startCustomerIndex = (currentCustomersPage - 1) * CUSTOMERS_PER_PAGE;
+  const paginatedCustomers = filteredCustomers.slice(
+    startCustomerIndex,
+    startCustomerIndex + CUSTOMERS_PER_PAGE
+  );
+  const endCustomerIndex = Math.min(startCustomerIndex + CUSTOMERS_PER_PAGE, totalCustomers);
+
+  const getPageNumbers = (currentPage: number, totalPages: number) => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    const pages: (number | string)[] = [1];
+    if (currentPage > 3) {
+      pages.push("...");
+    }
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    if (currentPage < totalPages - 2) {
+      pages.push("...");
+    }
+    pages.push(totalPages);
+    return pages;
+  };
+
   return (
     <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
@@ -74,9 +105,11 @@ export default function CustomersTab({
           }}
           onSearchSubmit={(q) => {
             setActiveCustomerQuery(q);
+            setCurrentCustomersPage(1);
           }}
           onClear={() => {
             setActiveCustomerQuery("");
+            setCurrentCustomersPage(1);
           }}
         />
       </div>
@@ -92,7 +125,7 @@ export default function CustomersTab({
               </tr>
             </thead>
             <tbody className="divide-y divide-foreground/10 text-xs font-bold">
-              {filteredCustomers.map((cust) => (
+              {paginatedCustomers.map((cust) => (
                 <tr
                   key={cust.id}
                   className="hover:bg-primary/5 dark:hover:bg-primary/30 transition-colors"
@@ -144,6 +177,70 @@ export default function CustomersTab({
               ))}
             </tbody>
           </table>
+
+          {/* Pagination Controls (50 Customers Per Page) */}
+          {totalCustomersPages > 1 && (
+            <div className="pt-6 mt-4 border-t border-foreground/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p className="text-xs opacity-70 font-semibold">
+                {isBn
+                  ? `মোট ${totalCustomers.toLocaleString("bn-BD")} জনের মধ্যে ${(startCustomerIndex + 1).toLocaleString("bn-BD")} - ${endCustomerIndex.toLocaleString("bn-BD")} জন গ্রাহক প্রদর্শিত হচ্ছে`
+                  : `Showing ${startCustomerIndex + 1} - ${endCustomerIndex} of ${totalCustomers} customers`}
+              </p>
+
+              <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                <button
+                  type="button"
+                  disabled={currentCustomersPage === 1}
+                  onClick={() => setCurrentCustomersPage((prev) => Math.max(1, prev - 1))}
+                  className="px-3 py-1.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold uppercase tracking-wider hover:bg-foreground/5 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center gap-1 cursor-pointer shadow-xs"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                  <span>{isBn ? "পূর্ববর্তী" : "Previous"}</span>
+                </button>
+
+                <div className="flex items-center gap-1">
+                  {getPageNumbers(currentCustomersPage, totalCustomersPages).map((pageNum, idx) => {
+                    if (pageNum === "...") {
+                      return (
+                        <span key={`dots-${idx}`} className="px-2 text-xs font-bold opacity-50">
+                          ...
+                        </span>
+                      );
+                    }
+                    const isActive = pageNum === currentCustomersPage;
+                    return (
+                      <button
+                        key={pageNum}
+                        type="button"
+                        onClick={() => setCurrentCustomersPage(Number(pageNum))}
+                        className={`w-8 h-8 rounded-xl text-xs font-black transition-all flex items-center justify-center cursor-pointer ${
+                          isActive
+                            ? "bg-accent text-button-fg shadow-xs border border-accent"
+                            : "bg-background border border-foreground/15 text-foreground hover:bg-foreground/5"
+                        }`}
+                      >
+                        {isBn ? Number(pageNum).toLocaleString("bn-BD") : pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  type="button"
+                  disabled={currentCustomersPage === totalCustomersPages}
+                  onClick={() => setCurrentCustomersPage((prev) => Math.min(totalCustomersPages, prev + 1))}
+                  className="px-3 py-1.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold uppercase tracking-wider hover:bg-foreground/5 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center gap-1 cursor-pointer shadow-xs"
+                >
+                  <span>{isBn ? "পরবর্তী" : "Next"}</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="py-12 text-center text-xs font-bold uppercase tracking-wider opacity-50">

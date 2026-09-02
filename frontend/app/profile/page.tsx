@@ -126,21 +126,21 @@ export default function ProfilePage() {
   };
 
   const getTrackingMilestoneState = (status?: string) => {
-    const normalized = (status || "").toLowerCase().replace(/[\s/-]+/g, "_");
-    if (normalized.includes("return") || normalized.includes("fail")) {
+    const normalized = (status || "").toLowerCase().trim().replace(/[\s/-]+/g, "_");
+    if (normalized.includes("return") || normalized.includes("fail") || normalized.includes("cancel")) {
       return { stepIndex: -1, isReturned: true, progressPercent: 100 };
     }
-    if (normalized.includes("deliver")) {
+    if (normalized === "delivered" || (normalized.includes("deliver") && !normalized.includes("out"))) {
       return { stepIndex: 4, isReturned: false, progressPercent: 100 };
     }
     if (normalized.includes("out_for_delivery") || normalized.includes("out")) {
-      return { stepIndex: 3, isReturned: false, progressPercent: 85 };
+      return { stepIndex: 3, isReturned: false, progressPercent: 75 };
     }
     if (normalized.includes("transit") || normalized.includes("dispatch")) {
-      return { stepIndex: 2, isReturned: false, progressPercent: 66.66 };
+      return { stepIndex: 2, isReturned: false, progressPercent: 45 };
     }
     if (normalized.includes("pack")) {
-      return { stepIndex: 1, isReturned: false, progressPercent: 33.33 };
+      return { stepIndex: 1, isReturned: false, progressPercent: 15 };
     }
     return { stepIndex: 0, isReturned: false, progressPercent: 0 };
   };
@@ -762,36 +762,23 @@ export default function ProfilePage() {
               </div>
 
               {ordersLoading ? (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {[1, 2].map((i) => (
                     <div
                       key={i}
-                      className="p-6 rounded-2xl border border-foreground/10 bg-background/50 space-y-4 animate-pulse"
+                      className="p-4 sm:p-5 rounded-2xl border border-foreground/10 bg-secondary/80 space-y-3 animate-pulse"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-foreground/5">
-                        <div className="space-y-2">
-                          <div className="h-4 w-32 bg-foreground/10 rounded-md" />
-                          <div className="h-3 w-48 bg-foreground/10 rounded-md" />
-                        </div>
-                        <div className="h-6 w-24 bg-foreground/10 rounded-full self-start sm:self-auto" />
+                      <div className="flex justify-between items-center pb-2.5 border-b border-foreground/5">
+                        <div className="h-4 w-44 bg-foreground/10 rounded-md" />
+                        <div className="h-5 w-20 bg-foreground/10 rounded-full" />
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                          <div className="h-3 w-20 bg-foreground/10 rounded-md" />
-                          <div className="h-3.5 w-40 bg-foreground/10 rounded-md" />
-                          <div className="h-3 w-28 bg-foreground/10 rounded-md" />
-                        </div>
-                        <div className="space-y-1.5">
-                          <div className="h-3 w-24 bg-foreground/10 rounded-md" />
-                          <div className="h-3.5 w-32 bg-foreground/10 rounded-md" />
-                        </div>
+                      <div className="space-y-1.5">
+                        <div className="h-3.5 w-60 bg-foreground/10 rounded-md" />
+                        <div className="h-3.5 w-48 bg-foreground/10 rounded-md" />
                       </div>
-                      <div className="p-3.5 rounded-xl bg-foreground/5 space-y-2.5">
-                        <div className="h-3 w-28 bg-foreground/10 rounded-md" />
-                        <div className="flex justify-between items-center">
-                          <div className="h-3.5 w-36 bg-foreground/10 rounded-md" />
-                          <div className="h-3.5 w-16 bg-foreground/10 rounded-md" />
-                        </div>
+                      <div className="pt-2.5 border-t border-foreground/5 flex justify-between items-center">
+                        <div className="h-4 w-32 bg-foreground/10 rounded-md" />
+                        <div className="h-7 w-28 bg-foreground/10 rounded-xl" />
                       </div>
                     </div>
                   ))}
@@ -804,8 +791,8 @@ export default function ProfilePage() {
                 const endOrderIndex = Math.min(startOrderIndex + ORDERS_PER_PAGE, totalOrders);
 
                 return (
-                  <div className="space-y-6">
-                    <div className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-3">
                       {paginatedOrders.map((ord) => {
                         const orderTotal = ord.items
                           ? ord.items.reduce((sum, i) => sum + i.quantity * Number(i.unit_price), 0)
@@ -830,27 +817,39 @@ export default function ProfilePage() {
                     return (
                       <div
                         key={ord.id}
-                        className="p-6 rounded-2xl border border-foreground/10 bg-background/50 hover:bg-background space-y-4 transition-all duration-300 shadow-sm"
+                        className="p-4 sm:p-5 rounded-2xl border border-foreground/10 bg-secondary/80 hover:bg-secondary hover:border-foreground/20 space-y-3 transition-all duration-200 shadow-xs"
                       >
-                        {/* Top Summary Bar */}
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-foreground/10">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-black text-sm uppercase tracking-tight text-foreground">
-                                {orderIdText}
+                        {/* Row 1: Header (Order ID, Date, Payment Method on Left, Status Badge on Right) */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-foreground/10">
+                          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                            <span className="font-black text-sm uppercase tracking-tight text-foreground">
+                              {orderIdText}
+                            </span>
+                            {ord.is_edited_by_admin && (
+                              <span className="bg-accent/20 text-accent text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                                {locale === "bn" ? "সংশোধিত" : "Edited"}
                               </span>
-                              {ord.is_edited_by_admin && (
-                                <span className="bg-accent/20 text-accent text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
-                                  {locale === "bn" ? "সংশোধিত" : "Edited"}
+                            )}
+                            <span className="text-[11px] opacity-60 font-semibold">
+                              • {placedDateText}
+                            </span>
+                            <span className="text-[11px] font-bold text-foreground/80 flex items-center gap-1">
+                              • {ord.payment_method === "V" ? (
+                                <span className="text-accent flex items-center gap-1">
+                                  <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" className="w-3.5 h-3.5 object-contain" /> {t("profile.vibeCoinPayment")}
                                 </span>
+                              ) : ord.payment_method === "B" || ord.payment_method === "O" ? (
+                                <span className="text-bkash">bKash</span>
+                              ) : ord.payment_method === "N" ? (
+                                <span className="text-nagad">Nagad</span>
+                              ) : (
+                                <span>{t("profile.cod") || "Cash on Delivery"}</span>
                               )}
-                            </div>
-                            <p className="text-[10px] opacity-60 font-bold uppercase tracking-wider mt-0.5">
-                              {placedDateText}
-                            </p>
+                            </span>
                           </div>
+
                           <span
-                            className={`self-start sm:self-auto px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
+                            className={`self-start sm:self-auto px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border shrink-0 ${
                               ord.payment_status === "C"
                                 ? "bg-visible/10 text-visible border-visible/20"
                                 : ord.payment_status === "P"
@@ -862,122 +861,90 @@ export default function ProfilePage() {
                           </span>
                         </div>
 
-                        {/* Details & Address */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-medium text-foreground">
-                          <div>
-                            <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">
-                              {t("profile.shippingDetails")}
-                            </p>
-                            <p className="font-bold">{ord.shipping_address || t("profile.addressNotSpecified")}</p>
-                            <p className="text-[11px] opacity-70">{t("profile.phone")} {ord.phone || "N/A"}</p>
-                          </div>
-                          <div>
-                            <p className="text-[10px] font-bold uppercase tracking-wider opacity-60">
-                              {t("profile.paymentMethod")}
-                            </p>
-                            <p className="font-bold">
-                              {ord.payment_method === "V" ? (
-                                <span className="text-accent flex items-center gap-1.5">
-                                  <img src="/VibeCoin/VibeCoin.png" alt="VibeCoin" className="w-4 h-4 object-contain" /> {t("profile.vibeCoinPayment")}
-                                </span>
-                              ) : ord.payment_method === "B" || ord.payment_method === "O" ? (
-                                <span className="text-bkash">
-                                  {locale === "bn" ? "বিকাশ পেমেন্ট" : "bKash Payment"}
-                                  {ord.transaction_id ? ` (TrxID: ${ord.transaction_id})` : ""}
-                                  {ord.transaction_phone_no ? ` [Sender: ${ord.transaction_phone_no}]` : ""}
-                                </span>
-                              ) : ord.payment_method === "N" ? (
-                                <span className="text-nagad">
-                                  {locale === "bn" ? "নগদ পেমেন্ট" : "Nagad Payment"}
-                                  {ord.transaction_id ? ` (TrxID: ${ord.transaction_id})` : ""}
-                                  {ord.transaction_phone_no ? ` [Sender: ${ord.transaction_phone_no}]` : ""}
-                                </span>
-                              ) : (
-                                t("profile.cod")
-                              )}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Items Breakdown */}
+                        {/* Row 2: Compact Items List */}
                         {ord.items && ord.items.length > 0 && (
-                          <div className="bg-secondary rounded-2xl p-4 border border-foreground/10 space-y-2">
-                            <p className="text-[10px] font-black uppercase tracking-wider opacity-60 border-b border-foreground/10 pb-1">
-                              {locale === "bn"
-                                ? t("profile.itemsOrdered").replace(
-                                    "{count}",
-                                    ord.items.reduce((s, i) => s + i.quantity, 0).toLocaleString("bn-BD")
-                                  )
-                                : `Items Ordered (${ord.items.reduce((s, i) => s + i.quantity, 0)})`}
-                            </p>
-                            <div className="space-y-1">
-                              {ord.items.map((it: any) => {
-                                const qtyFormatted = locale === "bn" ? it.quantity.toLocaleString("bn-BD") : it.quantity;
-                                return (
-                                  <div key={it.id} className="flex justify-between items-center text-xs">
-                                    <div className="flex flex-col">
-                                      <span className="font-bold text-foreground">
-                                        {it.product?.title || `Product #${it.product}`} <span className="opacity-50 font-normal">x {qtyFormatted}</span>
-                                      </span>
-                                      {it.variant && (
-                                        <span className="text-[10px] opacity-60 font-semibold">
-                                          {it.variant.name || it.variant.color_name || it.variant.size}
-                                        </span>
-                                      )}
-                                    </div>
-                                    <span className="font-bold text-foreground opacity-80">
-                                      {formatCurrency(Number(it.unit_price) * it.quantity)}
+                          <div className="space-y-1.5">
+                            {ord.items.map((it: any) => {
+                              const qtyFormatted = locale === "bn" ? it.quantity.toLocaleString("bn-BD") : it.quantity;
+                              return (
+                                <div key={it.id} className="flex justify-between items-center text-xs">
+                                  <div className="flex flex-wrap items-center gap-x-2">
+                                    <span className="font-bold text-foreground">
+                                      {it.product?.title || `Product #${it.product}`}
                                     </span>
+                                    <span className="opacity-50 text-[11px] font-semibold">x {qtyFormatted}</span>
+                                    {it.variant && (
+                                      <span className="text-[10px] text-accent font-semibold bg-accent/10 px-2 py-0.2 rounded-md">
+                                        {it.variant.name || it.variant.color_name || it.variant.size}
+                                      </span>
+                                    )}
                                   </div>
-                                );
-                              })}
-                            </div>
-                            <div className="pt-2 border-t border-foreground/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs font-black">
-                              <div className="flex items-center gap-2">
-                                <span className="uppercase text-foreground">{t("profile.totalAmount")}</span>
-                                <span className="text-base text-foreground">{formatCurrency(orderTotal + Number(ord.delivery_charge || 0))}</span>
-                              </div>
-                              <div className="flex items-center gap-2 flex-wrap">
-                                {ord.payment_status === "C" && (
-                                  <button
-                                    type="button"
-                                    onClick={() => setTrackingOrder(ord)}
-                                    className="px-4 py-1.5 bg-accent/15 text-accent hover:bg-accent hover:text-button-fg border border-accent/30 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
-                                  >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                      <circle cx="12" cy="12" r="10"></circle>
-                                      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
-                                    </svg>
-                                    <span>{t("profile.trackOrderBtn") || (locale === "bn" ? "ট্র্যাক করুন" : "Track")}</span>
-                                  </button>
-                                )}
-                                {ord.tracking_status === "delivered" && (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleOpenReview(ord)}
-                                    className="px-4 py-1.5 bg-visible/15 text-visible hover:bg-visible hover:text-button-fg border border-visible/30 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
-                                  >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                                    </svg>
-                                    <span>{t("profile.reviewProductBtn") || (locale === "bn" ? "রিভিউ দিন" : "Review Product")}</span>
-                                  </button>
-                                )}
-                                <button
-                                  type="button"
-                                  onClick={() => setSelectedOrderDetails(ord)}
-                                  className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
-                                >
-                                  {locale === "bn" ? "বিস্তারিত দেখুন" : "View Details"}
-                                </button>
-                              </div>
-                            </div>
+                                  <span className="font-bold text-foreground opacity-90 text-xs shrink-0 ml-2">
+                                    {formatCurrency(Number(it.unit_price) * it.quantity)}
+                                  </span>
+                                </div>
+                              );
+                            })}
                           </div>
                         )}
+
+                        {/* Row 3: Bottom Bar (Total & Address summary on Left, Action Buttons on Right) */}
+                        <div className="pt-2.5 border-t border-foreground/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5">
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">
+                                {t("profile.totalAmount")}:
+                              </span>
+                              <span className="text-sm font-black text-foreground">
+                                {formatCurrency(orderTotal + Number(ord.delivery_charge || 0))}
+                              </span>
+                            </div>
+                            {ord.shipping_address && (
+                              <span className="text-[11px] opacity-60 font-medium hidden md:inline truncate max-w-[280px]">
+                                • {ord.shipping_address} {ord.phone ? `(${ord.phone})` : ""}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-2 flex-wrap self-end sm:self-auto">
+                            {ord.payment_status === "C" && (
+                              <button
+                                type="button"
+                                onClick={() => setTrackingOrder(ord)}
+                                className="px-3.5 py-1.5 bg-accent/15 text-accent hover:bg-accent hover:text-button-fg border border-accent/30 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <circle cx="12" cy="12" r="10"></circle>
+                                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                                </svg>
+                                <span>{t("profile.trackOrderBtn") || (locale === "bn" ? "ট্র্যাক করুন" : "Track")}</span>
+                              </button>
+                            )}
+                            {ord.tracking_status === "delivered" && (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenReview(ord)}
+                                className="px-3.5 py-1.5 bg-visible/15 text-visible hover:bg-visible hover:text-button-fg border border-visible/30 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                </svg>
+                                <span>{t("profile.reviewProductBtn") || (locale === "bn" ? "রিভিউ দিন" : "Review")}</span>
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setSelectedOrderDetails(ord)}
+                              className="px-3.5 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
+                            >
+                              {locale === "bn" ? "বিস্তারিত দেখুন" : "View Details"}
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     );
                   })}
-                    </div>
+                </div>
 
                     {/* Pagination Controls (5 Orders Per Page) */}
                     {totalOrdersPages > 1 && (
