@@ -261,9 +261,9 @@ export default function OrdersTab({
         <div className="flex items-center gap-2 p-1.5 bg-primary/5 rounded-2xl border border-foreground/10">
           <button
             type="button"
-            onClick={() => setActiveSubTab("all_orders")}
+            onClick={() => setActiveSubTab("all")}
             className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
-              activeSubTab === "all_orders"
+              activeSubTab === "all"
                 ? "bg-button-bg text-button-fg shadow-sm"
                 : "text-foreground/70 hover:text-foreground hover:bg-primary/5"
             }`}
@@ -309,7 +309,7 @@ export default function OrdersTab({
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 pb-4 border-b border-foreground/10">
         <div className="flex flex-wrap items-center gap-4">
           {/* Status Filter Buttons depending on active sub tab */}
-          {activeSubTab === "all_orders" ? (
+          {activeSubTab === "all" ? (
             <div className="flex items-center gap-1.5 p-1 bg-primary/5 dark:bg-primary/30 rounded-xl border border-foreground/10">
               {[
                 {

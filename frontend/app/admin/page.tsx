@@ -2995,6 +2995,8 @@ export default function AdminDashboardPage() {
               orders={orders}
               productsCatalog={promoProductsCatalog && promoProductsCatalog.length > 0 ? promoProductsCatalog : products}
               courierProviders={courierProviders}
+              orderSubTab={orderSubTab}
+              onSubTabChange={(st) => setOrderSubTab(st)}
               handleUpdateOrderStatus={handleUpdateOrderStatus}
               handleSaveEditedOrder={handleSaveEditedOrder}
               handleDeleteOrder={handleDeleteOrder}
