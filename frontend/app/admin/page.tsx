@@ -36,6 +36,7 @@ import {
   AdminTab,
   ProductSubTab,
   CollectionSubTab,
+  OrderSubTab,
   AnalyticsSubTab,
 } from "@/features/admin/types";
 
@@ -55,10 +56,18 @@ export default function AdminDashboardPage() {
   const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(true);
   const [collectionSubTab, setCollectionSubTab] = useState<CollectionSubTab>("all");
   const [isCollectionsDropdownOpen, setIsCollectionsDropdownOpen] = useState(true);
+  const [orderSubTab, setOrderSubTab] = useState<OrderSubTab>("all");
+  const [isOrdersDropdownOpen, setIsOrdersDropdownOpen] = useState(true);
   const [analyticsSubTab, setAnalyticsSubTab] = useState<AnalyticsSubTab>("sales");
   const [isAnalyticsDropdownOpen, setIsAnalyticsDropdownOpen] = useState(true);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const handleOrderSubTabSwitch = (subTab: OrderSubTab) => {
+    setActiveTab("orders");
+    setIsOrdersDropdownOpen(true);
+    setOrderSubTab(subTab);
+  };
 
   const handleCollectionSubTabSwitch = (subTab: CollectionSubTab) => {
     setActiveTab("collections");
@@ -2863,6 +2872,10 @@ export default function AdminDashboardPage() {
           handleCollectionSubTabSwitch={handleCollectionSubTabSwitch}
           isCollectionsDropdownOpen={isCollectionsDropdownOpen}
           setIsCollectionsDropdownOpen={setIsCollectionsDropdownOpen}
+          orderSubTab={orderSubTab}
+          handleOrderSubTabSwitch={handleOrderSubTabSwitch}
+          isOrdersDropdownOpen={isOrdersDropdownOpen}
+          setIsOrdersDropdownOpen={setIsOrdersDropdownOpen}
           deliverySubTab={deliverySubTab}
           handleDeliverySubTabSwitch={handleDeliverySubTabSwitch}
           isDeliveryDropdownOpen={isDeliveryDropdownOpen}

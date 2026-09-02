@@ -15,6 +15,8 @@ interface OrdersTabProps {
   orders: Order[];
   productsCatalog?: Product[];
   courierProviders?: CourierProvider[];
+  orderSubTab?: "all" | "returns";
+  onSubTabChange?: (tab: "all" | "returns") => void;
 
   handleUpdateOrderStatus: (orderId: number, status: string) => Promise<void>;
   handleSaveEditedOrder?: (
@@ -69,6 +71,8 @@ export default function OrdersTab({
   orders,
   productsCatalog = [],
   courierProviders = [],
+  orderSubTab = "all",
+  onSubTabChange,
   handleUpdateOrderStatus,
   handleSaveEditedOrder,
   handleDeleteOrder,
@@ -79,8 +83,13 @@ export default function OrdersTab({
   const { locale, formatCurrency, t } = useLanguage();
   const isBn = locale === "bn";
 
-  // Dedicated Sub-Tabs: "all_orders" vs "returns"
-  const [activeSubTab, setActiveSubTab] = useState<"all_orders" | "returns">("all_orders");
+  // Dedicated Sub-Tabs: "all" vs "returns"
+  const activeSubTab = orderSubTab;
+  const setActiveSubTab = (tab: "all" | "returns") => {
+    if (onSubTabChange) {
+      onSubTabChange(tab);
+    }
+  };
 
   const [orderSearch, setOrderSearch] = useState("");
   const [activeOrderQuery, setActiveOrderQuery] = useState("");

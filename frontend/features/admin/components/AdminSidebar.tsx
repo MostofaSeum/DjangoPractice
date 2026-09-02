@@ -6,6 +6,7 @@ import {
   AdminTab,
   ProductSubTab,
   CollectionSubTab,
+  OrderSubTab,
   AnalyticsSubTab,
   DeliverySubTab,
 } from "../types";
@@ -23,6 +24,12 @@ interface AdminSidebarProps {
   handleCollectionSubTabSwitch: (subTab: CollectionSubTab) => void;
   isCollectionsDropdownOpen: boolean;
   setIsCollectionsDropdownOpen: (
+    open: boolean | ((prev: boolean) => boolean),
+  ) => void;
+  orderSubTab: OrderSubTab;
+  handleOrderSubTabSwitch: (subTab: OrderSubTab) => void;
+  isOrdersDropdownOpen: boolean;
+  setIsOrdersDropdownOpen: (
     open: boolean | ((prev: boolean) => boolean),
   ) => void;
   deliverySubTab: DeliverySubTab;
@@ -61,6 +68,10 @@ export default function AdminSidebar({
   handleCollectionSubTabSwitch,
   isCollectionsDropdownOpen,
   setIsCollectionsDropdownOpen,
+  orderSubTab,
+  handleOrderSubTabSwitch,
+  isOrdersDropdownOpen,
+  setIsOrdersDropdownOpen,
   deliverySubTab,
   handleDeliverySubTabSwitch,
   isDeliveryDropdownOpen,
@@ -183,6 +194,7 @@ export default function AdminSidebar({
           const isActive = activeTab === tab.id;
           const isProductsTab = tab.id === "products";
           const isCollectionsTab = tab.id === "collections";
+          const isOrdersTab = tab.id === "orders";
           const isDeliveryTab = tab.id === "delivery";
           const isAnalyticsTab = tab.id === "analytics";
 
@@ -203,6 +215,13 @@ export default function AdminSidebar({
                     } else {
                       setActiveTab("collections");
                       setIsCollectionsDropdownOpen(true);
+                    }
+                  } else if (isOrdersTab) {
+                    if (activeTab === "orders") {
+                      setIsOrdersDropdownOpen((prev) => !prev);
+                    } else {
+                      setActiveTab("orders");
+                      setIsOrdersDropdownOpen(true);
                     }
                   } else if (isDeliveryTab) {
                     if (activeTab === "delivery") {
@@ -264,11 +283,12 @@ export default function AdminSidebar({
 
                 {!isSidebarCollapsed && (
                   <div className="flex items-center gap-1.5 shrink-0">
-                    {(isProductsTab || isCollectionsTab || isDeliveryTab || isAnalyticsTab) && (
+                    {(isProductsTab || isCollectionsTab || isOrdersTab || isDeliveryTab || isAnalyticsTab) && (
                       <svg
                         className={`w-3.5 h-3.5 transition-transform duration-200 opacity-70 ${
                           (isProductsTab && isProductsDropdownOpen) ||
                           (isCollectionsTab && isCollectionsDropdownOpen) ||
+                          (isOrdersTab && isOrdersDropdownOpen) ||
                           (isDeliveryTab && isDeliveryDropdownOpen) ||
                           (isAnalyticsTab && isAnalyticsDropdownOpen)
                             ? "rotate-180"
@@ -331,6 +351,37 @@ export default function AdminSidebar({
                       }`}
                     >
                       <span className="truncate">{isBn ? "কালেকশন সম্পাদনা" : "Edit Collection"}</span>
+                    </button>
+                  </div>
+                )}
+
+              {/* Orders Subsections */}
+              {isOrdersTab &&
+                isOrdersDropdownOpen &&
+                !isSidebarCollapsed && (
+                  <div className="pl-6 pr-1 py-1 mt-1 space-y-1 border-l-2 border-white/10 ml-5 transition-all">
+                    {/* 1. All Orders */}
+                    <button
+                      onClick={() => handleOrderSubTabSwitch("all")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        isActive && orderSubTab === "all"
+                          ? "bg-accent text-white shadow-xs font-black"
+                          : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="truncate">{isBn ? "সকল অর্ডার" : "All Orders"}</span>
+                    </button>
+
+                    {/* 2. Returns & Refunds */}
+                    <button
+                      onClick={() => handleOrderSubTabSwitch("returns")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        isActive && orderSubTab === "returns"
+                          ? "bg-accent text-white shadow-xs font-black"
+                          : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="truncate">{isBn ? "রিটার্ন ও রিফান্ড" : "Returns & Refunds"}</span>
                     </button>
                   </div>
                 )}
