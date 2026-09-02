@@ -198,7 +198,7 @@
     "selectProductToReviewTitle": "Select Product to Review",
     "selectProductToReviewSubtitle": "Choose which product from this delivered order you'd like to review first.",
     "itemQty": "Qty: {count}",
-    "returnBtn": "Return / Refund",
+    "returnBtn": "Return",
     "returnRequestedBadge": "Return Requested",
     "returnApprovedBadge": "Return Approved",
     "returnRefundedBadge": "Refunded",

@@ -455,7 +455,7 @@ class OrderSerializer(serializers.ModelSerializer):
                         'variant_name': (item.order_item.variant.name if item.order_item and item.order_item.variant else item.order_item.variant_title) if item.order_item else '',
                         'product_image': item.order_item.product.images.first().image.url if (item.order_item and item.order_item.product and item.order_item.product.images.exists() and item.order_item.product.images.first().image) else None,
                         'quantity': item.quantity,
-                        'unit_price': str(item.unit_price),
+                        'unit_price': str(item.order_item.unit_price) if item.order_item else '0.00',
                         'refund_amount': str(item.refund_amount),
                     }
                     for item in r.items.all()

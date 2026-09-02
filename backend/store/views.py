@@ -745,9 +745,19 @@ class OrderViewSet(ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
-            return Order.objects.select_related('customer__user', 'courier_partner').prefetch_related('items__product', 'items__variant').all()
+            return Order.objects.select_related('customer__user', 'courier_partner').prefetch_related(
+                'items__product__images',
+                'items__variant',
+                'return_requests__items__order_item__product__images',
+                'return_requests__items__order_item__variant'
+            ).all()
         customer_id = Customer.objects.only('id').get(user_id = user.id)
-        return Order.objects.select_related('customer__user', 'courier_partner').prefetch_related('items__product', 'items__variant').filter(customer_id=customer_id)
+        return Order.objects.select_related('customer__user', 'courier_partner').prefetch_related(
+            'items__product__images',
+            'items__variant',
+            'return_requests__items__order_item__product__images',
+            'return_requests__items__order_item__variant'
+        ).filter(customer_id=customer_id)
 
     def destroy(self, request, *args, **kwargs):
         order = self.get_object()
@@ -1561,13 +1571,43 @@ class ReturnRequestViewSet(ModelViewSet):
         return Response(ReturnRequestSerializer(return_request).data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['POST'], permission_classes=[IsAdminUser])
+    @transaction.atomic
     def approve_return(self, request, pk=None):
         return_obj = self.get_object()
+
+        # Prevent state change if already approved or rejected
+        if return_obj.status == ReturnRequest.STATUS_APPROVED:
+            return Response({'error': 'This return request is already approved and cannot be approved again.'}, status=status.HTTP_400_BAD_REQUEST)
+        if return_obj.status == ReturnRequest.STATUS_REJECTED:
+            return Response({'error': 'This return request was already rejected and cannot be approved.'}, status=status.HTTP_400_BAD_REQUEST)
+        if return_obj.status == ReturnRequest.STATUS_REFUNDED:
+            return Response({'error': 'This return request has already been refunded.'}, status=status.HTTP_400_BAD_REQUEST)
+
         admin_note = request.data.get('admin_note', '').strip()
         
         # Enforce 200 words max limit on admin note
         if admin_note and len(admin_note.split()) > 200:
             return Response({'error': f'Admin note cannot exceed 200 words. Current: {len(admin_note.split())}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Increase product and variant inventory
+        for item in return_obj.items.select_related('order_item__product', 'order_item__variant').all():
+            qty = item.quantity
+            if item.order_item:
+                if item.order_item.product_id:
+                    Product.objects.filter(pk=item.order_item.product_id).update(
+                        inventory=F('inventory') + qty
+                    )
+                if item.order_item.variant_id:
+                    ProductVariant.objects.filter(pk=item.order_item.variant_id).update(
+                        inventory=F('inventory') + qty
+                    )
+
+        # If refund preference is VibeCoin, credit customer wallet automatically!
+        if return_obj.refund_method == ReturnRequest.REFUND_VIBECOIN and return_obj.refund_amount > 0:
+            customer = return_obj.customer
+            customer.vibe_coin = F('vibe_coin') + return_obj.refund_amount if hasattr(customer, 'vibe_coin') else return_obj.refund_amount
+            customer.save()
+            customer.refresh_from_db()
 
         return_obj.status = ReturnRequest.STATUS_APPROVED
         return_obj.admin_note = admin_note
@@ -1578,6 +1618,15 @@ class ReturnRequestViewSet(ModelViewSet):
     @action(detail=True, methods=['POST'], permission_classes=[IsAdminUser])
     def reject_return(self, request, pk=None):
         return_obj = self.get_object()
+
+        # Prevent state change if already approved or rejected
+        if return_obj.status == ReturnRequest.STATUS_APPROVED:
+            return Response({'error': 'This return request is already approved and cannot be rejected.'}, status=status.HTTP_400_BAD_REQUEST)
+        if return_obj.status == ReturnRequest.STATUS_REJECTED:
+            return Response({'error': 'This return request is already rejected and cannot be rejected again.'}, status=status.HTTP_400_BAD_REQUEST)
+        if return_obj.status == ReturnRequest.STATUS_REFUNDED:
+            return Response({'error': 'This return request has already been refunded and cannot be rejected.'}, status=status.HTTP_400_BAD_REQUEST)
+
         admin_note = request.data.get('admin_note', '').strip()
 
         if admin_note and len(admin_note.split()) > 200:

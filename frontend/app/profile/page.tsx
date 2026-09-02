@@ -1083,9 +1083,11 @@ export default function ProfilePage() {
                                 <button
                                   type="button"
                                   onClick={() => handleOpenReturnModal(ord)}
-                                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer border ${
+                                  className={`px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer shrink-0 border ${
                                     ord.return_requests && ord.return_requests.length > 0
                                       ? ord.return_requests[0].status === "approved"
+                                        ? "bg-visible/15 text-visible border-visible/30 hover:bg-visible hover:text-button-fg"
+                                        : ord.return_requests[0].status === "refunded"
                                         ? "bg-visible/15 text-visible border-visible/30 hover:bg-visible hover:text-button-fg"
                                         : ord.return_requests[0].status === "rejected"
                                         ? "bg-hidden/15 text-hidden border-hidden/30 hover:bg-hidden hover:text-button-fg"
@@ -1099,7 +1101,15 @@ export default function ProfilePage() {
                                   </svg>
                                   <span>
                                     {ord.return_requests && ord.return_requests.length > 0
-                                      ? ord.return_requests[0].status_display
+                                      ? ord.return_requests[0].status === "pending"
+                                        ? (locale === "bn" ? "রিটার্ন পেন্ডিং" : "Pending")
+                                        : ord.return_requests[0].status === "approved"
+                                        ? (locale === "bn" ? "অনুমোদিত" : "Approved")
+                                        : ord.return_requests[0].status === "refunded"
+                                        ? (locale === "bn" ? "রিফান্ড সম্পন্ন" : "Refunded")
+                                        : ord.return_requests[0].status === "rejected"
+                                        ? (locale === "bn" ? "রিটার্ন বাতিল" : "Rejected")
+                                        : ord.return_requests[0].status_display
                                       : t("profile.returnBtn") || (locale === "bn" ? "রিটার্ন" : "Return")}
                                   </span>
                                 </button>
@@ -1291,16 +1301,37 @@ export default function ProfilePage() {
                       type="button"
                       onClick={() => {
                         const ord = selectedOrderDetails;
-                        setSelectedOrderDetails(null);
                         handleOpenReturnModal(ord);
                       }}
-                      className="flex-1 min-w-[120px] py-2 bg-primary/10 hover:bg-button-bg hover:text-button-fg text-foreground border border-foreground/15 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                      className={`flex-1 min-w-[120px] py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer border ${
+                        selectedOrderDetails.return_requests && selectedOrderDetails.return_requests.length > 0
+                          ? selectedOrderDetails.return_requests[0].status === "approved"
+                            ? "bg-visible/15 text-visible border-visible/30 hover:bg-visible hover:text-button-fg"
+                            : selectedOrderDetails.return_requests[0].status === "refunded"
+                            ? "bg-visible/15 text-visible border-visible/30 hover:bg-visible hover:text-button-fg"
+                            : selectedOrderDetails.return_requests[0].status === "rejected"
+                            ? "bg-hidden/15 text-hidden border-hidden/30 hover:bg-hidden hover:text-button-fg"
+                            : "bg-accent/15 text-accent border-accent/30 hover:bg-accent hover:text-button-fg"
+                          : "bg-primary/10 hover:bg-button-bg hover:text-button-fg text-foreground border-foreground/15"
+                      }`}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="1 4 1 10 7 10"></polyline>
                         <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                       </svg>
-                      <span>{t("profile.returnBtn") || (locale === "bn" ? "রিটার্ন " : "Return")}</span>
+                      <span>
+                        {selectedOrderDetails.return_requests && selectedOrderDetails.return_requests.length > 0
+                          ? selectedOrderDetails.return_requests[0].status === "pending"
+                            ? (locale === "bn" ? "রিটার্ন পেন্ডিং" : "Pending")
+                            : selectedOrderDetails.return_requests[0].status === "approved"
+                            ? (locale === "bn" ? "অনুমোদিত" : "Approved")
+                            : selectedOrderDetails.return_requests[0].status === "refunded"
+                            ? (locale === "bn" ? "রিফান্ড সম্পন্ন" : "Refunded")
+                            : selectedOrderDetails.return_requests[0].status === "rejected"
+                            ? (locale === "bn" ? "রিটার্ন বাতিল" : "Rejected")
+                            : selectedOrderDetails.return_requests[0].status_display
+                          : t("profile.returnBtn") || (locale === "bn" ? "রিটার্ন" : "Return")}
+                      </span>
                     </button>
                   </>
                 )}

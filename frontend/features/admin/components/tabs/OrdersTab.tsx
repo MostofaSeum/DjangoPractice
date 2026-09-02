@@ -538,130 +538,167 @@ export default function OrdersTab({
                     </td>
                     <td className="py-3.5 px-2 text-right">
                       <div className="flex justify-end items-center gap-2">
-                        {/* 1. Edit Button (Active for COD, Disabled with explanation for Online/bKash/Nagad) */}
-                        {order.payment_method === "C" ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEditingOrder(order);
-                              setEditShippingAddress(order.shipping_address || "");
-                              setEditPhone(order.phone || "");
-                              setEditDeliveryArea(order.delivery_area || "inside_dhaka");
-                              setEditDeliveryCharge(Number(order.delivery_charge) || 60);
-                              setEditPaymentStatus(order.payment_status || "P");
-                              setEditItems(
-                                order.items
-                                  ? order.items.map((i) => ({
-                                      id: i.id,
-                                      product_id: i.product?.id || 0,
-                                      product_title: i.product?.title || `Product #${i.product}`,
-                                      product_image: i.product?.images?.[0]?.image,
-                                      variant_id: i.variant?.id || null,
-                                      variant_name: i.variant?.name || i.variant_title,
-                                      variant_color_code: i.variant?.color_code,
-                                      quantity: i.quantity,
-                                      unit_price: Number(i.unit_price),
-                                    }))
-                                  : []
-                              );
-                              setSelectedAddProductId("");
-                              setSelectedAddVariantId("");
-                              setAddQuantity(1);
-                              setAddCustomPrice("");
-                            }}
-                            className="px-3 py-1.5 bg-accent text-white hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
-                          >
-                            {isBn ? "সম্পাদনা" : "Edit"}
-                          </button>
+                        {activeSubTab === "returns" ? (
+                          <>
+                            {/* In Returns tab: Focused action buttons */}
+                            {order.return_requests && order.return_requests.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setReviewingReturnOrder(order);
+                                  setAdminNoteInput(order.return_requests?.[0]?.admin_note || "");
+                                  setCustomRefundAmount(order.return_requests?.[0]?.refund_amount || "");
+                                  setRefundTrxInput("");
+                                  setReturnActionError("");
+                                  setReturnActionSuccess("");
+                                }}
+                                className={`px-3 py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer border ${
+                                  order.return_requests[0].status === "pending"
+                                    ? "bg-accent text-button-fg border-accent hover:opacity-90 animate-pulse"
+                                    : order.return_requests[0].status === "approved"
+                                    ? "bg-visible/20 text-visible border-visible/30 hover:bg-visible hover:text-button-fg"
+                                    : order.return_requests[0].status === "refunded"
+                                    ? "bg-visible/10 text-visible border-visible/20 opacity-80"
+                                    : "bg-hidden/15 text-hidden border-hidden/30"
+                                }`}
+                                title={isBn ? "রিটার্ন পর্যালোচনা ও অনুমোদন" : "Review Return & Approve/Reject"}
+                              >
+                                {isBn ? "রিটার্ন পর্যালোচনা" : "Review Return"}
+                              </button>
+                            )}
+
+                            <button
+                              type="button"
+                              onClick={() => setSelectedOrderDetails(order)}
+                              className="px-3 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
+                            >
+                              {isBn ? "বিস্তারিত" : "Details"}
+                            </button>
+                          </>
                         ) : (
-                          <button
-                            type="button"
-                            disabled
-                            title={
-                              isBn
-                                ? "শুধুমাত্র ক্যাশ অন ডেলিভারি (সিওডি) অর্ডার সম্পাদনা করা সম্ভব।"
-                                : "Only Cash on Delivery (COD) orders can be edited."
-                            }
-                            className="px-3 py-1.5 bg-foreground/10 text-foreground/40 rounded-lg font-bold text-[10px] uppercase tracking-wider cursor-not-allowed select-none"
-                          >
-                            {isBn ? "সম্পাদনা" : "Edit"}
-                          </button>
+                          <>
+                            {/* 1. Edit Button (Active for COD, Disabled with explanation for Online/bKash/Nagad) */}
+                            {order.payment_method === "C" ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingOrder(order);
+                                  setEditShippingAddress(order.shipping_address || "");
+                                  setEditPhone(order.phone || "");
+                                  setEditDeliveryArea(order.delivery_area || "inside_dhaka");
+                                  setEditDeliveryCharge(Number(order.delivery_charge) || 60);
+                                  setEditPaymentStatus(order.payment_status || "P");
+                                  setEditItems(
+                                    order.items
+                                      ? order.items.map((i) => ({
+                                          id: i.id,
+                                          product_id: i.product?.id || 0,
+                                          product_title: i.product?.title || `Product #${i.product}`,
+                                          product_image: i.product?.images?.[0]?.image,
+                                          variant_id: i.variant?.id || null,
+                                          variant_name: i.variant?.name || i.variant_title,
+                                          variant_color_code: i.variant?.color_code,
+                                          quantity: i.quantity,
+                                          unit_price: Number(i.unit_price),
+                                        }))
+                                      : []
+                                  );
+                                  setSelectedAddProductId("");
+                                  setSelectedAddVariantId("");
+                                  setAddQuantity(1);
+                                  setAddCustomPrice("");
+                                }}
+                                className="px-3 py-1.5 bg-accent text-white hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
+                              >
+                                {isBn ? "সম্পাদনা" : "Edit"}
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                disabled
+                                title={
+                                  isBn
+                                    ? "শুধুমাত্র ক্যাশ অন ডেলিভারি (সিওডি) অর্ডার সম্পাদনা করা সম্ভব।"
+                                    : "Only Cash on Delivery (COD) orders can be edited."
+                                }
+                                className="px-3 py-1.5 bg-foreground/10 text-foreground/40 rounded-lg font-bold text-[10px] uppercase tracking-wider cursor-not-allowed select-none"
+                              >
+                                {isBn ? "সম্পাদনা" : "Edit"}
+                              </button>
+                            )}
+
+                            {/* 2. Dispatch / Track Button */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDispatchOrder(order);
+                                let initialCourier: number | "manual" = "manual";
+                                if (order.courier_partner) {
+                                  initialCourier = order.courier_partner;
+                                } else if (order.tracking_code) {
+                                  initialCourier = "manual";
+                                } else if (activeCouriers.length > 0) {
+                                  initialCourier = activeCouriers[0].id;
+                                }
+
+                                setSelectedCourierId(initialCourier);
+                                setTrackingCodeInput(order.tracking_code || "");
+                                setTrackingStatusInput(
+                                  (order.tracking_status as any) || "in_transit"
+                                );
+                              }}
+                              className="px-3 py-1.5 bg-accent/15 hover:bg-accent/25 text-accent border border-accent/20 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
+                              title={isBn ? "ট্র্যাক" : "Track"}
+                            >
+                              {isBn ? "ট্র্যাক" : "Track"}
+                            </button>
+
+                            {/* Return Request Button if order has active returns */}
+                            {order.return_requests && order.return_requests.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setReviewingReturnOrder(order);
+                                  setAdminNoteInput(order.return_requests?.[0]?.admin_note || "");
+                                  setCustomRefundAmount(order.return_requests?.[0]?.refund_amount || "");
+                                  setRefundTrxInput("");
+                                  setReturnActionError("");
+                                  setReturnActionSuccess("");
+                                }}
+                                className={`px-3 py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer border ${
+                                  order.return_requests[0].status === "pending"
+                                    ? "bg-accent text-button-fg border-accent hover:opacity-90 animate-pulse"
+                                    : order.return_requests[0].status === "approved"
+                                    ? "bg-visible/20 text-visible border-visible/30 hover:bg-visible hover:text-button-fg"
+                                    : order.return_requests[0].status === "refunded"
+                                    ? "bg-visible/10 text-visible border-visible/20 opacity-80"
+                                    : "bg-hidden/15 text-hidden border-hidden/30"
+                                }`}
+                                title={isBn ? "রিটার্ন অনুরোধ" : "Return Request"}
+                              >
+                                {isBn ? "রিটার্ন" : "Return"}
+                              </button>
+                            )}
+
+                            {/* 3. View Details Button */}
+                            <button
+                              type="button"
+                              onClick={() => setSelectedOrderDetails(order)}
+                              className="px-3 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
+                            >
+                              {isBn ? "বিস্তারিত" : "Details"}
+                            </button>
+
+                            {/* 4. Delete Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteOrder(order.id)}
+                              className="px-3 py-1.5 bg-hidden/15 text-hidden hover:bg-hidden hover:text-button-fg rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
+                            >
+                              {isBn ? "মুছুন" : "Delete"}
+                            </button>
+                          </>
                         )}
-
-                        {/* 2. Dispatch / Track Button */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setDispatchOrder(order);
-                            // If order has an assigned courier partner, select it
-                            // If order was dispatched with a tracking code but NO courier partner, select 'manual'
-                            // Otherwise, fallback to default courier for area or first active courier or 'manual'
-                            let initialCourier: number | "manual" = "manual";
-                            if (order.courier_partner) {
-                              initialCourier = order.courier_partner;
-                            } else if (order.tracking_code) {
-                              initialCourier = "manual";
-                            } else if (activeCouriers.length > 0) {
-                              initialCourier = activeCouriers[0].id;
-                            }
-
-                            setSelectedCourierId(initialCourier);
-                            setTrackingCodeInput(order.tracking_code || "");
-                            setTrackingStatusInput(
-                              (order.tracking_status as any) || "in_transit"
-                            );
-                          }}
-                          className="px-3 py-1.5 bg-accent/15 hover:bg-accent/25 text-accent border border-accent/20 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
-                          title={isBn ? "ট্র্যাক" : "Track"}
-                        >
-                          {isBn ? "ট্র্যাক" : "Track"}
-                        </button>
-
-
-                        {/* Return Request Button if order has active returns */}
-                        {order.return_requests && order.return_requests.length > 0 && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setReviewingReturnOrder(order);
-                              setAdminNoteInput(order.return_requests?.[0]?.admin_note || "");
-                              setCustomRefundAmount(order.return_requests?.[0]?.refund_amount || "");
-                              setRefundTrxInput("");
-                              setReturnActionError("");
-                              setReturnActionSuccess("");
-                            }}
-                            className={`px-3 py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer border ${
-                              order.return_requests[0].status === "pending"
-                                ? "bg-accent text-button-fg border-accent hover:opacity-90 animate-pulse"
-                                : order.return_requests[0].status === "approved"
-                                ? "bg-visible/20 text-visible border-visible/30 hover:bg-visible hover:text-button-fg"
-                                : order.return_requests[0].status === "refunded"
-                                ? "bg-visible/10 text-visible border-visible/20 opacity-80"
-                                : "bg-hidden/15 text-hidden border-hidden/30"
-                            }`}
-                            title={isBn ? "রিটার্ন অনুরোধ" : "Return Request"}
-                          >
-                            {isBn ? "রিটার্ন" : "Return"}
-                          </button>
-                        )}
-
-                        {/* 3. View Details Button */}
-                        <button
-                          type="button"
-                          onClick={() => setSelectedOrderDetails(order)}
-                          className="px-3 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
-                        >
-                          {isBn ? "বিস্তারিত" : "Details"}
-                        </button>
-
-                        {/* 4. Delete Button */}
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteOrder(order.id)}
-                          className="px-3 py-1.5 bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
-                        >
-                          {isBn ? "মুছুন" : "Delete"}
-                        </button>
                       </div>
                     </td>
                   </tr>
@@ -744,9 +781,9 @@ export default function OrdersTab({
 
       {/* Order Details Modal */}
       {selectedOrderDetails && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="bg-secondary text-foreground rounded-3xl p-8 max-w-xl w-full shadow-2xl border border-foreground/10 relative">
-            <div className="flex justify-between items-center pb-4 border-b border-foreground/10 mb-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+          <div className="bg-secondary text-foreground rounded-3xl p-6 md:p-8 max-w-xl w-full shadow-2xl border border-foreground/10 relative my-8 max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center pb-4 border-b border-foreground/10 mb-5 shrink-0">
               <div>
                 <h3 className="text-lg font-black uppercase tracking-tight">
                   {isBn
@@ -766,217 +803,219 @@ export default function OrdersTab({
               </div>
               <button
                 onClick={() => setSelectedOrderDetails(null)}
-                className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3 py-1.5 rounded-xl transition-colors uppercase cursor-pointer"
+                className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3 py-1.5 rounded-xl transition-colors uppercase cursor-pointer shrink-0"
               >
                 {isBn ? "বন্ধ করুন" : "Close"}
               </button>
             </div>
 
-            {/* Customer Contact & Address Info */}
-            <div className="bg-primary/5 dark:bg-primary/30 p-4 rounded-2xl mb-6 text-xs space-y-1.5">
-              <p>
-                <strong>{isBn ? "মোবাইল নম্বর:" : "Phone:"}</strong> {selectedOrderDetails.phone || (isBn ? "নেই" : "N/A")}
-              </p>
-              <p>
-                <strong>{isBn ? "ডেলিভারি ঠিকানা:" : "Shipping Address:"}</strong>{" "}
-                {selectedOrderDetails.shipping_address || (isBn ? "নেই" : "N/A")}
-              </p>
-              <p>
-                <strong>{isBn ? "ডেলিভারি এলাকা:" : "Delivery Zone:"}</strong>{" "}
-                <span className="font-black text-accent uppercase">
-                  {selectedOrderDetails.delivery_area === "outside_dhaka"
-                    ? (isBn ? "ঢাকার বাইরে" : "Outside Dhaka")
-                    : (isBn ? "ঢাকার ভিতরে" : "Inside Dhaka")}
-                </span>
-                {selectedOrderDetails.delivery_charge !== undefined && (
-                  <span className="ml-2 px-2 py-0.5 rounded-md bg-secondary border border-foreground/10 text-[10px] font-bold">
-                    {isBn ? "ডেলিভারি ফি: " : "Delivery Fee: "}
-                    {formatCurrency(selectedOrderDetails.delivery_charge)}
-                  </span>
-                )}
-              </p>
-              <p>
-                <strong>{isBn ? "পেমেন্ট পদ্ধতি:" : "Payment Method:"}</strong>{" "}
-                {selectedOrderDetails.payment_method === "V" ? (
-                  <span className="text-accent font-black uppercase inline-flex items-center gap-1">
-                    <img
-                      src="/VibeCoin/VibeCoin.png"
-                      alt="VibeCoin"
-                      className="w-3.5 h-3.5 object-contain"
-                    />{" "}
-                    {isBn ? "ভাইবকয়েন পেমেন্ট" : "VibeCoin Payment"}
-                  </span>
-                ) : selectedOrderDetails.payment_method === "O" ||
-                  selectedOrderDetails.payment_method === "B" ? (
-                  <span className="text-bkash font-black uppercase">
-                    {isBn ? "বিকাশ পেমেন্ট" : "Online / bKash Payment"}
-                  </span>
-                ) : selectedOrderDetails.payment_method === "N" ? (
-                  <span className="text-nagad font-black uppercase">
-                    {isBn ? "নগদ পেমেন্ট" : "Nagad Payment"}
-                  </span>
-                ) : (
-                  <span className="font-black uppercase">
-                    {isBn ? "ক্যাশ অন ডেলিভারি (সিওডি)" : "Cash on Delivery (COD)"}
-                  </span>
-                )}
-              </p>
-              {(selectedOrderDetails.payment_method === "O" ||
-                selectedOrderDetails.payment_method === "B") && (
+            <div className="flex-1 overflow-y-auto pr-1 space-y-5">
+              {/* Customer Contact & Address Info */}
+              <div className="bg-primary/5 dark:bg-primary/30 p-4 rounded-2xl text-xs space-y-1.5">
                 <p>
-                  <strong>{isBn ? "বিকাশ TrxID:" : "bKash TrxID:"}</strong>{" "}
-                  <code className="bg-secondary px-2 py-0.5 rounded font-mono font-bold text-bkash">
-                    {selectedOrderDetails.transaction_id || "N/A"}
-                  </code>{" "}
-                  {selectedOrderDetails.transaction_phone_no
-                    ? `[${isBn ? "প্রেরক" : "Sender"}: ${selectedOrderDetails.transaction_phone_no}]`
-                    : ""}
+                  <strong>{isBn ? "মোবাইল নম্বর:" : "Phone:"}</strong> {selectedOrderDetails.phone || (isBn ? "নেই" : "N/A")}
                 </p>
-              )}
-              {selectedOrderDetails.payment_method === "N" && (
                 <p>
-                  <strong>{isBn ? "নগদ TrxID:" : "Nagad TrxID:"}</strong>{" "}
-                  <code className="bg-secondary px-2 py-0.5 rounded font-mono font-bold text-nagad">
-                    {selectedOrderDetails.transaction_id || "N/A"}
-                  </code>{" "}
-                  {selectedOrderDetails.transaction_phone_no
-                    ? `[${isBn ? "প্রেরক" : "Sender"}: ${selectedOrderDetails.transaction_phone_no}]`
-                    : ""}
+                  <strong>{isBn ? "ডেলিভারি ঠিকানা:" : "Shipping Address:"}</strong>{" "}
+                  {selectedOrderDetails.shipping_address || (isBn ? "নেই" : "N/A")}
                 </p>
-              )}
-            </div>
+                <p>
+                  <strong>{isBn ? "ডেলিভারি এলাকা:" : "Delivery Zone:"}</strong>{" "}
+                  <span className="font-black text-accent uppercase">
+                    {selectedOrderDetails.delivery_area === "outside_dhaka"
+                      ? (isBn ? "ঢাকার বাইরে" : "Outside Dhaka")
+                      : (isBn ? "ঢাকার ভিতরে" : "Inside Dhaka")}
+                  </span>
+                  {selectedOrderDetails.delivery_charge !== undefined && (
+                    <span className="ml-2 px-2 py-0.5 rounded-md bg-secondary border border-foreground/10 text-[10px] font-bold">
+                      {isBn ? "ডেলিভারি ফি: " : "Delivery Fee: "}
+                      {formatCurrency(selectedOrderDetails.delivery_charge)}
+                    </span>
+                  )}
+                </p>
+                <p>
+                  <strong>{isBn ? "পেমেন্ট পদ্ধতি:" : "Payment Method:"}</strong>{" "}
+                  {selectedOrderDetails.payment_method === "V" ? (
+                    <span className="text-accent font-black uppercase inline-flex items-center gap-1">
+                      <img
+                        src="/VibeCoin/VibeCoin.png"
+                        alt="VibeCoin"
+                        className="w-3.5 h-3.5 object-contain"
+                      />{" "}
+                      {isBn ? "ভাইবকয়েন পেমেন্ট" : "VibeCoin Payment"}
+                    </span>
+                  ) : selectedOrderDetails.payment_method === "O" ||
+                    selectedOrderDetails.payment_method === "B" ? (
+                    <span className="text-bkash font-black uppercase">
+                      {isBn ? "বিকাশ পেমেন্ট" : "Online / bKash Payment"}
+                    </span>
+                  ) : selectedOrderDetails.payment_method === "N" ? (
+                    <span className="text-nagad font-black uppercase">
+                      {isBn ? "নগদ পেমেন্ট" : "Nagad Payment"}
+                    </span>
+                  ) : (
+                    <span className="font-black uppercase">
+                      {isBn ? "ক্যাশ অন ডেলিভারি (সিওডি)" : "Cash on Delivery (COD)"}
+                    </span>
+                  )}
+                </p>
+                {(selectedOrderDetails.payment_method === "O" ||
+                  selectedOrderDetails.payment_method === "B") && (
+                  <p>
+                    <strong>{isBn ? "বিকাশ TrxID:" : "bKash TrxID:"}</strong>{" "}
+                    <code className="bg-secondary px-2 py-0.5 rounded font-mono font-bold text-bkash">
+                      {selectedOrderDetails.transaction_id || "N/A"}
+                    </code>{" "}
+                    {selectedOrderDetails.transaction_phone_no
+                      ? `[${isBn ? "প্রেরক" : "Sender"}: ${selectedOrderDetails.transaction_phone_no}]`
+                      : ""}
+                  </p>
+                )}
+                {selectedOrderDetails.payment_method === "N" && (
+                  <p>
+                    <strong>{isBn ? "নগদ TrxID:" : "Nagad TrxID:"}</strong>{" "}
+                    <code className="bg-secondary px-2 py-0.5 rounded font-mono font-bold text-nagad">
+                      {selectedOrderDetails.transaction_id || "N/A"}
+                    </code>{" "}
+                    {selectedOrderDetails.transaction_phone_no
+                      ? `[${isBn ? "প্রেরক" : "Sender"}: ${selectedOrderDetails.transaction_phone_no}]`
+                      : ""}
+                  </p>
+                )}
+              </div>
 
-            {/* Order Items Table */}
-            <div className="max-h-60 overflow-y-auto mb-6">
-              <table className="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr className="border-b border-foreground/10 text-[10px] font-black uppercase opacity-60">
-                    <th className="py-2 px-1">{isBn ? "পণ্য" : "Product"}</th>
-                    <th className="py-2 px-1">{isBn ? "পরিমাণ" : "Qty"}</th>
-                    <th className="py-2 px-1">{isBn ? "একক মূল্য" : "Unit Price"}</th>
-                    <th className="py-2 px-1 text-right">{isBn ? "মোট মূল্য" : "Subtotal"}</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-foreground/10">
-                  {selectedOrderDetails.items &&
-                  selectedOrderDetails.items.length > 0 ? (
-                    selectedOrderDetails.items.map((item) => (
-                      <tr key={item.id}>
-                        <td className="py-2 px-1 font-bold">
-                          <div>
-                            {item.product?.title || (isBn ? `পণ্য #${item.product}` : `Product #${item.product}`)}
-                          </div>
-                          {(item.variant || item.variant_title) && (
-                            <div className="text-[10px] text-accent font-semibold flex items-center gap-1 mt-0.5">
-                              {item.variant?.color_code && (
-                                <span
-                                  className="w-2.5 h-2.5 rounded-full border border-black/20 inline-block shrink-0"
-                                  style={{
-                                    backgroundColor: item.variant.color_code,
-                                  }}
-                                />
-                              )}
-                              <span>
-                                {isBn ? "ভেরিয়েন্ট: " : "Option: "}
-                                {item.variant?.name || item.variant_title}
-                              </span>
+              {/* Order Items Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="border-b border-foreground/10 text-[10px] font-black uppercase opacity-60">
+                      <th className="py-2 px-1">{isBn ? "পণ্য" : "Product"}</th>
+                      <th className="py-2 px-1">{isBn ? "পরিমাণ" : "Qty"}</th>
+                      <th className="py-2 px-1">{isBn ? "একক মূল্য" : "Unit Price"}</th>
+                      <th className="py-2 px-1 text-right">{isBn ? "মোট মূল্য" : "Subtotal"}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-foreground/10">
+                    {selectedOrderDetails.items &&
+                    selectedOrderDetails.items.length > 0 ? (
+                      selectedOrderDetails.items.map((item) => (
+                        <tr key={item.id}>
+                          <td className="py-2 px-1 font-bold">
+                            <div>
+                              {item.product?.title || (isBn ? `পণ্য #${item.product}` : `Product #${item.product}`)}
                             </div>
-                          )}
-                        </td>
-                        <td className="py-2 px-1">
-                          {isBn ? `${item.quantity.toLocaleString("bn-BD")} টি` : item.quantity}
-                        </td>
-                        <td className="py-2 px-1">
-                          {formatCurrency(item.unit_price)}
-                        </td>
-                        <td className="py-2 px-1 text-right font-black text-accent">
-                          {formatCurrency(item.quantity * Number(item.unit_price))}
+                            {(item.variant || item.variant_title) && (
+                              <div className="text-[10px] text-accent font-semibold flex items-center gap-1 mt-0.5">
+                                {item.variant?.color_code && (
+                                  <span
+                                    className="w-2.5 h-2.5 rounded-full border border-black/20 inline-block shrink-0"
+                                    style={{
+                                      backgroundColor: item.variant.color_code,
+                                    }}
+                                  />
+                                )}
+                                <span>
+                                  {isBn ? "ভেরিয়েন্ট: " : "Option: "}
+                                  {item.variant?.name || item.variant_title}
+                                </span>
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-2 px-1">
+                            {isBn ? `${item.quantity.toLocaleString("bn-BD")} টি` : item.quantity}
+                          </td>
+                          <td className="py-2 px-1">
+                            {formatCurrency(item.unit_price)}
+                          </td>
+                          <td className="py-2 px-1 text-right font-black text-accent">
+                            {formatCurrency(item.quantity * Number(item.unit_price))}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan={4}
+                          className="py-4 text-center text-xs opacity-50"
+                        >
+                          {isBn ? "পণ্যের বিবরণ পাওয়া যায়নি।" : "No item breakdown available."}
                         </td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td
-                        colSpan={4}
-                        className="py-4 text-center text-xs opacity-50"
-                      >
-                        {isBn ? "পণ্যের বিবরণ পাওয়া যায়নি।" : "No item breakdown available."}
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                    )}
+                  </tbody>
+                </table>
+              </div>
 
-            {/* Return Request Details Card if this order has a return request */}
-            {selectedOrderDetails.return_requests && selectedOrderDetails.return_requests.length > 0 && (() => {
-              const ret = selectedOrderDetails.return_requests[0];
-              return (
-                <div className="mb-6 p-4 rounded-2xl bg-primary/5 border border-accent/30 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
-                      <span className="text-xs font-black uppercase tracking-wider text-accent">
-                        {isBn ? "রিটার্ন অনুরোধের তথ্য" : "Return & Refund Information"}
+              {/* Return Request Details Card if this order has a return request */}
+              {selectedOrderDetails.return_requests && selectedOrderDetails.return_requests.length > 0 && (() => {
+                const ret = selectedOrderDetails.return_requests[0];
+                return (
+                  <div className="p-4 rounded-2xl bg-primary/5 border border-accent/30 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
+                        <span className="text-xs font-black uppercase tracking-wider text-accent">
+                          {isBn ? "রিটার্ন অনুরোধের তথ্য" : "Return & Refund Information"}
+                        </span>
+                      </div>
+                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${
+                        ret.status === "approved"
+                          ? "bg-visible/15 text-visible border-visible/30"
+                          : ret.status === "refunded"
+                          ? "bg-visible/15 text-visible border-visible/30"
+                          : ret.status === "rejected"
+                          ? "bg-hidden/15 text-hidden border-hidden/30"
+                          : "bg-accent/15 text-accent border-accent/30"
+                      }`}>
+                        {ret.status_display}
                       </span>
                     </div>
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${
-                      ret.status === "approved"
-                        ? "bg-visible/15 text-visible border-visible/30"
-                        : ret.status === "refunded"
-                        ? "bg-visible/15 text-visible border-visible/30"
-                        : ret.status === "rejected"
-                        ? "bg-hidden/15 text-hidden border-hidden/30"
-                        : "bg-accent/15 text-accent border-accent/30"
-                    }`}>
-                      {ret.status_display}
-                    </span>
-                  </div>
 
-                  <div className="text-xs space-y-1.5 pt-1">
-                    <div className="flex justify-between">
-                      <span className="opacity-60 font-semibold">{isBn ? "কারণ:" : "Reason:"}</span>
-                      <span className="font-bold text-foreground">{ret.reason_display}</span>
+                    <div className="text-xs space-y-1.5 pt-1">
+                      <div className="flex justify-between">
+                        <span className="opacity-60 font-semibold">{isBn ? "কারণ:" : "Reason:"}</span>
+                        <span className="font-bold text-foreground">{ret.reason_display}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="opacity-60 font-semibold">{isBn ? "রিফান্ড মাধ্যম:" : "Refund Method:"}</span>
+                        <span className="font-bold text-foreground uppercase">{ret.refund_method_display || ret.refund_method} {ret.refund_account_number ? `(${ret.refund_account_number})` : ""}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="opacity-60 font-semibold">{isBn ? "রিফান্ড মূল্য:" : "Refund Amount:"}</span>
+                        <span className="font-black text-accent">{formatCurrency(Number(ret.refund_amount))}</span>
+                      </div>
+                      {ret.customer_note && (
+                        <div className="pt-1.5 border-t border-foreground/10">
+                          <span className="opacity-60 font-semibold block text-[10px] uppercase">{isBn ? "গ্রাহকের বক্তব্য:" : "Customer Note:"}</span>
+                          <p className="font-medium text-foreground mt-0.5">{ret.customer_note}</p>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex justify-between">
-                      <span className="opacity-60 font-semibold">{isBn ? "রিফান্ড মাধ্যম:" : "Refund Method:"}</span>
-                      <span className="font-bold text-foreground uppercase">{ret.refund_method_display || ret.refund_method} {ret.refund_account_number ? `(${ret.refund_account_number})` : ""}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="opacity-60 font-semibold">{isBn ? "রিফান্ড মূল্য:" : "Refund Amount:"}</span>
-                      <span className="font-black text-accent">{formatCurrency(Number(ret.refund_amount))}</span>
-                    </div>
-                    {ret.customer_note && (
-                      <div className="pt-1.5 border-t border-foreground/10">
-                        <span className="opacity-60 font-semibold block text-[10px] uppercase">{isBn ? "গ্রাহকের বক্তব্য:" : "Customer Note:"}</span>
-                        <p className="font-medium text-foreground mt-0.5">{ret.customer_note}</p>
+
+                    {/* Returned Items List */}
+                    {ret.items && ret.items.length > 0 && (
+                      <div className="pt-2 border-t border-foreground/10 space-y-1.5">
+                        <span className="text-[10px] font-black uppercase tracking-wider opacity-60 block">
+                          {isBn ? "রিটার্নকৃত নির্দিষ্ট পণ্যসমূহ:" : "Specific Returned Items:"}
+                        </span>
+                        <div className="space-y-1.5">
+                          {ret.items.map((it) => (
+                            <div key={it.id} className="flex items-center justify-between p-2.5 rounded-xl bg-background border border-foreground/10 text-xs gap-2">
+                              <span className="font-bold text-foreground truncate min-w-0">
+                                {it.product_title} {it.variant_name ? `(${it.variant_name})` : ""}
+                              </span>
+                              <span className="font-black text-accent shrink-0">
+                                {isBn ? `${it.quantity.toLocaleString("bn-BD")} টি` : `Qty: ${it.quantity}`} • {formatCurrency(Number(it.refund_amount))}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
-
-                  {/* Returned Items List */}
-                  {ret.items && ret.items.length > 0 && (
-                    <div className="pt-2 border-t border-foreground/10 space-y-1.5">
-                      <span className="text-[10px] font-black uppercase tracking-wider opacity-60 block">
-                        {isBn ? "রিটার্নকৃত নির্দিষ্ট পণ্যসমূহ:" : "Specific Returned Items:"}
-                      </span>
-                      <div className="space-y-1.5">
-                        {ret.items.map((it) => (
-                          <div key={it.id} className="flex items-center justify-between p-2 rounded-xl bg-background border border-foreground/10 text-xs">
-                            <span className="font-bold text-foreground truncate max-w-[200px]">
-                              {it.product_title} {it.variant_name ? `(${it.variant_name})` : ""}
-                            </span>
-                            <span className="font-black text-accent">
-                              {isBn ? `${it.quantity.toLocaleString("bn-BD")} টি` : `Qty: ${it.quantity}`} • {formatCurrency(Number(it.refund_amount))}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
+                );
+              })()}
+            </div>
 
             <div className="pt-4 border-t border-foreground/10 space-y-2">
               <div className="flex justify-between text-xs opacity-75">
@@ -2053,38 +2092,42 @@ export default function OrdersTab({
 
               {/* Action Buttons */}
               <div className="pt-4 border-t border-foreground/10 flex items-center justify-between gap-2 flex-wrap">
-                <button
-                  type="button"
-                  disabled={isProcessingReturn}
-                  onClick={() => handleReturnAction("reject")}
-                  className="px-4 py-2 rounded-xl bg-hidden/15 hover:bg-hidden hover:text-button-fg text-hidden border border-hidden/30 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50"
-                >
-                  {isBn ? "বাতিল করুন" : "Reject"}
-                </button>
+                {ret.status === "pending" ? (
+                  <>
+                    <button
+                      type="button"
+                      disabled={isProcessingReturn}
+                      onClick={() => handleReturnAction("reject")}
+                      className="px-4 py-2 rounded-xl bg-hidden/15 hover:bg-hidden hover:text-button-fg text-hidden border border-hidden/30 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      {isBn ? "বাতিল করুন" : "Reject"}
+                    </button>
 
-                <div className="flex items-center gap-2">
-                  {ret.status === "pending" && (
                     <button
                       type="button"
                       disabled={isProcessingReturn}
                       onClick={() => handleReturnAction("approve")}
-                      className="px-4 py-2 rounded-xl bg-accent/20 hover:bg-accent hover:text-button-fg text-accent border border-accent/40 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50"
+                      className="px-5 py-2 rounded-xl bg-accent text-button-fg hover:opacity-90 border border-accent text-xs font-black uppercase tracking-wider transition-all shadow-md cursor-pointer disabled:opacity-50"
                     >
                       {isBn ? "অনুমোদন করুন" : "Approve Return"}
                     </button>
-                  )}
-
-                  {ret.status !== "refunded" && (
+                  </>
+                ) : (
+                  <div className="w-full flex items-center justify-between">
+                    <span className="text-xs font-bold opacity-60">
+                      {ret.status === "approved" || ret.status === "refunded"
+                        ? (isBn ? "✓ এই রিটার্ন অনুরোধটি অনুমোদিত হয়েছে এবং আর বাতিল করা যাবে না।" : "✓ This return request has been approved and cannot be altered.")
+                        : (isBn ? "✕ এই রিটার্ন অনুরোধটি বাতিল করা হয়েছে।" : "✕ This return request has been rejected.")}
+                    </span>
                     <button
                       type="button"
-                      disabled={isProcessingReturn}
-                      onClick={() => handleReturnAction("refund")}
-                      className="px-5 py-2 rounded-xl bg-button-bg hover:opacity-90 text-button-fg text-xs font-black uppercase tracking-wider transition-all shadow-md cursor-pointer disabled:opacity-50"
+                      onClick={() => setReviewingReturnOrder(null)}
+                      className="px-4 py-1.5 rounded-xl bg-primary/10 hover:bg-button-bg hover:text-button-fg text-foreground text-xs font-bold uppercase transition-colors"
                     >
-                      {isBn ? "রিফান্ড সম্পন্ন করুন" : "Disburse Refund"}
+                      {isBn ? "বন্ধ করুন" : "Close"}
                     </button>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

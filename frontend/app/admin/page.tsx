@@ -63,10 +63,24 @@ export default function AdminDashboardPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  const handleOrderSubTabSwitch = (subTab: OrderSubTab) => {
+  const handleOrderSubTabSwitch = async (subTab: OrderSubTab) => {
     setActiveTab("orders");
     setIsOrdersDropdownOpen(true);
     setOrderSubTab(subTab);
+    if (token) {
+      try {
+        const orderRes = await fetch(`${API_BASE}/store/orders/`, {
+          headers: { Authorization: `JWT ${token}` },
+          cache: "no-store",
+        });
+        if (orderRes.ok) {
+          const orderData = await orderRes.json();
+          setOrders(Array.isArray(orderData) ? orderData : orderData.results || []);
+        }
+      } catch (e) {
+        console.error("Failed to refresh orders:", e);
+      }
+    }
   };
 
   const handleCollectionSubTabSwitch = (subTab: CollectionSubTab) => {
