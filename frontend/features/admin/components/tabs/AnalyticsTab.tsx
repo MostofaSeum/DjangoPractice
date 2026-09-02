@@ -563,7 +563,7 @@ export default function AnalyticsTab({
       {
         name: string;
         code: string;
-        logo: string;
+        logo: string | null;
         totalOrders: number;
         delivered: number;
         ongoing: number;
@@ -573,13 +573,15 @@ export default function AnalyticsTab({
       }
     > = {};
 
-    const PRESET_LOGOS: Record<string, string> = {
+
+    const PRESET_LOGOS: Record<string, string | null> = {
       steadfast: "/DeliveryPartner/steadfast.jpg",
       pathao: "/DeliveryPartner/pathaocourier.png",
       redx: "/DeliveryPartner/redx.png",
       paperfly: "/DeliveryPartner/paperfly.png",
-      manual: "/DeliveryPartner/steadfast.jpg",
+      manual: null,
     };
+
 
     orders.forEach((o) => {
       const charge = Number(o.delivery_charge) || 0;
@@ -1907,13 +1909,19 @@ export default function AnalyticsTab({
               </span>
               <div className="mt-3 flex items-center gap-3">
                 {deliveryAnalytics.mostUsedCourier && (
-                  <div className="w-8 h-8 relative rounded-lg overflow-hidden bg-white shrink-0 p-0.5 border border-foreground/10 flex items-center justify-center">
-                    <img
-                      src={deliveryAnalytics.mostUsedCourier.logo}
-                      alt={deliveryAnalytics.mostUsedCourier.name}
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
+                  deliveryAnalytics.mostUsedCourier.logo ? (
+                    <div className="w-8 h-8 relative rounded-lg overflow-hidden bg-white shrink-0 p-0.5 border border-foreground/10 flex items-center justify-center">
+                      <img
+                        src={deliveryAnalytics.mostUsedCourier.logo}
+                        alt={deliveryAnalytics.mostUsedCourier.name}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 border border-foreground/10 shrink-0 flex items-center justify-center font-black text-[10px] text-foreground">
+                      MNL
+                    </div>
+                  )
                 )}
                 <div className="min-w-0">
                   <div className="text-base font-black text-foreground truncate">
@@ -1926,6 +1934,7 @@ export default function AnalyticsTab({
                   </div>
                 </div>
               </div>
+
             </div>
 
             {/* Delivery Success Rate */}
@@ -2122,13 +2131,19 @@ export default function AnalyticsTab({
                       <tr key={idx} className="hover:bg-primary/5 transition-colors">
                         <td className="py-3.5 px-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 relative rounded-xl overflow-hidden bg-white shrink-0 p-1 border border-foreground/10 flex items-center justify-center">
-                              <img
-                                src={courier.logo}
-                                alt={courier.name}
-                                className="w-full h-full object-contain"
-                              />
-                            </div>
+                            {courier.logo ? (
+                              <div className="w-8 h-8 relative rounded-xl overflow-hidden bg-white shrink-0 p-1 border border-foreground/10 flex items-center justify-center">
+                                <img
+                                  src={courier.logo}
+                                  alt={courier.name}
+                                  className="w-full h-full object-contain"
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-8 h-8 rounded-xl bg-primary/10 border border-foreground/10 shrink-0 flex items-center justify-center font-black text-xs text-foreground">
+                                MNL
+                              </div>
+                            )}
                             <div>
                               <div className="font-extrabold text-foreground">{courier.name}</div>
                               <div className="text-[10px] opacity-60 uppercase font-mono tracking-wider">
@@ -2137,6 +2152,7 @@ export default function AnalyticsTab({
                             </div>
                           </div>
                         </td>
+
                         <td className="py-3.5 px-3 font-black text-foreground">
                           {courier.totalOrders.toLocaleString(isBn ? "bn-BD" : undefined)}
                         </td>
