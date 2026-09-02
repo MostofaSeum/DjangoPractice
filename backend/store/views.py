@@ -10,8 +10,8 @@ from django.http import HttpResponse, request
 from .permissions import ViewCustomerHistoryPermission
 from rest_framework.decorators import action
 from store.models import OrderItem
-from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,GoogleSheetSyncSetting,Notification,Address,AuditLog,SiteSetting,CourierProvider
-from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,AdminEditOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer,PaymentSettingSerializer,DeliverySettingSerializer,DeliveryRuleSerializer,NotificationSerializer,AddressSerializer,AuditLogSerializer,SiteSettingSerializer,CourierProviderSerializer
+from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,GoogleSheetSyncSetting,Notification,Address,AuditLog,SiteSetting,CourierProvider,ReturnRequest,ReturnItem
+from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,AdminEditOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer,PaymentSettingSerializer,DeliverySettingSerializer,DeliveryRuleSerializer,NotificationSerializer,AddressSerializer,AuditLogSerializer,SiteSettingSerializer,CourierProviderSerializer,ReturnRequestSerializer,ReturnItemSerializer
 
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import cache_page
@@ -20,7 +20,7 @@ from store.idempotency import idempotent_action
 from store.webhooks import require_signed_webhook
 from datetime import timedelta
 from django.utils import timezone
-from django.db.models import Count, Sum, Avg
+from django.db.models import Count, Sum, Avg, F
 from django.db.models.functions import Coalesce
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter,OrderingFilter
@@ -1431,6 +1431,196 @@ class CourierProviderViewSet(ModelViewSet):
                 'success': True,
                 'message': f"{provider.name} configured successfully in Manual/Custom tracking mode."
             }, status=status.HTTP_200_OK)
+
+
+class ReturnRequestViewSet(ModelViewSet):
+    serializer_class = ReturnRequestSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    search_fields = ['order__id', 'customer__user__username', 'customer__phone', 'refund_account_number', 'admin_note', 'refund_transaction_id']
+    filterset_fields = ['status', 'reason', 'refund_method', 'order']
+    ordering_fields = ['created_at', 'status', 'refund_amount']
+
+    def get_permissions(self):
+        if self.action in ['approve_return', 'reject_return', 'process_refund', 'update_status']:
+            return [IsAdminUser()]
+        return [IsAuthenticated()]
+
+    def get_queryset(self):
+        user = self.request.user
+        base_qs = ReturnRequest.objects.select_related(
+            'order', 'customer__user'
+        ).prefetch_related(
+            'items__order_item__product',
+            'items__order_item__variant'
+        )
+        if user.is_staff:
+            return base_qs.all()
+        try:
+            customer = Customer.objects.get(user_id=user.id)
+            return base_qs.filter(customer=customer)
+        except Customer.DoesNotExist:
+            return ReturnRequest.objects.none()
+
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        try:
+            customer = Customer.objects.get(user_id=user.id)
+        except Customer.DoesNotExist:
+            return Response({'error': 'Customer profile not found.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        order_id = request.data.get('order_id') or request.data.get('order')
+        if not order_id:
+            return Response({'error': 'Order ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            order = Order.objects.get(id=order_id, customer=customer)
+        except Order.DoesNotExist:
+            return Response({'error': 'Delivered order not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if order is delivered
+        if order.tracking_status != Order.TRACKING_DELIVERED:
+            return Response({'error': 'Return requests can only be placed on delivered orders.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if there is already an active pending or approved return request for this order
+        active_returns = ReturnRequest.objects.filter(
+            order=order,
+            status__in=[ReturnRequest.STATUS_PENDING, ReturnRequest.STATUS_APPROVED, ReturnRequest.STATUS_PICKED_UP]
+        )
+        if active_returns.exists():
+            return Response({'error': 'A return request is already in progress for this order.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        reason = request.data.get('reason', ReturnRequest.REASON_DAMAGED)
+        customer_note = request.data.get('customer_note', '').strip()
+        refund_method = request.data.get('refund_method', ReturnRequest.REFUND_VIBECOIN)
+        refund_account_number = request.data.get('refund_account_number', '').strip()
+
+        # Parse items to return
+        items_data = request.data.get('items', [])
+        if isinstance(items_data, str):
+            import json
+            try:
+                items_data = json.loads(items_data)
+            except Exception:
+                items_data = []
+
+        return_request = ReturnRequest.objects.create(
+            order=order,
+            customer=customer,
+            status=ReturnRequest.STATUS_PENDING,
+            reason=reason,
+            customer_note=customer_note,
+            refund_method=refund_method,
+            refund_account_number=refund_account_number,
+            proof_image_1=request.FILES.get('proof_image_1'),
+            proof_image_2=request.FILES.get('proof_image_2'),
+            proof_image_3=request.FILES.get('proof_image_3'),
+        )
+
+        total_refund_calculated = Decimal('0.00')
+        order_items_map = {item.id: item for item in order.items.all()}
+
+        if items_data:
+            for item_input in items_data:
+                order_item_id = item_input.get('order_item_id')
+                quantity = int(item_input.get('quantity', 1))
+                if order_item_id in order_items_map:
+                    order_item = order_items_map[order_item_id]
+                    qty_to_return = min(quantity, order_item.quantity)
+                    item_refund = order_item.unit_price * Decimal(str(qty_to_return))
+                    total_refund_calculated += item_refund
+                    ReturnItem.objects.create(
+                        return_request=return_request,
+                        order_item=order_item,
+                        quantity=qty_to_return,
+                        refund_amount=item_refund
+                    )
+        else:
+            # If no specific items listed, default to returning all items in the order
+            for order_item in order.items.all():
+                item_refund = order_item.unit_price * Decimal(str(order_item.quantity))
+                total_refund_calculated += item_refund
+                ReturnItem.objects.create(
+                    return_request=return_request,
+                    order_item=order_item,
+                    quantity=order_item.quantity,
+                    refund_amount=item_refund
+                )
+
+        return_request.refund_amount = total_refund_calculated
+        return_request.save()
+
+        # Create Admin notification
+        Notification.objects.create(
+            notification_type=Notification.TYPE_ORDER,
+            title=f"New Return Request for Order #{order.id}",
+            message=f"Customer @{customer.user.username} requested a return for Order #{order.id} (Amount: ৳{total_refund_calculated}). Reason: {return_request.get_reason_display()}."
+        )
+
+        return Response(ReturnRequestSerializer(return_request).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['POST'], permission_classes=[IsAdminUser])
+    def approve_return(self, request, pk=None):
+        return_obj = self.get_object()
+        admin_note = request.data.get('admin_note', '').strip()
+        
+        # Enforce 200 words max limit on admin note
+        if admin_note and len(admin_note.split()) > 200:
+            return Response({'error': f'Admin note cannot exceed 200 words. Current: {len(admin_note.split())}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return_obj.status = ReturnRequest.STATUS_APPROVED
+        return_obj.admin_note = admin_note
+        return_obj.save()
+
+        return Response(ReturnRequestSerializer(return_obj).data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['POST'], permission_classes=[IsAdminUser])
+    def reject_return(self, request, pk=None):
+        return_obj = self.get_object()
+        admin_note = request.data.get('admin_note', '').strip()
+
+        if admin_note and len(admin_note.split()) > 200:
+            return Response({'error': f'Admin note cannot exceed 200 words. Current: {len(admin_note.split())}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return_obj.status = ReturnRequest.STATUS_REJECTED
+        return_obj.admin_note = admin_note
+        return_obj.save()
+
+        return Response(ReturnRequestSerializer(return_obj).data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['POST'], permission_classes=[IsAdminUser])
+    @transaction.atomic
+    def process_refund(self, request, pk=None):
+        return_obj = self.get_object()
+        refund_amount_input = request.data.get('refund_amount')
+        admin_note = request.data.get('admin_note', '').strip()
+        refund_trx_id = request.data.get('refund_transaction_id', '').strip()
+
+        if admin_note and len(admin_note.split()) > 200:
+            return Response({'error': f'Admin note cannot exceed 200 words. Current: {len(admin_note.split())}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if refund_amount_input is not None:
+            try:
+                return_obj.refund_amount = Decimal(str(refund_amount_input))
+            except Exception:
+                pass
+
+        return_obj.status = ReturnRequest.STATUS_REFUNDED
+        return_obj.refunded_at = timezone.now()
+        return_obj.admin_note = admin_note
+        return_obj.refund_transaction_id = refund_trx_id
+
+        # If refund preference is VibeCoin, credit customer wallet automatically!
+        if return_obj.refund_method == ReturnRequest.REFUND_VIBECOIN and return_obj.refund_amount > 0:
+            customer = return_obj.customer
+            customer.vibe_coin = F('vibe_coin') + return_obj.refund_amount if hasattr(customer, 'vibe_coin') else return_obj.refund_amount
+            customer.save()
+            customer.refresh_from_db()
+
+        return_obj.save()
+
+        return Response(ReturnRequestSerializer(return_obj).data, status=status.HTTP_200_OK)
+
 
 
 

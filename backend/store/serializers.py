@@ -409,6 +409,7 @@ class OrderSerializer(serializers.ModelSerializer):
     customer_name = serializers.SerializerMethodField()
     courier_partner_details = CourierProviderSerializer(source='courier_partner', read_only=True)
     tracking_status_display = serializers.CharField(source='get_tracking_status_display', read_only=True)
+    return_requests = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
@@ -419,13 +420,30 @@ class OrderSerializer(serializers.ModelSerializer):
             'coupon_code', 'is_edited_by_admin', 'edited_at', 'items',
             'courier_partner', 'courier_partner_details', 'tracking_code',
             'tracking_status', 'tracking_status_display', 'courier_consignment_id',
-            'courier_response'
+            'courier_response', 'return_requests'
         ]
 
     def get_customer_name(self, obj):
         if obj.customer and hasattr(obj.customer, 'user') and obj.customer.user:
             return obj.customer.user.username
         return f"Customer #{obj.customer_id}"
+
+    def get_return_requests(self, obj):
+        return [
+            {
+                'id': r.id,
+                'status': r.status,
+                'status_display': r.get_status_display(),
+                'reason': r.reason,
+                'reason_display': r.get_reason_display(),
+                'refund_method': r.refund_method,
+                'refund_amount': str(r.refund_amount),
+                'created_at': r.created_at.isoformat() if r.created_at else None,
+                'admin_note': r.admin_note,
+            }
+            for r in obj.return_requests.all()
+        ]
+
 
 
 class AdminEditOrderItemSerializer(serializers.Serializer):
@@ -1072,6 +1090,83 @@ class SiteSettingSerializer(serializers.ModelSerializer):
         if value and len(value.strip()) > 30:
             raise serializers.ValidationError("Tagline cannot exceed 30 characters.")
         return value.strip()
+
+
+class ReturnItemSerializer(serializers.ModelSerializer):
+    product_title = serializers.SerializerMethodField()
+    variant_name = serializers.SerializerMethodField()
+    unit_price = serializers.DecimalField(source='order_item.unit_price', max_digits=10, decimal_places=2, read_only=True)
+    product_image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ReturnItem
+        fields = ['id', 'order_item', 'product_title', 'variant_name', 'product_image', 'quantity', 'unit_price', 'refund_amount']
+
+    def get_product_title(self, obj):
+        if obj.order_item and obj.order_item.product:
+            return obj.order_item.product.title
+        return f"Item #{obj.order_item_id}"
+
+    def get_variant_name(self, obj):
+        if obj.order_item:
+            if obj.order_item.variant:
+                return obj.order_item.variant.name or obj.order_item.variant.color_name
+            return obj.order_item.variant_title
+        return ''
+
+    def get_product_image(self, obj):
+        if obj.order_item and obj.order_item.product:
+            first_img = obj.order_item.product.images.first()
+            if first_img and first_img.image:
+                return first_img.image.url
+        return None
+
+
+class ReturnItemInputSerializer(serializers.Serializer):
+    order_item_id = serializers.IntegerField()
+    quantity = serializers.IntegerField(min_value=1)
+
+
+class ReturnRequestSerializer(serializers.ModelSerializer):
+    items = ReturnItemSerializer(many=True, read_only=True)
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    reason_display = serializers.CharField(source='get_reason_display', read_only=True)
+    refund_method_display = serializers.CharField(source='get_refund_method_display', read_only=True)
+    customer_name = serializers.SerializerMethodField()
+    customer_phone = serializers.SerializerMethodField()
+    order_id = serializers.IntegerField(source='order.id', read_only=True)
+
+    class Meta:
+        model = ReturnRequest
+        fields = [
+            'id', 'order', 'order_id', 'customer', 'customer_name', 'customer_phone',
+            'status', 'status_display', 'reason', 'reason_display', 'customer_note',
+            'refund_method', 'refund_method_display', 'refund_account_number',
+            'proof_image_1', 'proof_image_2', 'proof_image_3',
+            'admin_note', 'refund_transaction_id', 'refund_amount', 'refunded_at',
+            'items', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'customer', 'status', 'created_at', 'updated_at', 'refunded_at']
+
+    def get_customer_name(self, obj):
+        if obj.customer and hasattr(obj.customer, 'user') and obj.customer.user:
+            return obj.customer.user.username
+        return f"Customer #{obj.customer_id}"
+
+    def get_customer_phone(self, obj):
+        if obj.customer:
+            return obj.customer.phone or ''
+        return ''
+
+    def validate_admin_note(self, value):
+        if value:
+            words = value.strip().split()
+            if len(words) > 200:
+                raise serializers.ValidationError(
+                    f"Admin note cannot exceed 200 words. Current count: {len(words)} words."
+                )
+        return value
+
 
 
 

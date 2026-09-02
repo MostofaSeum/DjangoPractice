@@ -83,7 +83,55 @@ export interface Order {
   tracking_status_display?: string;
   courier_consignment_id?: string;
   courier_response?: any;
+  return_requests?: {
+    id: number;
+    status: string;
+    status_display: string;
+    reason: string;
+    reason_display: string;
+    refund_method: string;
+    refund_amount: string;
+    created_at?: string | null;
+    admin_note?: string;
+  }[];
 }
+
+export interface ReturnRequestItem {
+  id: number;
+  order: number;
+  order_id: number;
+  customer: number;
+  customer_name: string;
+  customer_phone: string;
+  status: "pending" | "approved" | "rejected" | "picked_up" | "refunded" | "cancelled";
+  status_display: string;
+  reason: string;
+  reason_display: string;
+  customer_note: string;
+  refund_method: "vibecoin" | "bkash" | "nagad";
+  refund_method_display: string;
+  refund_account_number: string;
+  proof_image_1?: string | null;
+  proof_image_2?: string | null;
+  proof_image_3?: string | null;
+  admin_note: string;
+  refund_transaction_id: string;
+  refund_amount: number | string;
+  refunded_at?: string | null;
+  items: {
+    id: number;
+    order_item: number;
+    product_title: string;
+    variant_name: string;
+    product_image?: string | null;
+    quantity: number;
+    unit_price: number | string;
+    refund_amount: number | string;
+  }[];
+  created_at: string;
+  updated_at: string;
+}
+
 
 
 

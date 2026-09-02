@@ -76,6 +76,19 @@ export default function ProfilePage() {
   const [selectedOrderDetails, setSelectedOrderDetails] = useState<Order | null>(null);
   const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
   const [reviewOrder, setReviewOrder] = useState<Order | null>(null);
+  const [returnOrder, setReturnOrder] = useState<Order | null>(null);
+  const [returnStatusOrder, setReturnStatusOrder] = useState<Order | null>(null);
+  const [returnItemsSelection, setReturnItemsSelection] = useState<{ [orderItemId: number]: { selected: boolean; quantity: number } }>({});
+  const [returnReason, setReturnReason] = useState<string>("damaged");
+  const [returnNote, setReturnNote] = useState<string>("");
+  const [refundMethod, setRefundMethod] = useState<"vibecoin" | "bkash" | "nagad">("vibecoin");
+  const [refundAccountNumber, setRefundAccountNumber] = useState<string>("");
+  const [proofImage1, setProofImage1] = useState<File | null>(null);
+  const [proofImage2, setProofImage2] = useState<File | null>(null);
+  const [proofImage3, setProofImage3] = useState<File | null>(null);
+  const [submittingReturn, setSubmittingReturn] = useState<boolean>(false);
+  const [returnSuccessMsg, setReturnSuccessMsg] = useState<string>("");
+  const [returnErrorMsg, setReturnErrorMsg] = useState<string>("");
   const [copiedTrackingId, setCopiedTrackingId] = useState(false);
   const [vibeCoin, setVibeCoin] = useState<number>(0);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -205,6 +218,112 @@ export default function ProfilePage() {
       }
     } else {
       setReviewOrder(order);
+    }
+  };
+
+  const handleOpenReturnModal = (order: Order) => {
+    // If order has an active return request, show status modal
+    const activeReturn = order.return_requests && order.return_requests.length > 0
+      ? order.return_requests[0]
+      : null;
+
+    if (activeReturn) {
+      setReturnStatusOrder(order);
+      return;
+    }
+
+    // Otherwise open new Return Request Modal
+    const initialSelection: { [id: number]: { selected: boolean; quantity: number } } = {};
+    (order.items || []).forEach((it) => {
+      initialSelection[it.id] = { selected: true, quantity: it.quantity };
+    });
+    setReturnItemsSelection(initialSelection);
+    setReturnReason("damaged");
+    setReturnNote("");
+    setRefundMethod("vibecoin");
+    setRefundAccountNumber("");
+    setProofImage1(null);
+    setProofImage2(null);
+    setProofImage3(null);
+    setReturnErrorMsg("");
+    setReturnSuccessMsg("");
+    setReturnOrder(order);
+  };
+
+  const calculateReturnTotal = (order: Order) => {
+    let total = 0;
+    (order.items || []).forEach((it) => {
+      const sel = returnItemsSelection[it.id];
+      if (sel?.selected) {
+        total += Number(it.unit_price) * (sel.quantity || 1);
+      }
+    });
+    return total;
+  };
+
+  const handleSubmitReturnRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!returnOrder) return;
+
+    const selectedItems = Object.entries(returnItemsSelection)
+      .filter(([_, val]) => val.selected && val.quantity > 0)
+      .map(([orderItemId, val]) => ({
+        order_item_id: Number(orderItemId),
+        quantity: val.quantity,
+      }));
+
+    if (selectedItems.length === 0) {
+      setReturnErrorMsg(locale === "bn" ? "অনুগ্রহ করে কমপক্ষে একটি পণ্য নির্বাচন করুন।" : "Please select at least one item to return.");
+      return;
+    }
+
+    if ((refundMethod === "bkash" || refundMethod === "nagad") && !refundAccountNumber.trim()) {
+      setReturnErrorMsg(locale === "bn" ? "অনুগ্রহ করে আপনার বিকাশ / নগদ নম্বরটি দিন।" : "Please provide your bKash / Nagad phone number.");
+      return;
+    }
+
+    setSubmittingReturn(true);
+    setReturnErrorMsg("");
+    setReturnSuccessMsg("");
+
+    try {
+      const formData = new FormData();
+      formData.append("order_id", String(returnOrder.id));
+      formData.append("reason", returnReason);
+      formData.append("customer_note", returnNote);
+      formData.append("refund_method", refundMethod);
+      formData.append("refund_account_number", refundAccountNumber);
+      formData.append("items", JSON.stringify(selectedItems));
+
+      if (proofImage1) formData.append("proof_image_1", proofImage1);
+      if (proofImage2) formData.append("proof_image_2", proofImage2);
+      if (proofImage3) formData.append("proof_image_3", proofImage3);
+
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `JWT ${token}`;
+
+      const res = await fetch(`${API_BASE}/store/return-requests/`, {
+        method: "POST",
+        headers,
+        body: formData,
+      });
+
+      if (res.ok) {
+        setReturnSuccessMsg(t("profile.returnSuccessMsg") || (locale === "bn" ? "রিটার্ন অনুরোধ সফলভাবে গৃহীত হয়েছে!" : "Return request submitted successfully!"));
+        // Refresh orders list
+        await loadMyOrders();
+        setTimeout(() => {
+          setReturnOrder(null);
+          setReturnSuccessMsg("");
+        }, 1800);
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        setReturnErrorMsg(errData.error || errData.detail || (locale === "bn" ? "অনুরোধ জমা দেওয়া যায়নি। আবার চেষ্টা করুন।" : "Failed to submit return request."));
+      }
+    } catch (err: any) {
+      setReturnErrorMsg(err.message || (locale === "bn" ? "নেটওয়ার্ক ত্রুটি। আবার চেষ্টা করুন।" : "Network error. Please try again."));
+    } finally {
+      setSubmittingReturn(false);
     }
   };
 
@@ -921,16 +1040,42 @@ export default function ProfilePage() {
                               </button>
                             )}
                             {ord.tracking_status === "delivered" && (
-                              <button
-                                type="button"
-                                onClick={() => handleOpenReview(ord)}
-                                className="px-3.5 py-1.5 bg-visible/15 text-visible hover:bg-visible hover:text-button-fg border border-visible/30 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                                </svg>
-                                <span>{t("profile.reviewProductBtn") || (locale === "bn" ? "রিভিউ দিন" : "Review")}</span>
-                              </button>
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenReview(ord)}
+                                  className="px-3.5 py-1.5 bg-visible/15 text-visible hover:bg-visible hover:text-button-fg border border-visible/30 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                  </svg>
+                                  <span>{t("profile.reviewProductBtn") || (locale === "bn" ? "রিভিউ দিন" : "Review")}</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenReturnModal(ord)}
+                                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center gap-1.5 cursor-pointer border ${
+                                    ord.return_requests && ord.return_requests.length > 0
+                                      ? ord.return_requests[0].status === "approved"
+                                        ? "bg-visible/15 text-visible border-visible/30 hover:bg-visible hover:text-button-fg"
+                                        : ord.return_requests[0].status === "rejected"
+                                        ? "bg-hidden/15 text-hidden border-hidden/30 hover:bg-hidden hover:text-button-fg"
+                                        : "bg-accent/15 text-accent border-accent/30 hover:bg-accent hover:text-button-fg"
+                                      : "bg-primary/5 hover:bg-button-bg hover:text-button-fg text-foreground border-foreground/15"
+                                  }`}
+                                >
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <polyline points="1 4 1 10 7 10"></polyline>
+                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                                  </svg>
+                                  <span>
+                                    {ord.return_requests && ord.return_requests.length > 0
+                                      ? ord.return_requests[0].status_display
+                                      : t("profile.returnBtn") || (locale === "bn" ? "রিটার্ন" : "Return")}
+                                  </span>
+                                </button>
+                              </>
                             )}
                             <button
                               type="button"
@@ -1098,20 +1243,38 @@ export default function ProfilePage() {
                   </button>
                 )}
                 {selectedOrderDetails.tracking_status === "delivered" && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const ord = selectedOrderDetails;
-                      setSelectedOrderDetails(null);
-                      handleOpenReview(ord);
-                    }}
-                    className="flex-1 min-w-[120px] py-2 bg-visible/15 hover:bg-visible text-visible hover:text-button-fg border border-visible/30 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                    </svg>
-                    <span>{t("profile.reviewProductBtn") || (locale === "bn" ? "রিভিউ দিন" : "Review Product")}</span>
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const ord = selectedOrderDetails;
+                        setSelectedOrderDetails(null);
+                        handleOpenReview(ord);
+                      }}
+                      className="flex-1 min-w-[120px] py-2 bg-visible/15 hover:bg-visible text-visible hover:text-button-fg border border-visible/30 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                      </svg>
+                      <span>{t("profile.reviewProductBtn") || (locale === "bn" ? "রিভিউ দিন" : "Review Product")}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const ord = selectedOrderDetails;
+                        setSelectedOrderDetails(null);
+                        handleOpenReturnModal(ord);
+                      }}
+                      className="flex-1 min-w-[120px] py-2 bg-primary/10 hover:bg-button-bg hover:text-button-fg text-foreground border border-foreground/15 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="1 4 1 10 7 10"></polyline>
+                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                      </svg>
+                      <span>{t("profile.returnBtn") || (locale === "bn" ? "রিটার্ন / রিফান্ড" : "Return / Refund")}</span>
+                    </button>
+                  </>
                 )}
               </div>
             )}
