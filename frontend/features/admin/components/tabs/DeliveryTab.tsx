@@ -239,38 +239,8 @@ export default function DeliveryTab({
             </div>
           </div>
         </div>
-
-        {/* Sub-tab Navigation Pills */}
-        <div className="flex items-center p-1.5 bg-background rounded-2xl border border-foreground/10 w-full md:w-auto overflow-x-auto">
-          <button
-            type="button"
-            onClick={() => setDeliverySubTab("rates")}
-            className={`flex-1 md:flex-none px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-              deliverySubTab === "rates"
-                ? "bg-accent text-white shadow-xs font-black"
-                : "text-foreground/70 hover:text-foreground hover:bg-secondary"
-            }`}
-          >
-            {t("admin.delivery.tabRates")}
-          </button>
-          <button
-            type="button"
-            onClick={() => setDeliverySubTab("couriers")}
-            className={`flex-1 md:flex-none px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-              deliverySubTab === "couriers"
-                ? "bg-accent text-white shadow-xs font-black"
-                : "text-foreground/70 hover:text-foreground hover:bg-secondary"
-            }`}
-          >
-            {t("admin.delivery.tabCouriers")}
-            {courierProviders.length > 0 && (
-              <span className="ml-1.5 px-1.5 py-0.5 text-[10px] rounded-full bg-foreground/10 text-foreground font-black">
-                {courierProviders.length}
-              </span>
-            )}
-          </button>
-        </div>
       </div>
+
 
       {/* SUB-TAB 1: GENERAL RATES & TIMEFRAMES */}
       {deliverySubTab === "rates" && (
