@@ -613,21 +613,18 @@ class CourierProvider(models.Model):
     PROVIDER_PATHAO = 'pathao'
     PROVIDER_REDX = 'redx'
     PROVIDER_PAPERFLY = 'paperfly'
-    PROVIDER_ECOURIER = 'ecourier'
-    PROVIDER_CUSTOM = 'custom'
 
     PROVIDER_CHOICES = [
         (PROVIDER_STEADFAST, 'Steadfast Courier'),
         (PROVIDER_PATHAO, 'Pathao Courier'),
         (PROVIDER_REDX, 'RedX Delivery'),
         (PROVIDER_PAPERFLY, 'Paperfly'),
-        (PROVIDER_ECOURIER, 'eCourier'),
-        (PROVIDER_CUSTOM, 'Custom / In-House Courier'),
     ]
 
     name = models.CharField(max_length=150)
-    provider_code = models.CharField(max_length=30, choices=PROVIDER_CHOICES, default=PROVIDER_CUSTOM)
+    provider_code = models.CharField(max_length=30, choices=PROVIDER_CHOICES, default=PROVIDER_STEADFAST)
     api_key = models.CharField(max_length=255, blank=True, null=True)
+
     secret_key = models.CharField(max_length=255, blank=True, null=True)
     client_id = models.CharField(max_length=150, blank=True, null=True)
     base_url = models.URLField(max_length=500, blank=True, null=True)

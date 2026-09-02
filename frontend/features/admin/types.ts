@@ -150,9 +150,8 @@ export type DeliveryProviderCode =
   | "steadfast"
   | "pathao"
   | "redx"
-  | "paperfly"
-  | "ecourier"
-  | "custom";
+  | "paperfly";
+
 
 export interface CourierProvider {
   id: number;

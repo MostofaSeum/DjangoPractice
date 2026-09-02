@@ -63,20 +63,6 @@ const PRESET_COURIERS: Array<{
     defaultBaseUrl: "https://api.paperfly.com.bd/v1",
     description: "Nationwide doorstep courier coverage with smart return management.",
   },
-  {
-    code: "ecourier",
-    name: "eCourier",
-    defaultTrackingUrl: "https://ecourier.com.bd/track-parcel/?track_id={tracking_code}",
-    defaultBaseUrl: "https://backoffice.ecourier.com.bd/api",
-    description: "Tech-enabled logistics provider for direct web storefronts.",
-  },
-  {
-    code: "custom",
-    name: "Custom / In-House Delivery",
-    defaultTrackingUrl: "",
-    defaultBaseUrl: "",
-    description: "For merchants doing in-house rider delivery or using local manual couriers.",
-  },
 ];
 
 export default function DeliveryTab({
