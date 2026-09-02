@@ -146,6 +146,35 @@ export interface DeliverySettingsState {
   is_active: boolean;
 }
 
+export type DeliveryProviderCode =
+  | "steadfast"
+  | "pathao"
+  | "redx"
+  | "paperfly"
+  | "ecourier"
+  | "custom";
+
+export interface CourierProvider {
+  id: number;
+  name: string;
+  provider_code: DeliveryProviderCode;
+  provider_code_display?: string;
+  api_key?: string | null;
+  secret_key?: string | null;
+  client_id?: string | null;
+  base_url?: string | null;
+  tracking_url_template?: string | null;
+  is_active: boolean;
+  is_default_inside_dhaka: boolean;
+  is_default_outside_dhaka: boolean;
+  is_sandbox: boolean;
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export type DeliverySubTab = "rates" | "couriers";
+
 export type AdminTab =
   | "dashboard"
   | "products"
@@ -168,3 +197,4 @@ export type ProductSubTab =
   | "sheets-sync";
 export type CollectionSubTab = "all" | "add" | "edit";
 export type AnalyticsSubTab = "sales" | "coupons" | "payments" | "top-products";
+

@@ -7,6 +7,7 @@ import {
   ProductSubTab,
   CollectionSubTab,
   AnalyticsSubTab,
+  DeliverySubTab,
 } from "../types";
 
 interface AdminSidebarProps {
@@ -22,6 +23,12 @@ interface AdminSidebarProps {
   handleCollectionSubTabSwitch: (subTab: CollectionSubTab) => void;
   isCollectionsDropdownOpen: boolean;
   setIsCollectionsDropdownOpen: (
+    open: boolean | ((prev: boolean) => boolean),
+  ) => void;
+  deliverySubTab: DeliverySubTab;
+  handleDeliverySubTabSwitch: (subTab: DeliverySubTab) => void;
+  isDeliveryDropdownOpen: boolean;
+  setIsDeliveryDropdownOpen: (
     open: boolean | ((prev: boolean) => boolean),
   ) => void;
   analyticsSubTab: AnalyticsSubTab;
@@ -40,7 +47,7 @@ interface AdminSidebarProps {
   customersCount: number;
   promosCount: number;
   couponsCount: number;
-  deliveryRulesCount: number;
+  courierCount?: number;
 }
 
 export default function AdminSidebar({
@@ -54,10 +61,15 @@ export default function AdminSidebar({
   handleCollectionSubTabSwitch,
   isCollectionsDropdownOpen,
   setIsCollectionsDropdownOpen,
+  deliverySubTab,
+  handleDeliverySubTabSwitch,
+  isDeliveryDropdownOpen,
+  setIsDeliveryDropdownOpen,
   analyticsSubTab,
   handleAnalyticsSubTabSwitch,
   isAnalyticsDropdownOpen,
   setIsAnalyticsDropdownOpen,
+
   isSidebarCollapsed,
   setIsSidebarCollapsed,
   productsCount,
@@ -66,7 +78,7 @@ export default function AdminSidebar({
   customersCount,
   promosCount,
   couponsCount,
-  deliveryRulesCount,
+  courierCount = 0,
 }: AdminSidebarProps) {
   const { locale, t } = useLanguage();
   const isBn = locale === "bn";
@@ -121,7 +133,7 @@ export default function AdminSidebar({
     {
       id: "delivery" as AdminTab,
       label: t("admin.sidebar.delivery"),
-      count: deliveryRulesCount > 0 ? deliveryRulesCount : undefined,
+      count: courierCount > 0 ? courierCount : undefined,
       icon: "/admin/manage_delivery.png",
     },
     {
@@ -171,6 +183,7 @@ export default function AdminSidebar({
           const isActive = activeTab === tab.id;
           const isProductsTab = tab.id === "products";
           const isCollectionsTab = tab.id === "collections";
+          const isDeliveryTab = tab.id === "delivery";
           const isAnalyticsTab = tab.id === "analytics";
 
           return (
@@ -190,6 +203,13 @@ export default function AdminSidebar({
                     } else {
                       setActiveTab("collections");
                       setIsCollectionsDropdownOpen(true);
+                    }
+                  } else if (isDeliveryTab) {
+                    if (activeTab === "delivery") {
+                      setIsDeliveryDropdownOpen((prev) => !prev);
+                    } else {
+                      setActiveTab("delivery");
+                      setIsDeliveryDropdownOpen(true);
                     }
                   } else if (isAnalyticsTab) {
                     if (activeTab === "analytics") {
@@ -244,11 +264,12 @@ export default function AdminSidebar({
 
                 {!isSidebarCollapsed && (
                   <div className="flex items-center gap-1.5 shrink-0">
-                    {(isProductsTab || isCollectionsTab || isAnalyticsTab) && (
+                    {(isProductsTab || isCollectionsTab || isDeliveryTab || isAnalyticsTab) && (
                       <svg
                         className={`w-3.5 h-3.5 transition-transform duration-200 opacity-70 ${
                           (isProductsTab && isProductsDropdownOpen) ||
                           (isCollectionsTab && isCollectionsDropdownOpen) ||
+                          (isDeliveryTab && isDeliveryDropdownOpen) ||
                           (isAnalyticsTab && isAnalyticsDropdownOpen)
                             ? "rotate-180"
                             : ""
@@ -268,6 +289,7 @@ export default function AdminSidebar({
                   </div>
                 )}
               </button>
+
 
               {/* Collections Subsections */}
               {isCollectionsTab &&
@@ -393,11 +415,43 @@ export default function AdminSidebar({
                   </div>
                 )}
 
+              {/* Delivery Subsections */}
+              {isDeliveryTab &&
+                isDeliveryDropdownOpen &&
+                !isSidebarCollapsed && (
+                  <div className="pl-6 pr-1 py-1 mt-1 space-y-1 border-l-2 border-white/10 ml-5 transition-all">
+                    {/* 1. Rates & Schedules */}
+                    <button
+                      onClick={() => handleDeliverySubTabSwitch("rates")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        isActive && deliverySubTab === "rates"
+                          ? "bg-accent text-white shadow-xs font-black"
+                          : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="truncate">{isBn ? "চার্জ ও সময়সীমা" : "Rates & Timeframes"}</span>
+                    </button>
+
+                    {/* 2. Courier Partners & APIs */}
+                    <button
+                      onClick={() => handleDeliverySubTabSwitch("couriers")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        isActive && deliverySubTab === "couriers"
+                          ? "bg-accent text-white shadow-xs font-black"
+                          : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="truncate">{isBn ? "কুরিয়ার ও এপিআই" : "Couriers & APIs"}</span>
+                    </button>
+                  </div>
+                )}
+
               {/* Analytics Subsections */}
               {isAnalyticsTab &&
                 isAnalyticsDropdownOpen &&
                 !isSidebarCollapsed && (
                   <div className="pl-6 pr-1 py-1 mt-1 space-y-1 border-l-2 border-white/10 ml-5 transition-all">
+
                     {/* 1. Sales & Revenue Analytics */}
                     <button
                       onClick={() => handleAnalyticsSubTabSwitch("sales")}

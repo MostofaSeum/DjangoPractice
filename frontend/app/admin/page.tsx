@@ -31,6 +31,8 @@ import {
   CustomerItem,
   CouponItem,
   DeliveryRuleItem,
+  CourierProvider,
+  DeliverySubTab,
   AdminTab,
   ProductSubTab,
   CollectionSubTab,
@@ -159,7 +161,13 @@ export default function AdminDashboardPage() {
   const [deliveryRuleCreating, setDeliveryRuleCreating] = useState(false);
   const [deliveryRuleFilterSearch, setDeliveryRuleFilterSearch] = useState("");
 
+  // Courier Providers State
+  const [courierProviders, setCourierProviders] = useState<CourierProvider[]>([]);
+  const [deliverySubTab, setDeliverySubTab] = useState<DeliverySubTab>("rates");
+  const [isDeliveryDropdownOpen, setIsDeliveryDropdownOpen] = useState(false);
+
   // Promotion states
+
   const [allProductsForPromo, setAllProductsForPromo] = useState<Product[]>([]);
   const [promoSelectedProductIds, setPromoSelectedProductIds] = useState<
     number[]
@@ -365,10 +373,12 @@ export default function AdminDashboardPage() {
       fetchPaymentSettings();
       fetchDeliverySettings();
       fetchDeliveryRules();
+      fetchCourierProviders();
       setAdminDataVersion((v) => v + 1);
     } catch (err) {
       console.error("Failed to fetch admin data:", err);
     } finally {
+
       setLoading(false);
     }
   };
@@ -767,10 +777,213 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const fetchCourierProviders = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/store/courier-providers/`, {
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCourierProviders(Array.isArray(data) ? data : data.results || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch courier providers:", err);
+    }
+  };
+
+  const handleSaveCourierProvider = async (
+    providerData: Partial<CourierProvider>
+  ): Promise<boolean> => {
+    if (!token) return false;
+    const isEdit = Boolean(providerData.id);
+    const url = isEdit
+      ? `${API_BASE}/store/courier-providers/${providerData.id}/`
+      : `${API_BASE}/store/courier-providers/`;
+    const method = isEdit ? "PUT" : "POST";
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify(providerData),
+      });
+
+      if (res.ok) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: `Courier partner "${providerData.name}" ${isEdit ? "updated" : "added"} successfully!`,
+          showConfirmButton: false,
+          timer: 2000,
+          toast: true,
+        });
+        fetchCourierProviders();
+        return true;
+      } else {
+        const errData = await res.json();
+        Swal.fire(
+          "Error",
+          typeof errData === "object"
+            ? Object.entries(errData)
+                .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+                .join("\n")
+            : "Failed to save courier partner.",
+          "error"
+        );
+        return false;
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "Network error while saving courier partner.", "error");
+      return false;
+    }
+  };
+
+  const handleDeleteCourierProvider = async (providerId: number, name: string) => {
+    if (!token) return;
+    const confirm = await Swal.fire({
+      title: "Delete Courier Partner?",
+      text: `Are you sure you want to remove "${name}"? Existing orders will keep their tracking codes.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "var(--button-bg)",
+      confirmButtonText: "Yes, Delete",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/store/courier-providers/${providerId}/`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `JWT ${token}`,
+        },
+      });
+
+      if (res.ok) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: `"${name}" removed successfully!`,
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+        });
+        fetchCourierProviders();
+      } else {
+        Swal.fire("Error", "Failed to delete courier partner.", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "Network error while deleting courier partner.", "error");
+    }
+  };
+
+  const handleToggleCourierActive = async (provider: CourierProvider) => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE}/store/courier-providers/${provider.id}/`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `JWT ${token}`,
+        },
+        body: JSON.stringify({ is_active: !provider.is_active }),
+      });
+      if (res.ok) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: `"${provider.name}" ${!provider.is_active ? "activated" : "disabled"}!`,
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+        });
+        fetchCourierProviders();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSetDefaultCourier = async (
+    providerId: number,
+    area: "inside" | "outside" | "both"
+  ) => {
+    if (!token) return;
+    try {
+      const res = await fetch(
+        `${API_BASE}/store/courier-providers/${providerId}/set_default/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `JWT ${token}`,
+          },
+          body: JSON.stringify({ area }),
+        }
+      );
+      if (res.ok) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: `Default courier updated for ${area === "inside" ? "Inside Dhaka" : area === "outside" ? "Outside Dhaka" : "All Zones"}!`,
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+        });
+        fetchCourierProviders();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleTestCourierConnection = async (providerId: number) => {
+    if (!token) return;
+    try {
+      const res = await fetch(
+        `${API_BASE}/store/courier-providers/${providerId}/test_connection/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `JWT ${token}`,
+          },
+        }
+      );
+      const data = await res.json();
+      if (res.ok && data.success) {
+        Swal.fire({
+          icon: "success",
+          title: "Connection Test Successful!",
+          text: data.message || "API credentials validated successfully.",
+          confirmButtonColor: "var(--accent)",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Connection Failed",
+          text: data.message || "Failed to validate credentials.",
+          confirmButtonColor: "var(--accent)",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "Network error while testing connection.", "error");
+    }
+  };
+
   const fetchPaymentSettings = async () => {
     try {
       const res = await fetch(`${API_BASE}/store/payment-settings/`, {
         cache: "no-store",
+
       });
       if (res.ok) {
         const data = await res.json();
@@ -2430,6 +2643,13 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleDeliverySubTabSwitch = (subTab: DeliverySubTab) => {
+    setActiveTab("delivery");
+    setIsDeliveryDropdownOpen(true);
+    setDeliverySubTab(subTab);
+  };
+
+
   const handleRefreshCurrentTab = async () => {
     if (!token) return;
     try {
@@ -2543,6 +2763,10 @@ export default function AdminDashboardPage() {
           handleCollectionSubTabSwitch={handleCollectionSubTabSwitch}
           isCollectionsDropdownOpen={isCollectionsDropdownOpen}
           setIsCollectionsDropdownOpen={setIsCollectionsDropdownOpen}
+          deliverySubTab={deliverySubTab}
+          handleDeliverySubTabSwitch={handleDeliverySubTabSwitch}
+          isDeliveryDropdownOpen={isDeliveryDropdownOpen}
+          setIsDeliveryDropdownOpen={setIsDeliveryDropdownOpen}
           analyticsSubTab={analyticsSubTab}
           handleAnalyticsSubTabSwitch={handleAnalyticsSubTabSwitch}
           isAnalyticsDropdownOpen={isAnalyticsDropdownOpen}
@@ -2559,8 +2783,9 @@ export default function AdminDashboardPage() {
             ).length
           }
           couponsCount={couponsList.length}
-          deliveryRulesCount={deliveryRulesList.length}
+          courierCount={courierProviders.length}
         />
+
 
         {/* Right Main Content Area */}
         <main className="flex-1 p-6 md:p-10 max-w-[1600px] w-full overflow-x-hidden transition-all duration-300">
@@ -2782,13 +3007,23 @@ export default function AdminDashboardPage() {
           {/* 8. MANAGE DELIVERY TAB */}
           {activeTab === "delivery" && (
             <DeliveryTab
+              deliverySubTab={deliverySubTab}
+              setDeliverySubTab={setDeliverySubTab}
               deliverySettings={deliverySettings}
               initialDeliverySettings={initialDeliverySettings}
               setDeliverySettings={setDeliverySettings}
               savingDeliverySettings={savingDeliverySettings}
               handleSaveDeliverySettings={handleSaveDeliverySettings}
+              // Courier Providers
+              courierProviders={courierProviders}
+              handleSaveCourierProvider={handleSaveCourierProvider}
+              handleDeleteCourierProvider={handleDeleteCourierProvider}
+              handleToggleCourierActive={handleToggleCourierActive}
+              handleSetDefaultCourier={handleSetDefaultCourier}
+              handleTestCourierConnection={handleTestCourierConnection}
             />
           )}
+
 
           {/* 9. ANALYTICS TAB */}
           {activeTab === "analytics" && (

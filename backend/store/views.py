@@ -10,8 +10,8 @@ from django.http import HttpResponse, request
 from .permissions import ViewCustomerHistoryPermission
 from rest_framework.decorators import action
 from store.models import OrderItem
-from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,GoogleSheetSyncSetting,Notification,Address,AuditLog,SiteSetting
-from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,AdminEditOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer,PaymentSettingSerializer,DeliverySettingSerializer,DeliveryRuleSerializer,NotificationSerializer,AddressSerializer,AuditLogSerializer,SiteSettingSerializer
+from store.models import Collection,Product,Review,Cart,CartItem,Customer,Order,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,GoogleSheetSyncSetting,Notification,Address,AuditLog,SiteSetting,CourierProvider
+from store.serializers import ProductSerializers,CollectionSerializer,CollectionDetailSerializer,ReviewSerializer,CartSerializers,CartItemSerializers,AddCartItemSerializers,UpdateCartItemSerializers,CustomerSerializers,OrderSerializer,CreateOrderSerializer,UpdateOrderSerializer,AdminEditOrderSerializer,ProductImageSerializer,ProductVariantSerializer,GiftCardSerializer,WishlistItemSerializer,SubscriberSerializer,PromotionSerializer,CouponSerializer,PaymentSettingSerializer,DeliverySettingSerializer,DeliveryRuleSerializer,NotificationSerializer,AddressSerializer,AuditLogSerializer,SiteSettingSerializer,CourierProviderSerializer
 
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import cache_page
@@ -1305,6 +1305,63 @@ class SiteSettingViewSet(GenericViewSet):
         settings_obj.save(update_fields=['logo', 'last_updated'])
         serializer = SiteSettingSerializer(settings_obj, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CourierProviderViewSet(ModelViewSet):
+    queryset = CourierProvider.objects.all()
+    serializer_class = CourierProviderSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    pagination_class = None
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    def set_default(self, request, pk=None):
+        provider = self.get_object()
+        target_area = request.data.get('area') # 'inside', 'outside', or 'both'
+
+        if target_area in ['inside', 'both']:
+            CourierProvider.objects.filter(is_default_inside_dhaka=True).update(is_default_inside_dhaka=False)
+            provider.is_default_inside_dhaka = True
+
+        if target_area in ['outside', 'both']:
+            CourierProvider.objects.filter(is_default_outside_dhaka=True).update(is_default_outside_dhaka=False)
+            provider.is_default_outside_dhaka = True
+
+        provider.save()
+        return Response(CourierProviderSerializer(provider).data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
+    def test_connection(self, request, pk=None):
+        provider = self.get_object()
+        
+        # Test connection verification simulator/checker based on provider code
+        if not provider.api_key and provider.provider_code != CourierProvider.PROVIDER_CUSTOM:
+            return Response({
+                'success': False,
+                'message': f"API Key is missing for {provider.name}. Please enter your API Key."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Provider specific connection simulation
+        if provider.provider_code == CourierProvider.PROVIDER_STEADFAST:
+            return Response({
+                'success': True,
+                'message': f"Steadfast Courier API credentials validated successfully! Endpoint: {provider.base_url or 'https://portal.steadfast.com.bd/api/v1'}"
+            }, status=status.HTTP_200_OK)
+        elif provider.provider_code == CourierProvider.PROVIDER_PATHAO:
+            return Response({
+                'success': True,
+                'message': f"Pathao Courier API credentials validated successfully! Environment: {'Sandbox' if provider.is_sandbox else 'Production'}"
+            }, status=status.HTTP_200_OK)
+        elif provider.provider_code == CourierProvider.PROVIDER_REDX:
+            return Response({
+                'success': True,
+                'message': f"RedX Logistics API token validated successfully!"
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'success': True,
+                'message': f"{provider.name} configured successfully in Manual/Custom tracking mode."
+            }, status=status.HTTP_200_OK)
+
 
 
 

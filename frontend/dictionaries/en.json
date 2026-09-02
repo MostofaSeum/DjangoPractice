@@ -524,8 +524,10 @@
       "vibecoinDesc": "Allow customers to earn 5% coins on delivered orders and redeem balance during checkout."
     },
     "delivery": {
-      "title": "Manage Delivery & Shipping Charges",
-      "subtitle": "Configure delivery fees and estimated timeframes for Inside Dhaka and Outside Dhaka. Customers will select these during checkout.",
+      "title": "Manage Delivery & Logistics",
+      "subtitle": "Configure delivery fees, estimated schedules, and connect automated Courier Partner APIs (Steadfast, Pathao, RedX, etc.).",
+      "tabRates": "Rates & Timeframes",
+      "tabCouriers": "Courier Partners & APIs",
       "reset": "Reset",
       "saveSettings": "Save Settings",
       "saving": "Saving...",
@@ -535,7 +537,24 @@
       "insideEstimated": "Estimated Delivery Time *",
       "outsideDhakaTitle": "Outside Dhaka Delivery",
       "outsideDhakaCharge": "Delivery Charge (৳) *",
-      "outsideEstimated": "Estimated Delivery Time *"
+      "outsideEstimated": "Estimated Delivery Time *",
+      "addCourier": "Add Courier Partner",
+      "editCourier": "Edit Courier Partner",
+      "courierName": "Courier / Partner Name *",
+      "courierType": "Courier Provider *",
+      "apiKey": "API Key / Client ID",
+      "secretKey": "Secret Key / API Secret",
+      "clientId": "Sender / Store ID (Optional)",
+      "baseUrl": "Custom API Base URL (Optional)",
+      "trackingUrl": "Tracking URL Template (Optional)",
+      "isDefaultInside": "Default for Inside Dhaka",
+      "isDefaultOutside": "Default for Outside Dhaka",
+      "isSandbox": "Sandbox / Test Environment",
+      "isActive": "Active Status",
+      "notes": "Internal Notes",
+      "testConnection": "Test Connection",
+      "noCouriers": "No courier partners configured yet.",
+      "noCouriersSub": "Add your first courier service (Steadfast, Pathao, RedX, or Custom) to enable direct parcel booking and tracking."
     },
     "customers": {
       "title": "Registered Customers",

@@ -22,6 +22,7 @@ router.register('notifications', views.NotificationViewSet, basename='notificati
 router.register('addresses', views.AddressViewSet, basename='addresses')
 router.register('audit-logs', views.AuditLogViewSet, basename='audit-logs')
 router.register('site-settings', views.SiteSettingViewSet, basename='site-settings')
+router.register('courier-providers', views.CourierProviderViewSet, basename='courier-providers')
 
 
 

@@ -4,7 +4,7 @@ from django.db.models.functions import Greatest
 from django.utils import timezone
 from .signals import order_created
 from rest_framework import serializers
-from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,Notification,Address,AuditLog,SiteSetting
+from .models import Product,Collection,Cart,Review,ReviewImage,CartItem,Customer,Order,OrderItem,ProductImage,ProductVariant,GiftCard,WishlistItem,Subscriber,Promotion,Coupon,PaymentSetting,DeliverySetting,DeliveryRule,Notification,Address,AuditLog,SiteSetting,CourierProvider
 
 from decimal import Decimal
 
@@ -1013,6 +1013,54 @@ class SiteSettingSerializer(serializers.ModelSerializer):
         if value and len(value.strip()) > 30:
             raise serializers.ValidationError("Tagline cannot exceed 30 characters.")
         return value.strip()
+
+
+class CourierProviderSerializer(serializers.ModelSerializer):
+    provider_code_display = serializers.CharField(source='get_provider_code_display', read_only=True)
+
+    class Meta:
+        model = CourierProvider
+        fields = [
+            'id',
+            'name',
+            'provider_code',
+            'provider_code_display',
+            'api_key',
+            'secret_key',
+            'client_id',
+            'base_url',
+            'tracking_url_template',
+            'is_active',
+            'is_default_inside_dhaka',
+            'is_default_outside_dhaka',
+            'is_sandbox',
+            'notes',
+            'created_at',
+            'updated_at',
+        ]
+
+    def create(self, validated_data):
+        inside_default = validated_data.get('is_default_inside_dhaka', False)
+        outside_default = validated_data.get('is_default_outside_dhaka', False)
+
+        if inside_default:
+            CourierProvider.objects.filter(is_default_inside_dhaka=True).update(is_default_inside_dhaka=False)
+        if outside_default:
+            CourierProvider.objects.filter(is_default_outside_dhaka=True).update(is_default_outside_dhaka=False)
+
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        inside_default = validated_data.get('is_default_inside_dhaka', False)
+        outside_default = validated_data.get('is_default_outside_dhaka', False)
+
+        if inside_default and not instance.is_default_inside_dhaka:
+            CourierProvider.objects.exclude(pk=instance.pk).filter(is_default_inside_dhaka=True).update(is_default_inside_dhaka=False)
+        if outside_default and not instance.is_default_outside_dhaka:
+            CourierProvider.objects.exclude(pk=instance.pk).filter(is_default_outside_dhaka=True).update(is_default_outside_dhaka=False)
+
+        return super().update(instance, validated_data)
+
 
 
 

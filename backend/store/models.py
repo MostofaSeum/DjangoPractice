@@ -607,3 +607,48 @@ class SiteSetting(models.Model):
         obj, _ = cls.objects.get_or_create(id=1)
         return obj
 
+
+class CourierProvider(models.Model):
+    PROVIDER_STEADFAST = 'steadfast'
+    PROVIDER_PATHAO = 'pathao'
+    PROVIDER_REDX = 'redx'
+    PROVIDER_PAPERFLY = 'paperfly'
+    PROVIDER_ECOURIER = 'ecourier'
+    PROVIDER_CUSTOM = 'custom'
+
+    PROVIDER_CHOICES = [
+        (PROVIDER_STEADFAST, 'Steadfast Courier'),
+        (PROVIDER_PATHAO, 'Pathao Courier'),
+        (PROVIDER_REDX, 'RedX Delivery'),
+        (PROVIDER_PAPERFLY, 'Paperfly'),
+        (PROVIDER_ECOURIER, 'eCourier'),
+        (PROVIDER_CUSTOM, 'Custom / In-House Courier'),
+    ]
+
+    name = models.CharField(max_length=150)
+    provider_code = models.CharField(max_length=30, choices=PROVIDER_CHOICES, default=PROVIDER_CUSTOM)
+    api_key = models.CharField(max_length=255, blank=True, null=True)
+    secret_key = models.CharField(max_length=255, blank=True, null=True)
+    client_id = models.CharField(max_length=150, blank=True, null=True)
+    base_url = models.URLField(max_length=500, blank=True, null=True)
+    tracking_url_template = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        help_text="e.g. https://steadfast.com.bd/t/{tracking_code}"
+    )
+    is_active = models.BooleanField(default=True)
+    is_default_inside_dhaka = models.BooleanField(default=False)
+    is_default_outside_dhaka = models.BooleanField(default=False)
+    is_sandbox = models.BooleanField(default=False)
+    notes = models.TextField(blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-is_active', 'name']
+
+    def __str__(self):
+        return f"{self.name} ({self.get_provider_code_display()})"
+
+
