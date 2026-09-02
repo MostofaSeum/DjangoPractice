@@ -455,7 +455,9 @@ export default function DeliveryTab({
                               : "bg-foreground/10 text-foreground/70"
                           }`}
                         >
-                          {hasApiKey ? "API Connected" : "Manual Tracking"}
+                          {hasApiKey
+                            ? t("admin.delivery.apiConnected")
+                            : t("admin.delivery.manualTracking")}
                         </span>
 
                         {provider.is_sandbox && (
@@ -489,17 +491,16 @@ export default function DeliveryTab({
                         </div>
                       </div>
 
-
                       {/* Default Badges */}
                       <div className="flex flex-wrap gap-1.5 mt-4">
                         {provider.is_default_inside_dhaka && (
                           <span className="px-2.5 py-1 rounded-lg bg-accent/15 text-accent font-extrabold text-[10px] uppercase tracking-wider">
-                            Default Inside Dhaka
+                            {t("admin.delivery.defaultInsideBadge")}
                           </span>
                         )}
                         {provider.is_default_outside_dhaka && (
                           <span className="px-2.5 py-1 rounded-lg bg-accent/15 text-accent font-extrabold text-[10px] uppercase tracking-wider">
-                            Default Outside Dhaka
+                            {t("admin.delivery.defaultOutsideBadge")}
                           </span>
                         )}
                       </div>
@@ -527,7 +528,7 @@ export default function DeliveryTab({
                                 }
                                 className="flex-1 py-1.5 px-2 bg-background hover:bg-foreground/5 border border-foreground/10 rounded-lg text-[10px] font-bold text-foreground/70 uppercase tracking-wider transition-all cursor-pointer"
                               >
-                                Set Inside
+                                {t("admin.delivery.setInside")}
                               </button>
                             )}
                             {!provider.is_default_outside_dhaka && (
@@ -538,7 +539,7 @@ export default function DeliveryTab({
                                 }
                                 className="flex-1 py-1.5 px-2 bg-background hover:bg-foreground/5 border border-foreground/10 rounded-lg text-[10px] font-bold text-foreground/70 uppercase tracking-wider transition-all cursor-pointer"
                               >
-                                Set Outside
+                                {t("admin.delivery.setOutside")}
                               </button>
                             )}
                           </>
@@ -557,7 +558,9 @@ export default function DeliveryTab({
                                   : "bg-foreground/10 text-foreground/60 hover:bg-foreground/20"
                               }`}
                             >
-                              {provider.is_active ? "Active" : "Disabled"}
+                              {provider.is_active
+                                ? t("admin.delivery.activeStatus")
+                                : t("admin.delivery.disabledStatus")}
                             </button>
                           )}
 
@@ -569,7 +572,7 @@ export default function DeliveryTab({
                               className="px-3 py-1.5 rounded-xl text-[10px] font-bold bg-accent/10 text-accent hover:bg-accent/20 uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1"
                             >
                               {testingConnectionId === provider.id ? (
-                                <span>Testing...</span>
+                                <span>{t("admin.delivery.testingConnection")}</span>
                               ) : (
                                 <span>{t("admin.delivery.testConnection")}</span>
                               )}
@@ -582,9 +585,9 @@ export default function DeliveryTab({
                             type="button"
                             onClick={() => handleOpenEditCourier(provider)}
                             className="px-2.5 py-1.5 rounded-xl bg-background border border-foreground/10 hover:bg-foreground/5 text-foreground/80 text-[11px] font-bold transition-colors cursor-pointer"
-                            title="Edit Courier"
+                            title={t("admin.delivery.editBtn")}
                           >
-                            Edit
+                            {t("admin.delivery.editBtn")}
                           </button>
                           {handleDeleteCourierProvider && (
                             <button
@@ -593,9 +596,9 @@ export default function DeliveryTab({
                                 handleDeleteCourierProvider(provider.id, provider.name)
                               }
                               className="px-2.5 py-1.5 rounded-xl bg-hidden/10 hover:bg-hidden/20 text-hidden text-[11px] font-bold transition-colors cursor-pointer"
-                              title="Delete Courier"
+                              title={t("admin.delivery.deleteBtn")}
                             >
-                              Delete
+                              {t("admin.delivery.deleteBtn")}
                             </button>
                           )}
                         </div>
@@ -603,6 +606,7 @@ export default function DeliveryTab({
                     </div>
                   </div>
                 );
+
               })}
             </div>
           )}
@@ -692,14 +696,16 @@ export default function DeliveryTab({
               <div className="p-4 rounded-2xl bg-background border border-foreground/10 space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-black uppercase tracking-wider text-foreground">
-                    API Credentials (Optional / Future Ready)
+                    {t("admin.delivery.apiCredentialsTitle")}
                   </span>
                   <button
                     type="button"
                     onClick={() => setShowSecret(!showSecret)}
                     className="text-[10px] font-bold text-accent hover:underline cursor-pointer"
                   >
-                    {showSecret ? "Hide Keys" : "Show Keys"}
+                    {showSecret
+                      ? t("admin.delivery.hideKeys")
+                      : t("admin.delivery.showKeys")}
                   </button>
                 </div>
 
@@ -832,7 +838,7 @@ export default function DeliveryTab({
                   onClick={() => setIsCourierModalOpen(false)}
                   className="px-5 py-2.5 rounded-xl border border-foreground/15 text-xs font-bold uppercase tracking-wider text-foreground/70 hover:bg-foreground/5 transition-all cursor-pointer"
                 >
-                  Cancel
+                  {t("admin.delivery.cancelBtn")}
                 </button>
                 <button
                   type="submit"
@@ -840,12 +846,17 @@ export default function DeliveryTab({
                   className="px-6 py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-black uppercase tracking-wider hover:opacity-90 transition-all shadow-md disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                 >
                   {isSavingCourier ? (
-                    <span>Saving...</span>
+                    <span>{t("admin.delivery.saving")}</span>
                   ) : (
-                    <span>{editingCourier ? "Update Partner" : "Save Partner"}</span>
+                    <span>
+                      {editingCourier
+                        ? t("admin.delivery.updatePartner")
+                        : t("admin.delivery.savePartner")}
+                    </span>
                   )}
                 </button>
               </div>
+
             </form>
           </div>
         </div>
