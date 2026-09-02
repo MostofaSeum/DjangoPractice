@@ -682,3 +682,85 @@ class CourierProvider(models.Model):
         return f"{self.name} ({self.get_provider_code_display()})"
 
 
+class ReturnRequest(models.Model):
+    STATUS_PENDING = 'pending'
+    STATUS_APPROVED = 'approved'
+    STATUS_REJECTED = 'rejected'
+    STATUS_PICKED_UP = 'picked_up'
+    STATUS_REFUNDED = 'refunded'
+    STATUS_CANCELLED = 'cancelled'
+
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Return Requested'),
+        (STATUS_APPROVED, 'Return Approved / Pickup Scheduled'),
+        (STATUS_PICKED_UP, 'Parcel Picked Up'),
+        (STATUS_REFUNDED, 'Returned & Refund Completed'),
+        (STATUS_REJECTED, 'Return Rejected'),
+        (STATUS_CANCELLED, 'Cancelled by Customer'),
+    ]
+
+    REASON_DAMAGED = 'damaged'
+    REASON_WRONG_ITEM = 'wrong_item'
+    REASON_NOT_AS_DESCRIBED = 'not_as_described'
+    REASON_MISSING_ITEMS = 'missing_items'
+    REASON_SIZE_FIT = 'size_fit'
+    REASON_OTHER = 'other'
+
+    REASON_CHOICES = [
+        (REASON_DAMAGED, 'Damaged / Defective Product'),
+        (REASON_WRONG_ITEM, 'Wrong Product or Variant Received'),
+        (REASON_NOT_AS_DESCRIBED, 'Item Does Not Match Description'),
+        (REASON_MISSING_ITEMS, 'Missing Items / Accessories'),
+        (REASON_SIZE_FIT, 'Size / Fit Issue'),
+        (REASON_OTHER, 'Other Reason'),
+    ]
+
+    REFUND_VIBECOIN = 'vibecoin'
+    REFUND_BKASH = 'bkash'
+    REFUND_NAGAD = 'nagad'
+
+    REFUND_METHOD_CHOICES = [
+        (REFUND_VIBECOIN, 'VibeCoin Wallet (Instant Store Credit)'),
+        (REFUND_BKASH, 'bKash Mobile Banking'),
+        (REFUND_NAGAD, 'Nagad Mobile Banking'),
+    ]
+
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='return_requests')
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='return_requests')
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    reason = models.CharField(max_length=50, choices=REASON_CHOICES, default=REASON_DAMAGED)
+    customer_note = models.TextField(blank=True, default='')
+
+    refund_method = models.CharField(max_length=30, choices=REFUND_METHOD_CHOICES, default=REFUND_VIBECOIN)
+    refund_account_number = models.CharField(max_length=100, blank=True, default='')
+
+    proof_image_1 = models.ImageField(upload_to='returns/proofs/', blank=True, null=True)
+    proof_image_2 = models.ImageField(upload_to='returns/proofs/', blank=True, null=True)
+    proof_image_3 = models.ImageField(upload_to='returns/proofs/', blank=True, null=True)
+
+    # 200 words limit for admin note (~1200 characters max)
+    admin_note = models.CharField(max_length=1500, blank=True, default='')
+    refund_transaction_id = models.CharField(max_length=150, blank=True, default='')
+    refund_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    refunded_at = models.DateTimeField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Return #{self.id} for Order #{self.order_id} ({self.get_status_display()})"
+
+
+class ReturnItem(models.Model):
+    return_request = models.ForeignKey(ReturnRequest, on_delete=models.CASCADE, related_name='items')
+    order_item = models.ForeignKey(OrderItem, on_delete=models.CASCADE, related_name='return_items')
+    quantity = models.PositiveSmallIntegerField(default=1)
+    refund_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
+    def __str__(self):
+        return f"ReturnItem #{self.id} ({self.quantity}x item #{self.order_item_id})"
+
+

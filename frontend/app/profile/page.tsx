@@ -1027,27 +1027,59 @@ export default function ProfilePage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
           <div className="bg-secondary text-foreground rounded-3xl p-6 md:p-8 max-w-xl w-full shadow-2xl border border-foreground/10 relative my-8 max-h-[90vh] flex flex-col animate-in fade-in duration-200">
             {/* Modal Header */}
-            <div className="flex justify-between items-center pb-4 border-b border-foreground/10 mb-5">
+            <div className="flex justify-between items-start pb-4 border-b border-foreground/10 mb-4 gap-3">
               <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-black uppercase tracking-tight">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-lg font-black uppercase tracking-tight text-foreground">
                     {locale === "bn"
                       ? `অর্ডার #${selectedOrderDetails.id.toLocaleString("bn-BD")}`
                       : `Order #${selectedOrderDetails.id}`}
                   </h3>
                   {selectedOrderDetails.is_edited_by_admin && (
-                    <span className="bg-accent/20 text-accent text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
+                    <span className="bg-accent/20 text-accent text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
                       {locale === "bn" ? "সংশোধিত" : "Edited by Store"}
                     </span>
                   )}
+                  <span
+                    className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${
+                      selectedOrderDetails.payment_status === "C"
+                        ? "bg-visible/10 text-visible border-visible/20"
+                        : selectedOrderDetails.payment_status === "P"
+                        ? "bg-accent/15 text-accent border-accent/25"
+                        : "bg-hidden/10 text-hidden border-hidden/20"
+                    }`}
+                  >
+                    {selectedOrderDetails.payment_status === "C"
+                      ? t("profile.statusComplete")
+                      : selectedOrderDetails.payment_status === "P"
+                      ? t("profile.statusPending")
+                      : t("profile.statusFailed")}
+                  </span>
                 </div>
-                <p className="text-[10px] font-bold opacity-60 uppercase tracking-wider mt-0.5">
+                <p className="text-[10px] font-bold opacity-60 uppercase tracking-wider mt-1">
                   {selectedOrderDetails.placed_at
                     ? new Date(selectedOrderDetails.placed_at).toLocaleString(locale === "bn" ? "bn-BD" : "en-US")
                     : "N/A"}
                 </p>
               </div>
-              <div className="flex items-center gap-2 flex-wrap">
+
+              {/* Close Icon Button */}
+              <button
+                type="button"
+                onClick={() => setSelectedOrderDetails(null)}
+                className="w-8 h-8 rounded-full bg-primary/5 hover:bg-button-bg hover:text-button-fg text-foreground/70 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                title={locale === "bn" ? "বন্ধ করুন" : "Close"}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            {/* Quick Actions (Track / Review) */}
+            {(selectedOrderDetails.payment_status === "C" || selectedOrderDetails.tracking_status === "delivered") && (
+              <div className="flex items-center gap-2 mb-4 p-2.5 rounded-2xl bg-primary/5 border border-foreground/10 flex-wrap">
                 {selectedOrderDetails.payment_status === "C" && (
                   <button
                     type="button"
@@ -1056,9 +1088,9 @@ export default function ProfilePage() {
                       setSelectedOrderDetails(null);
                       setTrackingOrder(ord);
                     }}
-                    className="text-xs font-bold bg-accent/15 text-accent hover:bg-accent hover:text-button-fg border border-accent/30 px-3 py-1.5 rounded-xl transition-all uppercase flex items-center gap-1 cursor-pointer"
+                    className="flex-1 min-w-[120px] py-2 bg-accent/15 hover:bg-accent text-accent hover:text-button-fg border border-accent/30 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="12" cy="12" r="10"></circle>
                       <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
                     </svg>
@@ -1073,23 +1105,16 @@ export default function ProfilePage() {
                       setSelectedOrderDetails(null);
                       handleOpenReview(ord);
                     }}
-                    className="text-xs font-bold bg-visible/15 text-visible hover:bg-visible hover:text-button-fg border border-visible/30 px-3 py-1.5 rounded-xl transition-all uppercase flex items-center gap-1 cursor-pointer"
+                    className="flex-1 min-w-[120px] py-2 bg-visible/15 hover:bg-visible text-visible hover:text-button-fg border border-visible/30 rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                     </svg>
-                    <span>{t("profile.reviewProductBtn") || (locale === "bn" ? "রিভিউ দিন" : "Review")}</span>
+                    <span>{t("profile.reviewProductBtn") || (locale === "bn" ? "রিভিউ দিন" : "Review Product")}</span>
                   </button>
                 )}
-                <button
-                  type="button"
-                  onClick={() => setSelectedOrderDetails(null)}
-                  className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3.5 py-1.5 rounded-xl transition-colors uppercase cursor-pointer"
-                >
-                  {locale === "bn" ? "বন্ধ করুন" : "Close"}
-                </button>
               </div>
-            </div>
+            )}
 
             {/* Modal Body: Scrollable */}
             <div className="flex-1 overflow-y-auto space-y-5 pr-1">
