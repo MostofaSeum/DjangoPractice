@@ -110,7 +110,7 @@ export default function OrdersTab({
     "ALL" | "P" | "F" | "C"
   >("ALL");
   const [returnStatusSubFilter, setReturnStatusSubFilter] = useState<
-    "ALL" | "pending" | "approved" | "refunded" | "rejected"
+    "ALL" | "pending" | "approved" | "rejected"
   >("ALL");
   const [currentOrdersPage, setCurrentOrdersPage] = useState<number>(1);
   const ORDERS_PER_PAGE = 50;
@@ -199,6 +199,9 @@ export default function OrdersTab({
         const hasReturn = (o.return_requests && o.return_requests.length > 0) || o.tracking_status === "returned";
         if (!hasReturn) return false;
         if (returnStatusSubFilter === "ALL") return true;
+        if (returnStatusSubFilter === "approved") {
+          return o.return_requests?.some((r) => r.status === "approved" || r.status === "refunded");
+        }
         return o.return_requests?.some((r) => r.status === returnStatusSubFilter);
       }
       if (orderStatusFilter === "ALL") return true;
@@ -351,13 +354,7 @@ export default function OrdersTab({
                 {
                   id: "approved" as const,
                   label: isBn ? "অনুমোদিত" : "Approved",
-                  count: allReturnOrders.filter((o) => o.return_requests?.some((r) => r.status === "approved")).length,
-                  color: "text-visible",
-                },
-                {
-                  id: "refunded" as const,
-                  label: isBn ? "রিফান্ড সম্পন্ন" : "Refunded",
-                  count: allReturnOrders.filter((o) => o.return_requests?.some((r) => r.status === "refunded")).length,
+                  count: allReturnOrders.filter((o) => o.return_requests?.some((r) => r.status === "approved" || r.status === "refunded")).length,
                   color: "text-visible",
                 },
                 {
