@@ -132,16 +132,14 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
   // Helper to render star icons
   const renderStars = (rating: number) => {
     return (
-      <div className="flex items-center gap-0.5 text-amber-400">
+      <div className="flex items-center gap-0.5">
         {[1, 2, 3, 4, 5].map((star) => (
-          <span
+          <img
             key={star}
-            className={`text-sm ${
-              star <= rating ? "opacity-100" : "opacity-20 text-foreground"
-            }`}
-          >
-            ★
-          </span>
+            src={star <= rating ? "/icons/star-filled.png" : "/icons/star-empty.png"}
+            alt="star"
+            className="w-3.5 h-3.5 object-contain"
+          />
         ))}
       </div>
     );
@@ -318,19 +316,7 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
                       title={isBn ? "রিভিউ মুছুন" : "Delete Review"}
                       className="opacity-40 hover:opacity-100 hover:text-red-500 transition-opacity p-1 cursor-pointer"
                     >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
+                      <img src="/icons/trash.png" alt="Delete" className="w-4 h-4 object-contain dark:invert" />
                     </button>
                   </div>
 

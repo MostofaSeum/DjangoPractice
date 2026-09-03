@@ -796,6 +796,7 @@ export default function ProfilePage() {
                     >
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
+                          <img src="/icons/pin.png" alt="Pin" className="w-3.5 h-3.5 object-contain opacity-70 dark:invert" />
                           <span className="font-bold text-xs uppercase text-foreground">
                             {addr.title || "Address"}
                           </span>
@@ -819,24 +820,18 @@ export default function ProfilePage() {
                           <button
                             type="button"
                             onClick={() => handleOpenEditAddress(addr)}
-                            className="text-foreground/50 hover:text-foreground transition-colors cursor-pointer"
+                            className="text-foreground/50 hover:text-foreground transition-colors cursor-pointer p-1"
                             title={t("profile.editAddress")}
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M12 20h9"></path>
-                              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                            </svg>
+                            <img src="/icons/edit-pencil.png" alt="Edit" className="w-3.5 h-3.5 object-contain dark:invert" />
                           </button>
                           <button
                             type="button"
                             onClick={() => handleDeleteAddress(addr.id)}
-                            className="text-red-500/60 hover:text-red-500 transition-colors cursor-pointer"
+                            className="text-red-500/60 hover:text-red-500 transition-colors cursor-pointer p-1"
                             title={t("profile.deleteAddress")}
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="3 6 5 6 21 6"></polyline>
-                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            </svg>
+                            <img src="/icons/trash.png" alt="Delete" className="w-3.5 h-3.5 object-contain dark:invert" />
                           </button>
                         </div>
                       </div>
@@ -1711,12 +1706,7 @@ export default function ProfilePage() {
             title: t("profile.step1Title") || (locale === "bn" ? "প্যাকড ও প্রস্তুত" : "Packed & Ready"),
             desc: t("profile.step1Desc") || (locale === "bn" ? "অর্ডারটি ওয়্যারহাউসে প্রস্তুত ও প্যাকেজিং সম্পন্ন" : "Parcel packed at store warehouse"),
             icon: (
-              <svg className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m7.5 4.27 9 5.15"></path>
-                <polyline points="3.29 7 12 12 20.71 7"></polyline>
-                <line x1="12" y1="22" x2="12" y2="12"></line>
-                <path d="M21 8.5V17a2 2 0 0 1-1 1.73l-7 4a2 2 0 0 1-2 0l-7-4A2 2 0 0 1 3 17V8.5a2 2 0 0 1 1-1.73l7-4a2 2 0 0 1 2 0l7 4A2 2 0 0 1 21 8.5z"></path>
-              </svg>
+              <img src="/icons/check-circle.png" alt="Packed" className="w-4 h-4 md:w-5 md:h-5 object-contain" />
             ),
           },
           {
@@ -1724,12 +1714,7 @@ export default function ProfilePage() {
             title: t("profile.step2Title") || (locale === "bn" ? "কুরিয়ারে পাঠানো হয়েছে" : "Dispatched / In Transit"),
             desc: t("profile.step2Desc") || (locale === "bn" ? "পার্সেলটি কুরিয়ার সার্ভিস সেন্টারে স্থানান্তর করা হয়েছে" : "Handed over to courier hub"),
             icon: (
-              <svg className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="1" y="3" width="15" height="13"></rect>
-                <polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon>
-                <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                <circle cx="18.5" cy="18.5" r="2.5"></circle>
-              </svg>
+              <img src="/icons/truck.png" alt="In Transit" className="w-4 h-4 md:w-5 md:h-5 object-contain dark:invert" />
             ),
           },
           {
@@ -1737,10 +1722,7 @@ export default function ProfilePage() {
             title: t("profile.step3Title") || (locale === "bn" ? "ডেলিভারির জন্য বের হয়েছে" : "Out for Delivery"),
             desc: t("profile.step3Desc") || (locale === "bn" ? "ডেলিভারি রাইডার আপনার ঠিকানায় আসার পথে রয়েছে" : "Rider out for final delivery"),
             icon: (
-              <svg className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-              </svg>
+              <img src="/icons/pin.png" alt="Out for Delivery" className="w-4 h-4 md:w-5 md:h-5 object-contain dark:invert" />
             ),
           },
           {
@@ -1748,10 +1730,7 @@ export default function ProfilePage() {
             title: t("profile.step4Title") || (locale === "bn" ? "ডেলিভারি সম্পন্ন" : "Delivered"),
             desc: t("profile.step4Desc") || (locale === "bn" ? "পার্সেলটি সফলভাবে আপনার কাছে পৌঁছে দেওয়া হয়েছে" : "Parcel safely delivered to recipient"),
             icon: (
-              <svg className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
+              <img src="/icons/check-circle.png" alt="Delivered" className="w-4 h-4 md:w-5 md:h-5 object-contain" />
             ),
           },
         ];
@@ -1783,10 +1762,7 @@ export default function ProfilePage() {
                   className="w-8 h-8 rounded-full bg-primary/5 hover:bg-button-bg hover:text-button-fg text-foreground/70 flex items-center justify-center transition-colors cursor-pointer shrink-0"
                   title={locale === "bn" ? "বন্ধ করুন" : "Close"}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
+                  <img src="/icons/close-x.png" alt="Close" className="w-3.5 h-3.5 object-contain dark:invert" />
                 </button>
               </div>
 
@@ -2145,11 +2121,8 @@ export default function ProfilePage() {
             <div className="flex justify-between items-start pb-4 border-b border-foreground/10 mb-4 gap-3">
               <div>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-accent/15 text-accent flex items-center justify-center shrink-0 border border-accent/20">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="1 4 1 10 7 10"></polyline>
-                      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-                    </svg>
+                  <div className="w-8 h-8 rounded-xl bg-accent/15 flex items-center justify-center shrink-0 border border-accent/20 p-1.5">
+                    <img src="/icons/return-arrow.png" alt="Return" className="w-4 h-4 object-contain dark:invert" />
                   </div>
                   <div>
                     <h3 className="text-base md:text-lg font-black uppercase tracking-tight text-foreground">
@@ -2170,10 +2143,7 @@ export default function ProfilePage() {
                 onClick={() => setReturnOrder(null)}
                 className="w-8 h-8 rounded-full bg-primary/5 hover:bg-button-bg hover:text-button-fg text-foreground/70 flex items-center justify-center transition-colors cursor-pointer shrink-0"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
+                <img src="/icons/close-x.png" alt="Close" className="w-3.5 h-3.5 object-contain dark:invert" />
               </button>
             </div>
 

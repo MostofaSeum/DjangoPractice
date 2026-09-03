@@ -416,20 +416,11 @@ export default function ProductTabs({
               }`}
               aria-label={interactive ? `Rate ${star} star${star > 1 ? "s" : ""}` : undefined}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill={isFilled ? "currentColor" : "none"}
-                stroke="currentColor"
-                strokeWidth="1.5"
-                className={`w-5 h-5 ${
-                  isFilled
-                    ? "text-amber-400 fill-amber-400"
-                    : "text-foreground/25"
-                }`}
-              >
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-              </svg>
+              <img
+                src={isFilled ? "/icons/star-filled.png" : "/icons/star-empty.png"}
+                alt="star"
+                className="w-5 h-5 object-contain"
+              />
             </button>
           );
         })}
@@ -585,49 +576,28 @@ export default function ProductTabs({
                             <button
                               type="button"
                               onClick={() => handleStartEdit(rev)}
-                              className="text-foreground/40 hover:text-accent transition-colors p-1.5 rounded-lg hover:bg-accent/10"
+                              className="text-foreground/40 hover:text-accent transition-colors p-1.5 rounded-lg hover:bg-accent/10 cursor-pointer"
                               title="Edit Review"
                             >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              >
-                                <path d="M12 20h9" />
-                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                              </svg>
+                              <img
+                                src="/icons/edit-pencil.png"
+                                alt="Edit"
+                                className="w-4 h-4 object-contain opacity-70 hover:opacity-100 dark:invert"
+                              />
                             </button>
                           )}
                           {canDelete && (
                             <button
                               type="button"
                               onClick={() => handleDeleteReview(rev.id)}
-                              className="text-foreground/40 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-500/10"
+                              className="text-foreground/40 hover:text-red-500 transition-colors p-1.5 rounded-lg hover:bg-red-500/10 cursor-pointer"
                               title="Delete Review"
                             >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              >
-                                <path d="M3 6h18" />
-                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                                <line x1="10" y1="11" x2="10" y2="17" />
-                                <line x1="14" y1="11" x2="14" y2="17" />
-                              </svg>
+                              <img
+                                src="/icons/trash.png"
+                                alt="Delete"
+                                className="w-4 h-4 object-contain opacity-70 hover:opacity-100 dark:invert"
+                              />
                             </button>
                           )}
                         </div>
@@ -793,21 +763,10 @@ export default function ProductTabs({
                         <button
                           type="button"
                           onClick={() => handleRemoveExistingImage(img.id)}
-                          className="absolute top-1.5 right-1.5 bg-black/70 text-white rounded-full p-1.5 hover:bg-black transition-colors cursor-pointer"
+                          className="absolute top-1.5 right-1.5 bg-black/70 text-white rounded-full p-1 hover:bg-black transition-colors cursor-pointer"
                           title="Delete photo"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="12"
-                            height="12"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="3"
-                          >
-                            <line x1="18" y1="6" x2="6" y2="18" />
-                            <line x1="6" y1="6" x2="18" y2="18" />
-                          </svg>
+                          <img src="/icons/close-x.png" alt="Remove" className="w-3 h-3 object-contain invert" />
                         </button>
                       </div>
                     ))}
@@ -826,43 +785,17 @@ export default function ProductTabs({
                         <button
                           type="button"
                           onClick={() => removeSelectedImage(idx)}
-                          className="absolute top-1.5 right-1.5 bg-black/70 text-white rounded-full p-1.5 hover:bg-black transition-colors cursor-pointer"
+                          className="absolute top-1.5 right-1.5 bg-black/70 text-white rounded-full p-1 hover:bg-black transition-colors cursor-pointer"
                           title="Remove photo"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="12"
-                            height="12"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="3"
-                          >
-                            <line x1="18" y1="6" x2="6" y2="18" />
-                            <line x1="6" y1="6" x2="18" y2="18" />
-                          </svg>
+                          <img src="/icons/close-x.png" alt="Remove" className="w-3 h-3 object-contain invert" />
                         </button>
                       </div>
                     ))}
 
                     {existingImages.length + selectedImages.length < 5 && (
                       <label className="flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 bg-background border border-dashed border-foreground/25 rounded-2xl cursor-pointer hover:border-accent hover:bg-foreground/5 transition-all text-center p-2">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="text-foreground/60 mb-1"
-                        >
-                          <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                          <circle cx="9" cy="9" r="2" />
-                          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-                        </svg>
+                        <img src="/icons/plus.png" alt="Add" className="w-5 h-5 object-contain mb-1 dark:invert opacity-70" />
                         <span className="text-[11px] font-bold text-foreground/70">
                           {existingImages.length + imagePreviews.length > 0
                             ? (locale === "bn" ? "আরও যোগ করুন" : "Add More")
