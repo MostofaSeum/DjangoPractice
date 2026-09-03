@@ -1208,11 +1208,13 @@ class NotificationViewSet(ModelViewSet):
     ordering = ['-created_at']
 
     def get_queryset(self):
-        qs = Notification.objects.all()
-        since_id = self.request.query_params.get('since_id')
-        if since_id and since_id.isdigit():
-            qs = qs.filter(id__gt=int(since_id))
-        return qs[:50]
+        qs = Notification.objects.all().order_by('-created_at')
+        if self.action == 'list':
+            since_id = self.request.query_params.get('since_id')
+            if since_id and since_id.isdigit():
+                qs = qs.filter(id__gt=int(since_id))
+            return qs[:50]
+        return qs
 
     def _check_expiring_items(self):
         """Check for active promotions and coupons expiring within 24 hours and generate notifications."""
@@ -1304,10 +1306,16 @@ class NotificationViewSet(ModelViewSet):
     @action(detail=True, methods=['patch', 'post'])
     def mark_read(self, request, pk=None):
         try:
-            notification = self.get_object()
+            notification = Notification.objects.get(pk=pk)
             notification.is_read = True
             notification.save(update_fields=['is_read'])
-            return Response(self.get_serializer(notification).data, status=status.HTTP_200_OK)
+            unread_count = Notification.objects.filter(is_read=False).count()
+            return Response({
+                'notification': self.get_serializer(notification).data,
+                'unread_count': unread_count
+            }, status=status.HTTP_200_OK)
+        except Notification.DoesNotExist:
+            return Response({'error': 'Notification not found.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 

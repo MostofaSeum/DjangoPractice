@@ -177,13 +177,17 @@ export default function OrdersTab({
     if (targetOrderId && orders.length > 0) {
       const match = orders.find((o) => String(o.id) === String(targetOrderId));
       if (match) {
-        setSelectedOrderDetails(match);
+        if (activeSubTab === "returns" || (match.return_requests && match.return_requests.length > 0)) {
+          setReviewingReturnOrder(match);
+        } else {
+          setSelectedOrderDetails(match);
+        }
         if (onClearTargetOrder) {
           onClearTargetOrder();
         }
       }
     }
-  }, [targetOrderId, orders, onClearTargetOrder]);
+  }, [targetOrderId, orders, activeSubTab, onClearTargetOrder]);
 
   const allReturnOrders = orders.filter(
     (o) => (o.return_requests && o.return_requests.length > 0) || o.tracking_status === "returned"
