@@ -17,3 +17,4 @@ asgiref
 sqlparse
 django-debug-toolbar
 python-dotenv
+drf-spectacular

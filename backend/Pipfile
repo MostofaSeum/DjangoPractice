@@ -15,6 +15,7 @@ djoser = "*"
 djangorestframework-simplejwt = "*"
 celery = "*"
 flower = "*"
+drf-spectacular = "*"
 
 [dev-packages]
 
