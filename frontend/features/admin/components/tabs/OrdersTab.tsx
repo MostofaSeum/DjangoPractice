@@ -3,6 +3,7 @@ import { Order, OrderItem, Product, CourierProvider } from "../../types";
 import { useLanguage } from "@/store/LanguageContext";
 import { siteConfig } from "@/config/siteConfig";
 import Image from "next/image";
+import Swal from "sweetalert2";
 
 const getImageUrl = (url?: string | null): string => {
   if (!url) return "";
@@ -646,6 +647,28 @@ export default function OrdersTab({
                             <button
                               type="button"
                               onClick={() => {
+                                // Prepaid validation: bKash, Nagad, and Online payments must be marked Complete before dispatching
+                                if (
+                                  (order.payment_method === "B" || order.payment_method === "N" || order.payment_method === "O") &&
+                                  order.payment_status !== "C"
+                                ) {
+                                  const methodLabel =
+                                    order.payment_method === "B"
+                                      ? "bKash"
+                                      : order.payment_method === "N"
+                                      ? "Nagad"
+                                      : "Online Payment";
+                                  Swal.fire({
+                                    icon: "error",
+                                    title: isBn ? "পেমেন্ট অসম্পূর্ণ" : "Payment Incomplete",
+                                    text: isBn
+                                      ? `${methodLabel} পেমেন্ট স্ট্যাটাস এখনও "কমপ্লিট (সফল)" করা হয়নি। কুরিয়ারে পাঠাতে বা ট্র্যাক করতে অনুগ্রহ করে আগে পেমেন্ট নিশ্চিত করুন।`
+                                      : `${methodLabel} payment has not been marked as Complete yet. Please verify and mark the payment as Complete before dispatching or tracking this order.`,
+                                    confirmButtonColor: "#ef4444",
+                                  });
+                                  return;
+                                }
+
                                 setDispatchOrder(order);
                                 let initialCourier: number | "manual" = "manual";
                                 if (order.courier_partner) {
@@ -1097,6 +1120,30 @@ export default function OrdersTab({
                   type="button"
                   onClick={() => {
                     const ord = selectedOrderDetails;
+                    if (!ord) return;
+
+                    // Prepaid validation: bKash, Nagad, and Online payments must be marked Complete before dispatching
+                    if (
+                      (ord.payment_method === "B" || ord.payment_method === "N" || ord.payment_method === "O") &&
+                      ord.payment_status !== "C"
+                    ) {
+                      const methodLabel =
+                        ord.payment_method === "B"
+                          ? "bKash"
+                          : ord.payment_method === "N"
+                          ? "Nagad"
+                          : "Online Payment";
+                      Swal.fire({
+                        icon: "error",
+                        title: isBn ? "পেমেন্ট অসম্পূর্ণ" : "Payment Incomplete",
+                        text: isBn
+                          ? `${methodLabel} পেমেন্ট স্ট্যাটাস এখনও "কমপ্লিট (সফল)" করা হয়নি। কুরিয়ারে পাঠাতে বা ট্র্যাক করতে অনুগ্রহ করে আগে পেমেন্ট নিশ্চিত করুন।`
+                          : `${methodLabel} payment has not been marked as Complete yet. Please verify and mark the payment as Complete before dispatching or tracking this order.`,
+                        confirmButtonColor: "#ef4444",
+                      });
+                      return;
+                    }
+
                     setSelectedOrderDetails(null);
                     setDispatchOrder(ord);
                     let initialCourier: number | "manual" = "manual";

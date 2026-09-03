@@ -767,6 +767,16 @@ class OrderViewSet(ModelViewSet):
     @action(detail=True, methods=['POST'], permission_classes=[IsAdminUser])
     def dispatch_courier(self, request, pk=None):
         order = self.get_object()
+
+        # Business Rule: Prepaid mobile banking (bKash, Nagad, Online) must be confirmed complete before dispatch
+        if order.payment_method in [Order.PAYMENT_METHOD_BKASH, Order.PAYMENT_METHOD_NAGAD, Order.PAYMENT_METHOD_ONLINE]:
+            if order.payment_status != Order.PAYMENT_STATUS_COMPLETE:
+                method_name = "bKash" if order.payment_method == Order.PAYMENT_METHOD_BKASH else ("Nagad" if order.payment_method == Order.PAYMENT_METHOD_NAGAD else "Online Payment")
+                return Response(
+                    {'error': f'Cannot dispatch or track this order. {method_name} payment status must be marked as Complete first.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
         courier_id = request.data.get('courier_id')
         tracking_code = request.data.get('tracking_code', '').strip()
         tracking_status = request.data.get('tracking_status', Order.TRACKING_IN_TRANSIT)
@@ -813,6 +823,16 @@ class OrderViewSet(ModelViewSet):
     @action(detail=True, methods=['PATCH'], permission_classes=[IsAdminUser])
     def update_tracking(self, request, pk=None):
         order = self.get_object()
+
+        # Business Rule: Prepaid mobile banking (bKash, Nagad, Online) must be confirmed complete before updating tracking
+        if order.payment_method in [Order.PAYMENT_METHOD_BKASH, Order.PAYMENT_METHOD_NAGAD, Order.PAYMENT_METHOD_ONLINE]:
+            if order.payment_status != Order.PAYMENT_STATUS_COMPLETE:
+                method_name = "bKash" if order.payment_method == Order.PAYMENT_METHOD_BKASH else ("Nagad" if order.payment_method == Order.PAYMENT_METHOD_NAGAD else "Online Payment")
+                return Response(
+                    {'error': f'Cannot update tracking for this order. {method_name} payment status must be marked as Complete first.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
         tracking_status = request.data.get('tracking_status')
         tracking_code = request.data.get('tracking_code')
 

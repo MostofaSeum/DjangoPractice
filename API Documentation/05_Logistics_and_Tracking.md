@@ -64,6 +64,12 @@ Dispatches an order to an integrated courier partner or manual delivery runner. 
 ```
 
 #### Error Responses:
+* **`400 Bad Request`** (Prepaid bKash/Nagad payment not marked Complete):
+```json
+{
+  "error": "Cannot dispatch or track this order. bKash payment status must be marked as Complete first."
+}
+```
 * **`404 Not Found`**:
 ```json
 {
