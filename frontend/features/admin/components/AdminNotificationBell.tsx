@@ -568,10 +568,7 @@ export default function AdminNotificationBell({
                         </div>
                       ) : item.notification_type === "return" ? (
                         <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent">
-                            <polyline points="1 4 1 10 7 10"></polyline>
-                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-                          </svg>
+                          <img src="/icons/return-arrow.png" alt="Return" className="w-3.5 h-3.5 object-contain dark:invert" />
                         </div>
                       ) : item.notification_type === "promotion" ? (
                         <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">

@@ -1951,10 +1951,7 @@ export default function OrdersTab({
                   onClick={() => setReviewingReturnOrder(null)}
                   className="w-8 h-8 rounded-full bg-primary/5 hover:bg-button-bg hover:text-button-fg text-foreground/70 flex items-center justify-center transition-colors cursor-pointer shrink-0"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
+                  <img src="/icons/close-x.png" alt="Close" className="w-3.5 h-3.5 object-contain dark:invert" />
                 </button>
               </div>
 
