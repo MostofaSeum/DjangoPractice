@@ -1704,7 +1704,11 @@ export default function ProfilePage() {
             title: t("profile.step1Title") || (locale === "bn" ? "প্যাকড ও প্রস্তুত" : "Packed & Ready"),
             desc: t("profile.step1Desc") || (locale === "bn" ? "অর্ডারটি ওয়্যারহাউসে প্রস্তুত ও প্যাকেজিং সম্পন্ন" : "Parcel packed at store warehouse"),
             icon: (
-              <img src="/icons/check-circle.png" alt="Packed" className="w-4 h-4 md:w-5 md:h-5 object-contain" />
+              <svg className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+              </svg>
             ),
           },
           {
@@ -1728,7 +1732,10 @@ export default function ProfilePage() {
             title: t("profile.step4Title") || (locale === "bn" ? "ডেলিভারি সম্পন্ন" : "Delivered"),
             desc: t("profile.step4Desc") || (locale === "bn" ? "পার্সেলটি সফলভাবে আপনার কাছে পৌঁছে দেওয়া হয়েছে" : "Parcel safely delivered to recipient"),
             icon: (
-              <img src="/icons/check-circle.png" alt="Delivered" className="w-4 h-4 md:w-5 md:h-5 object-contain" />
+              <svg className="w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
             ),
           },
         ];

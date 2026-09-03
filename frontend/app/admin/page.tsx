@@ -2411,13 +2411,20 @@ export default function AdminDashboardPage() {
         });
         fetchAdminData();
       } else {
+        const errData = await res.json().catch(() => null);
         Swal.fire({
           icon: "error",
           title: "Failed to update order status",
+          text: errData?.detail || errData?.payment_status?.[0] || errData?.error || "An error occurred while updating status.",
         });
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
+      Swal.fire({
+        icon: "error",
+        title: "Network Error",
+        text: err?.message || "Failed to reach the server.",
+      });
     }
   };
 
