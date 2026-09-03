@@ -372,35 +372,11 @@ class CourierProviderSerializer(serializers.ModelSerializer):
             'base_url',
             'tracking_url_template',
             'is_active',
-            'is_default_inside_dhaka',
-            'is_default_outside_dhaka',
             'is_sandbox',
             'notes',
             'created_at',
             'updated_at',
         ]
-
-    def create(self, validated_data):
-        inside_default = validated_data.get('is_default_inside_dhaka', False)
-        outside_default = validated_data.get('is_default_outside_dhaka', False)
-
-        if inside_default:
-            CourierProvider.objects.filter(is_default_inside_dhaka=True).update(is_default_inside_dhaka=False)
-        if outside_default:
-            CourierProvider.objects.filter(is_default_outside_dhaka=True).update(is_default_outside_dhaka=False)
-
-        return super().create(validated_data)
-
-    def update(self, instance, validated_data):
-        inside_default = validated_data.get('is_default_inside_dhaka', False)
-        outside_default = validated_data.get('is_default_outside_dhaka', False)
-
-        if inside_default and not instance.is_default_inside_dhaka:
-            CourierProvider.objects.exclude(pk=instance.pk).filter(is_default_inside_dhaka=True).update(is_default_inside_dhaka=False)
-        if outside_default and not instance.is_default_outside_dhaka:
-            CourierProvider.objects.exclude(pk=instance.pk).filter(is_default_outside_dhaka=True).update(is_default_outside_dhaka=False)
-
-        return super().update(instance, validated_data)
 
 
 class OrderSerializer(serializers.ModelSerializer):

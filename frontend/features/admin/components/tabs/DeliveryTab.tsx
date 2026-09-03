@@ -102,8 +102,6 @@ export default function DeliveryTab({
   const [clientId, setClientId] = useState("");
   const [baseUrl, setBaseUrl] = useState("");
   const [trackingUrlTemplate, setTrackingUrlTemplate] = useState("");
-  const [isDefaultInsideDhaka, setIsDefaultInsideDhaka] = useState(false);
-  const [isDefaultOutsideDhaka, setIsDefaultOutsideDhaka] = useState(false);
   const [isSandbox, setIsSandbox] = useState(false);
   const [isActive, setIsActive] = useState(true);
   const [notes, setNotes] = useState("");
@@ -121,8 +119,6 @@ export default function DeliveryTab({
     setClientId("");
     setBaseUrl(defaultPreset.defaultBaseUrl);
     setTrackingUrlTemplate(defaultPreset.defaultTrackingUrl);
-    setIsDefaultInsideDhaka(courierProviders.length === 0);
-    setIsDefaultOutsideDhaka(courierProviders.length === 0);
     setIsSandbox(false);
     setIsActive(true);
     setNotes("");
@@ -139,8 +135,6 @@ export default function DeliveryTab({
     setClientId(provider.client_id || "");
     setBaseUrl(provider.base_url || "");
     setTrackingUrlTemplate(provider.tracking_url_template || "");
-    setIsDefaultInsideDhaka(provider.is_default_inside_dhaka);
-    setIsDefaultOutsideDhaka(provider.is_default_outside_dhaka);
     setIsSandbox(provider.is_sandbox);
     setIsActive(provider.is_active);
     setNotes(provider.notes || "");

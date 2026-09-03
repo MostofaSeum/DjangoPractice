@@ -1394,22 +1394,6 @@ class CourierProviderViewSet(ModelViewSet):
     pagination_class = None
 
     @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
-    def set_default(self, request, pk=None):
-        provider = self.get_object()
-        target_area = request.data.get('area') # 'inside', 'outside', or 'both'
-
-        if target_area in ['inside', 'both']:
-            CourierProvider.objects.filter(is_default_inside_dhaka=True).update(is_default_inside_dhaka=False)
-            provider.is_default_inside_dhaka = True
-
-        if target_area in ['outside', 'both']:
-            CourierProvider.objects.filter(is_default_outside_dhaka=True).update(is_default_outside_dhaka=False)
-            provider.is_default_outside_dhaka = True
-
-        provider.save()
-        return Response(CourierProviderSerializer(provider).data, status=status.HTTP_200_OK)
-
-    @action(detail=True, methods=['post'], permission_classes=[IsAdminUser])
     def test_connection(self, request, pk=None):
         provider = self.get_object()
         

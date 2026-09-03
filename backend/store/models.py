@@ -670,8 +670,6 @@ class CourierProvider(models.Model):
         help_text="e.g. https://steadfast.com.bd/t/{tracking_code}"
     )
     is_active = models.BooleanField(default=True)
-    is_default_inside_dhaka = models.BooleanField(default=False)
-    is_default_outside_dhaka = models.BooleanField(default=False)
     is_sandbox = models.BooleanField(default=False)
     notes = models.TextField(blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)

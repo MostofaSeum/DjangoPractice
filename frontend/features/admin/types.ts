@@ -244,8 +244,6 @@ export interface CourierProvider {
   base_url?: string | null;
   tracking_url_template?: string | null;
   is_active: boolean;
-  is_default_inside_dhaka: boolean;
-  is_default_outside_dhaka: boolean;
   is_sandbox: boolean;
   notes?: string;
   created_at?: string;
