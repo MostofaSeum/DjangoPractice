@@ -25,7 +25,6 @@ interface DeliveryTabProps {
   handleSaveCourierProvider?: (providerData: Partial<CourierProvider>) => Promise<boolean>;
   handleDeleteCourierProvider?: (providerId: number, name: string) => Promise<void>;
   handleToggleCourierActive?: (provider: CourierProvider) => Promise<void>;
-  handleSetDefaultCourier?: (providerId: number, area: "inside" | "outside" | "both") => Promise<void>;
   handleTestCourierConnection?: (providerId: number) => Promise<void>;
 }
 
@@ -86,7 +85,6 @@ export default function DeliveryTab({
   handleSaveCourierProvider,
   handleDeleteCourierProvider,
   handleToggleCourierActive,
-  handleSetDefaultCourier,
   handleTestCourierConnection,
 }: DeliveryTabProps) {
   const { t, locale } = useLanguage();
