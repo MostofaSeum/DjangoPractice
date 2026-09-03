@@ -56,21 +56,32 @@ else:
         }
     }
 
-REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/1')
-CELERY_BROKER_URL = REDIS_URL
+REDIS_URL = os.environ.get('REDIS_URL')
+CELERY_BROKER_URL = REDIS_URL or 'memory://'
 
-try:
-    import django_redis
-    CACHES = {
-        "default": {
-            "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": os.environ.get('REDIS_CACHE_URL', REDIS_URL),
+# Use Redis cache ONLY if REDIS_URL / REDIS_CACHE_URL is explicitly configured in environment
+redis_cache_url = os.environ.get('REDIS_CACHE_URL', REDIS_URL)
+if redis_cache_url:
+    try:
+        import django_redis
+        CACHES = {
+            "default": {
+                "BACKEND": "django_redis.cache.RedisCache",
+                "LOCATION": redis_cache_url,
+            }
         }
-    }
-except ImportError:
+    except ImportError:
+        CACHES = {
+            "default": {
+                "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+                "LOCATION": "prod-locmem-cache",
+            }
+        }
+else:
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "prod-locmem-cache",
         }
     }
 
