@@ -27,10 +27,10 @@ export default function LanguageToggle() {
       }}
       aria-label="Toggle Language"
       title={locale === "en" ? "বাংলা ভাষায় দেখুন" : "Switch to English"}
-      className="p-1 rounded-full border border-white/20 bg-white/10 hover:bg-white/15 text-logo transition-all flex items-center gap-0.5 cursor-pointer select-none text-[10px] font-black uppercase tracking-wider active:scale-95 shadow-sm"
+      className="p-0.5 sm:p-1 rounded-full border border-white/20 bg-white/10 hover:bg-white/15 text-logo transition-all flex items-center gap-0.5 cursor-pointer select-none text-[9px] sm:text-[10px] font-black uppercase tracking-wider active:scale-95 shadow-sm"
     >
       <span
-        className={`px-2.5 py-1 rounded-full transition-all duration-200 ${
+        className={`px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full transition-all duration-200 ${
           locale === "en"
             ? "bg-accent text-button-fg shadow-sm font-black"
             : "text-logo opacity-50 hover:opacity-80"
@@ -39,7 +39,7 @@ export default function LanguageToggle() {
         EN
       </span>
       <span
-        className={`px-2.5 py-1 rounded-full transition-all duration-200 ${
+        className={`px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full transition-all duration-200 ${
           locale === "bn"
             ? "bg-accent text-button-fg shadow-sm font-black"
             : "text-logo opacity-50 hover:opacity-80"

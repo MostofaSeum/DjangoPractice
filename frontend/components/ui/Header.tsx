@@ -89,22 +89,22 @@ export default function Header() {
   const userName = user?.first_name || user?.username || "Account";
 
   return (
-    <header className="w-full z-50 py-5 px-8 md:px-12 bg-primary text-logo sticky top-0 shadow-md border-b border-white/5 transition-colors duration-300">
-      <div className="max-w-[1400px] mx-auto flex items-center justify-between">
+    <header className="w-full z-50 py-3.5 md:py-5 px-3.5 sm:px-6 md:px-12 bg-primary text-logo sticky top-0 shadow-md border-b border-white/5 transition-colors duration-300">
+      <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-2">
         {/* Brand Logo & Title */}
         <Link
           href="/"
-          className="flex items-center gap-3 hover:opacity-90 transition-opacity group"
+          className="flex items-center gap-2 sm:gap-3 hover:opacity-90 transition-opacity group shrink-0"
         >
           {brandLogo && (
             <img
               src={brandLogo}
               alt={brandTitle}
-              className="h-8 md:h-9 max-w-[120px] object-contain group-hover:scale-105 transition-transform"
+              className="h-7 sm:h-8 md:h-9 max-w-[100px] sm:max-w-[120px] object-contain group-hover:scale-105 transition-transform"
             />
           )}
           {brandTitle && (
-            <span className="text-xl md:text-2xl font-black tracking-tighter uppercase text-logo">
+            <span className="text-lg sm:text-xl md:text-2xl font-black tracking-tighter uppercase text-logo whitespace-nowrap">
               {brandTitle}
             </span>
           )}
@@ -131,33 +131,35 @@ export default function Header() {
         </nav>
 
         {/* Right Action Icons (Language, Theme, Cart, Auth) */}
-        <div className="flex items-center gap-4 md:gap-5 text-[11px] font-bold uppercase tracking-widest">
+        <div className="flex items-center gap-1.5 sm:gap-3 md:gap-5 text-[11px] font-bold uppercase tracking-widest shrink-0">
           <LanguageToggle />
           <ThemeToggle />
-          <div className="px-1">
+          <div className="px-0.5 sm:px-1">
             <CartButton />
           </div>
 
           {/* Auth Dropdown Logic */}
           {user ? (
-            <div className="relative ml-2 md:ml-3" ref={dropdownRef}>
+            <div className="relative ml-0.5 sm:ml-2 md:ml-3" ref={dropdownRef}>
               <button
                 type="button"
                 onClick={() => setDropdownOpen((prev) => !prev)}
-                className="hover:bg-white/25 transition-all bg-white/15 px-4 py-2 rounded-full border border-white/30 font-bold flex items-center gap-2 text-logo shadow-sm"
+                className="hover:bg-white/25 transition-all bg-white/15 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/30 font-bold flex items-center gap-1.5 text-logo shadow-sm text-[10px] sm:text-[11px] max-w-[125px] sm:max-w-[170px]"
               >
-                <span>{t("nav.hi")}, {userName}</span>
+                <span className="truncate">
+                  {userName}
+                </span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="12"
-                  height="12"
+                  width="11"
+                  height="11"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="3"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className={`transition-transform duration-200 ${
+                  className={`transition-transform duration-200 shrink-0 ${
                     dropdownOpen ? "rotate-180" : ""
                   }`}
                 >
