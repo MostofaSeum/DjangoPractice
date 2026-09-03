@@ -813,10 +813,12 @@ export default function OrdersTab({
                 </span>
               </div>
               <button
+                type="button"
                 onClick={() => setSelectedOrderDetails(null)}
-                className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3 py-1.5 rounded-xl transition-colors uppercase cursor-pointer shrink-0"
+                className="w-8 h-8 rounded-full bg-primary/5 hover:bg-foreground/10 active:scale-95 flex items-center justify-center transition-all cursor-pointer shrink-0 border border-foreground/10"
+                title={isBn ? "বন্ধ করুন" : "Close"}
               >
-                {isBn ? "বন্ধ করুন" : "Close"}
+                <img src="/icons/close-x.png" alt="Close" className="w-3.5 h-3.5 object-contain opacity-70 hover:opacity-100 dark:invert" />
               </button>
             </div>
 
@@ -1200,10 +1202,12 @@ export default function OrdersTab({
                 </p>
               </div>
               <button
+                type="button"
                 onClick={() => setEditingOrder(null)}
-                className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3 py-1.5 rounded-xl transition-colors uppercase cursor-pointer"
+                className="w-8 h-8 rounded-full bg-primary/5 hover:bg-foreground/10 active:scale-95 flex items-center justify-center transition-all cursor-pointer shrink-0 border border-foreground/10"
+                title={isBn ? "বন্ধ করুন" : "Close"}
               >
-                {isBn ? "বাতিল" : "Cancel"}
+                <img src="/icons/close-x.png" alt="Close" className="w-3.5 h-3.5 object-contain opacity-70 hover:opacity-100 dark:invert" />
               </button>
             </div>
 
@@ -1679,9 +1683,10 @@ export default function OrdersTab({
               <button
                 type="button"
                 onClick={() => setDispatchOrder(null)}
-                className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3 py-1.5 rounded-xl transition-colors uppercase cursor-pointer"
+                className="w-8 h-8 rounded-full bg-primary/5 hover:bg-foreground/10 active:scale-95 flex items-center justify-center transition-all cursor-pointer shrink-0 border border-foreground/10"
+                title={isBn ? "বন্ধ করুন" : "Close"}
               >
-                {t("admin.delivery.cancelBtn")}
+                <img src="/icons/close-x.png" alt="Close" className="w-3.5 h-3.5 object-contain opacity-70 hover:opacity-100 dark:invert" />
               </button>
             </div>
 

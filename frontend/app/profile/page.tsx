@@ -1590,12 +1590,10 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => setAddressModalOpen(false)}
-              className="absolute top-6 right-6 text-foreground/50 hover:text-foreground transition-colors p-1"
+              className="absolute top-6 right-6 w-8 h-8 rounded-full bg-primary/5 hover:bg-foreground/10 active:scale-95 flex items-center justify-center transition-all cursor-pointer border border-foreground/10"
+              title={locale === "bn" ? "বন্ধ করুন" : "Close"}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+              <img src="/icons/close-x.png" alt="Close" className="w-3.5 h-3.5 object-contain opacity-70 hover:opacity-100 dark:invert" />
             </button>
 
             <h3 className="text-lg font-black uppercase tracking-tight text-foreground mb-1">
@@ -2037,9 +2035,10 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={() => setReviewOrder(null)}
-                className="text-xs font-bold bg-primary/5 dark:bg-primary/30 hover:bg-button-bg hover:text-button-fg px-3.5 py-1.5 rounded-xl transition-colors uppercase cursor-pointer"
+                className="w-8 h-8 rounded-full bg-primary/5 hover:bg-foreground/10 active:scale-95 flex items-center justify-center transition-all cursor-pointer shrink-0 border border-foreground/10"
+                title={locale === "bn" ? "বন্ধ করুন" : "Close"}
               >
-                {locale === "bn" ? "বন্ধ করুন" : "Close"}
+                <img src="/icons/close-x.png" alt="Close" className="w-3.5 h-3.5 object-contain opacity-70 hover:opacity-100 dark:invert" />
               </button>
             </div>
 
@@ -2472,12 +2471,10 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => setReturnStatusOrder(null)}
-                  className="w-8 h-8 rounded-full bg-primary/5 hover:bg-button-bg hover:text-button-fg text-foreground/70 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                  className="w-8 h-8 rounded-full bg-primary/5 hover:bg-foreground/10 active:scale-95 flex items-center justify-center transition-all cursor-pointer shrink-0 border border-foreground/10"
+                  title={locale === "bn" ? "বন্ধ করুন" : "Close"}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
+                  <img src="/icons/close-x.png" alt="Close" className="w-3.5 h-3.5 object-contain opacity-70 hover:opacity-100 dark:invert" />
                 </button>
               </div>
 

@@ -581,9 +581,10 @@ export default function DeliveryTab({
               <button
                 type="button"
                 onClick={() => setIsCourierModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-foreground/10 hover:bg-foreground/20 flex items-center justify-center text-xs font-bold text-foreground transition-all cursor-pointer"
+                className="w-8 h-8 rounded-full bg-primary/5 hover:bg-foreground/10 active:scale-95 flex items-center justify-center transition-all cursor-pointer border border-foreground/10"
+                title={isBn ? "বন্ধ করুন" : "Close"}
               >
-                ✕
+                <img src="/icons/close-x.png" alt="Close" className="w-3.5 h-3.5 object-contain opacity-70 hover:opacity-100 dark:invert" />
               </button>
             </div>
 
