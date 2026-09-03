@@ -73,6 +73,26 @@ Converts an active cart into a confirmed customer order. Automatically decrement
 }
 ```
 
+#### Error Responses:
+* **`400 Bad Request`** (Cart is empty or not found):
+```json
+{
+  "cart_id": ["This cart is empty."]
+}
+```
+* **`400 Bad Request`** (Insufficient stock on checkout):
+```json
+{
+  "cart_id": "Sorry, only 1 units available for \"Velvet Matte Lipstick - Shade 01 Ruby\"."
+}
+```
+* **`400 Bad Request`** (Insufficient VibeCoin balance):
+```json
+{
+  "payment_method": "Insufficient VibeCoin balance. Required: 1590.00 VC (including ৳60.00 delivery), Available: 500.00 VC."
+}
+```
+
 ---
 
 ## 2. Admin Live Order Modification
@@ -81,7 +101,7 @@ Converts an active cart into a confirmed customer order. Automatically decrement
 Allows merchant staff to modify item quantities, change variants, adjust delivery charges, or update delivery addresses on live COD customer orders.
 
 * **Who Can Use:** Staff Only
-* **System Enforcement:** Sets `is_edited_by_admin = true` and records `edited_at` timestamp.
+* **System Enforcement:** Only Cash on Delivery (`payment_method = 'C'`) orders can be edited. Sets `is_edited_by_admin = true` and records `edited_at` timestamp.
 
 #### Request Body:
 ```json
@@ -109,6 +129,20 @@ Allows merchant staff to modify item quantities, change variants, adjust deliver
   "edited_at": "2026-09-03T12:00:15Z",
   "shipping_address": "House 14 (Updated), Road 5, Banani",
   "items": [ ... ]
+}
+```
+
+#### Error Responses:
+* **`400 Bad Request`** (Attempting to edit non-COD orders):
+```json
+{
+  "error": "Only Cash on Delivery (COD) orders can be edited by admin."
+}
+```
+* **`400 Bad Request`** (Empty item list):
+```json
+{
+  "items": "An order must contain at least one item."
 }
 ```
 
@@ -141,6 +175,8 @@ Lists all saved shipping addresses for the authenticated customer (capped at 5 a
 ]
 ```
 
+---
+
 ### `POST /api/v1/store/addresses/`
 Adds a new address to the customer's profile.
 
@@ -154,14 +190,50 @@ Adds a new address to the customer's profile.
 }
 ```
 
+#### Success Response (`201 Created`):
+```json
+{
+  "id": 7,
+  "title": "Studio",
+  "street": "House 88, Road 11, Banani",
+  "city": "Dhaka",
+  "is_default": false,
+  "created_at": "2026-09-03T12:28:00Z"
+}
+```
+
+#### Error Response:
+* **`400 Bad Request`** (Exceeded 5 saved address quota):
+```json
+{
+  "non_field_errors": [
+    "You can only save up to 5 addresses."
+  ]
+}
+```
+
+---
+
 ### `POST /api/v1/store/addresses/{id}/set_default/`
 Marks a saved address as default. Automatically unsets any previous default address.
 
 #### Success Response (`200 OK`):
 ```json
 {
-  "success": true,
-  "message": "Address marked as default successfully."
+  "id": 7,
+  "title": "Studio",
+  "street": "House 88, Road 11, Banani",
+  "city": "Dhaka",
+  "is_default": true,
+  "created_at": "2026-09-03T12:28:00Z"
+}
+```
+
+#### Error Response:
+* **`404 Not Found`** (Address ID does not belong to logged-in customer):
+```json
+{
+  "detail": "Not found."
 }
 ```
 
@@ -177,6 +249,10 @@ Returns the authenticated customer profile, tier, and VibeCoin rewards balance.
 {
   "id": 8,
   "user_id": 14,
+  "customer_name": "rahim_uddin",
+  "first_name": "Rahim",
+  "last_name": "Uddin",
+  "email": "customer@example.com",
   "phone": "+8801712345678",
   "birth_date": "1998-05-15",
   "membership": "G", // 'B' (Bronze), 'S' (Silver), 'G' (Gold)

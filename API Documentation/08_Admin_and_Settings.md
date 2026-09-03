@@ -72,6 +72,21 @@ Updates website brand settings or uploads a new transparent logo.
 #### Success Response (`200 OK`):
 *Returns updated `SiteSetting` object.*
 
+#### Error Responses:
+* **`400 Bad Request`** (Character limit violations):
+```json
+{
+  "site_title": ["Ensure this field has no more than 15 characters."],
+  "tagline": ["Ensure this field has no more than 30 characters."]
+}
+```
+* **`400 Bad Request`** (Brand description exceeds 70 words):
+```json
+{
+  "brand_description": ["Brand description cannot exceed 70 words. Current count: 84 words."]
+}
+```
+
 ---
 
 ### `POST /api/v1/store/site-settings/remove_logo/`
