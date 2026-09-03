@@ -795,20 +795,9 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="flex flex-col gap-2 sm:col-span-2">
-                  <div className="flex justify-between items-center">
-                    <label className="text-xs font-bold uppercase tracking-wider opacity-80">
-                      {t("checkout.shippingAddressLabel")}
-                    </label>
-                    {savedAddresses.length > 0 && (
-                      <Link
-                        href="/profile"
-                        target="_blank"
-                        className="text-[10px] font-bold text-accent hover:underline uppercase tracking-wider"
-                      >
-                        + {t("profile.addNewAddress")}
-                      </Link>
-                    )}
-                  </div>
+                  <label className="text-xs font-bold uppercase tracking-wider opacity-80">
+                    {t("checkout.shippingAddressLabel")}
+                  </label>
 
                   {savedAddresses.length > 0 && (
                     <div className="flex flex-col gap-1 mb-2">
