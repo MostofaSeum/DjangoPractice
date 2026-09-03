@@ -1759,10 +1759,10 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => setTrackingOrder(null)}
-                  className="w-8 h-8 rounded-full bg-primary/5 hover:bg-button-bg hover:text-button-fg text-foreground/70 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                  className="w-8 h-8 rounded-full bg-primary/5 hover:bg-foreground/10 active:scale-95 flex items-center justify-center transition-all cursor-pointer shrink-0 border border-foreground/10"
                   title={locale === "bn" ? "বন্ধ করুন" : "Close"}
                 >
-                  <img src="/icons/close-x.png" alt="Close" className="w-3.5 h-3.5 object-contain dark:invert" />
+                  <img src="/icons/close-x.png" alt="Close" className="w-3.5 h-3.5 object-contain opacity-70 hover:opacity-100 dark:invert" />
                 </button>
               </div>
 
@@ -2141,9 +2141,10 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={() => setReturnOrder(null)}
-                className="w-8 h-8 rounded-full bg-primary/5 hover:bg-button-bg hover:text-button-fg text-foreground/70 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                className="w-8 h-8 rounded-full bg-primary/5 hover:bg-foreground/10 active:scale-95 flex items-center justify-center transition-all cursor-pointer shrink-0 border border-foreground/10"
+                title={locale === "bn" ? "বন্ধ করুন" : "Close"}
               >
-                <img src="/icons/close-x.png" alt="Close" className="w-3.5 h-3.5 object-contain dark:invert" />
+                <img src="/icons/close-x.png" alt="Close" className="w-3.5 h-3.5 object-contain opacity-70 hover:opacity-100 dark:invert" />
               </button>
             </div>
 
