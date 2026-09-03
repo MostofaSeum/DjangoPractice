@@ -113,12 +113,17 @@ export default function CheckoutPage() {
     const initializeCheckout = async () => {
       try {
         setLoading(true);
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers["Authorization"] = `JWT ${token}`;
+        }
+
         const [delivSetRes, delivRuleRes, paySetRes, custRes, addrRes] = await Promise.all([
           fetch(`${API_BASE}/store/delivery-settings/`),
           fetch(`${API_BASE}/store/delivery-rules/`),
           fetch(`${API_BASE}/store/payment-settings/`),
-          fetch(`${API_BASE}/store/customers/me/`, { credentials: "include" }),
-          fetch(`${API_BASE}/store/addresses/`, { credentials: "include" }),
+          fetch(`${API_BASE}/store/customers/me/`, { headers, credentials: "include" }),
+          fetch(`${API_BASE}/store/addresses/`, { headers, credentials: "include" }),
         ]);
 
         if (delivSetRes.ok) {
@@ -158,7 +163,7 @@ export default function CheckoutPage() {
         if (custRes.ok) {
           const data = await custRes.json();
           if (data.phone) setPhone(data.phone);
-          if (data.vibe_coin !== undefined) setVibeCoin(data.vibe_coin);
+          if (data.vibe_coin !== undefined) setVibeCoin(Number(data.vibe_coin));
         }
 
         if (addrRes.ok) {
@@ -187,7 +192,7 @@ export default function CheckoutPage() {
     };
 
     initializeCheckout();
-  }, [user, authLoading, router]);
+  }, [user, token, authLoading, router]);
 
   // Automatically remove coupon if no eligible items remain in cart
   useEffect(() => {
@@ -805,7 +810,7 @@ export default function CheckoutPage() {
                     )}
                   </div>
 
-                  {savedAddresses.length > 1 && (
+                  {savedAddresses.length > 0 && (
                     <div className="flex flex-col gap-1 mb-2">
                       <label className="text-[10px] font-bold uppercase tracking-wider opacity-60">
                         {t("checkout.useSavedAddress")}
