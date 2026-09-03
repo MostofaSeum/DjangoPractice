@@ -173,8 +173,6 @@ export default function DeliveryTab({
         client_id: clientId.trim() || null,
         base_url: baseUrl.trim() || null,
         tracking_url_template: trackingUrlTemplate.trim() || null,
-        is_default_inside_dhaka: isDefaultInsideDhaka,
-        is_default_outside_dhaka: isDefaultOutsideDhaka,
         is_sandbox: isSandbox,
         is_active: isActive,
         notes: notes.trim(),

@@ -934,38 +934,6 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleSetDefaultCourier = async (
-    providerId: number,
-    area: "inside" | "outside" | "both"
-  ) => {
-    if (!token) return;
-    try {
-      const res = await fetch(
-        `${API_BASE}/store/courier-providers/${providerId}/set_default/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `JWT ${token}`,
-          },
-          body: JSON.stringify({ area }),
-        }
-      );
-      if (res.ok) {
-        Swal.fire({
-          position: "top-end",
-          icon: "success",
-          title: `Default courier updated for ${area === "inside" ? "Inside Dhaka" : area === "outside" ? "Outside Dhaka" : "All Zones"}!`,
-          showConfirmButton: false,
-          timer: 1500,
-          toast: true,
-        });
-        fetchCourierProviders();
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   const handleTestCourierConnection = async (providerId: number) => {
     if (!token) return;
@@ -3159,7 +3127,6 @@ export default function AdminDashboardPage() {
               handleSaveCourierProvider={handleSaveCourierProvider}
               handleDeleteCourierProvider={handleDeleteCourierProvider}
               handleToggleCourierActive={handleToggleCourierActive}
-              handleSetDefaultCourier={handleSetDefaultCourier}
               handleTestCourierConnection={handleTestCourierConnection}
             />
           )}
