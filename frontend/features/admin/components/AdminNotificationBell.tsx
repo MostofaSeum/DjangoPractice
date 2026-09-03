@@ -275,28 +275,33 @@ export default function AdminNotificationBell({
 
   // Mark single notification as read
   const handleMarkRead = async (item: NotificationItem) => {
-    if (!token) return;
-
+    // 1. Immediately update UI state so badge and highlight change instantly
     if (!item.is_read) {
-      try {
-        const cleanToken = token.replace(/^JWT\s+/i, "").trim();
-        await fetch(`${apiBase}/store/notifications/${item.id}/mark_read/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `JWT ${cleanToken}`,
-          },
-        });
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === item.id ? { ...n, is_read: true } : n))
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
 
-        setNotifications((prev) =>
-          prev.map((n) => (n.id === item.id ? { ...n, is_read: true } : n))
-        );
-        setUnreadCount((prev) => Math.max(0, prev - 1));
-      } catch (err) {
-        console.error("Failed to mark notification read:", err);
+      // 2. Sync with backend API
+      if (token) {
+        try {
+          const rawToken = token.replace(/^JWT\s+/i, "").trim();
+          const authHeader = `JWT ${rawToken}`;
+          await fetch(`${apiBase}/store/notifications/${item.id}/mark_read/`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: authHeader,
+            },
+            body: JSON.stringify({}),
+          });
+        } catch (err) {
+          console.error("Failed to mark notification read:", err);
+        }
       }
     }
 
+    // 3. Navigate to relevant view
     if (item.notification_type === "order" && item.target_id && onNavigateToOrder) {
       onNavigateToOrder(item.target_id);
       setIsOpen(false);
@@ -318,22 +323,23 @@ export default function AdminNotificationBell({
 
   // Mark all notifications as read
   const handleMarkAllRead = async () => {
+    // Immediately update UI
+    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+    setUnreadCount(0);
+
     if (!token) return;
+
     try {
       setIsLoading(true);
-      const cleanToken = token.replace(/^JWT\s+/i, "").trim();
-      const res = await fetch(`${apiBase}/store/notifications/mark_all_read/`, {
+      const rawToken = token.replace(/^JWT\s+/i, "").trim();
+      const authHeader = token.startsWith("JWT ") ? token : `JWT ${rawToken}`;
+      await fetch(`${apiBase}/store/notifications/mark_all_read/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `JWT ${cleanToken}`,
+          Authorization: authHeader,
         },
       });
-
-      if (res.ok) {
-        setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
-        setUnreadCount(0);
-      }
     } catch (err) {
       console.error("Failed to mark all as read:", err);
     } finally {
