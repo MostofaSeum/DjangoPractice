@@ -8,6 +8,37 @@ DEBUG = os.environ.get('DEBUG', 'False').lower() in ['true', '1']
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split()
 
+# Production CORS & CSRF Settings
+cors_origins_env = os.environ.get('CORS_ALLOWED_ORIGINS', '')
+if cors_origins_env:
+    # Accept comma or space separated list of origins
+    CORS_ALLOWED_ORIGINS = [orig.strip() for orig in cors_origins_env.replace(',', ' ').split() if orig.strip()]
+else:
+    # If no specific origins provided in production, permit all origins or vercel/render previews
+    CORS_ALLOW_ALL_ORIGINS = True
+
+# Dynamic regex matching for Vercel, Render, and Localhost
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://.*\.vercel\.app$",
+    r"^https://.*\.onrender\.com$",
+    r"^http://localhost:\d+$",
+    r"^http://127\.0\.0\.1:\d+$",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+# CSRF Trusted Origins for Django 4+
+csrf_origins_env = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
+if csrf_origins_env:
+    CSRF_TRUSTED_ORIGINS = [orig.strip() for orig in csrf_origins_env.replace(',', ' ').split() if orig.strip()]
+else:
+    CSRF_TRUSTED_ORIGINS = [
+        "https://*.vercel.app",
+        "https://*.onrender.com",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ]
+
 # Production Database via DATABASE_URL or fallback to sqlite
 if os.environ.get('DATABASE_URL'):
     DATABASES = {
