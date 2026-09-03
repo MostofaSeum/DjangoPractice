@@ -723,11 +723,17 @@ export default function ProfilePage() {
                   {t("profile.phoneNumber")}
                 </label>
                 <input
-                  type="text"
+                  type="tel"
                   name="phone"
+                  maxLength={11}
                   value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="+8801XXXXXXXXX"
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      phone: e.target.value.replace(/\D/g, "").slice(0, 11),
+                    }))
+                  }
+                  placeholder="01XXXXXXXXX"
                   className="px-4 py-3 border border-foreground/15 rounded-2xl bg-background text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
                 />
               </div>
@@ -2381,10 +2387,11 @@ export default function ProfilePage() {
                       {t("profile.refundAccountLabel") || (locale === "bn" ? "বিকাশ / নগদ মোবাইল নম্বর *" : "bKash / Nagad Mobile Number *")}
                     </label>
                     <input
-                      type="text"
+                      type="tel"
                       required
+                      maxLength={11}
                       value={refundAccountNumber}
-                      onChange={(e) => setRefundAccountNumber(e.target.value)}
+                      onChange={(e) => setRefundAccountNumber(e.target.value.replace(/\D/g, "").slice(0, 11))}
                       placeholder={t("profile.refundAccountPlaceholder") || "017XXXXXXXX"}
                       className="w-full px-4 py-2 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
                     />

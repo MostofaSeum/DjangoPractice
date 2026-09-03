@@ -365,11 +365,7 @@ export default function AdminNotificationBell({
   };
 
   const handleToggleOpen = () => {
-    const nextState = !isOpen;
-    setIsOpen(nextState);
-    if (nextState && unreadCount > 0) {
-      handleMarkAllRead();
-    }
+    setIsOpen((prev) => !prev);
   };
 
   return (
@@ -390,7 +386,7 @@ export default function AdminNotificationBell({
         />
 
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-accent text-white font-black text-[9px] shadow-md animate-pulse">
+          <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-hidden text-white font-black text-[9px] shadow-md animate-pulse">
             {unreadCount > 99 ? "99+" : toBnDigits(unreadCount)}
           </span>
         )}
@@ -553,13 +549,15 @@ export default function AdminNotificationBell({
                   <div
                     key={item.id}
                     onClick={() => handleMarkRead(item)}
-                    className={`p-3.5 transition-colors cursor-pointer hover:bg-primary/5 flex items-start gap-3 ${
-                      !item.is_read ? "bg-accent/5 dark:bg-accent/10" : ""
+                    className={`p-3.5 transition-colors cursor-pointer flex items-start gap-3 ${
+                      !item.is_read
+                        ? "bg-primary/10 dark:bg-primary/50 border-l-4 border-accent hover:bg-primary/15 dark:hover:bg-primary/60"
+                        : "hover:bg-primary/5 opacity-85 hover:opacity-100"
                     }`}
                   >
                     <div className="mt-0.5 shrink-0">
                       {item.notification_type === "order" ? (
-                        <div className="w-7 h-7 rounded-lg bg-accent/15 flex items-center justify-center p-1.5 border border-accent/20">
+                        <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
                           <Image
                             src="/admin/orders.png"
                             alt="Order"
@@ -569,14 +567,14 @@ export default function AdminNotificationBell({
                           />
                         </div>
                       ) : item.notification_type === "return" ? (
-                        <div className="w-7 h-7 rounded-lg bg-accent/15 flex items-center justify-center p-1.5 border border-accent/20">
+                        <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
                           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-accent">
                             <polyline points="1 4 1 10 7 10"></polyline>
                             <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                           </svg>
                         </div>
                       ) : item.notification_type === "promotion" ? (
-                        <div className="w-7 h-7 rounded-lg bg-accent/15 flex items-center justify-center p-1.5 border border-accent/20">
+                        <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
                           <Image
                             src="/admin/sales.png"
                             alt="Promotion"
@@ -586,7 +584,7 @@ export default function AdminNotificationBell({
                           />
                         </div>
                       ) : item.notification_type === "coupon" ? (
-                        <div className="w-7 h-7 rounded-lg bg-accent/15 flex items-center justify-center p-1.5 border border-accent/20">
+                        <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
                           <Image
                             src="/admin/coupons.png"
                             alt="Coupon"
@@ -596,7 +594,7 @@ export default function AdminNotificationBell({
                           />
                         </div>
                       ) : (
-                        <div className="w-7 h-7 rounded-lg bg-accent/15 flex items-center justify-center p-1.5 border border-accent/20">
+                        <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
                           <Image
                             src="/notification.png"
                             alt="Notification"
@@ -610,20 +608,20 @@ export default function AdminNotificationBell({
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-xs font-black truncate text-foreground">
+                        <p className={`text-xs truncate ${!item.is_read ? "font-black text-foreground" : "font-semibold text-foreground/90"}`}>
                           {itemTitle}
                         </p>
-                        <span className="text-[9px] opacity-60 shrink-0 font-medium">
+                        <span className={`text-[9px] shrink-0 ${!item.is_read ? "font-bold text-accent" : "opacity-60 font-medium"}`}>
                           {formatTime(item.created_at)}
                         </span>
                       </div>
-                      <p className="text-[11px] text-foreground/80 mt-0.5 leading-snug line-clamp-2">
+                      <p className={`text-[11px] mt-0.5 leading-snug line-clamp-2 ${!item.is_read ? "font-semibold text-foreground" : "text-foreground/75"}`}>
                         {itemMessage}
                       </p>
                     </div>
 
                     {!item.is_read && (
-                      <span className="w-2 h-2 rounded-full bg-accent shrink-0 mt-1.5" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-hidden shrink-0 mt-1.5 shadow-xs animate-pulse" />
                     )}
                   </div>
                 );

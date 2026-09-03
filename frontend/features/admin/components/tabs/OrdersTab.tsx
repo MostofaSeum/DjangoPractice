@@ -1530,10 +1530,11 @@ export default function OrdersTab({
                       {isBn ? "মোবাইল নম্বর" : "Phone Number"}
                     </label>
                     <input
-                      type="text"
+                      type="tel"
+                      maxLength={11}
                       value={editPhone}
-                      onChange={(e) => setEditPhone(e.target.value)}
-                      placeholder="+8801XXXXXXXXX"
+                      onChange={(e) => setEditPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                      placeholder="01XXXXXXXXX"
                       className="px-3.5 py-2 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                     />
                   </div>
