@@ -61,8 +61,8 @@ export default function AdminHeader({
   };
 
   return (
-    <header className="bg-primary text-background dark:text-foreground py-4 px-6 md:px-10 border-b border-white/10 shadow-sm transition-colors duration-300 sticky top-0 z-40">
-      <div className="flex justify-between items-center gap-4">
+    <header className="bg-primary text-background dark:text-foreground h-[65px] px-6 md:px-10 border-b border-white/10 shadow-sm transition-colors duration-300 sticky top-0 z-40 flex items-center">
+      <div className="flex justify-between items-center gap-4 w-full">
         <div className="flex items-center gap-3">
           <div>
             <div className="flex items-center gap-2">

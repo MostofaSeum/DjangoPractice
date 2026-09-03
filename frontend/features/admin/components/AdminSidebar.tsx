@@ -161,7 +161,7 @@ export default function AdminSidebar({
 
   return (
     <aside
-      className={`bg-primary text-background dark:text-foreground border-r border-white/10 shrink-0 transition-all duration-300 relative ${
+      className={`bg-primary text-background dark:text-foreground border-r border-white/10 shrink-0 transition-all duration-300 sticky top-[65px] h-[calc(100vh-65px)] flex flex-col z-30 ${
         isSidebarCollapsed ? "w-20" : "w-64 md:w-72"
       }`}
     >
@@ -188,8 +188,8 @@ export default function AdminSidebar({
         </svg>
       </button>
 
-      {/* Navigation Links */}
-      <nav className="p-3 space-y-1.5 sticky top-16">
+      {/* Navigation Links (Independent Scroll Area) */}
+      <nav className="p-3 space-y-1.5 overflow-y-auto flex-1 custom-scrollbar">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           const isProductsTab = tab.id === "products";
