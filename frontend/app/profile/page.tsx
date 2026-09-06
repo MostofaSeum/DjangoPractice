@@ -1374,7 +1374,7 @@ export default function ProfilePage() {
                         ["packed", "in_transit", "out_for_delivery", "delivered"].includes(
                           (selectedOrderDetails.tracking_status || "").toLowerCase()
                         )
-                          ? "opacity-40 bg-foreground/5 text-foreground/50 border-foreground/15 hover:opacity-60"
+                          ? "opacity-70 bg-foreground/5 text-foreground/75 border-foreground/30 hover:opacity-85 shadow-xs"
                           : "bg-hidden/10 hover:bg-hidden hover:text-button-fg text-hidden border-hidden/30 active:scale-95 shadow-xs"
                       }`}
                       title={
