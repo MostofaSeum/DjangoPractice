@@ -249,7 +249,7 @@ export default function ProductsClient({
                           <AddToCartButton
                             productId={product.id}
                             productTitle={product.title}
-                            inventory={product.inventory ?? 999}
+                            inventory={product.total_inventory ?? product.inventory}
                             variants={product.variants}
                             className="py-2.5 px-2 bg-button-bg text-button-fg rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center"
                           />

@@ -20,7 +20,7 @@ from store.idempotency import idempotent_action
 from store.webhooks import require_signed_webhook
 from datetime import timedelta
 from django.utils import timezone
-from django.db.models import Count, Sum, Avg, F
+from django.db.models import Count, Sum, Avg, F, Q
 from django.db.models.functions import Coalesce
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter,OrderingFilter
@@ -53,7 +53,13 @@ class ProductViewSet(ModelViewSet):
     def get_queryset(self):
         qs = Product.objects.prefetch_related('images', 'variants').annotate(
             popularity=Count('orderitem', distinct=True),
-            annotated_units_sold=Coalesce(Sum('orderitem__quantity'), 0),
+            annotated_units_sold=Coalesce(
+                Sum(
+                    'orderitem__quantity',
+                    filter=~Q(orderitem__order__tracking_status='cancelled') & ~Q(orderitem__order__payment_status='F')
+                ),
+                0
+            ),
             annotated_avg_rating=Coalesce(Avg('reviews__rating'), 0.0),
             annotated_review_count=Count('reviews', distinct=True),
         )

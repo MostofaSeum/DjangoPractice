@@ -34,7 +34,16 @@ export default function AddToCartButton({
   const activeVariant = variants?.find((v) => v.is_active !== false);
   const targetVariantId = variantId !== undefined ? variantId : activeVariant ? activeVariant.id : null;
 
-  const isOutOfStock = inventory <= 0;
+  // If product has variants, evaluate against target/active variant inventory or total variant inventory
+  const hasVariants = Boolean(variants && variants.length > 0);
+  const targetVariant = variants?.find((v) => v.id === targetVariantId) || activeVariant;
+  const effectiveInventory = hasVariants
+    ? (targetVariant?.inventory !== undefined
+        ? Number(targetVariant.inventory)
+        : variants!.reduce((sum, v) => sum + (Number(v.inventory) || 0), 0))
+    : Number(inventory ?? 0);
+
+  const isOutOfStock = effectiveInventory <= 0;
 
   if (isOutOfStock) {
     return (
@@ -53,7 +62,7 @@ export default function AddToCartButton({
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (inventory <= 0) return;
+    if (effectiveInventory <= 0) return;
 
     try {
       setLoading(true);

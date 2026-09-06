@@ -1426,7 +1426,13 @@ export default function ProductsTab({
                     {formatCurrency(Number(prod.unit_price))}
                   </td>
                   <td className="py-2.5 px-2 align-middle">
-                    {isBn ? Number(prod.inventory ?? 0).toLocaleString("bn-BD") : prod.inventory}
+                    {(() => {
+                      const hasVariants = prod.variants && prod.variants.length > 0;
+                      const effectiveStock = hasVariants
+                        ? (prod.total_inventory ?? prod.variants!.reduce((sum, v) => sum + (Number(v.inventory) || 0), 0))
+                        : (prod.total_inventory ?? Number(prod.inventory ?? 0));
+                      return isBn ? effectiveStock.toLocaleString("bn-BD") : effectiveStock;
+                    })()}
                   </td>
                   <td
                     className="py-3 px-3 text-right"

@@ -101,10 +101,14 @@ export default function WishlistPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {wishlistItems.map((item) => {
               const product = item.product;
+              const effectiveStock =
+                product.variants && product.variants.length > 0
+                  ? (product.total_inventory ?? product.variants.reduce((sum, v) => sum + (Number(v.inventory) || 0), 0))
+                  : (product.total_inventory ?? product.inventory);
               const inventoryCount =
                 locale === "bn"
-                  ? product.inventory.toLocaleString("bn-BD")
-                  : product.inventory.toString();
+                  ? effectiveStock.toLocaleString("bn-BD")
+                  : effectiveStock.toString();
 
               const activeVariant = product.variants?.find((v) => v.is_active !== false);
               const effectivePrice =
@@ -178,7 +182,7 @@ export default function WishlistPage() {
                       <AddToCartButton
                         productId={product.id}
                         productTitle={product.title}
-                        inventory={product.inventory}
+                        inventory={product.total_inventory ?? product.inventory}
                         variants={product.variants}
                         className="py-2.5 px-2 bg-button-bg text-button-fg rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center cursor-pointer"
                       />

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.conf import settings
-from django.db.models import Sum, Avg
+from django.db.models import Sum, Avg, Q
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from uuid import uuid4
@@ -74,7 +74,10 @@ class Product(models.Model):
 
     @property
     def units_sold(self):
-        result = self.orderitem_set.aggregate(total=Sum('quantity'))['total']
+        result = self.orderitem_set.filter(
+            ~Q(order__tracking_status='cancelled'),
+            ~Q(order__payment_status='F')
+        ).aggregate(total=Sum('quantity'))['total']
         return int(result or 0)
 
     @property

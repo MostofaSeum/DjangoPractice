@@ -171,7 +171,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
       url: `${siteUrl}/products/${product.id}`,
       priceCurrency: "BDT",
       price: priceValue.toString(),
-      availability: product.inventory > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      availability:
+        (product.variants && product.variants.length > 0
+          ? product.variants.reduce((acc: number, v: any) => acc + (Number(v.inventory) || 0), 0)
+          : Number(product.inventory || 0)) > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
     },
     ...(product.review_count && product.review_count > 0 && product.average_rating

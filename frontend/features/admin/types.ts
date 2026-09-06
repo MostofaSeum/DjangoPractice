@@ -7,11 +7,19 @@ export interface Product {
   is_discount_active?: boolean;
   discounted_price?: number;
   inventory: number;
+  total_inventory?: number;
   slug: string;
   collection: number;
   short_description?: string;
   description?: string;
   images?: { id?: number; image: string }[];
+  variants?: Array<{
+    id: number;
+    name: string;
+    inventory?: number;
+    is_active?: boolean;
+    price_override?: number | string | null;
+  }>;
   is_trending?: boolean;
   is_visible?: boolean;
   units_sold?: number;

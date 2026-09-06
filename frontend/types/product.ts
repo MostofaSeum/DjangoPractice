@@ -37,6 +37,7 @@ export interface Product {
   is_discount_active?: boolean;
   discounted_price?: number;
   inventory: number;
+  total_inventory?: number;
   collection: number | Collection;
   images?: ProductImage[];
   variants?: ProductVariant[];
