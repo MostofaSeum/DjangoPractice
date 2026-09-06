@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/store/LanguageContext";
 import { siteConfig } from "@/config/siteConfig";
 
@@ -9,6 +11,8 @@ const API_BASE = siteConfig.apiBaseUrl.replace(/\/+$/, "");
 
 export default function Footer() {
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const pathname = usePathname();
 
   const [siteData, setSiteData] = useState({
     site_title: "VibeMart",
@@ -98,6 +102,10 @@ export default function Footer() {
     Boolean(siteData.instagram_url) ||
     Boolean(siteData.youtube_url) ||
     Boolean(siteData.whatsapp_number);
+
+  if (user?.is_staff || pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <footer className="relative bg-primary text-button-fg border-t border-foreground/15 mt-auto transition-colors duration-300 overflow-hidden">
