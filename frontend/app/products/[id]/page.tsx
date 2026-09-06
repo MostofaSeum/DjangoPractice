@@ -10,10 +10,12 @@ interface Product {
   discount_percent?: number;
   discounted_price?: number;
   inventory: number;
+  total_inventory?: number;
   short_description?: string;
   description: string;
   collection: number | { id: number; title: string };
   images?: { id: number; image: string }[];
+  variants?: Array<{ id: number; name: string; inventory?: number; is_active?: boolean }>;
   units_sold?: number;
   average_rating?: number;
   review_count?: number;

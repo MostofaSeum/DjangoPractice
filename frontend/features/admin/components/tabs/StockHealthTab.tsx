@@ -47,19 +47,26 @@ export default function StockHealthTab({
     return isNaN(parsed) ? 10 : parsed;
   }, [thresholdInput]);
 
+  const getEffectiveStock = (p: Product) => {
+    if (p.variants && p.variants.length > 0) {
+      return p.total_inventory ?? p.variants.reduce((sum, v) => sum + (Number(v.inventory) || 0), 0);
+    }
+    return p.total_inventory ?? Number(p.inventory || 0);
+  };
+
   // Overall catalog metrics
   const catalogMetrics = useMemo(() => {
     const totalItems = products.length;
-    const outOfStockCount = products.filter((p) => Number(p.inventory || 0) <= 0).length;
+    const outOfStockCount = products.filter((p) => getEffectiveStock(p) <= 0).length;
     const lowStockCount = products.filter(
-      (p) => Number(p.inventory || 0) > 0 && Number(p.inventory || 0) < currentThreshold
+      (p) => getEffectiveStock(p) > 0 && getEffectiveStock(p) < currentThreshold
     ).length;
     const healthyStockCount = products.filter(
-      (p) => Number(p.inventory || 0) >= currentThreshold
+      (p) => getEffectiveStock(p) >= currentThreshold
     ).length;
 
     const totalUnitsInCatalog = products.reduce(
-      (acc, p) => acc + Math.max(0, Number(p.inventory || 0)),
+      (acc, p) => acc + Math.max(0, getEffectiveStock(p)),
       0
     );
 
@@ -75,7 +82,7 @@ export default function StockHealthTab({
   // Filtered products with inventory strictly less than threshold
   const lowStockProducts = useMemo(() => {
     return products.filter((product) => {
-      const stock = Number(product.inventory || 0);
+      const stock = getEffectiveStock(product);
       const isUnderThreshold = stock < currentThreshold;
 
       if (!isUnderThreshold) return false;
@@ -101,9 +108,9 @@ export default function StockHealthTab({
   const sortedLowStockProducts = useMemo(() => {
     const list = [...lowStockProducts];
     if (sortBy === "inventory_asc") {
-      list.sort((a, b) => Number(a.inventory || 0) - Number(b.inventory || 0));
+      list.sort((a, b) => getEffectiveStock(a) - getEffectiveStock(b));
     } else if (sortBy === "inventory_desc") {
-      list.sort((a, b) => Number(b.inventory || 0) - Number(a.inventory || 0));
+      list.sort((a, b) => getEffectiveStock(b) - getEffectiveStock(a));
     } else if (sortBy === "title") {
       list.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
     } else if (sortBy === "price") {
@@ -136,7 +143,7 @@ export default function StockHealthTab({
 
     const rowsHtml = sortedLowStockProducts
       .map((item, index) => {
-        const stock = Number(item.inventory || 0);
+        const stock = getEffectiveStock(item);
         const isZero = stock <= 0;
         const colTitle = getCollectionTitle(item.collection);
         const price = Number(item.unit_price || 0).toFixed(2);
@@ -640,7 +647,7 @@ export default function StockHealthTab({
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {sortedLowStockProducts.map((product) => {
-              const stock = Number(product.inventory || 0);
+              const stock = getEffectiveStock(product);
               const isZero = stock <= 0;
               const unitPrice = Number(product.unit_price || 0);
 

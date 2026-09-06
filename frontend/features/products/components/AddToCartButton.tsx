@@ -50,8 +50,9 @@ export default function AddToCartButton({
       <button
         disabled
         className={
-          className ||
-          "w-full py-3 bg-red-100 text-red-700 font-bold text-xs uppercase tracking-widest rounded-xl border border-red-300 cursor-not-allowed opacity-80 flex items-center justify-center gap-2"
+          className
+            ? className.replace(/bg-button-bg text-button-fg/g, "bg-hidden/15 text-hidden border border-hidden/30") + " opacity-85 cursor-not-allowed"
+            : "w-full py-3 bg-hidden/15 text-hidden font-bold text-xs uppercase tracking-widest rounded-xl border border-hidden/30 cursor-not-allowed opacity-85 flex items-center justify-center gap-2 shadow-xs"
         }
       >
         {t("trending.outOfStock")}

@@ -527,7 +527,7 @@ export default function ProductInteractive({
           )}
 
           {isOutOfStock ? (
-            <span className="px-8 py-3.5 bg-red-500/10 text-red-500 font-bold rounded-xl text-xs tracking-widest uppercase border border-red-500/30">
+            <span className="px-8 py-3.5 bg-hidden/15 text-hidden font-bold rounded-xl text-xs tracking-widest uppercase border border-hidden/30 flex items-center justify-center shadow-xs">
               {t("productDetail.outOfStock")}
             </span>
           ) : (

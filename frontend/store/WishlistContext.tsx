@@ -11,6 +11,7 @@ export interface WishlistProduct {
   title: string;
   unit_price: number;
   inventory: number;
+  total_inventory?: number;
   description?: string;
   images?: { id: number; image: string }[];
   discount_percent?: number;
