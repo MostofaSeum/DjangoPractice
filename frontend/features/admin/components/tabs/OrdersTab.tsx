@@ -458,16 +458,29 @@ export default function OrdersTab({
                   ? order.items.reduce((sum, i) => sum + i.quantity, 0)
                   : 0;
 
+                const isCancelled = order.tracking_status === "cancelled";
                 const displayOrderId = isBn ? order.id.toLocaleString("bn-BD") : order.id;
                 const displayItemCount = isBn ? `${itemCount.toLocaleString("bn-BD")} টি` : `${itemCount} item(s)`;
 
                 return (
                   <tr
                     key={order.id}
-                    className="hover:bg-primary/5 dark:hover:bg-primary/30 transition-colors"
+                    title={isCancelled ? (isBn ? "গ্রাহক দ্বারা অর্ডারটি বাতিল করা হয়েছে" : "Order cancelled by customer") : undefined}
+                    className={`transition-colors ${
+                      isCancelled
+                        ? "opacity-60 bg-red-500/5 hover:bg-red-500/10 border-l-4 border-l-red-500"
+                        : "hover:bg-primary/5 dark:hover:bg-primary/30"
+                    }`}
                   >
                     <td className="py-3.5 px-2 font-black">
-                      {isBn ? `অর্ডার #${displayOrderId}` : `Order #${order.id}`}
+                      <div className="flex items-center gap-1.5">
+                        <span>{isBn ? `অর্ডার #${displayOrderId}` : `Order #${order.id}`}</span>
+                        {isCancelled && (
+                          <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30">
+                            {isBn ? "বাতিল" : "Cancelled"}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="py-3.5 px-2 opacity-90 font-bold">
                       {order.customer_name || (isBn ? `গ্রাহক #${order.customer}` : `Customer #${order.customer}`)}
@@ -506,15 +519,19 @@ export default function OrdersTab({
                     <td className="py-3.5 px-2">
                       <select
                         value={order.payment_status || "P"}
+                        disabled={isCancelled}
+                        title={isCancelled ? (isBn ? "গ্রাহক দ্বারা অর্ডারটি বাতিল করা হয়েছে" : "Order cancelled by customer") : undefined}
                         onChange={(e) =>
                           handleUpdateOrderStatus(order.id, e.target.value)
                         }
-                        className={`px-3 py-1 rounded-full text-[10px] uppercase font-black tracking-wider outline-none cursor-pointer border ${
-                          order.payment_status === "C"
-                            ? "bg-visible/15 text-visible border-visible/30"
+                        className={`px-3 py-1 rounded-full text-[10px] uppercase font-black tracking-wider outline-none border ${
+                          isCancelled
+                            ? "bg-red-500/10 text-red-500 border-red-500/30 cursor-not-allowed opacity-75"
+                            : order.payment_status === "C"
+                            ? "bg-visible/15 text-visible border-visible/30 cursor-pointer"
                             : order.payment_status === "F"
-                              ? "bg-hidden/15 text-hidden border-hidden/30"
-                              : "bg-accent/15 text-accent border-accent/30"
+                              ? "bg-hidden/15 text-hidden border-hidden/30 cursor-pointer"
+                              : "bg-accent/15 text-accent border-accent/30 cursor-pointer"
                         }`}
                       >
                         <option
@@ -533,15 +550,18 @@ export default function OrdersTab({
                           value="F"
                           className="bg-secondary text-foreground"
                         >
-                          {isBn ? "ফেইল্ড / বাতিল (F)" : "Failed (F)"}
+                          {isCancelled ? (isBn ? "বাতিল (F)" : "Cancelled (F)") : (isBn ? "ফেইল্ড / বাতিল (F)" : "Failed (F)")}
                         </option>
                       </select>
                     </td>
                     <td className="py-3.5 px-2">
                       <div className="flex flex-col items-start gap-1">
                         <span
+                          title={isCancelled ? (isBn ? "গ্রাহক দ্বারা অর্ডারটি বাতিল করা হয়েছে" : "Order cancelled by customer") : undefined}
                           className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
-                            order.tracking_status === "delivered"
+                            isCancelled
+                              ? "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30"
+                              : order.tracking_status === "delivered"
                               ? "bg-visible/15 text-visible border-visible/30"
                               : order.tracking_status === "returned"
                                 ? "bg-hidden/15 text-hidden border-hidden/30"
@@ -553,7 +573,7 @@ export default function OrdersTab({
                           <span className="w-1.5 h-1.5 rounded-full bg-current" />
                           {getTrackingStatusLabel(order.tracking_status, order.tracking_status_display)}
                         </span>
-                        {order.courier_partner_details && (
+                        {order.courier_partner_details && !isCancelled && (
                           <span className="text-[9px] font-bold opacity-60 uppercase tracking-tight flex items-center gap-1">
                             {getCourierPartnerLabel(order.courier_partner_details.name)}
                             {order.tracking_code ? ` • #${order.tracking_code}` : ""}
@@ -602,8 +622,17 @@ export default function OrdersTab({
                           </>
                         ) : (
                           <>
-                            {/* 1. Edit Button (Active for COD, Disabled with explanation for Online/bKash/Nagad) */}
-                            {order.payment_method === "C" ? (
+                            {/* 1. Edit Button (Blocked if Cancelled, Active for COD, Disabled for Online/bKash/Nagad) */}
+                            {isCancelled ? (
+                              <button
+                                type="button"
+                                disabled
+                                title={isBn ? "গ্রাহক দ্বারা অর্ডারটি বাতিল করা হয়েছে" : "Order cancelled by customer"}
+                                className="px-3 py-1.5 bg-foreground/10 text-foreground/40 rounded-lg font-bold text-[10px] uppercase tracking-wider cursor-not-allowed select-none opacity-50"
+                              >
+                                {isBn ? "সম্পাদনা" : "Edit"}
+                              </button>
+                            ) : order.payment_method === "C" ? (
                               <button
                                 type="button"
                                 onClick={() => {
@@ -652,53 +681,64 @@ export default function OrdersTab({
                               </button>
                             )}
 
-                            {/* 2. Dispatch / Track Button */}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                // Prepaid validation: bKash, Nagad, and Online payments must be marked Complete before dispatching
-                                if (
-                                  (order.payment_method === "B" || order.payment_method === "N" || order.payment_method === "O") &&
-                                  order.payment_status !== "C"
-                                ) {
-                                  const methodLabel =
-                                    order.payment_method === "B"
-                                      ? "bKash"
-                                      : order.payment_method === "N"
-                                      ? "Nagad"
-                                      : "Online Payment";
-                                  Swal.fire({
-                                    icon: "error",
-                                    title: isBn ? "পেমেন্ট অসম্পূর্ণ" : "Payment Incomplete",
-                                    text: isBn
-                                      ? `${methodLabel} পেমেন্ট স্ট্যাটাস এখনও "কমপ্লিট (সফল)" করা হয়নি। কুরিয়ারে পাঠাতে বা ট্র্যাক করতে অনুগ্রহ করে আগে পেমেন্ট নিশ্চিত করুন।`
-                                      : `${methodLabel} payment has not been marked as Complete yet. Please verify and mark the payment as Complete before dispatching or tracking this order.`,
-                                    confirmButtonColor: "#ef4444",
-                                  });
-                                  return;
-                                }
+                            {/* 2. Dispatch / Track Button (Blocked if Cancelled) */}
+                            {isCancelled ? (
+                              <button
+                                type="button"
+                                disabled
+                                title={isBn ? "গ্রাহক দ্বারা অর্ডারটি বাতিল করা হয়েছে" : "Order cancelled by customer"}
+                                className="px-3 py-1.5 bg-foreground/10 text-foreground/40 rounded-lg font-bold text-[10px] uppercase tracking-wider cursor-not-allowed select-none opacity-50"
+                              >
+                                {isBn ? "ট্র্যাক" : "Track"}
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  // Prepaid validation: bKash, Nagad, and Online payments must be marked Complete before dispatching
+                                  if (
+                                    (order.payment_method === "B" || order.payment_method === "N" || order.payment_method === "O") &&
+                                    order.payment_status !== "C"
+                                  ) {
+                                    const methodLabel =
+                                      order.payment_method === "B"
+                                        ? "bKash"
+                                        : order.payment_method === "N"
+                                        ? "Nagad"
+                                        : "Online Payment";
+                                    Swal.fire({
+                                      icon: "error",
+                                      title: isBn ? "পেমেন্ট অসম্পূর্ণ" : "Payment Incomplete",
+                                      text: isBn
+                                        ? `${methodLabel} পেমেন্ট স্ট্যাটাস এখনও "কমপ্লিট (সফল)" করা হয়নি। কুরিয়ারে পাঠাতে বা ট্র্যাক করতে অনুগ্রহ করে আগে পেমেন্ট নিশ্চিত করুন।`
+                                        : `${methodLabel} payment has not been marked as Complete yet. Please verify and mark the payment as Complete before dispatching or tracking this order.`,
+                                      confirmButtonColor: "#ef4444",
+                                    });
+                                    return;
+                                  }
 
-                                setDispatchOrder(order);
-                                let initialCourier: number | "manual" = "manual";
-                                if (order.courier_partner) {
-                                  initialCourier = order.courier_partner;
-                                } else if (order.tracking_code) {
-                                  initialCourier = "manual";
-                                } else if (activeCouriers.length > 0) {
-                                  initialCourier = activeCouriers[0].id;
-                                }
+                                  setDispatchOrder(order);
+                                  let initialCourier: number | "manual" = "manual";
+                                  if (order.courier_partner) {
+                                    initialCourier = order.courier_partner;
+                                  } else if (order.tracking_code) {
+                                    initialCourier = "manual";
+                                  } else if (activeCouriers.length > 0) {
+                                    initialCourier = activeCouriers[0].id;
+                                  }
 
-                                setSelectedCourierId(initialCourier);
-                                setTrackingCodeInput(order.tracking_code || "");
-                                setTrackingStatusInput(
-                                  (order.tracking_status as any) || "in_transit"
-                                );
-                              }}
-                              className="px-3 py-1.5 bg-accent/15 hover:bg-accent/25 text-accent border border-accent/20 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
-                              title={isBn ? "ট্র্যাক" : "Track"}
-                            >
-                              {isBn ? "ট্র্যাক" : "Track"}
-                            </button>
+                                  setSelectedCourierId(initialCourier);
+                                  setTrackingCodeInput(order.tracking_code || "");
+                                  setTrackingStatusInput(
+                                    (order.tracking_status as any) || "in_transit"
+                                  );
+                                }}
+                                className="px-3 py-1.5 bg-accent/15 hover:bg-accent/25 text-accent border border-accent/20 rounded-lg font-bold text-[10px] uppercase tracking-wider transition-colors cursor-pointer"
+                                title={isBn ? "ট্র্যাক" : "Track"}
+                              >
+                                {isBn ? "ট্র্যাক" : "Track"}
+                              </button>
+                            )}
 
                             {/* 3. View Details Button */}
                             <button
@@ -832,6 +872,27 @@ export default function OrdersTab({
             </div>
 
             <div className="flex-1 overflow-y-auto pr-1 space-y-5">
+              {/* Order Cancelled Warning Banner */}
+              {selectedOrderDetails.tracking_status === "cancelled" && (
+                <div className="p-3.5 rounded-2xl bg-red-500/10 border border-red-500/25 flex items-center gap-3 text-red-600 dark:text-red-400">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                  </svg>
+                  <div className="text-xs">
+                    <p className="font-black uppercase tracking-wider">
+                      {isBn ? "গ্রাহক দ্বারা অর্ডারটি বাতিল করা হয়েছে" : "Order Cancelled by Customer"}
+                    </p>
+                    <p className="opacity-80 text-[11px] font-medium mt-0.5">
+                      {isBn
+                        ? "এই অর্ডারটির পণ্যসমূহ স্বয়ংক্রিয়ভাবে পুনরায় স্টকে ফিরিয়ে নেওয়া হয়েছে। কোনো কুরিয়ারে পাঠানোর প্রয়োজন নেই।"
+                        : "Items from this order have been automatically restocked into inventory. No dispatch is required."}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Customer Contact & Address Info */}
               <div className="bg-primary/5 dark:bg-primary/30 p-4 rounded-2xl text-xs space-y-1.5">
                 <p>
@@ -1127,53 +1188,59 @@ export default function OrdersTab({
                   )}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    const ord = selectedOrderDetails;
-                    if (!ord) return;
+                {selectedOrderDetails.tracking_status !== "cancelled" ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const ord = selectedOrderDetails;
+                      if (!ord) return;
 
-                    // Prepaid validation: bKash, Nagad, and Online payments must be marked Complete before dispatching
-                    if (
-                      (ord.payment_method === "B" || ord.payment_method === "N" || ord.payment_method === "O") &&
-                      ord.payment_status !== "C"
-                    ) {
-                      const methodLabel =
-                        ord.payment_method === "B"
-                          ? "bKash"
-                          : ord.payment_method === "N"
-                          ? "Nagad"
-                          : "Online Payment";
-                      Swal.fire({
-                        icon: "error",
-                        title: isBn ? "পেমেন্ট অসম্পূর্ণ" : "Payment Incomplete",
-                        text: isBn
-                          ? `${methodLabel} পেমেন্ট স্ট্যাটাস এখনও "কমপ্লিট (সফল)" করা হয়নি। কুরিয়ারে পাঠাতে বা ট্র্যাক করতে অনুগ্রহ করে আগে পেমেন্ট নিশ্চিত করুন।`
-                          : `${methodLabel} payment has not been marked as Complete yet. Please verify and mark the payment as Complete before dispatching or tracking this order.`,
-                        confirmButtonColor: "#ef4444",
-                      });
-                      return;
-                    }
+                      // Prepaid validation: bKash, Nagad, and Online payments must be marked Complete before dispatching
+                      if (
+                        (ord.payment_method === "B" || ord.payment_method === "N" || ord.payment_method === "O") &&
+                        ord.payment_status !== "C"
+                      ) {
+                        const methodLabel =
+                          ord.payment_method === "B"
+                            ? "bKash"
+                            : ord.payment_method === "N"
+                            ? "Nagad"
+                            : "Online Payment";
+                        Swal.fire({
+                          icon: "error",
+                          title: isBn ? "পেমেন্ট অসম্পূর্ণ" : "Payment Incomplete",
+                          text: isBn
+                            ? `${methodLabel} পেমেন্ট স্ট্যাটাস এখনও "কমপ্লিট (সফল)" করা হয়নি। কুরিয়ারে পাঠাতে বা ট্র্যাক করতে অনুগ্রহ করে আগে পেমেন্ট নিশ্চিত করুন।`
+                            : `${methodLabel} payment has not been marked as Complete yet. Please verify and mark the payment as Complete before dispatching or tracking this order.`,
+                          confirmButtonColor: "#ef4444",
+                        });
+                        return;
+                      }
 
-                    setSelectedOrderDetails(null);
-                    setDispatchOrder(ord);
-                    let initialCourier: number | "manual" = "manual";
-                    if (ord.courier_partner) {
-                      initialCourier = ord.courier_partner;
-                    } else if (ord.tracking_code) {
-                      initialCourier = "manual";
-                    } else if (activeCouriers.length > 0) {
-                      initialCourier = activeCouriers[0].id;
-                    }
+                      setSelectedOrderDetails(null);
+                      setDispatchOrder(ord);
+                      let initialCourier: number | "manual" = "manual";
+                      if (ord.courier_partner) {
+                        initialCourier = ord.courier_partner;
+                      } else if (ord.tracking_code) {
+                        initialCourier = "manual";
+                      } else if (activeCouriers.length > 0) {
+                        initialCourier = activeCouriers[0].id;
+                      }
 
-                    setSelectedCourierId(initialCourier);
-                    setTrackingCodeInput(ord.tracking_code || "");
-                    setTrackingStatusInput((ord.tracking_status as any) || "in_transit");
-                  }}
-                  className="px-3.5 py-1.5 bg-accent text-white rounded-xl text-[11px] font-black uppercase tracking-wider hover:opacity-90 transition-opacity cursor-pointer"
-                >
-                  {t("admin.delivery.dispatchBtn")}
-                </button>
+                      setSelectedCourierId(initialCourier);
+                      setTrackingCodeInput(ord.tracking_code || "");
+                      setTrackingStatusInput((ord.tracking_status as any) || "in_transit");
+                    }}
+                    className="px-3.5 py-1.5 bg-accent text-white rounded-xl text-[11px] font-black uppercase tracking-wider hover:opacity-90 transition-opacity cursor-pointer"
+                  >
+                    {t("admin.delivery.dispatchBtn")}
+                  </button>
+                ) : (
+                  <span className="text-[10px] font-bold text-red-500 uppercase px-2.5 py-1 rounded-lg bg-red-500/10 border border-red-500/20">
+                    {isBn ? "অর্ডারটি বাতিল" : "Cancelled Order"}
+                  </span>
+                )}
 
               </div>
 
