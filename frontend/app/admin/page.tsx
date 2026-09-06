@@ -53,13 +53,13 @@ export default function AdminDashboardPage() {
 
   const [activeTab, setActiveTab] = useState<AdminTab>("dashboard");
   const [productSubTab, setProductSubTab] = useState<ProductSubTab>("all");
-  const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(true);
+  const [isProductsDropdownOpen, setIsProductsDropdownOpen] = useState(false);
   const [collectionSubTab, setCollectionSubTab] = useState<CollectionSubTab>("all");
-  const [isCollectionsDropdownOpen, setIsCollectionsDropdownOpen] = useState(true);
+  const [isCollectionsDropdownOpen, setIsCollectionsDropdownOpen] = useState(false);
   const [orderSubTab, setOrderSubTab] = useState<OrderSubTab>("all");
-  const [isOrdersDropdownOpen, setIsOrdersDropdownOpen] = useState(true);
+  const [isOrdersDropdownOpen, setIsOrdersDropdownOpen] = useState(false);
   const [analyticsSubTab, setAnalyticsSubTab] = useState<AnalyticsSubTab>("sales");
-  const [isAnalyticsDropdownOpen, setIsAnalyticsDropdownOpen] = useState(true);
+  const [isAnalyticsDropdownOpen, setIsAnalyticsDropdownOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
 

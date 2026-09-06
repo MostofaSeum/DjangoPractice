@@ -81,8 +81,8 @@ export default function JoinTheClub() {
   };
 
   return (
-    <section className="bg-secondary text-foreground border border-foreground/10 py-12 md:py-14 px-8 md:px-12 mx-4 md:mx-12 lg:mx-20 rounded-[3rem] shadow-xl flex flex-col items-center text-center relative overflow-hidden group transition-colors duration-300">
-      <div className="absolute top-0 right-0 p-12 opacity-5 transform group-hover:rotate-12 transition-transform duration-700 pointer-events-none group-hover:scale-110">
+    <section className="bg-secondary text-foreground border border-foreground/10 py-10 md:py-14 px-5 sm:px-8 md:px-12 mx-3 sm:mx-8 md:mx-12 lg:mx-20 rounded-3xl md:rounded-[3rem] shadow-xl flex flex-col items-center text-center relative overflow-hidden group transition-colors duration-300">
+      <div className="absolute top-0 right-0 p-8 sm:p-12 opacity-5 transform group-hover:rotate-12 transition-transform duration-700 pointer-events-none group-hover:scale-110">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="200"
@@ -99,25 +99,25 @@ export default function JoinTheClub() {
           <path d="M12 22 16 9l-3-6" />
         </svg>
       </div>
-      <h2 className="text-3xl md:text-4xl font-black uppercase tracking-tighter mb-3 relative z-10">
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tighter mb-2.5 sm:mb-3 relative z-10">
         {t("newsletter.title")}
       </h2>
-      <p className="text-sm opacity-70 font-medium mb-6 md:mb-8 max-w-md relative z-10">
+      <p className="text-xs sm:text-sm opacity-70 font-medium mb-6 md:mb-8 max-w-md relative z-10 px-2">
         {t("newsletter.subtitle")}
       </p>
-      <form onSubmit={handleSubmit} className="flex gap-2 w-full max-w-md relative z-10">
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 w-full max-w-md relative z-10">
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder={t("newsletter.placeholder")}
           required
-          className="flex-1 bg-secondary border border-foreground/15 rounded-2xl px-6 py-4 text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
+          className="w-full sm:flex-1 bg-secondary border border-foreground/15 rounded-xl sm:rounded-2xl px-5 sm:px-6 py-3.5 sm:py-4 text-xs font-bold text-foreground placeholder:text-foreground/50 outline-none focus:ring-2 focus:ring-accent transition-all shadow-sm"
         />
         <button
           type="submit"
           disabled={loading}
-          className="bg-button-bg text-button-fg px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-0.5 duration-300 disabled:opacity-50 cursor-pointer"
+          className="w-full sm:w-auto bg-button-bg text-button-fg px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-xs uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center shadow-md hover:shadow-lg hover:-translate-y-0.5 duration-300 disabled:opacity-50 cursor-pointer shrink-0"
         >
           {loading ? t("newsletter.subscribing") : t("newsletter.subscribe")}
         </button>
