@@ -263,7 +263,7 @@ export default function ProfilePage() {
 
     const orderIdLabel = locale === "bn" ? order.id.toLocaleString("bn-BD") : String(order.id);
     const confirmTitle = (t("profile.cancelOrderConfirmTitle") || "Cancel Order #{orderId}?").replace("{orderId}", orderIdLabel);
-    const confirmText = t("profile.cancelOrderConfirmText") || "Are you sure you want to cancel this order? This action cannot be undone and items will be returned to stock.";
+    const confirmText = t("profile.cancelOrderConfirmText") || "Are you sure you want to cancel this order? This action cannot be undone";
 
     const result = await Swal.fire({
       title: confirmTitle,
@@ -272,7 +272,7 @@ export default function ProfilePage() {
       input: "text",
       inputPlaceholder: t("profile.cancelOrderReasonPrompt") || (locale === "bn" ? "বাতিল করার কারণ (ঐচ্ছিক):" : "Reason for cancellation (optional):"),
       showCancelButton: true,
-      confirmButtonColor: "#ef4444",
+      confirmButtonColor: "var(--hidden)",
       cancelButtonColor: "var(--accent)",
       confirmButtonText: locale === "bn" ? "হ্যাঁ, বাতিল করুন" : "Yes, Cancel Order",
       cancelButtonText: locale === "bn" ? "না, ফিরে যান" : "No, Keep Order",
@@ -318,7 +318,7 @@ export default function ProfilePage() {
             icon: "error",
             title: locale === "bn" ? "বাতিল করা সম্ভব হয়নি" : "Cancellation Failed",
             text: errData.error || errData.detail || (locale === "bn" ? "অর্ডার বাতিল করতে সমস্যা হয়েছে।" : "Could not cancel order."),
-            confirmButtonColor: "#ef4444",
+            confirmButtonColor: "var(--hidden)",
           });
         }
       } catch (err: any) {
@@ -327,7 +327,7 @@ export default function ProfilePage() {
           icon: "error",
           title: locale === "bn" ? "নেটওয়ার্ক ত্রুটি" : "Network Error",
           text: err.message || (locale === "bn" ? "সার্ভারে সংযোগ করা যায়নি।" : "Failed to connect to server."),
-          confirmButtonColor: "#ef4444",
+          confirmButtonColor: "var(--hidden)",
         });
       }
     }
@@ -1072,7 +1072,7 @@ export default function ProfilePage() {
                         key={ord.id}
                         className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 shadow-xs space-y-3 ${
                           isOrderCancelled
-                            ? "bg-red-500/5 border-red-500/20 opacity-75 hover:bg-red-500/10"
+                            ? "bg-hidden/5 border-hidden/20 opacity-75 hover:bg-hidden/10"
                             : "border-foreground/12 bg-background/50 hover:bg-background/80 hover:border-foreground/25"
                         }`}
                       >
@@ -1108,7 +1108,7 @@ export default function ProfilePage() {
                           <span
                             className={`self-start sm:self-auto px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border shrink-0 ${
                               isOrderCancelled
-                                ? "bg-red-500/15 text-red-500 border-red-500/30"
+                                ? "bg-hidden/15 text-hidden border-hidden/30"
                                 : ord.payment_status === "C"
                                 ? "bg-visible/10 text-visible border-visible/20"
                                 : ord.payment_status === "P"
@@ -1338,7 +1338,7 @@ export default function ProfilePage() {
                   <span
                     className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${
                       selectedOrderDetails.tracking_status === "cancelled" || selectedOrderDetails.payment_status === "F"
-                        ? "bg-red-500/15 text-red-500 border-red-500/30"
+                        ? "bg-hidden/15 text-hidden border-hidden/30"
                         : selectedOrderDetails.payment_status === "C"
                         ? "bg-visible/10 text-visible border-visible/20"
                         : selectedOrderDetails.payment_status === "P"
@@ -1357,7 +1357,7 @@ export default function ProfilePage() {
 
                   {/* Cancel Order Button on Left of actions */}
                   {selectedOrderDetails.tracking_status === "cancelled" ? (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-red-500/10 text-red-500 border border-red-500/25">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-hidden/10 text-hidden border border-hidden/25">
                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="12" cy="12" r="10"></circle>
                         <line x1="15" y1="9" x2="9" y2="15"></line>
@@ -1375,7 +1375,7 @@ export default function ProfilePage() {
                           (selectedOrderDetails.tracking_status || "").toLowerCase()
                         )
                           ? "opacity-40 bg-foreground/5 text-foreground/50 border-foreground/15 hover:opacity-60"
-                          : "bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 border-red-500/30 active:scale-95 shadow-xs"
+                          : "bg-hidden/10 hover:bg-hidden hover:text-button-fg text-hidden border-hidden/30 active:scale-95 shadow-xs"
                       }`}
                       title={
                         selectedOrderDetails.payment_status === "C" ||

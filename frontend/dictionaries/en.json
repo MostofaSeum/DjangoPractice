@@ -229,7 +229,7 @@
     "viewReturnStatus": "View Return Status",
     "cancelOrderBtn": "Cancel Order",
     "cancelOrderConfirmTitle": "Cancel Order #{orderId}?",
-    "cancelOrderConfirmText": "Are you sure you want to cancel this order? This action cannot be undone and items will be returned to stock.",
+    "cancelOrderConfirmText": "Are you sure you want to cancel this order? This action cannot be undone",
     "cancelOrderReasonPrompt": "Reason for cancellation (optional):",
     "cancelOrderSuccess": "Order #{orderId} has been successfully cancelled.",
     "orderPackedAlertTitle": "Order Already Packed",

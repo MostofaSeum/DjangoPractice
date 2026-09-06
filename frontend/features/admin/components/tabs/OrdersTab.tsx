@@ -297,25 +297,25 @@ export default function OrdersTab({
                   id: "P" as const,
                   label: isBn ? "পেন্ডিং (অপেক্ষারত)" : "Pending",
                   count: orders.filter((o) => o.payment_status === "P").length,
-                  color: "text-amber-500",
+                  color: "text-accent",
                 },
                 {
                   id: "C" as const,
                   label: isBn ? "সফল (কমপ্লিট)" : "Complete",
                   count: orders.filter((o) => o.payment_status === "C").length,
-                  color: "text-emerald-500",
+                  color: "text-visible",
                 },
                 {
                   id: "F" as const,
                   label: isBn ? "ব্যর্থ (ফেইল্ড)" : "Failed",
                   count: orders.filter((o) => o.payment_status === "F" && o.tracking_status !== "cancelled").length,
-                  color: "text-red-500",
+                  color: "text-hidden",
                 },
                 {
                   id: "CANCELLED" as const,
                   label: isBn ? "বাতিলকৃত" : "Cancelled",
                   count: orders.filter((o) => o.tracking_status === "cancelled").length,
-                  color: "text-red-600",
+                  color: "text-hidden",
                 },
               ].map((statusBtn) => {
                 const isSelected = orderStatusFilter === statusBtn.id;
@@ -468,7 +468,7 @@ export default function OrdersTab({
                     title={isCancelled ? (isBn ? "গ্রাহক দ্বারা অর্ডারটি বাতিল করা হয়েছে" : "Order cancelled by customer") : undefined}
                     className={`transition-colors ${
                       isCancelled
-                        ? "opacity-60 bg-red-500/5 hover:bg-red-500/10 border-l-4 border-l-red-500"
+                        ? "opacity-60 bg-hidden/5 hover:bg-hidden/10 border-l-4 border-l-hidden"
                         : "hover:bg-primary/5 dark:hover:bg-primary/30"
                     }`}
                   >
@@ -476,7 +476,7 @@ export default function OrdersTab({
                       <div className="flex items-center gap-1.5">
                         <span>{isBn ? `অর্ডার #${displayOrderId}` : `Order #${order.id}`}</span>
                         {isCancelled && (
-                          <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30">
+                          <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-hidden/15 text-hidden border border-hidden/30">
                             {isBn ? "বাতিল" : "Cancelled"}
                           </span>
                         )}
@@ -526,7 +526,7 @@ export default function OrdersTab({
                         }
                         className={`px-3 py-1 rounded-full text-[10px] uppercase font-black tracking-wider outline-none border ${
                           isCancelled
-                            ? "bg-red-500/10 text-red-500 border-red-500/30 cursor-not-allowed opacity-75"
+                            ? "bg-hidden/10 text-hidden border-hidden/30 cursor-not-allowed opacity-75"
                             : order.payment_status === "C"
                             ? "bg-visible/15 text-visible border-visible/30 cursor-pointer"
                             : order.payment_status === "F"
@@ -560,7 +560,7 @@ export default function OrdersTab({
                           title={isCancelled ? (isBn ? "গ্রাহক দ্বারা অর্ডারটি বাতিল করা হয়েছে" : "Order cancelled by customer") : undefined}
                           className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
                             isCancelled
-                              ? "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30"
+                              ? "bg-hidden/15 text-hidden border-hidden/30"
                               : order.tracking_status === "delivered"
                               ? "bg-visible/15 text-visible border-visible/30"
                               : order.tracking_status === "returned"
@@ -874,7 +874,7 @@ export default function OrdersTab({
             <div className="flex-1 overflow-y-auto pr-1 space-y-5">
               {/* Order Cancelled Warning Banner */}
               {selectedOrderDetails.tracking_status === "cancelled" && (
-                <div className="p-3.5 rounded-2xl bg-red-500/10 border border-red-500/25 flex items-center gap-3 text-red-600 dark:text-red-400">
+                <div className="p-3.5 rounded-2xl bg-hidden/10 border border-hidden/25 flex items-center gap-3 text-hidden">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                     <circle cx="12" cy="12" r="10"></circle>
                     <line x1="15" y1="9" x2="9" y2="15"></line>
@@ -1237,7 +1237,7 @@ export default function OrdersTab({
                     {t("admin.delivery.dispatchBtn")}
                   </button>
                 ) : (
-                  <span className="text-[10px] font-bold text-red-500 uppercase px-2.5 py-1 rounded-lg bg-red-500/10 border border-red-500/20">
+                  <span className="text-[10px] font-bold text-hidden uppercase px-2.5 py-1 rounded-lg bg-hidden/10 border border-hidden/20">
                     {isBn ? "অর্ডারটি বাতিল" : "Cancelled Order"}
                   </span>
                 )}
