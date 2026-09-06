@@ -12,13 +12,14 @@
 | 1 | `orders/` | GET | Customer / Staff | List customer orders (Staff sees all orders across system) |
 | 2 | `orders/` | POST | Customer | Place an express order from cart (COD, bKash, Nagad, VibeCoin) |
 | 3 | `orders/<id>/` | GET | Customer / Staff | Retrieve single order details, items, courier status, and return history |
-| 4 | `orders/<id>/` | PATCH | Staff Only | Update payment status or perform live order modifications |
-| 5 | `orders/<id>/` | DELETE | Staff Only | Cancel or remove an order record |
-| 6 | `addresses/` | GET / POST | Customer | List up to 5 saved delivery addresses or create a new address |
-| 7 | `addresses/<id>/` | PUT / PATCH / DELETE | Customer | Update details or remove a saved delivery address |
-| 8 | `addresses/<id>/set_default/`| POST | Customer | Set a specific address as primary default |
-| 9 | `customers/me/` | GET / PUT | Customer | Retrieve current buyer profile and active VibeCoin rewards balance |
-| 10 | `customers/<id>/history/` | GET | Staff Only | View full lifetime order history and spend metrics for a customer |
+| 4 | `orders/<id>/cancel_order/` | POST | Customer / Staff | Cancel an active order before fulfillment / completion |
+| 5 | `orders/<id>/` | PATCH | Staff Only | Update payment status or perform live order modifications |
+| 6 | `orders/<id>/` | DELETE | Staff Only | Cancel or remove an order record |
+| 7 | `addresses/` | GET / POST | Customer | List up to 5 saved delivery addresses or create a new address |
+| 8 | `addresses/<id>/` | PUT / PATCH / DELETE | Customer | Update details or remove a saved delivery address |
+| 9 | `addresses/<id>/set_default/`| POST | Customer | Set a specific address as primary default |
+| 10 | `customers/me/` | GET / PUT | Customer | Retrieve current buyer profile and active VibeCoin rewards balance |
+| 11 | `customers/<id>/history/` | GET | Staff Only | View full lifetime order history and spend metrics for a customer |
 
 ---
 
@@ -148,7 +149,60 @@ Allows merchant staff to modify item quantities, change variants, adjust deliver
 
 ---
 
-## 3. Customer Address Book Management
+## 3. Cancel Order (Customer / Staff)
+
+### `POST /api/v1/store/orders/{id}/cancel_order/`
+Allows customers to cancel an active order before it is packed, dispatched, or marked complete. Automatically restores product & variant inventories and triggers an admin notification.
+
+* **Who Can Use:** Authenticated Owner (`customer`) or Staff (`IsAdminUser`)
+* **Cancellation Rules:**
+  * Order payment status must be `Pending` (`payment_status = 'P'`).
+  * Order fulfillment status must be `Pending Dispatch` (`tracking_status = 'pending'`).
+  * If payment is marked Complete (`'C'`) or tracking milestone is `'packed'`, `'in_transit'`, `'out_for_delivery'`, or `'delivered'`, cancellation is rejected.
+  * Successfully cancelling updates `tracking_status` to `'cancelled'`, restores reserved inventory to active stock, and creates an audit notification for admin review.
+
+#### Success Response (`200 OK`):
+```json
+{
+  "message": "Order #142 has been cancelled successfully.",
+  "order": {
+    "id": 142,
+    "payment_status": "P",
+    "tracking_status": "cancelled",
+    "tracking_status_display": "Cancelled by Customer"
+  }
+}
+```
+
+#### Error Responses:
+* **`400 Bad Request`** (Order already packed or delivered):
+```json
+{
+  "error": "This order has already been packed or dispatched and cannot be cancelled directly. Please contact support or request a return upon delivery."
+}
+```
+* **`400 Bad Request`** (Payment already marked Complete):
+```json
+{
+  "error": "Orders with completed payment cannot be cancelled directly. Please contact support or submit a return claim."
+}
+```
+* **`400 Bad Request`** (Already cancelled):
+```json
+{
+  "error": "This order has already been cancelled."
+}
+```
+* **`403 Forbidden`** (Logged-in user is neither order owner nor staff):
+```json
+{
+  "error": "You do not have permission to cancel this order."
+}
+```
+
+---
+
+## 4. Customer Address Book Management
 
 ### `GET /api/v1/store/addresses/`
 Lists all saved shipping addresses for the authenticated customer (capped at 5 addresses).
@@ -239,7 +293,7 @@ Marks a saved address as default. Automatically unsets any previous default addr
 
 ---
 
-## 4. Customer Profile & Rewards Balance
+## 5. Customer Profile & Rewards Balance
 
 ### `GET /api/v1/store/customers/me/`
 Returns the authenticated customer profile, tier, and VibeCoin rewards balance.

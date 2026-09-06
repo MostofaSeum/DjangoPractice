@@ -25,7 +25,7 @@
 Dispatches an order to an integrated courier partner or manual delivery runner. Auto-generates a formatted tracking code if left blank.
 
 * **Who Can Use:** Staff Only (`IsAdminUser`)
-* **Tracking Status Choices:** `pending`, `packed`, `in_transit`, `out_for_delivery`, `delivered`, `returned`
+* **Tracking Status Choices:** `pending`, `packed`, `in_transit`, `out_for_delivery`, `delivered`, `returned`, `cancelled`
 
 #### Request Body:
 ```json

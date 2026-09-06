@@ -72,11 +72,13 @@ Returns a paginated list of catalog products. Supports keyword search, price fil
       "discounted_price": "765.00",
       "is_discount_active": true,
       "inventory": 45,
+      "total_inventory": 65, // Sum of active variant stocks if variants exist; otherwise base inventory
       "collection": 2,
       "collection_title": "Lip Care",
       "is_photos_published": true,
       "is_trending": true,
       "is_visible": true,
+      "units_sold": 38, // Units sold across valid orders (automatically excludes cancelled & failed orders)
       "average_rating": 4.8,
       "review_count": 12,
       "images": [
