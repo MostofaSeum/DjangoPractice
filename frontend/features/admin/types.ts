@@ -79,7 +79,8 @@ export interface Order {
     | "in_transit"
     | "out_for_delivery"
     | "delivered"
-    | "returned";
+    | "returned"
+    | "cancelled";
   tracking_status_display?: string;
   courier_consignment_id?: string;
   courier_response?: any;

@@ -107,7 +107,7 @@ export default function OrdersTab({
   const [orderSearch, setOrderSearch] = useState("");
   const [activeOrderQuery, setActiveOrderQuery] = useState("");
   const [orderStatusFilter, setOrderStatusFilter] = useState<
-    "ALL" | "P" | "F" | "C"
+    "ALL" | "P" | "F" | "C" | "CANCELLED"
   >("ALL");
   const [returnStatusSubFilter, setReturnStatusSubFilter] = useState<
     "ALL" | "pending" | "approved" | "rejected"
@@ -157,6 +157,7 @@ export default function OrdersTab({
 
   const getTrackingStatusLabel = (status?: string, fallbackDisplay?: string) => {
     const raw = (status || fallbackDisplay || "").toLowerCase().replace(/[\s/-]+/g, "_");
+    if (raw.includes("cancel")) return isBn ? "বাতিলকৃত" : "Cancelled";
     if (raw.includes("pending")) return t("admin.delivery.statusPending");
     if (raw.includes("pack")) return t("admin.delivery.statusPacked");
     if (raw.includes("transit") || raw.includes("dispatch")) return t("admin.delivery.statusInTransit");
@@ -205,7 +206,8 @@ export default function OrdersTab({
         return o.return_requests?.some((r) => r.status === returnStatusSubFilter);
       }
       if (orderStatusFilter === "ALL") return true;
-      return o.payment_status === orderStatusFilter;
+      if (orderStatusFilter === "CANCELLED") return o.tracking_status === "cancelled";
+      return o.payment_status === orderStatusFilter && o.tracking_status !== "cancelled";
     })
     .filter((o) => {
       if (!activeOrderQuery) return true;
@@ -305,9 +307,15 @@ export default function OrdersTab({
                 },
                 {
                   id: "F" as const,
-                  label: isBn ? "ব্যর্থ / বাতিল" : "Failed",
-                  count: orders.filter((o) => o.payment_status === "F").length,
+                  label: isBn ? "ব্যর্থ (ফেইল্ড)" : "Failed",
+                  count: orders.filter((o) => o.payment_status === "F" && o.tracking_status !== "cancelled").length,
                   color: "text-red-500",
+                },
+                {
+                  id: "CANCELLED" as const,
+                  label: isBn ? "বাতিলকৃত" : "Cancelled",
+                  count: orders.filter((o) => o.tracking_status === "cancelled").length,
+                  color: "text-red-600",
                 },
               ].map((statusBtn) => {
                 const isSelected = orderStatusFilter === statusBtn.id;

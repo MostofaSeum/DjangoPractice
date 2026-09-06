@@ -82,6 +82,11 @@ export default function AdminNotificationBell({
       translatedTitle = formatTemplate(t("notifications.newOrderTitle"), {
         orderId: toBnDigits(orderNum),
       });
+    } else if (title.startsWith("Order #") && title.includes("Cancelled")) {
+      const orderNum = title.replace("Order #", "").replace("Cancelled", "").trim();
+      translatedTitle = formatTemplate(t("notifications.orderCancelledTitle"), {
+        orderId: toBnDigits(orderNum),
+      });
     } else if (title.startsWith("New Return Request for Order #")) {
       const orderNum = title.replace("New Return Request for Order #", "");
       translatedTitle = formatTemplate(t("notifications.newReturnTitle"), {
@@ -96,6 +101,19 @@ export default function AdminNotificationBell({
     }
 
     // Message translations via dictionary
+    // Pattern -1: Customer <customer> cancelled Order #<id>. Reason: <reason>.
+    const cancelMatch = message.match(/Customer\s+([^\s]+)\s+cancelled Order #(\d+)\.\s+Reason:\s+(.+)\./i);
+    if (cancelMatch) {
+      const customer = cancelMatch[1];
+      const orderId = toBnDigits(cancelMatch[2]);
+      const reason = cancelMatch[3];
+      translatedMessage = formatTemplate(t("notifications.orderCancelledMsg"), {
+        customer,
+        orderId,
+        reason,
+      });
+    }
+
     // Pattern 0: Customer @<username> requested a return for Order #<id> (Amount: ৳<amount>). Reason: <reason>.
     const returnMatch = message.match(/Customer\s+@([^\s]+)\s+requested a return for Order #(\d+)\s+\(Amount:\s+৳([\d,.]+)\)\.\s+Reason:\s+(.+)\./i);
     if (returnMatch) {

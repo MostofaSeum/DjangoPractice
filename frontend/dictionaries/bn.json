@@ -226,7 +226,15 @@
     "returnSubmitBtn": "রিটার্ন অনুরোধ জমা দিন",
     "returnSubmitting": "অনুরোধ পাঠানো হচ্ছে...",
     "returnSuccessMsg": "রিটার্ন অনুরোধ সফলভাবে গৃহীত হয়েছে! দ্রুত পর্যালোচনা করে জানানো হবে।",
-    "viewReturnStatus": "রিটার্ন অবস্থা দেখুন"
+    "viewReturnStatus": "রিটার্ন অবস্থা দেখুন",
+    "cancelOrderBtn": "অর্ডার বাতিল করুন",
+    "cancelOrderConfirmTitle": "অর্ডার #{orderId} বাতিল করবেন?",
+    "cancelOrderConfirmText": "আপনি কি নিশ্চিতভাবে এই অর্ডারটি বাতিল করতে চান? পণ্যসমূহ পুনরায় স্টকে ফেরত চলে যাবে।",
+    "cancelOrderReasonPrompt": "বাতিল করার কারণ (ঐচ্ছিক):",
+    "cancelOrderSuccess": "অর্ডার #{orderId} সফলভাবে বাতিল করা হয়েছে।",
+    "orderPackedAlertTitle": "পণ্যটি ইতোমধ্যে প্যাক করা হয়েছে",
+    "orderPackedAlertMsg": "আপনার পণ্যটি ইতোমধ্যে প্যাক করা হয়েছে, এখন আর এটি বাতিল করা সম্ভব নয়। আপনি পণ্যটি গ্রহণ করার পর রিটার্নের জন্য আবেদন করতে পারেন।",
+    "statusCancelledBadge": "বাতিলকৃত"
   },
   "footer": {
     "aboutUs": "আমাদের সম্পর্কে",
@@ -517,6 +525,8 @@
     "newOrderMsg": "গ্রাহক {phone} ৳{total} ({paymentMethod})-এর একটি নতুন অর্ডার সম্পন্ন করেছেন।",
     "newReturnTitle": "রিটার্ন অনুরোধ: অর্ডার #{orderId}",
     "newReturnMsg": "গ্রাহক @{customer} অর্ডার #{orderId}-এর জন্য ৳{total} মূল্যের রিটার্ন অনুরোধ করেছেন। কারণ: {reason}।",
+    "orderCancelledTitle": "অর্ডার #{orderId} বাতিল হয়েছে",
+    "orderCancelledMsg": "গ্রাহক {customer} অর্ডার #{orderId} বাতিল করেছেন। কারণ: {reason}।",
     "promoExpiringTitle": "প্রমোশনের মেয়াদ দ্রুত শেষ হচ্ছে!",
     "promoExpiringMsg": "'{desc}' প্রমোশনটি ({discount}% ছাড়) শেষ হতে আর মাত্র {timeLeft} বাকি আছে।",
     "prodPromoExpiringTitle": "পণ্যের প্রমোশনের মেয়াদ দ্রুত শেষ হচ্ছে!",

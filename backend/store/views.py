@@ -764,6 +764,88 @@ class OrderViewSet(ModelViewSet):
         order.items.all().delete()
         return super().destroy(request, *args, **kwargs)
 
+    @action(detail=True, methods=['POST'], permission_classes=[IsAuthenticated])
+    def cancel_order(self, request, pk=None):
+        order = self.get_object()
+        user = request.user
+
+        # Permission check: must be owner of order or staff
+        if not user.is_staff:
+            try:
+                customer = Customer.objects.get(user_id=user.id)
+                if order.customer_id != customer.id:
+                    return Response({'error': 'You do not have permission to cancel this order.'}, status=status.HTTP_403_FORBIDDEN)
+            except Customer.DoesNotExist:
+                return Response({'error': 'Customer profile not found.'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Check if already cancelled
+        if order.tracking_status == Order.TRACKING_CANCELLED:
+            return Response({'error': 'This order has already been cancelled.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Business Rule: Once payment is complete or order is packed/dispatched, cancellation is blocked
+        if order.payment_status == Order.PAYMENT_STATUS_COMPLETE or order.tracking_status in [
+            Order.TRACKING_PACKED,
+            Order.TRACKING_IN_TRANSIT,
+            Order.TRACKING_OUT_FOR_DELIVERY,
+            Order.TRACKING_DELIVERED
+        ]:
+            return Response({
+                'error': 'Your product is already packed, you cannot cancel it now. You can receive the product and then claim for return.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        cancel_reason = request.data.get('reason', '').strip() or 'Cancelled by customer'
+
+        with transaction.atomic():
+            order.payment_status = Order.PAYMENT_STATUS_FAILED
+            order.tracking_status = Order.TRACKING_CANCELLED
+            order.save(update_fields=['payment_status', 'tracking_status'])
+
+            # Restock inventory for all items in this order
+            for item in order.items.select_related('product', 'variant').all():
+                qty = item.quantity
+                if item.variant_id:
+                    ProductVariant.objects.filter(pk=item.variant_id).update(
+                        inventory=F('inventory') + qty
+                    )
+                if item.product_id:
+                    Product.objects.filter(pk=item.product_id).update(
+                        inventory=F('inventory') + qty
+                    )
+
+            # Record AuditLog
+            try:
+                AuditLog.objects.create(
+                    entity_name="Order",
+                    entity_id=str(order.id),
+                    action=AuditLog.ACTION_UPDATE,
+                    performed_by=user,
+                    performed_by_name=f"{user.first_name} {user.last_name}".strip() or user.username,
+                    changes={
+                        "action": "order_cancelled",
+                        "order_id": order.id,
+                        "reason": cancel_reason,
+                        "restocked": True
+                    }
+                )
+            except Exception as e:
+                print(f"Failed to record audit log on cancellation: {e}")
+
+            # Create an Admin notification for the cancellation
+            try:
+                customer_label = f"@{user.username}" if user.username else (order.phone or f"Customer #{order.customer_id}")
+                Notification.objects.create(
+                    title=f"Order #{order.id} Cancelled",
+                    message=f"Customer {customer_label} cancelled Order #{order.id}. Reason: {cancel_reason}.",
+                    notification_type=Notification.TYPE_ORDER,
+                    target_id=str(order.id),
+                    is_read=False
+                )
+            except Exception as e:
+                print(f"Failed to create notification on cancellation: {e}")
+
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     @action(detail=True, methods=['POST'], permission_classes=[IsAdminUser])
     def dispatch_courier(self, request, pk=None):
         order = self.get_object()

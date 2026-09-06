@@ -226,7 +226,15 @@
     "returnSubmitBtn": "Submit Return Request",
     "returnSubmitting": "Submitting Request...",
     "returnSuccessMsg": "Return request submitted successfully! We will review it shortly.",
-    "viewReturnStatus": "View Return Status"
+    "viewReturnStatus": "View Return Status",
+    "cancelOrderBtn": "Cancel Order",
+    "cancelOrderConfirmTitle": "Cancel Order #{orderId}?",
+    "cancelOrderConfirmText": "Are you sure you want to cancel this order? This action cannot be undone and items will be returned to stock.",
+    "cancelOrderReasonPrompt": "Reason for cancellation (optional):",
+    "cancelOrderSuccess": "Order #{orderId} has been successfully cancelled.",
+    "orderPackedAlertTitle": "Order Already Packed",
+    "orderPackedAlertMsg": "Your product is already packed, you cannot cancel it now. You can receive the product and then claim for return.",
+    "statusCancelledBadge": "Cancelled"
   },
   "footer": {
     "aboutUs": "About Us",
@@ -517,6 +525,8 @@
     "newOrderMsg": "Customer {phone} placed an order for ৳{total} ({paymentMethod}).",
     "newReturnTitle": "Return Request: Order #{orderId}",
     "newReturnMsg": "Customer @{customer} requested a return for Order #{orderId} (৳{total}). Reason: {reason}.",
+    "orderCancelledTitle": "Order #{orderId} Cancelled",
+    "orderCancelledMsg": "Customer {customer} cancelled Order #{orderId}. Reason: {reason}.",
     "promoExpiringTitle": "Promotion Expiring Soon!",
     "promoExpiringMsg": "Only {timeLeft} left before promotion '{desc}' ({discount}% OFF) expires.",
     "prodPromoExpiringTitle": "Product Promotion Expiring Soon!",

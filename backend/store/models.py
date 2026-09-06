@@ -239,6 +239,7 @@ class Order(models.Model):
     TRACKING_OUT_FOR_DELIVERY = 'out_for_delivery'
     TRACKING_DELIVERED = 'delivered'
     TRACKING_RETURNED = 'returned'
+    TRACKING_CANCELLED = 'cancelled'
     TRACKING_STATUS_CHOICES = [
         (TRACKING_PENDING, 'Pending Dispatch'),
         (TRACKING_PACKED, 'Packed / Ready'),
@@ -246,6 +247,7 @@ class Order(models.Model):
         (TRACKING_OUT_FOR_DELIVERY, 'Out for Delivery'),
         (TRACKING_DELIVERED, 'Delivered'),
         (TRACKING_RETURNED, 'Returned / Failed'),
+        (TRACKING_CANCELLED, 'Cancelled by Customer'),
     ]
 
     placed_at = models.DateTimeField(auto_now_add=True)
