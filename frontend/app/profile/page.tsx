@@ -178,6 +178,7 @@ export default function ProfilePage() {
 
   const getTrackingStatusLabel = (status?: string, fallbackDisplay?: string) => {
     const raw = (status || fallbackDisplay || "").toLowerCase().replace(/[\s/-]+/g, "_");
+    if (raw.includes("cancel")) return t("profile.statusCancelledBadge") || (locale === "bn" ? "বাতিলকৃত" : "Cancelled");
     if (raw.includes("pending")) return t("profile.statusPending") || (locale === "bn" ? "পেন্ডিং (অপেক্ষারত)" : "Pending Dispatch");
     if (raw.includes("pack")) return t("profile.step1Title") || (locale === "bn" ? "প্যাকড ও প্রস্তুত" : "Packed & Ready");
     if (raw.includes("transit") || raw.includes("dispatch")) return t("profile.step2Title") || (locale === "bn" ? "কুরিয়ারে পাঠানো হয়েছে" : "Dispatched / In Transit");
@@ -229,6 +230,106 @@ export default function ProfilePage() {
       }
     } else {
       setReviewOrder(order);
+    }
+  };
+
+  const handleCancelOrder = async (order: Order) => {
+    // If payment is complete or order is already packed/in transit/delivered, cannot cancel
+    const isPackedOrBeyond =
+      order.payment_status === "C" ||
+      ["packed", "in_transit", "out_for_delivery", "delivered"].includes(
+        (order.tracking_status || "").toLowerCase()
+      );
+
+    if (isPackedOrBeyond) {
+      Swal.fire({
+        icon: "info",
+        title: t("profile.orderPackedAlertTitle") || (locale === "bn" ? "পণ্যটি ইতোমধ্যে প্যাক করা হয়েছে" : "Order Already Packed"),
+        text: t("profile.orderPackedAlertMsg") || (locale === "bn" ? "আপনার পণ্যটি ইতোমধ্যে প্যাক করা হয়েছে, এখন আর এটি বাতিল করা সম্ভব নয়। আপনি পণ্যটি গ্রহণ করার পর রিটার্নের জন্য আবেদন করতে পারেন।" : "Your product is already packed, you cannot cancel it now. You can receive the product and then claim for return."),
+        confirmButtonColor: "var(--primary)",
+      });
+      return;
+    }
+
+    if (order.tracking_status === "cancelled" || order.payment_status === "F") {
+      Swal.fire({
+        icon: "info",
+        title: locale === "bn" ? "অর্ডারটি ইতোমধ্যে বাতিল করা হয়েছে" : "Order Already Cancelled",
+        text: locale === "bn" ? "এই অর্ডারটি ইতোমধ্যে বাতিল রয়েছে।" : "This order has already been cancelled.",
+        confirmButtonColor: "var(--primary)",
+      });
+      return;
+    }
+
+    const orderIdLabel = locale === "bn" ? order.id.toLocaleString("bn-BD") : String(order.id);
+    const confirmTitle = (t("profile.cancelOrderConfirmTitle") || "Cancel Order #{orderId}?").replace("{orderId}", orderIdLabel);
+    const confirmText = t("profile.cancelOrderConfirmText") || "Are you sure you want to cancel this order? This action cannot be undone and items will be returned to stock.";
+
+    const result = await Swal.fire({
+      title: confirmTitle,
+      text: confirmText,
+      icon: "warning",
+      input: "text",
+      inputPlaceholder: t("profile.cancelOrderReasonPrompt") || (locale === "bn" ? "বাতিল করার কারণ (ঐচ্ছিক):" : "Reason for cancellation (optional):"),
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "var(--accent)",
+      confirmButtonText: locale === "bn" ? "হ্যাঁ, বাতিল করুন" : "Yes, Cancel Order",
+      cancelButtonText: locale === "bn" ? "না, ফিরে যান" : "No, Keep Order",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const reason = result.value?.trim() || (locale === "bn" ? "গ্রাহক কর্তৃক বাতিলকৃত" : "Cancelled by customer");
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = `JWT ${token}`;
+
+        const res = await fetch(`${API_BASE}/store/orders/${order.id}/cancel_order/`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ reason }),
+          credentials: "include",
+        });
+
+        if (res.ok) {
+          const updatedOrder = await res.json();
+          // Update local orders state
+          setMyOrders((prev) =>
+            prev.map((ord) => (ord.id === order.id ? { ...ord, ...updatedOrder, tracking_status: "cancelled", payment_status: "F" } : ord))
+          );
+          if (selectedOrderDetails && selectedOrderDetails.id === order.id) {
+            setSelectedOrderDetails((prev) =>
+              prev ? { ...prev, ...updatedOrder, tracking_status: "cancelled", payment_status: "F" } : null
+            );
+          }
+
+          const successMsg = (t("profile.cancelOrderSuccess") || "Order #{orderId} has been successfully cancelled.").replace("{orderId}", orderIdLabel);
+          Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: successMsg,
+            showConfirmButton: false,
+            timer: 2200,
+            toast: true,
+          });
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          Swal.fire({
+            icon: "error",
+            title: locale === "bn" ? "বাতিল করা সম্ভব হয়নি" : "Cancellation Failed",
+            text: errData.error || errData.detail || (locale === "bn" ? "অর্ডার বাতিল করতে সমস্যা হয়েছে।" : "Could not cancel order."),
+            confirmButtonColor: "#ef4444",
+          });
+        }
+      } catch (err: any) {
+        console.error("Cancel order error:", err);
+        Swal.fire({
+          icon: "error",
+          title: locale === "bn" ? "নেটওয়ার্ক ত্রুটি" : "Network Error",
+          text: err.message || (locale === "bn" ? "সার্ভারে সংযোগ করা যায়নি।" : "Failed to connect to server."),
+          confirmButtonColor: "#ef4444",
+        });
+      }
     }
   };
 
@@ -955,8 +1056,12 @@ export default function ProfilePage() {
                       ? new Date(ord.placed_at).toLocaleString(locale === "bn" ? "bn-BD" : "en-US")
                       : "N/A";
 
+                    const isOrderCancelled = ord.tracking_status === "cancelled" || ord.payment_status === "F";
+
                     const paymentStatusLabel =
-                      ord.payment_status === "C"
+                      ord.tracking_status === "cancelled"
+                        ? (t("profile.statusCancelledBadge") || (locale === "bn" ? "বাতিলকৃত" : "Cancelled"))
+                        : ord.payment_status === "C"
                         ? t("profile.statusComplete")
                         : ord.payment_status === "P"
                         ? t("profile.statusPending")
@@ -965,7 +1070,11 @@ export default function ProfilePage() {
                     return (
                       <div
                         key={ord.id}
-                        className="p-4 sm:p-5 rounded-2xl border border-foreground/12 bg-background/50 hover:bg-background/80 hover:border-foreground/25 space-y-3 transition-all duration-200 shadow-xs"
+                        className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 shadow-xs space-y-3 ${
+                          isOrderCancelled
+                            ? "bg-red-500/5 border-red-500/20 opacity-75 hover:bg-red-500/10"
+                            : "border-foreground/12 bg-background/50 hover:bg-background/80 hover:border-foreground/25"
+                        }`}
                       >
                         {/* Row 1: Header (Order ID, Date, Payment Method on Left, Status Badge on Right) */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-foreground/10">
@@ -998,7 +1107,9 @@ export default function ProfilePage() {
 
                           <span
                             className={`self-start sm:self-auto px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border shrink-0 ${
-                              ord.payment_status === "C"
+                              isOrderCancelled
+                                ? "bg-red-500/15 text-red-500 border-red-500/30"
+                                : ord.payment_status === "C"
                                 ? "bg-visible/10 text-visible border-visible/20"
                                 : ord.payment_status === "P"
                                 ? "bg-accent/15 text-accent border-accent/25"
@@ -1226,19 +1337,63 @@ export default function ProfilePage() {
                   )}
                   <span
                     className={`px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${
-                      selectedOrderDetails.payment_status === "C"
+                      selectedOrderDetails.tracking_status === "cancelled" || selectedOrderDetails.payment_status === "F"
+                        ? "bg-red-500/15 text-red-500 border-red-500/30"
+                        : selectedOrderDetails.payment_status === "C"
                         ? "bg-visible/10 text-visible border-visible/20"
                         : selectedOrderDetails.payment_status === "P"
                         ? "bg-accent/15 text-accent border-accent/25"
                         : "bg-hidden/10 text-hidden border-hidden/20"
                     }`}
                   >
-                    {selectedOrderDetails.payment_status === "C"
+                    {selectedOrderDetails.tracking_status === "cancelled"
+                      ? (t("profile.statusCancelledBadge") || (locale === "bn" ? "বাতিলকৃত" : "Cancelled"))
+                      : selectedOrderDetails.payment_status === "C"
                       ? t("profile.statusComplete")
                       : selectedOrderDetails.payment_status === "P"
                       ? t("profile.statusPending")
                       : t("profile.statusFailed")}
                   </span>
+
+                  {/* Cancel Order Button on Left of actions */}
+                  {selectedOrderDetails.tracking_status === "cancelled" ? (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-red-500/10 text-red-500 border border-red-500/25">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                      </svg>
+                      {locale === "bn" ? "অর্ডার বাতিলকৃত" : "Order Cancelled"}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleCancelOrder(selectedOrderDetails)}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all border cursor-pointer ${
+                        selectedOrderDetails.payment_status === "C" ||
+                        ["packed", "in_transit", "out_for_delivery", "delivered"].includes(
+                          (selectedOrderDetails.tracking_status || "").toLowerCase()
+                        )
+                          ? "opacity-40 bg-foreground/5 text-foreground/50 border-foreground/15 hover:opacity-60"
+                          : "bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 border-red-500/30 active:scale-95 shadow-xs"
+                      }`}
+                      title={
+                        selectedOrderDetails.payment_status === "C" ||
+                        ["packed", "in_transit", "out_for_delivery", "delivered"].includes(
+                          (selectedOrderDetails.tracking_status || "").toLowerCase()
+                        )
+                          ? (t("profile.orderPackedAlertMsg") || "Your product is already packed, you cannot cancel it now.")
+                          : (t("profile.cancelOrderBtn") || "Cancel Order")
+                      }
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="15" y1="9" x2="9" y2="15"></line>
+                        <line x1="9" y1="9" x2="15" y2="15"></line>
+                      </svg>
+                      <span>{t("profile.cancelOrderBtn") || (locale === "bn" ? "অর্ডার বাতিল করুন" : "Cancel Order")}</span>
+                    </button>
+                  )}
                 </div>
                 <p className="text-[10px] font-bold opacity-60 uppercase tracking-wider mt-1">
                   {selectedOrderDetails.placed_at
