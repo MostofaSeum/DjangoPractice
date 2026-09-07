@@ -273,6 +273,25 @@ export default function HomepageSettingsSubTab({
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
+  const confirmRemoveImage = (onConfirm: () => void) => {
+    Swal.fire({
+      icon: "warning",
+      title: isBn ? "ছবি মুছে ফেলতে চান?" : "Remove photo?",
+      text: isBn
+        ? "আপনি কি নিশ্চিত যে এই ছবিটি মুছে ফেলতে চান?"
+        : "Are you sure you want to remove this photo?",
+      showCancelButton: true,
+      confirmButtonColor: "var(--button-bg, #111)",
+      cancelButtonColor: "#888",
+      confirmButtonText: isBn ? "হ্যাঁ, মুছে ফেলুন" : "Yes, Remove",
+      cancelButtonText: isBn ? "বাতিল" : "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        onConfirm();
+      }
+    });
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!hasChanges) return;
@@ -645,25 +664,28 @@ export default function HomepageSettingsSubTab({
                 }}
               />
               <div className="flex items-center gap-2">
-                <label
-                  htmlFor="banner-file-input"
-                  className="px-4 py-2 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity cursor-pointer inline-block"
-                >
-                  {isBn ? "ছবি পরিবর্তন" : "Choose Image"}
-                </label>
-                {(bannerPreview !== null || bannerFile !== null) && (
+                {bannerPreview !== null || bannerFile !== null ? (
                   <button
                     type="button"
                     onClick={() => {
-                      setBannerFile(null);
-                      setBannerPreview(null);
-                      const input = document.getElementById("banner-file-input") as HTMLInputElement;
-                      if (input) input.value = "";
+                      confirmRemoveImage(() => {
+                        setBannerFile(null);
+                        setBannerPreview(null);
+                        const input = document.getElementById("banner-file-input") as HTMLInputElement;
+                        if (input) input.value = "";
+                      });
                     }}
-                    className="px-3 py-2 bg-hidden/15 text-hidden hover:bg-hidden hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                    className="px-4 py-2 bg-hidden/15 text-hidden hover:bg-hidden hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     {isBn ? "রিমুভ" : "Remove"}
                   </button>
+                ) : (
+                  <label
+                    htmlFor="banner-file-input"
+                    className="px-4 py-2 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity cursor-pointer inline-block"
+                  >
+                    {isBn ? "ছবি আপলোড" : "Upload"}
+                  </label>
                 )}
               </div>
               <p className="text-[10px] font-semibold text-foreground/70">
@@ -937,23 +959,28 @@ export default function HomepageSettingsSubTab({
                     }
                   }}
                 />
-                <label
-                  htmlFor="bento-1-input"
-                  className="px-3 py-1.5 rounded-lg bg-button-bg text-button-fg text-[10px] font-bold uppercase tracking-wider hover:opacity-90 cursor-pointer"
-                >
-                  {isBn ? "ছবি বদলান" : "Upload"}
-                </label>
-                {(bento1Preview !== null || bento1File !== null) && (
+                {bento1Preview !== null || bento1File !== null ? (
                   <button
                     type="button"
                     onClick={() => {
-                      setBento1File(null);
-                      setBento1Preview(null);
+                      confirmRemoveImage(() => {
+                        setBento1File(null);
+                        setBento1Preview(null);
+                        const input = document.getElementById("bento-1-input") as HTMLInputElement;
+                        if (input) input.value = "";
+                      });
                     }}
                     className="px-2.5 py-1.5 rounded-lg bg-hidden/15 text-hidden hover:bg-hidden hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     {isBn ? "রিমুভ" : "Remove"}
                   </button>
+                ) : (
+                  <label
+                    htmlFor="bento-1-input"
+                    className="px-3 py-1.5 rounded-lg bg-button-bg text-button-fg text-[10px] font-bold uppercase tracking-wider hover:opacity-90 cursor-pointer"
+                  >
+                    {isBn ? "ছবি আপলোড" : "Upload"}
+                  </label>
                 )}
               </div>
             </div>
@@ -1032,23 +1059,28 @@ export default function HomepageSettingsSubTab({
                     }
                   }}
                 />
-                <label
-                  htmlFor="bento-2-input"
-                  className="px-3 py-1.5 rounded-lg bg-button-bg text-button-fg text-[10px] font-bold uppercase tracking-wider hover:opacity-90 cursor-pointer"
-                >
-                  {isBn ? "ছবি বদলান" : "Upload"}
-                </label>
-                {(bento2Preview !== null || bento2File !== null) && (
+                {bento2Preview !== null || bento2File !== null ? (
                   <button
                     type="button"
                     onClick={() => {
-                      setBento2File(null);
-                      setBento2Preview(null);
+                      confirmRemoveImage(() => {
+                        setBento2File(null);
+                        setBento2Preview(null);
+                        const input = document.getElementById("bento-2-input") as HTMLInputElement;
+                        if (input) input.value = "";
+                      });
                     }}
                     className="px-2.5 py-1.5 rounded-lg bg-hidden/15 text-hidden hover:bg-hidden hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     {isBn ? "রিমুভ" : "Remove"}
                   </button>
+                ) : (
+                  <label
+                    htmlFor="bento-2-input"
+                    className="px-3 py-1.5 rounded-lg bg-button-bg text-button-fg text-[10px] font-bold uppercase tracking-wider hover:opacity-90 cursor-pointer"
+                  >
+                    {isBn ? "ছবি আপলোড" : "Upload"}
+                  </label>
                 )}
               </div>
             </div>
@@ -1127,23 +1159,28 @@ export default function HomepageSettingsSubTab({
                     }
                   }}
                 />
-                <label
-                  htmlFor="bento-3-input"
-                  className="px-3 py-1.5 rounded-lg bg-button-bg text-button-fg text-[10px] font-bold uppercase tracking-wider hover:opacity-90 cursor-pointer"
-                >
-                  {isBn ? "ছবি বদলান" : "Upload"}
-                </label>
-                {(bento3Preview !== null || bento3File !== null) && (
+                {bento3Preview !== null || bento3File !== null ? (
                   <button
                     type="button"
                     onClick={() => {
-                      setBento3File(null);
-                      setBento3Preview(null);
+                      confirmRemoveImage(() => {
+                        setBento3File(null);
+                        setBento3Preview(null);
+                        const input = document.getElementById("bento-3-input") as HTMLInputElement;
+                        if (input) input.value = "";
+                      });
                     }}
                     className="px-2.5 py-1.5 rounded-lg bg-hidden/15 text-hidden hover:bg-hidden hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     {isBn ? "রিমুভ" : "Remove"}
                   </button>
+                ) : (
+                  <label
+                    htmlFor="bento-3-input"
+                    className="px-3 py-1.5 rounded-lg bg-button-bg text-button-fg text-[10px] font-bold uppercase tracking-wider hover:opacity-90 cursor-pointer"
+                  >
+                    {isBn ? "ছবি আপলোড" : "Upload"}
+                  </label>
                 )}
               </div>
             </div>
@@ -1222,23 +1259,28 @@ export default function HomepageSettingsSubTab({
                     }
                   }}
                 />
-                <label
-                  htmlFor="bento-4-input"
-                  className="px-3 py-1.5 rounded-lg bg-button-bg text-button-fg text-[10px] font-bold uppercase tracking-wider hover:opacity-90 cursor-pointer"
-                >
-                  {isBn ? "ছবি বদলান" : "Upload"}
-                </label>
-                {(bento4Preview !== null || bento4File !== null) && (
+                {bento4Preview !== null || bento4File !== null ? (
                   <button
                     type="button"
                     onClick={() => {
-                      setBento4File(null);
-                      setBento4Preview(null);
+                      confirmRemoveImage(() => {
+                        setBento4File(null);
+                        setBento4Preview(null);
+                        const input = document.getElementById("bento-4-input") as HTMLInputElement;
+                        if (input) input.value = "";
+                      });
                     }}
                     className="px-2.5 py-1.5 rounded-lg bg-hidden/15 text-hidden hover:bg-hidden hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     {isBn ? "রিমুভ" : "Remove"}
                   </button>
+                ) : (
+                  <label
+                    htmlFor="bento-4-input"
+                    className="px-3 py-1.5 rounded-lg bg-button-bg text-button-fg text-[10px] font-bold uppercase tracking-wider hover:opacity-90 cursor-pointer"
+                  >
+                    {isBn ? "ছবি আপলোড" : "Upload"}
+                  </label>
                 )}
               </div>
             </div>
@@ -1312,23 +1354,28 @@ export default function HomepageSettingsSubTab({
                     }
                   }}
                 />
-                <label
-                  htmlFor="bento-247-input"
-                  className="px-3 py-1.5 rounded-lg bg-button-bg text-button-fg text-[10px] font-bold uppercase tracking-wider hover:opacity-90 cursor-pointer"
-                >
-                  {isBn ? "ছবি বদলান" : "Upload"}
-                </label>
-                {(bento247Preview !== null || bento247File !== null) && (
+                {bento247Preview !== null || bento247File !== null ? (
                   <button
                     type="button"
                     onClick={() => {
-                      setBento247File(null);
-                      setBento247Preview(null);
+                      confirmRemoveImage(() => {
+                        setBento247File(null);
+                        setBento247Preview(null);
+                        const input = document.getElementById("bento-247-input") as HTMLInputElement;
+                        if (input) input.value = "";
+                      });
                     }}
                     className="px-2.5 py-1.5 rounded-lg bg-hidden/15 text-hidden hover:bg-hidden hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     {isBn ? "রিমুভ" : "Remove"}
                   </button>
+                ) : (
+                  <label
+                    htmlFor="bento-247-input"
+                    className="px-3 py-1.5 rounded-lg bg-button-bg text-button-fg text-[10px] font-bold uppercase tracking-wider hover:opacity-90 cursor-pointer"
+                  >
+                    {isBn ? "ছবি আপলোড" : "Upload"}
+                  </label>
                 )}
               </div>
             </div>
@@ -1402,23 +1449,28 @@ export default function HomepageSettingsSubTab({
                     }
                   }}
                 />
-                <label
-                  htmlFor="bento-delivery-input"
-                  className="px-3 py-1.5 rounded-lg bg-button-bg text-button-fg text-[10px] font-bold uppercase tracking-wider hover:opacity-90 cursor-pointer"
-                >
-                  {isBn ? "ছবি বদলান" : "Upload"}
-                </label>
-                {(bentoDeliveryPreview !== null || bentoDeliveryFile !== null) && (
+                {bentoDeliveryPreview !== null || bentoDeliveryFile !== null ? (
                   <button
                     type="button"
                     onClick={() => {
-                      setBentoDeliveryFile(null);
-                      setBentoDeliveryPreview(null);
+                      confirmRemoveImage(() => {
+                        setBentoDeliveryFile(null);
+                        setBentoDeliveryPreview(null);
+                        const input = document.getElementById("bento-delivery-input") as HTMLInputElement;
+                        if (input) input.value = "";
+                      });
                     }}
                     className="px-2.5 py-1.5 rounded-lg bg-hidden/15 text-hidden hover:bg-hidden hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     {isBn ? "রিমুভ" : "Remove"}
                   </button>
+                ) : (
+                  <label
+                    htmlFor="bento-delivery-input"
+                    className="px-3 py-1.5 rounded-lg bg-button-bg text-button-fg text-[10px] font-bold uppercase tracking-wider hover:opacity-90 cursor-pointer"
+                  >
+                    {isBn ? "ছবি আপলোড" : "Upload"}
+                  </label>
                 )}
               </div>
             </div>
