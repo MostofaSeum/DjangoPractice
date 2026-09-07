@@ -449,16 +449,15 @@ export default function HomepageSettingsSubTab({
               {isBn ? "ব্যানার প্রিভিউ (Banner Preview)" : "Banner Preview"}
             </label>
             <div className="relative w-full rounded-2xl overflow-hidden border border-foreground/15 bg-primary/5 min-h-[160px] flex items-center justify-center">
-              {bannerPreview ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={bannerPreview}
-                  alt="Banner preview"
-                  className="w-full h-auto max-h-56 object-contain rounded-2xl"
-                />
-              ) : (
-                <div className="text-center p-8 opacity-40 text-xs font-bold uppercase tracking-wider">
-                  {isBn ? "ডিফল্ট ব্যানার ব্যবহৃত হচ্ছে" : "Using Default Banner (/Banners/Banner.png)"}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={bannerPreview || "/Banners/Banner.png"}
+                alt="Banner preview"
+                className="w-full h-auto max-h-56 object-contain rounded-2xl"
+              />
+              {!bannerPreview && (
+                <div className="absolute bottom-2 right-3 px-2.5 py-1 rounded-lg bg-background/80 backdrop-blur-xs border border-foreground/10 text-[10px] font-bold text-foreground/70 uppercase tracking-wider">
+                  {isBn ? "ডিফল্ট ব্যানার" : "Default Banner"}
                 </div>
               )}
             </div>
@@ -747,12 +746,17 @@ export default function HomepageSettingsSubTab({
                 {isBn ? "কাস্টম ছবি (ঐচ্ছিক)" : "Custom Photo (Optional)"}
               </label>
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-xl border border-foreground/15 bg-background flex items-center justify-center overflow-hidden shrink-0">
-                  {bento1Preview ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={bento1Preview} alt="Slot 1" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-[9px] opacity-40 font-bold">Default</span>
+                <div className="w-14 h-14 rounded-xl border border-foreground/15 bg-background flex items-center justify-center overflow-hidden shrink-0 relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={bento1Preview || "/HomePage/Beauty.webp"}
+                    alt="Slot 1"
+                    className="w-full h-full object-cover"
+                  />
+                  {!bento1Preview && (
+                    <span className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[8px] font-bold text-center py-0.5 uppercase tracking-tighter">
+                      Default
+                    </span>
                   )}
                 </div>
                 <input
@@ -837,12 +841,17 @@ export default function HomepageSettingsSubTab({
                 {isBn ? "কাস্টম ছবি (ঐচ্ছিক)" : "Custom Photo (Optional)"}
               </label>
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-xl border border-foreground/15 bg-background flex items-center justify-center overflow-hidden shrink-0">
-                  {bento2Preview ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={bento2Preview} alt="Slot 2" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-[9px] opacity-40 font-bold">Default</span>
+                <div className="w-14 h-14 rounded-xl border border-foreground/15 bg-background flex items-center justify-center overflow-hidden shrink-0 relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={bento2Preview || "/HomePage/Cleaning.webp"}
+                    alt="Slot 2"
+                    className="w-full h-full object-cover"
+                  />
+                  {!bento2Preview && (
+                    <span className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[8px] font-bold text-center py-0.5 uppercase tracking-tighter">
+                      Default
+                    </span>
                   )}
                 </div>
                 <input
@@ -927,12 +936,17 @@ export default function HomepageSettingsSubTab({
                 {isBn ? "কাস্টম ছবি (ঐচ্ছিক)" : "Custom Photo (Optional)"}
               </label>
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-xl border border-foreground/15 bg-background flex items-center justify-center overflow-hidden shrink-0">
-                  {bento3Preview ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={bento3Preview} alt="Slot 3" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-[9px] opacity-40 font-bold">Default</span>
+                <div className="w-14 h-14 rounded-xl border border-foreground/15 bg-background flex items-center justify-center overflow-hidden shrink-0 relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={bento3Preview || "/HomePage/Pet.jpg"}
+                    alt="Slot 3"
+                    className="w-full h-full object-cover"
+                  />
+                  {!bento3Preview && (
+                    <span className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[8px] font-bold text-center py-0.5 uppercase tracking-tighter">
+                      Default
+                    </span>
                   )}
                 </div>
                 <input
@@ -1017,12 +1031,17 @@ export default function HomepageSettingsSubTab({
                 {isBn ? "কাস্টম ছবি (ঐচ্ছিক)" : "Custom Photo (Optional)"}
               </label>
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-xl border border-foreground/15 bg-background flex items-center justify-center overflow-hidden shrink-0">
-                  {bento4Preview ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={bento4Preview} alt="Slot 4" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-[9px] opacity-40 font-bold">Default</span>
+                <div className="w-14 h-14 rounded-xl border border-foreground/15 bg-background flex items-center justify-center overflow-hidden shrink-0 relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={bento4Preview || "/HomePage/Stationary.jpg"}
+                    alt="Slot 4"
+                    className="w-full h-full object-cover"
+                  />
+                  {!bento4Preview && (
+                    <span className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[8px] font-bold text-center py-0.5 uppercase tracking-tighter">
+                      Default
+                    </span>
                   )}
                 </div>
                 <input
@@ -1062,25 +1081,12 @@ export default function HomepageSettingsSubTab({
         </div>
       </div>
 
-      {/* FLOATING / STICKY SAVE BAR */}
-      <div className="sticky bottom-4 z-40 bg-secondary/95 backdrop-blur-md p-4 rounded-2xl border border-foreground/15 shadow-xl flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          {hasChanges ? (
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-accent">
-              <span className="w-2 h-2 rounded-full bg-accent animate-ping" />
-              {isBn ? "অসংরক্ষিত পরিবর্তন রয়েছে" : "You have unsaved changes"}
-            </span>
-          ) : (
-            <span className="text-xs font-bold text-foreground/50">
-              {isBn ? "সকল পরিবর্তন সংরক্ষিত" : "All changes up to date"}
-            </span>
-          )}
-        </div>
-
+      {/* SAVE BUTTON */}
+      <div className="flex justify-end pt-4 pb-2">
         <button
           type="submit"
           disabled={!hasChanges || saving}
-          className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 ${
+          className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 ${
             hasChanges && !saving
               ? "bg-button-bg text-button-fg hover:opacity-90 cursor-pointer shadow-md hover:scale-102"
               : "bg-foreground/15 text-foreground/70 border border-foreground/20 cursor-not-allowed"
@@ -1092,7 +1098,7 @@ export default function HomepageSettingsSubTab({
               <span>{isBn ? "সংরক্ষণ হচ্ছে..." : "Saving..."}</span>
             </>
           ) : (
-            <span>{isBn ? "সংরক্ষণ" : "Save Changes"}</span>
+            <span>{isBn ? "পরিবর্তন সংরক্ষণ" : "Save Changes"}</span>
           )}
         </button>
       </div>
