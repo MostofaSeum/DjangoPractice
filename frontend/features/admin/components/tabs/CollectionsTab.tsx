@@ -28,6 +28,7 @@ interface CollectionsTabProps {
   handleSelectCollection: (col: Collection) => void;
   handleCancelCollectionEdit: () => void;
   handleDeleteCollectionPhoto: () => Promise<void>;
+  onSubTabSwitch?: (subTab: CollectionSubTab) => void;
 }
 
 export default function CollectionsTab({
@@ -52,12 +53,16 @@ export default function CollectionsTab({
   handleSelectCollection,
   handleCancelCollectionEdit,
   handleDeleteCollectionPhoto,
+  onSubTabSwitch,
 }: CollectionsTabProps) {
   const { locale } = useLanguage();
   const isBn = locale === "bn";
 
   const [activeCollectionQuery, setActiveCollectionQuery] = useState("");
   const [editCollectionSearch, setEditCollectionSearch] = useState("");
+  const [featuredSearch, setFeaturedSearch] = useState("");
+
+  const featuredCollections = collections.filter((c) => c.is_featured);
 
   const filteredCollections = collections.filter(
     (c) =>
@@ -65,6 +70,15 @@ export default function CollectionsTab({
       (c.title &&
         c.title.toLowerCase().includes(activeCollectionQuery.toLowerCase()))
   );
+
+  const filteredFeaturedCollections = featuredCollections.filter((c) => {
+    if (!featuredSearch.trim()) return true;
+    const query = featuredSearch.trim().toLowerCase();
+    return (
+      String(c.id).includes(query) ||
+      (c.title && c.title.toLowerCase().includes(query))
+    );
+  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -374,28 +388,120 @@ export default function CollectionsTab({
         </div>
       )}
 
-      {/* SUBTAB 1: All Collections */}
-      {collectionSubTab === "all" && (
+      {/* SUBTAB 1 & FEATURED: Collections Table Views */}
+      {(collectionSubTab === "all" || collectionSubTab === "featured") && (
         <div className="w-full bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm overflow-x-auto transition-colors duration-300">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
-            <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-              {isBn
-                ? `সকল কালেকশন (${filteredCollections.length.toLocaleString("bn-BD")})`
-                : `All Collections (${filteredCollections.length})`}
-            </h2>
-            <CollectionSearchBar
-              initialSearch={activeCollectionQuery}
-              onSelectCollection={(col) => {
-                handleSelectCollection(col as any);
-              }}
-              onSearchSubmit={(q) => {
-                setActiveCollectionQuery(q);
-              }}
-              onClear={() => {
-                setActiveCollectionQuery("");
-              }}
-            />
+          {/* Header with Navigation Pills & Search Bar */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 pb-4 border-b border-foreground/10">
+            <div className="flex flex-wrap items-center gap-2">
+              {/* All Collections Tab Pill */}
+              <button
+                type="button"
+                onClick={() => onSubTabSwitch && onSubTabSwitch("all")}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+                  collectionSubTab === "all"
+                    ? "bg-foreground text-background shadow-xs"
+                    : "bg-primary/5 dark:bg-primary/20 text-foreground/70 hover:text-foreground hover:bg-primary/10"
+                }`}
+              >
+                <span>{isBn ? "সকল কালেকশন" : "All Collections"}</span>
+                <span className="text-[10px] opacity-70">
+                  ({isBn ? collections.length.toLocaleString("bn-BD") : collections.length})
+                </span>
+              </button>
+
+              {/* Featured Collections Tab Pill */}
+              <button
+                type="button"
+                onClick={() => onSubTabSwitch && onSubTabSwitch("featured")}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+                  collectionSubTab === "featured"
+                    ? "bg-amber-500 text-black shadow-xs font-black"
+                    : "bg-amber-500/10 text-amber-500 dark:text-amber-400 hover:bg-amber-500/20 border border-amber-500/30"
+                }`}
+              >
+                <span className="text-amber-400">★</span>
+                <span>{isBn ? "ফিচার্ড কালেকশন" : "Featured"}</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                  collectionSubTab === "featured"
+                    ? "bg-black/20 text-black"
+                    : "bg-amber-500/20 text-amber-600 dark:text-amber-400"
+                }`}>
+                  {isBn ? `${featuredCollections.length.toLocaleString("bn-BD")}/৩` : `${featuredCollections.length}/3`}
+                </span>
+              </button>
+            </div>
+
+            {/* Search Bar */}
+            {collectionSubTab === "all" ? (
+              <CollectionSearchBar
+                initialSearch={activeCollectionQuery}
+                onSelectCollection={(col) => {
+                  handleSelectCollection(col as any);
+                }}
+                onSearchSubmit={(q) => {
+                  setActiveCollectionQuery(q);
+                }}
+                onClear={() => {
+                  setActiveCollectionQuery("");
+                }}
+              />
+            ) : (
+              <div className="relative w-full sm:w-72">
+                <input
+                  type="text"
+                  value={featuredSearch}
+                  onChange={(e) => setFeaturedSearch(e.target.value)}
+                  placeholder={isBn ? "ফিচার্ড কালেকশন খুঁজুন..." : "Search featured collections..."}
+                  className="w-full pl-9 pr-8 py-2 border border-foreground/15 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-amber-500 transition-all shadow-inner"
+                />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none flex items-center justify-center opacity-60 dark:opacity-80">
+                  <Image
+                    src="/search.png"
+                    alt="Search"
+                    width={14}
+                    height={14}
+                    className="object-contain dark:invert transition-all"
+                  />
+                </div>
+                {featuredSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setFeaturedSearch("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold opacity-40 hover:opacity-100 transition-opacity cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            )}
           </div>
+
+          {/* Featured Notice Banner when on Featured Tab */}
+          {collectionSubTab === "featured" && (
+            <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-amber-500 text-black flex items-center justify-center font-black text-sm shrink-0">
+                  ★
+                </div>
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-amber-500 dark:text-amber-400">
+                    {isBn ? "বর্তমান ফিচার্ড ক্যাটাগরি / কালেকশন" : "Current Featured Collections"}
+                  </h3>
+                  <p className="text-[11px] opacity-70">
+                    {isBn
+                      ? "হোমপেজের 'Featured Categories' সেকশনে প্রদর্শনের জন্য সর্বোচ্চ ৩টি কালেকশন নির্বাচন করতে পারবেন।"
+                      : "Up to 3 collections are featured on the homepage categories section."}
+                  </p>
+                </div>
+              </div>
+              <div className="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-black shrink-0">
+                {isBn
+                  ? `${featuredCollections.length.toLocaleString("bn-BD")} / ৩ নির্বাচিত`
+                  : `${featuredCollections.length} / 3 Selected`}
+              </div>
+            </div>
+          )}
 
           <table className="w-full text-left border-collapse">
             <thead>
@@ -408,7 +514,7 @@ export default function CollectionsTab({
               </tr>
             </thead>
             <tbody className="divide-y divide-foreground/10 text-xs font-bold">
-              {filteredCollections.map((col) => (
+              {(collectionSubTab === "featured" ? filteredFeaturedCollections : filteredCollections).map((col) => (
                 <tr
                   key={col.id}
                   onClick={() => handleSelectCollection(col)}
@@ -513,6 +619,27 @@ export default function CollectionsTab({
               ))}
             </tbody>
           </table>
+
+          {/* Empty state when no collections found in view */}
+          {collectionSubTab === "featured" && filteredFeaturedCollections.length === 0 && (
+            <div className="py-12 text-center flex flex-col items-center justify-center gap-2">
+              <div className="w-12 h-12 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center text-xl font-black">
+                ★
+              </div>
+              <p className="text-xs font-bold uppercase tracking-wider text-foreground/80">
+                {featuredSearch
+                  ? (isBn ? "কোনো ফিচার্ড কালেকশন পাওয়া যায়নি" : "No matching featured collections")
+                  : (isBn ? "বর্তমানে কোনো ফিচার্ড কালেকশন নেই" : "No collections are currently featured")}
+              </p>
+              <p className="text-[11px] text-foreground/50 max-w-sm">
+                {featuredSearch
+                  ? (isBn ? "অন্য কি-ওয়ার্ড দিয়ে অনুসন্ধান করুন।" : "Try a different search term.")
+                  : (isBn
+                      ? "'সকল কালেকশন' ট্যাবে গিয়ে যেকোনো কালেকশনের পাশে 'ফিচার্ড' বাটনে ক্লিক করে যুক্ত করুন (সর্বোচ্চ ৩টি)।"
+                      : "Switch to 'All Collections' tab and click the 'Featured' button on any collection to feature it here (max 3).")}
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

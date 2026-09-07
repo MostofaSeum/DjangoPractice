@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { Collection, Product, ProductSubTab } from "../../types";
@@ -111,6 +112,7 @@ interface ProductsTabProps {
   setHasUnsavedPhotos: (unsaved: boolean) => void;
   token: string | null;
   adminDataVersion: number;
+  onSubTabSwitch?: (subTab: ProductSubTab) => void;
 }
 
 export default function ProductsTab({
@@ -152,9 +154,27 @@ export default function ProductsTab({
   setHasUnsavedPhotos,
   token,
   adminDataVersion,
+  onSubTabSwitch,
 }: ProductsTabProps) {
   const { locale, formatCurrency } = useLanguage();
   const isBn = locale === "bn";
+
+  const [featuredSearch, setFeaturedSearch] = useState("");
+
+  const trendingCatalog = (
+    promoProductsCatalog && promoProductsCatalog.length > 0
+      ? promoProductsCatalog
+      : products
+  ).filter((p) => p.is_trending);
+
+  const filteredTrendingProducts = trendingCatalog.filter((p) => {
+    if (!featuredSearch.trim()) return true;
+    const query = featuredSearch.trim().toLowerCase();
+    return (
+      String(p.id).includes(query) ||
+      (p.title && p.title.toLowerCase().includes(query))
+    );
+  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -1358,27 +1378,123 @@ export default function ProductsTab({
           document.body
         )}
 
-      {/* SUBTAB 1: All Products */}
-      {productSubTab === "all" && (
+      {/* SUBTAB 1 & FEATURED: Products Table Views */}
+      {(productSubTab === "all" || productSubTab === "featured") && (
         <div className="w-full bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm overflow-x-auto transition-colors duration-300">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-2 border-b border-foreground/10">
-            <h2 className="text-xs font-black uppercase tracking-widest text-foreground">
-              {isBn ? "সকল পণ্য" : "All Products"}
-            </h2>
-            <ProductSearchBar
-              mode="admin"
-              initialSearch={activeProductQuery}
-              onSelectProduct={(prod) => handleSelectProduct(prod as any)}
-              onSearchSubmit={(q) => {
-                setActiveProductQuery(q);
-                setProdPage(1);
-              }}
-              onClear={() => {
-                setActiveProductQuery("");
-                setProdPage(1);
-              }}
-            />
+          {/* Header with Navigation Pills & Search Bar */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 pb-4 border-b border-foreground/10">
+            <div className="flex flex-wrap items-center gap-2">
+              {/* All Products Tab Pill */}
+              <button
+                type="button"
+                onClick={() => onSubTabSwitch && onSubTabSwitch("all")}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+                  productSubTab === "all"
+                    ? "bg-foreground text-background shadow-xs"
+                    : "bg-primary/5 dark:bg-primary/20 text-foreground/70 hover:text-foreground hover:bg-primary/10"
+                }`}
+              >
+                <span>{isBn ? "সকল পণ্য" : "All Products"}</span>
+                <span className="text-[10px] opacity-70">
+                  ({isBn ? totalProductsCount.toLocaleString("bn-BD") : totalProductsCount})
+                </span>
+              </button>
+
+              {/* Featured / Trending Products Tab Pill */}
+              <button
+                type="button"
+                onClick={() => onSubTabSwitch && onSubTabSwitch("featured")}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer ${
+                  productSubTab === "featured"
+                    ? "bg-amber-500 text-black shadow-xs font-black"
+                    : "bg-amber-500/10 text-amber-500 dark:text-amber-400 hover:bg-amber-500/20 border border-amber-500/30"
+                }`}
+              >
+                <span className="text-amber-400">★</span>
+                <span>{isBn ? "ফিচার্ড / ট্রেন্ডিং" : "Featured"}</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                  productSubTab === "featured"
+                    ? "bg-black/20 text-black"
+                    : "bg-amber-500/20 text-amber-600 dark:text-amber-400"
+                }`}>
+                  {isBn ? `${trendingCatalog.length.toLocaleString("bn-BD")}/৮` : `${trendingCatalog.length}/8`}
+                </span>
+              </button>
+            </div>
+
+            {/* Search Bar depending on active view */}
+            {productSubTab === "all" ? (
+              <ProductSearchBar
+                mode="admin"
+                initialSearch={activeProductQuery}
+                onSelectProduct={(prod) => handleSelectProduct(prod as any)}
+                onSearchSubmit={(q) => {
+                  setActiveProductQuery(q);
+                  setProdPage(1);
+                }}
+                onClear={() => {
+                  setActiveProductQuery("");
+                  setProdPage(1);
+                }}
+              />
+            ) : (
+              <div className="relative w-full sm:w-72">
+                <input
+                  type="text"
+                  value={featuredSearch}
+                  onChange={(e) => setFeaturedSearch(e.target.value)}
+                  placeholder={isBn ? "ট্রেন্ডিং পণ্য খুঁজুন..." : "Search trending products..."}
+                  className="w-full pl-9 pr-8 py-2 border border-foreground/15 rounded-xl bg-background text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-amber-500 transition-all shadow-inner"
+                />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none flex items-center justify-center opacity-60 dark:opacity-80">
+                  <Image
+                    src="/search.png"
+                    alt="Search"
+                    width={14}
+                    height={14}
+                    className="object-contain dark:invert transition-all"
+                  />
+                </div>
+                {featuredSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setFeaturedSearch("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold opacity-40 hover:opacity-100 transition-opacity cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            )}
           </div>
+
+          {/* Featured Notice Banner when on Featured Tab */}
+          {productSubTab === "featured" && (
+            <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-amber-500 text-black flex items-center justify-center font-black text-sm shrink-0">
+                  ★
+                </div>
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-wider text-amber-500 dark:text-amber-400">
+                    {isBn ? "বর্তমান ট্রেন্ডিং পণ্যসমূহ" : "Current Trending Products"}
+                  </h3>
+                  <p className="text-[11px] opacity-70">
+                    {isBn
+                      ? "হোমপেজের 'Trending Now' সেকশনে সর্বোচ্চ ৮টি পণ্য একসাথে প্রদর্শিত হবে।"
+                      : "Up to 8 products will be featured on the homepage 'Trending Now' section."}
+                  </p>
+                </div>
+              </div>
+              <div className="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-black shrink-0">
+                {isBn
+                  ? `${trendingCatalog.length.toLocaleString("bn-BD")} / ৮ নির্বাচিত`
+                  : `${trendingCatalog.length} / 8 Selected`}
+              </div>
+            </div>
+          )}
+
+          {/* Table */}
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-foreground/10 text-[10px] font-black uppercase tracking-wider opacity-60">
@@ -1390,7 +1506,7 @@ export default function ProductsTab({
               </tr>
             </thead>
             <tbody className="divide-y divide-foreground/10 text-xs font-bold">
-              {products.map((prod) => (
+              {(productSubTab === "featured" ? filteredTrendingProducts : products).map((prod) => (
                 <tr
                   key={prod.id}
                   onClick={() => handleSelectProduct(prod)}
@@ -1497,8 +1613,29 @@ export default function ProductsTab({
             </tbody>
           </table>
 
-          {/* Pagination Controls */}
-          {Math.ceil(totalProductsCount / 9) > 1 && (
+          {/* Empty state when no products found in view */}
+          {productSubTab === "featured" && filteredTrendingProducts.length === 0 && (
+            <div className="py-12 text-center flex flex-col items-center justify-center gap-2">
+              <div className="w-12 h-12 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center text-xl font-black">
+                ★
+              </div>
+              <p className="text-xs font-bold uppercase tracking-wider text-foreground/80">
+                {featuredSearch
+                  ? (isBn ? "কোনো ট্রেন্ডিং পণ্য পাওয়া যায়নি" : "No matching trending products")
+                  : (isBn ? "বর্তমানে কোনো ট্রেন্ডিং পণ্য নির্বাচিত নেই" : "No products are currently trending")}
+              </p>
+              <p className="text-[11px] text-foreground/50 max-w-sm">
+                {featuredSearch
+                  ? (isBn ? "অন্য কি-ওয়ার্ড দিয়ে অনুসন্ধান করুন।" : "Try a different search term.")
+                  : (isBn
+                      ? "'সকল পণ্য' ট্যাবে গিয়ে যেকোনো পণ্যের পাশে 'ট্রেন্ডিং' বাটনে ক্লিক করে যুক্ত করুন (সর্বোচ্চ ৮টি)।"
+                      : "Switch to 'All Products' tab and click the 'Trending' button on any product to feature it here (max 8).")}
+              </p>
+            </div>
+          )}
+
+          {/* Pagination Controls - Only for All Products */}
+          {productSubTab === "all" && Math.ceil(totalProductsCount / 9) > 1 && (
             <div className="flex justify-between items-center mt-6 pt-4 border-t border-foreground/10 text-xs font-bold">
               <button
                 onClick={() => setProdPage((prev) => Math.max(prev - 1, 1))}

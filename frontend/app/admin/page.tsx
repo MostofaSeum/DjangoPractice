@@ -1917,7 +1917,12 @@ export default function AdminDashboardPage() {
     const newStatus = !product.is_trending;
 
     if (newStatus) {
-      const currentTrendingCount = products.filter((p) => p.is_trending).length;
+      // Global count across the entire store catalog
+      const currentTrendingCount =
+        allProductsForPromo.length > 0
+          ? allProductsForPromo.filter((p) => p.is_trending).length
+          : products.filter((p) => p.is_trending).length;
+
       if (currentTrendingCount >= 8) {
         Swal.fire({
           icon: "warning",
@@ -1931,8 +1936,13 @@ export default function AdminDashboardPage() {
       }
     }
 
-    // Optimistic UI Update: change state immediately
+    // Optimistic UI Update: change state immediately in both active page & global catalog
     setProducts((prev) =>
+      prev.map((p) =>
+        p.id === product.id ? { ...p, is_trending: newStatus } : p,
+      ),
+    );
+    setAllProductsForPromo((prev) =>
       prev.map((p) =>
         p.id === product.id ? { ...p, is_trending: newStatus } : p,
       ),
@@ -1966,10 +1976,20 @@ export default function AdminDashboardPage() {
             p.id === product.id ? { ...p, is_trending: !newStatus } : p,
           ),
         );
+        setAllProductsForPromo((prev) =>
+          prev.map((p) =>
+            p.id === product.id ? { ...p, is_trending: !newStatus } : p,
+          ),
+        );
       }
     } catch (err) {
       console.error(err);
       setProducts((prev) =>
+        prev.map((p) =>
+          p.id === product.id ? { ...p, is_trending: !newStatus } : p,
+        ),
+      );
+      setAllProductsForPromo((prev) =>
         prev.map((p) =>
           p.id === product.id ? { ...p, is_trending: !newStatus } : p,
         ),
@@ -2912,7 +2932,15 @@ export default function AdminDashboardPage() {
           isSidebarCollapsed={isSidebarCollapsed}
           setIsSidebarCollapsed={setIsSidebarCollapsed}
           productsCount={totalProductsCount}
+          trendingCount={
+            allProductsForPromo.length > 0
+              ? allProductsForPromo.filter((p) => p.is_trending).length
+              : products.filter((p) => p.is_trending).length
+          }
           collectionsCount={collections.length}
+          featuredCollectionsCount={
+            collections.filter((c) => c.is_featured).length
+          }
           ordersCount={orders.length}
           customersCount={customers.length}
           promosCount={
@@ -2984,6 +3012,7 @@ export default function AdminDashboardPage() {
               setHasUnsavedPhotos={setHasUnsavedPhotos}
               token={token}
               adminDataVersion={adminDataVersion}
+              onSubTabSwitch={(st) => handleProductSubTabSwitch(st)}
             />
           )}
 
@@ -3011,6 +3040,7 @@ export default function AdminDashboardPage() {
               handleSelectCollection={handleSelectCollection}
               handleCancelCollectionEdit={handleCancelCollectionEdit}
               handleDeleteCollectionPhoto={handleDeleteCollectionPhoto}
+              onSubTabSwitch={(st) => handleCollectionSubTabSwitch(st)}
             />
           )}
 
