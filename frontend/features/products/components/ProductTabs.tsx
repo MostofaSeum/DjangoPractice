@@ -746,7 +746,7 @@ export default function ProductTabs({
                 {/* Attach Photos Option */}
                 <div>
                   <label className="block text-xs font-extrabold uppercase tracking-widest mb-2 text-foreground/80">
-                    {t("productDetail.attachPhotos")} ({locale === "bn" ? (existingImages.length + selectedImages.length).toLocaleString("bn-BD") : existingImages.length + selectedImages.length}/৫)
+                    {t("productDetail.attachPhotos")} ({locale === "bn" ? `${(existingImages.length + selectedImages.length).toLocaleString("bn-BD")}/৫` : `${existingImages.length + selectedImages.length}/5`})
                   </label>
                   <div className="flex flex-wrap items-center gap-3">
                     {/* Render Existing Saved Photos */}
