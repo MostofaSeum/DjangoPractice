@@ -113,6 +113,16 @@ export default function HomepageSettingsSubTab({
   const [bento4Preview, setBento4Preview] = useState<string | null>(null);
   const [initialBento4Url, setInitialBento4Url] = useState<string | null>(null);
 
+  // 24/7 Slot
+  const [bento247File, setBento247File] = useState<File | null>(null);
+  const [bento247Preview, setBento247Preview] = useState<string | null>(null);
+  const [initialBento247Url, setInitialBento247Url] = useState<string | null>(null);
+
+  // Delivery Slot
+  const [bentoDeliveryFile, setBentoDeliveryFile] = useState<File | null>(null);
+  const [bentoDeliveryPreview, setBentoDeliveryPreview] = useState<string | null>(null);
+  const [initialBentoDeliveryUrl, setInitialBentoDeliveryUrl] = useState<string | null>(null);
+
   const getFullUrl = (url?: string | null) => {
     if (!url) return null;
     if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("blob:") || url.startsWith("data:")) {
@@ -153,6 +163,9 @@ export default function HomepageSettingsSubTab({
           bento_tile_3_collection: data.bento_tile_3_collection || "",
           bento_tile_4_title: data.bento_tile_4_title || "FOUNDATION & GLOW",
           bento_tile_4_collection: data.bento_tile_4_collection || "",
+          bento_tile_247_link: data.bento_tile_247_link || "",
+          bento_tile_delivery_title: data.bento_tile_delivery_title || "Fast Delivery",
+          bento_tile_delivery_link: data.bento_tile_delivery_link || "",
         };
 
         setInitialSettings(loaded);
@@ -184,6 +197,16 @@ export default function HomepageSettingsSubTab({
           setInitialBento4Url(full);
           setBento4Preview(full);
         }
+        if (data.bento_tile_247_image) {
+          const full = getFullUrl(data.bento_tile_247_image);
+          setInitialBento247Url(full);
+          setBento247Preview(full);
+        }
+        if (data.bento_tile_delivery_image) {
+          const full = getFullUrl(data.bento_tile_delivery_image);
+          setInitialBentoDeliveryUrl(full);
+          setBentoDeliveryPreview(full);
+        }
       }
     } catch (err) {
       console.error("Failed to load homepage settings:", err);
@@ -204,6 +227,8 @@ export default function HomepageSettingsSubTab({
     const bento2Changed = bento2File !== null || bento2Preview !== initialBento2Url;
     const bento3Changed = bento3File !== null || bento3Preview !== initialBento3Url;
     const bento4Changed = bento4File !== null || bento4Preview !== initialBento4Url;
+    const bento247Changed = bento247File !== null || bento247Preview !== initialBento247Url;
+    const bentoDeliveryChanged = bentoDeliveryFile !== null || bentoDeliveryPreview !== initialBentoDeliveryUrl;
 
     return (
       textChanged ||
@@ -211,7 +236,9 @@ export default function HomepageSettingsSubTab({
       bento1Changed ||
       bento2Changed ||
       bento3Changed ||
-      bento4Changed
+      bento4Changed ||
+      bento247Changed ||
+      bentoDeliveryChanged
     );
   }, [
     formData,
@@ -231,6 +258,12 @@ export default function HomepageSettingsSubTab({
     bento4File,
     bento4Preview,
     initialBento4Url,
+    bento247File,
+    bento247Preview,
+    initialBento247Url,
+    bentoDeliveryFile,
+    bentoDeliveryPreview,
+    initialBentoDeliveryUrl,
   ]);
 
   const handleFieldChange = (key: keyof HomepageSettingsState, value: any) => {
@@ -247,6 +280,8 @@ export default function HomepageSettingsSubTab({
     const hasSlot2Photo = Boolean(bento2File || bento2Preview || initialBento2Url);
     const hasSlot3Photo = Boolean(bento3File || bento3Preview || initialBento3Url);
     const hasSlot4Photo = Boolean(bento4File || bento4Preview || initialBento4Url);
+    const hasSlot247Photo = Boolean(bento247File || bento247Preview || initialBento247Url);
+    const hasSlotDeliveryPhoto = Boolean(bentoDeliveryFile || bentoDeliveryPreview || initialBentoDeliveryUrl);
 
     if (!hasBannerPhoto) {
       Swal.fire({
@@ -259,12 +294,21 @@ export default function HomepageSettingsSubTab({
       return;
     }
 
-    if (!hasSlot1Photo || !hasSlot2Photo || !hasSlot3Photo || !hasSlot4Photo) {
+    if (
+      !hasSlot1Photo ||
+      !hasSlot2Photo ||
+      !hasSlot3Photo ||
+      !hasSlot4Photo ||
+      !hasSlot247Photo ||
+      !hasSlotDeliveryPhoto
+    ) {
       const missingSlots: string[] = [];
       if (!hasSlot1Photo) missingSlots.push(isBn ? "স্লট ১" : "Slot 1");
       if (!hasSlot2Photo) missingSlots.push(isBn ? "স্লট ২" : "Slot 2");
       if (!hasSlot3Photo) missingSlots.push(isBn ? "স্লট ৩" : "Slot 3");
       if (!hasSlot4Photo) missingSlots.push(isBn ? "স্লট ৪" : "Slot 4");
+      if (!hasSlot247Photo) missingSlots.push(isBn ? "২৪/৭ ড্রপস স্লট" : "24/7 Drops Slot");
+      if (!hasSlotDeliveryPhoto) missingSlots.push(isBn ? "ফ্রি ডেলিভারি স্লট" : "Free Delivery Slot");
 
       Swal.fire({
         icon: "warning",
@@ -364,6 +408,23 @@ export default function HomepageSettingsSubTab({
         payload.append("remove_bento_tile_4_image", "true");
       }
 
+      // Bento 24/7 Slot
+      payload.append("bento_tile_247_link", formData.bento_tile_247_link);
+      if (bento247File) {
+        payload.append("bento_tile_247_image", bento247File);
+      } else if (!bento247Preview && initialBento247Url) {
+        payload.append("remove_bento_tile_247_image", "true");
+      }
+
+      // Bento Delivery Slot
+      payload.append("bento_tile_delivery_title", formData.bento_tile_delivery_title);
+      payload.append("bento_tile_delivery_link", formData.bento_tile_delivery_link);
+      if (bentoDeliveryFile) {
+        payload.append("bento_tile_delivery_image", bentoDeliveryFile);
+      } else if (!bentoDeliveryPreview && initialBentoDeliveryUrl) {
+        payload.append("remove_bento_tile_delivery_image", "true");
+      }
+
       const res = await fetch(`${apiBase}/store/site-settings/update_settings/`, {
         method: "POST",
         headers: {
@@ -380,6 +441,8 @@ export default function HomepageSettingsSubTab({
         setBento2File(null);
         setBento3File(null);
         setBento4File(null);
+        setBento247File(null);
+        setBentoDeliveryFile(null);
 
         const newBanner = getFullUrl(updated.top_banner_image);
         setInitialBannerUrl(newBanner);
@@ -400,6 +463,14 @@ export default function HomepageSettingsSubTab({
         const newB4 = getFullUrl(updated.bento_tile_4_image);
         setInitialBento4Url(newB4);
         setBento4Preview(newB4);
+
+        const newB247 = getFullUrl(updated.bento_tile_247_image);
+        setInitialBento247Url(newB247);
+        setBento247Preview(newB247);
+
+        const newBDelivery = getFullUrl(updated.bento_tile_delivery_image);
+        setInitialBentoDeliveryUrl(newBDelivery);
+        setBentoDeliveryPreview(newBDelivery);
 
         Swal.fire({
           position: "top-end",
@@ -772,19 +843,19 @@ export default function HomepageSettingsSubTab({
         </div>
       </div>
 
-      {/* 3. BENTO GRID CATEGORIES MANAGER (4 SLOTS) */}
+      {/* 3. BENTO GRID TILES MANAGER (6 SLOTS) */}
       <div className="bg-secondary p-6 sm:p-8 rounded-3xl border border-foreground/10 shadow-sm space-y-6">
         <div className="border-b border-foreground/10 pb-4">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-accent" />
             <h2 className="text-base sm:text-lg font-black uppercase tracking-tight text-foreground">
-              {isBn ? "বেন্টো গ্রিড ক্যাটাগরি কার্ডসমূহ (Bento Grid Tiles)" : "Bento Grid Category Tiles"}
+              {isBn ? "বেন্টো গ্রিড কার্ডসমূহ (Bento Grid Tiles - ৬টি স্লট)" : "Bento Grid Tiles (6 Slots)"}
             </h2>
           </div>
           <p className="text-xs opacity-70 mt-1">
             {isBn
-              ? "হোমপেজের ৪টি ক্যাটাগরি স্লটের নাম, কালেকশন লিংক এবং ছবি নির্বাচন করুন।"
-              : "Select which collections, titles, and custom photos appear across the 4 category positions on the homepage."}
+              ? "হোমপেজের ৪টি ক্যাটাগরি স্লট, ২৪/৭ ড্রপস এবং ফ্রি ডেলিভারি স্লটের ছবি, টাইটেল ও লিংক নিয়ন্ত্রণ করুন।"
+              : "Manage titles, links, and custom photos for the 4 category positions, 24/7 drops, and fast delivery tiles."}
           </p>
         </div>
 
@@ -1171,6 +1242,179 @@ export default function HomepageSettingsSubTab({
                     onClick={() => {
                       setBento4File(null);
                       setBento4Preview(null);
+                    }}
+                    className="px-2.5 py-1.5 rounded-lg bg-hidden/15 text-hidden hover:bg-hidden hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                  >
+                    {isBn ? "রিমুভ" : "Remove"}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Tile 5 (24/7 Global Drops Slot) */}
+          <div className="p-5 rounded-2xl border border-foreground/10 bg-primary/5 space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black uppercase tracking-wider text-foreground">
+                {isBn ? "স্লট ৫ (২৪/৭ গ্লোবাল ড্রপস)" : "Slot 5 (24/7 Global Drops)"}
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent/20 text-accent font-bold">
+                Tile #5 (24/7)
+              </span>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
+                {isBn ? "লক্ষ্য লিঙ্ক (Target Link)" : "Target Link (Optional)"}
+              </label>
+              <input
+                type="text"
+                value={formData.bento_tile_247_link}
+                onChange={(e) => handleFieldChange("bento_tile_247_link", e.target.value)}
+                placeholder="/collections or /products or https://..."
+                className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
+
+            <div className="space-y-2 pt-1">
+              <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
+                {isBn ? "কাস্টম ছবি (আবশ্যক)" : "Custom Photo (Required)"} <span className="text-hidden">*</span>
+              </label>
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-xl border-2 border-dashed border-foreground/25 bg-background flex items-center justify-center overflow-hidden shrink-0">
+                  {bento247Preview ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={bento247Preview}
+                      alt="24/7 Drops"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="text-foreground/30 flex items-center justify-center" title="No photo uploaded">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="bento-247-input"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      const file = e.target.files[0];
+                      setBento247File(file);
+                      setBento247Preview(URL.createObjectURL(file));
+                    }
+                  }}
+                />
+                <label
+                  htmlFor="bento-247-input"
+                  className="px-3 py-1.5 rounded-lg bg-button-bg text-button-fg text-[10px] font-bold uppercase tracking-wider hover:opacity-90 cursor-pointer"
+                >
+                  {isBn ? "ছবি বদলান" : "Upload"}
+                </label>
+                {(bento247Preview !== null || bento247File !== null) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBento247File(null);
+                      setBento247Preview(null);
+                    }}
+                    className="px-2.5 py-1.5 rounded-lg bg-hidden/15 text-hidden hover:bg-hidden hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
+                  >
+                    {isBn ? "রিমুভ" : "Remove"}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Tile 6 (Fast/Free Delivery Slot) */}
+          <div className="p-5 rounded-2xl border border-foreground/10 bg-primary/5 space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black uppercase tracking-wider text-foreground">
+                {isBn ? "স্লট ৬ (ফ্রি / ফাস্ট ডেলিভারি)" : "Slot 6 (Free / Fast Delivery)"}
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent/20 text-accent font-bold">
+                Tile #6 (Delivery)
+              </span>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
+                {isBn ? "টাইটেল / শিরোনাম" : "Display Title"}
+              </label>
+              <input
+                type="text"
+                value={formData.bento_tile_delivery_title}
+                onChange={(e) => handleFieldChange("bento_tile_delivery_title", e.target.value)}
+                placeholder="Fast Delivery"
+                className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
+                {isBn ? "লক্ষ্য লিঙ্ক (Target Link)" : "Target Link (Optional)"}
+              </label>
+              <input
+                type="text"
+                value={formData.bento_tile_delivery_link}
+                onChange={(e) => handleFieldChange("bento_tile_delivery_link", e.target.value)}
+                placeholder="/shipping or /products or https://..."
+                className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
+
+            <div className="space-y-2 pt-1">
+              <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
+                {isBn ? "কাস্টম ছবি (আবশ্যক)" : "Custom Photo (Required)"} <span className="text-hidden">*</span>
+              </label>
+              <div className="flex items-center gap-3">
+                <div className="w-14 h-14 rounded-xl border-2 border-dashed border-foreground/25 bg-background flex items-center justify-center overflow-hidden shrink-0">
+                  {bentoDeliveryPreview ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={bentoDeliveryPreview}
+                      alt="Delivery Slot"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="text-foreground/30 flex items-center justify-center" title="No photo uploaded">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="bento-delivery-input"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      const file = e.target.files[0];
+                      setBentoDeliveryFile(file);
+                      setBentoDeliveryPreview(URL.createObjectURL(file));
+                    }
+                  }}
+                />
+                <label
+                  htmlFor="bento-delivery-input"
+                  className="px-3 py-1.5 rounded-lg bg-button-bg text-button-fg text-[10px] font-bold uppercase tracking-wider hover:opacity-90 cursor-pointer"
+                >
+                  {isBn ? "ছবি বদলান" : "Upload"}
+                </label>
+                {(bentoDeliveryPreview !== null || bentoDeliveryFile !== null) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBentoDeliveryFile(null);
+                      setBentoDeliveryPreview(null);
                     }}
                     className="px-2.5 py-1.5 rounded-lg bg-hidden/15 text-hidden hover:bg-hidden hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
