@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Order, OrderItem, Product, CourierProvider } from "../../types";
+import OrderSearchBar from "@/features/orders/components/OrderSearchBar";
 import { useLanguage } from "@/store/LanguageContext";
 import { siteConfig } from "@/config/siteConfig";
 import Image from "next/image";
@@ -402,39 +403,25 @@ export default function OrdersTab({
           )}
         </div>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setActiveOrderQuery(orderSearch);
+        <OrderSearchBar
+          orders={orders}
+          initialSearch={activeOrderQuery}
+          onSelectOrder={(selectedOrder) => {
+            if (activeSubTab === "returns" || (selectedOrder.return_requests && selectedOrder.return_requests.length > 0)) {
+              setReviewingReturnOrder(selectedOrder);
+            } else {
+              setSelectedOrderDetails(selectedOrder);
+            }
           }}
-          className="flex items-center gap-2 w-full sm:w-auto"
-        >
-          <input
-            type="text"
-            value={orderSearch}
-            onChange={(e) => setOrderSearch(e.target.value)}
-            placeholder={isBn ? "অর্ডার অনুসন্ধান করুন..." : "Search orders..."}
-            className="px-3.5 py-1.5 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full sm:w-48 focus:ring-2 focus:ring-accent"
-          />
-          <button
-            type="submit"
-            className="px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
-          >
-            {isBn ? "খুঁজুন" : "Search"}
-          </button>
-          {(activeOrderQuery || orderSearch) && (
-            <button
-              type="button"
-              onClick={() => {
-                setOrderSearch("");
-                setActiveOrderQuery("");
-              }}
-              className="text-[10px] font-bold text-red-500 hover:underline uppercase cursor-pointer"
-            >
-              {isBn ? "মুছুন" : "Clear"}
-            </button>
-          )}
-        </form>
+          onSearchSubmit={(q) => {
+            setActiveOrderQuery(q);
+            setOrderSearch(q);
+          }}
+          onClear={() => {
+            setActiveOrderQuery("");
+            setOrderSearch("");
+          }}
+        />
       </div>
 
       {filteredOrders.length > 0 ? (
