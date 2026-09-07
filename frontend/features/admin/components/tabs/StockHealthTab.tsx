@@ -12,6 +12,20 @@ interface StockHealthTabProps {
   onSelectProduct?: (product: Product) => void;
 }
 
+interface LowStockAlertItem {
+  id: string; // product-id or product-id-variant-id
+  productId: number;
+  product: Product;
+  variantId?: number;
+  variantName?: string;
+  isVariant: boolean;
+  title: string;
+  collectionId?: number;
+  price: number;
+  stock: number;
+  image?: string;
+}
+
 export default function StockHealthTab({
   products,
   collections = [],
@@ -47,74 +61,120 @@ export default function StockHealthTab({
     return isNaN(parsed) ? 10 : parsed;
   }, [thresholdInput]);
 
-  const getEffectiveStock = (p: Product) => {
-    if (p.variants && p.variants.length > 0) {
-      return p.total_inventory ?? p.variants.reduce((sum, v) => sum + (Number(v.inventory) || 0), 0);
-    }
-    return p.total_inventory ?? Number(p.inventory || 0);
-  };
+  // Transform products into inventory alert units:
+  // If product has variants, calculate each variant independently and ignore base product inventory.
+  // If product does NOT have variants, calculate from base product inventory.
+  const allAlertUnits = useMemo<LowStockAlertItem[]>(() => {
+    const items: LowStockAlertItem[] = [];
 
-  // Overall catalog metrics
+    products.forEach((product) => {
+      const hasVariants = Boolean(product.variants && product.variants.length > 0);
+
+      if (hasVariants && product.variants) {
+        // Evaluate each variant individually, completely avoiding base variant inventory
+        product.variants.forEach((v) => {
+          const variantStock = Number(v.inventory ?? 0);
+          const variantPrice =
+            v.price_override != null && !isNaN(Number(v.price_override))
+              ? Number(v.price_override)
+              : Number(product.unit_price || 0);
+
+          items.push({
+            id: `${product.id}-${v.id}`,
+            productId: product.id,
+            product,
+            variantId: v.id,
+            variantName: v.name,
+            isVariant: true,
+            title: `${product.title} (${v.name})`,
+            collectionId: product.collection,
+            price: variantPrice,
+            stock: variantStock,
+            image: product.images?.[0]?.image,
+          });
+        });
+      } else {
+        // Product does not have variants: calculate with base variant inventory
+        const baseStock = Number(product.inventory ?? 0);
+        const basePrice = Number(product.unit_price || 0);
+
+        items.push({
+          id: String(product.id),
+          productId: product.id,
+          product,
+          isVariant: false,
+          title: product.title,
+          collectionId: product.collection,
+          price: basePrice,
+          stock: baseStock,
+          image: product.images?.[0]?.image,
+        });
+      }
+    });
+
+    return items;
+  }, [products]);
+
+  // Overall catalog metrics based on alert units (variants evaluated individually, or base inventory if no variants)
   const catalogMetrics = useMemo(() => {
-    const totalItems = products.length;
-    const outOfStockCount = products.filter((p) => getEffectiveStock(p) <= 0).length;
-    const lowStockCount = products.filter(
-      (p) => getEffectiveStock(p) > 0 && getEffectiveStock(p) < currentThreshold
+    const totalUnitsCount = allAlertUnits.length;
+    const outOfStockCount = allAlertUnits.filter((item) => item.stock <= 0).length;
+    const lowStockCount = allAlertUnits.filter(
+      (item) => item.stock > 0 && item.stock < currentThreshold
     ).length;
-    const healthyStockCount = products.filter(
-      (p) => getEffectiveStock(p) >= currentThreshold
+    const healthyStockCount = allAlertUnits.filter(
+      (item) => item.stock >= currentThreshold
     ).length;
 
-    const totalUnitsInCatalog = products.reduce(
-      (acc, p) => acc + Math.max(0, getEffectiveStock(p)),
+    const totalUnitsInCatalog = allAlertUnits.reduce(
+      (acc, item) => acc + Math.max(0, item.stock),
       0
     );
 
     return {
-      totalItems,
+      totalItems: totalUnitsCount,
       outOfStockCount,
       lowStockCount,
       healthyStockCount,
       totalUnitsInCatalog,
     };
-  }, [products, currentThreshold]);
+  }, [allAlertUnits, currentThreshold]);
 
-  // Filtered products with inventory strictly less than threshold
+  // Filtered items with inventory strictly less than threshold
   const lowStockProducts = useMemo(() => {
-    return products.filter((product) => {
-      const stock = getEffectiveStock(product);
-      const isUnderThreshold = stock < currentThreshold;
-
+    return allAlertUnits.filter((item) => {
+      const isUnderThreshold = item.stock < currentThreshold;
       if (!isUnderThreshold) return false;
 
-      // Filter by search query
+      // Filter by search query (checks title, variant name, or product ID)
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
-        const matchesTitle = product.title?.toLowerCase().includes(q);
-        const matchesId = String(product.id).includes(q);
-        if (!matchesTitle && !matchesId) return false;
+        const matchesTitle = item.title.toLowerCase().includes(q);
+        const matchesVariant = item.variantName?.toLowerCase().includes(q);
+        const matchesId = String(item.productId).includes(q);
+        if (!matchesTitle && !matchesVariant && !matchesId) return false;
       }
 
       // Filter by collection
       if (selectedCollectionId !== "ALL") {
-        if (product.collection !== selectedCollectionId) return false;
+        if (item.collectionId !== selectedCollectionId) return false;
       }
 
       return true;
     });
-  }, [products, currentThreshold, searchQuery, selectedCollectionId]);
+  }, [allAlertUnits, currentThreshold, searchQuery, selectedCollectionId]);
 
   // Sorted low stock list
   const sortedLowStockProducts = useMemo(() => {
     const list = [...lowStockProducts];
     if (sortBy === "inventory_asc") {
-      list.sort((a, b) => getEffectiveStock(a) - getEffectiveStock(b));
+      list.sort((a, b) => a.stock - b.stock);
     } else if (sortBy === "inventory_desc") {
-      list.sort((a, b) => getEffectiveStock(b) - getEffectiveStock(a));
+      list.sort((a, b) => b.stock - a.stock);
     } else if (sortBy === "title") {
       list.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
     } else if (sortBy === "price") {
-      list.sort((a, b) => Number(b.unit_price || 0) - Number(a.unit_price || 0));
+      list.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
     }
     return list;
   }, [lowStockProducts, sortBy]);
@@ -143,15 +203,18 @@ export default function StockHealthTab({
 
     const rowsHtml = sortedLowStockProducts
       .map((item, index) => {
-        const stock = getEffectiveStock(item);
+        const stock = item.stock;
         const isZero = stock <= 0;
-        const colTitle = getCollectionTitle(item.collection);
-        const price = Number(item.unit_price || 0).toFixed(2);
+        const colTitle = getCollectionTitle(item.collectionId);
+        const price = Number(item.price || 0).toFixed(2);
         return `
           <tr style="border-bottom: 1px solid rgba(58, 53, 50, 0.12); font-size: 11px;">
             <td style="padding: 8px 10px; text-align: center; color: rgba(58, 53, 50, 0.6);">${index + 1}</td>
-            <td style="padding: 8px 10px; font-weight: 700; color: #3a3532;">#${item.id}</td>
-            <td style="padding: 8px 10px; font-weight: 700; color: #3a3532;">${item.title}</td>
+            <td style="padding: 8px 10px; font-weight: 700; color: #3a3532;">#${item.productId}</td>
+            <td style="padding: 8px 10px; font-weight: 700; color: #3a3532;">
+              ${item.product.title}
+              ${item.isVariant ? `<br/><span style="font-size: 10px; color: #8b7a66; font-weight: normal;">${isBn ? "ভ্যারিয়েন্টঃ" : "Variant:"} <strong>${item.variantName}</strong></span>` : ""}
+            </td>
             <td style="padding: 8px 10px; color: rgba(58, 53, 50, 0.7);">${colTitle}</td>
             <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #8b7a66;">৳${price}</td>
             <td style="padding: 8px 10px; text-align: center;">
@@ -646,29 +709,29 @@ export default function StockHealthTab({
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {sortedLowStockProducts.map((product) => {
-              const stock = getEffectiveStock(product);
+            {sortedLowStockProducts.map((item) => {
+              const stock = item.stock;
               const isZero = stock <= 0;
-              const unitPrice = Number(product.unit_price || 0);
+              const unitPrice = Number(item.price || 0);
 
               return (
                 <div
-                  key={product.id}
+                  key={item.id}
                   className="bg-background rounded-2xl border border-foreground/10 p-4.5 flex flex-col justify-between shadow-xs hover:border-foreground/25 hover:shadow-md transition-all duration-200"
                 >
                   {/* Top Part: Product Image + Information */}
                   <div className="flex items-start gap-3.5">
                     <div className="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden border border-foreground/10 bg-secondary shadow-xs">
                       <ProductImage
-                        title={product.title}
-                        images={product.images}
+                        title={item.product.title}
+                        images={item.product.images}
                       />
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-[10px] font-black uppercase tracking-wider text-foreground/50">
-                          #{product.id}
+                          #{item.productId}
                         </span>
                         <span
                           className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${
@@ -683,13 +746,20 @@ export default function StockHealthTab({
 
                       <h4
                         className="text-xs font-bold text-foreground truncate mt-1"
-                        title={product.title}
+                        title={item.title}
                       >
-                        {product.title}
+                        {item.product.title}
                       </h4>
 
+                      {item.isVariant && (
+                        <div className="inline-flex items-center gap-1.5 mt-1 px-2 py-0.5 rounded-md bg-accent/10 border border-accent/20 text-accent text-[10px] font-bold">
+                          <span className="w-1.5 h-1.5 rounded-full bg-accent"></span>
+                          <span className="truncate max-w-[150px]">{item.variantName}</span>
+                        </div>
+                      )}
+
                       <p className="text-[10px] text-foreground/60 font-medium truncate mt-0.5">
-                        {getCollectionTitle(product.collection)}
+                        {getCollectionTitle(item.collectionId)}
                       </p>
 
                       <p className="text-xs font-black text-accent mt-1">
@@ -728,7 +798,7 @@ export default function StockHealthTab({
                       <div className="mt-3 flex justify-end">
                         <button
                           type="button"
-                          onClick={() => onSelectProduct(product)}
+                          onClick={() => onSelectProduct(item.product)}
                           className="w-full py-2 bg-primary/5 hover:bg-button-bg hover:text-button-fg border border-foreground/15 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all text-center cursor-pointer shadow-xs"
                         >
                           {isBn ? "পণ্য পরিচালনা করুন" : "Manage Product"}
