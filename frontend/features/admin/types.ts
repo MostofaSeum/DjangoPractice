@@ -285,6 +285,7 @@ export type ProductSubTab =
 export type CollectionSubTab = "all" | "featured" | "add" | "edit";
 export type OrderSubTab = "all" | "returns";
 export type AnalyticsSubTab = "sales" | "coupons" | "payments" | "top-products" | "delivery-orders";
+export type SettingsSubTab = "homepage" | "general";
 
 
 

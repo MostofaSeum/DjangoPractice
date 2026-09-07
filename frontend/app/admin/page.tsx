@@ -38,6 +38,7 @@ import {
   CollectionSubTab,
   OrderSubTab,
   AnalyticsSubTab,
+  SettingsSubTab,
 } from "@/features/admin/types";
 
 export default function AdminDashboardPage() {
@@ -60,8 +61,16 @@ export default function AdminDashboardPage() {
   const [isOrdersDropdownOpen, setIsOrdersDropdownOpen] = useState(false);
   const [analyticsSubTab, setAnalyticsSubTab] = useState<AnalyticsSubTab>("sales");
   const [isAnalyticsDropdownOpen, setIsAnalyticsDropdownOpen] = useState(false);
+  const [settingsSubTab, setSettingsSubTab] = useState<SettingsSubTab>("homepage");
+  const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const handleSettingsSubTabSwitch = (subTab: SettingsSubTab) => {
+    setActiveTab("settings");
+    setIsSettingsDropdownOpen(true);
+    setSettingsSubTab(subTab);
+  };
 
   const handleOrderSubTabSwitch = async (subTab: OrderSubTab) => {
     setActiveTab("orders");
@@ -2729,6 +2738,8 @@ export default function AdminDashboardPage() {
     setActiveTab(targetTab);
     if (targetTab === "products") {
       setIsProductsDropdownOpen(true);
+    } else if (targetTab === "settings") {
+      setIsSettingsDropdownOpen(true);
     } else if (targetTab === "orders" && token) {
       // Automatically refresh orders so admin always sees latest orders without manual refresh
       try {
@@ -2929,6 +2940,10 @@ export default function AdminDashboardPage() {
           handleAnalyticsSubTabSwitch={handleAnalyticsSubTabSwitch}
           isAnalyticsDropdownOpen={isAnalyticsDropdownOpen}
           setIsAnalyticsDropdownOpen={setIsAnalyticsDropdownOpen}
+          settingsSubTab={settingsSubTab}
+          handleSettingsSubTabSwitch={handleSettingsSubTabSwitch}
+          isSettingsDropdownOpen={isSettingsDropdownOpen}
+          setIsSettingsDropdownOpen={setIsSettingsDropdownOpen}
           isSidebarCollapsed={isSidebarCollapsed}
           setIsSidebarCollapsed={setIsSidebarCollapsed}
           productsCount={totalProductsCount}
@@ -3209,6 +3224,8 @@ export default function AdminDashboardPage() {
               apiBase={API_BASE}
               token={token}
               collections={collections}
+              settingsSubTab={settingsSubTab}
+              onSubTabChange={setSettingsSubTab}
             />
           )}
         </main>

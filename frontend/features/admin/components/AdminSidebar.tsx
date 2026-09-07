@@ -9,6 +9,7 @@ import {
   OrderSubTab,
   AnalyticsSubTab,
   DeliverySubTab,
+  SettingsSubTab,
 } from "../types";
 
 interface AdminSidebarProps {
@@ -42,6 +43,12 @@ interface AdminSidebarProps {
   handleAnalyticsSubTabSwitch: (subTab: AnalyticsSubTab) => void;
   isAnalyticsDropdownOpen: boolean;
   setIsAnalyticsDropdownOpen: (
+    open: boolean | ((prev: boolean) => boolean),
+  ) => void;
+  settingsSubTab: SettingsSubTab;
+  handleSettingsSubTabSwitch: (subTab: SettingsSubTab) => void;
+  isSettingsDropdownOpen: boolean;
+  setIsSettingsDropdownOpen: (
     open: boolean | ((prev: boolean) => boolean),
   ) => void;
   isSidebarCollapsed: boolean;
@@ -80,6 +87,10 @@ export default function AdminSidebar({
   handleAnalyticsSubTabSwitch,
   isAnalyticsDropdownOpen,
   setIsAnalyticsDropdownOpen,
+  settingsSubTab,
+  handleSettingsSubTabSwitch,
+  isSettingsDropdownOpen,
+  setIsSettingsDropdownOpen,
 
   isSidebarCollapsed,
   setIsSidebarCollapsed,
@@ -197,6 +208,7 @@ export default function AdminSidebar({
           const isOrdersTab = tab.id === "orders";
           const isDeliveryTab = tab.id === "delivery";
           const isAnalyticsTab = tab.id === "analytics";
+          const isSettingsTab = tab.id === "settings";
 
           return (
             <div key={tab.id} className="flex flex-col">
@@ -236,6 +248,13 @@ export default function AdminSidebar({
                     } else {
                       setActiveTab("analytics");
                       setIsAnalyticsDropdownOpen(true);
+                    }
+                  } else if (isSettingsTab) {
+                    if (activeTab === "settings") {
+                      setIsSettingsDropdownOpen((prev) => !prev);
+                    } else {
+                      setActiveTab("settings");
+                      setIsSettingsDropdownOpen(true);
                     }
                   } else {
                     setActiveTab(tab.id);
@@ -283,14 +302,15 @@ export default function AdminSidebar({
 
                 {!isSidebarCollapsed && (
                   <div className="flex items-center gap-1.5 shrink-0">
-                    {(isProductsTab || isCollectionsTab || isOrdersTab || isDeliveryTab || isAnalyticsTab) && (
+                    {(isProductsTab || isCollectionsTab || isOrdersTab || isDeliveryTab || isAnalyticsTab || isSettingsTab) && (
                       <svg
                         className={`w-3.5 h-3.5 transition-transform duration-200 opacity-70 ${
                           (isProductsTab && isProductsDropdownOpen) ||
                           (isCollectionsTab && isCollectionsDropdownOpen) ||
                           (isOrdersTab && isOrdersDropdownOpen) ||
                           (isDeliveryTab && isDeliveryDropdownOpen) ||
-                          (isAnalyticsTab && isAnalyticsDropdownOpen)
+                          (isAnalyticsTab && isAnalyticsDropdownOpen) ||
+                          (isSettingsTab && isSettingsDropdownOpen)
                             ? "rotate-180"
                             : ""
                         }`}
@@ -565,6 +585,37 @@ export default function AdminSidebar({
                       }`}
                     >
                       <span className="truncate">{isBn ? "কুরিয়ার ও ডেলিভারি রিপোর্ট" : "Orders & Delivery Services"}</span>
+                    </button>
+                  </div>
+                )}
+
+              {/* Settings Subsections */}
+              {isSettingsTab &&
+                isSettingsDropdownOpen &&
+                !isSidebarCollapsed && (
+                  <div className="pl-6 pr-1 py-1 mt-1 space-y-1 border-l-2 border-white/10 ml-5 transition-all">
+                    {/* 1. Homepage & Banners (In first place as requested) */}
+                    <button
+                      onClick={() => handleSettingsSubTabSwitch("homepage")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        isActive && settingsSubTab === "homepage"
+                          ? "bg-accent text-white shadow-xs font-black"
+                          : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="truncate">{isBn ? "হোমপেজ ও ব্যানার" : "Homepage & Banners"}</span>
+                    </button>
+
+                    {/* 2. General Settings */}
+                    <button
+                      onClick={() => handleSettingsSubTabSwitch("general")}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                        isActive && settingsSubTab === "general"
+                          ? "bg-accent text-white shadow-xs font-black"
+                          : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                      }`}
+                    >
+                      <span className="truncate">{isBn ? "সাধারণ সেটিংস" : "General Settings"}</span>
                     </button>
                   </div>
                 )}
