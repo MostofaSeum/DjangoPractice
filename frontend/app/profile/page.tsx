@@ -1357,12 +1357,8 @@ export default function ProfilePage() {
 
                   {/* Cancel Order Button on Left of actions */}
                   {selectedOrderDetails.tracking_status === "cancelled" ? (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-hidden/10 text-hidden border border-hidden/25">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="15" y1="9" x2="9" y2="15"></line>
-                        <line x1="9" y1="9" x2="15" y2="15"></line>
-                      </svg>
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[10px] font-black uppercase tracking-wider bg-hidden/10 text-hidden border border-hidden/25">
+                      <img src="/icons/close-x.png" alt="Cancelled" className="w-3 h-3 object-contain dark:invert" />
                       {locale === "bn" ? "অর্ডার বাতিলকৃত" : "Order Cancelled"}
                     </span>
                   ) : (
@@ -1386,11 +1382,7 @@ export default function ProfilePage() {
                           : (t("profile.cancelOrderBtn") || "Cancel Order")
                       }
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="15" y1="9" x2="9" y2="15"></line>
-                        <line x1="9" y1="9" x2="15" y2="15"></line>
-                      </svg>
+                      <img src="/icons/close-x.png" alt="Cancel" className="w-3 h-3 object-contain dark:invert" />
                       <span>{t("profile.cancelOrderBtn") || (locale === "bn" ? "অর্ডার বাতিল করুন" : "Cancel Order")}</span>
                     </button>
                   )}
@@ -1409,10 +1401,7 @@ export default function ProfilePage() {
                 className="w-8 h-8 rounded-full bg-primary/5 hover:bg-button-bg hover:text-button-fg text-foreground/70 flex items-center justify-center transition-colors cursor-pointer shrink-0"
                 title={locale === "bn" ? "বন্ধ করুন" : "Close"}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
+                <img src="/icons/close-x.png" alt="Close" className="w-3.5 h-3.5 object-contain opacity-70 hover:opacity-100 dark:invert" />
               </button>
             </div>
 
