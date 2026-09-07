@@ -1083,6 +1083,11 @@ class SiteSettingSerializer(serializers.ModelSerializer):
             'bento_tile_4_title',
             'bento_tile_4_collection',
             'bento_tile_4_image',
+            'bento_tile_247_image',
+            'bento_tile_247_link',
+            'bento_tile_delivery_title',
+            'bento_tile_delivery_image',
+            'bento_tile_delivery_link',
             'last_updated',
         ]
 

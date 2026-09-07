@@ -687,6 +687,15 @@ class SiteSetting(models.Model):
     )
     bento_tile_4_image = models.ImageField(upload_to='store/bento/', null=True, blank=True)
 
+    # 24/7 Slot (Middle Right 2)
+    bento_tile_247_image = models.ImageField(upload_to='store/bento/', null=True, blank=True)
+    bento_tile_247_link = models.CharField(max_length=500, default='', blank=True)
+
+    # Delivery Slot (Bottom Row 1)
+    bento_tile_delivery_title = models.CharField(max_length=100, default='Fast Delivery', blank=True)
+    bento_tile_delivery_image = models.ImageField(upload_to='store/bento/', null=True, blank=True)
+    bento_tile_delivery_link = models.CharField(max_length=500, default='', blank=True)
+
     last_updated = models.DateTimeField(auto_now=True)
 
 

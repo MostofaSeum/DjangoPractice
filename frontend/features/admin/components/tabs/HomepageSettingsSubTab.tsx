@@ -40,6 +40,9 @@ interface HomepageSettingsState {
   bento_tile_3_collection: number | string;
   bento_tile_4_title: string;
   bento_tile_4_collection: number | string;
+  bento_tile_247_link: string;
+  bento_tile_delivery_title: string;
+  bento_tile_delivery_link: string;
 }
 
 const DEFAULT_HOMEPAGE_SETTINGS: HomepageSettingsState = {
@@ -65,6 +68,9 @@ const DEFAULT_HOMEPAGE_SETTINGS: HomepageSettingsState = {
   bento_tile_3_collection: "",
   bento_tile_4_title: "FOUNDATION & GLOW",
   bento_tile_4_collection: "",
+  bento_tile_247_link: "",
+  bento_tile_delivery_title: "Fast Delivery",
+  bento_tile_delivery_link: "",
 };
 
 export default function HomepageSettingsSubTab({
@@ -501,9 +507,6 @@ export default function HomepageSettingsSubTab({
                   <p className="text-xs font-bold text-foreground/70">
                     {isBn ? "কোনো ব্যানার ছবি নেই" : "No Banner Image Uploaded"}
                   </p>
-                  <p className="text-[10px] text-hidden font-bold">
-                    {isBn ? "* ব্যানার সংরক্ষণ করতে ছবি আপলোড করা বাধ্যতামূলক" : "* Uploading a photo is required to save banner"}
-                  </p>
                 </div>
               )}
             </div>
@@ -522,8 +525,47 @@ export default function HomepageSettingsSubTab({
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
                     const file = e.target.files[0];
-                    setBannerFile(file);
-                    setBannerPreview(URL.createObjectURL(file));
+                    const img = new window.Image();
+                    const objectUrl = URL.createObjectURL(file);
+
+                    img.onload = () => {
+                      const width = img.naturalWidth;
+                      const height = img.naturalHeight;
+                      const ratio = width / height;
+                      // Target banner is 1907x150 (~12.71 aspect ratio). Allow sensible range [11.5 - 13.5] and minimum width 1200px
+                      const isRatioValid = ratio >= 11.5 && ratio <= 13.5;
+                      const isSizeSufficient = width >= 1200 && height >= 80;
+
+                      if (!isRatioValid || !isSizeSufficient) {
+                        URL.revokeObjectURL(objectUrl);
+                        e.target.value = "";
+                        Swal.fire({
+                          icon: "error",
+                          title: isBn ? "ছবির সাইজ মেলেনি!" : "Invalid Banner Dimensions!",
+                          html: isBn
+                            ? `<p class="text-sm">আপলোডকৃত ব্যানারের সাইজ: <b>${width} x ${height}px</b>।</p>
+                               <p class="text-xs text-foreground/70 mt-2">ব্যানারের সাইজ অবশ্যই <b>১৯০৭ x ১৫০ পিক্সেল</b> (অনুপাত ~১২.৭ : ১) এর অনুরূপ হতে হবে যাতে হোমপেজে ডিজাইন নষ্ট না হয়।</p>`
+                            : `<p class="text-sm">Uploaded image dimensions: <b>${width} x ${height}px</b>.</p>
+                               <p class="text-xs text-foreground/70 mt-2">Banner must match the site banner size of <b>1907 x 150 px</b> (aspect ratio ~12.7:1) to maintain proper layout fit.</p>`,
+                        });
+                        return;
+                      }
+
+                      setBannerFile(file);
+                      setBannerPreview(objectUrl);
+                    };
+
+                    img.onerror = () => {
+                      URL.revokeObjectURL(objectUrl);
+                      e.target.value = "";
+                      Swal.fire({
+                        icon: "error",
+                        title: isBn ? "ত্রুটি" : "Error",
+                        text: isBn ? "ছবি লোড করতে ব্যর্থ হয়েছে।" : "Failed to load image file.",
+                      });
+                    };
+
+                    img.src = objectUrl;
                   }
                 }}
               />
@@ -540,6 +582,8 @@ export default function HomepageSettingsSubTab({
                     onClick={() => {
                       setBannerFile(null);
                       setBannerPreview(null);
+                      const input = document.getElementById("banner-file-input") as HTMLInputElement;
+                      if (input) input.value = "";
                     }}
                     className="px-3 py-2 bg-hidden/15 text-hidden hover:bg-hidden hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
@@ -547,10 +591,10 @@ export default function HomepageSettingsSubTab({
                   </button>
                 )}
               </div>
-              <p className="text-[10px] opacity-60">
+              <p className="text-[10px] font-semibold text-foreground/70">
                 {isBn
-                  ? "সুপারিশকৃত সাইজ: ১৪০০ x ৪০০ বা ১৯২০ x ৫৫০ পিক্সেল (PNG/JPG/WEBP)"
-                  : "Recommended size: 1400x400 or 1920x550 pixels (PNG/JPG/WEBP)"}
+                  ? "বাধ্যতামূলক সাইজ: ১৯০৭ x ১৫০ পিক্সেল (অনুপাত ১২.৭ : ১) (PNG/JPG/WEBP)"
+                  : "Required size: 1907 x 150 pixels (aspect ratio ~12.7:1) (PNG/JPG/WEBP)"}
               </p>
             </div>
 

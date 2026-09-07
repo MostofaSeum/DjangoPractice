@@ -153,6 +153,17 @@ export default function HomeClient({
     image: siteSettings?.bento_tile_4_image ? getMediaUrl(siteSettings.bento_tile_4_image) : "/HomePage/Stationary.jpg",
   };
 
+  const bentoTile247 = {
+    image: siteSettings?.bento_tile_247_image ? getMediaUrl(siteSettings.bento_tile_247_image) : "/HomePage/24-7.jpg",
+    link: siteSettings?.bento_tile_247_link || "",
+  };
+
+  const bentoTileDelivery = {
+    title: siteSettings?.bento_tile_delivery_title || t("hero.fastDelivery"),
+    image: siteSettings?.bento_tile_delivery_image ? getMediaUrl(siteSettings.bento_tile_delivery_image) : "/HomePage/Delivery.jpg",
+    link: siteSettings?.bento_tile_delivery_link || "",
+  };
+
   return (
     <div className="min-h-screen pb-24 bg-background text-foreground font-sans transition-colors duration-300">
       {/* Top Banner Image */}
@@ -263,31 +274,70 @@ export default function HomeClient({
           </Link>
 
           {/* Middle Right Item 2 (24/7 Global Drops) */}
-          <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
-            <Image
-              src="/HomePage/24-7.jpg"
-              alt="24/7 Global Drops"
-              fill
-              className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-            />
-            <div className="absolute inset-0 bg-black/5 dark:bg-black/25 pointer-events-none transition-colors duration-500"></div>
-          </div>
+          {bentoTile247.link ? (
+            <Link
+              href={bentoTile247.link}
+              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
+            >
+              <Image
+                src={bentoTile247.image}
+                alt="24/7 Global Drops"
+                fill
+                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                unoptimized
+              />
+              <div className="absolute inset-0 bg-black/5 dark:bg-black/25 pointer-events-none transition-colors duration-500"></div>
+            </Link>
+          ) : (
+            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
+              <Image
+                src={bentoTile247.image}
+                alt="24/7 Global Drops"
+                fill
+                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                unoptimized
+              />
+              <div className="absolute inset-0 bg-black/5 dark:bg-black/25 pointer-events-none transition-colors duration-500"></div>
+            </div>
+          )}
 
           {/* Bottom Row Item 1 (Fast Delivery) */}
-          <div className="md:col-span-1 md:row-span-1 bg-accent/20 rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end min-h-[220px] md:min-h-0">
-            <Image
-              src="/HomePage/Delivery.jpg"
-              alt="Fast Delivery"
-              fill
-              className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-            />
-            <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-            <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-10">
-              <div className="text-xl font-black uppercase tracking-tight mb-1 drop-shadow-md">
-                {t("hero.fastDelivery")}
+          {bentoTileDelivery.link ? (
+            <Link
+              href={bentoTileDelivery.link}
+              className="md:col-span-1 md:row-span-1 bg-accent/20 rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end min-h-[220px] md:min-h-0 cursor-pointer"
+            >
+              <Image
+                src={bentoTileDelivery.image}
+                alt={bentoTileDelivery.title}
+                fill
+                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                unoptimized
+              />
+              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+              <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-10">
+                <div className="text-xl font-black uppercase tracking-tight mb-1 drop-shadow-md">
+                  {bentoTileDelivery.title}
+                </div>
+              </div>
+            </Link>
+          ) : (
+            <div className="md:col-span-1 md:row-span-1 bg-accent/20 rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end min-h-[220px] md:min-h-0">
+              <Image
+                src={bentoTileDelivery.image}
+                alt={bentoTileDelivery.title}
+                fill
+                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                unoptimized
+              />
+              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+              <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-10">
+                <div className="text-xl font-black uppercase tracking-tight mb-1 drop-shadow-md">
+                  {bentoTileDelivery.title}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Bottom Row Item 2 (Bento Tile 2) */}
           <Link
