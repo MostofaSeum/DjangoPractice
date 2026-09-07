@@ -1080,10 +1080,10 @@ export default function HomepageSettingsSubTab({
         <button
           type="submit"
           disabled={!hasChanges || saving}
-          className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center gap-2 ${
+          className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 ${
             hasChanges && !saving
-              ? "bg-button-bg text-button-fg hover:opacity-90 cursor-pointer shadow-lg hover:scale-102"
-              : "bg-foreground/10 text-foreground/40 cursor-not-allowed opacity-60"
+              ? "bg-button-bg text-button-fg hover:opacity-90 cursor-pointer shadow-md hover:scale-102"
+              : "bg-foreground/15 text-foreground/70 border border-foreground/20 cursor-not-allowed"
           }`}
         >
           {saving ? (
@@ -1092,7 +1092,7 @@ export default function HomepageSettingsSubTab({
               <span>{isBn ? "সংরক্ষণ হচ্ছে..." : "Saving..."}</span>
             </>
           ) : (
-            <span>{isBn ? "পরিবর্তন সংরক্ষণ করুন" : "Save Changes"}</span>
+            <span>{isBn ? "সংরক্ষণ" : "Save Changes"}</span>
           )}
         </button>
       </div>

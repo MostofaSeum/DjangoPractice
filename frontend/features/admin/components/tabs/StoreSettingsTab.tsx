@@ -10,6 +10,8 @@ interface StoreSettingsTabProps {
   apiBase: string;
   token: string | null;
   collections?: Collection[];
+  settingsSubTab?: "general" | "homepage";
+  onSubTabChange?: (subTab: "general" | "homepage") => void;
 }
 
 interface SiteSettingsState {
@@ -60,9 +62,22 @@ export default function StoreSettingsTab({
   apiBase,
   token,
   collections = [],
+  settingsSubTab: externalSubTab,
+  onSubTabChange,
 }: StoreSettingsTabProps) {
   const { locale, setCurrency } = useLanguage();
   const isBn = locale === "bn";
+
+  const [internalSubTab, setInternalSubTab] = useState<"general" | "homepage">("homepage");
+  const activeSubTab = externalSubTab !== undefined ? externalSubTab : internalSubTab;
+
+  const handleSubTabChange = (tab: "general" | "homepage") => {
+    if (onSubTabChange) {
+      onSubTabChange(tab);
+    } else {
+      setInternalSubTab(tab);
+    }
+  };
 
   // Initial loaded states (for change detection)
   const [initialSettings, setInitialSettings] = useState<SiteSettingsState>(DEFAULT_SETTINGS);
@@ -292,8 +307,6 @@ export default function StoreSettingsTab({
     }
   };
 
-  const [settingsSubTab, setSettingsSubTab] = useState<"general" | "homepage">("general");
-
   if (loading) {
     return (
       <div className="p-12 text-center text-xs font-bold uppercase tracking-widest text-foreground/60 animate-pulse">
@@ -305,28 +318,13 @@ export default function StoreSettingsTab({
   return (
     <div className="space-y-6">
       {/* Sub-Tab Navigation Header */}
-      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-secondary border border-foreground/10 shadow-xs w-full sm:w-fit">
+      <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-secondary border border-foreground/10 shadow-xs w-full sm:w-fit">
+        {/* 1. Homepage & Banners (in first place) */}
         <button
           type="button"
-          onClick={() => setSettingsSubTab("general")}
-          className={`px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
-            settingsSubTab === "general"
-              ? "bg-button-bg text-button-fg shadow-sm"
-              : "text-foreground/70 hover:text-foreground hover:bg-primary/5 dark:hover:bg-primary/20"
-          }`}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <span>{isBn ? "সাধারণ স্টোর সেটিংস" : "General Settings"}</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setSettingsSubTab("homepage")}
-          className={`px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
-            settingsSubTab === "homepage"
+          onClick={() => handleSubTabChange("homepage")}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+            activeSubTab === "homepage"
               ? "bg-button-bg text-button-fg shadow-sm"
               : "text-foreground/70 hover:text-foreground hover:bg-primary/5 dark:hover:bg-primary/20"
           }`}
@@ -336,10 +334,27 @@ export default function StoreSettingsTab({
           </svg>
           <span>{isBn ? "হোমপেজ ও ব্যানার" : "Homepage & Banners"}</span>
         </button>
+
+        {/* 2. General Settings */}
+        <button
+          type="button"
+          onClick={() => handleSubTabChange("general")}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 ${
+            activeSubTab === "general"
+              ? "bg-button-bg text-button-fg shadow-sm"
+              : "text-foreground/70 hover:text-foreground hover:bg-primary/5 dark:hover:bg-primary/20"
+          }`}
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span>{isBn ? "সাধারণ সেটিংস" : "General Settings"}</span>
+        </button>
       </div>
 
       {/* SubTab Content */}
-      {settingsSubTab === "homepage" ? (
+      {activeSubTab === "homepage" ? (
         <HomepageSettingsSubTab
           apiBase={apiBase}
           token={token}
@@ -681,10 +696,10 @@ export default function StoreSettingsTab({
             <button
               type="submit"
               disabled={!hasChanges || saving}
-              className={`px-8 py-3.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center gap-2 ${
+              className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 ${
                 !hasChanges || saving
-                  ? "bg-foreground/10 text-foreground/40 cursor-not-allowed opacity-60 shadow-none"
-                  : "bg-accent text-button-fg hover:opacity-90 active:scale-95 cursor-pointer"
+                  ? "bg-foreground/15 text-foreground/70 border border-foreground/20 cursor-not-allowed"
+                  : "bg-button-bg text-button-fg hover:opacity-90 active:scale-95 cursor-pointer shadow-sm"
               }`}
             >
               {saving ? (
@@ -693,10 +708,10 @@ export default function StoreSettingsTab({
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  <span>{isBn ? "সংরক্ষণ করা হচ্ছে..." : "Saving..."}</span>
+                  <span>{isBn ? "সংরক্ষণ..." : "Saving..."}</span>
                 </>
               ) : (
-                <span>{isBn ? "সকল সেটিংস সংরক্ষণ করুন" : "Save All Settings"}</span>
+                <span>{isBn ? "সংরক্ষণ" : "Save Changes"}</span>
               )}
             </button>
           </div>
