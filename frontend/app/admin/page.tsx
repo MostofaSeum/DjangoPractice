@@ -3204,7 +3204,13 @@ export default function AdminDashboardPage() {
           )}
 
           {/* 10. GENERAL STORE SETTINGS TAB */}
-          {activeTab === "settings" && <StoreSettingsTab apiBase={API_BASE} token={token} />}
+          {activeTab === "settings" && (
+            <StoreSettingsTab
+              apiBase={API_BASE}
+              token={token}
+              collections={collections}
+            />
+          )}
         </main>
       </div>
     </div>

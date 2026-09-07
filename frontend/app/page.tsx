@@ -9,13 +9,17 @@ export default async function Home() {
   const apiBaseUrl = getApiBaseUrl();
   let trendingProducts: Product[] = [];
   let featuredCollections: Collection[] = [];
+  let siteSettings: any = null;
 
   try {
-    const [prodRes, colRes] = await Promise.all([
+    const [prodRes, colRes, settingsRes] = await Promise.all([
       fetch(`${apiBaseUrl}/store/products/?is_trending=true&page_size=8`, {
         cache: "no-store",
       }),
       fetch(`${apiBaseUrl}/store/collections/`, {
+        cache: "no-store",
+      }),
+      fetch(`${apiBaseUrl}/store/site-settings/`, {
         cache: "no-store",
       }),
     ]);
@@ -37,6 +41,10 @@ export default async function Home() {
         .filter((c: any) => c.is_featured)
         .slice(0, 3);
     }
+
+    if (settingsRes.ok) {
+      siteSettings = await settingsRes.json();
+    }
   } catch (err) {
     console.error("Failed to fetch home page data:", err);
   }
@@ -45,6 +53,7 @@ export default async function Home() {
     <HomeClient
       trendingProducts={trendingProducts}
       featuredCollections={featuredCollections}
+      siteSettings={siteSettings}
       apiBaseUrl={apiBaseUrl}
     />
   );

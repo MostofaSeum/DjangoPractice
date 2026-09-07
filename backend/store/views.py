@@ -1465,7 +1465,24 @@ class SiteSettingViewSet(GenericViewSet):
             if settings_obj.logo:
                 settings_obj.logo.delete(save=False)
             settings_obj.logo = None
-            settings_obj.save(update_fields=['logo', 'last_updated'])
+
+        # Handle explicit top banner removal
+        if request.data.get('remove_top_banner') == 'true' or request.data.get('remove_top_banner') is True:
+            if settings_obj.top_banner_image:
+                settings_obj.top_banner_image.delete(save=False)
+            settings_obj.top_banner_image = None
+
+        # Handle explicit bento tile images removal
+        for i in range(1, 5):
+            flag = f'remove_bento_tile_{i}_image'
+            if request.data.get(flag) == 'true' or request.data.get(flag) is True:
+                field_name = f'bento_tile_{i}_image'
+                current_img = getattr(settings_obj, field_name, None)
+                if current_img:
+                    current_img.delete(save=False)
+                setattr(settings_obj, field_name, None)
+
+        settings_obj.save(update_fields=['logo', 'top_banner_image', 'bento_tile_1_image', 'bento_tile_2_image', 'bento_tile_3_image', 'bento_tile_4_image', 'last_updated'])
 
         serializer = SiteSettingSerializer(
             settings_obj,

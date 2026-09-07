@@ -2,11 +2,14 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useLanguage } from "@/store/LanguageContext";
+import { Collection } from "@/features/admin/types";
+import HomepageSettingsSubTab from "./HomepageSettingsSubTab";
 import Swal from "sweetalert2";
 
 interface StoreSettingsTabProps {
   apiBase: string;
   token: string | null;
+  collections?: Collection[];
 }
 
 interface SiteSettingsState {
@@ -53,7 +56,11 @@ const AVAILABLE_CURRENCIES = [
   { code: "CAD", label: "CAD ($) - Canadian Dollar", symbol: "CA$" },
 ];
 
-export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabProps) {
+export default function StoreSettingsTab({
+  apiBase,
+  token,
+  collections = [],
+}: StoreSettingsTabProps) {
   const { locale, setCurrency } = useLanguage();
   const isBn = locale === "bn";
 
@@ -285,6 +292,8 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
     }
   };
 
+  const [settingsSubTab, setSettingsSubTab] = useState<"general" | "homepage">("general");
+
   if (loading) {
     return (
       <div className="p-12 text-center text-xs font-bold uppercase tracking-widest text-foreground/60 animate-pulse">
@@ -294,10 +303,53 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
   }
 
   return (
-    <form onSubmit={handleSaveSettings} className="space-y-8 animate-in fade-in duration-300 pb-12">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-        {/* Left Column: Logo Upload & Brand Identity & Currency */}
-        <div className="space-y-6">
+    <div className="space-y-6">
+      {/* Sub-Tab Navigation Header */}
+      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-secondary border border-foreground/10 shadow-xs w-full sm:w-fit">
+        <button
+          type="button"
+          onClick={() => setSettingsSubTab("general")}
+          className={`px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
+            settingsSubTab === "general"
+              ? "bg-button-bg text-button-fg shadow-sm"
+              : "text-foreground/70 hover:text-foreground hover:bg-primary/5 dark:hover:bg-primary/20"
+          }`}
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span>{isBn ? "সাধারণ স্টোর সেটিংস" : "General Settings"}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setSettingsSubTab("homepage")}
+          className={`px-5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-2 ${
+            settingsSubTab === "homepage"
+              ? "bg-button-bg text-button-fg shadow-sm"
+              : "text-foreground/70 hover:text-foreground hover:bg-primary/5 dark:hover:bg-primary/20"
+          }`}
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+          </svg>
+          <span>{isBn ? "হোমপেজ ও ব্যানার" : "Homepage & Banners"}</span>
+        </button>
+      </div>
+
+      {/* SubTab Content */}
+      {settingsSubTab === "homepage" ? (
+        <HomepageSettingsSubTab
+          apiBase={apiBase}
+          token={token}
+          collections={collections || []}
+        />
+      ) : (
+        <form onSubmit={handleSaveSettings} className="space-y-8 animate-in fade-in duration-300 pb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+            {/* Left Column: Logo Upload & Brand Identity & Currency */}
+            <div className="space-y-6">
           {/* Currency Configuration Card */}
           <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm space-y-4">
             <div className="flex items-center gap-2">
@@ -648,8 +700,10 @@ export default function StoreSettingsTab({ apiBase, token }: StoreSettingsTabPro
               )}
             </button>
           </div>
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+      )}
+    </div>
   );
 }

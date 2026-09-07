@@ -632,6 +632,61 @@ class SiteSetting(models.Model):
         ('CAD', 'CAD ($) - Canadian Dollar'),
     ]
     currency_code = models.CharField(max_length=10, choices=CURRENCY_CHOICES, default='BDT')
+
+    # Top Promotional Banner
+    top_banner_image = models.ImageField(upload_to='store/banners/', null=True, blank=True)
+    top_banner_link = models.CharField(max_length=500, default='/gift-cards', blank=True)
+    top_banner_is_active = models.BooleanField(default=True)
+
+    # Hero Typography & Rotator
+    hero_badge = models.CharField(max_length=100, default='New Collection', blank=True)
+    hero_title_prefix = models.CharField(max_length=100, default='Elevate Your', blank=True)
+    hero_rotating_words = models.CharField(
+        max_length=500,
+        default='Beauty, Glow, Look, Glam, Charm',
+        blank=True
+    )
+    hero_subtitle = models.TextField(
+        default='Experience the intersection of luxury cosmetics, skincare, and radiant beauty aesthetics.',
+        blank=True
+    )
+    hero_btn_text = models.CharField(max_length=100, default='Explore Collection', blank=True)
+    hero_btn_link = models.CharField(max_length=500, default='/collections', blank=True)
+
+    # Discover Card
+    discover_title = models.CharField(max_length=100, default='Discover the Glam', blank=True)
+    discover_subtitle = models.TextField(
+        default='Collect exclusive beauty essentials and immerse yourself in the finest makeup shades.',
+        blank=True
+    )
+    discover_btn_text = models.CharField(max_length=100, default='View Exclusives', blank=True)
+    discover_btn_link = models.CharField(max_length=500, default='/products', blank=True)
+
+    # Bento Grid Category Slots (4 items)
+    bento_tile_1_title = models.CharField(max_length=100, default='LIPSTICKS', blank=True)
+    bento_tile_1_collection = models.ForeignKey(
+        'Collection', on_delete=models.SET_NULL, null=True, blank=True, related_name='+'
+    )
+    bento_tile_1_image = models.ImageField(upload_to='store/bento/', null=True, blank=True)
+
+    bento_tile_2_title = models.CharField(max_length=100, default='SKINCARE', blank=True)
+    bento_tile_2_collection = models.ForeignKey(
+        'Collection', on_delete=models.SET_NULL, null=True, blank=True, related_name='+'
+    )
+    bento_tile_2_image = models.ImageField(upload_to='store/bento/', null=True, blank=True)
+
+    bento_tile_3_title = models.CharField(max_length=100, default='EYE MAKEUP', blank=True)
+    bento_tile_3_collection = models.ForeignKey(
+        'Collection', on_delete=models.SET_NULL, null=True, blank=True, related_name='+'
+    )
+    bento_tile_3_image = models.ImageField(upload_to='store/bento/', null=True, blank=True)
+
+    bento_tile_4_title = models.CharField(max_length=100, default='FOUNDATION & GLOW', blank=True)
+    bento_tile_4_collection = models.ForeignKey(
+        'Collection', on_delete=models.SET_NULL, null=True, blank=True, related_name='+'
+    )
+    bento_tile_4_image = models.ImageField(upload_to='store/bento/', null=True, blank=True)
+
     last_updated = models.DateTimeField(auto_now=True)
 
 

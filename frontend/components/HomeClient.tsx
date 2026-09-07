@@ -19,6 +19,7 @@ interface Collection {
 interface HomeClientProps {
   trendingProducts: Product[];
   featuredCollections: Collection[];
+  siteSettings?: any;
   apiBaseUrl: string;
 }
 
@@ -79,39 +80,100 @@ const DiamondIcon = () => (
 export default function HomeClient({
   trendingProducts,
   featuredCollections,
+  siteSettings,
   apiBaseUrl,
 }: HomeClientProps) {
   const { t, formatCurrency, locale } = useLanguage();
 
+  const getMediaUrl = (url?: string | null, fallback: string = "") => {
+    if (!url) return fallback;
+    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("blob:") || url.startsWith("data:")) {
+      return url;
+    }
+    return `${apiBaseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
+  };
+
   const getCollectionImageUrl = (col: Collection) => {
     if (col.image) {
-      if (col.image.startsWith("http://") || col.image.startsWith("https://")) {
-        return col.image;
-      }
-      return `${apiBaseUrl}${col.image.startsWith("/") ? "" : "/"}${col.image}`;
+      return getMediaUrl(col.image);
     }
     return null;
   };
 
+  // Top Promotional Banner dynamic settings
+  const isBannerActive = siteSettings ? siteSettings.top_banner_is_active !== false : true;
+  const bannerImage = siteSettings?.top_banner_image
+    ? getMediaUrl(siteSettings.top_banner_image, "/Banners/Banner.png")
+    : "/Banners/Banner.png";
+  const bannerLink = siteSettings?.top_banner_link || "/gift-cards";
+
+  // Hero Section Dynamic Settings
+  const heroBadge = siteSettings?.hero_badge || t("hero.newCollection");
+  const heroTitlePrefix = siteSettings?.hero_title_prefix || t("hero.elevateYour");
+  const heroSubtitle = siteSettings?.hero_subtitle || t("hero.heroSubtitle");
+  const heroBtnText = siteSettings?.hero_btn_text || t("hero.exploreCollection");
+  const heroBtnLink = siteSettings?.hero_btn_link || "/collections";
+
+  // Rotating words
+  const customRotatingWords = siteSettings?.hero_rotating_words
+    ? siteSettings.hero_rotating_words
+        .split(",")
+        .map((w: string) => w.trim())
+        .filter(Boolean)
+    : undefined;
+
+  // Discover Box Dynamic Settings
+  const discoverTitle = siteSettings?.discover_title || t("hero.discoverVibe");
+  const discoverSubtitle = siteSettings?.discover_subtitle || t("hero.discoverSubtitle");
+  const discoverBtnText = siteSettings?.discover_btn_text || t("hero.viewExclusives");
+  const discoverBtnLink = siteSettings?.discover_btn_link || "/products";
+
+  // Bento Tiles dynamic configuration
+  const bentoTile1 = {
+    title: siteSettings?.bento_tile_1_title || t("hero.beauty"),
+    link: siteSettings?.bento_tile_1_collection ? `/collections/${siteSettings.bento_tile_1_collection}` : "/collections/3",
+    image: siteSettings?.bento_tile_1_image ? getMediaUrl(siteSettings.bento_tile_1_image) : "/HomePage/Beauty.webp",
+  };
+
+  const bentoTile2 = {
+    title: siteSettings?.bento_tile_2_title || t("hero.cleaning"),
+    link: siteSettings?.bento_tile_2_collection ? `/collections/${siteSettings.bento_tile_2_collection}` : "/collections/4",
+    image: siteSettings?.bento_tile_2_image ? getMediaUrl(siteSettings.bento_tile_2_image) : "/HomePage/Cleaning.webp",
+  };
+
+  const bentoTile3 = {
+    title: siteSettings?.bento_tile_3_title || t("hero.pets"),
+    link: siteSettings?.bento_tile_3_collection ? `/collections/${siteSettings.bento_tile_3_collection}` : "/collections/6",
+    image: siteSettings?.bento_tile_3_image ? getMediaUrl(siteSettings.bento_tile_3_image) : "/HomePage/Pet.jpg",
+  };
+
+  const bentoTile4 = {
+    title: siteSettings?.bento_tile_4_title || t("hero.stationary"),
+    link: siteSettings?.bento_tile_4_collection ? `/collections/${siteSettings.bento_tile_4_collection}` : "/collections/5",
+    image: siteSettings?.bento_tile_4_image ? getMediaUrl(siteSettings.bento_tile_4_image) : "/HomePage/Stationary.jpg",
+  };
+
   return (
     <div className="min-h-screen pb-24 bg-background text-foreground font-sans transition-colors duration-300">
-      {/* Top Banner Image*/}
-      <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 pt-6">
-        <Link
-          href="/gift-cards"
-          className="block w-full rounded-[2rem] overflow-hidden shadow-lg border border-foreground/10 group flex justify-center bg-secondary cursor-pointer"
-        >
-          <Image
-            src="/Banners/Banner.png"
-            alt="Special Promotion Banner"
-            width={1400}
-            height={500}
-            priority
-            unoptimized
-            className="w-full h-auto object-contain rounded-[2rem] group-hover:scale-[1.01] transition-transform duration-500"
-          />
-        </Link>
-      </div>
+      {/* Top Banner Image */}
+      {isBannerActive && (
+        <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 pt-6">
+          <Link
+            href={bannerLink}
+            className="block w-full rounded-[2rem] overflow-hidden shadow-lg border border-foreground/10 group flex justify-center bg-secondary cursor-pointer"
+          >
+            <Image
+              src={bannerImage}
+              alt="Special Promotion Banner"
+              width={1400}
+              height={500}
+              priority
+              unoptimized
+              className="w-full h-auto object-contain rounded-[2rem] group-hover:scale-[1.01] transition-transform duration-500"
+            />
+          </Link>
+        </div>
+      )}
 
       {/* Bento Box Hero Section */}
       <section className="relative w-full pt-8 pb-12 px-4 md:px-8 max-w-[1400px] mx-auto flex items-center justify-center">
@@ -136,25 +198,25 @@ export default function HomeClient({
               </svg>
             </div>
             <span className="bg-accent/20 text-foreground text-[10px] font-bold px-3 py-1 mb-8 inline-block uppercase tracking-widest rounded-md self-start">
-              {t("hero.newCollection")}
+              {heroBadge}
             </span>
             <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black leading-[0.9] tracking-tighter mb-6 uppercase z-10">
-              {t("hero.elevateYour")} <br /> <AnimatedWord />
+              {heroTitlePrefix} <br /> <AnimatedWord customWords={customRotatingWords} />
             </h1>
             <p className="text-base font-semibold opacity-90 max-w-sm mb-10 text-foreground leading-relaxed z-10">
-              {t("hero.heroSubtitle")}
+              {heroSubtitle}
             </p>
             <div className="flex gap-4 z-10">
               <Link
-                href="/collections"
+                href={heroBtnLink}
                 className="bg-button-bg text-button-fg px-6 py-3.5 rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2 duration-300"
               >
-                {t("hero.exploreCollection")}
+                {heroBtnText}
               </Link>
             </div>
           </div>
 
-          {/* Top Right Bento Item (Discover the Vibe) */}
+          {/* Top Right Bento Item (Discover Card) */}
           <div className="md:col-span-2 md:row-span-1 bg-primary rounded-[2rem] p-8 md:p-10 relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500 min-h-[220px] md:min-h-0">
             <Image
               src="/HomePage/Fashion.jpg"
@@ -165,36 +227,37 @@ export default function HomeClient({
             />
             <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent pointer-events-none"></div>
             <h2 className="text-3xl md:text-4xl font-black mb-3 uppercase tracking-tight relative z-10 text-background dark:text-foreground">
-              {t("hero.discoverVibe")}
+              {discoverTitle}
             </h2>
             <p className="text-sm font-semibold opacity-95 mb-8 leading-relaxed relative z-10 max-w-md text-background dark:text-foreground">
-              {t("hero.discoverSubtitle")}
+              {discoverSubtitle}
             </p>
             <div className="flex gap-4 relative z-10">
               <Link
-                href="/products"
+                href={discoverBtnLink}
                 className="bg-background text-primary dark:bg-accent dark:text-foreground px-6 py-3 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:opacity-90 transition-all hover:-translate-y-0.5 duration-300 inline-flex justify-center items-center shadow-lg"
               >
-                {t("hero.viewExclusives")}
+                {discoverBtnText}
               </Link>
             </div>
           </div>
 
-          {/* Middle Right Item 1 (Beauty) */}
+          {/* Middle Right Item 1 (Bento Tile 1) */}
           <Link
-            href="/collections/3"
+            href={bentoTile1.link}
             className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
           >
             <Image
-              src="/HomePage/Beauty.webp"
-              alt="Beauty"
+              src={bentoTile1.image}
+              alt={bentoTile1.title}
               fill
+              unoptimized
               className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
             />
             <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
               <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
-                {t("hero.beauty")}
+                {bentoTile1.title}
               </span>
             </div>
           </Link>
@@ -226,62 +289,65 @@ export default function HomeClient({
             </div>
           </div>
 
-          {/* Bottom Row Item 2 (Cleaning) */}
+          {/* Bottom Row Item 2 (Bento Tile 2) */}
           <Link
-            href="/collections/4"
+            href={bentoTile2.link}
             className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
           >
             <Image
-              src="/HomePage/Cleaning.webp"
-              alt="Cleaning"
+              src={bentoTile2.image}
+              alt={bentoTile2.title}
               fill
+              unoptimized
               sizes="(max-width: 768px) 100vw, 33vw"
               className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
             />
             <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
               <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
-                {t("hero.cleaning")}
+                {bentoTile2.title}
               </span>
             </div>
           </Link>
 
-          {/* Bottom Row Item 3 (Pets) */}
+          {/* Bottom Row Item 3 (Bento Tile 3) */}
           <Link
-            href="/collections/6"
+            href={bentoTile3.link}
             className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
           >
             <Image
-              src="/HomePage/Pet.jpg"
-              alt="Pets"
+              src={bentoTile3.image}
+              alt={bentoTile3.title}
               fill
+              unoptimized
               sizes="(max-width: 768px) 100vw, 33vw"
               className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
             />
             <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
               <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
-                {t("hero.pets")}
+                {bentoTile3.title}
               </span>
             </div>
           </Link>
 
-          {/* Bottom Row Item 4 (Stationary) */}
+          {/* Bottom Row Item 4 (Bento Tile 4) */}
           <Link
-            href="/collections/5"
+            href={bentoTile4.link}
             className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
           >
             <Image
-              src="/HomePage/Stationary.jpg"
-              alt="Stationary"
+              src={bentoTile4.image}
+              alt={bentoTile4.title}
               fill
+              unoptimized
               sizes="(max-width: 768px) 100vw, 33vw"
               className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
             />
             <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
               <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
-                {t("hero.stationary")}
+                {bentoTile4.title}
               </span>
             </div>
           </Link>

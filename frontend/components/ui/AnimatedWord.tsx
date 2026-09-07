@@ -6,12 +6,17 @@ import { useLanguage } from "@/store/LanguageContext";
 const WORDS_EN = ["Beauty", "Glow", "Look", "Glam", "Charm"];
 const WORDS_BN = ["সৌন্দর্য", "গ্লো", "লুক", "গ্ল্যাম", "রূপ"];
 
-export default function AnimatedWord() {
+interface AnimatedWordProps {
+  customWords?: string[];
+}
+
+export default function AnimatedWord({ customWords }: AnimatedWordProps = {}) {
   const { locale } = useLanguage();
   const [wordIndex, setWordIndex] = useState(0);
   const [fade, setFade] = useState(true);
 
-  const words = locale === "bn" ? WORDS_BN : WORDS_EN;
+  const defaultWords = locale === "bn" ? WORDS_BN : WORDS_EN;
+  const words = customWords && customWords.length > 0 ? customWords : defaultWords;
 
   useEffect(() => {
     const interval = setInterval(() => {
