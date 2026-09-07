@@ -102,9 +102,7 @@ export default function HomeClient({
 
   // Top Promotional Banner dynamic settings
   const isBannerActive = siteSettings ? siteSettings.top_banner_is_active !== false : true;
-  const bannerImage = siteSettings?.top_banner_image
-    ? getMediaUrl(siteSettings.top_banner_image, "/Banners/Banner.png")
-    : "/Banners/Banner.png";
+  const bannerImage = siteSettings?.top_banner_image ? getMediaUrl(siteSettings.top_banner_image) : "";
   const bannerLink = siteSettings?.top_banner_link || "/gift-cards";
 
   // Hero Section Dynamic Settings
@@ -128,47 +126,47 @@ export default function HomeClient({
   const discoverBtnText = siteSettings?.discover_btn_text || t("hero.viewExclusives");
   const discoverBtnLink = siteSettings?.discover_btn_link || "/products";
 
-  // Bento Tiles dynamic configuration
+  // Bento Tiles dynamic configuration (only uploaded photos, no hardcoded demo images)
   const bentoTile1 = {
-    title: siteSettings?.bento_tile_1_title || t("hero.beauty"),
+    title: siteSettings?.bento_tile_1_title || "",
     link: siteSettings?.bento_tile_1_collection ? `/collections/${siteSettings.bento_tile_1_collection}` : "/collections/3",
-    image: siteSettings?.bento_tile_1_image ? getMediaUrl(siteSettings.bento_tile_1_image) : "/HomePage/Beauty.webp",
+    image: siteSettings?.bento_tile_1_image ? getMediaUrl(siteSettings.bento_tile_1_image) : "",
   };
 
   const bentoTile2 = {
-    title: siteSettings?.bento_tile_2_title || t("hero.cleaning"),
+    title: siteSettings?.bento_tile_2_title || "",
     link: siteSettings?.bento_tile_2_collection ? `/collections/${siteSettings.bento_tile_2_collection}` : "/collections/4",
-    image: siteSettings?.bento_tile_2_image ? getMediaUrl(siteSettings.bento_tile_2_image) : "/HomePage/Cleaning.webp",
+    image: siteSettings?.bento_tile_2_image ? getMediaUrl(siteSettings.bento_tile_2_image) : "",
   };
 
   const bentoTile3 = {
-    title: siteSettings?.bento_tile_3_title || t("hero.pets"),
+    title: siteSettings?.bento_tile_3_title || "",
     link: siteSettings?.bento_tile_3_collection ? `/collections/${siteSettings.bento_tile_3_collection}` : "/collections/6",
-    image: siteSettings?.bento_tile_3_image ? getMediaUrl(siteSettings.bento_tile_3_image) : "/HomePage/Pet.jpg",
+    image: siteSettings?.bento_tile_3_image ? getMediaUrl(siteSettings.bento_tile_3_image) : "",
   };
 
   const bentoTile4 = {
-    title: siteSettings?.bento_tile_4_title || t("hero.stationary"),
+    title: siteSettings?.bento_tile_4_title || "",
     link: siteSettings?.bento_tile_4_collection ? `/collections/${siteSettings.bento_tile_4_collection}` : "/collections/5",
-    image: siteSettings?.bento_tile_4_image ? getMediaUrl(siteSettings.bento_tile_4_image) : "/HomePage/Stationary.jpg",
+    image: siteSettings?.bento_tile_4_image ? getMediaUrl(siteSettings.bento_tile_4_image) : "",
   };
 
   const bentoTile247 = {
     title: siteSettings?.bento_tile_247_title || "",
-    image: siteSettings?.bento_tile_247_image ? getMediaUrl(siteSettings.bento_tile_247_image) : "/HomePage/24-7.jpg",
+    image: siteSettings?.bento_tile_247_image ? getMediaUrl(siteSettings.bento_tile_247_image) : "",
     link: siteSettings?.bento_tile_247_link || "",
   };
 
   const bentoTileDelivery = {
-    title: siteSettings?.bento_tile_delivery_title || t("hero.fastDelivery"),
-    image: siteSettings?.bento_tile_delivery_image ? getMediaUrl(siteSettings.bento_tile_delivery_image) : "/HomePage/Delivery.jpg",
+    title: siteSettings?.bento_tile_delivery_title || "",
+    image: siteSettings?.bento_tile_delivery_image ? getMediaUrl(siteSettings.bento_tile_delivery_image) : "",
     link: siteSettings?.bento_tile_delivery_link || "",
   };
 
   return (
     <div className="min-h-screen pb-24 bg-background text-foreground font-sans transition-colors duration-300">
       {/* Top Banner Image */}
-      {isBannerActive && (
+      {isBannerActive && bannerImage && (
         <div className="w-full max-w-[1400px] mx-auto px-4 md:px-8 pt-6">
           <Link
             href={bannerLink}
@@ -259,13 +257,15 @@ export default function HomeClient({
             href={bentoTile1.link}
             className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
           >
-            <Image
-              src={bentoTile1.image}
-              alt={bentoTile1.title || "Slot 1"}
-              fill
-              unoptimized
-              className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-            />
+            {bentoTile1.image && (
+              <Image
+                src={bentoTile1.image}
+                alt={bentoTile1.title || "Slot 1"}
+                fill
+                unoptimized
+                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+              />
+            )}
             {bentoTile1.title && (
               <>
                 <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
@@ -284,13 +284,15 @@ export default function HomeClient({
               href={bentoTile247.link}
               className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
             >
-              <Image
-                src={bentoTile247.image}
-                alt={bentoTile247.title || "Slot 5"}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-                unoptimized
-              />
+              {bentoTile247.image && (
+                <Image
+                  src={bentoTile247.image}
+                  alt={bentoTile247.title || "Slot 5"}
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                  unoptimized
+                />
+              )}
               <div className="absolute inset-0 bg-black/5 dark:bg-black/25 pointer-events-none transition-colors duration-500"></div>
               {bentoTile247.title && (
                 <>
@@ -305,13 +307,15 @@ export default function HomeClient({
             </Link>
           ) : (
             <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
-              <Image
-                src={bentoTile247.image}
-                alt={bentoTile247.title || "Slot 5"}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-                unoptimized
-              />
+              {bentoTile247.image && (
+                <Image
+                  src={bentoTile247.image}
+                  alt={bentoTile247.title || "Slot 5"}
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                  unoptimized
+                />
+              )}
               <div className="absolute inset-0 bg-black/5 dark:bg-black/25 pointer-events-none transition-colors duration-500"></div>
               {bentoTile247.title && (
                 <>
@@ -332,13 +336,15 @@ export default function HomeClient({
               href={bentoTileDelivery.link}
               className="md:col-span-1 md:row-span-1 bg-accent/20 rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end min-h-[220px] md:min-h-0 cursor-pointer"
             >
-              <Image
-                src={bentoTileDelivery.image}
-                alt={bentoTileDelivery.title || "Slot 6"}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-                unoptimized
-              />
+              {bentoTileDelivery.image && (
+                <Image
+                  src={bentoTileDelivery.image}
+                  alt={bentoTileDelivery.title || "Slot 6"}
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                  unoptimized
+                />
+              )}
               {bentoTileDelivery.title && (
                 <>
                   <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
@@ -352,13 +358,15 @@ export default function HomeClient({
             </Link>
           ) : (
             <div className="md:col-span-1 md:row-span-1 bg-accent/20 rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end min-h-[220px] md:min-h-0">
-              <Image
-                src={bentoTileDelivery.image}
-                alt={bentoTileDelivery.title || "Slot 6"}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-                unoptimized
-              />
+              {bentoTileDelivery.image && (
+                <Image
+                  src={bentoTileDelivery.image}
+                  alt={bentoTileDelivery.title || "Slot 6"}
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                  unoptimized
+                />
+              )}
               {bentoTileDelivery.title && (
                 <>
                   <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
@@ -377,14 +385,16 @@ export default function HomeClient({
             href={bentoTile2.link}
             className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
           >
-            <Image
-              src={bentoTile2.image}
-              alt={bentoTile2.title || "Slot 2"}
-              fill
-              unoptimized
-              sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-            />
+            {bentoTile2.image && (
+              <Image
+                src={bentoTile2.image}
+                alt={bentoTile2.title || "Slot 2"}
+                fill
+                unoptimized
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+              />
+            )}
             {bentoTile2.title && (
               <>
                 <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
@@ -402,14 +412,16 @@ export default function HomeClient({
             href={bentoTile3.link}
             className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
           >
-            <Image
-              src={bentoTile3.image}
-              alt={bentoTile3.title || "Slot 3"}
-              fill
-              unoptimized
-              sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-            />
+            {bentoTile3.image && (
+              <Image
+                src={bentoTile3.image}
+                alt={bentoTile3.title || "Slot 3"}
+                fill
+                unoptimized
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+              />
+            )}
             {bentoTile3.title && (
               <>
                 <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
@@ -427,14 +439,16 @@ export default function HomeClient({
             href={bentoTile4.link}
             className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
           >
-            <Image
-              src={bentoTile4.image}
-              alt={bentoTile4.title || "Slot 4"}
-              fill
-              unoptimized
-              sizes="(max-width: 768px) 100vw, 33vw"
-              className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-            />
+            {bentoTile4.image && (
+              <Image
+                src={bentoTile4.image}
+                alt={bentoTile4.title || "Slot 4"}
+                fill
+                unoptimized
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+              />
+            )}
             {bentoTile4.title && (
               <>
                 <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
