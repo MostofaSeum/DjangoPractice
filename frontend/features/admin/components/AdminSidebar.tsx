@@ -49,9 +49,7 @@ interface AdminSidebarProps {
     collapsed: boolean | ((prev: boolean) => boolean),
   ) => void;
   productsCount: number;
-  trendingCount?: number;
   collectionsCount: number;
-  featuredCollectionsCount?: number;
   ordersCount: number;
   customersCount: number;
   promosCount: number;
@@ -86,9 +84,7 @@ export default function AdminSidebar({
   isSidebarCollapsed,
   setIsSidebarCollapsed,
   productsCount,
-  trendingCount = 0,
   collectionsCount,
-  featuredCollectionsCount = 0,
   ordersCount,
   customersCount,
   promosCount,

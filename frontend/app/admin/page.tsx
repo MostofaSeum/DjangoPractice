@@ -2932,15 +2932,7 @@ export default function AdminDashboardPage() {
           isSidebarCollapsed={isSidebarCollapsed}
           setIsSidebarCollapsed={setIsSidebarCollapsed}
           productsCount={totalProductsCount}
-          trendingCount={
-            allProductsForPromo.length > 0
-              ? allProductsForPromo.filter((p) => p.is_trending).length
-              : products.filter((p) => p.is_trending).length
-          }
           collectionsCount={collections.length}
-          featuredCollectionsCount={
-            collections.filter((c) => c.is_featured).length
-          }
           ordersCount={orders.length}
           customersCount={customers.length}
           promosCount={
