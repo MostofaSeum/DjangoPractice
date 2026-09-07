@@ -40,6 +40,7 @@ interface HomepageSettingsState {
   bento_tile_3_collection: number | string;
   bento_tile_4_title: string;
   bento_tile_4_collection: number | string;
+  bento_tile_247_title: string;
   bento_tile_247_link: string;
   bento_tile_delivery_title: string;
   bento_tile_delivery_link: string;
@@ -68,6 +69,7 @@ const DEFAULT_HOMEPAGE_SETTINGS: HomepageSettingsState = {
   bento_tile_3_collection: "",
   bento_tile_4_title: "FOUNDATION & GLOW",
   bento_tile_4_collection: "",
+  bento_tile_247_title: "",
   bento_tile_247_link: "",
   bento_tile_delivery_title: "Fast Delivery",
   bento_tile_delivery_link: "",
@@ -163,6 +165,7 @@ export default function HomepageSettingsSubTab({
           bento_tile_3_collection: data.bento_tile_3_collection || "",
           bento_tile_4_title: data.bento_tile_4_title || "FOUNDATION & GLOW",
           bento_tile_4_collection: data.bento_tile_4_collection || "",
+          bento_tile_247_title: data.bento_tile_247_title || "",
           bento_tile_247_link: data.bento_tile_247_link || "",
           bento_tile_delivery_title: data.bento_tile_delivery_title || "Fast Delivery",
           bento_tile_delivery_link: data.bento_tile_delivery_link || "",
@@ -409,6 +412,7 @@ export default function HomepageSettingsSubTab({
       }
 
       // Bento 24/7 Slot
+      payload.append("bento_tile_247_title", formData.bento_tile_247_title);
       payload.append("bento_tile_247_link", formData.bento_tile_247_link);
       if (bento247File) {
         payload.append("bento_tile_247_image", bento247File);
@@ -860,14 +864,11 @@ export default function HomepageSettingsSubTab({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Tile 1 */}
+          {/* Slot 1 */}
           <div className="p-5 rounded-2xl border border-foreground/10 bg-primary/5 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black uppercase tracking-wider text-foreground">
-                {isBn ? "স্লট ১ (মিডল রাইট ১)" : "Slot 1 (Middle Right 1)"}
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent/20 text-accent font-bold">
-                Tile #1
+                {isBn ? "স্লট ১" : "Slot 1"}
               </span>
             </div>
 
@@ -958,14 +959,11 @@ export default function HomepageSettingsSubTab({
             </div>
           </div>
 
-          {/* Tile 2 */}
+          {/* Slot 2 */}
           <div className="p-5 rounded-2xl border border-foreground/10 bg-primary/5 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black uppercase tracking-wider text-foreground">
-                {isBn ? "স্লট ২ (বটম রো ১)" : "Slot 2 (Bottom Row 1)"}
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent/20 text-accent font-bold">
-                Tile #2
+                {isBn ? "স্লট ২" : "Slot 2"}
               </span>
             </div>
 
@@ -1056,14 +1054,11 @@ export default function HomepageSettingsSubTab({
             </div>
           </div>
 
-          {/* Tile 3 */}
+          {/* Slot 3 */}
           <div className="p-5 rounded-2xl border border-foreground/10 bg-primary/5 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black uppercase tracking-wider text-foreground">
-                {isBn ? "স্লট ৩ (বটম রো ২)" : "Slot 3 (Bottom Row 2)"}
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent/20 text-accent font-bold">
-                Tile #3
+                {isBn ? "স্লট ৩" : "Slot 3"}
               </span>
             </div>
 
@@ -1154,14 +1149,11 @@ export default function HomepageSettingsSubTab({
             </div>
           </div>
 
-          {/* Tile 4 */}
+          {/* Slot 4 */}
           <div className="p-5 rounded-2xl border border-foreground/10 bg-primary/5 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black uppercase tracking-wider text-foreground">
-                {isBn ? "স্লট ৪ (বটম রো ৩)" : "Slot 4 (Bottom Row 3)"}
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent/20 text-accent font-bold">
-                Tile #4
+                {isBn ? "স্লট ৪" : "Slot 4"}
               </span>
             </div>
 
@@ -1252,20 +1244,30 @@ export default function HomepageSettingsSubTab({
             </div>
           </div>
 
-          {/* Tile 5 (24/7 Global Drops Slot) */}
+          {/* Slot 5 */}
           <div className="p-5 rounded-2xl border border-foreground/10 bg-primary/5 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black uppercase tracking-wider text-foreground">
-                {isBn ? "স্লট ৫ (২৪/৭ গ্লোবাল ড্রপস)" : "Slot 5 (24/7 Global Drops)"}
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent/20 text-accent font-bold">
-                Tile #5 (24/7)
+                {isBn ? "স্লট ৫" : "Slot 5"}
               </span>
             </div>
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "লক্ষ্য লিঙ্ক (Target Link)" : "Target Link (Optional)"}
+                {isBn ? "টাইটেল / লেবেল (ঐচ্ছিক)" : "Display Title (Optional)"}
+              </label>
+              <input
+                type="text"
+                value={formData.bento_tile_247_title}
+                onChange={(e) => handleFieldChange("bento_tile_247_title", e.target.value)}
+                placeholder="24/7 GLOBAL DROPS"
+                className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
+                {isBn ? "লক্ষ্য লিঙ্ক (ঐচ্ছিক)" : "Target Link (Optional)"}
               </label>
               <input
                 type="text"
@@ -1332,20 +1334,17 @@ export default function HomepageSettingsSubTab({
             </div>
           </div>
 
-          {/* Tile 6 (Fast/Free Delivery Slot) */}
+          {/* Slot 6 */}
           <div className="p-5 rounded-2xl border border-foreground/10 bg-primary/5 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black uppercase tracking-wider text-foreground">
-                {isBn ? "স্লট ৬ (ফ্রি / ফাস্ট ডেলিভারি)" : "Slot 6 (Free / Fast Delivery)"}
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent/20 text-accent font-bold">
-                Tile #6 (Delivery)
+                {isBn ? "স্লট ৬" : "Slot 6"}
               </span>
             </div>
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "টাইটেল / শিরোনাম" : "Display Title"}
+                {isBn ? "টাইটেল / শিরোনাম (ঐচ্ছিক)" : "Display Title (Optional)"}
               </label>
               <input
                 type="text"
@@ -1358,7 +1357,7 @@ export default function HomepageSettingsSubTab({
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "লক্ষ্য লিঙ্ক (Target Link)" : "Target Link (Optional)"}
+                {isBn ? "লক্ষ্য লিঙ্ক (ঐচ্ছিক)" : "Target Link (Optional)"}
               </label>
               <input
                 type="text"

@@ -154,6 +154,7 @@ export default function HomeClient({
   };
 
   const bentoTile247 = {
+    title: siteSettings?.bento_tile_247_title || "",
     image: siteSettings?.bento_tile_247_image ? getMediaUrl(siteSettings.bento_tile_247_image) : "/HomePage/24-7.jpg",
     link: siteSettings?.bento_tile_247_link || "",
   };
@@ -253,27 +254,31 @@ export default function HomeClient({
             </div>
           </div>
 
-          {/* Middle Right Item 1 (Bento Tile 1) */}
+          {/* Middle Right Item 1 (Slot 1) */}
           <Link
             href={bentoTile1.link}
             className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
           >
             <Image
               src={bentoTile1.image}
-              alt={bentoTile1.title}
+              alt={bentoTile1.title || "Slot 1"}
               fill
               unoptimized
               className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
             />
-            <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-              <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
-                {bentoTile1.title}
-              </span>
-            </div>
+            {bentoTile1.title && (
+              <>
+                <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                  <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                    {bentoTile1.title}
+                  </span>
+                </div>
+              </>
+            )}
           </Link>
 
-          {/* Middle Right Item 2 (24/7 Global Drops) */}
+          {/* Middle Right Item 2 (Slot 5) */}
           {bentoTile247.link ? (
             <Link
               href={bentoTile247.link}
@@ -281,27 +286,47 @@ export default function HomeClient({
             >
               <Image
                 src={bentoTile247.image}
-                alt="24/7 Global Drops"
+                alt={bentoTile247.title || "Slot 5"}
                 fill
                 className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
                 unoptimized
               />
               <div className="absolute inset-0 bg-black/5 dark:bg-black/25 pointer-events-none transition-colors duration-500"></div>
+              {bentoTile247.title && (
+                <>
+                  <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                    <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                      {bentoTile247.title}
+                    </span>
+                  </div>
+                </>
+              )}
             </Link>
           ) : (
             <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
               <Image
                 src={bentoTile247.image}
-                alt="24/7 Global Drops"
+                alt={bentoTile247.title || "Slot 5"}
                 fill
                 className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
                 unoptimized
               />
               <div className="absolute inset-0 bg-black/5 dark:bg-black/25 pointer-events-none transition-colors duration-500"></div>
+              {bentoTile247.title && (
+                <>
+                  <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                    <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                      {bentoTile247.title}
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
-          {/* Bottom Row Item 1 (Fast Delivery) */}
+          {/* Bottom Row Item 1 (Slot 6) */}
           {bentoTileDelivery.link ? (
             <Link
               href={bentoTileDelivery.link}
@@ -309,97 +334,117 @@ export default function HomeClient({
             >
               <Image
                 src={bentoTileDelivery.image}
-                alt={bentoTileDelivery.title}
+                alt={bentoTileDelivery.title || "Slot 6"}
                 fill
                 className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
                 unoptimized
               />
-              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-              <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-10">
-                <div className="text-xl font-black uppercase tracking-tight mb-1 drop-shadow-md">
-                  {bentoTileDelivery.title}
-                </div>
-              </div>
+              {bentoTileDelivery.title && (
+                <>
+                  <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+                  <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-10">
+                    <div className="text-xl font-black uppercase tracking-tight mb-1 drop-shadow-md">
+                      {bentoTileDelivery.title}
+                    </div>
+                  </div>
+                </>
+              )}
             </Link>
           ) : (
             <div className="md:col-span-1 md:row-span-1 bg-accent/20 rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end min-h-[220px] md:min-h-0">
               <Image
                 src={bentoTileDelivery.image}
-                alt={bentoTileDelivery.title}
+                alt={bentoTileDelivery.title || "Slot 6"}
                 fill
                 className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
                 unoptimized
               />
-              <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-              <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-10">
-                <div className="text-xl font-black uppercase tracking-tight mb-1 drop-shadow-md">
-                  {bentoTileDelivery.title}
-                </div>
-              </div>
+              {bentoTileDelivery.title && (
+                <>
+                  <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+                  <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-10">
+                    <div className="text-xl font-black uppercase tracking-tight mb-1 drop-shadow-md">
+                      {bentoTileDelivery.title}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           )}
 
-          {/* Bottom Row Item 2 (Bento Tile 2) */}
+          {/* Bottom Row Item 2 (Slot 2) */}
           <Link
             href={bentoTile2.link}
             className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
           >
             <Image
               src={bentoTile2.image}
-              alt={bentoTile2.title}
+              alt={bentoTile2.title || "Slot 2"}
               fill
               unoptimized
               sizes="(max-width: 768px) 100vw, 33vw"
               className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
             />
-            <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-              <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
-                {bentoTile2.title}
-              </span>
-            </div>
+            {bentoTile2.title && (
+              <>
+                <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                  <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                    {bentoTile2.title}
+                  </span>
+                </div>
+              </>
+            )}
           </Link>
 
-          {/* Bottom Row Item 3 (Bento Tile 3) */}
+          {/* Bottom Row Item 3 (Slot 3) */}
           <Link
             href={bentoTile3.link}
             className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
           >
             <Image
               src={bentoTile3.image}
-              alt={bentoTile3.title}
+              alt={bentoTile3.title || "Slot 3"}
               fill
               unoptimized
               sizes="(max-width: 768px) 100vw, 33vw"
               className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
             />
-            <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-              <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
-                {bentoTile3.title}
-              </span>
-            </div>
+            {bentoTile3.title && (
+              <>
+                <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                  <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                    {bentoTile3.title}
+                  </span>
+                </div>
+              </>
+            )}
           </Link>
 
-          {/* Bottom Row Item 4 (Bento Tile 4) */}
+          {/* Bottom Row Item 4 (Slot 4) */}
           <Link
             href={bentoTile4.link}
             className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
           >
             <Image
               src={bentoTile4.image}
-              alt={bentoTile4.title}
+              alt={bentoTile4.title || "Slot 4"}
               fill
               unoptimized
               sizes="(max-width: 768px) 100vw, 33vw"
               className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
             />
-            <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-            <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-              <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
-                {bentoTile4.title}
-              </span>
-            </div>
+            {bentoTile4.title && (
+              <>
+                <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                  <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                    {bentoTile4.title}
+                  </span>
+                </div>
+              </>
+            )}
           </Link>
         </div>
       </section>
