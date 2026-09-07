@@ -235,6 +235,41 @@ export default function HomepageSettingsSubTab({
     e.preventDefault();
     if (!hasChanges) return;
 
+    // Check mandatory photos
+    const hasBannerPhoto = Boolean(bannerFile || bannerPreview || initialBannerUrl);
+    const hasSlot1Photo = Boolean(bento1File || bento1Preview || initialBento1Url);
+    const hasSlot2Photo = Boolean(bento2File || bento2Preview || initialBento2Url);
+    const hasSlot3Photo = Boolean(bento3File || bento3Preview || initialBento3Url);
+    const hasSlot4Photo = Boolean(bento4File || bento4Preview || initialBento4Url);
+
+    if (!hasBannerPhoto) {
+      Swal.fire({
+        icon: "warning",
+        title: isBn ? "ব্যানারের ছবি আবশ্যক!" : "Banner Photo Required!",
+        text: isBn
+          ? "অনুগ্রহ করে শীর্ষ প্রমোশনাল ব্যানারের জন্য একটি ছবি আপলোড করুন।"
+          : "Please upload a photo for the Top Promotional Banner. It cannot be empty.",
+      });
+      return;
+    }
+
+    if (!hasSlot1Photo || !hasSlot2Photo || !hasSlot3Photo || !hasSlot4Photo) {
+      const missingSlots: string[] = [];
+      if (!hasSlot1Photo) missingSlots.push(isBn ? "স্লট ১" : "Slot 1");
+      if (!hasSlot2Photo) missingSlots.push(isBn ? "স্লট ২" : "Slot 2");
+      if (!hasSlot3Photo) missingSlots.push(isBn ? "স্লট ৩" : "Slot 3");
+      if (!hasSlot4Photo) missingSlots.push(isBn ? "স্লট ৪" : "Slot 4");
+
+      Swal.fire({
+        icon: "warning",
+        title: isBn ? "স্লটের ছবি আবশ্যক!" : "Slot Photos Required!",
+        text: isBn
+          ? `প্রতিটি স্লটের জন্য ছবি থাকা বাধ্যতামূলক। অনুপস্থিত: ${missingSlots.join(", ")}`
+          : `Photos are mandatory for all category slots. Missing: ${missingSlots.join(", ")}`,
+      });
+      return;
+    }
+
     if (!token) {
       Swal.fire({
         icon: "error",
@@ -455,18 +490,13 @@ export default function HomepageSettingsSubTab({
                 alt="Banner preview"
                 className="w-full h-auto max-h-56 object-contain rounded-2xl"
               />
-              {!bannerPreview && (
-                <div className="absolute bottom-2 right-3 px-2.5 py-1 rounded-lg bg-background/80 backdrop-blur-xs border border-foreground/10 text-[10px] font-bold text-foreground/70 uppercase tracking-wider">
-                  {isBn ? "ডিফল্ট ব্যানার" : "Default Banner"}
-                </div>
-              )}
             </div>
           </div>
 
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-[11px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "নতুন ব্যানার আপলোড" : "Upload Custom Banner"}
+                {isBn ? "ব্যানার ছবি (আবশ্যক)" : "Banner Photo (Required)"} <span className="text-hidden">*</span>
               </label>
               <input
                 type="file"
@@ -488,7 +518,7 @@ export default function HomepageSettingsSubTab({
                 >
                   {isBn ? "ছবি পরিবর্তন" : "Choose Image"}
                 </label>
-                {(bannerPreview || bannerFile) && (
+                {(bannerPreview !== null || bannerFile !== null) && (
                   <button
                     type="button"
                     onClick={() => {
@@ -510,7 +540,7 @@ export default function HomepageSettingsSubTab({
 
             <div className="space-y-1.5 pt-2">
               <label className="text-[11px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "ব্যানার লিংক / রিডাইরেক্ট URL" : "Banner Target Link / URL"}
+                {isBn ? "ব্যানার URL" : "Banner Target URL"}
               </label>
               <input
                 type="text"
@@ -743,21 +773,16 @@ export default function HomepageSettingsSubTab({
 
             <div className="space-y-2 pt-1">
               <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "কাস্টম ছবি (ঐচ্ছিক)" : "Custom Photo (Optional)"}
+                {isBn ? "কাস্টম ছবি (আবশ্যক)" : "Custom Photo (Required)"} <span className="text-hidden">*</span>
               </label>
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-xl border border-foreground/15 bg-background flex items-center justify-center overflow-hidden shrink-0 relative">
+                <div className="w-14 h-14 rounded-xl border border-foreground/15 bg-background flex items-center justify-center overflow-hidden shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={bento1Preview || "/HomePage/Beauty.webp"}
                     alt="Slot 1"
                     className="w-full h-full object-cover"
                   />
-                  {!bento1Preview && (
-                    <span className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[8px] font-bold text-center py-0.5 uppercase tracking-tighter">
-                      Default
-                    </span>
-                  )}
                 </div>
                 <input
                   type="file"
@@ -778,16 +803,16 @@ export default function HomepageSettingsSubTab({
                 >
                   {isBn ? "ছবি বদলান" : "Upload"}
                 </label>
-                {(bento1Preview || bento1File) && (
+                {(bento1Preview !== null || bento1File !== null) && (
                   <button
                     type="button"
                     onClick={() => {
                       setBento1File(null);
                       setBento1Preview(null);
                     }}
-                    className="text-[10px] font-bold text-hidden hover:underline cursor-pointer"
+                    className="px-2.5 py-1.5 rounded-lg bg-hidden/15 text-hidden hover:bg-hidden hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
-                    {isBn ? "মুছুন" : "Clear"}
+                    {isBn ? "রিমুভ" : "Remove"}
                   </button>
                 )}
               </div>
@@ -838,21 +863,16 @@ export default function HomepageSettingsSubTab({
 
             <div className="space-y-2 pt-1">
               <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "কাস্টম ছবি (ঐচ্ছিক)" : "Custom Photo (Optional)"}
+                {isBn ? "কাস্টম ছবি (আবশ্যক)" : "Custom Photo (Required)"} <span className="text-hidden">*</span>
               </label>
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-xl border border-foreground/15 bg-background flex items-center justify-center overflow-hidden shrink-0 relative">
+                <div className="w-14 h-14 rounded-xl border border-foreground/15 bg-background flex items-center justify-center overflow-hidden shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={bento2Preview || "/HomePage/Cleaning.webp"}
                     alt="Slot 2"
                     className="w-full h-full object-cover"
                   />
-                  {!bento2Preview && (
-                    <span className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[8px] font-bold text-center py-0.5 uppercase tracking-tighter">
-                      Default
-                    </span>
-                  )}
                 </div>
                 <input
                   type="file"
@@ -873,16 +893,16 @@ export default function HomepageSettingsSubTab({
                 >
                   {isBn ? "ছবি বদলান" : "Upload"}
                 </label>
-                {(bento2Preview || bento2File) && (
+                {(bento2Preview !== null || bento2File !== null) && (
                   <button
                     type="button"
                     onClick={() => {
                       setBento2File(null);
                       setBento2Preview(null);
                     }}
-                    className="text-[10px] font-bold text-hidden hover:underline cursor-pointer"
+                    className="px-2.5 py-1.5 rounded-lg bg-hidden/15 text-hidden hover:bg-hidden hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
-                    {isBn ? "মুছুন" : "Clear"}
+                    {isBn ? "রিমুভ" : "Remove"}
                   </button>
                 )}
               </div>
@@ -933,21 +953,16 @@ export default function HomepageSettingsSubTab({
 
             <div className="space-y-2 pt-1">
               <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "কাস্টম ছবি (ঐচ্ছিক)" : "Custom Photo (Optional)"}
+                {isBn ? "কাস্টম ছবি (আবশ্যক)" : "Custom Photo (Required)"} <span className="text-hidden">*</span>
               </label>
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-xl border border-foreground/15 bg-background flex items-center justify-center overflow-hidden shrink-0 relative">
+                <div className="w-14 h-14 rounded-xl border border-foreground/15 bg-background flex items-center justify-center overflow-hidden shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={bento3Preview || "/HomePage/Pet.jpg"}
                     alt="Slot 3"
                     className="w-full h-full object-cover"
                   />
-                  {!bento3Preview && (
-                    <span className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[8px] font-bold text-center py-0.5 uppercase tracking-tighter">
-                      Default
-                    </span>
-                  )}
                 </div>
                 <input
                   type="file"
@@ -968,16 +983,16 @@ export default function HomepageSettingsSubTab({
                 >
                   {isBn ? "ছবি বদলান" : "Upload"}
                 </label>
-                {(bento3Preview || bento3File) && (
+                {(bento3Preview !== null || bento3File !== null) && (
                   <button
                     type="button"
                     onClick={() => {
                       setBento3File(null);
                       setBento3Preview(null);
                     }}
-                    className="text-[10px] font-bold text-hidden hover:underline cursor-pointer"
+                    className="px-2.5 py-1.5 rounded-lg bg-hidden/15 text-hidden hover:bg-hidden hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
-                    {isBn ? "মুছুন" : "Clear"}
+                    {isBn ? "রিমুভ" : "Remove"}
                   </button>
                 )}
               </div>
@@ -1028,21 +1043,16 @@ export default function HomepageSettingsSubTab({
 
             <div className="space-y-2 pt-1">
               <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "কাস্টম ছবি (ঐচ্ছিক)" : "Custom Photo (Optional)"}
+                {isBn ? "কাস্টম ছবি (আবশ্যক)" : "Custom Photo (Required)"} <span className="text-hidden">*</span>
               </label>
               <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-xl border border-foreground/15 bg-background flex items-center justify-center overflow-hidden shrink-0 relative">
+                <div className="w-14 h-14 rounded-xl border border-foreground/15 bg-background flex items-center justify-center overflow-hidden shrink-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={bento4Preview || "/HomePage/Stationary.jpg"}
                     alt="Slot 4"
                     className="w-full h-full object-cover"
                   />
-                  {!bento4Preview && (
-                    <span className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[8px] font-bold text-center py-0.5 uppercase tracking-tighter">
-                      Default
-                    </span>
-                  )}
                 </div>
                 <input
                   type="file"
@@ -1063,16 +1073,16 @@ export default function HomepageSettingsSubTab({
                 >
                   {isBn ? "ছবি বদলান" : "Upload"}
                 </label>
-                {(bento4Preview || bento4File) && (
+                {(bento4Preview !== null || bento4File !== null) && (
                   <button
                     type="button"
                     onClick={() => {
                       setBento4File(null);
                       setBento4Preview(null);
                     }}
-                    className="text-[10px] font-bold text-hidden hover:underline cursor-pointer"
+                    className="px-2.5 py-1.5 rounded-lg bg-hidden/15 text-hidden hover:bg-hidden hover:text-white text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer"
                   >
-                    {isBn ? "মুছুন" : "Clear"}
+                    {isBn ? "রিমুভ" : "Remove"}
                   </button>
                 )}
               </div>
