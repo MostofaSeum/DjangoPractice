@@ -1916,6 +1916,21 @@ export default function AdminDashboardPage() {
     if (!token) return;
     const newStatus = !product.is_trending;
 
+    if (newStatus) {
+      const currentTrendingCount = products.filter((p) => p.is_trending).length;
+      if (currentTrendingCount >= 8) {
+        Swal.fire({
+          icon: "warning",
+          title: isBn ? "ট্রেন্ডিং পণ্যের সীমা" : "Trending Limit Reached",
+          text: isBn
+            ? "ট্রেন্ডিং নাও সেকশনের জন্য শুধুমাত্র প্রথম ৮টি পণ্য নির্বাচন করা যাবে।"
+            : "Only first 8 products can be selected for trending now section.",
+          confirmButtonColor: "var(--button-bg)",
+        });
+        return;
+      }
+    }
+
     // Optimistic UI Update: change state immediately
     setProducts((prev) =>
       prev.map((p) =>
@@ -1994,8 +2009,8 @@ export default function AdminDashboardPage() {
           position: "top-end",
           icon: "success",
           title: newStatus
-            ? (isBn ? "পণ্যটি পাবলিকলি প্রদর্শিত হচ্ছে" : "Product is now visible to public")
-            : (isBn ? "পণ্যটি পাবলিক থেকে লুকানো হয়েছে" : "Product is now hidden from public"),
+            ? (isBn ? "পণ্যটি এখন দৃশ্যমান!" : "Product is now visible!")
+            : (isBn ? "পণ্যটি লুকানো হয়েছে!" : "Product is now hidden!"),
           showConfirmButton: false,
           timer: 1500,
           toast: true,
@@ -2031,6 +2046,21 @@ export default function AdminDashboardPage() {
   const handleToggleCollectionFeatured = async (col: Collection) => {
     if (!token) return;
     const newStatus = !col.is_featured;
+
+    if (newStatus) {
+      const currentFeaturedCount = collections.filter((c) => c.is_featured).length;
+      if (currentFeaturedCount >= 3) {
+        Swal.fire({
+          icon: "warning",
+          title: isBn ? "ফিচার্ড কালেকশন সীমা" : "Featured Limit Reached",
+          text: isBn
+            ? "ফিচার্ড ক্যাটাগরি সেকশনের জন্য শুধুমাত্র ৩টি কালেকশন নির্বাচন করা যাবে।"
+            : "Only 3 collections can be selected for featured categories section.",
+          confirmButtonColor: "var(--button-bg)",
+        });
+        return;
+      }
+    }
 
     // Optimistic UI
     setCollections((prev) =>
