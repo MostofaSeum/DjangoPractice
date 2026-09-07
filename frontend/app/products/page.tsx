@@ -5,13 +5,13 @@ import { Product } from "@/types/product";
 
 export const metadata: Metadata = {
   title: "Shop All Products | VibeMart",
-  description: "Browse our exclusive catalog of trendy streetwear, hoodies, apparel, and premium accessories.",
+  description: "Browse our exclusive catalog of luxury cosmetics, makeup, skincare, and beauty essentials.",
   alternates: {
     canonical: "/products",
   },
   openGraph: {
     title: "Shop All Products | VibeMart",
-    description: "Browse our exclusive catalog of trendy streetwear, hoodies, apparel, and premium accessories.",
+    description: "Browse our exclusive catalog of luxury cosmetics, makeup, skincare, and beauty essentials.",
     url: "/products",
   },
 };

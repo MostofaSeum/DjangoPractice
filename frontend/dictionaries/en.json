@@ -14,16 +14,16 @@
   "hero": {
     "newCollection": "New Collection",
     "elevateYour": "Elevate Your",
-    "heroSubtitle": "Experience the intersection of high-end streetwear and premium digital aesthetics.",
+    "heroSubtitle": "Experience the intersection of luxury cosmetics, skincare, and radiant beauty aesthetics.",
     "exploreCollection": "Explore Collection",
-    "discoverVibe": "Discover the Vibe",
-    "discoverSubtitle": "Collect exclusive pieces and immerse yourself in the next wave of streetwear.",
+    "discoverVibe": "Discover the Glam",
+    "discoverSubtitle": "Collect exclusive beauty essentials and immerse yourself in the finest makeup shades.",
     "viewExclusives": "View Exclusives",
-    "beauty": "BEAUTY",
+    "beauty": "LIPSTICKS",
     "fastDelivery": "Fast Delivery",
-    "cleaning": "CLEANING",
-    "pets": "PETS",
-    "stationary": "STATIONARY"
+    "cleaning": "SKINCARE",
+    "pets": "EYE MAKEUP",
+    "stationary": "FOUNDATION & GLOW"
   },
   "categories": {
     "featuredTitle": "Featured Categories",
@@ -51,16 +51,16 @@
   "whyUs": {
     "title": "Why VibeMart?",
     "fastShippingTitle": "Fast Shipping",
-    "fastShippingDesc": "Global expedited delivery ensures you get your gear before the hype dies.",
-    "eliteQualityTitle": "Elite Quality",
-    "eliteQualityDesc": "Uncompromising materials and construction. We only sell what we wear.",
+    "fastShippingDesc": "Fast expedited delivery ensures your favorite beauty essentials arrive fresh and on time.",
+    "eliteQualityTitle": "100% Authentic & Premium",
+    "eliteQualityDesc": "Dermatologist-tested formulas, premium ingredients, and 100% authentic cosmetics.",
     "secureCheckoutTitle": "Secure Checkout",
-    "secureCheckoutDesc": "Encrypted, lightning-fast transactions to secure your limited drops."
+    "secureCheckoutDesc": "Encrypted, lightning-fast transactions to secure your favorite beauty picks."
   },
   "newsletter": {
     "badge": "BE THE FIRST",
-    "title": "Join the Club",
-    "subtitle": "Get exclusive drops, private sale access, and secret discount codes sent straight to your inbox.",
+    "title": "Join the Glam Club",
+    "subtitle": "Get exclusive beauty drops, secret discount codes, and makeup tips sent straight to your inbox.",
     "placeholder": "Enter your email address...",
     "subscribe": "Subscribe",
     "subscribing": "Subscribing...",

@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/store/LanguageContext";
 
-const WORDS_EN = ["Vibe", "Style", "Look", "Life", "Space"];
-const WORDS_BN = ["ভাইব", "স্টাইল", "লুক", "জীবন", "সৌন্দর্য"];
+const WORDS_EN = ["Beauty", "Glow", "Look", "Glam", "Charm"];
+const WORDS_BN = ["সৌন্দর্য", "গ্লো", "লুক", "গ্ল্যাম", "রূপ"];
 
 export default function AnimatedWord() {
   const { locale } = useLanguage();

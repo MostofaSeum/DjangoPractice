@@ -4,13 +4,13 @@ import CollectionsClient from "@/features/collections/components/CollectionsClie
 
 export const metadata: Metadata = {
   title: "Featured Collections | VibeMart",
-  description: "Explore curated clothing, streetwear collections, and aesthetic drop categories.",
+  description: "Explore curated beauty, skincare, lipstick, and cosmetics collections.",
   alternates: {
     canonical: "/collections",
   },
   openGraph: {
     title: "Featured Collections | VibeMart",
-    description: "Explore curated clothing, streetwear collections, and aesthetic drop categories.",
+    description: "Explore curated beauty, skincare, lipstick, and cosmetics collections.",
     url: "/collections",
   },
 };

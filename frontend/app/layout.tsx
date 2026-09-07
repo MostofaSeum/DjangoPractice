@@ -22,11 +22,11 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "VibeMart - Electric Premium Storefront",
+    default: "VibeMart - Premium Cosmetics & Beauty Store",
     template: "%s | VibeMart",
   },
-  description: "High-end streetwear, accessories, and premium digital aesthetic merchandise.",
-  keywords: ["e-commerce", "streetwear", "fashion", "shopping", "storefront", "accessories"],
+  description: "Luxury cosmetics, skincare essentials, lipsticks, and premium beauty products.",
+  keywords: ["e-commerce", "cosmetics", "beauty", "makeup", "skincare", "lipstick", "storefront"],
   authors: [{ name: "VibeMart" }],
   creator: "VibeMart",
   publisher: "VibeMart",
@@ -37,8 +37,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: siteUrl,
-    title: "VibeMart - Electric Premium Storefront",
-    description: "High-end streetwear, accessories, and premium digital aesthetic merchandise.",
+    title: "VibeMart - Premium Cosmetics & Beauty Store",
+    description: "Luxury cosmetics, skincare essentials, lipsticks, and premium beauty products.",
     siteName: "VibeMart",
     images: [
       {
@@ -51,8 +51,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "VibeMart - Electric Premium Storefront",
-    description: "High-end streetwear, accessories, and premium digital aesthetic merchandise.",
+    title: "VibeMart - Premium Cosmetics & Beauty Store",
+    description: "Luxury cosmetics, skincare essentials, lipsticks, and premium beauty products.",
   },
   robots: {
     index: true,
