@@ -476,6 +476,7 @@ export default function StoreSettingsTab({
               </label>
               <textarea
                 rows={4}
+                maxLength={400}
                 value={brandDescription}
                 onChange={(e) => {
                   const val = e.target.value;

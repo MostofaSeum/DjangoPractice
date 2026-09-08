@@ -634,6 +634,7 @@ export default function DeliveryTab({
                 <input
                   type="text"
                   required
+                  maxLength={60}
                   value={courierName}
                   onChange={(e) => setCourierName(e.target.value)}
                   placeholder="e.g. Steadfast Courier"
@@ -664,6 +665,7 @@ export default function DeliveryTab({
                   </label>
                   <input
                     type={showSecret ? "text" : "password"}
+                    maxLength={255}
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
                     placeholder="Enter API Key from courier portal"
@@ -677,6 +679,7 @@ export default function DeliveryTab({
                   </label>
                   <input
                     type={showSecret ? "text" : "password"}
+                    maxLength={255}
                     value={secretKey}
                     onChange={(e) => setSecretKey(e.target.value)}
                     placeholder="Enter Secret Key / Password"
@@ -690,6 +693,7 @@ export default function DeliveryTab({
                   </label>
                   <input
                     type="text"
+                    maxLength={80}
                     value={clientId}
                     onChange={(e) => setClientId(e.target.value)}
                     placeholder="e.g. STORE-ID or SENDER-101"
@@ -706,6 +710,7 @@ export default function DeliveryTab({
                   </label>
                   <input
                     type="text"
+                    maxLength={255}
                     value={trackingUrlTemplate}
                     onChange={(e) => setTrackingUrlTemplate(e.target.value)}
                     placeholder="e.g. https://steadfast.com.bd/t/{tracking_code}"
@@ -722,6 +727,7 @@ export default function DeliveryTab({
                   </label>
                   <input
                     type="text"
+                    maxLength={255}
                     value={baseUrl}
                     onChange={(e) => setBaseUrl(e.target.value)}
                     placeholder="e.g. https://portal.steadfast.com.bd/api/v1"

@@ -340,6 +340,7 @@ export default function ProductVariantsManager({
                   <input
                     type="text"
                     required
+                    maxLength={60}
                     value={variantForm.name}
                     onChange={(e) => setVariantForm({ ...variantForm, name: e.target.value })}
                     placeholder={isBn ? "যেমনঃ ০১ ভেলভেট রোজ, ৫০ মিলি, মিডিয়াম বেইজ" : "e.g. 01 Velvet Rose, 50ml, Medium Beige"}
@@ -355,6 +356,7 @@ export default function ProductVariantsManager({
                     </label>
                     <input
                       type="text"
+                      maxLength={40}
                       value={variantForm.color_name}
                       onChange={(e) => setVariantForm({ ...variantForm, color_name: e.target.value })}
                       placeholder={isBn ? "যেমনঃ ভেলভেট রোজ" : "e.g. Velvet Rose (leave blank if N/A)"}
@@ -386,6 +388,7 @@ export default function ProductVariantsManager({
                       />
                       <input
                         type="text"
+                        maxLength={10}
                         value={variantForm.color_code}
                         onChange={(e) => setVariantForm({ ...variantForm, color_code: e.target.value })}
                         placeholder={isBn ? "যেমনঃ #C84248" : "e.g. #C84248 or leave blank"}
@@ -403,6 +406,7 @@ export default function ProductVariantsManager({
                     </label>
                     <input
                       type="text"
+                      maxLength={30}
                       value={variantForm.size}
                       onChange={(e) => setVariantForm({ ...variantForm, size: e.target.value })}
                       placeholder={isBn ? "যেমনঃ ৩০ মিলি, ৫০ মিলি" : "e.g. 30ml, 50ml"}
@@ -418,6 +422,7 @@ export default function ProductVariantsManager({
                     <input
                       type="number"
                       min="0"
+                      max="999999"
                       required
                       value={variantForm.inventory}
                       onChange={(e) => setVariantForm({ ...variantForm, inventory: e.target.value })}
@@ -440,6 +445,7 @@ export default function ProductVariantsManager({
                     type="number"
                     step="0.01"
                     min="0.01"
+                    max="9999999"
                     value={variantForm.price_override}
                     onChange={(e) => setVariantForm({ ...variantForm, price_override: e.target.value })}
                     placeholder={isBn ? `মূল মূল্যঃ ${formatCurrency(Number(basePrice))}` : `Base Price: ৳${Number(basePrice).toFixed(2)}`}

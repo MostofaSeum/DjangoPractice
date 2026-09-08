@@ -224,6 +224,7 @@ export default function ProductsTab({
               <input
                 type="text"
                 required
+                maxLength={120}
                 value={productForm.title}
                 onChange={(e) =>
                   setProductForm({
@@ -244,6 +245,8 @@ export default function ProductsTab({
                 <input
                   type="number"
                   step="0.01"
+                  min="0"
+                  max="9999999"
                   required
                   value={productForm.unit_price}
                   onChange={(e) =>
@@ -272,6 +275,8 @@ export default function ProductsTab({
                 </div>
                 <input
                   type="number"
+                  min="0"
+                  max="999999"
                   required
                   value={
                     newProductVariants.length > 0
@@ -359,6 +364,7 @@ export default function ProductsTab({
                     <textarea
                       rows={2}
                       required
+                      maxLength={300}
                       value={productForm.short_description}
                       onChange={(e) =>
                         setProductForm({
@@ -391,6 +397,7 @@ export default function ProductsTab({
                     <textarea
                       rows={4}
                       required
+                      maxLength={3000}
                       value={productForm.description}
                       onChange={(e) =>
                         setProductForm({
@@ -890,6 +897,7 @@ export default function ProductsTab({
                 <input
                   type="text"
                   required
+                  maxLength={120}
                   value={productForm.title}
                   onChange={(e) =>
                     setProductForm({
@@ -910,6 +918,8 @@ export default function ProductsTab({
                   <input
                     type="number"
                     step="0.01"
+                    min="0"
+                    max="9999999"
                     required
                     value={productForm.unit_price}
                     onChange={(e) =>
@@ -948,6 +958,8 @@ export default function ProductsTab({
                       </div>
                       <input
                         type="number"
+                        min="0"
+                        max="999999"
                         required
                         value={productForm.inventory}
                         readOnly={Boolean(hasVariants)}
@@ -1028,6 +1040,7 @@ export default function ProductsTab({
                       <textarea
                         rows={2}
                         required
+                        maxLength={300}
                         value={productForm.short_description}
                         onChange={(e) =>
                           setProductForm({
@@ -1060,6 +1073,7 @@ export default function ProductsTab({
                       <textarea
                         rows={4}
                         required
+                        maxLength={3000}
                         value={productForm.description}
                         onChange={(e) =>
                           setProductForm({
@@ -1211,6 +1225,7 @@ export default function ProductsTab({
                   <input
                     type="text"
                     required
+                    maxLength={60}
                     value={newVariantForm.name}
                     onChange={(e) =>
                       setNewVariantForm({
@@ -1232,6 +1247,7 @@ export default function ProductsTab({
                     </label>
                     <input
                       type="text"
+                      maxLength={40}
                       value={newVariantForm.color_name}
                       onChange={(e) =>
                         setNewVariantForm({
@@ -1279,6 +1295,7 @@ export default function ProductsTab({
                       />
                       <input
                         type="text"
+                        maxLength={10}
                         value={newVariantForm.color_code}
                         onChange={(e) =>
                           setNewVariantForm({
@@ -1302,6 +1319,7 @@ export default function ProductsTab({
                     </label>
                     <input
                       type="text"
+                      maxLength={30}
                       value={newVariantForm.size}
                       onChange={(e) =>
                         setNewVariantForm({
@@ -1322,6 +1340,8 @@ export default function ProductsTab({
                     <input
                       type="number"
                       step="0.01"
+                      min="0"
+                      max="9999999"
                       value={newVariantForm.price_override}
                       onChange={(e) =>
                         setNewVariantForm({
@@ -1340,6 +1360,8 @@ export default function ProductsTab({
                     </label>
                     <input
                       type="number"
+                      min="0"
+                      max="999999"
                       required
                       value={newVariantForm.inventory}
                       onChange={(e) =>
