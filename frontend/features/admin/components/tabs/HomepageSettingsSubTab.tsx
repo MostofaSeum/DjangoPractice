@@ -1163,7 +1163,7 @@ export default function HomepageSettingsSubTab({
                 onChange={(e) => handleFieldChange("bento_tile_1_collection", e.target.value)}
                 className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
               >
-                <option value="">-- {isBn ? "ডিফল্ট কালেকশন (/collections/3)" : "Default (/collections/3)"} --</option>
+                <option value="">-- {isBn ? "কালেকশন নির্বাচন করুন" : "Select a Collection"} --</option>
                 {collections.map((col) => (
                   <option key={col.id} value={col.id}>
                     {col.title} (#{col.id})
@@ -1282,7 +1282,7 @@ export default function HomepageSettingsSubTab({
                 onChange={(e) => handleFieldChange("bento_tile_2_collection", e.target.value)}
                 className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
               >
-                <option value="">-- {isBn ? "ডিফল্ট কালেকশন (/collections/4)" : "Default (/collections/4)"} --</option>
+                <option value="">-- {isBn ? "কালেকশন নির্বাচন করুন" : "Select a Collection"} --</option>
                 {collections.map((col) => (
                   <option key={col.id} value={col.id}>
                     {col.title} (#{col.id})
@@ -1401,7 +1401,7 @@ export default function HomepageSettingsSubTab({
                 onChange={(e) => handleFieldChange("bento_tile_3_collection", e.target.value)}
                 className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
               >
-                <option value="">-- {isBn ? "ডিফল্ট কালেকশন (/collections/6)" : "Default (/collections/6)"} --</option>
+                <option value="">-- {isBn ? "কালেকশন নির্বাচন করুন" : "Select a Collection"} --</option>
                 {collections.map((col) => (
                   <option key={col.id} value={col.id}>
                     {col.title} (#{col.id})
@@ -1520,7 +1520,7 @@ export default function HomepageSettingsSubTab({
                 onChange={(e) => handleFieldChange("bento_tile_4_collection", e.target.value)}
                 className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
               >
-                <option value="">-- {isBn ? "ডিফল্ট কালেকশন (/collections/5)" : "Default (/collections/5)"} --</option>
+                <option value="">-- {isBn ? "কালেকশন নির্বাচন করুন" : "Select a Collection"} --</option>
                 {collections.map((col) => (
                   <option key={col.id} value={col.id}>
                     {col.title} (#{col.id})
