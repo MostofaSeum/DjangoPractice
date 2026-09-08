@@ -225,6 +225,7 @@ export default function ReviewsSubTab({ products, token }: ReviewsSubTabProps) {
           <div className="relative w-full sm:w-64">
             <input
               type="text"
+              maxLength={80}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={isBn ? "পণ্য, গ্রাহক বা রিভিউ টেক্সট খুঁজুন..." : "Search product, customer, text..."}

@@ -590,6 +590,7 @@ export default function SheetsSyncTab({
                 <input
                   type="url"
                   required
+                  maxLength={255}
                   value={googleSheetUrl}
                   onChange={(e) => setGoogleSheetUrl(e.target.value)}
                   placeholder="https://docs.google.com/spreadsheets/d/.../edit?usp=sharing"

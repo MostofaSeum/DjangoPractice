@@ -1354,13 +1354,14 @@ export default function OrdersTab({
                             <input
                               type="number"
                               min={1}
+                              max={999999}
                               value={item.quantity}
                               onChange={(e) => {
                                 const val = parseInt(e.target.value) || 1;
                                 setEditItems((prev) =>
                                   prev.map((it, i) =>
                                     i === idx
-                                      ? { ...it, quantity: Math.max(1, val) }
+                                      ? { ...it, quantity: Math.max(1, Math.min(999999, val)) }
                                       : it
                                   )
                                 );
@@ -1496,8 +1497,9 @@ export default function OrdersTab({
                     <input
                       type="number"
                       min={1}
+                      max={999999}
                       value={addQuantity}
-                      onChange={(e) => setAddQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                      onChange={(e) => setAddQuantity(Math.max(1, Math.min(999999, parseInt(e.target.value) || 1)))}
                       className="px-3 py-2 border border-foreground/15 rounded-xl bg-secondary text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                     />
                   </div>
@@ -1509,6 +1511,8 @@ export default function OrdersTab({
                     <input
                       type="number"
                       step="0.01"
+                      min={0}
+                      max={9999999}
                       placeholder={
                         (() => {
                           const p = productsCatalog.find((x) => x.id === selectedAddProductId);
@@ -1626,6 +1630,8 @@ export default function OrdersTab({
                       <input
                         type="number"
                         step="0.01"
+                        min={0}
+                        max={99999}
                         value={editDeliveryCharge}
                         onChange={(e) => setEditDeliveryCharge(parseFloat(e.target.value) || 0)}
                         className="px-3 py-2 border border-foreground/15 rounded-xl bg-secondary text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
@@ -1640,6 +1646,7 @@ export default function OrdersTab({
                   </label>
                   <input
                     type="text"
+                    maxLength={250}
                     value={editShippingAddress}
                     onChange={(e) => setEditShippingAddress(e.target.value)}
                     placeholder={isBn ? "বাড়ি নং, রোড নং, এলাকা, জেলা" : "Full street address, area, district"}
@@ -1847,6 +1854,7 @@ export default function OrdersTab({
               </label>
               <input
                 type="text"
+                maxLength={60}
                 value={trackingCodeInput}
                 onChange={(e) => setTrackingCodeInput(e.target.value)}
                 placeholder={t("admin.delivery.trackingCodePlaceholder")}
@@ -2168,6 +2176,7 @@ export default function OrdersTab({
                   </label>
                   <textarea
                     rows={2}
+                    maxLength={300}
                     value={adminNoteInput}
                     onChange={(e) => setAdminNoteInput(e.target.value)}
                     placeholder={isBn ? "গ্রাহকের জন্য নোট লিখুন..." : "Enter note for customer or internal record..."}
@@ -2188,6 +2197,8 @@ export default function OrdersTab({
                         </label>
                         <input
                           type="number"
+                          min={0}
+                          max={9999999}
                           value={customRefundAmount}
                           onChange={(e) => setCustomRefundAmount(e.target.value)}
                           className="w-full px-3 py-1.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-accent"
@@ -2200,6 +2211,7 @@ export default function OrdersTab({
                           </label>
                           <input
                             type="text"
+                            maxLength={60}
                             value={refundTrxInput}
                             onChange={(e) => setRefundTrxInput(e.target.value)}
                             placeholder="e.g. 9J8KL4M5"

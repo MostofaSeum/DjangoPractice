@@ -1433,7 +1433,7 @@ export default function ProductsTab({
                 }`}
               >
                 <span className="text-amber-400">★</span>
-                <span>{isBn ? "ফিচার্ড / ট্রেন্ডিং" : "Featured"}</span>
+                <span>{isBn ? "ট্রেন্ডিং" : "Trending"}</span>
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
                   productSubTab === "featured"
                     ? "bg-black/20 text-black"
