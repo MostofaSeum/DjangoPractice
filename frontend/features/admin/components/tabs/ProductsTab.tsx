@@ -372,13 +372,15 @@ export default function ProductsTab({
                       <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                         {isBn ? "সংক্ষিপ্ত বিবরণ" : "Short Description"} <span className="text-red-500">*</span>
                       </label>
-                      <span
-                        className={`text-[10px] font-bold ${
-                          shortWords > 150 ? "text-red-500" : "opacity-60"
-                        }`}
-                      >
-                        {isBn ? `${shortWords.toLocaleString("bn-BD")}/১৫০ শব্দ` : `${shortWords}/150 words`}
-                      </span>
+                      {shortWords >= 120 && (
+                        <span
+                          className={`text-[10px] font-bold ${
+                            shortWords > 150 ? "text-red-500" : "opacity-60"
+                          }`}
+                        >
+                          {isBn ? `${shortWords.toLocaleString("bn-BD")}/১৫০ শব্দ` : `${shortWords}/150 words`}
+                        </span>
+                      )}
                     </div>
                     <textarea
                       rows={2}
@@ -405,13 +407,15 @@ export default function ProductsTab({
                       <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                         {isBn ? "বিস্তারিত বিবরণ" : "Details Description"} <span className="text-red-500">*</span>
                       </label>
-                      <span
-                        className={`text-[10px] font-bold ${
-                          detailWords > 500 ? "text-red-500" : "opacity-60"
-                        }`}
-                      >
-                        {isBn ? `${detailWords.toLocaleString("bn-BD")}/৫০০ শব্দ` : `${detailWords}/500 words`}
-                      </span>
+                      {detailWords >= 400 && (
+                        <span
+                          className={`text-[10px] font-bold ${
+                            detailWords > 500 ? "text-red-500" : "opacity-60"
+                          }`}
+                        >
+                          {isBn ? `${detailWords.toLocaleString("bn-BD")}/৫০০ শব্দ` : `${detailWords}/500 words`}
+                        </span>
+                      )}
                     </div>
                     <textarea
                       rows={4}
@@ -910,8 +914,9 @@ export default function ProductsTab({
           {editingProductId ? (
             <form onSubmit={handleSaveProduct} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  {isBn ? "পণ্যের নাম *" : "Product Title *"}
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>{isBn ? "পণ্যের নাম *" : "Product Title *"}</span>
+                  {renderCharCounter(productForm.title.length, 120)}
                 </label>
                 <input
                   type="text"
@@ -1048,13 +1053,15 @@ export default function ProductsTab({
                         <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                           {isBn ? "সংক্ষিপ্ত বিবরণ" : "Short Description"} <span className="text-red-500">*</span>
                         </label>
-                        <span
-                          className={`text-[10px] font-bold ${
-                            shortWords > 150 ? "text-red-500" : "opacity-60"
-                          }`}
-                        >
-                          {isBn ? `${shortWords.toLocaleString("bn-BD")}/১৫০ শব্দ` : `${shortWords}/150 words`}
-                        </span>
+                        {shortWords >= 120 && (
+                          <span
+                            className={`text-[10px] font-bold ${
+                              shortWords > 150 ? "text-red-500" : "opacity-60"
+                            }`}
+                          >
+                            {isBn ? `${shortWords.toLocaleString("bn-BD")}/১৫০ শব্দ` : `${shortWords}/150 words`}
+                          </span>
+                        )}
                       </div>
                       <textarea
                         rows={2}
@@ -1081,13 +1088,15 @@ export default function ProductsTab({
                         <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                           {isBn ? "বিস্তারিত বিবরণ" : "Details Description"} <span className="text-red-500">*</span>
                         </label>
-                        <span
-                          className={`text-[10px] font-bold ${
-                            detailWords > 500 ? "text-red-500" : "opacity-60"
-                          }`}
-                        >
-                          {isBn ? `${detailWords.toLocaleString("bn-BD")}/৫০০ শব্দ` : `${detailWords}/500 words`}
-                        </span>
+                        {detailWords >= 400 && (
+                          <span
+                            className={`text-[10px] font-bold ${
+                              detailWords > 500 ? "text-red-500" : "opacity-60"
+                            }`}
+                          >
+                            {isBn ? `${detailWords.toLocaleString("bn-BD")}/৫০০ শব্দ` : `${detailWords}/500 words`}
+                          </span>
+                        )}
                       </div>
                       <textarea
                         rows={4}
@@ -1238,8 +1247,9 @@ export default function ProductsTab({
               >
                 {/* Variant Name */}
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    {isBn ? "ভ্যারিয়েন্ট নাম / টাইটেল" : "Variant Title / Name"} <span className="text-red-500">*</span>
+                  <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 flex items-center justify-between">
+                    <span>{isBn ? "ভ্যারিয়েন্ট নাম / টাইটেল *" : "Variant Title / Name *"}</span>
+                    {renderCharCounter(newVariantForm.name.length, 60)}
                   </label>
                   <input
                     type="text"
@@ -1260,9 +1270,12 @@ export default function ProductsTab({
                 {/* Color Settings */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                      {isBn ? "শেড / রঙের নাম" : "Shade / Color Name"}{" "}
-                      <span className="opacity-40 lowercase">({isBn ? "ঐচ্ছিক" : "optional"})</span>
+                    <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 flex items-center justify-between">
+                      <span>
+                        {isBn ? "শেড / রঙের নাম" : "Shade / Color Name"}{" "}
+                        <span className="opacity-40 lowercase">({isBn ? "ঐচ্ছিক" : "optional"})</span>
+                      </span>
+                      {renderCharCounter(newVariantForm.color_name.length, 40)}
                     </label>
                     <input
                       type="text"
@@ -1332,9 +1345,12 @@ export default function ProductsTab({
                 {/* Size, Price, Inventory Grid */}
                 <div className="grid grid-cols-3 gap-2.5">
                   <div className="flex flex-col gap-1">
-                    <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                      {isBn ? "সাইজ / পরিমাণ" : "Size / Volume"}{" "}
-                      <span className="opacity-40 lowercase">({isBn ? "ঐচ্ছিক" : "opt"})</span>
+                    <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 flex items-center justify-between">
+                      <span>
+                        {isBn ? "সাইজ" : "Size"}{" "}
+                        <span className="opacity-40 lowercase">({isBn ? "ঐচ্ছিক" : "opt"})</span>
+                      </span>
+                      {renderCharCounter(newVariantForm.size.length, 30)}
                     </label>
                     <input
                       type="text"

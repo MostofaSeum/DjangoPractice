@@ -12,6 +12,24 @@ interface PaymentsTabProps {
   handleSavePaymentSettings: () => Promise<void>;
 }
 
+/**
+ * Only renders character counter when user is near the limit (>= 80% or within 5 chars)
+ */
+function renderCharCounter(currentLen: number, maxLen: number) {
+  const threshold = Math.min(Math.floor(maxLen * 0.8), Math.max(0, maxLen - 5));
+  if (currentLen < threshold) return null;
+  const isAtLimit = currentLen >= maxLen;
+  return (
+    <span
+      className={`text-[9px] font-mono transition-colors ${
+        isAtLimit ? "text-red-500 font-bold opacity-100" : "opacity-60 text-foreground"
+      }`}
+    >
+      {currentLen}/{maxLen}
+    </span>
+  );
+}
+
 export default function PaymentsTab({
   paymentSettings,
   initialPaymentSettings,
