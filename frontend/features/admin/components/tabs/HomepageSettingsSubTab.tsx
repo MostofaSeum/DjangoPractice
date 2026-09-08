@@ -802,9 +802,9 @@ export default function HomepageSettingsSubTab({
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "ছোট ব্যাজ টেক্সট (বাংলা)" : "Hero Badge Label (BN)"}</span>
-              <span className="text-[9px] font-mono opacity-60">{formData.hero_badge_bn.length}/35</span>
+              <span className="text-[9px] font-mono opacity-50">{formData.hero_badge_bn.length}/35</span>
             </label>
             <input
               type="text"
@@ -812,7 +812,7 @@ export default function HomepageSettingsSubTab({
               value={formData.hero_badge_bn}
               onChange={(e) => handleFieldChange("hero_badge_bn", e.target.value)}
               placeholder="যেমনঃ নতুন কালেকশন"
-              className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
 
@@ -833,9 +833,9 @@ export default function HomepageSettingsSubTab({
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "প্রধান শিরোনামের শুরু (বাংলা)" : "Main Title Prefix (BN)"}</span>
-              <span className="text-[9px] font-mono opacity-60">{formData.hero_title_prefix_bn.length}/50</span>
+              <span className="text-[9px] font-mono opacity-50">{formData.hero_title_prefix_bn.length}/50</span>
             </label>
             <input
               type="text"
@@ -843,7 +843,7 @@ export default function HomepageSettingsSubTab({
               value={formData.hero_title_prefix_bn}
               onChange={(e) => handleFieldChange("hero_title_prefix_bn", e.target.value)}
               placeholder="যেমনঃ উন্নত করুন আপনার"
-              className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
 
@@ -865,9 +865,9 @@ export default function HomepageSettingsSubTab({
 
           {/* Rotating Words Bangla */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "রোটেটিং শব্দমালা (বাংলা - কমা দিয়ে আলাদা)" : "Rotating Words (BN - comma separated)"}</span>
-              <span className="text-[9px] font-mono opacity-60">{formData.hero_rotating_words_bn.length}/100</span>
+              <span className="text-[9px] font-mono opacity-50">{formData.hero_rotating_words_bn.length}/100</span>
             </label>
             <input
               type="text"
@@ -875,7 +875,7 @@ export default function HomepageSettingsSubTab({
               value={formData.hero_rotating_words_bn}
               onChange={(e) => handleFieldChange("hero_rotating_words_bn", e.target.value)}
               placeholder="সৌন্দর্য, গ্লো, গ্ল্যামার, চমক, লুক"
-              className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
 
@@ -897,9 +897,9 @@ export default function HomepageSettingsSubTab({
 
           {/* Hero Subtitle Bangla */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "হিরো সাবটাইটেল (বাংলা)" : "Hero Subtitle (BN)"}</span>
-              <span className="text-[9px] font-mono opacity-60">{formData.hero_subtitle_bn.length}/250</span>
+              <span className="text-[9px] font-mono opacity-50">{formData.hero_subtitle_bn.length}/250</span>
             </label>
             <textarea
               rows={2}
@@ -907,7 +907,7 @@ export default function HomepageSettingsSubTab({
               value={formData.hero_subtitle_bn}
               onChange={(e) => handleFieldChange("hero_subtitle_bn", e.target.value)}
               placeholder="প্রিমিয়াম কসমেটিকস এবং রূপচর্চার সেরা সমন্বয়..."
-              className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+              className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent resize-none"
             />
           </div>
 
@@ -928,9 +928,9 @@ export default function HomepageSettingsSubTab({
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "বাটন টেক্সট (বাংলা)" : "Button Text (BN)"}</span>
-              <span className="text-[9px] font-mono opacity-60">{formData.hero_btn_text_bn.length}/35</span>
+              <span className="text-[9px] font-mono opacity-50">{formData.hero_btn_text_bn.length}/35</span>
             </label>
             <input
               type="text"
@@ -938,7 +938,7 @@ export default function HomepageSettingsSubTab({
               value={formData.hero_btn_text_bn}
               onChange={(e) => handleFieldChange("hero_btn_text_bn", e.target.value)}
               placeholder="কালেকশন দেখুন"
-              className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
             />
           </div>
 
@@ -982,9 +982,9 @@ export default function HomepageSettingsSubTab({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                 <span>{isBn ? "কার্ড টাইটেল (বাংলা)" : "Card Title (BN)"}</span>
-                <span className="text-[9px] font-mono opacity-60">{formData.discover_title_bn.length}/50</span>
+                <span className="text-[9px] font-mono opacity-50">{formData.discover_title_bn.length}/50</span>
               </label>
               <input
                 type="text"
@@ -992,7 +992,7 @@ export default function HomepageSettingsSubTab({
                 value={formData.discover_title_bn}
                 onChange={(e) => handleFieldChange("discover_title_bn", e.target.value)}
                 placeholder="আবিষ্কার করুন সেরা গ্ল্যাম"
-                className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
               />
             </div>
 
@@ -1013,9 +1013,9 @@ export default function HomepageSettingsSubTab({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                 <span>{isBn ? "কার্ড বিবরণ (বাংলা)" : "Card Description (BN)"}</span>
-                <span className="text-[9px] font-mono opacity-60">{formData.discover_subtitle_bn.length}/200</span>
+                <span className="text-[9px] font-mono opacity-50">{formData.discover_subtitle_bn.length}/200</span>
               </label>
               <input
                 type="text"
@@ -1023,7 +1023,7 @@ export default function HomepageSettingsSubTab({
                 value={formData.discover_subtitle_bn}
                 onChange={(e) => handleFieldChange("discover_subtitle_bn", e.target.value)}
                 placeholder="এক্সক্লুসিভ মেকআপ ও স্কিনকেয়ার সামগ্রী..."
-                className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
               />
             </div>
 
@@ -1044,9 +1044,9 @@ export default function HomepageSettingsSubTab({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                 <span>{isBn ? "বাটন টেক্সট (বাংলা)" : "Button Text (BN)"}</span>
-                <span className="text-[9px] font-mono opacity-60">{formData.discover_btn_text_bn.length}/35</span>
+                <span className="text-[9px] font-mono opacity-50">{formData.discover_btn_text_bn.length}/35</span>
               </label>
               <input
                 type="text"
@@ -1054,7 +1054,7 @@ export default function HomepageSettingsSubTab({
                 value={formData.discover_btn_text_bn}
                 onChange={(e) => handleFieldChange("discover_btn_text_bn", e.target.value)}
                 placeholder="আকর্ষণীয় পণ্য দেখুন"
-                className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
               />
             </div>
 
@@ -1118,9 +1118,9 @@ export default function HomepageSettingsSubTab({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা)" : "Title (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-60">{formData.bento_tile_1_title_bn.length}/45</span>
+                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_1_title_bn.length}/45</span>
                 </label>
                 <input
                   type="text"
@@ -1128,7 +1128,7 @@ export default function HomepageSettingsSubTab({
                   value={formData.bento_tile_1_title_bn}
                   onChange={(e) => handleFieldChange("bento_tile_1_title_bn", e.target.value)}
                   placeholder="যেমনঃ লিপস্টিক"
-                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                 />
               </div>
             </div>
@@ -1237,9 +1237,9 @@ export default function HomepageSettingsSubTab({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা)" : "Title (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-60">{formData.bento_tile_2_title_bn.length}/45</span>
+                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_2_title_bn.length}/45</span>
                 </label>
                 <input
                   type="text"
@@ -1247,7 +1247,7 @@ export default function HomepageSettingsSubTab({
                   value={formData.bento_tile_2_title_bn}
                   onChange={(e) => handleFieldChange("bento_tile_2_title_bn", e.target.value)}
                   placeholder="যেমনঃ স্কিনকেয়ার"
-                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                 />
               </div>
             </div>
@@ -1356,9 +1356,9 @@ export default function HomepageSettingsSubTab({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা)" : "Title (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-60">{formData.bento_tile_3_title_bn.length}/45</span>
+                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_3_title_bn.length}/45</span>
                 </label>
                 <input
                   type="text"
@@ -1366,7 +1366,7 @@ export default function HomepageSettingsSubTab({
                   value={formData.bento_tile_3_title_bn}
                   onChange={(e) => handleFieldChange("bento_tile_3_title_bn", e.target.value)}
                   placeholder="যেমনঃ আই মেকআপ"
-                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                 />
               </div>
             </div>
@@ -1475,9 +1475,9 @@ export default function HomepageSettingsSubTab({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা)" : "Title (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-60">{formData.bento_tile_4_title_bn.length}/45</span>
+                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_4_title_bn.length}/45</span>
                 </label>
                 <input
                   type="text"
@@ -1485,7 +1485,7 @@ export default function HomepageSettingsSubTab({
                   value={formData.bento_tile_4_title_bn}
                   onChange={(e) => handleFieldChange("bento_tile_4_title_bn", e.target.value)}
                   placeholder="যেমনঃ ফাউন্ডেশন ও গ্লো"
-                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                 />
               </div>
             </div>
@@ -1594,9 +1594,9 @@ export default function HomepageSettingsSubTab({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা - ঐচ্ছিক)" : "Title (BN - Optional)"}</span>
-                  <span className="text-[9px] font-mono opacity-60">{formData.bento_tile_247_title_bn.length}/45</span>
+                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_247_title_bn.length}/45</span>
                 </label>
                 <input
                   type="text"
@@ -1604,7 +1604,7 @@ export default function HomepageSettingsSubTab({
                   value={formData.bento_tile_247_title_bn}
                   onChange={(e) => handleFieldChange("bento_tile_247_title_bn", e.target.value)}
                   placeholder="যেমনঃ ২৪/৭ গ্লোবাল ড্রপস"
-                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                 />
               </div>
             </div>
@@ -1709,9 +1709,9 @@ export default function HomepageSettingsSubTab({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা - ঐচ্ছিক)" : "Title (BN - Optional)"}</span>
-                  <span className="text-[9px] font-mono opacity-60">{formData.bento_tile_delivery_title_bn.length}/45</span>
+                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_delivery_title_bn.length}/45</span>
                 </label>
                 <input
                   type="text"
@@ -1719,7 +1719,7 @@ export default function HomepageSettingsSubTab({
                   value={formData.bento_tile_delivery_title_bn}
                   onChange={(e) => handleFieldChange("bento_tile_delivery_title_bn", e.target.value)}
                   placeholder="যেমনঃ দ্রুত ডেলিভারি"
-                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
                 />
               </div>
             </div>

@@ -514,16 +514,16 @@ export default function StoreSettingsTab({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "ওয়েবসাইটের নাম (বাংলা)" : "Website Title (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-60">{siteTitleBn.length}/25</span>
+                  <span className="text-[9px] font-mono opacity-50">{siteTitleBn.length}/25</span>
                 </label>
                 <input
                   type="text"
                   maxLength={25}
                   value={siteTitleBn}
                   onChange={(e) => setSiteTitleBn(e.target.value.slice(0, 25))}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-bold border border-emerald-500/30 focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-bold border border-foreground/15 focus:outline-none focus:border-accent"
                   placeholder="যেমনঃ ভাইবমার্ট"
                 />
               </div>
@@ -542,35 +542,39 @@ export default function StoreSettingsTab({
                   value={tagline}
                   onChange={(e) => setTagline(e.target.value.slice(0, 30))}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
-                  placeholder="e.g. MAKE-UP STYLE"
+                  placeholder="e.g. Premium Beauty & Cosmetics"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "ট্যাগলাইন (বাংলা)" : "Store Tagline (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-60">{taglineBn.length}/45</span>
+                  <span className="text-[9px] font-mono opacity-50">{taglineBn.length}/45</span>
                 </label>
                 <input
                   type="text"
                   maxLength={45}
                   value={taglineBn}
                   onChange={(e) => setTaglineBn(e.target.value.slice(0, 45))}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-emerald-500/30 focus:outline-none focus:border-emerald-500"
-                  placeholder="যেমনঃ বিউটি ও মেকআপ স্টাইল"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
+                  placeholder="যেমনঃ প্রিমিয়াম বিউটি ও কসমেটিকস"
                 />
               </div>
             </div>
 
             {/* Brand Philosophy English */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
-                <span>{isBn ? "ব্র্যান্ড দর্শন (English - ফুটারে প্রদর্শিত)" : "Brand Philosophy (EN - Footer)"}</span>
-                <span className="text-[9px] font-mono opacity-50">{brandDescription.length}/400</span>
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
+                  {isBn ? "ব্র্যান্ড দর্শন (English - ফুটারে প্রদর্শিত)" : "Brand Philosophy (EN - Footer)"}
+                </label>
+                <span className="text-[9px] font-mono opacity-50">
+                  {brandDescription.trim().split(/\s+/).filter(Boolean).length}/70 words
+                </span>
+              </div>
               <textarea
                 rows={3}
-                maxLength={400}
+                maxLength={350}
                 value={brandDescription}
                 onChange={(e) => {
                   const val = e.target.value;
@@ -586,9 +590,9 @@ export default function StoreSettingsTab({
 
             {/* Brand Philosophy Bangla */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                 <span>{isBn ? "ব্র্যান্ড দর্শন (বাংলা - ফুটারে প্রদর্শিত)" : "Brand Philosophy (BN - Footer)"}</span>
-                <span className="text-[9px] font-mono opacity-60">{brandDescriptionBn.length}/400</span>
+                <span className="text-[9px] font-mono opacity-50">{brandDescriptionBn.length}/400</span>
               </label>
               <textarea
                 rows={3}
@@ -601,7 +605,7 @@ export default function StoreSettingsTab({
                     setBrandDescriptionBn(val);
                   }
                 }}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-emerald-500/30 focus:outline-none focus:border-emerald-500 resize-none leading-relaxed"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent resize-none leading-relaxed"
                 placeholder="ফুটারে প্রদর্শনের জন্য বাংলায় স্টোরের বিবরণ লিখুন (সর্বোচ্চ ৭০ শব্দ)..."
               />
             </div>
@@ -672,16 +676,16 @@ export default function StoreSettingsTab({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "অফিস ঠিকানা (বাংলা)" : "Store Office Address (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-60">{storeAddressBn.length}/250</span>
+                  <span className="text-[9px] font-mono opacity-50">{storeAddressBn.length}/250</span>
                 </label>
                 <textarea
                   rows={2}
                   maxLength={250}
                   value={storeAddressBn}
                   onChange={(e) => setStoreAddressBn(e.target.value.slice(0, 250))}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-emerald-500/30 focus:outline-none focus:border-emerald-500 resize-none"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent resize-none"
                   placeholder="শোরুম বা অফিসের বাংলা ঠিকানা লিখুন..."
                 />
               </div>
@@ -705,16 +709,16 @@ export default function StoreSettingsTab({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "কাজের সময় (বাংলা)" : "Working Hours (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-60">{workingHoursBn.length}/80</span>
+                  <span className="text-[9px] font-mono opacity-50">{workingHoursBn.length}/80</span>
                 </label>
                 <input
                   type="text"
                   maxLength={80}
                   value={workingHoursBn}
                   onChange={(e) => setWorkingHoursBn(e.target.value.slice(0, 80))}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-emerald-500/30 focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
                   placeholder="শনি - বৃহস্পতি: সকাল ১০:০০ - সন্ধ্যা ৬:০০"
                 />
               </div>
@@ -738,16 +742,16 @@ export default function StoreSettingsTab({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "কপিরাইট নোটিশ (বাংলা)" : "Copyright Notice (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-60">{footerCopyrightBn.length}/120</span>
+                  <span className="text-[9px] font-mono opacity-50">{footerCopyrightBn.length}/120</span>
                 </label>
                 <input
                   type="text"
                   maxLength={120}
                   value={footerCopyrightBn}
                   onChange={(e) => setFooterCopyrightBn(e.target.value.slice(0, 120))}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-emerald-500/30 focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
                   placeholder="© ২০২৬ ভাইবমার্ট। সর্বস্বত্ব সংরক্ষিত।"
                 />
               </div>
