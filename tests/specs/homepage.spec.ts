@@ -64,24 +64,19 @@ test.describe('Storefront Homepage - Complete Test Suite', () => {
       await expect(signInLink).toHaveAttribute('href', /login/);
     });
 
-    test('navigating via header nav links opens appropriate pages', async ({ page }) => {
-      // Click Shop Link
+    test('can navigate to Shop page via header nav', async ({ page }) => {
       const shopLink = page.locator('header nav').getByRole('link', { name: /SHOP/i });
       await shopLink.click();
       await expect(page).toHaveURL(/\/products/);
+    });
 
-      // Return to homepage
-      await page.goto('/', { waitUntil: 'domcontentloaded' });
-
-      // Click Categories Link
+    test('can navigate to Categories page via header nav', async ({ page }) => {
       const categoriesLink = page.locator('header nav').getByRole('link', { name: /CATEGORIES/i });
       await categoriesLink.click();
       await expect(page).toHaveURL(/\/collections/);
+    });
 
-      // Return to homepage
-      await page.goto('/', { waitUntil: 'domcontentloaded' });
-
-      // Click Gift Cards Link
+    test('can navigate to Gift Cards page via header nav', async ({ page }) => {
       const giftCardsLink = page.locator('header nav').getByRole('link', { name: /GIFT CARDS/i });
       await giftCardsLink.click();
       await expect(page).toHaveURL(/\/gift-cards/);
