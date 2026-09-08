@@ -1101,18 +1101,36 @@ export default function HomepageSettingsSubTab({
               </span>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "টাইটেল / লেবেল" : "Display Title"}
-              </label>
-              <input
-                type="text"
-                maxLength={35}
-                value={formData.bento_tile_1_title}
-                onChange={(e) => handleFieldChange("bento_tile_1_title", e.target.value)}
-                placeholder="LIPSTICKS"
-                className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>{isBn ? "টাইটেল (English)" : "Title (EN)"}</span>
+                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_1_title.length}/35</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={35}
+                  value={formData.bento_tile_1_title}
+                  onChange={(e) => handleFieldChange("bento_tile_1_title", e.target.value)}
+                  placeholder="LIPSTICKS"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                  <span>{isBn ? "টাইটেল (বাংলা)" : "Title (BN)"}</span>
+                  <span className="text-[9px] font-mono opacity-60">{formData.bento_tile_1_title_bn.length}/45</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={45}
+                  value={formData.bento_tile_1_title_bn}
+                  onChange={(e) => handleFieldChange("bento_tile_1_title_bn", e.target.value)}
+                  placeholder="যেমনঃ লিপস্টিক"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">
@@ -1202,18 +1220,36 @@ export default function HomepageSettingsSubTab({
               </span>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "টাইটেল / লেবেল" : "Display Title"}
-              </label>
-              <input
-                type="text"
-                maxLength={35}
-                value={formData.bento_tile_2_title}
-                onChange={(e) => handleFieldChange("bento_tile_2_title", e.target.value)}
-                placeholder="SKINCARE"
-                className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>{isBn ? "টাইটেল (English)" : "Title (EN)"}</span>
+                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_2_title.length}/35</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={35}
+                  value={formData.bento_tile_2_title}
+                  onChange={(e) => handleFieldChange("bento_tile_2_title", e.target.value)}
+                  placeholder="SKINCARE"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                  <span>{isBn ? "টাইটেল (বাংলা)" : "Title (BN)"}</span>
+                  <span className="text-[9px] font-mono opacity-60">{formData.bento_tile_2_title_bn.length}/45</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={45}
+                  value={formData.bento_tile_2_title_bn}
+                  onChange={(e) => handleFieldChange("bento_tile_2_title_bn", e.target.value)}
+                  placeholder="যেমনঃ স্কিনকেয়ার"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">
@@ -1303,18 +1339,36 @@ export default function HomepageSettingsSubTab({
               </span>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "টাইটেল / লেবেল" : "Display Title"}
-              </label>
-              <input
-                type="text"
-                maxLength={35}
-                value={formData.bento_tile_3_title}
-                onChange={(e) => handleFieldChange("bento_tile_3_title", e.target.value)}
-                placeholder="EYE MAKEUP"
-                className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>{isBn ? "টাইটেল (English)" : "Title (EN)"}</span>
+                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_3_title.length}/35</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={35}
+                  value={formData.bento_tile_3_title}
+                  onChange={(e) => handleFieldChange("bento_tile_3_title", e.target.value)}
+                  placeholder="EYE MAKEUP"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                  <span>{isBn ? "টাইটেল (বাংলা)" : "Title (BN)"}</span>
+                  <span className="text-[9px] font-mono opacity-60">{formData.bento_tile_3_title_bn.length}/45</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={45}
+                  value={formData.bento_tile_3_title_bn}
+                  onChange={(e) => handleFieldChange("bento_tile_3_title_bn", e.target.value)}
+                  placeholder="যেমনঃ আই মেকআপ"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">
@@ -1404,18 +1458,36 @@ export default function HomepageSettingsSubTab({
               </span>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "টাইটেল / লেবেল" : "Display Title"}
-              </label>
-              <input
-                type="text"
-                maxLength={35}
-                value={formData.bento_tile_4_title}
-                onChange={(e) => handleFieldChange("bento_tile_4_title", e.target.value)}
-                placeholder="FOUNDATION & GLOW"
-                className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>{isBn ? "টাইটেল (English)" : "Title (EN)"}</span>
+                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_4_title.length}/35</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={35}
+                  value={formData.bento_tile_4_title}
+                  onChange={(e) => handleFieldChange("bento_tile_4_title", e.target.value)}
+                  placeholder="FOUNDATION & GLOW"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                  <span>{isBn ? "টাইটেল (বাংলা)" : "Title (BN)"}</span>
+                  <span className="text-[9px] font-mono opacity-60">{formData.bento_tile_4_title_bn.length}/45</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={45}
+                  value={formData.bento_tile_4_title_bn}
+                  onChange={(e) => handleFieldChange("bento_tile_4_title_bn", e.target.value)}
+                  placeholder="যেমনঃ ফাউন্ডেশন ও গ্লো"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">
@@ -1497,7 +1569,7 @@ export default function HomepageSettingsSubTab({
             </div>
           </div>
 
-          {/* Slot 5 */}
+          {/* Slot 5 (24/7 Drops) */}
           <div className="p-5 rounded-2xl border border-foreground/10 bg-primary/5 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black uppercase tracking-wider text-foreground">
@@ -1505,18 +1577,36 @@ export default function HomepageSettingsSubTab({
               </span>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "টাইটেল / লেবেল (ঐচ্ছিক)" : "Display Title (Optional)"}
-              </label>
-              <input
-                type="text"
-                maxLength={35}
-                value={formData.bento_tile_247_title}
-                onChange={(e) => handleFieldChange("bento_tile_247_title", e.target.value)}
-                placeholder="24/7 GLOBAL DROPS"
-                className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>{isBn ? "টাইটেল (English - ঐচ্ছিক)" : "Title (EN - Optional)"}</span>
+                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_247_title.length}/35</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={35}
+                  value={formData.bento_tile_247_title}
+                  onChange={(e) => handleFieldChange("bento_tile_247_title", e.target.value)}
+                  placeholder="24/7 GLOBAL DROPS"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                  <span>{isBn ? "টাইটেল (বাংলা - ঐচ্ছিক)" : "Title (BN - Optional)"}</span>
+                  <span className="text-[9px] font-mono opacity-60">{formData.bento_tile_247_title_bn.length}/45</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={45}
+                  value={formData.bento_tile_247_title_bn}
+                  onChange={(e) => handleFieldChange("bento_tile_247_title_bn", e.target.value)}
+                  placeholder="যেমনঃ ২৪/৭ গ্লোবাল ড্রপস"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">
@@ -1594,7 +1684,7 @@ export default function HomepageSettingsSubTab({
             </div>
           </div>
 
-          {/* Slot 6 */}
+          {/* Slot 6 (Fast Delivery) */}
           <div className="p-5 rounded-2xl border border-foreground/10 bg-primary/5 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-black uppercase tracking-wider text-foreground">
@@ -1602,18 +1692,36 @@ export default function HomepageSettingsSubTab({
               </span>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "টাইটেল / শিরোনাম (ঐচ্ছিক)" : "Display Title (Optional)"}
-              </label>
-              <input
-                type="text"
-                maxLength={35}
-                value={formData.bento_tile_delivery_title}
-                onChange={(e) => handleFieldChange("bento_tile_delivery_title", e.target.value)}
-                placeholder="Fast Delivery"
-                className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>{isBn ? "টাইটেল (English - ঐচ্ছিক)" : "Title (EN - Optional)"}</span>
+                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_delivery_title.length}/35</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={35}
+                  value={formData.bento_tile_delivery_title}
+                  onChange={(e) => handleFieldChange("bento_tile_delivery_title", e.target.value)}
+                  placeholder="Fast Delivery"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                  <span>{isBn ? "টাইটেল (বাংলা - ঐচ্ছিক)" : "Title (BN - Optional)"}</span>
+                  <span className="text-[9px] font-mono opacity-60">{formData.bento_tile_delivery_title_bn.length}/45</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={45}
+                  value={formData.bento_tile_delivery_title_bn}
+                  onChange={(e) => handleFieldChange("bento_tile_delivery_title_bn", e.target.value)}
+                  placeholder="যেমনঃ দ্রুত ডেলিভারি"
+                  className="w-full px-3 py-1.5 rounded-xl bg-background border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
             </div>
 
             <div className="space-y-1.5">
