@@ -103,6 +103,7 @@ export default function CollectionsTab({
               <input
                 type="text"
                 required
+                maxLength={60}
                 value={newCollectionTitle}
                 onChange={(e) => setNewCollectionTitle(e.target.value)}
                 placeholder={isBn ? "যেমনঃ গ্রীষ্মকালীন কালেকশন" : "e.g. Summer Drop"}
@@ -199,6 +200,7 @@ export default function CollectionsTab({
             <div className="relative w-full">
               <input
                 type="text"
+                maxLength={80}
                 value={editCollectionSearch}
                 onChange={(e) => setEditCollectionSearch(e.target.value)}
                 placeholder={isBn ? "কালেকশন এর নাম বা আইডি দিয়ে খুঁজুন..." : "Search by collection title or ID..."}
@@ -311,6 +313,7 @@ export default function CollectionsTab({
                 <input
                   type="text"
                   required
+                  maxLength={60}
                   value={newCollectionTitle}
                   onChange={(e) => setNewCollectionTitle(e.target.value)}
                   placeholder={isBn ? "যেমনঃ গ্রীষ্মকালীন কালেকশন" : "e.g. Summer Drop"}
@@ -450,6 +453,7 @@ export default function CollectionsTab({
               <div className="relative w-full sm:w-72">
                 <input
                   type="text"
+                  maxLength={80}
                   value={featuredSearch}
                   onChange={(e) => setFeaturedSearch(e.target.value)}
                   placeholder={isBn ? "ফিচার্ড কালেকশন খুঁজুন..." : "Search featured collections..."}

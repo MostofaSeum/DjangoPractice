@@ -277,6 +277,7 @@ export default function CouponsTab({
               <div className="relative">
                 <input
                   type="text"
+                  maxLength={60}
                   value={couponSearchInput}
                   onFocus={() => setIsCouponDropdownOpen(true)}
                   onChange={(e) => {
@@ -458,6 +459,7 @@ export default function CouponsTab({
             </h2>
             <input
               type="text"
+              maxLength={60}
               value={couponFilterSearch}
               onChange={(e) => setCouponFilterSearch(e.target.value)}
               placeholder={isBn ? "কুপন কোড দিয়ে অনুসন্ধান..." : "Search coupons by code..."}

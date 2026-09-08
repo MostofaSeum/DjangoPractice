@@ -701,6 +701,7 @@ export default function HomepageSettingsSubTab({
               </label>
               <input
                 type="text"
+                maxLength={255}
                 value={formData.top_banner_link}
                 onChange={(e) => handleFieldChange("top_banner_link", e.target.value)}
                 placeholder="/gift-cards or /products or https://..."
@@ -735,6 +736,7 @@ export default function HomepageSettingsSubTab({
             </label>
             <input
               type="text"
+              maxLength={30}
               value={formData.hero_badge}
               onChange={(e) => handleFieldChange("hero_badge", e.target.value)}
               placeholder="e.g. New Collection / Limited Drop"
@@ -749,6 +751,7 @@ export default function HomepageSettingsSubTab({
             </label>
             <input
               type="text"
+              maxLength={40}
               value={formData.hero_title_prefix}
               onChange={(e) => handleFieldChange("hero_title_prefix", e.target.value)}
               placeholder="e.g. Elevate Your"
@@ -765,6 +768,7 @@ export default function HomepageSettingsSubTab({
             </label>
             <input
               type="text"
+              maxLength={80}
               value={formData.hero_rotating_words}
               onChange={(e) => handleFieldChange("hero_rotating_words", e.target.value)}
               placeholder="Beauty, Glow, Look, Glam, Charm"
@@ -784,6 +788,7 @@ export default function HomepageSettingsSubTab({
             </label>
             <textarea
               rows={2}
+              maxLength={200}
               value={formData.hero_subtitle}
               onChange={(e) => handleFieldChange("hero_subtitle", e.target.value)}
               placeholder="Experience the intersection of luxury cosmetics..."
@@ -798,6 +803,7 @@ export default function HomepageSettingsSubTab({
             </label>
             <input
               type="text"
+              maxLength={25}
               value={formData.hero_btn_text}
               onChange={(e) => handleFieldChange("hero_btn_text", e.target.value)}
               placeholder="Explore Collection"
@@ -812,6 +818,7 @@ export default function HomepageSettingsSubTab({
             </label>
             <input
               type="text"
+              maxLength={255}
               value={formData.hero_btn_link}
               onChange={(e) => handleFieldChange("hero_btn_link", e.target.value)}
               placeholder="/collections"
@@ -833,6 +840,7 @@ export default function HomepageSettingsSubTab({
               </label>
               <input
                 type="text"
+                maxLength={40}
                 value={formData.discover_title}
                 onChange={(e) => handleFieldChange("discover_title", e.target.value)}
                 placeholder="Discover the Glam"
@@ -846,6 +854,7 @@ export default function HomepageSettingsSubTab({
               </label>
               <input
                 type="text"
+                maxLength={255}
                 value={formData.discover_btn_link}
                 onChange={(e) => handleFieldChange("discover_btn_link", e.target.value)}
                 placeholder="/products"
@@ -859,6 +868,7 @@ export default function HomepageSettingsSubTab({
               </label>
               <input
                 type="text"
+                maxLength={160}
                 value={formData.discover_subtitle}
                 onChange={(e) => handleFieldChange("discover_subtitle", e.target.value)}
                 placeholder="Collect exclusive beauty essentials..."
@@ -900,6 +910,7 @@ export default function HomepageSettingsSubTab({
               </label>
               <input
                 type="text"
+                maxLength={35}
                 value={formData.bento_tile_1_title}
                 onChange={(e) => handleFieldChange("bento_tile_1_title", e.target.value)}
                 placeholder="LIPSTICKS"
@@ -1000,6 +1011,7 @@ export default function HomepageSettingsSubTab({
               </label>
               <input
                 type="text"
+                maxLength={35}
                 value={formData.bento_tile_2_title}
                 onChange={(e) => handleFieldChange("bento_tile_2_title", e.target.value)}
                 placeholder="SKINCARE"
@@ -1100,6 +1112,7 @@ export default function HomepageSettingsSubTab({
               </label>
               <input
                 type="text"
+                maxLength={35}
                 value={formData.bento_tile_3_title}
                 onChange={(e) => handleFieldChange("bento_tile_3_title", e.target.value)}
                 placeholder="EYE MAKEUP"
@@ -1200,6 +1213,7 @@ export default function HomepageSettingsSubTab({
               </label>
               <input
                 type="text"
+                maxLength={35}
                 value={formData.bento_tile_4_title}
                 onChange={(e) => handleFieldChange("bento_tile_4_title", e.target.value)}
                 placeholder="FOUNDATION & GLOW"
@@ -1300,6 +1314,7 @@ export default function HomepageSettingsSubTab({
               </label>
               <input
                 type="text"
+                maxLength={35}
                 value={formData.bento_tile_247_title}
                 onChange={(e) => handleFieldChange("bento_tile_247_title", e.target.value)}
                 placeholder="24/7 GLOBAL DROPS"
@@ -1313,6 +1328,7 @@ export default function HomepageSettingsSubTab({
               </label>
               <input
                 type="text"
+                maxLength={255}
                 value={formData.bento_tile_247_link}
                 onChange={(e) => handleFieldChange("bento_tile_247_link", e.target.value)}
                 placeholder="/collections or /products or https://..."
@@ -1395,6 +1411,7 @@ export default function HomepageSettingsSubTab({
               </label>
               <input
                 type="text"
+                maxLength={35}
                 value={formData.bento_tile_delivery_title}
                 onChange={(e) => handleFieldChange("bento_tile_delivery_title", e.target.value)}
                 placeholder="Fast Delivery"
@@ -1408,6 +1425,7 @@ export default function HomepageSettingsSubTab({
               </label>
               <input
                 type="text"
+                maxLength={255}
                 value={formData.bento_tile_delivery_link}
                 onChange={(e) => handleFieldChange("bento_tile_delivery_link", e.target.value)}
                 placeholder="/shipping or /products or https://..."
