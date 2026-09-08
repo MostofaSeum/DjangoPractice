@@ -158,7 +158,7 @@ export default function HomeClient({
     title: isBn
       ? siteSettings?.bento_tile_1_title_bn || siteSettings?.bento_tile_1_title || ""
       : siteSettings?.bento_tile_1_title || "",
-    link: siteSettings?.bento_tile_1_collection ? `/collections/${siteSettings.bento_tile_1_collection}` : "/collections/3",
+    link: siteSettings?.bento_tile_1_collection ? `/collections/${siteSettings.bento_tile_1_collection}` : "",
     image: siteSettings?.bento_tile_1_image ? getMediaUrl(siteSettings.bento_tile_1_image) : "",
   };
 
@@ -166,7 +166,7 @@ export default function HomeClient({
     title: isBn
       ? siteSettings?.bento_tile_2_title_bn || siteSettings?.bento_tile_2_title || ""
       : siteSettings?.bento_tile_2_title || "",
-    link: siteSettings?.bento_tile_2_collection ? `/collections/${siteSettings.bento_tile_2_collection}` : "/collections/4",
+    link: siteSettings?.bento_tile_2_collection ? `/collections/${siteSettings.bento_tile_2_collection}` : "",
     image: siteSettings?.bento_tile_2_image ? getMediaUrl(siteSettings.bento_tile_2_image) : "",
   };
 
@@ -174,7 +174,7 @@ export default function HomeClient({
     title: isBn
       ? siteSettings?.bento_tile_3_title_bn || siteSettings?.bento_tile_3_title || ""
       : siteSettings?.bento_tile_3_title || "",
-    link: siteSettings?.bento_tile_3_collection ? `/collections/${siteSettings.bento_tile_3_collection}` : "/collections/6",
+    link: siteSettings?.bento_tile_3_collection ? `/collections/${siteSettings.bento_tile_3_collection}` : "",
     image: siteSettings?.bento_tile_3_image ? getMediaUrl(siteSettings.bento_tile_3_image) : "",
   };
 
@@ -182,7 +182,7 @@ export default function HomeClient({
     title: isBn
       ? siteSettings?.bento_tile_4_title_bn || siteSettings?.bento_tile_4_title || ""
       : siteSettings?.bento_tile_4_title || "",
-    link: siteSettings?.bento_tile_4_collection ? `/collections/${siteSettings.bento_tile_4_collection}` : "/collections/5",
+    link: siteSettings?.bento_tile_4_collection ? `/collections/${siteSettings.bento_tile_4_collection}` : "",
     image: siteSettings?.bento_tile_4_image ? getMediaUrl(siteSettings.bento_tile_4_image) : "",
   };
 
@@ -292,30 +292,54 @@ export default function HomeClient({
           </div>
 
           {/* Middle Right Item 1 (Slot 1) */}
-          <Link
-            href={bentoTile1.link}
-            className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
-          >
-            {bentoTile1.image && (
-              <Image
-                src={bentoTile1.image}
-                alt={bentoTile1.title || "Slot 1"}
-                fill
-                unoptimized
-                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-              />
-            )}
-            {bentoTile1.title && (
-              <>
-                <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-                  <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
-                    {bentoTile1.title}
-                  </span>
-                </div>
-              </>
-            )}
-          </Link>
+          {bentoTile1.link ? (
+            <Link
+              href={bentoTile1.link}
+              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
+            >
+              {bentoTile1.image && (
+                <Image
+                  src={bentoTile1.image}
+                  alt={bentoTile1.title || "Slot 1"}
+                  fill
+                  unoptimized
+                  className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                />
+              )}
+              {bentoTile1.title && (
+                <>
+                  <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                    <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                      {bentoTile1.title}
+                    </span>
+                  </div>
+                </>
+              )}
+            </Link>
+          ) : (
+            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
+              {bentoTile1.image && (
+                <Image
+                  src={bentoTile1.image}
+                  alt={bentoTile1.title || "Slot 1"}
+                  fill
+                  unoptimized
+                  className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                />
+              )}
+              {bentoTile1.title && (
+                <>
+                  <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                    <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                      {bentoTile1.title}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Middle Right Item 2 (Slot 5) */}
           {bentoTile247.link ? (
@@ -420,85 +444,160 @@ export default function HomeClient({
           )}
 
           {/* Bottom Row Item 2 (Slot 2) */}
-          <Link
-            href={bentoTile2.link}
-            className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
-          >
-            {bentoTile2.image && (
-              <Image
-                src={bentoTile2.image}
-                alt={bentoTile2.title || "Slot 2"}
-                fill
-                unoptimized
-                sizes="(max-width: 768px) 100vw, 33vw"
-                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-              />
-            )}
-            {bentoTile2.title && (
-              <>
-                <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-                  <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
-                    {bentoTile2.title}
-                  </span>
-                </div>
-              </>
-            )}
-          </Link>
+          {bentoTile2.link ? (
+            <Link
+              href={bentoTile2.link}
+              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
+            >
+              {bentoTile2.image && (
+                <Image
+                  src={bentoTile2.image}
+                  alt={bentoTile2.title || "Slot 2"}
+                  fill
+                  unoptimized
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                />
+              )}
+              {bentoTile2.title && (
+                <>
+                  <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                    <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                      {bentoTile2.title}
+                    </span>
+                  </div>
+                </>
+              )}
+            </Link>
+          ) : (
+            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
+              {bentoTile2.image && (
+                <Image
+                  src={bentoTile2.image}
+                  alt={bentoTile2.title || "Slot 2"}
+                  fill
+                  unoptimized
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                />
+              )}
+              {bentoTile2.title && (
+                <>
+                  <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                    <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                      {bentoTile2.title}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Bottom Row Item 3 (Slot 3) */}
-          <Link
-            href={bentoTile3.link}
-            className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
-          >
-            {bentoTile3.image && (
-              <Image
-                src={bentoTile3.image}
-                alt={bentoTile3.title || "Slot 3"}
-                fill
-                unoptimized
-                sizes="(max-width: 768px) 100vw, 33vw"
-                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-              />
-            )}
-            {bentoTile3.title && (
-              <>
-                <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-                  <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
-                    {bentoTile3.title}
-                  </span>
-                </div>
-              </>
-            )}
-          </Link>
+          {bentoTile3.link ? (
+            <Link
+              href={bentoTile3.link}
+              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
+            >
+              {bentoTile3.image && (
+                <Image
+                  src={bentoTile3.image}
+                  alt={bentoTile3.title || "Slot 3"}
+                  fill
+                  unoptimized
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                />
+              )}
+              {bentoTile3.title && (
+                <>
+                  <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                    <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                      {bentoTile3.title}
+                    </span>
+                  </div>
+                </>
+              )}
+            </Link>
+          ) : (
+            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
+              {bentoTile3.image && (
+                <Image
+                  src={bentoTile3.image}
+                  alt={bentoTile3.title || "Slot 3"}
+                  fill
+                  unoptimized
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                />
+              )}
+              {bentoTile3.title && (
+                <>
+                  <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                    <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                      {bentoTile3.title}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Bottom Row Item 4 (Slot 4) */}
-          <Link
-            href={bentoTile4.link}
-            className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0"
-          >
-            {bentoTile4.image && (
-              <Image
-                src={bentoTile4.image}
-                alt={bentoTile4.title || "Slot 4"}
-                fill
-                unoptimized
-                sizes="(max-width: 768px) 100vw, 33vw"
-                className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-              />
-            )}
-            {bentoTile4.title && (
-              <>
-                <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
-                  <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
-                    {bentoTile4.title}
-                  </span>
-                </div>
-              </>
-            )}
-          </Link>
+          {bentoTile4.link ? (
+            <Link
+              href={bentoTile4.link}
+              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
+            >
+              {bentoTile4.image && (
+                <Image
+                  src={bentoTile4.image}
+                  alt={bentoTile4.title || "Slot 4"}
+                  fill
+                  unoptimized
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                />
+              )}
+              {bentoTile4.title && (
+                <>
+                  <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                    <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                      {bentoTile4.title}
+                    </span>
+                  </div>
+                </>
+              )}
+            </Link>
+          ) : (
+            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
+              {bentoTile4.image && (
+                <Image
+                  src={bentoTile4.image}
+                  alt={bentoTile4.title || "Slot 4"}
+                  fill
+                  unoptimized
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover group-hover:scale-110 transition-transform duration-700 opacity-90 group-hover:opacity-100"
+                />
+              )}
+              {bentoTile4.title && (
+                <>
+                  <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                    <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
+                      {bentoTile4.title}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
