@@ -286,9 +286,9 @@ test.describe('Storefront Homepage - Complete Test Suite', () => {
       if ((await addToCartBtn.count()) > 0) {
         await addToCartBtn.click();
 
-        // Toast/alert confirmation or cart badge update
-        const toastNotification = page.locator('.swal2-popup, [role="status"], [role="alert"]');
-        await expect(toastNotification).toBeVisible({ timeout: 5000 });
+        // Toast/alert confirmation
+        const toastNotification = page.locator('.swal2-popup');
+        await expect(toastNotification).toBeVisible({ timeout: 10000 });
       }
     });
   });
@@ -352,8 +352,8 @@ test.describe('Storefront Homepage - Complete Test Suite', () => {
       await emailInput.fill(testEmail);
       await subscribeBtn.click();
 
-      // Verify either SweetAlert popup, status alert, or input clear indicates submission completed
-      const alertPopup = page.locator('.swal2-container, .swal2-popup, [role="alert"], [role="status"]');
+      // Verify SweetAlert popup indicates submission completed
+      const alertPopup = page.locator('.swal2-popup');
       await expect(alertPopup).toBeVisible({ timeout: 10000 });
     });
   });

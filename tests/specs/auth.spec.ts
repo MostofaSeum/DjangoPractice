@@ -15,9 +15,9 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
     });
 
     test('renders login form with username, password, show/hide password, and submit button', async ({ page }) => {
-      // Check heading
+      // Check heading with explicit timeout for slower engines (WebKit/Safari)
       const heading = page.locator('h1, h2').first();
-      await expect(heading).toBeVisible();
+      await expect(heading).toBeVisible({ timeout: 15000 });
 
       // Username input
       const usernameInput = page.locator('input[name="username"]').or(page.getByPlaceholder(/Username|Email/i));
@@ -41,7 +41,7 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
 
     test('validates required fields on empty submit', async ({ page }) => {
       const usernameInput = page.locator('input[name="username"], input[type="text"]').first();
-      await expect(usernameInput).toBeVisible();
+      await expect(usernameInput).toBeVisible({ timeout: 15000 });
 
       const submitBtn = page.locator('form button[type="submit"]');
       await submitBtn.click();
@@ -52,6 +52,7 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
 
     test('displays error alert on invalid credentials', async ({ page }) => {
       const usernameInput = page.locator('input[name="username"], input[type="text"]').first();
+      await expect(usernameInput).toBeVisible({ timeout: 15000 });
       const passwordInput = page.locator('input[type="password"]').first();
       const submitBtn = page.locator('form button[type="submit"]');
 
@@ -92,9 +93,9 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
     });
 
     test('renders registration form with all required user fields', async ({ page }) => {
-      // Heading
+      // Heading with explicit hydration timeout
       const heading = page.locator('h1, h2').first();
-      await expect(heading).toBeVisible();
+      await expect(heading).toBeVisible({ timeout: 15000 });
 
       // First Name and Last Name
       const firstNameInput = page.locator('input[name="first_name"]');
@@ -154,7 +155,7 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
 
     test('renders account verification step with username and email fields', async ({ page }) => {
       const heading = page.locator('h1, h2').first();
-      await expect(heading).toBeVisible();
+      await expect(heading).toBeVisible({ timeout: 15000 });
 
       // Username input
       const usernameInput = page.locator('form input').first();
