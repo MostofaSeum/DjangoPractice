@@ -254,6 +254,7 @@ test.describe('Storefront Homepage - Complete Test Suite', () => {
       const trendingSection = page.locator('main section').nth(1);
       const viewAllTrending = trendingSection.getByRole('link', { name: /View All|trending\.viewAll/i });
       await viewAllTrending.click();
+      await page.waitForURL(/\/products/, { timeout: 10000 });
       await expect(page).toHaveURL(/\/products/);
     });
 

@@ -33,11 +33,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Load user from stored token on startup
   useEffect(() => {
     const savedToken = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+    const savedRefresh = typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null;
     if (savedToken) {
       setToken(savedToken);
       fetchUser(savedToken);
-    } else {
+    } else if (savedRefresh) {
       fetchUser();
+    } else {
+      setUser(null);
+      setToken(null);
+      setLoading(false);
     }
   }, []);
 

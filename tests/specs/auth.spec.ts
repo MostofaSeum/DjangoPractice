@@ -6,6 +6,11 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
   /* -------------------------------------------------------------------------- */
   test.describe('Login Page', () => {
     test.beforeEach(async ({ page }) => {
+      await page.addInitScript(() => {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('jwt');
+      });
       await page.goto('/login', { waitUntil: 'domcontentloaded' });
     });
 
@@ -75,6 +80,11 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
   /* -------------------------------------------------------------------------- */
   test.describe('Register Page', () => {
     test.beforeEach(async ({ page }) => {
+      await page.addInitScript(() => {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('jwt');
+      });
       await page.goto('/register', { waitUntil: 'domcontentloaded' });
     });
 
@@ -103,8 +113,8 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
       const registerBtn = page.getByRole('button', { name: /Create Account|Register|Sign Up/i });
       await expect(registerBtn).toBeVisible();
 
-      // Already have an account link
-      const loginLink = page.getByRole('link', { name: /Sign In|Log In/i });
+      // Already have an account link inside form or content area
+      const loginLink = page.locator('main, div').getByRole('link', { name: 'Sign In', exact: true }).first();
       await expect(loginLink).toBeVisible();
     });
 
@@ -156,7 +166,7 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
       await expect(verifyBtn).toBeVisible();
 
       // Back to login link
-      const backLink = page.getByRole('link', { name: /Sign In|Login/i });
+      const backLink = page.locator('main, div').getByRole('link', { name: 'Sign In', exact: true }).first();
       await expect(backLink).toBeVisible();
     });
 
