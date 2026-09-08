@@ -70,6 +70,24 @@ const AVAILABLE_CURRENCIES = [
   { code: "CAD", label: "CAD ($) - Canadian Dollar", symbol: "CA$" },
 ];
 
+/**
+ * Only renders character counter when user is near the limit (>= 80% or within 5 chars)
+ */
+function renderCharCounter(currentLen: number, maxLen: number) {
+  const threshold = Math.min(Math.floor(maxLen * 0.8), Math.max(0, maxLen - 5));
+  if (currentLen < threshold) return null;
+  const isAtLimit = currentLen >= maxLen;
+  return (
+    <span
+      className={`text-[9px] font-mono transition-colors ${
+        isAtLimit ? "text-red-500 font-bold opacity-100" : "opacity-60 text-foreground"
+      }`}
+    >
+      {currentLen}/{maxLen}
+    </span>
+  );
+}
+
 export default function StoreSettingsTab({
   apiBase,
   token,
@@ -500,7 +518,7 @@ export default function StoreSettingsTab({
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "ওয়েবসাইটের নাম (English)" : "Website Title (EN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{siteTitle.length}/15</span>
+                  {renderCharCounter(siteTitle.length, 15)}
                 </label>
                 <input
                   type="text"
@@ -516,7 +534,7 @@ export default function StoreSettingsTab({
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "ওয়েবসাইটের নাম (বাংলা)" : "Website Title (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{siteTitleBn.length}/25</span>
+                  {renderCharCounter(siteTitleBn.length, 25)}
                 </label>
                 <input
                   type="text"
@@ -534,7 +552,7 @@ export default function StoreSettingsTab({
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "ট্যাগলাইন (English)" : "Store Tagline (EN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{tagline.length}/30</span>
+                  {renderCharCounter(tagline.length, 30)}
                 </label>
                 <input
                   type="text"
@@ -549,7 +567,7 @@ export default function StoreSettingsTab({
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "ট্যাগলাইন (বাংলা)" : "Store Tagline (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{taglineBn.length}/45</span>
+                  {renderCharCounter(taglineBn.length, 45)}
                 </label>
                 <input
                   type="text"
@@ -568,9 +586,19 @@ export default function StoreSettingsTab({
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
                   {isBn ? "ব্র্যান্ড দর্শন (English - ফুটারে প্রদর্শিত)" : "Brand Philosophy (EN - Footer)"}
                 </label>
-                <span className="text-[9px] font-mono opacity-50">
-                  {brandDescription.trim().split(/\s+/).filter(Boolean).length}/70 words
-                </span>
+                {(() => {
+                  const words = brandDescription.trim().split(/\s+/).filter(Boolean).length;
+                  if (words < 55) return null;
+                  return (
+                    <span
+                      className={`text-[9px] font-mono transition-colors ${
+                        words >= 70 ? "text-red-500 font-bold opacity-100" : "opacity-60 text-foreground"
+                      }`}
+                    >
+                      {words}/70 words
+                    </span>
+                  );
+                })()}
               </div>
               <textarea
                 rows={3}
@@ -592,7 +620,19 @@ export default function StoreSettingsTab({
             <div className="space-y-1.5">
               <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                 <span>{isBn ? "ব্র্যান্ড দর্শন (বাংলা - ফুটারে প্রদর্শিত)" : "Brand Philosophy (BN - Footer)"}</span>
-                <span className="text-[9px] font-mono opacity-50">{brandDescriptionBn.length}/400</span>
+                {(() => {
+                  const words = brandDescriptionBn.trim().split(/\s+/).filter(Boolean).length;
+                  if (words < 55) return null;
+                  return (
+                    <span
+                      className={`text-[9px] font-mono transition-colors ${
+                        words >= 70 ? "text-red-500 font-bold opacity-100" : "opacity-60 text-foreground"
+                      }`}
+                    >
+                      {words}/70 words
+                    </span>
+                  );
+                })()}
               </label>
               <textarea
                 rows={3}
@@ -663,7 +703,7 @@ export default function StoreSettingsTab({
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "অফিস ঠিকানা (English)" : "Store Office Address (EN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{storeAddress.length}/200</span>
+                  {renderCharCounter(storeAddress.length, 200)}
                 </label>
                 <textarea
                   rows={2}
@@ -678,7 +718,7 @@ export default function StoreSettingsTab({
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "অফিস ঠিকানা (বাংলা)" : "Store Office Address (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{storeAddressBn.length}/250</span>
+                  {renderCharCounter(storeAddressBn.length, 250)}
                 </label>
                 <textarea
                   rows={2}
@@ -696,7 +736,7 @@ export default function StoreSettingsTab({
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "কাজের সময় (English)" : "Working Hours (EN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{workingHours.length}/60</span>
+                  {renderCharCounter(workingHours.length, 60)}
                 </label>
                 <input
                   type="text"
@@ -711,7 +751,7 @@ export default function StoreSettingsTab({
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "কাজের সময় (বাংলা)" : "Working Hours (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{workingHoursBn.length}/80</span>
+                  {renderCharCounter(workingHoursBn.length, 80)}
                 </label>
                 <input
                   type="text"
@@ -729,7 +769,7 @@ export default function StoreSettingsTab({
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "কপিরাইট নোটিশ (English)" : "Copyright Notice (EN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{footerCopyright.length}/100</span>
+                  {renderCharCounter(footerCopyright.length, 100)}
                 </label>
                 <input
                   type="text"
@@ -744,7 +784,7 @@ export default function StoreSettingsTab({
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "কপিরাইট নোটিশ (বাংলা)" : "Copyright Notice (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{footerCopyrightBn.length}/120</span>
+                  {renderCharCounter(footerCopyrightBn.length, 120)}
                 </label>
                 <input
                   type="text"

@@ -103,6 +103,24 @@ const DEFAULT_HOMEPAGE_SETTINGS: HomepageSettingsState = {
   bento_tile_delivery_link: "",
 };
 
+/**
+ * Only renders character counter when user is near the limit (>= 80% or within 5 chars)
+ */
+function renderCharCounter(currentLen: number, maxLen: number) {
+  const threshold = Math.min(Math.floor(maxLen * 0.8), Math.max(0, maxLen - 5));
+  if (currentLen < threshold) return null;
+  const isAtLimit = currentLen >= maxLen;
+  return (
+    <span
+      className={`text-[9px] font-mono transition-colors ${
+        isAtLimit ? "text-red-500 font-bold opacity-100" : "opacity-60 text-foreground"
+      }`}
+    >
+      {currentLen}/{maxLen}
+    </span>
+  );
+}
+
 export default function HomepageSettingsSubTab({
   apiBase,
   token,
@@ -789,7 +807,7 @@ export default function HomepageSettingsSubTab({
           <div className="space-y-1.5">
             <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "ছোট ব্যাজ টেক্সট (English)" : "Hero Badge Label (EN)"}</span>
-              <span className="text-[9px] font-mono opacity-50">{formData.hero_badge.length}/30</span>
+              {renderCharCounter(formData.hero_badge.length, 30)}
             </label>
             <input
               type="text"
@@ -804,7 +822,7 @@ export default function HomepageSettingsSubTab({
           <div className="space-y-1.5">
             <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "ছোট ব্যাজ টেক্সট (বাংলা)" : "Hero Badge Label (BN)"}</span>
-              <span className="text-[9px] font-mono opacity-50">{formData.hero_badge_bn.length}/35</span>
+              {renderCharCounter(formData.hero_badge_bn.length, 35)}
             </label>
             <input
               type="text"
@@ -820,7 +838,7 @@ export default function HomepageSettingsSubTab({
           <div className="space-y-1.5">
             <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "প্রধান শিরোনামের শুরু (English)" : "Main Title Prefix (EN)"}</span>
-              <span className="text-[9px] font-mono opacity-50">{formData.hero_title_prefix.length}/40</span>
+              {renderCharCounter(formData.hero_title_prefix.length, 40)}
             </label>
             <input
               type="text"
@@ -835,7 +853,7 @@ export default function HomepageSettingsSubTab({
           <div className="space-y-1.5">
             <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "প্রধান শিরোনামের শুরু (বাংলা)" : "Main Title Prefix (BN)"}</span>
-              <span className="text-[9px] font-mono opacity-50">{formData.hero_title_prefix_bn.length}/50</span>
+              {renderCharCounter(formData.hero_title_prefix_bn.length, 50)}
             </label>
             <input
               type="text"
@@ -851,7 +869,7 @@ export default function HomepageSettingsSubTab({
           <div className="space-y-1.5">
             <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "রোটেটিং শব্দমালা (English - কমা দিয়ে আলাদা)" : "Rotating Words (EN - comma separated)"}</span>
-              <span className="text-[9px] font-mono opacity-50">{formData.hero_rotating_words.length}/80</span>
+              {renderCharCounter(formData.hero_rotating_words.length, 80)}
             </label>
             <input
               type="text"
@@ -867,7 +885,7 @@ export default function HomepageSettingsSubTab({
           <div className="space-y-1.5">
             <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "রোটেটিং শব্দমালা (বাংলা - কমা দিয়ে আলাদা)" : "Rotating Words (BN - comma separated)"}</span>
-              <span className="text-[9px] font-mono opacity-50">{formData.hero_rotating_words_bn.length}/100</span>
+              {renderCharCounter(formData.hero_rotating_words_bn.length, 100)}
             </label>
             <input
               type="text"
@@ -883,7 +901,7 @@ export default function HomepageSettingsSubTab({
           <div className="space-y-1.5">
             <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "হিরো সাবটাইটেল (English)" : "Hero Subtitle (EN)"}</span>
-              <span className="text-[9px] font-mono opacity-50">{formData.hero_subtitle.length}/200</span>
+              {renderCharCounter(formData.hero_subtitle.length, 200)}
             </label>
             <textarea
               rows={2}
@@ -899,7 +917,7 @@ export default function HomepageSettingsSubTab({
           <div className="space-y-1.5">
             <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "হিরো সাবটাইটেল (বাংলা)" : "Hero Subtitle (BN)"}</span>
-              <span className="text-[9px] font-mono opacity-50">{formData.hero_subtitle_bn.length}/250</span>
+              {renderCharCounter(formData.hero_subtitle_bn.length, 250)}
             </label>
             <textarea
               rows={2}
@@ -915,7 +933,7 @@ export default function HomepageSettingsSubTab({
           <div className="space-y-1.5">
             <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "বাটন টেক্সট (English)" : "Button Text (EN)"}</span>
-              <span className="text-[9px] font-mono opacity-50">{formData.hero_btn_text.length}/25</span>
+              {renderCharCounter(formData.hero_btn_text.length, 25)}
             </label>
             <input
               type="text"
@@ -930,7 +948,7 @@ export default function HomepageSettingsSubTab({
           <div className="space-y-1.5">
             <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "বাটন টেক্সট (বাংলা)" : "Button Text (BN)"}</span>
-              <span className="text-[9px] font-mono opacity-50">{formData.hero_btn_text_bn.length}/35</span>
+              {renderCharCounter(formData.hero_btn_text_bn.length, 35)}
             </label>
             <input
               type="text"
@@ -969,7 +987,7 @@ export default function HomepageSettingsSubTab({
             <div className="space-y-1.5">
               <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                 <span>{isBn ? "কার্ড টাইটেল (English)" : "Card Title (EN)"}</span>
-                <span className="text-[9px] font-mono opacity-50">{formData.discover_title.length}/40</span>
+                {renderCharCounter(formData.discover_title.length, 40)}
               </label>
               <input
                 type="text"
@@ -984,7 +1002,7 @@ export default function HomepageSettingsSubTab({
             <div className="space-y-1.5">
               <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                 <span>{isBn ? "কার্ড টাইটেল (বাংলা)" : "Card Title (BN)"}</span>
-                <span className="text-[9px] font-mono opacity-50">{formData.discover_title_bn.length}/50</span>
+                {renderCharCounter(formData.discover_title_bn.length, 50)}
               </label>
               <input
                 type="text"
@@ -1000,7 +1018,7 @@ export default function HomepageSettingsSubTab({
             <div className="space-y-1.5">
               <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                 <span>{isBn ? "কার্ড বিবরণ (English)" : "Card Description (EN)"}</span>
-                <span className="text-[9px] font-mono opacity-50">{formData.discover_subtitle.length}/160</span>
+                {renderCharCounter(formData.discover_subtitle.length, 160)}
               </label>
               <input
                 type="text"
@@ -1015,7 +1033,7 @@ export default function HomepageSettingsSubTab({
             <div className="space-y-1.5">
               <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                 <span>{isBn ? "কার্ড বিবরণ (বাংলা)" : "Card Description (BN)"}</span>
-                <span className="text-[9px] font-mono opacity-50">{formData.discover_subtitle_bn.length}/200</span>
+                {renderCharCounter(formData.discover_subtitle_bn.length, 200)}
               </label>
               <input
                 type="text"
@@ -1031,7 +1049,7 @@ export default function HomepageSettingsSubTab({
             <div className="space-y-1.5">
               <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                 <span>{isBn ? "বাটন টেক্সট (English)" : "Button Text (EN)"}</span>
-                <span className="text-[9px] font-mono opacity-50">{formData.discover_btn_text.length}/25</span>
+                {renderCharCounter(formData.discover_btn_text.length, 25)}
               </label>
               <input
                 type="text"
@@ -1046,7 +1064,7 @@ export default function HomepageSettingsSubTab({
             <div className="space-y-1.5">
               <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                 <span>{isBn ? "বাটন টেক্সট (বাংলা)" : "Button Text (BN)"}</span>
-                <span className="text-[9px] font-mono opacity-50">{formData.discover_btn_text_bn.length}/35</span>
+                {renderCharCounter(formData.discover_btn_text_bn.length, 35)}
               </label>
               <input
                 type="text"
@@ -1105,7 +1123,7 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (English)" : "Title (EN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_1_title.length}/35</span>
+                  {renderCharCounter(formData.bento_tile_1_title.length, 35)}
                 </label>
                 <input
                   type="text"
@@ -1120,7 +1138,7 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা)" : "Title (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_1_title_bn.length}/45</span>
+                  {renderCharCounter(formData.bento_tile_1_title_bn.length, 45)}
                 </label>
                 <input
                   type="text"
@@ -1224,7 +1242,7 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (English)" : "Title (EN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_2_title.length}/35</span>
+                  {renderCharCounter(formData.bento_tile_2_title.length, 35)}
                 </label>
                 <input
                   type="text"
@@ -1239,7 +1257,7 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা)" : "Title (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_2_title_bn.length}/45</span>
+                  {renderCharCounter(formData.bento_tile_2_title_bn.length, 45)}
                 </label>
                 <input
                   type="text"
@@ -1343,7 +1361,7 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (English)" : "Title (EN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_3_title.length}/35</span>
+                  {renderCharCounter(formData.bento_tile_3_title.length, 35)}
                 </label>
                 <input
                   type="text"
@@ -1358,7 +1376,7 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা)" : "Title (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_3_title_bn.length}/45</span>
+                  {renderCharCounter(formData.bento_tile_3_title_bn.length, 45)}
                 </label>
                 <input
                   type="text"
@@ -1462,7 +1480,7 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (English)" : "Title (EN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_4_title.length}/35</span>
+                  {renderCharCounter(formData.bento_tile_4_title.length, 35)}
                 </label>
                 <input
                   type="text"
@@ -1477,7 +1495,7 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা)" : "Title (BN)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_4_title_bn.length}/45</span>
+                  {renderCharCounter(formData.bento_tile_4_title_bn.length, 45)}
                 </label>
                 <input
                   type="text"
@@ -1581,7 +1599,7 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (English - ঐচ্ছিক)" : "Title (EN - Optional)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_247_title.length}/35</span>
+                  {renderCharCounter(formData.bento_tile_247_title.length, 35)}
                 </label>
                 <input
                   type="text"
@@ -1596,7 +1614,7 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা - ঐচ্ছিক)" : "Title (BN - Optional)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_247_title_bn.length}/45</span>
+                  {renderCharCounter(formData.bento_tile_247_title_bn.length, 45)}
                 </label>
                 <input
                   type="text"
@@ -1696,7 +1714,7 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (English - ঐচ্ছিক)" : "Title (EN - Optional)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_delivery_title.length}/35</span>
+                  {renderCharCounter(formData.bento_tile_delivery_title.length, 35)}
                 </label>
                 <input
                   type="text"
@@ -1711,7 +1729,7 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা - ঐচ্ছিক)" : "Title (BN - Optional)"}</span>
-                  <span className="text-[9px] font-mono opacity-50">{formData.bento_tile_delivery_title_bn.length}/45</span>
+                  {renderCharCounter(formData.bento_tile_delivery_title_bn.length, 45)}
                 </label>
                 <input
                   type="text"
