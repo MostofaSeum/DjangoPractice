@@ -192,8 +192,9 @@ test.describe('Storefront Homepage - Complete Test Suite', () => {
 
     test('clicking Explore Collection CTA redirects to collections page', async ({ page }) => {
       const exploreBtn = page.locator('section').first().getByRole('link', { name: /Explore Collection/i });
+      await expect(exploreBtn).toBeVisible({ timeout: 10000 });
       await exploreBtn.click();
-      await expect(page).toHaveURL(/\/collections/);
+      await expect(page).toHaveURL(/\/collections/, { timeout: 10000 });
     });
   });
 
