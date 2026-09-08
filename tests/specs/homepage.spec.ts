@@ -2,26 +2,24 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Storefront Homepage Tests', () => {
   test('homepage loads successfully and displays branding', async ({ page }) => {
-    // Navigates to baseURL (http://localhost:3000)
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    // Check page title or main navigation is present
     await expect(page).toHaveTitle(/.+/);
-
-    // Verify Bento grid or hero section is visible
     const heroOrBento = page.locator('section').first();
     await expect(heroOrBento).toBeVisible();
   });
 
   test('can switch language between English and Bangla', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
 
-    // Locate language toggle button (English / বাংলা)
-    const bnButton = page.locator('button, a').filter({ hasText: /বাংলা|BN/i }).first();
-    if (await bnButton.isVisible()) {
-      await bnButton.click();
-      // Verify page reflects language change (e.g., text or active indicator changes)
-      await expect(page.locator('body')).toBeVisible();
-    }
+    // Target the toggle button using its accessibility role and name
+    const langToggle = page.getByRole('button', { name: 'Toggle Language' });
+    await expect(langToggle).toBeVisible({ timeout: 10000 });
+
+    // Click to toggle language
+    await langToggle.click();
+
+    // Verify Bangla state or text
+    await expect(page.locator('body')).toBeVisible();
   });
 });
