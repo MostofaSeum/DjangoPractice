@@ -16,6 +16,24 @@ interface SyncStats {
   errors: string[];
 }
 
+/**
+ * Only renders character counter when user is near the limit (>= 80% or within 5 chars)
+ */
+function renderCharCounter(currentLen: number, maxLen: number) {
+  const threshold = Math.min(Math.floor(maxLen * 0.8), Math.max(0, maxLen - 5));
+  if (currentLen < threshold) return null;
+  const isAtLimit = currentLen >= maxLen;
+  return (
+    <span
+      className={`text-[9px] font-mono transition-colors ${
+        isAtLimit ? "text-red-500 font-bold opacity-100" : "opacity-60 text-foreground"
+      }`}
+    >
+      {currentLen}/{maxLen}
+    </span>
+  );
+}
+
 export default function SheetsSyncTab({
   apiBase,
   token,
@@ -582,10 +600,13 @@ export default function SheetsSyncTab({
             {/* Manual URL Input Form (or connecting a new link) */}
             <form onSubmit={(e) => { e.preventDefault(); handleSyncGoogleSheet(); }} className="space-y-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  {savedSheetUrl
-                    ? (isBn ? "অথবা অন্য গুগল শিট লিঙ্ক দিয়ে সিঙ্ক করুন" : "Or Sync with Another Google Sheet URL")
-                    : (isBn ? "গুগল শিট শেয়ারেবল লিঙ্ক" : "Google Sheet Shareable URL")}
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>
+                    {savedSheetUrl
+                      ? (isBn ? "অথবা অন্য গুগল শিট লিঙ্ক দিয়ে সিঙ্ক করুন" : "Or Sync with Another Google Sheet URL")
+                      : (isBn ? "গুগল শিট শেয়ারেবল লিঙ্ক" : "Google Sheet Shareable URL")}
+                  </span>
+                  {renderCharCounter(googleSheetUrl.length, 255)}
                 </label>
                 <input
                   type="url"

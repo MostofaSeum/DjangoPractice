@@ -80,6 +80,24 @@ interface EditableItem {
   unit_price: number;
 }
 
+/**
+ * Only renders character counter when user is near the limit (>= 80% or within 5 chars)
+ */
+function renderCharCounter(currentLen: number, maxLen: number) {
+  const threshold = Math.min(Math.floor(maxLen * 0.8), Math.max(0, maxLen - 5));
+  if (currentLen < threshold) return null;
+  const isAtLimit = currentLen >= maxLen;
+  return (
+    <span
+      className={`text-[9px] font-mono transition-colors ${
+        isAtLimit ? "text-red-500 font-bold opacity-100" : "opacity-60 text-foreground"
+      }`}
+    >
+      {currentLen}/{maxLen}
+    </span>
+  );
+}
+
 export default function OrdersTab({
   orders,
   productsCatalog = [],
@@ -1597,8 +1615,9 @@ export default function OrdersTab({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
-                    <label className="text-[9px] font-bold uppercase opacity-60">
-                      {isBn ? "মোবাইল নম্বর" : "Phone Number"}
+                    <label className="text-[9px] font-bold uppercase opacity-60 flex items-center justify-between">
+                      <span>{isBn ? "মোবাইল নম্বর" : "Phone Number"}</span>
+                      {renderCharCounter(editPhone.length, 11)}
                     </label>
                     <input
                       type="tel"
@@ -1641,8 +1660,9 @@ export default function OrdersTab({
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[9px] font-bold uppercase opacity-60">
-                    {isBn ? "ডেলিভারি ঠিকানা" : "Shipping Address"}
+                  <label className="text-[9px] font-bold uppercase opacity-60 flex items-center justify-between">
+                    <span>{isBn ? "ডেলিভারি ঠিকানা" : "Shipping Address"}</span>
+                    {renderCharCounter(editShippingAddress.length, 250)}
                   </label>
                   <input
                     type="text"
@@ -1849,8 +1869,9 @@ export default function OrdersTab({
 
             {/* Tracking Code Input */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 block">
-                {t("admin.delivery.trackingCode")}
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 flex items-center justify-between">
+                <span>{t("admin.delivery.trackingCode")}</span>
+                {renderCharCounter(trackingCodeInput.length, 60)}
               </label>
               <input
                 type="text"
@@ -2171,8 +2192,9 @@ export default function OrdersTab({
 
                 {/* Admin Note Input (200 words max) */}
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-wider opacity-60 block">
-                    {isBn ? "স্টোর নোট / গ্রাহককে মেসেজ" : "Staff Note / Message to Customer"}
+                  <label className="text-[10px] font-black uppercase tracking-wider opacity-60 flex items-center justify-between">
+                    <span>{isBn ? "স্টোর নোট / গ্রাহককে মেসেজ" : "Staff Note / Message to Customer"}</span>
+                    {renderCharCounter(adminNoteInput.length, 300)}
                   </label>
                   <textarea
                     rows={2}
@@ -2206,8 +2228,9 @@ export default function OrdersTab({
                       </div>
                       {ret.refund_method !== "vibecoin" && (
                         <div>
-                          <label className="text-[9px] font-bold opacity-60 uppercase block mb-1">
-                            {isBn ? "বিকাশ / নগদ TrxID" : "MFS Refund TrxID"}
+                          <label className="text-[9px] font-bold opacity-60 uppercase flex items-center justify-between mb-1">
+                            <span>{isBn ? "বিকাশ / নগদ TrxID" : "MFS Refund TrxID"}</span>
+                            {renderCharCounter(refundTrxInput.length, 60)}
                           </label>
                           <input
                             type="text"

@@ -136,8 +136,9 @@ export default function PaymentsTab({
             </div>
 
             <div className="space-y-1.5 pt-2">
-              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                {t("admin.payments.bkashReceiver")}
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 flex items-center justify-between">
+                <span>{t("admin.payments.bkashReceiver")}</span>
+                {renderCharCounter(paymentSettings.bkash_number.length, 11)}
               </label>
               <input
                 type="tel"
@@ -217,8 +218,9 @@ export default function PaymentsTab({
             </div>
 
             <div className="space-y-1.5 pt-2">
-              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                {t("admin.payments.nagadReceiver")}
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 flex items-center justify-between">
+                <span>{t("admin.payments.nagadReceiver")}</span>
+                {renderCharCounter(paymentSettings.nagad_number.length, 11)}
               </label>
               <input
                 type="tel"
