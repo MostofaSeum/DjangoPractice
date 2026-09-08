@@ -87,10 +87,18 @@ export default function HomeClient({
 
   const getMediaUrl = (url?: string | null, fallback: string = "") => {
     if (!url) return fallback;
-    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("blob:") || url.startsWith("data:")) {
+    if (url.startsWith("blob:") || url.startsWith("data:")) {
       return url;
     }
-    return `${apiBaseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
+    // Normalize backend URLs to local /media proxy so they never break cross-origin or port mismatches
+    const mediaIdx = url.indexOf("/media/");
+    if (mediaIdx !== -1) {
+      return url.slice(mediaIdx);
+    }
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+    return `/media/${url.replace(/^\/+/, "")}`;
   };
 
   const getCollectionImageUrl = (col: Collection) => {
