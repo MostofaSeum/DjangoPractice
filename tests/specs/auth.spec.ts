@@ -77,6 +77,102 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
         expect(type === 'text' || type === 'password').toBeTruthy();
       }
     });
+
+    test('can successfully log in with valid credentials (hello / Hello123456)', async ({ page }) => {
+      const usernameInput = page.locator('input[name="username"], input[type="text"]').first();
+      await expect(usernameInput).toBeVisible({ timeout: 15000 });
+      const passwordInput = page.locator('input[type="password"]').first();
+      const submitBtn = page.locator('form button[type="submit"]');
+
+      await usernameInput.fill('hello');
+      await passwordInput.fill('Hello123456');
+      await submitBtn.click();
+
+      // Successfully authenticated and redirected away from /login
+      await expect(page).not.toHaveURL(/\/login$/, { timeout: 10000 });
+    });
+
+    test('guest cart items sync with user cart upon logging in', async ({ page }) => {
+      // 1. As guest, add an item to cart from product details page
+      await page.goto('/products/3', { waitUntil: 'domcontentloaded' });
+      const addToCartBtn = page.getByRole('button', { name: 'Add to Cart', exact: true });
+      if (await addToCartBtn.isVisible() && !(await addToCartBtn.isDisabled())) {
+        await addToCartBtn.click();
+        await page.waitForTimeout(1000);
+      }
+
+      // 2. Navigate to login and authenticate
+      await page.goto('/login', { waitUntil: 'domcontentloaded' });
+      const usernameInput = page.locator('input[name="username"], input[type="text"]').first();
+      await expect(usernameInput).toBeVisible({ timeout: 15000 });
+      await usernameInput.fill('hello');
+      await page.locator('input[type="password"]').first().fill('Hello123456');
+      await page.locator('form button[type="submit"]').click();
+
+      // 3. User is logged in and redirected
+      await expect(page).not.toHaveURL(/\/login$/, { timeout: 10000 });
+
+      // 4. Cart still preserves the added item for the authenticated user
+      await page.goto('/cart', { waitUntil: 'domcontentloaded' });
+      const cartItems = page.locator('main').locator('text=৳');
+      await expect(cartItems.first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('logged-in user cannot access login or register page and is redirected', async ({ page }) => {
+      // Login first
+      await page.goto('/login', { waitUntil: 'domcontentloaded' });
+      const usernameInput = page.locator('input[name="username"], input[type="text"]').first();
+      await expect(usernameInput).toBeVisible({ timeout: 15000 });
+      await usernameInput.fill('hello');
+      await page.locator('input[type="password"]').first().fill('Hello123456');
+      await page.locator('form button[type="submit"]').click();
+      await expect(page).not.toHaveURL(/\/login$/, { timeout: 10000 });
+
+      // Trying to visit /login while authenticated redirects away
+      await page.goto('/login', { waitUntil: 'domcontentloaded' });
+      await expect(page).not.toHaveURL(/\/login$/, { timeout: 10000 });
+
+      // Trying to visit /register while authenticated redirects away
+      await page.goto('/register', { waitUntil: 'domcontentloaded' });
+      await expect(page).not.toHaveURL(/\/register$/, { timeout: 10000 });
+    });
+
+    test('unauthenticated user cannot access protected pages (/profile, /checkout, /wishlist)', async ({ page }) => {
+      // Ensure completely unauthenticated
+      await page.addInitScript(() => {
+        localStorage.clear();
+      });
+
+      // Visiting /profile redirects to login
+      await page.goto('/profile', { waitUntil: 'domcontentloaded' });
+      await expect(page).toHaveURL(/login/);
+
+      // Visiting /checkout redirects to login
+      await page.goto('/checkout', { waitUntil: 'domcontentloaded' });
+      await expect(page).toHaveURL(/login/);
+
+      // Visiting /wishlist shows sign-in requirement
+      await page.goto('/wishlist', { waitUntil: 'domcontentloaded' });
+      const signInPrompt = page.locator('text=Sign in to view, a[href*="login"]');
+      await expect(signInPrompt.first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('non-staff regular user (hello) cannot access /admin panel', async ({ page }) => {
+      // Login as regular non-staff user
+      await page.goto('/login', { waitUntil: 'domcontentloaded' });
+      const usernameInput = page.locator('input[name="username"], input[type="text"]').first();
+      await expect(usernameInput).toBeVisible({ timeout: 15000 });
+      await usernameInput.fill('hello');
+      await page.locator('input[type="password"]').first().fill('Hello123456');
+      await page.locator('form button[type="submit"]').click();
+      await expect(page).not.toHaveURL(/\/login$/, { timeout: 10000 });
+
+      // Attempt to access /admin
+      await page.goto('/admin', { waitUntil: 'domcontentloaded' });
+
+      // Guard redirects non-staff user away from /admin (e.g. to / or shows access denied)
+      await expect(page).not.toHaveURL(/\/admin$/, { timeout: 10000 });
+    });
   });
 
   /* -------------------------------------------------------------------------- */
