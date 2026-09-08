@@ -115,6 +115,24 @@ interface ProductsTabProps {
   onSubTabSwitch?: (subTab: ProductSubTab) => void;
 }
 
+/**
+ * Only renders character counter when user is near the limit (>= 80% or within 5 chars)
+ */
+function renderCharCounter(currentLen: number, maxLen: number) {
+  const threshold = Math.min(Math.floor(maxLen * 0.8), Math.max(0, maxLen - 5));
+  if (currentLen < threshold) return null;
+  const isAtLimit = currentLen >= maxLen;
+  return (
+    <span
+      className={`text-[9px] font-mono transition-colors ${
+        isAtLimit ? "text-red-500 font-bold opacity-100" : "opacity-60 text-foreground"
+      }`}
+    >
+      {currentLen}/{maxLen}
+    </span>
+  );
+}
+
 export default function ProductsTab({
   productSubTab,
   mounted,
@@ -218,8 +236,9 @@ export default function ProductsTab({
           </div>
           <form onSubmit={handleSaveProduct} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-foreground/90">
-                {isBn ? "পণ্যের নাম / শিরোনাম *" : "Product Title *"}
+              <label className="text-[10px] font-bold uppercase tracking-wider text-foreground/90 flex items-center justify-between">
+                <span>{isBn ? "পণ্যের নাম / শিরোনাম *" : "Product Title *"}</span>
+                {renderCharCounter(productForm.title.length, 120)}
               </label>
               <input
                 type="text"

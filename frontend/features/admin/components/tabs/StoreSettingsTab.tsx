@@ -814,8 +814,9 @@ export default function StoreSettingsTab({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
-                  Facebook URL
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>Facebook URL</span>
+                  {renderCharCounter(facebookUrl.length, 255)}
                 </label>
                 <input
                   type="text"
@@ -828,8 +829,9 @@ export default function StoreSettingsTab({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
-                  Instagram URL
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>Instagram URL</span>
+                  {renderCharCounter(instagramUrl.length, 255)}
                 </label>
                 <input
                   type="text"
@@ -842,8 +844,9 @@ export default function StoreSettingsTab({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
-                  YouTube URL
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>YouTube URL</span>
+                  {renderCharCounter(youtubeUrl.length, 255)}
                 </label>
                 <input
                   type="text"
@@ -856,8 +859,9 @@ export default function StoreSettingsTab({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
-                  WhatsApp Number / Link
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>WhatsApp Number / Link</span>
+                  {renderCharCounter(whatsappNumber.length, 50)}
                 </label>
                 <input
                   type="text"

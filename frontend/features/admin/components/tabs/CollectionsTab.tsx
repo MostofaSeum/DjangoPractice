@@ -31,6 +31,24 @@ interface CollectionsTabProps {
   onSubTabSwitch?: (subTab: CollectionSubTab) => void;
 }
 
+/**
+ * Only renders character counter when user is near the limit (>= 80% or within 5 chars)
+ */
+function renderCharCounter(currentLen: number, maxLen: number) {
+  const threshold = Math.min(Math.floor(maxLen * 0.8), Math.max(0, maxLen - 5));
+  if (currentLen < threshold) return null;
+  const isAtLimit = currentLen >= maxLen;
+  return (
+    <span
+      className={`text-[9px] font-mono transition-colors ${
+        isAtLimit ? "text-red-500 font-bold opacity-100" : "opacity-60 text-foreground"
+      }`}
+    >
+      {currentLen}/{maxLen}
+    </span>
+  );
+}
+
 export default function CollectionsTab({
   collectionSubTab,
   collections,
@@ -97,13 +115,14 @@ export default function CollectionsTab({
           </div>
           <form onSubmit={handleSaveCollection} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                {isBn ? "কালেকশনের নাম *" : "Collection Title *"}
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 flex items-center justify-between">
+                <span>{isBn ? "কালেকশনের নাম *" : "Collection Title *"}</span>
+                {renderCharCounter(newCollectionTitle.length, 60)}
               </label>
               <input
                 type="text"
-                required
                 maxLength={60}
+                required
                 value={newCollectionTitle}
                 onChange={(e) => setNewCollectionTitle(e.target.value)}
                 placeholder={isBn ? "যেমনঃ গ্রীষ্মকালীন কালেকশন" : "e.g. Summer Drop"}
@@ -307,8 +326,9 @@ export default function CollectionsTab({
           {editingCollectionId ? (
             <form onSubmit={handleSaveCollection} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  {isBn ? "কালেকশনের নাম *" : "Collection Title *"}
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>{isBn ? "কালেকশনের নাম *" : "Collection Title *"}</span>
+                  {renderCharCounter(newCollectionTitle.length, 60)}
                 </label>
                 <input
                   type="text"

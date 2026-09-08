@@ -770,8 +770,9 @@ export default function HomepageSettingsSubTab({
             </div>
 
             <div className="space-y-1.5 pt-2">
-              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "ব্যানার URL" : "Banner Target URL"}
+              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                <span>{isBn ? "ব্যানার URL" : "Banner Target URL"}</span>
+                {renderCharCounter(formData.top_banner_link.length, 255)}
               </label>
               <input
                 type="text"
@@ -962,8 +963,9 @@ export default function HomepageSettingsSubTab({
 
           {/* Hero CTA Button Link */}
           <div className="md:col-span-2 space-y-1.5">
-            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 block">
-              {isBn ? "বাটন লিংক" : "Button Link URL"}
+            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+              <span>{isBn ? "বাটন লিংক" : "Button Link URL"}</span>
+              {renderCharCounter(formData.hero_btn_link.length, 255)}
             </label>
             <input
               type="text"
@@ -1078,8 +1080,9 @@ export default function HomepageSettingsSubTab({
 
             {/* Discover Button Link */}
             <div className="md:col-span-2 space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "বাটন লিংক" : "Button URL"}
+              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                <span>{isBn ? "বাটন লিংক" : "Button URL"}</span>
+                {renderCharCounter(formData.discover_btn_link.length, 255)}
               </label>
               <input
                 type="text"
@@ -1628,8 +1631,9 @@ export default function HomepageSettingsSubTab({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "লক্ষ্য লিঙ্ক (ঐচ্ছিক)" : "Target Link (Optional)"}
+              <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                <span>{isBn ? "লক্ষ্য লিঙ্ক (ঐচ্ছিক)" : "Target Link (Optional)"}</span>
+                {renderCharCounter(formData.bento_tile_247_link.length, 255)}
               </label>
               <input
                 type="text"
@@ -1743,8 +1747,9 @@ export default function HomepageSettingsSubTab({
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "লক্ষ্য লিঙ্ক (ঐচ্ছিক)" : "Target Link (Optional)"}
+              <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                <span>{isBn ? "লক্ষ্য লিঙ্ক (ঐচ্ছিক)" : "Target Link (Optional)"}</span>
+                {renderCharCounter(formData.bento_tile_delivery_link.length, 255)}
               </label>
               <input
                 type="text"
