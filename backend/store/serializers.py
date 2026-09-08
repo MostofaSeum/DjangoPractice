@@ -1156,6 +1156,25 @@ class SiteSettingSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("বাংলা ট্যাগলাইন সর্বোচ্চ ৪৫ অক্ষরের মধ্যে হতে হবে।")
         return value.strip()
 
+    def validate(self, attrs):
+        # If updating bento tiles, ensure collections 1-4 are provided
+        request = self.context.get('request')
+        if request and request.data:
+            # Check if this update request is touching bento/homepage fields
+            is_homepage_update = any(k.startswith('bento_tile_') or k.startswith('hero_') or k.startswith('discover_') for k in request.data.keys())
+            if is_homepage_update:
+                for i in range(1, 5):
+                    col_key = f'bento_tile_{i}_collection'
+                    col_val = attrs.get(col_key)
+                    # If not in attrs, check existing instance
+                    if col_val is None:
+                        if self.instance and getattr(self.instance, f'{col_key}_id', None):
+                            continue
+                        raise serializers.ValidationError({
+                            col_key: f"Selecting a collection for Slot {i} is mandatory."
+                        })
+        return attrs
+
 
 class ReturnItemSerializer(serializers.ModelSerializer):
     product_title = serializers.SerializerMethodField()

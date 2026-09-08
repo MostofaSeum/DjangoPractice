@@ -402,6 +402,34 @@ export default function HomepageSettingsSubTab({
       return;
     }
 
+    // Check mandatory collections for Slots 1 to 4
+    const hasSlot1Collection = Boolean(formData.bento_tile_1_collection);
+    const hasSlot2Collection = Boolean(formData.bento_tile_2_collection);
+    const hasSlot3Collection = Boolean(formData.bento_tile_3_collection);
+    const hasSlot4Collection = Boolean(formData.bento_tile_4_collection);
+
+    if (
+      !hasSlot1Collection ||
+      !hasSlot2Collection ||
+      !hasSlot3Collection ||
+      !hasSlot4Collection
+    ) {
+      const missingCollectionSlots: string[] = [];
+      if (!hasSlot1Collection) missingCollectionSlots.push(isBn ? "স্লট ১" : "Slot 1");
+      if (!hasSlot2Collection) missingCollectionSlots.push(isBn ? "স্লট ২" : "Slot 2");
+      if (!hasSlot3Collection) missingCollectionSlots.push(isBn ? "স্লট ৩" : "Slot 3");
+      if (!hasSlot4Collection) missingCollectionSlots.push(isBn ? "স্লট ৪" : "Slot 4");
+
+      Swal.fire({
+        icon: "warning",
+        title: isBn ? "কালেকশন নির্বাচন আবশ্যক!" : "Collection Selection Required!",
+        text: isBn
+          ? `স্লট ১ থেকে ৪ এর প্রতিটিতে কালেকশন নির্বাচন করা বাধ্যতামূলক। অনুগ্রহ করে নির্বাচন করুন: ${missingCollectionSlots.join(", ")}`
+          : `Selecting a collection for Slot 1 to 4 is mandatory. Please select a collection for: ${missingCollectionSlots.join(", ")}`,
+      });
+      return;
+    }
+
     if (!token) {
       Swal.fire({
         icon: "error",
@@ -1156,9 +1184,10 @@ export default function HomepageSettingsSubTab({
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "সংযুক্ত কালেকশন" : "Linked Collection"}
+                {isBn ? "সংযুক্ত কালেকশন (আবশ্যক)" : "Linked Collection (Required)"} <span className="text-hidden">*</span>
               </label>
               <select
+                required
                 value={formData.bento_tile_1_collection}
                 onChange={(e) => handleFieldChange("bento_tile_1_collection", e.target.value)}
                 className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
@@ -1275,9 +1304,10 @@ export default function HomepageSettingsSubTab({
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "সংযুক্ত কালেকশন" : "Linked Collection"}
+                {isBn ? "সংযুক্ত কালেকশন (আবশ্যক)" : "Linked Collection (Required)"} <span className="text-hidden">*</span>
               </label>
               <select
+                required
                 value={formData.bento_tile_2_collection}
                 onChange={(e) => handleFieldChange("bento_tile_2_collection", e.target.value)}
                 className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
@@ -1394,9 +1424,10 @@ export default function HomepageSettingsSubTab({
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "সংযুক্ত কালেকশন" : "Linked Collection"}
+                {isBn ? "সংযুক্ত কালেকশন (আবশ্যক)" : "Linked Collection (Required)"} <span className="text-hidden">*</span>
               </label>
               <select
+                required
                 value={formData.bento_tile_3_collection}
                 onChange={(e) => handleFieldChange("bento_tile_3_collection", e.target.value)}
                 className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
@@ -1513,9 +1544,10 @@ export default function HomepageSettingsSubTab({
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "সংযুক্ত কালেকশন" : "Linked Collection"}
+                {isBn ? "সংযুক্ত কালেকশন (আবশ্যক)" : "Linked Collection (Required)"} <span className="text-hidden">*</span>
               </label>
               <select
+                required
                 value={formData.bento_tile_4_collection}
                 onChange={(e) => handleFieldChange("bento_tile_4_collection", e.target.value)}
                 className="w-full px-3 py-1.5 rounded-xl bg-background border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
