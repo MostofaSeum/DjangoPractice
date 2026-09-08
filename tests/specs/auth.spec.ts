@@ -27,8 +27,8 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
       const passwordInput = page.locator('input[type="password"], input[name="password"]').first();
       await expect(passwordInput).toBeVisible();
 
-      // Sign in button
-      const submitBtn = page.getByRole('button', { name: /Sign In|Log In/i });
+      // Sign in submit button
+      const submitBtn = page.locator('form button[type="submit"]');
       await expect(submitBtn).toBeVisible();
 
       // Navigation links to Register and Forgot Password
@@ -40,7 +40,10 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
     });
 
     test('validates required fields on empty submit', async ({ page }) => {
-      const submitBtn = page.getByRole('button', { name: /Sign In|Log In/i });
+      const usernameInput = page.locator('input[name="username"], input[type="text"]').first();
+      await expect(usernameInput).toBeVisible();
+
+      const submitBtn = page.locator('form button[type="submit"]');
       await submitBtn.click();
 
       const invalidState = page.locator(':invalid, .text-red-500, .swal2-popup');
@@ -48,9 +51,9 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
     });
 
     test('displays error alert on invalid credentials', async ({ page }) => {
-      const usernameInput = page.locator('input').first();
-      const passwordInput = page.locator('input[type="password"]');
-      const submitBtn = page.getByRole('button', { name: /Sign In|Log In/i });
+      const usernameInput = page.locator('input[name="username"], input[type="text"]').first();
+      const passwordInput = page.locator('input[type="password"]').first();
+      const submitBtn = page.locator('form button[type="submit"]');
 
       await usernameInput.fill('non_existent_user_9999');
       await passwordInput.fill('WrongPassword!123');

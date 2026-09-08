@@ -110,7 +110,7 @@ test.describe('Storefront Homepage - Complete Test Suite', () => {
   });
 
   /* -------------------------------------------------------------------------- */
-  /* 3. Internationalization (Language Switcher)                                 */
+  /* 3. Internationalization                                 */
   /* -------------------------------------------------------------------------- */
   test.describe('3. Localization & Language Switcher', () => {
     test('switches language between English and Bangla across UI text', async ({ page }) => {
