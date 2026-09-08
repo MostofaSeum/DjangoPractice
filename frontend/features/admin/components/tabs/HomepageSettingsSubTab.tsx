@@ -19,30 +19,44 @@ interface HomepageSettingsState {
 
   // Hero Section
   hero_badge: string;
+  hero_badge_bn: string;
   hero_title_prefix: string;
+  hero_title_prefix_bn: string;
   hero_rotating_words: string;
+  hero_rotating_words_bn: string;
   hero_subtitle: string;
+  hero_subtitle_bn: string;
   hero_btn_text: string;
+  hero_btn_text_bn: string;
   hero_btn_link: string;
 
   // Discover Card
   discover_title: string;
+  discover_title_bn: string;
   discover_subtitle: string;
+  discover_subtitle_bn: string;
   discover_btn_text: string;
+  discover_btn_text_bn: string;
   discover_btn_link: string;
 
   // Bento Tiles
   bento_tile_1_title: string;
+  bento_tile_1_title_bn: string;
   bento_tile_1_collection: number | string;
   bento_tile_2_title: string;
+  bento_tile_2_title_bn: string;
   bento_tile_2_collection: number | string;
   bento_tile_3_title: string;
+  bento_tile_3_title_bn: string;
   bento_tile_3_collection: number | string;
   bento_tile_4_title: string;
+  bento_tile_4_title_bn: string;
   bento_tile_4_collection: number | string;
   bento_tile_247_title: string;
+  bento_tile_247_title_bn: string;
   bento_tile_247_link: string;
   bento_tile_delivery_title: string;
+  bento_tile_delivery_title_bn: string;
   bento_tile_delivery_link: string;
 }
 
@@ -50,28 +64,42 @@ const DEFAULT_HOMEPAGE_SETTINGS: HomepageSettingsState = {
   top_banner_link: "/gift-cards",
   top_banner_is_active: true,
   hero_badge: "New Collection",
+  hero_badge_bn: "",
   hero_title_prefix: "Elevate Your",
+  hero_title_prefix_bn: "",
   hero_rotating_words: "Beauty, Glow, Look, Glam, Charm",
+  hero_rotating_words_bn: "",
   hero_subtitle:
     "Experience the intersection of luxury cosmetics, skincare, and radiant beauty aesthetics.",
+  hero_subtitle_bn: "",
   hero_btn_text: "Explore Collection",
+  hero_btn_text_bn: "",
   hero_btn_link: "/collections",
   discover_title: "Discover the Glam",
+  discover_title_bn: "",
   discover_subtitle:
     "Collect exclusive beauty essentials and immerse yourself in the finest makeup shades.",
+  discover_subtitle_bn: "",
   discover_btn_text: "View Exclusives",
+  discover_btn_text_bn: "",
   discover_btn_link: "/products",
   bento_tile_1_title: "LIPSTICKS",
+  bento_tile_1_title_bn: "",
   bento_tile_1_collection: "",
   bento_tile_2_title: "SKINCARE",
+  bento_tile_2_title_bn: "",
   bento_tile_2_collection: "",
   bento_tile_3_title: "EYE MAKEUP",
+  bento_tile_3_title_bn: "",
   bento_tile_3_collection: "",
   bento_tile_4_title: "FOUNDATION & GLOW",
+  bento_tile_4_title_bn: "",
   bento_tile_4_collection: "",
   bento_tile_247_title: "",
+  bento_tile_247_title_bn: "",
   bento_tile_247_link: "",
   bento_tile_delivery_title: "Fast Delivery",
+  bento_tile_delivery_title_bn: "",
   bento_tile_delivery_link: "",
 };
 
@@ -143,31 +171,45 @@ export default function HomepageSettingsSubTab({
           top_banner_link: data.top_banner_link || "/gift-cards",
           top_banner_is_active: data.top_banner_is_active !== false,
           hero_badge: data.hero_badge || "New Collection",
+          hero_badge_bn: data.hero_badge_bn || "",
           hero_title_prefix: data.hero_title_prefix || "Elevate Your",
+          hero_title_prefix_bn: data.hero_title_prefix_bn || "",
           hero_rotating_words:
             data.hero_rotating_words || "Beauty, Glow, Look, Glam, Charm",
+          hero_rotating_words_bn: data.hero_rotating_words_bn || "",
           hero_subtitle:
             data.hero_subtitle ||
             "Experience the intersection of luxury cosmetics, skincare, and radiant beauty aesthetics.",
+          hero_subtitle_bn: data.hero_subtitle_bn || "",
           hero_btn_text: data.hero_btn_text || "Explore Collection",
+          hero_btn_text_bn: data.hero_btn_text_bn || "",
           hero_btn_link: data.hero_btn_link || "/collections",
           discover_title: data.discover_title || "Discover the Glam",
+          discover_title_bn: data.discover_title_bn || "",
           discover_subtitle:
             data.discover_subtitle ||
             "Collect exclusive beauty essentials and immerse yourself in the finest makeup shades.",
+          discover_subtitle_bn: data.discover_subtitle_bn || "",
           discover_btn_text: data.discover_btn_text || "View Exclusives",
+          discover_btn_text_bn: data.discover_btn_text_bn || "",
           discover_btn_link: data.discover_btn_link || "/products",
           bento_tile_1_title: data.bento_tile_1_title || "LIPSTICKS",
+          bento_tile_1_title_bn: data.bento_tile_1_title_bn || "",
           bento_tile_1_collection: data.bento_tile_1_collection || "",
           bento_tile_2_title: data.bento_tile_2_title || "SKINCARE",
+          bento_tile_2_title_bn: data.bento_tile_2_title_bn || "",
           bento_tile_2_collection: data.bento_tile_2_collection || "",
           bento_tile_3_title: data.bento_tile_3_title || "EYE MAKEUP",
+          bento_tile_3_title_bn: data.bento_tile_3_title_bn || "",
           bento_tile_3_collection: data.bento_tile_3_collection || "",
           bento_tile_4_title: data.bento_tile_4_title || "FOUNDATION & GLOW",
+          bento_tile_4_title_bn: data.bento_tile_4_title_bn || "",
           bento_tile_4_collection: data.bento_tile_4_collection || "",
           bento_tile_247_title: data.bento_tile_247_title || "",
+          bento_tile_247_title_bn: data.bento_tile_247_title_bn || "",
           bento_tile_247_link: data.bento_tile_247_link || "",
           bento_tile_delivery_title: data.bento_tile_delivery_title || "Fast Delivery",
+          bento_tile_delivery_title_bn: data.bento_tile_delivery_title_bn || "",
           bento_tile_delivery_link: data.bento_tile_delivery_link || "",
         };
 
@@ -366,20 +408,29 @@ export default function HomepageSettingsSubTab({
 
       // Hero
       payload.append("hero_badge", formData.hero_badge);
+      payload.append("hero_badge_bn", formData.hero_badge_bn);
       payload.append("hero_title_prefix", formData.hero_title_prefix);
+      payload.append("hero_title_prefix_bn", formData.hero_title_prefix_bn);
       payload.append("hero_rotating_words", formData.hero_rotating_words);
+      payload.append("hero_rotating_words_bn", formData.hero_rotating_words_bn);
       payload.append("hero_subtitle", formData.hero_subtitle);
+      payload.append("hero_subtitle_bn", formData.hero_subtitle_bn);
       payload.append("hero_btn_text", formData.hero_btn_text);
+      payload.append("hero_btn_text_bn", formData.hero_btn_text_bn);
       payload.append("hero_btn_link", formData.hero_btn_link);
 
       // Discover
       payload.append("discover_title", formData.discover_title);
+      payload.append("discover_title_bn", formData.discover_title_bn);
       payload.append("discover_subtitle", formData.discover_subtitle);
+      payload.append("discover_subtitle_bn", formData.discover_subtitle_bn);
       payload.append("discover_btn_text", formData.discover_btn_text);
+      payload.append("discover_btn_text_bn", formData.discover_btn_text_bn);
       payload.append("discover_btn_link", formData.discover_btn_link);
 
       // Bento 1
       payload.append("bento_tile_1_title", formData.bento_tile_1_title);
+      payload.append("bento_tile_1_title_bn", formData.bento_tile_1_title_bn);
       if (formData.bento_tile_1_collection) {
         payload.append("bento_tile_1_collection", String(formData.bento_tile_1_collection));
       } else {
@@ -393,6 +444,7 @@ export default function HomepageSettingsSubTab({
 
       // Bento 2
       payload.append("bento_tile_2_title", formData.bento_tile_2_title);
+      payload.append("bento_tile_2_title_bn", formData.bento_tile_2_title_bn);
       if (formData.bento_tile_2_collection) {
         payload.append("bento_tile_2_collection", String(formData.bento_tile_2_collection));
       } else {
@@ -406,6 +458,7 @@ export default function HomepageSettingsSubTab({
 
       // Bento 3
       payload.append("bento_tile_3_title", formData.bento_tile_3_title);
+      payload.append("bento_tile_3_title_bn", formData.bento_tile_3_title_bn);
       if (formData.bento_tile_3_collection) {
         payload.append("bento_tile_3_collection", String(formData.bento_tile_3_collection));
       } else {
@@ -419,6 +472,7 @@ export default function HomepageSettingsSubTab({
 
       // Bento 4
       payload.append("bento_tile_4_title", formData.bento_tile_4_title);
+      payload.append("bento_tile_4_title_bn", formData.bento_tile_4_title_bn);
       if (formData.bento_tile_4_collection) {
         payload.append("bento_tile_4_collection", String(formData.bento_tile_4_collection));
       } else {
@@ -432,6 +486,7 @@ export default function HomepageSettingsSubTab({
 
       // Bento 24/7 Slot
       payload.append("bento_tile_247_title", formData.bento_tile_247_title);
+      payload.append("bento_tile_247_title_bn", formData.bento_tile_247_title_bn);
       payload.append("bento_tile_247_link", formData.bento_tile_247_link);
       if (bento247File) {
         payload.append("bento_tile_247_image", bento247File);
@@ -441,6 +496,7 @@ export default function HomepageSettingsSubTab({
 
       // Bento Delivery Slot
       payload.append("bento_tile_delivery_title", formData.bento_tile_delivery_title);
+      payload.append("bento_tile_delivery_title_bn", formData.bento_tile_delivery_title_bn);
       payload.append("bento_tile_delivery_link", formData.bento_tile_delivery_link);
       if (bentoDeliveryFile) {
         payload.append("bento_tile_delivery_image", bentoDeliveryFile);
@@ -729,10 +785,11 @@ export default function HomepageSettingsSubTab({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Hero Badge */}
+          {/* Hero Badge (EN & BN) */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 block">
-              {isBn ? "ছোট ব্যাজ টেক্সট (Badge)" : "Hero Badge Label"}
+            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+              <span>{isBn ? "ছোট ব্যাজ টেক্সট (English)" : "Hero Badge Label (EN)"}</span>
+              <span className="text-[9px] font-mono opacity-50">{formData.hero_badge.length}/30</span>
             </label>
             <input
               type="text"
@@ -744,10 +801,26 @@ export default function HomepageSettingsSubTab({
             />
           </div>
 
-          {/* Hero Title Prefix */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 block">
-              {isBn ? "প্রধান শিরোনামের প্রথম অংশ" : "Main Title Prefix"}
+            <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+              <span>{isBn ? "ছোট ব্যাজ টেক্সট (বাংলা)" : "Hero Badge Label (BN)"}</span>
+              <span className="text-[9px] font-mono opacity-60">{formData.hero_badge_bn.length}/35</span>
+            </label>
+            <input
+              type="text"
+              maxLength={35}
+              value={formData.hero_badge_bn}
+              onChange={(e) => handleFieldChange("hero_badge_bn", e.target.value)}
+              placeholder="যেমনঃ নতুন কালেকশন"
+              className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+
+          {/* Hero Title Prefix (EN & BN) */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+              <span>{isBn ? "প্রধান শিরোনামের শুরু (English)" : "Main Title Prefix (EN)"}</span>
+              <span className="text-[9px] font-mono opacity-50">{formData.hero_title_prefix.length}/40</span>
             </label>
             <input
               type="text"
@@ -759,12 +832,26 @@ export default function HomepageSettingsSubTab({
             />
           </div>
 
-          {/* Rotating Words */}
-          <div className="md:col-span-2 space-y-1.5">
-            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 block">
-              {isBn
-                ? "অ্যানিমেটেড রোটেটিং শব্দসমূহ (কমা দিয়ে আলাদা করুন)"
-                : "Animated Rotating Words (Separated by commas)"}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+              <span>{isBn ? "প্রধান শিরোনামের শুরু (বাংলা)" : "Main Title Prefix (BN)"}</span>
+              <span className="text-[9px] font-mono opacity-60">{formData.hero_title_prefix_bn.length}/50</span>
+            </label>
+            <input
+              type="text"
+              maxLength={50}
+              value={formData.hero_title_prefix_bn}
+              onChange={(e) => handleFieldChange("hero_title_prefix_bn", e.target.value)}
+              placeholder="যেমনঃ উন্নত করুন আপনার"
+              className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+
+          {/* Rotating Words English */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+              <span>{isBn ? "রোটেটিং শব্দমালা (English - কমা দিয়ে আলাদা)" : "Rotating Words (EN - comma separated)"}</span>
+              <span className="text-[9px] font-mono opacity-50">{formData.hero_rotating_words.length}/80</span>
             </label>
             <input
               type="text"
@@ -774,17 +861,29 @@ export default function HomepageSettingsSubTab({
               placeholder="Beauty, Glow, Look, Glam, Charm"
               className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
             />
-            <p className="text-[10px] opacity-60">
-              {isBn
-                ? 'টাইটেলের নিচে এই শব্দগুলো ক্রমান্বয়ে অ্যানিমেট হয়ে ঘুরবে। যেমনঃ "Beauty, Glow, Glam, Look"'
-                : 'These words will cycle with smooth fade animation after the prefix. Example: "Beauty, Glow, Glam, Look"'}
-            </p>
           </div>
 
-          {/* Hero Subtitle */}
-          <div className="md:col-span-2 space-y-1.5">
-            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 block">
-              {isBn ? "হিরো সাবটাইটেল / বিবরণ" : "Hero Subtitle"}
+          {/* Rotating Words Bangla */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+              <span>{isBn ? "রোটেটিং শব্দমালা (বাংলা - কমা দিয়ে আলাদা)" : "Rotating Words (BN - comma separated)"}</span>
+              <span className="text-[9px] font-mono opacity-60">{formData.hero_rotating_words_bn.length}/100</span>
+            </label>
+            <input
+              type="text"
+              maxLength={100}
+              value={formData.hero_rotating_words_bn}
+              onChange={(e) => handleFieldChange("hero_rotating_words_bn", e.target.value)}
+              placeholder="সৌন্দর্য, গ্লো, গ্ল্যামার, চমক, লুক"
+              className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+
+          {/* Hero Subtitle English */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+              <span>{isBn ? "হিরো সাবটাইটেল (English)" : "Hero Subtitle (EN)"}</span>
+              <span className="text-[9px] font-mono opacity-50">{formData.hero_subtitle.length}/200</span>
             </label>
             <textarea
               rows={2}
@@ -796,10 +895,27 @@ export default function HomepageSettingsSubTab({
             />
           </div>
 
-          {/* Hero CTA Button Text */}
+          {/* Hero Subtitle Bangla */}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 block">
-              {isBn ? "বাটন টেক্সট" : "Button Text"}
+            <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+              <span>{isBn ? "হিরো সাবটাইটেল (বাংলা)" : "Hero Subtitle (BN)"}</span>
+              <span className="text-[9px] font-mono opacity-60">{formData.hero_subtitle_bn.length}/250</span>
+            </label>
+            <textarea
+              rows={2}
+              maxLength={250}
+              value={formData.hero_subtitle_bn}
+              onChange={(e) => handleFieldChange("hero_subtitle_bn", e.target.value)}
+              placeholder="প্রিমিয়াম কসমেটিকস এবং রূপচর্চার সেরা সমন্বয়..."
+              className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+            />
+          </div>
+
+          {/* Hero CTA Button Text English & Bangla */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+              <span>{isBn ? "বাটন টেক্সট (English)" : "Button Text (EN)"}</span>
+              <span className="text-[9px] font-mono opacity-50">{formData.hero_btn_text.length}/25</span>
             </label>
             <input
               type="text"
@@ -811,8 +927,23 @@ export default function HomepageSettingsSubTab({
             />
           </div>
 
-          {/* Hero CTA Button Link */}
           <div className="space-y-1.5">
+            <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+              <span>{isBn ? "বাটন টেক্সট (বাংলা)" : "Button Text (BN)"}</span>
+              <span className="text-[9px] font-mono opacity-60">{formData.hero_btn_text_bn.length}/35</span>
+            </label>
+            <input
+              type="text"
+              maxLength={35}
+              value={formData.hero_btn_text_bn}
+              onChange={(e) => handleFieldChange("hero_btn_text_bn", e.target.value)}
+              placeholder="কালেকশন দেখুন"
+              className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+          </div>
+
+          {/* Hero CTA Button Link */}
+          <div className="md:col-span-2 space-y-1.5">
             <label className="text-[11px] font-black uppercase tracking-wider opacity-70 block">
               {isBn ? "বাটন লিংক" : "Button Link URL"}
             </label>
@@ -834,9 +965,11 @@ export default function HomepageSettingsSubTab({
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Discover Title EN & BN */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "কার্ড টাইটেল" : "Card Title"}
+              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                <span>{isBn ? "কার্ড টাইটেল (English)" : "Card Title (EN)"}</span>
+                <span className="text-[9px] font-mono opacity-50">{formData.discover_title.length}/40</span>
               </label>
               <input
                 type="text"
@@ -849,6 +982,84 @@ export default function HomepageSettingsSubTab({
             </div>
 
             <div className="space-y-1.5">
+              <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                <span>{isBn ? "কার্ড টাইটেল (বাংলা)" : "Card Title (BN)"}</span>
+                <span className="text-[9px] font-mono opacity-60">{formData.discover_title_bn.length}/50</span>
+              </label>
+              <input
+                type="text"
+                maxLength={50}
+                value={formData.discover_title_bn}
+                onChange={(e) => handleFieldChange("discover_title_bn", e.target.value)}
+                placeholder="আবিষ্কার করুন সেরা গ্ল্যাম"
+                className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+
+            {/* Discover Subtitle EN & BN */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                <span>{isBn ? "কার্ড বিবরণ (English)" : "Card Description (EN)"}</span>
+                <span className="text-[9px] font-mono opacity-50">{formData.discover_subtitle.length}/160</span>
+              </label>
+              <input
+                type="text"
+                maxLength={160}
+                value={formData.discover_subtitle}
+                onChange={(e) => handleFieldChange("discover_subtitle", e.target.value)}
+                placeholder="Collect exclusive beauty essentials..."
+                className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                <span>{isBn ? "কার্ড বিবরণ (বাংলা)" : "Card Description (BN)"}</span>
+                <span className="text-[9px] font-mono opacity-60">{formData.discover_subtitle_bn.length}/200</span>
+              </label>
+              <input
+                type="text"
+                maxLength={200}
+                value={formData.discover_subtitle_bn}
+                onChange={(e) => handleFieldChange("discover_subtitle_bn", e.target.value)}
+                placeholder="এক্সক্লুসিভ মেকআপ ও স্কিনকেয়ার সামগ্রী..."
+                className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+
+            {/* Discover Button Text EN & BN */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                <span>{isBn ? "বাটন টেক্সট (English)" : "Button Text (EN)"}</span>
+                <span className="text-[9px] font-mono opacity-50">{formData.discover_btn_text.length}/25</span>
+              </label>
+              <input
+                type="text"
+                maxLength={25}
+                value={formData.discover_btn_text}
+                onChange={(e) => handleFieldChange("discover_btn_text", e.target.value)}
+                placeholder="View Exclusives"
+                className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                <span>{isBn ? "বাটন টেক্সট (বাংলা)" : "Button Text (BN)"}</span>
+                <span className="text-[9px] font-mono opacity-60">{formData.discover_btn_text_bn.length}/35</span>
+              </label>
+              <input
+                type="text"
+                maxLength={35}
+                value={formData.discover_btn_text_bn}
+                onChange={(e) => handleFieldChange("discover_btn_text_bn", e.target.value)}
+                placeholder="আকর্ষণীয় পণ্য দেখুন"
+                className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-emerald-500/30 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+
+            {/* Discover Button Link */}
+            <div className="md:col-span-2 space-y-1.5">
               <label className="text-[11px] font-black uppercase tracking-wider opacity-70 block">
                 {isBn ? "বাটন লিংক" : "Button URL"}
               </label>
@@ -858,20 +1069,6 @@ export default function HomepageSettingsSubTab({
                 value={formData.discover_btn_link}
                 onChange={(e) => handleFieldChange("discover_btn_link", e.target.value)}
                 placeholder="/products"
-                className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div className="md:col-span-2 space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 block">
-                {isBn ? "কার্ড সাবটাইটেল" : "Card Description"}
-              </label>
-              <input
-                type="text"
-                maxLength={160}
-                value={formData.discover_subtitle}
-                onChange={(e) => handleFieldChange("discover_subtitle", e.target.value)}
-                placeholder="Collect exclusive beauty essentials..."
                 className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
               />
             </div>

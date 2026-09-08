@@ -1029,64 +1029,89 @@ class AuditLogSerializer(serializers.ModelSerializer):
 
 class SiteSettingSerializer(serializers.ModelSerializer):
     site_title = serializers.CharField(max_length=15, required=False)
+    site_title_bn = serializers.CharField(max_length=25, required=False, allow_blank=True)
     tagline = serializers.CharField(max_length=30, required=False, allow_blank=True)
+    tagline_bn = serializers.CharField(max_length=45, required=False, allow_blank=True)
     support_phone = serializers.CharField(max_length=30, required=False, allow_blank=True)
     support_email = serializers.EmailField(max_length=100, required=False, allow_blank=True)
     store_address = serializers.CharField(max_length=200, required=False, allow_blank=True)
+    store_address_bn = serializers.CharField(max_length=250, required=False, allow_blank=True)
     working_hours = serializers.CharField(max_length=60, required=False, allow_blank=True)
+    working_hours_bn = serializers.CharField(max_length=80, required=False, allow_blank=True)
     facebook_url = serializers.URLField(max_length=255, required=False, allow_blank=True)
     instagram_url = serializers.URLField(max_length=255, required=False, allow_blank=True)
     youtube_url = serializers.URLField(max_length=255, required=False, allow_blank=True)
     whatsapp_number = serializers.CharField(max_length=50, required=False, allow_blank=True)
     footer_copyright = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    footer_copyright_bn = serializers.CharField(max_length=120, required=False, allow_blank=True)
 
     class Meta:
         model = SiteSetting
         fields = [
             'id',
             'site_title',
+            'site_title_bn',
             'tagline',
+            'tagline_bn',
             'brand_description',
+            'brand_description_bn',
             'logo',
             'support_phone',
             'support_email',
             'store_address',
+            'store_address_bn',
             'working_hours',
+            'working_hours_bn',
             'facebook_url',
             'instagram_url',
             'youtube_url',
             'whatsapp_number',
             'footer_copyright',
+            'footer_copyright_bn',
             'currency_code',
             'top_banner_image',
             'top_banner_link',
             'top_banner_is_active',
             'hero_badge',
+            'hero_badge_bn',
             'hero_title_prefix',
+            'hero_title_prefix_bn',
             'hero_rotating_words',
+            'hero_rotating_words_bn',
             'hero_subtitle',
+            'hero_subtitle_bn',
             'hero_btn_text',
+            'hero_btn_text_bn',
             'hero_btn_link',
             'discover_title',
+            'discover_title_bn',
             'discover_subtitle',
+            'discover_subtitle_bn',
             'discover_btn_text',
+            'discover_btn_text_bn',
             'discover_btn_link',
             'bento_tile_1_title',
+            'bento_tile_1_title_bn',
             'bento_tile_1_collection',
             'bento_tile_1_image',
             'bento_tile_2_title',
+            'bento_tile_2_title_bn',
             'bento_tile_2_collection',
             'bento_tile_2_image',
             'bento_tile_3_title',
+            'bento_tile_3_title_bn',
             'bento_tile_3_collection',
             'bento_tile_3_image',
             'bento_tile_4_title',
+            'bento_tile_4_title_bn',
             'bento_tile_4_collection',
             'bento_tile_4_image',
             'bento_tile_247_title',
+            'bento_tile_247_title_bn',
             'bento_tile_247_image',
             'bento_tile_247_link',
             'bento_tile_delivery_title',
+            'bento_tile_delivery_title_bn',
             'bento_tile_delivery_image',
             'bento_tile_delivery_link',
             'last_updated',
@@ -1102,14 +1127,33 @@ class SiteSettingSerializer(serializers.ModelSerializer):
                 )
         return value
 
+    def validate_brand_description_bn(self, value):
+        if value:
+            words = value.strip().split()
+            if len(words) > 70:
+                raise serializers.ValidationError(
+                    f"বাংলা ব্র্যান্ড বিবরণ সর্বোচ্চ ৭০ শব্দের মধ্যে হতে হবে। বর্তমান শব্দ সংখ্যা: {len(words)} টি।"
+                )
+        return value
+
     def validate_site_title(self, value):
         if value and len(value.strip()) > 15:
             raise serializers.ValidationError("Website title cannot exceed 15 characters.")
         return value.strip()
 
+    def validate_site_title_bn(self, value):
+        if value and len(value.strip()) > 25:
+            raise serializers.ValidationError("বাংলা ওয়েবসাইটের নাম সর্বোচ্চ ২৫ অক্ষরের মধ্যে হতে হবে।")
+        return value.strip()
+
     def validate_tagline(self, value):
         if value and len(value.strip()) > 30:
             raise serializers.ValidationError("Tagline cannot exceed 30 characters.")
+        return value.strip()
+
+    def validate_tagline_bn(self, value):
+        if value and len(value.strip()) > 45:
+            raise serializers.ValidationError("বাংলা ট্যাগলাইন সর্বোচ্চ ৪৫ অক্ষরের মধ্যে হতে হবে।")
         return value.strip()
 
 

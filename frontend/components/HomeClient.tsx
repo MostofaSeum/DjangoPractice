@@ -100,65 +100,104 @@ export default function HomeClient({
     return null;
   };
 
+  const isBn = locale === "bn";
+
   // Top Promotional Banner dynamic settings
   const isBannerActive = siteSettings ? siteSettings.top_banner_is_active !== false : true;
   const bannerImage = siteSettings?.top_banner_image ? getMediaUrl(siteSettings.top_banner_image) : "";
   const bannerLink = siteSettings?.top_banner_link || "/gift-cards";
 
   // Hero Section Dynamic Settings
-  const heroBadge = siteSettings?.hero_badge || t("hero.newCollection");
-  const heroTitlePrefix = siteSettings?.hero_title_prefix || t("hero.elevateYour");
-  const heroSubtitle = siteSettings?.hero_subtitle || t("hero.heroSubtitle");
-  const heroBtnText = siteSettings?.hero_btn_text || t("hero.exploreCollection");
+  const heroBadge = isBn
+    ? siteSettings?.hero_badge_bn || siteSettings?.hero_badge || t("hero.newCollection")
+    : siteSettings?.hero_badge || t("hero.newCollection");
+
+  const heroTitlePrefix = isBn
+    ? siteSettings?.hero_title_prefix_bn || siteSettings?.hero_title_prefix || t("hero.elevateYour")
+    : siteSettings?.hero_title_prefix || t("hero.elevateYour");
+
+  const heroSubtitle = isBn
+    ? siteSettings?.hero_subtitle_bn || siteSettings?.hero_subtitle || t("hero.heroSubtitle")
+    : siteSettings?.hero_subtitle || t("hero.heroSubtitle");
+
+  const heroBtnText = isBn
+    ? siteSettings?.hero_btn_text_bn || siteSettings?.hero_btn_text || t("hero.exploreCollection")
+    : siteSettings?.hero_btn_text || t("hero.exploreCollection");
+
   const heroBtnLink = siteSettings?.hero_btn_link || "/collections";
 
   // Rotating words
-  const customRotatingWords = siteSettings?.hero_rotating_words
-    ? siteSettings.hero_rotating_words
+  const activeRotatingRaw = isBn
+    ? siteSettings?.hero_rotating_words_bn || siteSettings?.hero_rotating_words
+    : siteSettings?.hero_rotating_words;
+
+  const customRotatingWords = activeRotatingRaw
+    ? activeRotatingRaw
         .split(",")
         .map((w: string) => w.trim())
         .filter(Boolean)
     : undefined;
 
   // Discover Box Dynamic Settings
-  const discoverTitle = siteSettings?.discover_title || t("hero.discoverVibe");
-  const discoverSubtitle = siteSettings?.discover_subtitle || t("hero.discoverSubtitle");
-  const discoverBtnText = siteSettings?.discover_btn_text || t("hero.viewExclusives");
+  const discoverTitle = isBn
+    ? siteSettings?.discover_title_bn || siteSettings?.discover_title || t("hero.discoverVibe")
+    : siteSettings?.discover_title || t("hero.discoverVibe");
+
+  const discoverSubtitle = isBn
+    ? siteSettings?.discover_subtitle_bn || siteSettings?.discover_subtitle || t("hero.discoverSubtitle")
+    : siteSettings?.discover_subtitle || t("hero.discoverSubtitle");
+
+  const discoverBtnText = isBn
+    ? siteSettings?.discover_btn_text_bn || siteSettings?.discover_btn_text || t("hero.viewExclusives")
+    : siteSettings?.discover_btn_text || t("hero.viewExclusives");
+
   const discoverBtnLink = siteSettings?.discover_btn_link || "/products";
 
   // Bento Tiles dynamic configuration (only uploaded photos, no hardcoded demo images)
   const bentoTile1 = {
-    title: siteSettings?.bento_tile_1_title || "",
+    title: isBn
+      ? siteSettings?.bento_tile_1_title_bn || siteSettings?.bento_tile_1_title || ""
+      : siteSettings?.bento_tile_1_title || "",
     link: siteSettings?.bento_tile_1_collection ? `/collections/${siteSettings.bento_tile_1_collection}` : "/collections/3",
     image: siteSettings?.bento_tile_1_image ? getMediaUrl(siteSettings.bento_tile_1_image) : "",
   };
 
   const bentoTile2 = {
-    title: siteSettings?.bento_tile_2_title || "",
+    title: isBn
+      ? siteSettings?.bento_tile_2_title_bn || siteSettings?.bento_tile_2_title || ""
+      : siteSettings?.bento_tile_2_title || "",
     link: siteSettings?.bento_tile_2_collection ? `/collections/${siteSettings.bento_tile_2_collection}` : "/collections/4",
     image: siteSettings?.bento_tile_2_image ? getMediaUrl(siteSettings.bento_tile_2_image) : "",
   };
 
   const bentoTile3 = {
-    title: siteSettings?.bento_tile_3_title || "",
+    title: isBn
+      ? siteSettings?.bento_tile_3_title_bn || siteSettings?.bento_tile_3_title || ""
+      : siteSettings?.bento_tile_3_title || "",
     link: siteSettings?.bento_tile_3_collection ? `/collections/${siteSettings.bento_tile_3_collection}` : "/collections/6",
     image: siteSettings?.bento_tile_3_image ? getMediaUrl(siteSettings.bento_tile_3_image) : "",
   };
 
   const bentoTile4 = {
-    title: siteSettings?.bento_tile_4_title || "",
+    title: isBn
+      ? siteSettings?.bento_tile_4_title_bn || siteSettings?.bento_tile_4_title || ""
+      : siteSettings?.bento_tile_4_title || "",
     link: siteSettings?.bento_tile_4_collection ? `/collections/${siteSettings.bento_tile_4_collection}` : "/collections/5",
     image: siteSettings?.bento_tile_4_image ? getMediaUrl(siteSettings.bento_tile_4_image) : "",
   };
 
   const bentoTile247 = {
-    title: siteSettings?.bento_tile_247_title || "",
+    title: isBn
+      ? siteSettings?.bento_tile_247_title_bn || siteSettings?.bento_tile_247_title || ""
+      : siteSettings?.bento_tile_247_title || "",
     image: siteSettings?.bento_tile_247_image ? getMediaUrl(siteSettings.bento_tile_247_image) : "",
     link: siteSettings?.bento_tile_247_link || "",
   };
 
   const bentoTileDelivery = {
-    title: siteSettings?.bento_tile_delivery_title || "",
+    title: isBn
+      ? siteSettings?.bento_tile_delivery_title_bn || siteSettings?.bento_tile_delivery_title || ""
+      : siteSettings?.bento_tile_delivery_title || "",
     image: siteSettings?.bento_tile_delivery_image ? getMediaUrl(siteSettings.bento_tile_delivery_image) : "",
     link: siteSettings?.bento_tile_delivery_link || "",
   };

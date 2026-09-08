@@ -10,23 +10,30 @@ import { siteConfig } from "@/config/siteConfig";
 const API_BASE = siteConfig.apiBaseUrl.replace(/\/+$/, "");
 
 export default function Footer() {
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  const isBn = locale === "bn";
   const { user } = useAuth();
   const pathname = usePathname();
 
   const [siteData, setSiteData] = useState({
     site_title: "VibeMart",
+    site_title_bn: "",
     tagline: "",
+    tagline_bn: "",
     brand_description: "",
+    brand_description_bn: "",
     support_phone: "",
     support_email: "",
     store_address: "",
+    store_address_bn: "",
     working_hours: "",
+    working_hours_bn: "",
     facebook_url: "",
     instagram_url: "",
     youtube_url: "",
     whatsapp_number: "",
     footer_copyright: "© 2026 VIBEMART. ALL RIGHTS RESERVED.",
+    footer_copyright_bn: "",
     logo: null as string | null,
   });
 
@@ -49,17 +56,23 @@ export default function Footer() {
           const data = await siteRes.json();
           setSiteData({
             site_title: data.site_title !== undefined && data.site_title !== null ? data.site_title : "VibeMart",
+            site_title_bn: data.site_title_bn || "",
             tagline: data.tagline || "",
+            tagline_bn: data.tagline_bn || "",
             brand_description: data.brand_description || "",
+            brand_description_bn: data.brand_description_bn || "",
             support_phone: data.support_phone || "",
             support_email: data.support_email || "",
             store_address: data.store_address || "",
+            store_address_bn: data.store_address_bn || "",
             working_hours: data.working_hours || "",
+            working_hours_bn: data.working_hours_bn || "",
             facebook_url: data.facebook_url || "",
             instagram_url: data.instagram_url || "",
             youtube_url: data.youtube_url || "",
             whatsapp_number: data.whatsapp_number || "",
             footer_copyright: data.footer_copyright || "© 2026 VIBEMART. ALL RIGHTS RESERVED.",
+            footer_copyright_bn: data.footer_copyright_bn || "",
             logo: data.logo || null,
           });
         }
@@ -177,7 +190,7 @@ export default function Footer() {
             )}
 
             {/* Address */}
-            {siteData.store_address && (
+            {(siteData.store_address || siteData.store_address_bn) && (
               <div className="flex items-start gap-3">
                 <span className="shrink-0 mt-0.5 text-accent">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -196,7 +209,7 @@ export default function Footer() {
                   </svg>
                 </span>
                 <p className="opacity-80 leading-relaxed font-medium">
-                  {siteData.store_address}
+                  {isBn ? (siteData.store_address_bn || siteData.store_address) : siteData.store_address}
                 </p>
               </div>
             )}
@@ -224,7 +237,7 @@ export default function Footer() {
             )}
 
             {/* Working Hours */}
-            {siteData.working_hours && (
+            {(siteData.working_hours || siteData.working_hours_bn) && (
               <div className="flex items-start gap-3">
                 <span className="shrink-0 mt-0.5 text-accent">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -236,7 +249,9 @@ export default function Footer() {
                     />
                   </svg>
                 </span>
-                <p className="opacity-80 font-medium">{siteData.working_hours}</p>
+                <p className="opacity-80 font-medium">
+                  {isBn ? (siteData.working_hours_bn || siteData.working_hours) : siteData.working_hours}
+                </p>
               </div>
             )}
 
@@ -306,18 +321,18 @@ export default function Footer() {
               )}
 
               {/* 2. Title in middle */}
-              {siteData.site_title && (
+              {(siteData.site_title || siteData.site_title_bn) && (
                 <span className="text-2xl sm:text-3xl font-black tracking-tight text-button-fg group-hover:text-accent transition-colors block uppercase">
-                  {siteData.site_title}
+                  {isBn ? (siteData.site_title_bn || siteData.site_title) : siteData.site_title}
                 </span>
               )}
 
               {/* 3. Tagline on bottom */}
-              {siteData.tagline && (
+              {(siteData.tagline || siteData.tagline_bn) && (
                 <div className="flex items-center justify-center gap-2 mt-1.5">
                   <span className="h-[1px] w-5 bg-accent" />
                   <span className="text-[10px] font-bold tracking-[0.25em] text-accent uppercase">
-                    {siteData.tagline}
+                    {isBn ? (siteData.tagline_bn || siteData.tagline) : siteData.tagline}
                   </span>
                   <span className="h-[1px] w-5 bg-accent" />
                 </div>
@@ -400,9 +415,9 @@ export default function Footer() {
 
           {/* Right Column: Brand Philosophy Description */}
           <div className="md:col-span-4 text-center md:text-right space-y-4 text-xs">
-            {siteData.brand_description && (
+            {(siteData.brand_description || siteData.brand_description_bn) && (
               <p className="opacity-80 leading-relaxed font-medium">
-                {siteData.brand_description}
+                {isBn ? (siteData.brand_description_bn || siteData.brand_description) : siteData.brand_description}
               </p>
             )}
           </div>
@@ -439,7 +454,7 @@ export default function Footer() {
           </div>
 
           <div className="opacity-60 text-[10px] tracking-widest text-center">
-            {siteData.footer_copyright}
+            {isBn ? (siteData.footer_copyright_bn || siteData.footer_copyright) : siteData.footer_copyright}
           </div>
         </div>
       </div>

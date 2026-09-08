@@ -19,11 +19,15 @@ export default function Header() {
   const router = useRouter();
   const { user, logout } = useAuth();
   const { clearCart } = useCart();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
+  const isBn = locale === "bn";
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [brandTitle, setBrandTitle] = useState("VIBEMART");
+  const [brandTitleEn, setBrandTitleEn] = useState("VIBEMART");
+  const [brandTitleBn, setBrandTitleBn] = useState("");
   const [brandLogo, setBrandLogo] = useState<string | null>(null);
+
+  const brandTitle = isBn ? (brandTitleBn || brandTitleEn) : brandTitleEn;
 
   useEffect(() => {
     const fetchSiteBrand = async () => {
@@ -33,7 +37,8 @@ export default function Header() {
         });
         if (res.ok) {
           const data = await res.json();
-          if (data.site_title) setBrandTitle(data.site_title);
+          if (data.site_title) setBrandTitleEn(data.site_title);
+          if (data.site_title_bn) setBrandTitleBn(data.site_title_bn);
           if (data.logo) setBrandLogo(data.logo);
         }
       } catch (e) {

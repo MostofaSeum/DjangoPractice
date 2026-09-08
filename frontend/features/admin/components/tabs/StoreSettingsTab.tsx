@@ -16,14 +16,20 @@ interface StoreSettingsTabProps {
 
 interface SiteSettingsState {
   siteTitle: string;
+  siteTitleBn: string;
   tagline: string;
+  taglineBn: string;
   brandDescription: string;
+  brandDescriptionBn: string;
   currencyCode: string;
   supportPhone: string;
   supportEmail: string;
   storeAddress: string;
+  storeAddressBn: string;
   workingHours: string;
+  workingHoursBn: string;
   footerCopyright: string;
+  footerCopyrightBn: string;
   facebookUrl: string;
   instagramUrl: string;
   youtubeUrl: string;
@@ -32,15 +38,21 @@ interface SiteSettingsState {
 
 const DEFAULT_SETTINGS: SiteSettingsState = {
   siteTitle: "VibeMart",
+  siteTitleBn: "",
   tagline: "MAKE-UP STYLE",
+  taglineBn: "",
   brandDescription:
     "VibeMart is a recognized multi-category fashion and lifestyle store built on the principle of \"best price at the highest quality\". Our collections are curated with premium materials that are durable, stylish, and perfect for your vibe.",
+  brandDescriptionBn: "",
   currencyCode: "BDT",
   supportPhone: "+880 1700-000000",
   supportEmail: "support@vibemart.com",
   storeAddress: "Homestead Gulshan Link Tower, 99 Gulshan Badda Link Rd, Dhaka 1212",
+  storeAddressBn: "",
   workingHours: "Sat - Thu: 10:00 - 18:00",
+  workingHoursBn: "",
   footerCopyright: "© 2026 VIBEMART. ALL RIGHTS RESERVED.",
+  footerCopyrightBn: "",
   facebookUrl: "https://facebook.com",
   instagramUrl: "https://instagram.com",
   youtubeUrl: "https://youtube.com",
@@ -84,14 +96,20 @@ export default function StoreSettingsTab({
 
   // Form states
   const [siteTitle, setSiteTitle] = useState(DEFAULT_SETTINGS.siteTitle);
+  const [siteTitleBn, setSiteTitleBn] = useState(DEFAULT_SETTINGS.siteTitleBn);
   const [tagline, setTagline] = useState(DEFAULT_SETTINGS.tagline);
+  const [taglineBn, setTaglineBn] = useState(DEFAULT_SETTINGS.taglineBn);
   const [brandDescription, setBrandDescription] = useState(DEFAULT_SETTINGS.brandDescription);
+  const [brandDescriptionBn, setBrandDescriptionBn] = useState(DEFAULT_SETTINGS.brandDescriptionBn);
   const [currencyCode, setCurrencyCode] = useState(DEFAULT_SETTINGS.currencyCode);
   const [supportPhone, setSupportPhone] = useState(DEFAULT_SETTINGS.supportPhone);
   const [supportEmail, setSupportEmail] = useState(DEFAULT_SETTINGS.supportEmail);
   const [storeAddress, setStoreAddress] = useState(DEFAULT_SETTINGS.storeAddress);
+  const [storeAddressBn, setStoreAddressBn] = useState(DEFAULT_SETTINGS.storeAddressBn);
   const [workingHours, setWorkingHours] = useState(DEFAULT_SETTINGS.workingHours);
+  const [workingHoursBn, setWorkingHoursBn] = useState(DEFAULT_SETTINGS.workingHoursBn);
   const [footerCopyright, setFooterCopyright] = useState(DEFAULT_SETTINGS.footerCopyright);
+  const [footerCopyrightBn, setFooterCopyrightBn] = useState(DEFAULT_SETTINGS.footerCopyrightBn);
   const [facebookUrl, setFacebookUrl] = useState(DEFAULT_SETTINGS.facebookUrl);
   const [instagramUrl, setInstagramUrl] = useState(DEFAULT_SETTINGS.instagramUrl);
   const [youtubeUrl, setYoutubeUrl] = useState(DEFAULT_SETTINGS.youtubeUrl);
@@ -115,14 +133,20 @@ export default function StoreSettingsTab({
         const data = await res.json();
         const loaded: SiteSettingsState = {
           siteTitle: data.site_title !== undefined && data.site_title !== null ? data.site_title : "VibeMart",
+          siteTitleBn: data.site_title_bn !== undefined && data.site_title_bn !== null ? data.site_title_bn : "",
           tagline: data.tagline !== undefined && data.tagline !== null ? data.tagline : "",
+          taglineBn: data.tagline_bn !== undefined && data.tagline_bn !== null ? data.tagline_bn : "",
           brandDescription: data.brand_description !== undefined && data.brand_description !== null ? data.brand_description : "",
+          brandDescriptionBn: data.brand_description_bn !== undefined && data.brand_description_bn !== null ? data.brand_description_bn : "",
           currencyCode: data.currency_code || "BDT",
           supportPhone: data.support_phone !== undefined && data.support_phone !== null ? data.support_phone : "",
           supportEmail: data.support_email !== undefined && data.support_email !== null ? data.support_email : "",
           storeAddress: data.store_address !== undefined && data.store_address !== null ? data.store_address : "",
+          storeAddressBn: data.store_address_bn !== undefined && data.store_address_bn !== null ? data.store_address_bn : "",
           workingHours: data.working_hours !== undefined && data.working_hours !== null ? data.working_hours : "",
+          workingHoursBn: data.working_hours_bn !== undefined && data.working_hours_bn !== null ? data.working_hours_bn : "",
           footerCopyright: data.footer_copyright !== undefined && data.footer_copyright !== null ? data.footer_copyright : "",
+          footerCopyrightBn: data.footer_copyright_bn !== undefined && data.footer_copyright_bn !== null ? data.footer_copyright_bn : "",
           facebookUrl: data.facebook_url !== undefined && data.facebook_url !== null ? data.facebook_url : "",
           instagramUrl: data.instagram_url !== undefined && data.instagram_url !== null ? data.instagram_url : "",
           youtubeUrl: data.youtube_url !== undefined && data.youtube_url !== null ? data.youtube_url : "",
@@ -131,14 +155,20 @@ export default function StoreSettingsTab({
 
         setInitialSettings(loaded);
         setSiteTitle(loaded.siteTitle);
+        setSiteTitleBn(loaded.siteTitleBn);
         setTagline(loaded.tagline);
+        setTaglineBn(loaded.taglineBn);
         setBrandDescription(loaded.brandDescription);
+        setBrandDescriptionBn(loaded.brandDescriptionBn);
         setCurrencyCode(loaded.currencyCode);
         setSupportPhone(loaded.supportPhone);
         setSupportEmail(loaded.supportEmail);
         setStoreAddress(loaded.storeAddress);
+        setStoreAddressBn(loaded.storeAddressBn);
         setWorkingHours(loaded.workingHours);
+        setWorkingHoursBn(loaded.workingHoursBn);
         setFooterCopyright(loaded.footerCopyright);
+        setFooterCopyrightBn(loaded.footerCopyrightBn);
         setFacebookUrl(loaded.facebookUrl);
         setInstagramUrl(loaded.instagramUrl);
         setYoutubeUrl(loaded.youtubeUrl);
@@ -165,14 +195,20 @@ export default function StoreSettingsTab({
     if (logoFile !== null) return true;
     if (logoPreview !== initialLogoUrl) return true;
     if (siteTitle !== initialSettings.siteTitle) return true;
+    if (siteTitleBn !== initialSettings.siteTitleBn) return true;
     if (tagline !== initialSettings.tagline) return true;
+    if (taglineBn !== initialSettings.taglineBn) return true;
     if (brandDescription !== initialSettings.brandDescription) return true;
+    if (brandDescriptionBn !== initialSettings.brandDescriptionBn) return true;
     if (currencyCode !== initialSettings.currencyCode) return true;
     if (supportPhone !== initialSettings.supportPhone) return true;
     if (supportEmail !== initialSettings.supportEmail) return true;
     if (storeAddress !== initialSettings.storeAddress) return true;
+    if (storeAddressBn !== initialSettings.storeAddressBn) return true;
     if (workingHours !== initialSettings.workingHours) return true;
+    if (workingHoursBn !== initialSettings.workingHoursBn) return true;
     if (footerCopyright !== initialSettings.footerCopyright) return true;
+    if (footerCopyrightBn !== initialSettings.footerCopyrightBn) return true;
     if (facebookUrl !== initialSettings.facebookUrl) return true;
     if (instagramUrl !== initialSettings.instagramUrl) return true;
     if (youtubeUrl !== initialSettings.youtubeUrl) return true;
@@ -183,14 +219,20 @@ export default function StoreSettingsTab({
     logoPreview,
     initialLogoUrl,
     siteTitle,
+    siteTitleBn,
     tagline,
+    taglineBn,
     brandDescription,
+    brandDescriptionBn,
     currencyCode,
     supportPhone,
     supportEmail,
     storeAddress,
+    storeAddressBn,
     workingHours,
+    workingHoursBn,
     footerCopyright,
+    footerCopyrightBn,
     facebookUrl,
     instagramUrl,
     youtubeUrl,
@@ -219,14 +261,20 @@ export default function StoreSettingsTab({
       setSaving(true);
       const formData = new FormData();
       formData.append("site_title", siteTitle);
+      formData.append("site_title_bn", siteTitleBn);
       formData.append("tagline", tagline);
+      formData.append("tagline_bn", taglineBn);
       formData.append("brand_description", brandDescription);
+      formData.append("brand_description_bn", brandDescriptionBn);
       formData.append("currency_code", currencyCode);
       formData.append("support_phone", supportPhone);
       formData.append("support_email", supportEmail);
       formData.append("store_address", storeAddress);
+      formData.append("store_address_bn", storeAddressBn);
       formData.append("working_hours", workingHours);
+      formData.append("working_hours_bn", workingHoursBn);
       formData.append("footer_copyright", footerCopyright);
+      formData.append("footer_copyright_bn", footerCopyrightBn);
       formData.append("facebook_url", facebookUrl);
       formData.append("instagram_url", instagramUrl);
       formData.append("youtube_url", youtubeUrl);
@@ -250,14 +298,20 @@ export default function StoreSettingsTab({
         const data = await res.json();
         const updated: SiteSettingsState = {
           siteTitle,
+          siteTitleBn,
           tagline,
+          taglineBn,
           brandDescription,
+          brandDescriptionBn,
           currencyCode,
           supportPhone,
           supportEmail,
           storeAddress,
+          storeAddressBn,
           workingHours,
+          workingHoursBn,
           footerCopyright,
+          footerCopyrightBn,
           facebookUrl,
           instagramUrl,
           youtubeUrl,
@@ -441,41 +495,81 @@ export default function StoreSettingsTab({
               </h2>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
-                {isBn ? "ওয়েবসাইটের নাম / টাইটেল" : "Website Title"}
-              </label>
-              <input
-                type="text"
-                maxLength={15}
-                value={siteTitle}
-                onChange={(e) => setSiteTitle(e.target.value.slice(0, 15))}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-bold border border-foreground/15 focus:outline-none focus:border-accent"
-                placeholder="e.g. VibeMart"
-                required
-              />
+            {/* Site Title: English & Bangla */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>{isBn ? "ওয়েবসাইটের নাম (English)" : "Website Title (EN)"}</span>
+                  <span className="text-[9px] font-mono opacity-50">{siteTitle.length}/15</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={15}
+                  value={siteTitle}
+                  onChange={(e) => setSiteTitle(e.target.value.slice(0, 15))}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-bold border border-foreground/15 focus:outline-none focus:border-accent"
+                  placeholder="e.g. VibeMart"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                  <span>{isBn ? "ওয়েবসাইটের নাম (বাংলা)" : "Website Title (BN)"}</span>
+                  <span className="text-[9px] font-mono opacity-60">{siteTitleBn.length}/25</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={25}
+                  value={siteTitleBn}
+                  onChange={(e) => setSiteTitleBn(e.target.value.slice(0, 25))}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-bold border border-emerald-500/30 focus:outline-none focus:border-emerald-500"
+                  placeholder="যেমনঃ ভাইবমার্ট"
+                />
+              </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
-                {isBn ? "ট্যাগলাইন / স্লোগান" : "Store Tagline / Slogan"}
-              </label>
-              <input
-                type="text"
-                maxLength={30}
-                value={tagline}
-                onChange={(e) => setTagline(e.target.value.slice(0, 30))}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
-                placeholder="e.g. MAKE-UP STYLE"
-              />
+            {/* Tagline: English & Bangla */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>{isBn ? "ট্যাগলাইন (English)" : "Store Tagline (EN)"}</span>
+                  <span className="text-[9px] font-mono opacity-50">{tagline.length}/30</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={30}
+                  value={tagline}
+                  onChange={(e) => setTagline(e.target.value.slice(0, 30))}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
+                  placeholder="e.g. MAKE-UP STYLE"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                  <span>{isBn ? "ট্যাগলাইন (বাংলা)" : "Store Tagline (BN)"}</span>
+                  <span className="text-[9px] font-mono opacity-60">{taglineBn.length}/45</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={45}
+                  value={taglineBn}
+                  onChange={(e) => setTaglineBn(e.target.value.slice(0, 45))}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-emerald-500/30 focus:outline-none focus:border-emerald-500"
+                  placeholder="যেমনঃ বিউটি ও মেকআপ স্টাইল"
+                />
+              </div>
             </div>
 
+            {/* Brand Philosophy English */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
-                {isBn ? "ব্র্যান্ড বিবরণ (ফুটারে প্রদর্শিত)" : "Brand Philosophy (Footer Description)"}
+              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                <span>{isBn ? "ব্র্যান্ড দর্শন (English - ফুটারে প্রদর্শিত)" : "Brand Philosophy (EN - Footer)"}</span>
+                <span className="text-[9px] font-mono opacity-50">{brandDescription.length}/400</span>
               </label>
               <textarea
-                rows={4}
+                rows={3}
                 maxLength={400}
                 value={brandDescription}
                 onChange={(e) => {
@@ -486,7 +580,29 @@ export default function StoreSettingsTab({
                   }
                 }}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent resize-none leading-relaxed"
-                placeholder="Enter store brand philosophy..."
+                placeholder="Enter store brand philosophy in English (max 70 words)..."
+              />
+            </div>
+
+            {/* Brand Philosophy Bangla */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                <span>{isBn ? "ব্র্যান্ড দর্শন (বাংলা - ফুটারে প্রদর্শিত)" : "Brand Philosophy (BN - Footer)"}</span>
+                <span className="text-[9px] font-mono opacity-60">{brandDescriptionBn.length}/400</span>
+              </label>
+              <textarea
+                rows={3}
+                maxLength={400}
+                value={brandDescriptionBn}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const words = val.trim().split(/\s+/).filter(Boolean);
+                  if (words.length <= 70 || val.length < brandDescriptionBn.length) {
+                    setBrandDescriptionBn(val);
+                  }
+                }}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-emerald-500/30 focus:outline-none focus:border-emerald-500 resize-none leading-relaxed"
+                placeholder="ফুটারে প্রদর্শনের জন্য বাংলায় স্টোরের বিবরণ লিখুন (সর্বোচ্চ ৭০ শব্দ)..."
               />
             </div>
           </div>
@@ -538,10 +654,12 @@ export default function StoreSettingsTab({
               </div>
             </div>
 
+            {/* Address: English & Bangla */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
-                  {isBn ? "অফিস / শোরুমের ঠিকানা" : "Store Office Address"}
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>{isBn ? "অফিস ঠিকানা (English)" : "Store Office Address (EN)"}</span>
+                  <span className="text-[9px] font-mono opacity-50">{storeAddress.length}/200</span>
                 </label>
                 <textarea
                   rows={2}
@@ -549,13 +667,32 @@ export default function StoreSettingsTab({
                   value={storeAddress}
                   onChange={(e) => setStoreAddress(e.target.value.slice(0, 200))}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent resize-none"
-                  placeholder="Enter physical address..."
+                  placeholder="Enter physical address in English..."
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
-                  {isBn ? "কাজের সময় (Working Hours)" : "Working / Support Hours"}
+                <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                  <span>{isBn ? "অফিস ঠিকানা (বাংলা)" : "Store Office Address (BN)"}</span>
+                  <span className="text-[9px] font-mono opacity-60">{storeAddressBn.length}/250</span>
+                </label>
+                <textarea
+                  rows={2}
+                  maxLength={250}
+                  value={storeAddressBn}
+                  onChange={(e) => setStoreAddressBn(e.target.value.slice(0, 250))}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-emerald-500/30 focus:outline-none focus:border-emerald-500 resize-none"
+                  placeholder="শোরুম বা অফিসের বাংলা ঠিকানা লিখুন..."
+                />
+              </div>
+            </div>
+
+            {/* Working Hours: English & Bangla */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>{isBn ? "কাজের সময় (English)" : "Working Hours (EN)"}</span>
+                  <span className="text-[9px] font-mono opacity-50">{workingHours.length}/60</span>
                 </label>
                 <input
                   type="text"
@@ -566,20 +703,54 @@ export default function StoreSettingsTab({
                   placeholder="Sat - Thu: 10:00 - 18:00"
                 />
               </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                  <span>{isBn ? "কাজের সময় (বাংলা)" : "Working Hours (BN)"}</span>
+                  <span className="text-[9px] font-mono opacity-60">{workingHoursBn.length}/80</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={80}
+                  value={workingHoursBn}
+                  onChange={(e) => setWorkingHoursBn(e.target.value.slice(0, 80))}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-emerald-500/30 focus:outline-none focus:border-emerald-500"
+                  placeholder="শনি - বৃহস্পতি: সকাল ১০:০০ - সন্ধ্যা ৬:০০"
+                />
+              </div>
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
-                {isBn ? "কপিরাইট নোটিশ" : "Copyright Notice"}
-              </label>
-              <input
-                type="text"
-                maxLength={100}
-                value={footerCopyright}
-                onChange={(e) => setFooterCopyright(e.target.value.slice(0, 100))}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
-                placeholder="© 2026 VIBEMART. ALL RIGHTS RESERVED."
-              />
+            {/* Copyright: English & Bangla */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                  <span>{isBn ? "কপিরাইট নোটিশ (English)" : "Copyright Notice (EN)"}</span>
+                  <span className="text-[9px] font-mono opacity-50">{footerCopyright.length}/100</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={100}
+                  value={footerCopyright}
+                  onChange={(e) => setFooterCopyright(e.target.value.slice(0, 100))}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
+                  placeholder="© 2026 VIBEMART. ALL RIGHTS RESERVED."
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+                  <span>{isBn ? "কপিরাইট নোটিশ (বাংলা)" : "Copyright Notice (BN)"}</span>
+                  <span className="text-[9px] font-mono opacity-60">{footerCopyrightBn.length}/120</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={120}
+                  value={footerCopyrightBn}
+                  onChange={(e) => setFooterCopyrightBn(e.target.value.slice(0, 120))}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-emerald-500/30 focus:outline-none focus:border-emerald-500"
+                  placeholder="© ২০২৬ ভাইবমার্ট। সর্বস্বত্ব সংরক্ষিত।"
+                />
+              </div>
             </div>
           </div>
 

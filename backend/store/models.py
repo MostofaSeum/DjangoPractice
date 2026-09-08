@@ -598,11 +598,14 @@ class AuditLog(models.Model):
 
 class SiteSetting(models.Model):
     site_title = models.CharField(max_length=255, default='VibeMart')
+    site_title_bn = models.CharField(max_length=255, default='', blank=True)
     tagline = models.CharField(max_length=255, default='MAKE-UP STYLE', blank=True)
+    tagline_bn = models.CharField(max_length=255, default='', blank=True)
     brand_description = models.TextField(
         default='VibeMart is a recognized multi-category fashion and lifestyle store built on the principle of "best price at the highest quality". Our collections are curated with premium materials that are durable, stylish, and perfect for your vibe.',
         blank=True
     )
+    brand_description_bn = models.TextField(default='', blank=True)
     logo = models.ImageField(upload_to='store/settings/logos', null=True, blank=True)
     support_phone = models.CharField(max_length=50, default='+880 1700-000000', blank=True)
     support_email = models.EmailField(default='support@vibemart.com', blank=True)
@@ -611,7 +614,9 @@ class SiteSetting(models.Model):
         default='Homestead Gulshan Link Tower, 99 Gulshan Badda Link Rd, Dhaka 1212',
         blank=True
     )
+    store_address_bn = models.CharField(max_length=500, default='', blank=True)
     working_hours = models.CharField(max_length=100, default='Sat - Thu: 10:00 - 18:00', blank=True)
+    working_hours_bn = models.CharField(max_length=100, default='', blank=True)
     facebook_url = models.URLField(max_length=500, default='https://facebook.com', blank=True)
     instagram_url = models.URLField(max_length=500, default='https://instagram.com', blank=True)
     youtube_url = models.URLField(max_length=500, default='https://youtube.com', blank=True)
@@ -621,6 +626,7 @@ class SiteSetting(models.Model):
         default='© 2026 VIBEMART. ALL RIGHTS RESERVED.',
         blank=True
     )
+    footer_copyright_bn = models.CharField(max_length=255, default='', blank=True)
     CURRENCY_CHOICES = [
         ('BDT', 'BDT (৳) - Bangladeshi Taka'),
         ('USD', 'USD ($) - US Dollar'),
@@ -640,48 +646,60 @@ class SiteSetting(models.Model):
 
     # Hero Typography & Rotator
     hero_badge = models.CharField(max_length=100, default='New Collection', blank=True)
+    hero_badge_bn = models.CharField(max_length=100, default='', blank=True)
     hero_title_prefix = models.CharField(max_length=100, default='Elevate Your', blank=True)
+    hero_title_prefix_bn = models.CharField(max_length=100, default='', blank=True)
     hero_rotating_words = models.CharField(
         max_length=500,
         default='Beauty, Glow, Look, Glam, Charm',
         blank=True
     )
+    hero_rotating_words_bn = models.CharField(max_length=500, default='', blank=True)
     hero_subtitle = models.TextField(
         default='Experience the intersection of luxury cosmetics, skincare, and radiant beauty aesthetics.',
         blank=True
     )
+    hero_subtitle_bn = models.TextField(default='', blank=True)
     hero_btn_text = models.CharField(max_length=100, default='Explore Collection', blank=True)
+    hero_btn_text_bn = models.CharField(max_length=100, default='', blank=True)
     hero_btn_link = models.CharField(max_length=500, default='/collections', blank=True)
 
     # Discover Card
     discover_title = models.CharField(max_length=100, default='Discover the Glam', blank=True)
+    discover_title_bn = models.CharField(max_length=100, default='', blank=True)
     discover_subtitle = models.TextField(
         default='Collect exclusive beauty essentials and immerse yourself in the finest makeup shades.',
         blank=True
     )
+    discover_subtitle_bn = models.TextField(default='', blank=True)
     discover_btn_text = models.CharField(max_length=100, default='View Exclusives', blank=True)
+    discover_btn_text_bn = models.CharField(max_length=100, default='', blank=True)
     discover_btn_link = models.CharField(max_length=500, default='/products', blank=True)
 
     # Bento Grid Category Slots (4 items)
     bento_tile_1_title = models.CharField(max_length=100, default='LIPSTICKS', blank=True)
+    bento_tile_1_title_bn = models.CharField(max_length=100, default='', blank=True)
     bento_tile_1_collection = models.ForeignKey(
         'Collection', on_delete=models.SET_NULL, null=True, blank=True, related_name='+'
     )
     bento_tile_1_image = models.ImageField(upload_to='store/bento/', null=True, blank=True)
 
     bento_tile_2_title = models.CharField(max_length=100, default='SKINCARE', blank=True)
+    bento_tile_2_title_bn = models.CharField(max_length=100, default='', blank=True)
     bento_tile_2_collection = models.ForeignKey(
         'Collection', on_delete=models.SET_NULL, null=True, blank=True, related_name='+'
     )
     bento_tile_2_image = models.ImageField(upload_to='store/bento/', null=True, blank=True)
 
     bento_tile_3_title = models.CharField(max_length=100, default='EYE MAKEUP', blank=True)
+    bento_tile_3_title_bn = models.CharField(max_length=100, default='', blank=True)
     bento_tile_3_collection = models.ForeignKey(
         'Collection', on_delete=models.SET_NULL, null=True, blank=True, related_name='+'
     )
     bento_tile_3_image = models.ImageField(upload_to='store/bento/', null=True, blank=True)
 
     bento_tile_4_title = models.CharField(max_length=100, default='FOUNDATION & GLOW', blank=True)
+    bento_tile_4_title_bn = models.CharField(max_length=100, default='', blank=True)
     bento_tile_4_collection = models.ForeignKey(
         'Collection', on_delete=models.SET_NULL, null=True, blank=True, related_name='+'
     )
@@ -689,11 +707,13 @@ class SiteSetting(models.Model):
 
     # 24/7 Slot (Middle Right 2)
     bento_tile_247_title = models.CharField(max_length=100, default='', blank=True)
+    bento_tile_247_title_bn = models.CharField(max_length=100, default='', blank=True)
     bento_tile_247_image = models.ImageField(upload_to='store/bento/', null=True, blank=True)
     bento_tile_247_link = models.CharField(max_length=500, default='', blank=True)
 
     # Delivery Slot (Bottom Row 1)
     bento_tile_delivery_title = models.CharField(max_length=100, default='Fast Delivery', blank=True)
+    bento_tile_delivery_title_bn = models.CharField(max_length=100, default='', blank=True)
     bento_tile_delivery_image = models.ImageField(upload_to='store/bento/', null=True, blank=True)
     bento_tile_delivery_link = models.CharField(max_length=500, default='', blank=True)
 
