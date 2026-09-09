@@ -8,6 +8,7 @@ interface Collection {
   id: number;
   title: string;
   featured_product: string | number | null;
+  image?: string | null;
   products: Product[];
 }
 
@@ -50,5 +51,5 @@ export default async function CollectionDetailPage({ params }: PageProps) {
     );
   }
 
-  return <CollectionDetailClient collection={collection} />;
+  return <CollectionDetailClient collection={collection} apiBaseUrl={apiBaseUrl} />;
 }

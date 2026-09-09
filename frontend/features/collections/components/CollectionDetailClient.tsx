@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import ProductImage from "@/components/ui/ProductImage";
 import AddToCartButton from "@/features/products/components/AddToCartButton";
@@ -13,17 +14,26 @@ interface Collection {
   id: number;
   title: string;
   featured_product: string | number | null;
+  image?: string | null;
   products: Product[];
 }
 
 interface CollectionDetailClientProps {
   collection: Collection;
+  apiBaseUrl?: string;
 }
 
 export default function CollectionDetailClient({
   collection,
+  apiBaseUrl = "",
 }: CollectionDetailClientProps) {
   const { t, formatCurrency, locale } = useLanguage();
+
+  const imageUrl = collection.image
+    ? collection.image.startsWith("http")
+      ? collection.image
+      : `${apiBaseUrl.replace(/\/+$/, "")}${collection.image.startsWith("/") ? "" : "/"}${collection.image}`
+    : null;
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans antialiased pb-24 transition-colors duration-300">
@@ -42,15 +52,49 @@ export default function CollectionDetailClient({
         </div>
       </div>
 
-      <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-16">
-        <div className="bg-secondary text-foreground rounded-3xl p-8 md:p-12 shadow-sm border border-foreground/10 mb-16 relative overflow-hidden transition-colors duration-300">
-          <span className="text-[10px] opacity-60 font-bold uppercase tracking-widest block mb-2">
-            {t("categories.collectionDetail")}
-          </span>
-          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4">
-            {collection.title}
-          </h1>
-          <CollectionDeliveryBanner collectionId={collection.id} variant="banner" />
+      <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-10 md:mt-12">
+        {/* Collection Hero Showcase Header with Background Photo */}
+        <div className="group relative rounded-3xl p-8 md:p-14 shadow-lg border border-foreground/10 mb-12 md:mb-16 overflow-hidden transition-all duration-300 bg-secondary min-h-[220px] md:min-h-[280px] flex flex-col justify-end">
+          {imageUrl ? (
+            <>
+              {/* Background Image */}
+              <Image
+                src={imageUrl}
+                alt={collection.title}
+                fill
+                priority
+                unoptimized
+                className="object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+              />
+              {/* Cinematic Vignette / Glass Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/30 z-10" />
+            </>
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-secondary to-primary/20 dark:from-primary/40 dark:via-secondary dark:to-primary/60" />
+          )}
+
+          {/* Foreground Text Content */}
+          <div className="relative z-20 space-y-3">
+            <span
+              className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full inline-block backdrop-blur-md border ${
+                imageUrl
+                  ? "bg-black/50 text-white/90 border-white/20 shadow-xs"
+                  : "bg-foreground/5 text-foreground/70 border-foreground/10"
+              }`}
+            >
+              {t("categories.collectionDetail")}
+            </span>
+            <h1
+              className={`text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter ${
+                imageUrl ? "text-white drop-shadow-md" : "text-foreground"
+              }`}
+            >
+              {collection.title}
+            </h1>
+            <div className="pt-1">
+              <CollectionDeliveryBanner collectionId={collection.id} variant="banner" />
+            </div>
+          </div>
         </div>
 
         <h2 className="text-2xl font-black mb-8 uppercase tracking-tighter">
