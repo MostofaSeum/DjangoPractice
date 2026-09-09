@@ -90,13 +90,14 @@ export default function HomeClient({
     if (url.startsWith("blob:") || url.startsWith("data:")) {
       return url;
     }
-    // Normalize backend URLs to local /media proxy so they never break cross-origin or port mismatches
+    // If it's already an external absolute URL
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+    // Normalize relative backend URLs to local /media proxy so they never break cross-origin or port mismatches
     const mediaIdx = url.indexOf("/media/");
     if (mediaIdx !== -1) {
       return url.slice(mediaIdx);
-    }
-    if (url.startsWith("http://") || url.startsWith("https://")) {
-      return url;
     }
     return `/media/${url.replace(/^\/+/, "")}`;
   };
