@@ -18,3 +18,5 @@ sqlparse
 django-debug-toolbar
 python-dotenv
 drf-spectacular
+cloudinary
+django-cloudinary-storage
