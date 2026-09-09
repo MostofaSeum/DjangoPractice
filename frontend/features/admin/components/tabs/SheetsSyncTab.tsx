@@ -836,6 +836,11 @@ export default function SheetsSyncTab({
                       ? "সব ফোল্ডার সিলেক্ট করে একসাথে .ZIP বানিয়ে এখানে আপলোড করুন।"
                       : "Compress the folders into a single .zip file and upload here."}
                   </li>
+                  <li className="font-semibold text-accent pt-1">
+                    {isBn
+                      ? "পরামর্শ: দ্রুততম আপলোডের জন্য প্রতি ব্যাচে ১০-২০টি প্রোডাক্টের ছবি (১০-২৫ মেগাবাইট) আপলোড করুন।"
+                      : "Tip: For optimal cloud upload speed, upload batches of 10–20 products (~10–25MB) at a time."}
+                  </li>
                 </ul>
               </div>
 
