@@ -18,7 +18,7 @@ interface ImageUploadModalProps {
 }
 
 export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange }: ImageUploadModalProps) {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const { locale } = useLanguage();
   const isBn = locale === 'bn';
 
@@ -33,6 +33,15 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
 
   const apiBaseUrl = siteConfig.apiBaseUrl.replace(/\/+$/, "");
 
+  const getAuthHeaders = (extraHeaders: Record<string, string> = {}) => {
+    const activeToken = token || (typeof window !== "undefined" ? localStorage.getItem("access_token") : null);
+    const headers: Record<string, string> = { ...extraHeaders };
+    if (activeToken) {
+      headers["Authorization"] = `JWT ${activeToken}`;
+    }
+    return headers;
+  };
+
   const getImageUrl = (path: string) => {
     if (!path.startsWith("http://") && !path.startsWith("https://")) {
       return `${apiBaseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
@@ -43,15 +52,23 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
   const fetchProductDetails = async () => {
     setFetchingImages(true);
     try {
-      // 1. Fetch images
-      const imagesRes = await fetch(`${apiBaseUrl}/store/products/${productId}/images/`, { cache: 'no-store' });
+      // 1. Fetch images with auth header
+      const imagesRes = await fetch(`${apiBaseUrl}/store/products/${productId}/images/`, {
+        headers: getAuthHeaders(),
+        credentials: 'include',
+        cache: 'no-store'
+      });
       if (imagesRes.ok) {
         const data = await imagesRes.json();
         setExistingImages(Array.isArray(data) ? data : data.results || []);
       }
 
       // 2. Fetch product info to get publish status
-      const productRes = await fetch(`${apiBaseUrl}/store/products/${productId}/`, { cache: 'no-store' });
+      const productRes = await fetch(`${apiBaseUrl}/store/products/${productId}/`, {
+        headers: getAuthHeaders(),
+        credentials: 'include',
+        cache: 'no-store'
+      });
       if (productRes.ok) {
         const prodData = await productRes.json();
         if (prodData.is_photos_published !== undefined) {
@@ -117,6 +134,7 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
     setMessage(null);
 
     let successCount = 0;
+    let errorMessage = '';
 
     try {
       for (const file of selectedFiles) {
@@ -125,12 +143,20 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
 
         const response = await fetch(`${apiBaseUrl}/store/products/${productId}/images/`, {
           method: 'POST',
+          headers: getAuthHeaders(),
           credentials: 'include',
           body: formData,
         });
 
         if (response.ok) {
           successCount++;
+        } else {
+          try {
+            const errData = await response.json();
+            errorMessage = errData.detail || errData.image?.[0] || 'Upload failed';
+          } catch {
+            errorMessage = `HTTP ${response.status}: Failed to upload`;
+          }
         }
       }
 
@@ -138,25 +164,42 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
       setSelectedFiles([]);
       setPreviewUrls([]);
 
-      Swal.fire({
-        position: 'top-end',
-        icon: 'success',
-        title: isBn
-          ? `${successCount.toLocaleString('bn-BD')} টি ছবি সফলভাবে আপলোড হয়েছে!`
-          : `${successCount} photo(s) uploaded successfully!`,
-        showConfirmButton: false,
-        timer: 2000,
-        toast: true,
-      });
+      if (successCount > 0) {
+        Swal.fire({
+          position: 'top-end',
+          icon: 'success',
+          title: isBn
+            ? `${successCount.toLocaleString('bn-BD')} টি ছবি সফলভাবে আপলোড হয়েছে!`
+            : `${successCount} photo(s) uploaded successfully!`,
+          showConfirmButton: false,
+          timer: 2000,
+          toast: true,
+        });
 
-      setMessage({
-        type: 'success',
-        text: isBn
-          ? `${successCount.toLocaleString('bn-BD')} টি ছবি সফলভাবে আপলোড হয়েছে!`
-          : `${successCount} photo(s) uploaded successfully!`,
-      });
+        setMessage({
+          type: 'success',
+          text: isBn
+            ? `${successCount.toLocaleString('bn-BD')} টি ছবি সফলভাবে আপলোড হয়েছে!`
+            : `${successCount} photo(s) uploaded successfully!`,
+        });
+      } else {
+        Swal.fire({
+          position: 'top-end',
+          icon: 'error',
+          title: errorMessage || (isBn ? 'ছবি আপলোড ব্যর্থ হয়েছে।' : 'Photo upload failed. Please ensure you are logged in as admin.'),
+          showConfirmButton: false,
+          timer: 3000,
+          toast: true,
+        });
+
+        setMessage({
+          type: 'error',
+          text: errorMessage || (isBn ? 'ছবি আপলোড ব্যর্থ হয়েছে।' : 'Photo upload failed. Check permissions.'),
+        });
+      }
+
       fetchProductDetails();
-      if (onSuccess) onSuccess();
+      if (onSuccess && successCount > 0) onSuccess();
     } catch (err: any) {
       setMessage({
         type: 'error',
@@ -172,9 +215,9 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
       const newStatus = !isPhotosPublished;
       const res = await fetch(`${apiBaseUrl}/store/products/${productId}/`, {
         method: 'PATCH',
-        headers: {
+        headers: getAuthHeaders({
           'Content-Type': 'application/json',
-        },
+        }),
         credentials: 'include',
         body: JSON.stringify({ is_photos_published: newStatus }),
       });
@@ -211,6 +254,7 @@ export default function ImageUploadModal({ productId, onSuccess, onUnsavedChange
     try {
       const res = await fetch(`${apiBaseUrl}/store/products/${productId}/images/${imageId}/`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
         credentials: 'include',
       });
 
