@@ -95,12 +95,20 @@ function LoginForm() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-              {t("auth.username")}
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                {t("auth.username")}
+              </label>
+              {username.length >= 120 && (
+                <span className={`text-[10px] font-bold ${username.length >= 150 ? "text-hidden font-black" : "text-accent"}`}>
+                  {username.length}/150
+                </span>
+              )}
+            </div>
             <input
               type="text"
               required
+              maxLength={150}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder={t("auth.usernamePlaceholder")}
@@ -110,9 +118,16 @@ function LoginForm() {
 
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                {t("auth.password")}
-              </label>
+              <div className="flex items-center gap-2">
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                  {t("auth.password")}
+                </label>
+                {password.length >= 100 && (
+                  <span className={`text-[10px] font-bold ${password.length >= 128 ? "text-hidden font-black" : "text-accent"}`}>
+                    {password.length}/128
+                  </span>
+                )}
+              </div>
               <Link
                 href="/forgot-password"
                 className="text-[10px] font-bold text-accent hover:underline transition-colors"
@@ -124,6 +139,7 @@ function LoginForm() {
               <input
                 type={showPassword ? "text" : "password"}
                 required
+                maxLength={128}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"

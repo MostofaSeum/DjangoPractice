@@ -153,12 +153,20 @@ function RegisterForm() {
         <form onSubmit={handlePreSubmit} className="flex flex-col gap-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                {t("auth.firstName")}
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                  {t("auth.firstName")}
+                </label>
+                {formData.first_name.length >= 120 && (
+                  <span className={`text-[10px] font-bold ${formData.first_name.length >= 150 ? "text-hidden font-black" : "text-accent"}`}>
+                    {formData.first_name.length}/150
+                  </span>
+                )}
+              </div>
               <input
                 type="text"
                 name="first_name"
+                maxLength={150}
                 value={formData.first_name}
                 onChange={handleChange}
                 placeholder={t("auth.firstName")}
@@ -167,12 +175,20 @@ function RegisterForm() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                {t("auth.lastName")}
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                  {t("auth.lastName")}
+                </label>
+                {formData.last_name.length >= 120 && (
+                  <span className={`text-[10px] font-bold ${formData.last_name.length >= 150 ? "text-hidden font-black" : "text-accent"}`}>
+                    {formData.last_name.length}/150
+                  </span>
+                )}
+              </div>
               <input
                 type="text"
                 name="last_name"
+                maxLength={150}
                 value={formData.last_name}
                 onChange={handleChange}
                 placeholder={t("auth.lastName")}
@@ -182,13 +198,21 @@ function RegisterForm() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-              {t("auth.username")} *
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                {t("auth.username")} *
+              </label>
+              {formData.username.length >= 120 && (
+                <span className={`text-[10px] font-bold ${formData.username.length >= 150 ? "text-hidden font-black" : "text-accent"}`}>
+                  {formData.username.length}/150
+                </span>
+              )}
+            </div>
             <input
               type="text"
               name="username"
               required
+              maxLength={150}
               value={formData.username}
               onChange={handleChange}
               placeholder={t("auth.usernamePlaceholder")}
@@ -197,13 +221,21 @@ function RegisterForm() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-              {t("auth.emailAddress")} *
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                {t("auth.emailAddress")} *
+              </label>
+              {formData.email.length >= 200 && (
+                <span className={`text-[10px] font-bold ${formData.email.length >= 254 ? "text-hidden font-black" : "text-accent"}`}>
+                  {formData.email.length}/254
+                </span>
+              )}
+            </div>
             <input
               type="email"
               name="email"
               required
+              maxLength={254}
               value={formData.email}
               onChange={handleChange}
               placeholder="YOU@EXAMPLE.COM"
@@ -213,14 +245,22 @@ function RegisterForm() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                {t("auth.password")} *
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                  {t("auth.password")} *
+                </label>
+                {formData.password.length >= 100 && (
+                  <span className={`text-[10px] font-bold ${formData.password.length >= 128 ? "text-hidden font-black" : "text-accent"}`}>
+                    {formData.password.length}/128
+                  </span>
+                )}
+              </div>
               <div className="relative flex items-center">
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
                   required
+                  maxLength={128}
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
@@ -244,14 +284,22 @@ function RegisterForm() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                {t("auth.confirmPassword")} *
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                  {t("auth.confirmPassword")} *
+                </label>
+                {formData.confirmPassword.length >= 100 && (
+                  <span className={`text-[10px] font-bold ${formData.confirmPassword.length >= 128 ? "text-hidden font-black" : "text-accent"}`}>
+                    {formData.confirmPassword.length}/128
+                  </span>
+                )}
+              </div>
               <div className="relative flex items-center">
                 <input
                   type={showConfirmPassword ? "text" : "password"}
                   name="confirmPassword"
                   required
+                  maxLength={128}
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   placeholder="••••••••"
