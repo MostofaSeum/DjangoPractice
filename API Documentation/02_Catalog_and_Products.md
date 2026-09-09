@@ -17,17 +17,18 @@
 | 6 | `products/<id>/` | DELETE | Staff Only | Delete a product (protected against deletion if already ordered) |
 | 7 | `products/export_csv/` | GET | Staff Only | Download full catalog as CSV spreadsheet |
 | 8 | `products/bulk_import_csv/` | POST | Staff Only | Bulk upload and upsert products from CSV file |
-| 9 | `products/get_saved_sheet_url/` | GET | Staff Only | Retrieve connected Google Sheet URL & sync metadata |
-| 10 | `products/save_google_sheet_url/` | POST | Staff Only | Save or update Google Sheet link singleton |
-| 11 | `products/delete_saved_sheet_url/`| DELETE | Staff Only | Disconnect saved Google Sheet link |
-| 12 | `products/sync_google_sheet/` | POST | Staff Only | Fetch public Google Sheet CSV and batch upsert catalog |
-| 13 | `products/<product_pk>/variants/` | GET / POST | Public / Staff | List or add cosmetics shade/size variants |
-| 14 | `products/<product_pk>/variants/<id>/` | GET / PATCH / DELETE | Public / Staff | Inspect, edit, or delete a shade variant |
-| 15 | `products/<product_pk>/images/` | GET / POST | Public / Staff | List gallery images or upload photo |
-| 16 | `products/<product_pk>/images/<id>/` | DELETE | Staff Only | Delete image asset from media storage |
-| 17 | `collections/` | GET / POST | Public / Staff | List collections or create new category |
-| 18 | `collections/<id>/` | GET / PATCH / DELETE | Public / Staff | Get, edit, or delete collection (protected if contains products) |
-| 19 | `reviews/` | GET / POST | Public / Auth | List verified reviews or submit feedback with photo |
+| 9 | `products/bulk_upload_zip/` | POST | Staff Only | Bulk upload product images via ZIP archive matched by folder name/slug |
+| 10 | `products/get_saved_sheet_url/` | GET | Staff Only | Retrieve connected Google Sheet URL & sync metadata |
+| 11 | `products/save_google_sheet_url/` | POST | Staff Only | Save or update Google Sheet link singleton |
+| 12 | `products/delete_saved_sheet_url/`| DELETE | Staff Only | Disconnect saved Google Sheet link |
+| 13 | `products/sync_google_sheet/` | POST | Staff Only | Fetch public Google Sheet CSV and batch upsert catalog |
+| 14 | `products/<product_pk>/variants/` | GET / POST | Public / Staff | List or add cosmetics shade/size variants |
+| 15 | `products/<product_pk>/variants/<id>/` | GET / PATCH / DELETE | Public / Staff | Inspect, edit, or delete a shade variant |
+| 16 | `products/<product_pk>/images/` | GET / POST | Public / Staff | List gallery images or upload photo |
+| 17 | `products/<product_pk>/images/<id>/` | DELETE | Staff Only | Delete image asset from media storage |
+| 18 | `collections/` | GET / POST | Public / Staff | List collections or create new category |
+| 19 | `collections/<id>/` | GET / PATCH / DELETE | Public / Staff | Get, edit, or delete collection (supports `?include_products=true`) |
+| 20 | `reviews/` | GET / POST | Public / Auth | List verified reviews or submit feedback with photo |
 
 ---
 
@@ -247,6 +248,65 @@ Uploads and imports catalog products and variants from a CSV file.
 
 ---
 
+### `POST /api/v1/store/products/bulk_upload_zip/`
+Uploads a ZIP archive containing folders of product photos, automatically mapping images to existing products by Folder Name / ID / Slug / Title. Supports up to 100MB ZIP files.
+
+* **Who Can Use:** Staff Only (`IsAdminUser`)
+* **Content-Type:** `multipart/form-data`
+* **File Limit:** Up to 100MB archive (`DATA_UPLOAD_MAX_MEMORY_SIZE` & `FILE_UPLOAD_MAX_MEMORY_SIZE`)
+* **Max Images Stored:** Up to 5 images per product (replaces or fills available slots)
+
+#### Expected ZIP Folder Structure:
+```
+archive.zip
+  ├── Nivea_Shea_Lotion/
+  │     ├── photo1.jpg
+  │     └── photo2.webp
+  ├── 14/                          (Matched by product ID)
+  │     └── swatch.png
+  └── velvet-matte-lipstick/       (Matched by product slug)
+        └── promo.jpg
+```
+
+#### Request Payload:
+* `file`: Binary ZIP file
+
+#### Success Response (`200 OK`):
+```json
+{
+  "message": "Successfully uploaded 14 image(s) for 6 product(s).",
+  "matched_products_count": 6,
+  "total_images_uploaded": 14,
+  "unmatched_folders": [],
+  "details": [
+    "Nivea Shea Lotion: 2 photo(s)",
+    "Velvet Matte Lipstick: 3 photo(s)"
+  ]
+}
+```
+
+#### Error Responses:
+* **`400 Bad Request`** (Missing file):
+```json
+{
+  "error": "ZIP file is required."
+}
+```
+* **`400 Bad Request`** (Not a .zip archive):
+```json
+{
+  "error": "Uploaded file must be a .zip archive."
+}
+```
+* **`400 Bad Request`** (No matching folders or valid images):
+```json
+{
+  "error": "No valid product folders or image files found in the ZIP archive. Ensure images are inside folders named after your products (e.g., Nivea_Shea_Lotion/photo1.jpg)."
+}
+```
+
+---
+
 ## 5. Shade & Size Variants
 
 ### `POST /api/v1/store/products/{product_pk}/variants/`
@@ -319,6 +379,49 @@ Lists all cosmetics categories with item counts and banner images.
     "products_count": 18
   }
 ]
+```
+
+### `GET /api/v1/store/collections/{id}/`
+Retrieves single collection metadata. When `?include_products=true` is passed, returns full product listings with images and shade variants for the collection showcase page.
+
+* **Who Can Use:** Public (Hidden collections accessible only to Staff)
+* **Query Parameters:**
+  * `include_products`: boolean (`true` or `false`)
+
+#### Success Response (`200 OK` with `?include_products=true`):
+```json
+{
+  "id": 1,
+  "title": "Beauty",
+  "featured_product": null,
+  "image": "/media/store/collections/images/beauty_banner.webp",
+  "is_visible": true,
+  "products": [
+    {
+      "id": 4,
+      "title": "Velvet Matte Lipstick",
+      "slug": "velvet-matte-lipstick",
+      "unit_price": "850.00",
+      "discount_percent": "10.00",
+      "discounted_price": "765.00",
+      "is_discount_active": true,
+      "inventory": 45,
+      "total_inventory": 65,
+      "collection": 1,
+      "collection_title": "Beauty",
+      "is_photos_published": true,
+      "is_trending": true,
+      "is_visible": true,
+      "images": [
+        {
+          "id": 12,
+          "image": "/media/store/images/lipstick_red.jpg"
+        }
+      ],
+      "variants": []
+    }
+  ]
+}
 ```
 
 ### `DELETE /api/v1/store/collections/{id}/`

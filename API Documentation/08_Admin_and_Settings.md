@@ -14,12 +14,14 @@
 | 3 | `site-settings/remove_logo/` | POST / DELETE | Staff Only | Delete active store logo from media storage and reset to default |
 | 4 | `delivery-settings/` | GET | Public | Retrieve base regional logistics rates (Inside & Outside Dhaka) |
 | 5 | `delivery-settings/` | POST | Staff Only | Update default delivery fees and ETAs |
-| 6 | `payment-settings/` | GET | Public | Retrieve merchant bKash/Nagad wallet numbers and active gateway flags |
-| 7 | `payment-settings/` | POST | Staff Only | Toggle payment methods or update wallet contact numbers |
-| 8 | `notifications/` | GET | Staff Only | Retrieve unread count and latest 50 order/system notifications |
-| 9 | `notifications/<id>/mark_read/` | POST / PATCH | Staff Only | Mark a single notification as read |
-| 10 | `notifications/mark_all_read/` | POST | Staff Only | Clear all unread notification badges |
-| 11 | `audit-logs/` | GET | Staff Only | View administrative system modification logs |
+| 6 | `delivery-rules/` | GET / POST | Public / Staff | List or create automated conditional delivery rules (free shipping / flat discount) |
+| 7 | `delivery-rules/<id>/` | GET / PATCH / DELETE | Public / Staff | Inspect, update, or remove a delivery rule |
+| 8 | `payment-settings/` | GET | Public | Retrieve merchant bKash/Nagad wallet numbers and active gateway flags |
+| 9 | `payment-settings/` | POST | Staff Only | Toggle payment methods or update wallet contact numbers |
+| 10 | `notifications/` | GET | Staff Only | Retrieve unread count and latest 50 order/system notifications |
+| 11 | `notifications/<id>/mark_read/` | POST / PATCH | Staff Only | Mark a single notification as read |
+| 12 | `notifications/mark_all_read/` | POST | Staff Only | Clear all unread notification badges |
+| 13 | `audit-logs/` | GET | Staff Only | View administrative system modification logs |
 
 ---
 
@@ -68,24 +70,28 @@ Updates website brand settings or uploads a new transparent logo.
 * `support_phone`: String
 * `support_email`: String (valid email)
 * `logo`: File (Image upload)
+* `top_banner_image`: File (Promotional banner upload)
+* `top_banner_link`: String
+* `top_banner_is_active`: Boolean
+* `hero_badge` / `hero_badge_bn`: String
+* `hero_title_prefix` / `hero_title_prefix_bn`: String
+* `hero_rotating_words` / `hero_rotating_words_bn`: String (Comma separated words for smooth typewriter/morph animation)
+* `hero_subtitle` / `hero_subtitle_bn`: String
+* `hero_btn_text` / `hero_btn_text_bn`: String
+* `hero_btn_link`: String
+* `discover_title` / `discover_title_bn`: String
+* `discover_subtitle` / `discover_subtitle_bn`: String
+* `bento_tile_1_title` to `bento_tile_4_title`: String
+* `bento_tile_1_collection` to `bento_tile_4_collection`: Integer (Collection ID)
+* `bento_tile_1_image` to `bento_tile_4_image`: File
+* `bento_tile_247_image`: File
+* `bento_tile_delivery_image`: File
+* `remove_logo`: Boolean (`true` to purge logo)
+* `remove_top_banner`: Boolean (`true` to purge banner image)
+* `remove_bento_tile_{1..4}_image`: Boolean
 
 #### Success Response (`200 OK`):
 *Returns updated `SiteSetting` object.*
-
-#### Error Responses:
-* **`400 Bad Request`** (Character limit violations):
-```json
-{
-  "site_title": ["Ensure this field has no more than 15 characters."],
-  "tagline": ["Ensure this field has no more than 30 characters."]
-}
-```
-* **`400 Bad Request`** (Brand description exceeds 70 words):
-```json
-{
-  "brand_description": ["Brand description cannot exceed 70 words. Current count: 84 words."]
-}
-```
 
 ---
 
@@ -105,7 +111,7 @@ Permanently deletes the uploaded logo file from server media storage.
 
 ---
 
-## 2. Base Regional Logistics Settings
+## 2. Base Regional Logistics & Dynamic Delivery Rules
 
 ### `GET /api/v1/store/delivery-settings/`
 Returns default regional shipping charges and estimated delivery timelines.
@@ -123,6 +129,36 @@ Returns default regional shipping charges and estimated delivery timelines.
   "is_active": true
 }
 ```
+
+---
+
+### `GET /api/v1/store/delivery-rules/`
+Lists automated delivery discount rules (e.g. Free delivery on orders over ৳1500, or reduced delivery for specific collections/products).
+
+* **Who Can Use:** Public
+
+#### Success Response (`200 OK`):
+```json
+[
+  {
+    "id": 3,
+    "title": "Beauty Collection Special Delivery Offer",
+    "rule_type": "min_spend", // 'min_spend', 'min_qty', 'free_shipping'
+    "discount_type": "fixed", // 'free', 'fixed', 'percentage'
+    "discount_value": "30.00",
+    "min_spend": "1000.00",
+    "collection": 1,
+    "collection_title": "Beauty",
+    "products": [],
+    "is_active": true
+  }
+]
+```
+
+### `POST /api/v1/store/delivery-rules/`
+Create a conditional delivery rule.
+
+* **Who Can Use:** Staff Only (`IsAdminOrReadOnly`)
 
 ---
 
