@@ -26,7 +26,7 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'cloudinary_storage',
-    'cloudinary'
+    'cloudinary',
     'rest_framework',
     'drf_spectacular',
     'djoser',
