@@ -50,6 +50,8 @@ export default function SheetsSyncTab({
   const [isSyncingSheet, setIsSyncingSheet] = useState(false);
   const [isImportingFile, setIsImportingFile] = useState(false);
   const [isUploadingZip, setIsUploadingZip] = useState(false);
+  const [zipUploadProgress, setZipUploadProgress] = useState(0);
+  const [zipUploadStage, setZipUploadStage] = useState<"uploading" | "processing">("uploading");
   const [isExporting, setIsExporting] = useState(false);
   const [syncResults, setSyncResults] = useState<SyncStats | null>(null);
   const [lastSyncMode, setLastSyncMode] = useState<"sheets" | "file" | "zip" | null>(null);
@@ -331,59 +333,84 @@ export default function SheetsSyncTab({
     }
   };
 
-  // 2.5 Batch Upload Photos from ZIP Archive
+  // 2.5 Batch Upload Photos from ZIP Archive (with Real-time Progress)
   const handleUploadZip = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token || !selectedZip) return;
 
     try {
       setIsUploadingZip(true);
+      setZipUploadProgress(0);
+      setZipUploadStage("uploading");
       setZipReport(null);
 
       const formData = new FormData();
       formData.append("file", selectedZip);
 
-      const res = await fetch(`${apiBase}/store/products/bulk_upload_zip/`, {
-        method: "POST",
-        headers: {
-          Authorization: `JWT ${token}`,
-        },
-        body: formData,
+      const data: any = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `${apiBase}/store/products/bulk_upload_zip/`);
+        xhr.setRequestHeader("Authorization", `JWT ${token}`);
+
+        // Track byte upload percentage
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const percentComplete = Math.min(99, Math.round((event.loaded / event.total) * 100));
+            setZipUploadProgress(percentComplete);
+            if (percentComplete >= 99) {
+              setZipUploadStage("processing");
+            }
+          }
+        };
+
+        xhr.onload = () => {
+          setZipUploadProgress(100);
+          try {
+            const parsed = JSON.parse(xhr.responseText || "{}");
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve(parsed);
+            } else {
+              reject(new Error(parsed.error || `HTTP error ${xhr.status}`));
+            }
+          } catch (e) {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve({});
+            } else {
+              reject(new Error(`Server error (${xhr.status})`));
+            }
+          }
+        };
+
+        xhr.onerror = () => {
+          reject(new Error(isBn ? "নেটওয়ার্ক কানেকশন সমস্যা।" : "Network connection failed."));
+        };
+
+        xhr.send(formData);
       });
 
-      const data = await res.json();
+      setZipReport(data);
+      setLastSyncMode("zip");
+      setSelectedZip(null);
+      if (zipInputRef.current) zipInputRef.current.value = "";
 
-      if (res.ok) {
-        setZipReport(data);
-        setLastSyncMode("zip");
-        setSelectedZip(null);
-        if (zipInputRef.current) zipInputRef.current.value = "";
-
-        Swal.fire({
-          icon: "success",
-          title: isBn ? "ছবি আপলোড সম্পন্ন হয়েছে!" : "Photos Uploaded Successfully!",
-          text: data?.message || (isBn ? "প্রোডাক্টের ছবি সফলভাবে সংযুক্ত করা হয়েছে।" : "All product images matched and uploaded."),
-          confirmButtonColor: "var(--accent)",
-        });
-        if (onSyncSuccess) onSyncSuccess();
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: isBn ? "আপলোড ব্যর্থ হয়েছে" : "Upload Failed",
-          text: data?.error || (isBn ? "ZIP ফাইলটি প্রসেস করা সম্ভব হয়নি।" : "Failed to process the ZIP archive."),
-          confirmButtonColor: "var(--accent)",
-        });
-      }
+      Swal.fire({
+        icon: "success",
+        title: isBn ? "ছবি আপলোড সম্পন্ন হয়েছে!" : "Photos Uploaded Successfully!",
+        text: data?.message || (isBn ? "প্রোডাক্টের ছবি সফলভাবে সংযুক্ত করা হয়েছে।" : "All product images matched and uploaded."),
+        confirmButtonColor: "var(--accent)",
+      });
+      if (onSyncSuccess) onSyncSuccess();
     } catch (err: any) {
       console.error("ZIP upload error:", err);
       Swal.fire({
         icon: "error",
-        title: isBn ? "নেটওয়ার্ক সমস্যা" : "Network Error",
+        title: isBn ? "আপলোড ব্যর্থ হয়েছে" : "Upload Failed",
         text: err?.message || (isBn ? "ফাইল আপলোড করতে সমস্যা হয়েছে।" : "Failed to upload the ZIP file."),
         confirmButtonColor: "var(--accent)",
       });
     } finally {
       setIsUploadingZip(false);
+      setZipUploadProgress(0);
     }
   };
 
@@ -844,6 +871,43 @@ export default function SheetsSyncTab({
                 </ul>
               </div>
 
+              {/* Progress Bar & Status (Visible during upload) */}
+              {isUploadingZip && (
+                <div className="space-y-2 p-3.5 rounded-2xl bg-primary/5 border border-foreground/10 animate-in fade-in duration-200">
+                  <div className="flex justify-between items-center text-[11px] font-bold">
+                    <span className="flex items-center gap-1.5 text-foreground">
+                      <span className="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
+                      {zipUploadStage === "uploading"
+                        ? isBn
+                          ? "ফাইল সার্ভারে আপলোড হচ্ছে..."
+                          : "Uploading file to server..."
+                        : isBn
+                        ? "ছবিগুলো ক্লাউডে প্রসেস হচ্ছে..."
+                        : "Processing & optimizing in Cloud..."}
+                    </span>
+                    <span className="text-accent font-black text-xs font-mono">{zipUploadProgress}%</span>
+                  </div>
+
+                  {/* Visual Bar */}
+                  <div className="w-full h-2.5 bg-foreground/10 rounded-full overflow-hidden p-0.5">
+                    <div
+                      className="h-full bg-accent rounded-full transition-all duration-300 ease-out shadow-xs"
+                      style={{ width: `${zipUploadProgress}%` }}
+                    ></div>
+                  </div>
+
+                  <p className="text-[10px] text-foreground/60 text-right">
+                    {zipUploadStage === "uploading"
+                      ? isBn
+                        ? "অনুগ্রহ করে উইন্ডো বন্ধ করবেন না"
+                        : "Please keep this tab open"
+                      : isBn
+                      ? "ক্লাউড স্টোরেজে ছবি যুক্ত হচ্ছে..."
+                      : "Matching folders & syncing with Cloudinary..."}
+                  </p>
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={isUploadingZip || !selectedZip}
@@ -852,7 +916,13 @@ export default function SheetsSyncTab({
                 {isUploadingZip ? (
                   <>
                     <div className="w-3.5 h-3.5 border-2 border-button-fg border-t-transparent rounded-full animate-spin"></div>
-                    <span>{isBn ? "ছবি আপলোড ও সিঙ্ক হচ্ছে..." : "Uploading & Matching Photos..."}</span>
+                    <span>
+                      {zipUploadStage === "uploading"
+                        ? `${isBn ? "আপলোড হচ্ছে" : "Uploading"} (${zipUploadProgress}%)`
+                        : isBn
+                        ? "ছবি প্রসেস হচ্ছে..."
+                        : "Processing Images..."}
+                    </span>
                   </>
                 ) : (
                   <span>{isBn ? "ZIP থেকে ছবি আপলোড করুন" : "Upload Photos from ZIP"}</span>
