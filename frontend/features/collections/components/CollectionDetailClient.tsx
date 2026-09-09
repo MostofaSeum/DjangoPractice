@@ -64,10 +64,10 @@ export default function CollectionDetailClient({
                 fill
                 priority
                 unoptimized
-                className="object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                className="object-cover object-center"
               />
-              {/* Cinematic Vignette / Glass Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/30 z-10" />
+              {/* Cinematic Vignette / Dark Overlay using theme-friendly gradients */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/30 z-10" />
             </>
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-secondary to-primary/20 dark:from-primary/40 dark:via-secondary dark:to-primary/60" />
@@ -95,6 +95,7 @@ export default function CollectionDetailClient({
               <CollectionDeliveryBanner
                 collectionId={collection.id}
                 variant="banner"
+                darkOverlay={Boolean(imageUrl)}
               />
             </div>
           </div>
@@ -140,10 +141,10 @@ export default function CollectionDetailClient({
               return (
                 <div
                   key={product.id}
-                  className="bg-secondary text-foreground rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col justify-between"
+                  className="bg-secondary text-foreground rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl transition-all duration-500 group flex flex-col justify-between"
                 >
                   <div>
-                    <div className="aspect-square bg-secondary rounded-xl mb-6 flex items-center justify-center overflow-hidden relative border border-foreground/10 group-hover:scale-[1.02] transition-transform duration-300">
+                    <div className="aspect-square bg-primary/5 dark:bg-primary/40 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
                       {hasDiscount && computedDiscountPercent > 0 && (
                         <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-accent text-button-fg font-extrabold text-[9px] uppercase tracking-wider shadow-md z-10 flex items-center gap-1">
                           <img

@@ -112,16 +112,20 @@ export default function CollectionDeliveryBanner({
   if (variant === "banner") {
     return (
       <div
-        className={`flex items-center gap-3 p-4 rounded-2xl bg-primary/20 dark:bg-primary/40 border border-accent/40 backdrop-blur-md text-foreground font-black text-xs uppercase tracking-wider shadow-md ${className}`}
+        className={`flex items-center gap-3 p-4 rounded-2xl backdrop-blur-md font-black text-xs uppercase tracking-wider shadow-md transition-all duration-300 ${
+          darkOverlay
+            ? "bg-primary/85 border border-foreground/30 text-button-fg"
+            : "bg-primary/20 dark:bg-primary/40 border border-accent/40 text-foreground"
+        } ${className}`}
       >
         <span className="flex h-2.5 w-2.5 relative shrink-0">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
           <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent" />
         </span>
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-foreground/90 font-bold">{prefix}</span>
-          <span className="text-accent font-black">{highlight}</span>
-          <span className="text-foreground font-extrabold">{suffix}</span>
+          <span className={`${darkOverlay ? "text-button-fg/90" : "text-foreground/90"} font-bold`}>{prefix}</span>
+          <span className={`${darkOverlay ? "text-logo font-black drop-shadow-xs" : "text-accent font-black"}`}>{highlight}</span>
+          <span className={`${darkOverlay ? "text-button-fg" : "text-foreground"} font-extrabold`}>{suffix}</span>
         </div>
       </div>
     );
