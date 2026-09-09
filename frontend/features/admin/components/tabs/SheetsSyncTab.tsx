@@ -533,13 +533,13 @@ export default function SheetsSyncTab({
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
               </span>
               <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
-                {isBn ? "স্প্রেডশিট ও ক্যাটালগ সিঙ্ক্রোনাইজেশন" : "Spreadsheet & Catalog Synchronization"}
+                {isBn ? "ক্যাটালগ, স্প্রেডশিট ও ফটো সিঙ্ক্রোনাইজেশন" : "Catalog, Sheets & Photo Sync"}
               </h2>
             </div>
             <p className="text-xs text-foreground/70 font-medium">
               {isBn
-                ? "গুগল শিট বা স্ট্যান্ডার্ড CSV ফাইল থেকে সরাসরি আপনার প্রোডাক্ট ইনভেন্টরি ও ক্যাটালগ আপডেট করুন।"
-                : "Synchronize inventory and product catalogs directly from Google Sheets or standard CSV files."}
+                ? "গুগল শিট, CSV অথবা বাল্ক ফটো জিপ (.ZIP) ফাইল থেকে সরাসরি আপনার প্রোডাক্ট ইনভেন্টরি, ক্যাটালগ ও ছবি সিঙ্ক করুন।"
+                : "Synchronize product catalogs and bulk upload photo archives directly from Google Sheets, CSV, or ZIP packages."}
             </p>
           </div>
 

@@ -472,7 +472,7 @@ export default function AdminSidebar({
                       <span className="truncate">{isBn ? "রিভিউ ও রেটিং" : "Reviews"}</span>
                     </button>
 
-                    {/* 6. Google Sheets & Excel Sync */}
+                    {/* 6. Catalog, Sheets & Media Sync */}
                     <button
                       onClick={() => handleProductSubTabSwitch("sheets-sync")}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
@@ -481,7 +481,7 @@ export default function AdminSidebar({
                           : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
                       }`}
                     >
-                      <span className="truncate">{isBn ? "শীটস ও এক্সেল সিঙ্ক" : "Sheets & Excel Sync"}</span>
+                      <span className="truncate">{isBn ? "ক্যাটালগ ও ফটো সিঙ্ক" : "Catalog & Media Sync"}</span>
                     </button>
                   </div>
                 )}
