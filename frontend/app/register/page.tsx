@@ -157,16 +157,16 @@ function RegisterForm() {
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                   {t("auth.firstName")}
                 </label>
-                {formData.first_name.length >= 120 && (
-                  <span className={`text-[10px] font-bold ${formData.first_name.length >= 150 ? "text-hidden font-black" : "text-accent"}`}>
-                    {formData.first_name.length}/150
+                {formData.first_name.length >= 16 && (
+                  <span className={`text-[10px] font-bold ${formData.first_name.length >= 20 ? "text-hidden font-black" : "text-accent"}`}>
+                    {formData.first_name.length}/20
                   </span>
                 )}
               </div>
               <input
                 type="text"
                 name="first_name"
-                maxLength={150}
+                maxLength={20}
                 value={formData.first_name}
                 onChange={handleChange}
                 placeholder={t("auth.firstName")}
@@ -179,16 +179,16 @@ function RegisterForm() {
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                   {t("auth.lastName")}
                 </label>
-                {formData.last_name.length >= 120 && (
-                  <span className={`text-[10px] font-bold ${formData.last_name.length >= 150 ? "text-hidden font-black" : "text-accent"}`}>
-                    {formData.last_name.length}/150
+                {formData.last_name.length >= 16 && (
+                  <span className={`text-[10px] font-bold ${formData.last_name.length >= 20 ? "text-hidden font-black" : "text-accent"}`}>
+                    {formData.last_name.length}/20
                   </span>
                 )}
               </div>
               <input
                 type="text"
                 name="last_name"
-                maxLength={150}
+                maxLength={20}
                 value={formData.last_name}
                 onChange={handleChange}
                 placeholder={t("auth.lastName")}
@@ -202,9 +202,9 @@ function RegisterForm() {
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                 {t("auth.username")} *
               </label>
-              {formData.username.length >= 120 && (
-                <span className={`text-[10px] font-bold ${formData.username.length >= 150 ? "text-hidden font-black" : "text-accent"}`}>
-                  {formData.username.length}/150
+              {formData.username.length >= 40 && (
+                <span className={`text-[10px] font-bold ${formData.username.length >= 50 ? "text-hidden font-black" : "text-accent"}`}>
+                  {formData.username.length}/50
                 </span>
               )}
             </div>
@@ -212,7 +212,7 @@ function RegisterForm() {
               type="text"
               name="username"
               required
-              maxLength={150}
+              maxLength={50}
               value={formData.username}
               onChange={handleChange}
               placeholder={t("auth.usernamePlaceholder")}

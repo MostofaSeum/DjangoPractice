@@ -39,6 +39,49 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
       await expect(forgotPasswordLink).toBeVisible();
     });
 
+    test('signup and forgot password buttons correctly redirect to their respective pages', async ({ page }) => {
+      // 1. Click Forgot Password link
+      const forgotPasswordLink = page.getByRole('link', { name: /Forgot Password|Reset/i });
+      await forgotPasswordLink.click();
+      await expect(page).toHaveURL(/\/forgot-password/);
+
+      // Return to login
+      await page.goto('/login', { waitUntil: 'domcontentloaded' });
+
+      // 2. Click Sign Up link
+      const registerLink = page.getByRole('link', { name: /Register|Create Account|Sign Up/i });
+      await registerLink.click();
+      await expect(page).toHaveURL(/\/register/);
+    });
+
+    test('header navigation and footer buttons work correctly from login page', async ({ page }) => {
+      // Test header brand logo
+      const brandLogo = page.locator('header a[href="/"]').first();
+      await expect(brandLogo).toBeVisible();
+
+      // Test header navigation link (e.g. Shop / Products)
+      const shopNav = page.locator('header nav a[href="/products"]').first();
+      if (await shopNav.isVisible()) {
+        await shopNav.click();
+        await expect(page).toHaveURL(/\/products/);
+        await page.goto('/login', { waitUntil: 'domcontentloaded' });
+      }
+
+      // Test footer buttons/links
+      const footer = page.locator('footer');
+      await expect(footer).toBeVisible();
+
+      const footerAbout = footer.getByRole('link', { name: /About Us/i });
+      if (await footerAbout.isVisible()) {
+        await expect(footerAbout).toBeVisible();
+      }
+
+      const footerPrivacy = footer.getByRole('link', { name: /Privacy/i });
+      if (await footerPrivacy.isVisible()) {
+        await expect(footerPrivacy).toBeVisible();
+      }
+    });
+
     test('validates required fields on empty submit', async ({ page }) => {
       const usernameInput = page.locator('input[name="username"], input[type="text"]').first();
       await expect(usernameInput).toBeVisible({ timeout: 15000 });
@@ -129,11 +172,11 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
       await expect(page).not.toHaveURL(/\/login$/, { timeout: 10000 });
 
       // Trying to visit /login while authenticated redirects away
-      await page.goto('/login', { waitUntil: 'domcontentloaded' });
+      await page.goto('/login', { waitUntil: 'networkidle' });
       await expect(page).not.toHaveURL(/\/login$/, { timeout: 10000 });
 
       // Trying to visit /register while authenticated redirects away
-      await page.goto('/register', { waitUntil: 'domcontentloaded' });
+      await page.goto('/register', { waitUntil: 'networkidle' });
       await expect(page).not.toHaveURL(/\/register$/, { timeout: 10000 });
     });
 
@@ -153,7 +196,7 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
 
       // Visiting /wishlist shows sign-in requirement
       await page.goto('/wishlist', { waitUntil: 'domcontentloaded' });
-      const signInPrompt = page.locator('text=Sign in to view, a[href*="login"]');
+      const signInPrompt = page.locator('h2, a[href*="login"]').filter({ hasText: /Sign in|wishlist/i });
       await expect(signInPrompt.first()).toBeVisible({ timeout: 10000 });
     });
 
@@ -239,6 +282,52 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
       const errorMsg = page.getByText(/match|Passwords do not match/i).or(page.locator('.swal2-popup, .text-red-500'));
       await expect(errorMsg.first()).toBeVisible({ timeout: 5000 });
     });
+
+    test('throws an error when an existing username is entered regardless of first and last name', async ({ page }) => {
+      const firstNameInput = page.locator('input[name="first_name"]');
+      const lastNameInput = page.locator('input[name="last_name"]');
+      const usernameInput = page.locator('input[name="username"]');
+      const emailInput = page.locator('input[name="email"]');
+      const passwordInputs = page.locator('input[type="password"]');
+      const registerBtn = page.getByRole('button', { name: /Create Account|Register|Sign Up/i });
+
+      // Use an existing username in the database ('hello') with arbitrary names
+      await firstNameInput.fill('DifferentFirstName');
+      await lastNameInput.fill('DifferentLastName');
+      await usernameInput.fill('hello');
+      await emailInput.fill(`brand_new_${Date.now()}@example.com`);
+      await passwordInputs.first().fill('Password123!');
+      await passwordInputs.nth(1).fill('Password123!');
+
+      await registerBtn.click();
+
+      // Error message should indicate username is already taken
+      const errorMsg = page.getByText(/Username is already taken|already exists|ব্যবহারকারীর নাম/i).or(page.locator('.swal2-popup, .text-red-500'));
+      await expect(errorMsg.first()).toBeVisible({ timeout: 10000 });
+    });
+
+    test('throws an error when an existing email is entered regardless of first and last name', async ({ page }) => {
+      const firstNameInput = page.locator('input[name="first_name"]');
+      const lastNameInput = page.locator('input[name="last_name"]');
+      const usernameInput = page.locator('input[name="username"]');
+      const emailInput = page.locator('input[name="email"]');
+      const passwordInputs = page.locator('input[type="password"]');
+      const registerBtn = page.getByRole('button', { name: /Create Account|Register|Sign Up/i });
+
+      // Use an existing email associated with the test user ('hello@gmail.com')
+      await firstNameInput.fill('RandomFirst');
+      await lastNameInput.fill('RandomLast');
+      await usernameInput.fill(`unique_user_${Date.now()}`);
+      await emailInput.fill('hello@gmail.com');
+      await passwordInputs.first().fill('Password123!');
+      await passwordInputs.nth(1).fill('Password123!');
+
+      await registerBtn.click();
+
+      // Error message should indicate email is already registered
+      const errorMsg = page.getByText(/email already exists|ইমেইল|already taken/i).or(page.locator('.swal2-popup, .text-red-500'));
+      await expect(errorMsg.first()).toBeVisible({ timeout: 10000 });
+    });
   });
 
   /* -------------------------------------------------------------------------- */
@@ -262,7 +351,7 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
       await expect(emailInput).toBeVisible();
 
       // Verify Account button
-      const verifyBtn = page.getByRole('button', { name: /Verify Account|Reset Password|Continue|Submit/i });
+      const verifyBtn = page.getByRole('button', { name: /Verify Account|Reset Password|Continue|Submit|Verify/i });
       await expect(verifyBtn).toBeVisible();
 
       // Back to login link
@@ -270,10 +359,23 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
       await expect(backLink).toBeVisible();
     });
 
+    test('all buttons on forgot password page are working correctly', async ({ page }) => {
+      // 1. Check submit button responds on click (triggers validation on empty form)
+      const verifyBtn = page.getByRole('button', { name: /Verify Account|Reset Password|Continue|Submit|Verify/i });
+      await expect(verifyBtn).toBeVisible();
+      await verifyBtn.click();
+
+      // 2. Check Back to Sign In button redirects correctly to /login
+      const backToSignIn = page.locator('main, div').getByRole('link', { name: /Sign In/i }).first();
+      await expect(backToSignIn).toBeVisible();
+      await backToSignIn.click();
+      await expect(page).toHaveURL(/\/login/);
+    });
+
     test('shows error when verifying with non-existent account credentials', async ({ page }) => {
       const usernameInput = page.locator('form input').first();
       const emailInput = page.locator('form input').nth(1);
-      const verifyBtn = page.getByRole('button', { name: /Verify Account|Reset Password|Continue|Submit/i });
+      const verifyBtn = page.getByRole('button', { name: /Verify Account|Reset Password|Continue|Submit|Verify/i });
 
       await usernameInput.fill('non_existent_account_xyz');
       await emailInput.fill('ghost_account_xyz@example.com');

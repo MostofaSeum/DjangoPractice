@@ -99,16 +99,16 @@ function LoginForm() {
               <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
                 {t("auth.username")}
               </label>
-              {username.length >= 120 && (
-                <span className={`text-[10px] font-bold ${username.length >= 150 ? "text-hidden font-black" : "text-accent"}`}>
-                  {username.length}/150
+              {username.length >= 40 && (
+                <span className={`text-[10px] font-bold ${username.length >= 50 ? "text-hidden font-black" : "text-accent"}`}>
+                  {username.length}/50
                 </span>
               )}
             </div>
             <input
               type="text"
               required
-              maxLength={150}
+              maxLength={50}
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder={t("auth.usernamePlaceholder")}
