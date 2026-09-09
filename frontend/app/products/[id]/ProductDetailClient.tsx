@@ -39,7 +39,7 @@ export default function ProductDetailClient({
   const { t, formatCurrency, locale } = useLanguage();
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans antialiased pb-24 transition-colors duration-300">
+    <div className="min-h-screen bg-background text-foreground font-sans antialiased pb-8 transition-colors duration-300">
       {/* Breadcrumbs */}
       <div className="bg-primary text-background dark:text-foreground border-b border-white/5 py-2.5 transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2.5 font-bold uppercase tracking-wider">
@@ -66,7 +66,7 @@ export default function ProductDetailClient({
         </div>
       </div>
 
-      <main className="max-w-[1400px] mx-auto px-8 md:px-12 pt-4 sm:pt-6 pb-12">
+      <main className="max-w-[1400px] mx-auto px-8 md:px-12 pt-4 sm:pt-6 pb-4">
         {/* Product Area Grid (Compact Showcase Box) */}
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 bg-secondary text-foreground rounded-2xl p-5 md:p-6 shadow-sm border border-foreground/10 transition-colors duration-300 items-start">
           {/* Left Column: Product Images (Interactive Gallery) */}
