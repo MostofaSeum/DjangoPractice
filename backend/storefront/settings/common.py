@@ -25,6 +25,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_filters',
     'corsheaders',
+    'cloudinary_storage',
+    'cloudinary'
     'rest_framework',
     'drf_spectacular',
     'djoser',
