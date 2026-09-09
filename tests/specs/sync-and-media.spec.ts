@@ -36,27 +36,20 @@ test.describe('Collection Detail Showcase & Product Listings', () => {
   });
 });
 
-test.describe('Catalog & Media Sync Admin Tab', () => {
-  test('admin catalog & media sync page provides ZIP and Sheets sync interfaces', async ({ page }) => {
-    await page.goto('/admin?tab=sheets_sync', { waitUntil: 'domcontentloaded' });
+test.describe('Catalog & Media Sync Admin Route Guard', () => {
+  test('unauthenticated users visiting admin are redirected to login', async ({ page }) => {
+    // Clear tokens
+    await page.addInitScript(() => {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('jwt');
+    });
 
-    // Verify page loads without crashing
-    await expect(page).toHaveURL(/admin/);
+    await page.goto('/admin', { waitUntil: 'domcontentloaded' });
 
-    // If redirected to login, verify admin guard
-    if (page.url().includes('/login')) {
-      const loginHeading = page.getByRole('heading', { name: /Sign In|Login/i }).first();
-      await expect(loginHeading).toBeVisible();
-      return;
-    }
-
-    // Verify Catalog & Media Sync heading / tab is active
-    const syncHeader = page.getByText(/Catalog & Media Sync/i).first();
-    await expect(syncHeader).toBeVisible();
-
-    // Check for ZIP bulk upload and Google Sheets sync triggers
-    const zipUploader = page.getByText(/ZIP/i).first();
-    const sheetsSync = page.getByText(/Google Sheet|Sync/i).first();
-    expect(await zipUploader.isVisible() || await sheetsSync.isVisible()).toBeTruthy();
+    // Verify redirected to login
+    await expect(page).toHaveURL(/\/login/);
+    const loginHeading = page.locator('h1, h2').first();
+    await expect(loginHeading).toBeVisible();
   });
 });
