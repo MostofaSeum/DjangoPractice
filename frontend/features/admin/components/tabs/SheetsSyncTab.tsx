@@ -911,7 +911,7 @@ export default function SheetsSyncTab({
               <button
                 type="submit"
                 disabled={isUploadingZip || !selectedZip}
-                className="w-full py-2.5 bg-accent text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {isUploadingZip ? (
                   <>
