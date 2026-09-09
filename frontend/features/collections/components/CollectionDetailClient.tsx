@@ -52,55 +52,67 @@ export default function CollectionDetailClient({
         </div>
       </div>
 
-      <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-10 md:mt-12">
-        {/* Collection Hero Showcase Header with Background Photo */}
-        <div className="group relative rounded-3xl p-8 md:p-14 shadow-lg border border-foreground/10 mb-12 md:mb-16 overflow-hidden transition-all duration-300 bg-secondary min-h-[220px] md:min-h-[280px] flex flex-col justify-end">
-          {imageUrl ? (
-            <>
-              {/* Background Image */}
-              <Image
-                src={imageUrl}
-                alt={collection.title}
-                fill
-                priority
-                unoptimized
-                className="object-cover object-center"
-              />
-              {/* Cinematic Vignette / Dark Overlay using theme-friendly gradients */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/30 z-10" />
-            </>
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-secondary to-primary/20 dark:from-primary/40 dark:via-secondary dark:to-primary/60" />
-          )}
+      {/* Full-width Collection Hero Showcase with Photo and Wave Transition */}
+      <div className="relative w-full overflow-hidden bg-secondary transition-colors duration-300 min-h-[360px] sm:min-h-[420px] md:min-h-[480px] flex flex-col justify-end">
+        {imageUrl ? (
+          <>
+            {/* Background Image */}
+            <Image
+              src={imageUrl}
+              alt={collection.title}
+              fill
+              priority
+              unoptimized
+              className="object-cover object-center"
+            />
+            {/* Cinematic Vignette / Dark Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/30 z-10" />
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-secondary to-primary/30 dark:from-primary/40 dark:via-secondary dark:to-primary/60" />
+        )}
 
-          {/* Foreground Text Content */}
-          <div className="relative z-20 space-y-3">
-            <span
-              className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full inline-block backdrop-blur-md border ${
-                imageUrl
-                  ? "bg-black/50 text-white/90 border-white/20 shadow-xs"
-                  : "bg-foreground/5 text-foreground/70 border-foreground/10"
-              }`}
-            >
-              {t("categories.collectionDetail")}
-            </span>
-            <h1
-              className={`text-3xl sm:text-4xl md:text-6xl font-black uppercase tracking-tighter ${
-                imageUrl ? "text-white drop-shadow-md" : "text-foreground"
-              }`}
-            >
-              {collection.title}
-            </h1>
-            <div className="pt-1">
-              <CollectionDeliveryBanner
-                collectionId={collection.id}
-                variant="banner"
-                darkOverlay={Boolean(imageUrl)}
-              />
-            </div>
+        {/* Hero Foreground Content */}
+        <div className="relative z-20 max-w-[1400px] w-full mx-auto px-8 md:px-12 pt-16 pb-24 md:pb-28 space-y-3.5">
+          <span
+            className={`text-[11px] font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full inline-block backdrop-blur-md border ${
+              imageUrl
+                ? "bg-black/50 text-white/95 border-white/20 shadow-sm"
+                : "bg-foreground/5 text-foreground/70 border-foreground/10"
+            }`}
+          >
+            {t("categories.collectionDetail")}
+          </span>
+          <h1
+            className={`text-4xl sm:text-5xl md:text-7xl font-black uppercase tracking-tighter ${
+              imageUrl ? "text-white drop-shadow-md" : "text-foreground"
+            }`}
+          >
+            {collection.title}
+          </h1>
+          <div className="pt-1 max-w-2xl">
+            <CollectionDeliveryBanner
+              collectionId={collection.id}
+              variant="banner"
+              darkOverlay={Boolean(imageUrl)}
+            />
           </div>
         </div>
 
+        {/* Wave Divider connecting photo to page background */}
+        <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-20 pointer-events-none">
+          <svg
+            className="relative block w-full h-12 sm:h-16 md:h-20 text-background"
+            viewBox="0 0 1440 120"
+            preserveAspectRatio="none"
+            fill="currentColor"
+          >
+            <path d="M0,32L48,42.7C96,53,192,75,288,80C384,85,480,75,576,64C672,53,768,43,864,48C960,53,1056,75,1152,80C1248,85,1344,75,1392,69.3L1440,64L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z" />
+          </svg>
+        </div>
+      </div>
+
+      <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-6 sm:mt-10">
         <h2 className="text-2xl font-black mb-8 uppercase tracking-tighter">
           {t("categories.productsInCollection")}
         </h2>

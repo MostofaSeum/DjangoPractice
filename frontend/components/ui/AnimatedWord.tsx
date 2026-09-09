@@ -24,16 +24,18 @@ export default function AnimatedWord({ customWords }: AnimatedWordProps = {}) {
       setTimeout(() => {
         setWordIndex((prev) => (prev + 1) % words.length);
         setFade(true);
-      }, 300);
-    }, 3000);
+      }, 500);
+    }, 3500);
 
     return () => clearInterval(interval);
   }, [words.length]);
 
   return (
     <span
-      className={`inline-block text-accent transition-all duration-300 transform ${
-        fade ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+      className={`inline-block text-accent transition-all duration-700 ease-in-out transform will-change-transform ${
+        fade
+          ? "opacity-100 translate-y-0 filter blur-0 scale-100"
+          : "opacity-0 -translate-y-3 filter blur-[2px] scale-95"
       }`}
     >
       {words[wordIndex % words.length]}
