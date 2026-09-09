@@ -184,10 +184,16 @@ class ProductViewSet(ModelViewSet):
                     'inventory': clean_row.get('variant_inventory', '0'),
                 })
 
-            # Image URL extraction
-            img_url = clean_row.get('image_url', '') or clean_row.get('image', '') or clean_row.get('photo', '')
-            if img_url and img_url not in grouped[prod_key]['image_urls']:
-                grouped[prod_key]['image_urls'].append(img_url)
+            # Image URL extraction (supports single or multiple URLs separated by comma, pipe, or newline)
+            img_raw = clean_row.get('image_url', '') or clean_row.get('image', '') or clean_row.get('photo', '')
+            if img_raw:
+                # Split on comma, pipe, newline, or semicolon
+                raw_urls = re.split(r'[,\|\n;]+', img_raw)
+                for u in raw_urls:
+                    u_clean = u.strip()
+                    if u_clean and (u_clean.startswith('http://') or u_clean.startswith('https://')):
+                        if u_clean not in grouped[prod_key]['image_urls']:
+                            grouped[prod_key]['image_urls'].append(u_clean)
 
         with transaction.atomic():
             for prod_key, data in grouped.items():
