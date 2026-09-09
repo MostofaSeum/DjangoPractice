@@ -1,3 +1,19 @@
 Token.txt
 general.log
 *.log
+# Environment variables
+.env
+.env.*
+*.env
+backend/.env
+
+# Python / Virtualenv
+__pycache__/
+*.py[cod]
+.venv/
+Pipfile.lock
+
+# Media & Logs
+media/
+*.log
+Token.txt
