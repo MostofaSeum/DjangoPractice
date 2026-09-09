@@ -3,6 +3,7 @@ import csv
 import io
 import re
 import zipfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import urllib.request
 import urllib.parse
 from decimal import Decimal
@@ -548,25 +549,42 @@ class ProductViewSet(ModelViewSet):
                         available_slots = 5
 
                     files_to_save = selected_files[:available_slots]
-                    uploaded_for_this_prod = 0
+                    if not files_to_save:
+                        continue
+
+                    matched_products_count += 1
+                    prod_upload_tasks = []
 
                     for idx, finfo in enumerate(files_to_save):
                         img_data = z.read(finfo)
                         orig_ext = os.path.splitext(finfo.filename)[1].lower() or '.jpg'
                         safe_filename = f"{matched_product.slug or 'prod'}_{idx + 1}{orig_ext}"
-                        
-                        prod_img = ProductImage(product=matched_product)
-                        prod_img.image.save(safe_filename, ContentFile(img_data), save=True)
-                        uploaded_for_this_prod += 1
+                        prod_upload_tasks.append((matched_product, safe_filename, img_data))
+
+                    # Upload images concurrently for this product (up to 5 parallel threads)
+                    def save_single_image(task):
+                        prod, filename, data = task
+                        pi = ProductImage(product=prod)
+                        pi.image.save(filename, ContentFile(data), save=True)
+                        return True
+
+                    prod_success_count = 0
+                    with ThreadPoolExecutor(max_workers=min(5, len(prod_upload_tasks))) as executor:
+                        futures = [executor.submit(save_single_image, t) for t in prod_upload_tasks]
+                        for f in as_completed(futures):
+                            try:
+                                if f.result():
+                                    prod_success_count += 1
+                            except Exception as upload_err:
+                                print(f"Error uploading image for product {matched_product.title}: {upload_err}")
 
                     # Ensure photos are published
                     if not matched_product.is_photos_published:
                         matched_product.is_photos_published = True
                         matched_product.save(update_fields=['is_photos_published'])
 
-                    matched_products_count += 1
-                    total_images_uploaded += uploaded_for_this_prod
-                    details.append(f"{matched_product.title}: {uploaded_for_this_prod} photo(s)")
+                    total_images_uploaded += prod_success_count
+                    details.append(f"{matched_product.title}: {prod_success_count} photo(s)")
 
                 return Response({
                     'message': f"Successfully uploaded {total_images_uploaded} image(s) for {matched_products_count} product(s).",
