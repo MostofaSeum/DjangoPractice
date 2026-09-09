@@ -49,12 +49,22 @@ export default function SheetsSyncTab({
 
   const [isSyncingSheet, setIsSyncingSheet] = useState(false);
   const [isImportingFile, setIsImportingFile] = useState(false);
+  const [isUploadingZip, setIsUploadingZip] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [syncResults, setSyncResults] = useState<SyncStats | null>(null);
-  const [lastSyncMode, setLastSyncMode] = useState<"sheets" | "file" | null>(null);
+  const [lastSyncMode, setLastSyncMode] = useState<"sheets" | "file" | "zip" | null>(null);
+  const [zipReport, setZipReport] = useState<{
+    message: string;
+    matched_products_count: number;
+    total_images_uploaded: number;
+    unmatched_folders: string[];
+    details: string[];
+  } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const zipInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedZip, setSelectedZip] = useState<File | null>(null);
 
   // Fetch saved Google Sheet URL on mount
   useEffect(() => {
@@ -321,6 +331,62 @@ export default function SheetsSyncTab({
     }
   };
 
+  // 2.5 Batch Upload Photos from ZIP Archive
+  const handleUploadZip = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token || !selectedZip) return;
+
+    try {
+      setIsUploadingZip(true);
+      setZipReport(null);
+
+      const formData = new FormData();
+      formData.append("file", selectedZip);
+
+      const res = await fetch(`${apiBase}/store/products/bulk_upload_zip/`, {
+        method: "POST",
+        headers: {
+          Authorization: `JWT ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setZipReport(data);
+        setLastSyncMode("zip");
+        setSelectedZip(null);
+        if (zipInputRef.current) zipInputRef.current.value = "";
+
+        Swal.fire({
+          icon: "success",
+          title: isBn ? "ছবি আপলোড সম্পন্ন হয়েছে!" : "Photos Uploaded Successfully!",
+          text: data?.message || (isBn ? "প্রোডাক্টের ছবি সফলভাবে সংযুক্ত করা হয়েছে।" : "All product images matched and uploaded."),
+          confirmButtonColor: "var(--accent)",
+        });
+        if (onSyncSuccess) onSyncSuccess();
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: isBn ? "আপলোড ব্যর্থ হয়েছে" : "Upload Failed",
+          text: data?.error || (isBn ? "ZIP ফাইলটি প্রসেস করা সম্ভব হয়নি।" : "Failed to process the ZIP archive."),
+          confirmButtonColor: "var(--accent)",
+        });
+      }
+    } catch (err: any) {
+      console.error("ZIP upload error:", err);
+      Swal.fire({
+        icon: "error",
+        title: isBn ? "নেটওয়ার্ক সমস্যা" : "Network Error",
+        text: err?.message || (isBn ? "ফাইল আপলোড করতে সমস্যা হয়েছে।" : "Failed to upload the ZIP file."),
+        confirmButtonColor: "var(--accent)",
+      });
+    } finally {
+      setIsUploadingZip(false);
+    }
+  };
+
   // 3. Export Catalog CSV
   const handleExportCatalog = async () => {
     if (!token) return;
@@ -504,8 +570,8 @@ export default function SheetsSyncTab({
         </div>
       </div>
 
-      {/* Main Grid: Google Sheets Live Sync & CSV File Upload */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+      {/* Main Grid: Google Sheets Live Sync, CSV Import & ZIP Photo Batch */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
         {/* Method 1: Google Sheets Live Sync */}
         <div className="p-6 md:p-7 rounded-3xl bg-secondary text-foreground border border-foreground/10 shadow-sm flex flex-col justify-between transition-colors duration-300">
           <div>
@@ -578,19 +644,19 @@ export default function SheetsSyncTab({
                   type="button"
                   disabled={isSyncingSheet}
                   onClick={() => handleSyncGoogleSheet(savedSheetUrl)}
-                  className="w-full py-2.5 bg-accent text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full py-3 px-4 bg-button-bg text-button-fg hover:bg-accent rounded-xl text-[11px] font-extrabold uppercase tracking-wider transition-all duration-200 shadow-sm hover:shadow flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-50 group"
                 >
                   {isSyncingSheet ? (
                     <>
-                      <div className="w-3.5 h-3.5 border-2 border-button-fg border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-4 h-4 border-2 border-button-fg border-t-transparent rounded-full animate-spin shrink-0"></div>
                       <span>{isBn ? "ক্যাটালগ সিঙ্ক হচ্ছে..." : "Updating Catalog..."}</span>
                     </>
                   ) : (
                     <>
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      <svg className="w-4 h-4 shrink-0 transition-transform duration-300 group-hover:rotate-180 text-accent group-hover:text-button-fg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                       </svg>
-                      <span>{isBn ? "সংরক্ষিত শিট থেকে ১-ক্লিক আপডেট" : "1-Click Update from Saved Sheet"}</span>
+                      <span className="truncate">{isBn ? "সংরক্ষিত শিট থেকে আপডেট" : "Update from Saved Sheet"}</span>
                     </>
                   )}
                 </button>
@@ -717,7 +783,156 @@ export default function SheetsSyncTab({
             </form>
           </div>
         </div>
+
+        {/* Method 3: Batch Upload Photos via ZIP Archive */}
+        <div className="p-6 md:p-7 rounded-3xl bg-secondary text-foreground border border-foreground/10 shadow-sm flex flex-col justify-between transition-colors duration-300">
+          <div>
+            <div className="flex items-center gap-3 mb-4 pb-3 border-b border-foreground/10">
+              <div className="w-7 h-7 rounded-lg bg-accent/15 text-accent flex items-center justify-center font-black text-xs">
+                03
+              </div>
+              <div>
+                <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+                  {isBn ? "বাল্ক ফটো জিপ আপলোড" : "Batch Photo ZIP Upload"}
+                </h3>
+                <p className="text-[10px] text-foreground/60">{isBn ? "ফোল্ডারসহ জিপ ফাইল থেকে স্বয়ংক্রিয় ছবি যুক্ত" : "Auto-match photos from ZIP folders"}</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleUploadZip} className="space-y-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                  {isBn ? "প্রোডাক্ট ছবির ZIP ফাইল নির্বাচন করুন" : "Select Photos (.ZIP) Archive"}
+                </label>
+                <input
+                  ref={zipInputRef}
+                  type="file"
+                  accept=".zip,application/zip,application/x-zip-compressed"
+                  required
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) setSelectedZip(f);
+                  }}
+                  className="block w-full text-xs text-foreground file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-button-bg file:text-button-fg hover:file:opacity-90 cursor-pointer"
+                />
+              </div>
+
+              {/* Instructions Box */}
+              <div className="p-4 rounded-2xl bg-primary/5 border border-foreground/10 text-[11px] space-y-1.5 text-foreground/80 leading-relaxed font-medium">
+                <p className="font-bold text-foreground">{isBn ? "ফোল্ডার গঠন প্রণালীঃ" : "ZIP Organization Rules:"}</p>
+                <ul className="list-disc pl-4 space-y-1 text-[10.5px] opacity-80">
+                  <li>
+                    {isBn
+                      ? "প্রোডাক্টের নামে ফোল্ডার রাখুন (যেমন: Nivea_Shea_Lotion)"
+                      : "Name folders after products (e.g. Nivea_Shea_Lotion)"}
+                  </li>
+                  <li>
+                    {isBn
+                      ? "প্রতি ফোল্ডারে ১ থেকে ৫টি ছবি রাখুন (৫টির বেশি থাকলে প্রথম ৫টি নেওয়া হবে)"
+                      : "Put 1 to 5 photos inside each folder (top 5 are auto-selected)"}
+                  </li>
+                  <li>
+                    {isBn
+                      ? "সব ফোল্ডার সিলেক্ট করে একসাথে .ZIP বানিয়ে এখানে আপলোড করুন।"
+                      : "Compress the folders into a single .zip file and upload here."}
+                  </li>
+                </ul>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isUploadingZip || !selectedZip}
+                className="w-full py-2.5 bg-accent text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {isUploadingZip ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-button-fg border-t-transparent rounded-full animate-spin"></div>
+                    <span>{isBn ? "ছবি আপলোড ও সিঙ্ক হচ্ছে..." : "Uploading & Matching Photos..."}</span>
+                  </>
+                ) : (
+                  <span>{isBn ? "ZIP থেকে ছবি আপলোড করুন" : "Upload Photos from ZIP"}</span>
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
+
+      {/* ZIP Upload Execution Report */}
+      {zipReport && (
+        <div className="p-6 md:p-8 rounded-3xl bg-secondary text-foreground border border-foreground/10 shadow-sm space-y-4 animate-in fade-in duration-300">
+          <div className="flex justify-between items-center pb-3 border-b border-foreground/10">
+            <div>
+              <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+                {isBn ? "জিপ ফটো আপলোড রিপোর্ট" : "ZIP Photo Upload Report"}
+              </h3>
+              <p className="text-[10px] text-foreground/60">{zipReport.message}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setZipReport(null)}
+              className="text-[10px] font-bold uppercase tracking-wider text-foreground/60 hover:text-foreground cursor-pointer"
+            >
+              {isBn ? "বন্ধ করুন" : "Dismiss"}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-4 rounded-2xl bg-primary/5 border border-foreground/10">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">
+                {isBn ? "ম্যাচ হওয়া প্রোডাক্ট" : "Matched Products"}
+              </span>
+              <p className="text-2xl font-black text-foreground mt-1">
+                {zipReport.matched_products_count.toLocaleString(isBn ? "bn-BD" : undefined)}
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-primary/5 border border-foreground/10">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">
+                {isBn ? "মোট ছবি আপলোড" : "Total Photos Uploaded"}
+              </span>
+              <p className="text-2xl font-black text-accent mt-1">
+                {zipReport.total_images_uploaded.toLocaleString(isBn ? "bn-BD" : undefined)}
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-primary/5 border border-foreground/10">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-foreground/70">
+                {isBn ? "অমিলে থাকা ফোল্ডার" : "Unmatched Folders"}
+              </span>
+              <p className={`text-2xl font-black mt-1 ${zipReport.unmatched_folders.length > 0 ? "text-red-500" : "text-foreground/70"}`}>
+                {zipReport.unmatched_folders.length.toLocaleString(isBn ? "bn-BD" : undefined)}
+              </p>
+            </div>
+          </div>
+
+          {zipReport.details.length > 0 && (
+            <div className="p-4 rounded-2xl bg-primary/5 border border-foreground/10 space-y-2">
+              <p className="text-xs font-black uppercase tracking-wider text-accent">
+                {isBn ? "সফলভাবে আপলোড হওয়া পণ্যের তালিকাঃ" : "Uploaded Product Details:"}
+              </p>
+              <ul className="list-disc pl-5 text-xs text-foreground/80 space-y-1 max-h-40 overflow-y-auto">
+                {zipReport.details.map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {zipReport.unmatched_folders.length > 0 && (
+            <div className="p-4 rounded-2xl bg-primary/5 border border-red-500/30 space-y-2">
+              <p className="text-xs font-black uppercase tracking-wider text-red-500">
+                {isBn ? "যেসব ফোল্ডারের নামের সাথে পণ্য মেলেনিঃ" : "Folders not matched to any product title/slug:"}
+              </p>
+              <ul className="list-disc pl-5 text-xs text-foreground/80 space-y-1 max-h-36 overflow-y-auto">
+                {zipReport.unmatched_folders.map((f, i) => (
+                  <li key={i}>{f}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Sync Results & Audit Report Card */}
       {syncResults && (

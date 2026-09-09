@@ -1,6 +1,7 @@
 import csv
 import io
 import re
+import zipfile
 import urllib.request
 import urllib.parse
 from decimal import Decimal
@@ -442,6 +443,143 @@ class ProductViewSet(ModelViewSet):
         except Exception as e:
             return Response({'error': f'Failed to process CSV file: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
     
+    @action(detail=False, methods=['post'], permission_classes=[IsAdminUser])
+    def bulk_upload_zip(self, request):
+        """
+        Batch upload product photos via a ZIP archive.
+        Expected structure inside the ZIP:
+          archive.zip
+            └── Product_Title_Or_Slug/  (or Product_Name/)
+                  ├── photo1.jpg
+                  ├── photo2.jpg
+                  ... (up to 5 photos per product will be saved)
+        """
+        file_obj = request.FILES.get('file')
+        if not file_obj:
+            return Response({'error': 'ZIP file is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not file_obj.name.lower().endswith('.zip'):
+            return Response({'error': 'Uploaded file must be a .zip archive.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        valid_extensions = ('.jpg', '.jpeg', '.png', '.webp', '.avif')
+        
+        try:
+            zip_buffer = io.BytesIO(file_obj.read())
+            with zipfile.ZipFile(zip_buffer, 'r') as z:
+                # Group files by folder name
+                # Structure: { folder_clean_name: [list of zipinfo] }
+                folders_map = {}
+                for info in z.infolist():
+                    if info.is_dir():
+                        continue
+                    
+                    filename = info.filename.replace('\\', '/')
+                    # Skip macOS / hidden files like __MACOSX/ or .DS_Store
+                    parts = [p for p in filename.split('/') if p and not p.startswith('.') and p != '__MACOSX']
+                    if len(parts) < 2:
+                        continue
+
+                    folder_part = parts[-2]
+                    file_part = parts[-1]
+
+                    if not file_part.lower().endswith(valid_extensions):
+                        continue
+
+                    if folder_part not in folders_map:
+                        folders_map[folder_part] = []
+                    folders_map[folder_part].append(info)
+
+                if not folders_map:
+                    return Response({
+                        'error': 'No valid product folders or image files found in the ZIP archive. '
+                                 'Ensure images are inside folders named after your products (e.g., Nivea_Shea_Lotion/photo1.jpg).'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+                matched_products_count = 0
+                total_images_uploaded = 0
+                unmatched_folders = []
+                details = []
+
+                # Build a cache of products for ultra-fast matching
+                all_products = list(Product.objects.all())
+                # Normalize helper: "Nivea_Shea_Lotion" -> "nivea shea lotion" and "nivea-shea-lotion"
+                def normalize_text(s):
+                    return re.sub(r'[^a-zA-Z0-9]+', ' ', str(s).lower()).strip()
+
+                for folder_raw, file_infos in folders_map.items():
+                    norm_folder = normalize_text(folder_raw)
+                    matched_product = None
+
+                    # 1. Match by exact ID if folder name is digits
+                    if folder_raw.strip().isdigit():
+                        p_id = int(folder_raw.strip())
+                        matched_product = next((p for p in all_products if p.id == p_id), None)
+
+                    # 2. Match by slug (replacing underscores/spaces with hyphens)
+                    if not matched_product:
+                        slug_cand = re.sub(r'[^a-zA-Z0-9]+', '-', folder_raw.lower()).strip('-')
+                        matched_product = next((p for p in all_products if p.slug == slug_cand), None)
+
+                    # 3. Match by normalized Title
+                    if not matched_product:
+                        matched_product = next((p for p in all_products if normalize_text(p.title) == norm_folder), None)
+
+                    # 4. Fuzzy fallback: Title starts with or contains
+                    if not matched_product and len(norm_folder) > 3:
+                        matched_product = next((p for p in all_products if norm_folder in normalize_text(p.title) or normalize_text(p.title) in norm_folder), None)
+
+                    if not matched_product:
+                        unmatched_folders.append(folder_raw)
+                        continue
+
+                    # Sort files alphabetically to ensure photo1, photo2 order
+                    file_infos.sort(key=lambda x: x.filename)
+                    # Take at most 5 photos
+                    selected_files = file_infos[:5]
+
+                    # Optionally clear previous images or append up to 5 total
+                    current_images_count = matched_product.images.count()
+                    available_slots = max(0, 5 - current_images_count)
+
+                    if available_slots == 0:
+                        # Replace images if product already has 5
+                        matched_product.images.all().delete()
+                        available_slots = 5
+
+                    files_to_save = selected_files[:available_slots]
+                    uploaded_for_this_prod = 0
+
+                    for idx, finfo in enumerate(files_to_save):
+                        img_data = z.read(finfo)
+                        orig_ext = os.path.splitext(finfo.filename)[1].lower() or '.jpg'
+                        safe_filename = f"{matched_product.slug or 'prod'}_{idx + 1}{orig_ext}"
+                        
+                        prod_img = ProductImage(product=matched_product)
+                        prod_img.image.save(safe_filename, ContentFile(img_data), save=True)
+                        uploaded_for_this_prod += 1
+
+                    # Ensure photos are published
+                    if not matched_product.is_photos_published:
+                        matched_product.is_photos_published = True
+                        matched_product.save(update_fields=['is_photos_published'])
+
+                    matched_products_count += 1
+                    total_images_uploaded += uploaded_for_this_prod
+                    details.append(f"{matched_product.title}: {uploaded_for_this_prod} photo(s)")
+
+                return Response({
+                    'message': f"Successfully uploaded {total_images_uploaded} image(s) for {matched_products_count} product(s).",
+                    'matched_products_count': matched_products_count,
+                    'total_images_uploaded': total_images_uploaded,
+                    'unmatched_folders': unmatched_folders,
+                    'details': details
+                }, status=status.HTTP_200_OK)
+
+        except zipfile.BadZipFile:
+            return Response({'error': 'Corrupt or invalid ZIP archive.'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': f'Failed to process ZIP file: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     def destroy(self, request, *args, **kwargs):
         if OrderItem.objects.filter(product_id=kwargs['pk']).count() > 0:
             return Response({'error': 'Product cannot be deleted because it is associated with an order item.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
