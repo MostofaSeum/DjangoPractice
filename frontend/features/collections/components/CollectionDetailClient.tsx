@@ -53,7 +53,7 @@ export default function CollectionDetailClient({
       </div>
 
       {/* Full-width Collection Hero Showcase with Photo and Wave Transition */}
-      <div className="relative w-full overflow-hidden bg-secondary transition-colors duration-300 min-h-[360px] sm:min-h-[420px] md:min-h-[480px] flex flex-col justify-end">
+      <div className="relative w-full overflow-hidden bg-secondary transition-colors duration-300 min-h-[260px] sm:min-h-[300px] md:min-h-[340px] flex flex-col justify-end">
         {imageUrl ? (
           <>
             {/* Background Image */}
@@ -73,9 +73,9 @@ export default function CollectionDetailClient({
         )}
 
         {/* Hero Foreground Content */}
-        <div className="relative z-20 max-w-[1400px] w-full mx-auto px-8 md:px-12 pt-16 pb-24 md:pb-28 space-y-3.5">
+        <div className="relative z-20 max-w-[1400px] w-full mx-auto px-8 md:px-12 pt-10 pb-14 sm:pb-16 md:pb-18 space-y-2.5">
           <span
-            className={`text-[11px] font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full inline-block backdrop-blur-md border ${
+            className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full inline-block backdrop-blur-md border ${
               imageUrl
                 ? "bg-black/50 text-white/95 border-white/20 shadow-sm"
                 : "bg-foreground/5 text-foreground/70 border-foreground/10"
@@ -84,13 +84,13 @@ export default function CollectionDetailClient({
             {t("categories.collectionDetail")}
           </span>
           <h1
-            className={`text-4xl sm:text-5xl md:text-7xl font-black uppercase tracking-tighter ${
+            className={`text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tighter ${
               imageUrl ? "text-white drop-shadow-md" : "text-foreground"
             }`}
           >
             {collection.title}
           </h1>
-          <div className="pt-1 max-w-2xl">
+          <div className="pt-0.5 max-w-2xl">
             <CollectionDeliveryBanner
               collectionId={collection.id}
               variant="banner"
@@ -99,10 +99,10 @@ export default function CollectionDetailClient({
           </div>
         </div>
 
-        {/* Wave Divider connecting photo to page background */}
+        {/* Subtle & Gentle Wave Divider */}
         <div className="absolute bottom-0 left-0 right-0 w-full overflow-hidden leading-none z-20 pointer-events-none">
           <svg
-            className="relative block w-full h-12 sm:h-16 md:h-20 text-background"
+            className="relative block w-full h-8 sm:h-10 md:h-12 text-background"
             viewBox="0 0 1440 120"
             preserveAspectRatio="none"
             fill="currentColor"

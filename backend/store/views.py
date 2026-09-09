@@ -559,24 +559,16 @@ class ProductViewSet(ModelViewSet):
                         img_data = z.read(finfo)
                         orig_ext = os.path.splitext(finfo.filename)[1].lower() or '.jpg'
                         safe_filename = f"{matched_product.slug or 'prod'}_{idx + 1}{orig_ext}"
-                        prod_upload_tasks.append((matched_product, safe_filename, img_data))
-
-                    # Upload images concurrently for this product (up to 5 parallel threads)
-                    def save_single_image(task):
-                        prod, filename, data = task
-                        pi = ProductImage(product=prod)
-                        pi.image.save(filename, ContentFile(data), save=True)
-                        return True
+                        prod_upload_tasks.append((safe_filename, img_data))
 
                     prod_success_count = 0
-                    with ThreadPoolExecutor(max_workers=min(5, len(prod_upload_tasks))) as executor:
-                        futures = [executor.submit(save_single_image, t) for t in prod_upload_tasks]
-                        for f in as_completed(futures):
-                            try:
-                                if f.result():
-                                    prod_success_count += 1
-                            except Exception as upload_err:
-                                print(f"Error uploading image for product {matched_product.title}: {upload_err}")
+                    for filename, data in prod_upload_tasks:
+                        try:
+                            pi = ProductImage(product_id=matched_product.id)
+                            pi.image.save(filename, ContentFile(data), save=True)
+                            prod_success_count += 1
+                        except Exception as upload_err:
+                            print(f"Error uploading image for product {matched_product.title}: {upload_err}")
 
                     # Ensure photos are published
                     if not matched_product.is_photos_published:
