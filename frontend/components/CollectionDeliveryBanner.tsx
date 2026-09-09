@@ -69,7 +69,7 @@ export default function CollectionDeliveryBanner({
       const rule = rules.find(
         (r) =>
           r.target_type === "collection" &&
-          Number(r.collection) === Number(collectionId)
+          Number(r.collection) === Number(collectionId),
       );
 
       if (rule) {
@@ -98,7 +98,10 @@ export default function CollectionDeliveryBanner({
     suffix = free ? t("delivery.forFree") : t("delivery.forReduced");
   } else if (qty > 1) {
     prefix = t("delivery.buy");
-    highlight = locale === "bn" ? `${qty.toLocaleString("bn-BD")}+ ${t("delivery.items")}` : `${qty}+ Items`;
+    highlight =
+      locale === "bn"
+        ? `${qty.toLocaleString("bn-BD")}+ ${t("delivery.items")}`
+        : `${qty}+ Items`;
     suffix = free ? t("delivery.forFree") : t("delivery.forReduced");
   } else {
     prefix = t("delivery.specialOffer");
@@ -140,9 +143,7 @@ export default function CollectionDeliveryBanner({
       <span className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 flex-wrap">
         <span className="opacity-90">{prefix}</span>
         <strong
-          className={`font-black ${
-            darkOverlay ? "text-logo" : "text-accent"
-          }`}
+          className={`font-black ${darkOverlay ? "text-logo" : "text-accent"}`}
         >
           {highlight}
         </strong>

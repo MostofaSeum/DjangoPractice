@@ -92,7 +92,10 @@ export default function CollectionDetailClient({
               {collection.title}
             </h1>
             <div className="pt-1">
-              <CollectionDeliveryBanner collectionId={collection.id} variant="banner" />
+              <CollectionDeliveryBanner
+                collectionId={collection.id}
+                variant="banner"
+              />
             </div>
           </div>
         </div>
@@ -103,14 +106,19 @@ export default function CollectionDetailClient({
         {collection.products && collection.products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {collection.products.map((product) => {
-              const activeVariant = product.variants?.find((v) => v.is_active !== false);
+              const activeVariant = product.variants?.find(
+                (v) => v.is_active !== false,
+              );
               const basePrice = activeVariant?.price_override
                 ? Number(activeVariant.price_override)
                 : Number(product.unit_price || 0);
 
               const discountPercent = Number(product.discount_percent || 0);
-              const isExpired = (product as any).discount_valid_until && new Date() > new Date((product as any).discount_valid_until);
-              const isDiscountActive = (product as any).is_discount_active !== false && !isExpired;
+              const isExpired =
+                (product as any).discount_valid_until &&
+                new Date() > new Date((product as any).discount_valid_until);
+              const isDiscountActive =
+                (product as any).is_discount_active !== false && !isExpired;
 
               let effectivePrice = basePrice;
               if (activeVariant?.discounted_price !== undefined) {
@@ -121,7 +129,8 @@ export default function CollectionDetailClient({
                 effectivePrice = basePrice * (1 - discountPercent / 100);
               }
 
-              const hasDiscount = isDiscountActive && basePrice > effectivePrice;
+              const hasDiscount =
+                isDiscountActive && basePrice > effectivePrice;
               const computedDiscountPercent = hasDiscount
                 ? discountPercent > 0
                   ? discountPercent
@@ -142,7 +151,13 @@ export default function CollectionDetailClient({
                             alt="Discount"
                             className="w-3.5 h-3.5 object-contain brightness-0 invert"
                           />
-                          -{locale === "bn" ? Math.round(computedDiscountPercent).toLocaleString("bn-BD") : Math.round(computedDiscountPercent)}% {t("trending.off")}
+                          -
+                          {locale === "bn"
+                            ? Math.round(
+                                computedDiscountPercent,
+                              ).toLocaleString("bn-BD")
+                            : Math.round(computedDiscountPercent)}
+                          % {t("trending.off")}
                         </span>
                       )}
                       <ProductImage
@@ -159,7 +174,9 @@ export default function CollectionDetailClient({
                           <span>★</span>
                           <span>
                             {locale === "bn"
-                              ? Number(product.average_rating).toLocaleString("bn-BD")
+                              ? Number(product.average_rating).toLocaleString(
+                                  "bn-BD",
+                                )
                               : Number(product.average_rating).toFixed(1)}
                           </span>
                         </div>
@@ -168,7 +185,9 @@ export default function CollectionDetailClient({
                     <p className="opacity-70 text-xs line-clamp-2 mb-3 leading-relaxed">
                       {product.short_description ||
                         product.description ||
-                        (locale === "bn" ? "কোনো বিবরণ উপলব্ধ নেই" : "No description available")}
+                        (locale === "bn"
+                          ? "কোনো বিবরণ উপলব্ধ নেই"
+                          : "No description available")}
                     </p>
                     <div className="mb-3">
                       <ProductDeliveryOfferBadge
