@@ -88,9 +88,14 @@ test.describe('Products Listing Page (Catalog)', () => {
   });
 
   test('when user uses filter and sort at that time search is working perfectly', async ({ page }) => {
-    // 1. Set Min Price filter
+    // 1. Set Min Price filter and click Apply
     const minPriceInput = page.locator('input[name="minPrice"]');
     await minPriceInput.fill('5');
+    const applyPriceBtn = page.getByRole('button', { name: /Apply|প্রয়োগ/i }).first();
+    if (await applyPriceBtn.isVisible()) {
+      await applyPriceBtn.click();
+      await page.waitForLoadState('domcontentloaded');
+    }
 
     // 2. Select Sorting
     const sortSelect = page.locator('select#product-sort');
@@ -103,7 +108,7 @@ test.describe('Products Listing Page (Catalog)', () => {
     await searchInput.press('Enter');
     await page.waitForLoadState('domcontentloaded');
 
-    // Verify all 3 parameters persist in the URL simultaneously
+    // Verify parameters persist in URL
     await expect(page).toHaveURL(/search=Shrimp/i);
     await expect(page).toHaveURL(/ordering=unit_price/i);
     await expect(page).toHaveURL(/minPrice=5/i);
@@ -130,10 +135,10 @@ test.describe('Products Listing Page (Catalog)', () => {
   });
 
   test('title, price, items sold, and short description are loading perfectly', async ({ page }) => {
-    const productGrid = page.locator('main .grid');
+    const productGrid = page.locator('main .grid').first();
     await expect(productGrid).toBeVisible();
 
-    const productCards = page.locator('main .grid > div');
+    const productCards = page.locator('main .grid.grid-cols-1 > div, main .grid > div:has(h2, h3)');
     const cardCount = await productCards.count();
 
     if (cardCount > 0) {

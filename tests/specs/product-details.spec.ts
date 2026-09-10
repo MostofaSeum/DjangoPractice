@@ -177,14 +177,16 @@ test.describe('Product Details Page', () => {
   });
 
   test('clicking on categories navigates to that collection page', async ({ page }) => {
-    // Find category/collection link in product details meta section
-    const categoryLink = page.locator('a[href^="/collections/"]').first();
+    // Find category/collection link in product details meta section or breadcrumbs
+    const categoryLink = page.locator('nav a[href*="/collections/"], a[href^="/collections/"]').first();
     if (await categoryLink.isVisible()) {
       const categoryHref = await categoryLink.getAttribute('href');
       expect(categoryHref).toMatch(/\/collections\/\d+/);
 
-      await categoryLink.click();
-      await expect(page).toHaveURL(new RegExp(categoryHref!));
+      await Promise.all([
+        page.waitForURL(new RegExp(categoryHref!)),
+        categoryLink.click(),
+      ]);
       
       // Verify collection heading appears
       const heading = page.locator('h1, h2').first();
@@ -201,7 +203,8 @@ test.describe('Product Details Page', () => {
 
     // Click reviews tab
     await reviewsTab.click();
-    await expect(page.locator('#write-review-section, text=/Customer Reviews|গ্রাহক রিভিউ/i').first()).toBeVisible();
+    const reviewsSection = page.locator('#write-review-section').or(page.getByText(/Customer Reviews|গ্রাহক রিভিউ/i));
+    await expect(reviewsSection.first()).toBeVisible();
 
     // Switch back to description tab
     await descriptionTab.click();
