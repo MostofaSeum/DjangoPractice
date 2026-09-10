@@ -583,7 +583,7 @@ export default function AdminNotificationBell({
                       {item.notification_type === "order" ? (
                         <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
                           <Image
-                            src="/admin/orders.png"
+                            src="/Admin/orders.png"
                             alt="Order"
                             width={16}
                             height={16}
@@ -597,7 +597,7 @@ export default function AdminNotificationBell({
                       ) : item.notification_type === "promotion" ? (
                         <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
                           <Image
-                            src="/admin/sales.png"
+                            src="/Admin/sales.png"
                             alt="Promotion"
                             width={16}
                             height={16}
@@ -607,7 +607,7 @@ export default function AdminNotificationBell({
                       ) : item.notification_type === "coupon" ? (
                         <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
                           <Image
-                            src="/admin/coupons.png"
+                            src="/Admin/coupons.png"
                             alt="Coupon"
                             width={16}
                             height={16}
