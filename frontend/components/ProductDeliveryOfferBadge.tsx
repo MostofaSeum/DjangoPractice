@@ -52,6 +52,7 @@ interface ProductDeliveryOfferBadgeProps {
   collectionId?: number | null;
   soldCount?: number;
   className?: string;
+  badgeOnly?: boolean;
 }
 
 export default function ProductDeliveryOfferBadge({
@@ -59,6 +60,7 @@ export default function ProductDeliveryOfferBadge({
   collectionId,
   soldCount,
   className = "",
+  badgeOnly = false,
 }: ProductDeliveryOfferBadgeProps) {
   const { t, formatCurrency, locale } = useLanguage();
   const [matchedRule, setMatchedRule] = useState<DeliveryRule | null>(null);
@@ -118,6 +120,18 @@ export default function ProductDeliveryOfferBadge({
 
   const badgeText = getBadgeText();
 
+  if (badgeOnly) {
+    if (!badgeText) return null;
+    return (
+      <div
+        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg backdrop-blur-md bg-black/60 dark:bg-black/70 border border-white/20 text-white text-[9px] font-black uppercase tracking-wider shadow-lg max-w-[90%] truncate ${className}`}
+      >
+        <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shrink-0" />
+        <span className="truncate">{badgeText}</span>
+      </div>
+    );
+  }
+
   return (
     <div className={`flex items-center gap-2 ${soldCount !== undefined && badgeText ? "justify-between" : soldCount !== undefined ? "justify-start" : "justify-end"} ${className}`}>
       {soldCount !== undefined && (
@@ -127,7 +141,7 @@ export default function ProductDeliveryOfferBadge({
       )}
       {badgeText && (
         <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent/15 text-accent text-[9px] font-black uppercase tracking-wider border border-accent/25">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shrink-0" />
           <span>{badgeText}</span>
         </div>
       )}

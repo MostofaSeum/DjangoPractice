@@ -79,6 +79,20 @@ export default function ProductCard({ product }: ProductCardProps) {
               }`}
             />
           </button>
+
+          {/* Glassmorphic Delivery Offer Badge at Bottom of Image */}
+          <div className="absolute bottom-2 left-2 right-2 z-10 pointer-events-none flex justify-center">
+            <ProductDeliveryOfferBadge
+              productId={product.id}
+              collectionId={
+                typeof (product as any).collection === "object" &&
+                (product as any).collection !== null
+                  ? (product as any).collection.id
+                  : (product as any).collection || (product as any).collection_id
+              }
+              badgeOnly
+            />
+          </div>
         </div>
         <div className="flex justify-between items-start gap-1 mb-0.5">
           <h3 className="font-bold text-sm text-foreground line-clamp-1 group-hover:text-accent transition-colors">
@@ -94,18 +108,15 @@ export default function ProductCard({ product }: ProductCardProps) {
         <p className="text-[11px] opacity-70 mb-2 line-clamp-1 leading-normal">
           {product.description || (locale === "bn" ? "কোনো বিবরণ নেই।" : "No description available.")}
         </p>
-        <div className="mb-2">
-          <ProductDeliveryOfferBadge
-            productId={product.id}
-            collectionId={
-              typeof (product as any).collection === "object" &&
-              (product as any).collection !== null
-                ? (product as any).collection.id
-                : (product as any).collection || (product as any).collection_id
-            }
-            soldCount={Number(product.units_sold || 0)}
-          />
-        </div>
+        {Number(product.units_sold || 0) > 0 && (
+          <div className="mb-2">
+            <span className="text-[10px] font-bold opacity-60 uppercase tracking-wider">
+              {locale === "bn"
+                ? `${Number(product.units_sold).toLocaleString("bn-BD")} ${locale === "bn" ? "বিক্রিত" : "Sold"}`
+                : `${product.units_sold} Sold`}
+            </span>
+          </div>
+        )}
       </div>
 
       <div>

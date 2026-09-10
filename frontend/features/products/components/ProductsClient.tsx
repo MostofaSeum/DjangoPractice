@@ -193,6 +193,21 @@ export default function ProductsClient({
                             title={product.title}
                             images={product.images}
                           />
+
+                          {/* Glassmorphic Delivery Offer Badge at Bottom of Image */}
+                          <div className="absolute bottom-2 left-2 right-2 z-10 pointer-events-none flex justify-center">
+                            <ProductDeliveryOfferBadge
+                              productId={product.id}
+                              collectionId={
+                                typeof (product as any).collection === "object" &&
+                                (product as any).collection !== null
+                                  ? (product as any).collection.id
+                                  : (product as any).collection ||
+                                    (product as any).collection_id
+                              }
+                              badgeOnly
+                            />
+                          </div>
                         </div>
                         <div className="flex justify-between items-start gap-2 mb-1">
                           <h2 className="font-bold text-lg text-foreground line-clamp-1 group-hover:text-accent transition-colors">
@@ -207,24 +222,18 @@ export default function ProductsClient({
                             </div>
                           )}
                         </div>
-                        <p className="opacity-70 text-xs line-clamp-2 mb-3 leading-relaxed">
+                        <p className="opacity-70 text-xs line-clamp-2 mb-2 leading-relaxed">
                           {product.short_description ||
                             product.description ||
                             "No description available"}
                         </p>
-                        <div className="mb-3">
-                          <ProductDeliveryOfferBadge
-                            productId={product.id}
-                            collectionId={
-                              typeof (product as any).collection === "object" &&
-                              (product as any).collection !== null
-                                ? (product as any).collection.id
-                                : (product as any).collection ||
-                                  (product as any).collection_id
-                            }
-                            soldCount={Number(product.units_sold || 0)}
-                          />
-                        </div>
+                        {Number(product.units_sold || 0) > 0 && (
+                          <div className="mb-3">
+                            <span className="text-[10px] font-bold opacity-60 uppercase tracking-wider">
+                              {Number(product.units_sold)} Sold
+                            </span>
+                          </div>
+                        )}
                       </div>
                       <div>
                         <div className="flex items-center justify-between gap-2 mb-4">

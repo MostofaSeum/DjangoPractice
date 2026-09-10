@@ -780,6 +780,21 @@ export default function HomeClient({
                           title={product.title}
                           images={product.images}
                         />
+
+                        {/* Glassmorphic Delivery Offer Badge at Bottom of Image */}
+                        <div className="absolute bottom-2 left-2 right-2 z-10 pointer-events-none flex justify-center">
+                          <ProductDeliveryOfferBadge
+                            productId={product.id}
+                            collectionId={
+                              typeof (product as any).collection === "object" &&
+                              (product as any).collection !== null
+                                ? (product as any).collection.id
+                                : (product as any).collection ||
+                                  (product as any).collection_id
+                            }
+                            badgeOnly
+                          />
+                        </div>
                       </div>
                       <div className="flex justify-between items-start gap-1 mb-1">
                         <h4 className="font-bold text-lg text-foreground line-clamp-1 group-hover:text-accent transition-colors">
@@ -794,19 +809,15 @@ export default function HomeClient({
                           </div>
                         )}
                       </div>
-                      <div className="mb-3">
-                        <ProductDeliveryOfferBadge
-                          productId={product.id}
-                          collectionId={
-                            typeof (product as any).collection === "object" &&
-                            (product as any).collection !== null
-                              ? (product as any).collection.id
-                              : (product as any).collection ||
-                                (product as any).collection_id
-                          }
-                          soldCount={Number(product.units_sold || 0)}
-                        />
-                      </div>
+                      {Number(product.units_sold || 0) > 0 && (
+                        <div className="mb-3">
+                          <span className="text-[10px] font-bold opacity-60 uppercase tracking-wider">
+                            {locale === "bn"
+                              ? `${Number(product.units_sold).toLocaleString("bn-BD")} ${locale === "bn" ? "বিক্রিত" : "Sold"}`
+                              : `${product.units_sold} Sold`}
+                          </span>
+                        </div>
+                      )}
                     </Link>
 
                     <div>
