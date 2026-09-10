@@ -119,25 +119,17 @@ export default function ProductDeliveryOfferBadge({
   const badgeText = getBadgeText();
 
   return (
-    <div className={`flex items-center gap-2 ${badgeText ? "justify-between" : "justify-start"} ${className}`}>
-      {badgeText ? (
-        <>
-          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent/15 text-accent text-[9px] font-black uppercase tracking-wider border border-accent/25">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-            <span>{badgeText}</span>
-          </div>
-          {soldCount !== undefined && (
-            <span className="text-[10px] font-bold opacity-60 uppercase tracking-wider shrink-0">
-              {locale === "bn" ? `${soldCount.toLocaleString("bn-BD")} ${t("delivery.sold")}` : `${soldCount} Sold`}
-            </span>
-          )}
-        </>
-      ) : (
-        soldCount !== undefined && (
-          <span className="text-[10px] font-bold opacity-60 uppercase tracking-wider shrink-0">
-            {locale === "bn" ? `${soldCount.toLocaleString("bn-BD")} ${t("delivery.sold")}` : `${soldCount} Sold`}
-          </span>
-        )
+    <div className={`flex items-center gap-2 ${soldCount !== undefined && badgeText ? "justify-between" : soldCount !== undefined ? "justify-start" : "justify-end"} ${className}`}>
+      {soldCount !== undefined && (
+        <span className="text-[10px] font-bold opacity-60 uppercase tracking-wider shrink-0">
+          {locale === "bn" ? `${soldCount.toLocaleString("bn-BD")} ${t("delivery.sold")}` : `${soldCount} Sold`}
+        </span>
+      )}
+      {badgeText && (
+        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-accent/15 text-accent text-[9px] font-black uppercase tracking-wider border border-accent/25">
+          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+          <span>{badgeText}</span>
+        </div>
       )}
     </div>
   );
