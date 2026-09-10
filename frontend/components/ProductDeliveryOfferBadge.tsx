@@ -121,13 +121,44 @@ export default function ProductDeliveryOfferBadge({
   const badgeText = getBadgeText();
 
   if (badgeOnly) {
-    if (!badgeText) return null;
+    if (!matchedRule) return null;
+
+    const qty = Number(matchedRule.min_quantity || 1);
+    const minAmount = Number(matchedRule.min_order_amount || 0);
+    const isFree = matchedRule.rule_type === "free";
+
+    // Compact, punchy, high-conversion copy
+    let shortOffer = "";
+    if (minAmount > 0) {
+      const formattedAmount = formatCurrency(minAmount);
+      shortOffer = isFree
+        ? (locale === "bn" ? `৳${Number(minAmount).toLocaleString("bn-BD")} এ ফ্রি ডেলিভারি` : `FREE DELIVERY OVER ${formattedAmount}`)
+        : (locale === "bn" ? `৳${Number(minAmount).toLocaleString("bn-BD")} এ বিশেষ ছাড়` : `SPECIAL DELIVERY OVER ${formattedAmount}`);
+    } else if (qty > 1) {
+      const qtyStr = locale === "bn" ? qty.toLocaleString("bn-BD") : qty;
+      shortOffer = isFree
+        ? (locale === "bn" ? `${qtyStr}+ পণ্যে ফ্রি ডেলিভারি` : `BUY ${qtyStr}+ GET FREE DELIVERY`)
+        : (locale === "bn" ? `${qtyStr}+ পণ্যে কম ডেলিভারি চার্জ` : `BUY ${qtyStr}+ GET REDUCED DELIVERY`);
+    } else {
+      shortOffer = isFree
+        ? (locale === "bn" ? "ফ্রি ডেলিভারি অফার" : "FREE DELIVERY OFFER")
+        : (locale === "bn" ? "ডেলিভারি ছাড় অফার" : "DELIVERY DISCOUNT OFFER");
+    }
+
     return (
       <div
-        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg backdrop-blur-md bg-black/60 dark:bg-black/70 border border-white/20 text-white text-[9px] font-black uppercase tracking-wider shadow-lg max-w-[90%] truncate ${className}`}
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-xl bg-gradient-to-r from-accent/90 via-primary/95 to-accent/90 text-button-fg border-2 border-white/40 shadow-[0_4px_14px_rgba(0,0,0,0.35)] hover:scale-105 transition-transform duration-300 pointer-events-auto ${className}`}
       >
-        <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shrink-0" />
-        <span className="truncate">{badgeText}</span>
+        <span className="flex items-center justify-center w-4 h-4 rounded-full bg-white/25 shrink-0">
+          <img
+            src="/icons/truck.png"
+            alt="Delivery"
+            className="w-2.5 h-2.5 object-contain brightness-0 invert"
+          />
+        </span>
+        <span className="text-[10px] font-black uppercase tracking-wider whitespace-nowrap drop-shadow-xs">
+          {shortOffer}
+        </span>
       </div>
     );
   }

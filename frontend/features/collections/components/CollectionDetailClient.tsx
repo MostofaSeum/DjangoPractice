@@ -179,7 +179,7 @@ export default function CollectionDetailClient({
                       />
 
                       {/* Glassmorphic Delivery Offer Badge at Bottom of Image */}
-                      <div className="absolute bottom-2 left-2 right-2 z-10 pointer-events-none flex justify-center">
+                      <div className="absolute bottom-2.5 left-0 right-0 z-10 pointer-events-none flex justify-center px-2">
                         <ProductDeliveryOfferBadge
                           productId={product.id}
                           collectionId={Number(collection.id)}
