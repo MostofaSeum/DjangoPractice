@@ -626,27 +626,40 @@ export default function ProductInteractive({
 
         {/* Delivery Charge Info */}
         {(() => {
-          const inCartQty =
-            cart?.items
-              ?.filter((item) => {
-                if (matchedDeliveryRule?.target_type === "product") {
-                  return Number(item.product.id) === Number(productId);
-                }
-                const itemColId =
-                  typeof item.product.collection === "object" &&
-                  item.product.collection !== null
-                    ? Number(item.product.collection.id)
-                    : item.product.collection !== undefined &&
-                      item.product.collection !== null
-                    ? Number(item.product.collection)
-                    : null;
-                return itemColId !== null && itemColId === Number(collectionId);
-              })
-              .reduce((sum, item) => sum + item.quantity, 0) || 0;
+          const matchingCartItems =
+            cart?.items?.filter((item) => {
+              if (matchedDeliveryRule?.target_type === "product") {
+                return Number(item.product.id) === Number(productId);
+              }
+              const itemColId =
+                typeof item.product.collection === "object" &&
+                item.product.collection !== null
+                  ? Number(item.product.collection.id)
+                  : item.product.collection !== undefined &&
+                    item.product.collection !== null
+                  ? Number(item.product.collection)
+                  : null;
+              return itemColId !== null && itemColId === Number(collectionId);
+            }) || [];
 
-          const isQualified =
+          const inCartQty = matchingCartItems.reduce((sum, item) => sum + item.quantity, 0);
+          const inCartSpend = matchingCartItems.reduce((sum, item) => {
+            const itemPrice = Number(
+              (item as any).variant?.price_override ??
+              item.product.discounted_price ??
+              item.product.unit_price ??
+              0
+            );
+            return sum + itemPrice * item.quantity;
+          }, 0);
+
+          const isSpendTrigger = (matchedDeliveryRule?.min_order_amount || 0) > 0;
+          const isQualified = Boolean(
             matchedDeliveryRule &&
-            inCartQty >= (matchedDeliveryRule.min_quantity || 1);
+            (isSpendTrigger
+              ? inCartSpend >= (matchedDeliveryRule.min_order_amount || 0)
+              : inCartQty >= (matchedDeliveryRule.min_quantity || 1))
+          );
 
           return (
             <div className="pt-2 text-xs font-bold text-foreground/80 flex flex-col gap-1">
