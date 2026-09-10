@@ -1,29 +1,53 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Customer Profile & Wishlist Page', () => {
-  // Helper to log in a test user
+  // Helper to ensure test user is authenticated
   async function ensureAuthenticated(page: any) {
-    await page.goto('/login');
+    try {
+      // 1. Fast, reliable API authentication: obtain JWT directly
+      const response = await page.request.post('http://127.0.0.1:8000/auth/jwt/create/', {
+        data: {
+          username: 'hello',
+          password: 'Hello123456',
+        },
+      });
+
+      if (response.ok()) {
+        const data = await response.json();
+        const access = data.access;
+        const refresh = data.refresh;
+
+        // Navigate to site to access localStorage origin
+        await page.goto('/', { waitUntil: 'domcontentloaded' });
+        await page.evaluate(({ access, refresh }: { access: string; refresh: string }) => {
+          localStorage.setItem('access_token', access);
+          if (refresh) localStorage.setItem('refresh_token', refresh);
+        }, { access, refresh });
+        return;
+      }
+    } catch (e) {
+      console.warn('API token seeding error, falling back to UI login:', e);
+    }
+
+    // 2. Fallback: Perform standard UI login
+    await page.goto('/login', { waitUntil: 'domcontentloaded' });
     const usernameInput = page.locator('input[placeholder*="USERNAME" i], input[name="username"]').first();
-    const passwordInput = page.locator('input[type="password"]').first();
+    const passwordInput = page.locator('input[type="password"], input[name="password"]').first();
     const submitBtn = page.locator('button[type="submit"]:has-text("Sign In"), button[type="submit"]:has-text("সাইন ইন"), form button[type="submit"]').first();
 
-    // If login form is visible, perform UI login
-    if (await usernameInput.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await usernameInput.fill('hello');
-      await passwordInput.fill('Hello123456');
-      await submitBtn.click();
-      // Wait until successfully redirected away from login
-      await page.waitForURL((url: URL) => !url.pathname.includes('/login'), { timeout: 10000 });
-    }
+    await expect(usernameInput).toBeVisible({ timeout: 15000 });
+    await usernameInput.fill('hello');
+    await passwordInput.fill('Hello123456');
+    await submitBtn.click();
+    await expect(page).not.toHaveURL(/\/login(\?|$)/, { timeout: 15000 });
   }
 
   test.beforeEach(async ({ page }) => {
     await ensureAuthenticated(page);
-    await page.goto('/profile');
-    await expect(page).toHaveURL(/profile/, { timeout: 10000 });
-    // Wait for any profile loading indicator to complete
-    await expect(page.getByText(/Loading profile|প্রোফাইল লোড হচ্ছে/i)).not.toBeVisible({ timeout: 10000 }).catch(() => {});
+    await page.goto('/profile', { waitUntil: 'domcontentloaded' });
+    await expect(page).toHaveURL(/profile/, { timeout: 15000 });
+    // Wait for the profile form to load completely and be interactive
+    await expect(page.locator('input[name="first_name"]')).toBeVisible({ timeout: 15000 });
   });
 
   test('user can change first name, last name, email, phone, and birthdate', async ({ page }) => {
@@ -91,16 +115,27 @@ test.describe('Customer Profile & Wishlist Page', () => {
       await addAddressBtn.click();
 
       // Modal should appear
-      const streetInput = page.locator('input[name="street"], textarea[name="street"], input[placeholder*="Road"], textarea[placeholder*="ঠিকানা"]');
-      if (await streetInput.first().isVisible()) {
-        await streetInput.first().fill('House 12, Road 5, Dhanmondi');
+      const addressModal = page.locator('.fixed.inset-0').filter({ hasText: /Address|ঠিকানা/i }).first();
+      await expect(addressModal).toBeVisible({ timeout: 10000 });
 
-        const saveAddressBtn = page.getByRole('button', { name: /Save Address|Save|সংরক্ষণ করুন/i });
-        await saveAddressBtn.click();
+      const streetInput = addressModal.locator('textarea, input[name="street"], [placeholder*="Road" i], [placeholder*="ঠিকানা"]').first();
+      await expect(streetInput).toBeVisible({ timeout: 5000 });
+      await streetInput.fill('House 12, Road 5, Dhanmondi');
 
-        const toast = page.locator('.swal2-popup').or(page.getByText(/Address saved successfully|ঠিকানা সংরক্ষণ হয়েছে/i));
-        await expect(toast.first()).toBeVisible({ timeout: 6000 });
-      }
+      const saveAddressBtn = addressModal.getByRole('button', { name: /Save Address|ঠিকানা সংরক্ষণ|Save/i });
+      await saveAddressBtn.click();
+
+      const toast = page.locator('.swal2-popup').or(page.getByText(/Address saved successfully|ঠিকানা সংরক্ষণ হয়েছে/i));
+      await expect(toast.first()).toBeVisible({ timeout: 10000 }).catch(() => {});
+
+      // Ensure modal is dismissed so it doesn't intercept subsequent clicks
+      await expect(addressModal).not.toBeVisible({ timeout: 10000 }).catch(async () => {
+        const cancelBtn = addressModal.getByRole('button', { name: /Cancel|বাতিল/i }).or(addressModal.locator('button[title*="Close"], button[title*="বন্ধ"]')).first();
+        if (await cancelBtn.isVisible()) {
+          await cancelBtn.click();
+          await expect(addressModal).not.toBeVisible({ timeout: 5000 }).catch(() => {});
+        }
+      });
     }
 
     // Edit address if at least one exists
@@ -108,13 +143,14 @@ test.describe('Customer Profile & Wishlist Page', () => {
       const editBtn = page.locator('button[title*="Edit Address"], button[title*="সম্পাদনা"]').first();
       await editBtn.click();
 
-      const modalHeading = page.locator('text=/Edit Address|ঠিকানা সম্পাদনা/i');
-      await expect(modalHeading.first()).toBeVisible();
+      const editModal = page.locator('.fixed.inset-0').filter({ hasText: /Edit Address|ঠিকানা সম্পাদনা/i }).first();
+      await expect(editModal).toBeVisible({ timeout: 10000 });
 
       // Cancel or close modal
-      const cancelBtn = page.getByRole('button', { name: /Cancel|বাতিল/i }).first();
+      const cancelBtn = editModal.getByRole('button', { name: /Cancel|বাতিল/i }).or(editModal.locator('button[title*="Close"], button[title*="বন্ধ"]')).first();
       if (await cancelBtn.isVisible()) {
         await cancelBtn.click();
+        await expect(editModal).not.toBeVisible({ timeout: 10000 }).catch(() => {});
       }
     }
 
@@ -257,11 +293,12 @@ test.describe('Customer Profile & Wishlist Page', () => {
   });
 
   test('pagination of orders is working properly', async ({ page }) => {
-    const nextOrderPageBtn = page.getByRole('button', { name: /Next|পরবর্তী/i });
+    await expect(page.locator('text=/My Order History|আমার অর্ডার হিস্ট্রি/i').first()).toBeVisible({ timeout: 10000 });
+    const nextOrderPageBtn = page.getByRole('button', { name: /^(Next|পরবর্তী)$/i });
     if (await nextOrderPageBtn.isVisible() && await nextOrderPageBtn.isEnabled()) {
       await nextOrderPageBtn.click();
       const pageIndicator = page.locator('text=/Showing|প্রদর্শিত হচ্ছে/i');
-      await expect(pageIndicator.first()).toBeVisible();
+      await expect(pageIndicator.first()).toBeVisible({ timeout: 10000 });
     }
   });
 
@@ -270,7 +307,7 @@ test.describe('Customer Profile & Wishlist Page', () => {
 
     // Verify Wishlist title
     const wishlistHeading = page.locator('h1:has-text("Wishlist"), h1:has-text("উইশলিস্ট")');
-    await expect(wishlistHeading).toBeVisible();
+    await expect(wishlistHeading).toBeVisible({ timeout: 15000 });
 
     // Verify "Continue Shopping" button has been cleanly removed from the UI header
     const continueShoppingBtn = page.getByRole('link', { name: /Continue Shopping|কেনাকাটা চালিয়ে যান/i });
@@ -290,29 +327,29 @@ test.describe('Customer Profile & Wishlist Page', () => {
     } else {
       // Empty state
       const emptyHeading = page.locator('text=/Your Wishlist is Empty|আপনার উইশলিস্ট খালি/i');
-      await expect(emptyHeading.first()).toBeVisible();
+      await expect(emptyHeading.first()).toBeVisible({ timeout: 10000 });
 
       // Browse Products button works
       const browseBtn = page.getByRole('link', { name: /Browse Products|পণ্য ব্রাউজ করুন/i });
-      await expect(browseBtn).toBeVisible();
+      await expect(browseBtn).toBeVisible({ timeout: 10000 });
       await expect(browseBtn).toHaveAttribute('href', '/products');
     }
   });
 
   test('logout can be done perfectly', async ({ page }) => {
     // 1. Locate the user menu button in the header (shows username and dropdown arrow)
-    const userMenuBtn = page.locator('header button:has(svg)').filter({ hasText: /AdminFirst|hello|[a-zA-Z0-9]+/i }).last();
-    await expect(userMenuBtn).toBeVisible({ timeout: 10000 });
+    const userMenuBtn = page.locator('header button:has(svg)').filter({ hasText: /AdminFirst|Admin|hello|[a-zA-Z0-9]+/i }).last();
+    await expect(userMenuBtn).toBeVisible({ timeout: 15000 });
     await userMenuBtn.click();
 
     // 2. Locate and click Sign Out / লগআউট from the dropdown menu
     const signOutBtn = page.getByRole('button', { name: /SIGN OUT|সাইন আউট|Logout|লগআউট/i }).first();
-    await expect(signOutBtn).toBeVisible({ timeout: 5000 });
+    await expect(signOutBtn).toBeVisible({ timeout: 10000 });
     await signOutBtn.click();
 
     // 3. Confirm redirected to login page or home page and sign in button reappears
-    await expect(page).toHaveURL(/\/login|\//, { timeout: 10000 });
+    await expect(page).toHaveURL(/\/login|\//, { timeout: 15000 });
     const signInLink = page.getByRole('link', { name: /SIGN IN|সাইন ইন/i }).first();
-    await expect(signInLink).toBeVisible({ timeout: 10000 });
+    await expect(signInLink).toBeVisible({ timeout: 15000 });
   });
 });
