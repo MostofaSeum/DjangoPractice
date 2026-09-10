@@ -68,13 +68,6 @@ export default function WishlistPage() {
             <p className="text-xs opacity-70 font-bold uppercase tracking-wider mt-1">
               {t("wishlist.savedFavorites")}
             </p>
-          </div>
-          <Link
-            href="/products"
-            className="px-5 py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-extrabold uppercase tracking-wider hover:opacity-90 transition-all shadow-sm cursor-pointer"
-          >
-            {t("wishlist.continueShopping")}
-          </Link>
         </div>
 
         {wishlistItems.length === 0 ? (

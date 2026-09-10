@@ -540,6 +540,11 @@ export default function ProfilePage() {
     e.preventDefault();
     if (!token) return;
 
+    if (!formData.first_name.trim() || !formData.last_name.trim() || !formData.email.trim()) {
+      setError(locale === "bn" ? "নাম এবং ইমেইল অবশ্যই পূরণ করতে হবে।" : "First name, last name, and email are required.");
+      return;
+    }
+
     setError("");
     setSaving(true);
 
@@ -778,11 +783,12 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    {t("profile.firstName")}
+                    {t("profile.firstName")} *
                   </label>
                   <input
                     type="text"
                     name="first_name"
+                    required
                     value={formData.first_name}
                     onChange={handleChange}
                     placeholder={t("profile.firstName")}
@@ -792,11 +798,12 @@ export default function ProfilePage() {
 
                 <div className="flex flex-col gap-1.5">
                   <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                    {t("profile.lastName")}
+                    {t("profile.lastName")} *
                   </label>
                   <input
                     type="text"
                     name="last_name"
+                    required
                     value={formData.last_name}
                     onChange={handleChange}
                     placeholder={t("profile.lastName")}
@@ -807,11 +814,12 @@ export default function ProfilePage() {
 
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
-                  {t("profile.emailAddress")}
+                  {t("profile.emailAddress")} *
                 </label>
                 <input
                   type="email"
                   name="email"
+                  required
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="YOU@EXAMPLE.COM"
@@ -949,6 +957,21 @@ export default function ProfilePage() {
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* Logout Action */}
+            <div className="mt-8 pt-6 border-t border-foreground/10">
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  router.push("/login");
+                }}
+                className="w-full py-3.5 px-4 rounded-2xl border border-red-500/30 text-red-500 hover:bg-red-500/10 font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+              >
+                <img src="/logout.png" alt="Logout" className="w-4 h-4 object-contain invert dark:invert-0" />
+                <span>{locale === "bn" ? "লগআউট করুন" : "Logout"}</span>
+              </button>
             </div>
           </div>
 
