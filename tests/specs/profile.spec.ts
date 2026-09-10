@@ -3,42 +3,27 @@ import { test, expect } from '@playwright/test';
 test.describe('Customer Profile & Wishlist Page', () => {
   // Helper to log in a test user
   async function ensureAuthenticated(page: any) {
-    // 1. Fetch JWT tokens directly and inject into localStorage for immediate reliable authentication
-    await page.goto('/login', { waitUntil: 'domcontentloaded' });
-    await page.evaluate(async () => {
-      try {
-        const res = await fetch('http://127.0.0.1:8000/auth/jwt/create/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: 'hello', password: 'Hello123456' }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.access) localStorage.setItem('access_token', data.access);
-          if (data.refresh) localStorage.setItem('refresh_token', data.refresh);
-        }
-      } catch (e) {
-        console.error('Direct token injection failed:', e);
-      }
-    });
+    await page.goto('/login');
+    const usernameInput = page.locator('input[placeholder*="USERNAME" i], input[name="username"]').first();
+    const passwordInput = page.locator('input[type="password"]').first();
+    const submitBtn = page.locator('button[type="submit"]:has-text("Sign In"), button[type="submit"]:has-text("সাইন ইন"), form button[type="submit"]').first();
 
-    // 2. Fallback UI form fill if not already logged in
-    const usernameInput = page.locator('input[name="username"]').or(page.getByPlaceholder(/Username|Email/i)).first();
-    const passwordInput = page.locator('input[name="password"]').or(page.locator('input[type="password"]')).first();
-    const submitBtn = page.locator('form button[type="submit"]');
-
-    if (await usernameInput.isVisible({ timeout: 1500 }).catch(() => false)) {
+    // If login form is visible, perform UI login
+    if (await usernameInput.isVisible({ timeout: 2000 }).catch(() => false)) {
       await usernameInput.fill('hello');
       await passwordInput.fill('Hello123456');
       await submitBtn.click();
-      await page.waitForTimeout(1000);
+      // Wait until successfully redirected away from login
+      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 10000 });
     }
   }
 
   test.beforeEach(async ({ page }) => {
     await ensureAuthenticated(page);
-    await page.goto('/profile', { waitUntil: 'domcontentloaded' });
+    await page.goto('/profile');
     await expect(page).toHaveURL(/profile/, { timeout: 10000 });
+    // Wait for any profile loading indicator to complete
+    await expect(page.getByText(/Loading profile|প্রোফাইল লোড হচ্ছে/i)).not.toBeVisible({ timeout: 10000 }).catch(() => {});
   });
 
   test('user can change first name, last name, email, phone, and birthdate', async ({ page }) => {
