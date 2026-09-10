@@ -87,7 +87,8 @@ test.describe('Cart Page', () => {
     });
 
     await page.goto('/cart', { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(1000);
+    const orderSummaryHeading = page.getByRole('heading', { name: /Order Summary|অর্ডার সারাংশ/i });
+    await expect(orderSummaryHeading).toBeVisible({ timeout: 15000 });
   }
 
   test('decrease (-) button decreases quantity up to minimum of 1 and does not decrease below 1', async ({ page }) => {
@@ -145,7 +146,7 @@ test.describe('Cart Page', () => {
     await expect(deleteBtn).toBeVisible({ timeout: 10000 });
 
     // Count items before deletion
-    const itemRows = page.locator('.space-y-4 > div');
+    const itemRows = page.locator('.space-y-4 > div').filter({ has: page.locator('img[alt="Delete"]') });
     const countBefore = await itemRows.count();
     expect(countBefore).toBeGreaterThan(0);
 
@@ -303,7 +304,7 @@ test.describe('Cart Page', () => {
 
     // Look for original subtotal and product discount rows in the summary card
     const originalSubtotalEl = page.locator('.space-y-3\\.5 > div').first();
-    await expect(originalSubtotalEl).toBeVisible();
+    await expect(originalSubtotalEl).toBeVisible({ timeout: 15000 });
 
     const productDiscountsRow = page.getByText(/Product Discounts|পণ্য ছাড়/i);
     if (await productDiscountsRow.isVisible()) {
@@ -388,7 +389,7 @@ test.describe('Cart Page', () => {
       .first();
     await expect(deleteBtn).toBeVisible({ timeout: 10000 });
 
-    const itemRows = page.locator('.space-y-4 > div');
+    const itemRows = page.locator('.space-y-4 > div').filter({ has: page.locator('img[alt="Delete"]') });
     const countBefore = await itemRows.count();
     expect(countBefore).toBeGreaterThan(0);
 
@@ -470,7 +471,7 @@ test.describe('Cart Page', () => {
     });
     await expect(youMayAlsoLikeHeading).toBeVisible({ timeout: 10000 });
 
-    const itemRows = page.locator('.space-y-4 > div');
+    const itemRows = page.locator('.space-y-4 > div').filter({ has: page.locator('img[alt="Delete"]') });
     const initialItemCount = await itemRows.count();
 
     // Click "Add" button on the first recommended product card

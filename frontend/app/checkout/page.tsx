@@ -724,7 +724,9 @@ export default function CheckoutPage() {
                       <div className="flex items-center gap-3">
                         <input
                           type="radio"
+                          id="delivery_inside"
                           name="delivery_area"
+                          value="inside_dhaka"
                           checked={deliveryArea === "inside_dhaka"}
                           onChange={() => setDeliveryArea("inside_dhaka")}
                           className="w-4 h-4 accent-accent cursor-pointer"
@@ -764,7 +766,9 @@ export default function CheckoutPage() {
                       <div className="flex items-center gap-3">
                         <input
                           type="radio"
+                          id="delivery_outside"
                           name="delivery_area"
+                          value="outside_dhaka"
                           checked={deliveryArea === "outside_dhaka"}
                           onChange={() => setDeliveryArea("outside_dhaka")}
                           className="w-4 h-4 accent-accent cursor-pointer"
@@ -885,7 +889,9 @@ export default function CheckoutPage() {
                       </span>
                       <input
                         type="radio"
+                        id="pay_cod"
                         name="payment_method"
+                        value="C"
                         checked={paymentMethod === "C"}
                         onChange={() => setPaymentMethod("C")}
                         className="w-4 h-4 accent-accent cursor-pointer"
@@ -913,7 +919,9 @@ export default function CheckoutPage() {
                       </span>
                       <input
                         type="radio"
+                        id="pay_bkash"
                         name="payment_method"
+                        value="O"
                         checked={paymentMethod === "O"}
                         onChange={() => setPaymentMethod("O")}
                         className="w-4 h-4 accent-bkash cursor-pointer"
@@ -941,7 +949,9 @@ export default function CheckoutPage() {
                       </span>
                       <input
                         type="radio"
+                        id="pay_nagad"
                         name="payment_method"
+                        value="N"
                         checked={paymentMethod === "N"}
                         onChange={() => setPaymentMethod("N")}
                         className="w-4 h-4 accent-nagad cursor-pointer"
@@ -978,7 +988,9 @@ export default function CheckoutPage() {
                       </span>
                       <input
                         type="radio"
+                        id="pay_vibecoin"
                         name="payment_method"
+                        value="V"
                         disabled={!hasSufficientVibeCoin}
                         checked={paymentMethod === "V"}
                         onChange={() => {
