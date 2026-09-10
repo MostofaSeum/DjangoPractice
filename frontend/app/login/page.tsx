@@ -27,7 +27,11 @@ function LoginForm() {
   // Redirect if already logged in
   useEffect(() => {
     if (!authLoading && user) {
-      router.replace(redirectUrl);
+      if (user.is_staff) {
+        router.replace("/admin");
+      } else {
+        router.replace(redirectUrl);
+      }
     }
   }, [user, authLoading, router, redirectUrl]);
 

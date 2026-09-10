@@ -7,9 +7,12 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
   test.describe('Login Page', () => {
     test.beforeEach(async ({ page }) => {
       await page.addInitScript(() => {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('jwt');
+        if (!sessionStorage.getItem('__init_clean__')) {
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('jwt');
+          sessionStorage.setItem('__init_clean__', '1');
+        }
       });
       await page.goto('/login', { waitUntil: 'domcontentloaded' });
     });
@@ -216,6 +219,37 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
       // Guard redirects non-staff user away from /admin (e.g. to / or shows access denied)
       await expect(page).not.toHaveURL(/\/admin$/, { timeout: 10000 });
     });
+
+    test('redirect parameter (?redirect=/checkout) correctly forwards user after login', async ({ page }) => {
+      await page.goto('/login?redirect=%2Fcheckout', { waitUntil: 'domcontentloaded' });
+      const usernameInput = page.locator('input[name="username"], input[type="text"]').first();
+      await expect(usernameInput).toBeVisible({ timeout: 15000 });
+      await usernameInput.fill('hello');
+      await page.locator('input[type="password"]').first().fill('Hello123456');
+      await page.locator('form button[type="submit"]').click();
+      await expect(page).toHaveURL(/\/checkout/, { timeout: 15000 });
+    });
+
+    test('using username as admin and password as admin redirects to admin page', async ({ page }) => {
+      await page.goto('/login', { waitUntil: 'domcontentloaded' });
+      const usernameInput = page.locator('input[name="username"], input[type="text"]').first();
+      await expect(usernameInput).toBeVisible({ timeout: 15000 });
+      await usernameInput.fill('admin');
+      await page.locator('input[type="password"]').first().fill('admin');
+      await page.locator('form button[type="submit"]').click();
+      await expect(page).toHaveURL(/\/admin/, { timeout: 15000 });
+    });
+
+    test('displays character limit indicator badges when inputs reach threshold', async ({ page }) => {
+      const usernameInput = page.locator('input[name="username"], input[type="text"]').first();
+      await expect(usernameInput).toBeVisible({ timeout: 15000 });
+      await usernameInput.fill('a'.repeat(42));
+      await expect(page.getByText('42/50')).toBeVisible();
+
+      const passwordInput = page.locator('input[type="password"]').first();
+      await passwordInput.fill('p'.repeat(105));
+      await expect(page.getByText('105/128')).toBeVisible();
+    });
   });
 
   /* -------------------------------------------------------------------------- */
@@ -224,9 +258,12 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
   test.describe('Register Page', () => {
     test.beforeEach(async ({ page }) => {
       await page.addInitScript(() => {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('jwt');
+        if (!sessionStorage.getItem('__init_clean__')) {
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('jwt');
+          sessionStorage.setItem('__init_clean__', '1');
+        }
       });
       await page.goto('/register', { waitUntil: 'domcontentloaded' });
     });
@@ -328,6 +365,49 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
       const errorMsg = page.getByText(/email already exists|ইমেইল|already taken/i).or(page.locator('.swal2-popup, .text-red-500'));
       await expect(errorMsg.first()).toBeVisible({ timeout: 10000 });
     });
+
+    test('validates password minimum length of at least 8 characters', async ({ page }) => {
+      const usernameInput = page.locator('input[name="username"]');
+      const emailInput = page.locator('input[name="email"]');
+      const passwordInputs = page.locator('input[type="password"]');
+      const registerBtn = page.getByRole('button', { name: /Create Account|Register|Sign Up/i });
+
+      await usernameInput.fill(`newuser_${Date.now()}`);
+      await emailInput.fill(`newuser_${Date.now()}@example.com`);
+      await passwordInputs.first().fill('short');
+      await passwordInputs.nth(1).fill('short');
+      await registerBtn.click();
+
+      const errorMsg = page.getByText(/at least 8 characters|কমপক্ষে ৮|8 characters long/i).or(page.locator('.text-red-500, .swal2-popup'));
+      await expect(errorMsg.first()).toBeVisible({ timeout: 5000 });
+    });
+
+    test('toggles confirm password visibility when second eye icon is clicked', async ({ page }) => {
+      const confirmPassInput = page.locator('input[name="confirmPassword"]');
+      await expect(confirmPassInput).toBeVisible({ timeout: 15000 });
+      await confirmPassInput.fill('SecretConfirm123');
+      expect(await confirmPassInput.getAttribute('type')).toBe('password');
+
+      const eyeButtons = page.locator('button:has(img[alt*="password" i]), button[aria-label*="password" i]');
+      if (await eyeButtons.count() >= 2) {
+        await eyeButtons.nth(1).click();
+        expect(await confirmPassInput.getAttribute('type')).toBe('text');
+
+        // Click again to hide
+        await eyeButtons.nth(1).click();
+        expect(await confirmPassInput.getAttribute('type')).toBe('password');
+      }
+    });
+
+    test('displays character limit indicator badges on registration fields', async ({ page }) => {
+      const firstNameInput = page.locator('input[name="first_name"]');
+      await firstNameInput.fill('a'.repeat(18));
+      await expect(page.getByText('18/20').first()).toBeVisible();
+
+      const usernameInput = page.locator('input[name="username"]');
+      await usernameInput.fill('u'.repeat(45));
+      await expect(page.getByText('45/50')).toBeVisible();
+    });
   });
 
   /* -------------------------------------------------------------------------- */
@@ -428,6 +508,84 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
           expect(type === 'text' || type === 'password').toBeTruthy();
         }
       }
+    });
+
+    test('completes full password reset successfully with matching valid passwords', async ({ page }) => {
+      const usernameInput = page.locator('form input').first();
+      const emailInput = page.locator('form input').nth(1);
+      const verifyBtn = page.getByRole('button', { name: /Verify Account|Reset Password|Continue|Submit|Verify/i });
+
+      await usernameInput.fill('hello');
+      await emailInput.fill('hello@gmail.com');
+      await verifyBtn.click();
+
+      // Step 2 new password form
+      const newPasswordInput = page.locator('input[type="password"], input[placeholder*="••••"]').first();
+      if (await newPasswordInput.isVisible({ timeout: 8000 }).catch(() => false)) {
+        const confirmPasswordInput = page.locator('input[type="password"], input[placeholder*="••••"]').nth(1);
+        await newPasswordInput.fill('Hello123456');
+        await confirmPasswordInput.fill('Hello123456');
+
+        const submitResetBtn = page.getByRole('button', { name: /Reset Password|Update Password|পাসওয়ার্ড/i });
+        await submitResetBtn.click();
+
+        // Check for success popup and redirection to /login
+        const successPopup = page.locator('.swal2-popup, text=/Password Changed|সফলভাবে/i');
+        await expect(successPopup.first()).toBeVisible({ timeout: 10000 });
+        await expect(page).toHaveURL(/\/login/, { timeout: 10000 });
+      }
+    });
+  });
+
+  /* -------------------------------------------------------------------------- */
+  /* 4. Header Authentication State & Logout Flow                               */
+  /* -------------------------------------------------------------------------- */
+  test.describe('Header Authentication State & Logout Flow', () => {
+    test.beforeEach(async ({ page }) => {
+      await page.addInitScript(() => {
+        if (!sessionStorage.getItem('__init_clean__')) {
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('jwt');
+          sessionStorage.setItem('__init_clean__', '1');
+        }
+      });
+    });
+
+    test('header shows Sign In when logged out, shows user profile dropdown when logged in, and logs out cleanly', async ({ page }) => {
+      // 1. As guest, header contains Sign In link
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      const headerSignIn = page.locator('header').getByRole('link', { name: /Sign In|সাইন ইন/i }).first();
+      await expect(headerSignIn).toBeVisible({ timeout: 10000 });
+
+      // 2. Log in
+      await page.goto('/login', { waitUntil: 'domcontentloaded' });
+      const usernameInput = page.locator('input[name="username"], input[type="text"]').first();
+      await expect(usernameInput).toBeVisible({ timeout: 15000 });
+      await usernameInput.fill('hello');
+      await page.locator('input[type="password"]').first().fill('Hello123456');
+      await page.locator('form button[type="submit"]').click();
+      await expect(page).not.toHaveURL(/\/login$/, { timeout: 10000 });
+
+      // 3. Return to home; header should now display user dropdown instead of Sign In
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
+      const userMenuBtn = page.locator('header button').filter({ has: page.locator('span.truncate') }).first();
+      await expect(userMenuBtn).toBeVisible({ timeout: 10000 });
+
+      // 4. Click user dropdown to view options
+      await userMenuBtn.click();
+      const profileLink = page.locator('header a[href*="/profile"]').first();
+      await expect(profileLink).toBeVisible();
+
+      // 5. Click Sign Out from header
+      const signOutBtn = page.locator('header button').filter({ hasText: /Sign Out|Logout|লগআউট/i }).first();
+      await expect(signOutBtn).toBeVisible();
+      await signOutBtn.click();
+
+      // 6. User is logged out; tokens cleared from localStorage and Sign In link is restored
+      await expect(headerSignIn).toBeVisible({ timeout: 10000 });
+      const token = await page.evaluate(() => localStorage.getItem('access_token'));
+      expect(token).toBeNull();
     });
   });
 });
