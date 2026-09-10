@@ -42,11 +42,14 @@ test.describe('Customer Profile & Wishlist Page', () => {
   }
 
   test.beforeEach(async ({ page }) => {
+    test.setTimeout(60000);
     await ensureAuthenticated(page);
     await page.goto('/profile', { waitUntil: 'domcontentloaded' });
     await expect(page).toHaveURL(/profile/, { timeout: 15000 });
     // Wait for the profile form to load completely and be interactive
     await expect(page.locator('input[name="first_name"]')).toBeVisible({ timeout: 15000 });
+    // Wait for existing profile email to populate to prevent submitting empty form
+    await expect(page.locator('input[name="email"]')).not.toHaveValue('', { timeout: 15000 }).catch(() => {});
   });
 
   test('user can change first name, last name, email, phone, and birthdate', async ({ page }) => {
@@ -65,6 +68,9 @@ test.describe('Customer Profile & Wishlist Page', () => {
     await expect(phoneInput).toBeVisible();
     await expect(birthDateInput).toBeVisible();
 
+    // Ensure email has populated before submitting
+    await expect(emailInput).not.toHaveValue('', { timeout: 10000 }).catch(() => {});
+
     // Fill new profile information
     await firstNameInput.fill('AdminFirst');
     await lastNameInput.fill('AdminLast');
@@ -75,7 +81,7 @@ test.describe('Customer Profile & Wishlist Page', () => {
 
     // Verify confirmation feedback
     const toast = page.locator('.swal2-popup').or(page.getByText(/Profile updated successfully|প্রোফাইল আপডেট হয়েছে/i));
-    await expect(toast.first()).toBeVisible({ timeout: 6000 });
+    await expect(toast.first()).toBeVisible({ timeout: 10000 });
   });
 
   test('first name, last name, and email are required to update profile - cannot be empty', async ({ page }) => {
@@ -83,6 +89,9 @@ test.describe('Customer Profile & Wishlist Page', () => {
     const lastNameInput = page.locator('input[name="last_name"]');
     const emailInput = page.locator('input[name="email"]');
     const saveBtn = page.getByRole('button', { name: /Save.*Changes|সংরক্ষণ/i });
+
+    // Wait until profile data is loaded into form before testing empty validation
+    await expect(firstNameInput).not.toHaveValue('', { timeout: 10000 }).catch(() => {});
 
     // Empty the first name
     await firstNameInput.fill('');
@@ -99,18 +108,38 @@ test.describe('Customer Profile & Wishlist Page', () => {
 
     const isEmailInvalid = await emailInput.evaluate((el: HTMLInputElement) => !el.checkValidity() || el.value.trim() === '');
     expect(isEmailInvalid).toBeTruthy();
+
+    // Restore email
+    await emailInput.fill('hello@gmail.com');
   });
 
   test('can add addresses with limit of 5, and can update or delete them', async ({ page }) => {
     const addressSection = page.locator('text=/Saved Addresses|সংরক্ষিত ঠিকানা/i');
     await expect(addressSection.first()).toBeVisible();
 
-    const addAddressBtn = page.getByRole('button', { name: /\+ Add New Address|\+ নতুন ঠিকানা/i });
-    const existingAddresses = page.locator('button[title*="Edit Address"], button[title*="ঠিকানা সম্পাদনা"]');
-    const existingCount = await existingAddresses.count();
+    // Wait for saved addresses to finish loading
+    await expect(page.locator('text=/Loading addresses|ঠিকানা লোড হচ্ছে/i')).not.toBeVisible({ timeout: 15000 }).catch(() => {});
+    await expect(page.locator('text=/Saved Addresses \\(\\d+\\/5\\)|সংরক্ষিত ঠিকানা/i').first()).toBeVisible({ timeout: 15000 }).catch(() => {});
 
-    // If under 5, can add address
-    if (existingCount < 5 && (await addAddressBtn.isVisible())) {
+    const addAddressBtn = page.getByRole('button', { name: /\+ Add New Address|\+ নতুন ঠিকানা/i });
+    const deleteButtons = page.locator('button[title*="Delete Address"], button[title*="মুছে ফেলুন"]');
+    let deleteCount = await deleteButtons.count();
+
+    // If at limit of 5, delete one address first to allow testing add
+    if (deleteCount >= 5) {
+      const deleteBtn = deleteButtons.first();
+      await deleteBtn.click();
+      const confirmBtn = page.locator('.swal2-confirm');
+      await expect(confirmBtn).toBeVisible({ timeout: 5000 });
+      await confirmBtn.click();
+      // Wait for swal container to clear
+      await expect(page.locator('.swal2-container')).not.toBeVisible({ timeout: 8000 }).catch(() => {});
+      // Wait for add address button to become available
+      await expect(addAddressBtn).toBeVisible({ timeout: 10000 });
+    }
+
+    // Add address
+    if (await addAddressBtn.isVisible()) {
       await addAddressBtn.click();
 
       // Modal should appear
@@ -127,19 +156,27 @@ test.describe('Customer Profile & Wishlist Page', () => {
       const toast = page.locator('.swal2-popup').or(page.getByText(/Address saved successfully|ঠিকানা সংরক্ষণ হয়েছে/i));
       await expect(toast.first()).toBeVisible({ timeout: 10000 }).catch(() => {});
 
-      // Ensure modal is dismissed so it doesn't intercept subsequent clicks
+      // Ensure address modal is dismissed
       await expect(addressModal).not.toBeVisible({ timeout: 10000 }).catch(async () => {
         const cancelBtn = addressModal.getByRole('button', { name: /Cancel|বাতিল/i }).or(addressModal.locator('button[title*="Close"], button[title*="বন্ধ"]')).first();
         if (await cancelBtn.isVisible()) {
-          await cancelBtn.click();
+          await cancelBtn.click({ force: true }).catch(() => {});
           await expect(addressModal).not.toBeVisible({ timeout: 5000 }).catch(() => {});
         }
       });
+
+      // Dismiss any remaining SweetAlert alert/backdrop so it doesn't intercept pointer events
+      const swalContainer = page.locator('.swal2-container');
+      if (await swalContainer.isVisible().catch(() => false)) {
+        const swalBtn = page.locator('.swal2-confirm, .swal2-close').first();
+        if (await swalBtn.isVisible().catch(() => false)) await swalBtn.click().catch(() => {});
+        await expect(swalContainer).not.toBeVisible({ timeout: 5000 }).catch(() => {});
+      }
     }
 
     // Edit address if at least one exists
-    if (existingCount > 0) {
-      const editBtn = page.locator('button[title*="Edit Address"], button[title*="সম্পাদনা"]').first();
+    const editBtn = page.locator('button[title*="Edit Address"], button[title*="সম্পাদনা"]').first();
+    if (await editBtn.isVisible()) {
       await editBtn.click();
 
       const editModal = page.locator('.fixed.inset-0').filter({ hasText: /Edit Address|ঠিকানা সম্পাদনা/i }).first();

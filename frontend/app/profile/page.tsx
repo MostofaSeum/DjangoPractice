@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/store/LanguageContext";
 import { useRouter } from "next/navigation";
@@ -475,14 +475,16 @@ export default function ProfilePage() {
     }
   };
 
-  // Sync user info from auth immediately if available
+  const userInitialized = useRef(false);
+  // Sync user info from auth immediately on initial load
   useEffect(() => {
-    if (user) {
+    if (user && !userInitialized.current) {
+      userInitialized.current = true;
       setFormData((prev) => ({
         ...prev,
-        first_name: prev.first_name || user.first_name || "",
-        last_name: prev.last_name || user.last_name || "",
-        email: prev.email || user.email || "",
+        first_name: user.first_name || prev.first_name || "",
+        last_name: user.last_name || prev.last_name || "",
+        email: user.email || prev.email || "",
       }));
     }
   }, [user]);
@@ -889,10 +891,10 @@ export default function ProfilePage() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
-                    {t("profile.savedAddresses")} ({addresses.length}/5)
+                    {t("profile.savedAddresses")} {addressesLoading ? "" : `(${addresses.length}/5)`}
                   </h3>
                 </div>
-                {addresses.length < 5 && (
+                {!addressesLoading && addresses.length < 5 && (
                   <button
                     type="button"
                     onClick={handleOpenAddAddress}
@@ -903,7 +905,11 @@ export default function ProfilePage() {
                 )}
               </div>
 
-              {addresses.length === 0 ? (
+              {addressesLoading ? (
+                <div className="p-4 bg-background/50 border border-foreground/10 rounded-xl text-center text-xs opacity-60 font-semibold animate-pulse">
+                  {locale === "bn" ? "ঠিকানা লোড হচ্ছে..." : "Loading addresses..."}
+                </div>
+              ) : addresses.length === 0 ? (
                 <div className="p-4 bg-background/50 border border-foreground/10 rounded-xl text-center text-xs opacity-60 font-semibold">
                   {t("profile.noAddresses")}
                 </div>
