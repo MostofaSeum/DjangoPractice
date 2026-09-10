@@ -68,6 +68,7 @@ export default function WishlistPage() {
             <p className="text-xs opacity-70 font-bold uppercase tracking-wider mt-1">
               {t("wishlist.savedFavorites")}
             </p>
+          </div>
         </div>
 
         {wishlistItems.length === 0 ? (

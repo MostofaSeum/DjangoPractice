@@ -687,7 +687,7 @@ export default function ProductInteractive({
                           {formatCurrency(deliverySettings.inside_dhaka_charge)}
                         </span>
                         <span className="text-accent font-extrabold text-[11px]">
-                          {formatCurrency(matchedDeliveryRule?.inside_dhaka_charge)}
+                          {formatCurrency(matchedDeliveryRule?.inside_dhaka_charge ?? 0)}
                         </span>
                       </span>
                     )
@@ -717,7 +717,7 @@ export default function ProductInteractive({
                           {formatCurrency(deliverySettings.outside_dhaka_charge)}
                         </span>
                         <span className="text-accent font-extrabold text-[11px]">
-                          {formatCurrency(matchedDeliveryRule?.outside_dhaka_charge)}
+                          {formatCurrency(matchedDeliveryRule?.outside_dhaka_charge ?? 0)}
                         </span>
                       </span>
                     )
