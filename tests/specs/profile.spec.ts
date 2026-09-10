@@ -171,6 +171,27 @@ test.describe('Customer Profile & Wishlist Page', () => {
     const trackBtns = page.locator('button:has-text("Track"), button:has-text("ট্র্যাক")');
     if (await trackBtns.count() > 0) {
       await expect(trackBtns.first()).toBeVisible();
+      // Click Track Order to test tracking modal
+      await trackBtns.first().click();
+
+      const trackingModal = page.locator('.fixed.inset-0');
+      await expect(trackingModal.first()).toBeVisible();
+
+      // Check Tracking Milestones / Delivery progress display
+      const trackingHeading = trackingModal.locator('text=/Order Tracking|অর্ডার ট্র্যাকিং/i');
+      await expect(trackingHeading.first()).toBeVisible();
+
+      // Check for consignment or tracking code if present
+      const copyTrackingBtn = trackingModal.locator('button[title*="Copy"], button:has-text("Copy")');
+      if (await copyTrackingBtn.count() > 0) {
+        await copyTrackingBtn.first().click();
+      }
+
+      // Close tracking modal
+      const closeTrackingBtn = trackingModal.locator('button[title*="Close"], button[title*="বন্ধ"]').first();
+      if (await closeTrackingBtn.isVisible()) {
+        await closeTrackingBtn.click();
+      }
     }
 
     const reviewBtns = page.locator('button:has-text("Review"), button:has-text("রিভিউ")');
@@ -181,6 +202,52 @@ test.describe('Customer Profile & Wishlist Page', () => {
     const cancelBtns = page.locator('button:has-text("Cancel Order"), button:has-text("অর্ডার বাতিল")');
     if (await cancelBtns.count() > 0) {
       await expect(cancelBtns.first()).toBeVisible();
+    }
+  });
+
+  test('return and refund request modal can be opened and validates item selection and refund details', async ({ page }) => {
+    // Check if any delivered order has a Return button
+    const returnBtns = page.locator('button:has-text("Return"), button:has-text("রিটার্ন")');
+    if (await returnBtns.count() > 0) {
+      await returnBtns.first().click();
+
+      // Return modal should appear (either new request modal or status view modal)
+      const returnModal = page.locator('.fixed.inset-0');
+      await expect(returnModal.first()).toBeVisible();
+
+      const returnTitle = returnModal.locator('text=/Return|Refund|রিটার্ন|রিফান্ড/i');
+      await expect(returnTitle.first()).toBeVisible();
+
+      // If it is the new return submission modal with checkboxes:
+      const itemCheckboxes = returnModal.locator('input[type="checkbox"]');
+      if (await itemCheckboxes.count() > 0) {
+        // Step 1: Items can be selected/unselected
+        await expect(itemCheckboxes.first()).toBeChecked();
+
+        // Step 2: Reason select dropdown
+        const reasonSelect = returnModal.locator('select').first();
+        if (await reasonSelect.isVisible()) {
+          await expect(reasonSelect).toBeVisible();
+          await reasonSelect.selectOption('wrong_item');
+        }
+
+        // Step 4: Refund method radio selection (VibeCoin, bKash, Nagad)
+        const bkashRadio = returnModal.locator('input[type="radio"][value="bkash"], label:has-text("bKash")');
+        if (await bkashRadio.count() > 0) {
+          await bkashRadio.first().click();
+          const accountInput = returnModal.locator('input[type="tel"]');
+          if (await accountInput.isVisible()) {
+            await accountInput.fill('01711223344');
+            expect(await accountInput.inputValue()).toBe('01711223344');
+          }
+        }
+      }
+
+      // Close return modal
+      const closeBtn = returnModal.locator('button[title*="Close"], button[title*="বন্ধ"], button:has-text("Cancel"), button:has-text("বাতিল")').first();
+      if (await closeBtn.isVisible()) {
+        await closeBtn.click();
+      }
     }
   });
 

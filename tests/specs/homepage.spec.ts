@@ -81,6 +81,41 @@ test.describe('Storefront Homepage - Complete Test Suite', () => {
       await giftCardsLink.click();
       await expect(page).toHaveURL(/\/gift-cards/);
     });
+
+    test('authenticated user header dropdown shows profile, wishlist, and sign out options', async ({ page }) => {
+      // Authenticate user
+      await page.goto('/login', { waitUntil: 'domcontentloaded' });
+      const usernameInput = page.locator('input[name="username"]').or(page.getByPlaceholder(/Username|Email/i)).first();
+      const passwordInput = page.locator('input[name="password"]').or(page.locator('input[type="password"]')).first();
+      const submitBtn = page.locator('form button[type="submit"]');
+
+      if (await usernameInput.isVisible()) {
+        await usernameInput.fill('admin');
+        await passwordInput.fill('admin1234');
+        await submitBtn.click();
+        await page.waitForNavigation({ timeout: 8000 }).catch(() => {});
+      }
+
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+      // User pill button in header
+      const userPill = page.locator('header button:has(svg)').last();
+      if (await userPill.isVisible()) {
+        await userPill.click();
+
+        // Dropdown menu items
+        const profileLink = page.locator('header a[href="/profile"]');
+        const wishlistLink = page.locator('header a[href="/wishlist"]');
+        const signOutBtn = page.locator('header button:has-text("Sign Out"), header button:has-text("লগআউট")');
+
+        await expect(profileLink).toBeVisible();
+        await expect(wishlistLink).toBeVisible();
+        await expect(signOutBtn).toBeVisible();
+
+        // Clicking outside closes dropdown
+        await page.locator('body').click({ position: { x: 10, y: 10 } });
+      }
+    });
   });
 
   /* -------------------------------------------------------------------------- */
@@ -446,6 +481,24 @@ test.describe('Storefront Homepage - Complete Test Suite', () => {
 
       // Click scroll to top
       await scrollToTopBtn.click();
+    });
+
+    test('displays WhatsApp contact link and social media links if configured', async ({ page }) => {
+      const footer = page.locator('footer');
+
+      // Check for social links container or icons
+      const socialLinks = footer.locator('a[aria-label="Facebook"], a[aria-label="Instagram"], a[aria-label="YouTube"], a[aria-label="WhatsApp"]');
+      const count = await socialLinks.count();
+      if (count > 0) {
+        await expect(socialLinks.first()).toBeVisible();
+
+        // Check WhatsApp link format if present
+        const whatsappLink = footer.locator('a[aria-label="WhatsApp"]');
+        if (await whatsappLink.isVisible()) {
+          const href = await whatsappLink.getAttribute('href');
+          expect(href).toMatch(/wa\.me|whatsapp/i);
+        }
+      }
     });
   });
 });

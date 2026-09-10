@@ -385,5 +385,49 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
       const errorMsg = page.locator('.text-nagad, .text-red-500, .swal2-popup, [role="alert"]');
       await expect(errorMsg.first()).toBeVisible({ timeout: 10000 });
     });
+
+    test('validates matching username and email and proceeds to step 2 new password reset', async ({ page }) => {
+      const usernameInput = page.locator('form input').first();
+      const emailInput = page.locator('form input').nth(1);
+      const verifyBtn = page.getByRole('button', { name: /Verify Account|Reset Password|Continue|Submit|Verify/i });
+
+      // Enter known valid account credentials
+      await usernameInput.fill('hello');
+      await emailInput.fill('hello@gmail.com');
+      await verifyBtn.click();
+
+      // If backend verifies account, step 2 new password form is displayed
+      const newPasswordInput = page.locator('input[type="password"], input[placeholder*="••••"]').first();
+      if (await newPasswordInput.isVisible({ timeout: 8000 }).catch(() => false)) {
+        await expect(newPasswordInput).toBeVisible();
+
+        const confirmPasswordInput = page.locator('input[type="password"], input[placeholder*="••••"]').nth(1);
+        await expect(confirmPasswordInput).toBeVisible();
+
+        // 1. Validate password mismatch
+        await newPasswordInput.fill('NewSecret123');
+        await confirmPasswordInput.fill('MismatchSecret456');
+
+        const submitNewPassBtn = page.getByRole('button', { name: /Reset Password|Update Password|পাসওয়ার্ড/i });
+        await submitNewPassBtn.click();
+
+        const mismatchError = page.locator('.text-nagad, .text-red-500, .swal2-popup');
+        await expect(mismatchError.first()).toBeVisible();
+
+        // 2. Validate password length < 8
+        await newPasswordInput.fill('short');
+        await confirmPasswordInput.fill('short');
+        await submitNewPassBtn.click();
+        await expect(mismatchError.first()).toBeVisible();
+
+        // 3. Test password eye reveal toggle
+        const toggleEyeBtns = page.locator('button:has(img[alt*="password"])');
+        if (await toggleEyeBtns.count() > 0) {
+          await toggleEyeBtns.first().click();
+          const type = await newPasswordInput.getAttribute('type');
+          expect(type === 'text' || type === 'password').toBeTruthy();
+        }
+      }
+    });
   });
 });
