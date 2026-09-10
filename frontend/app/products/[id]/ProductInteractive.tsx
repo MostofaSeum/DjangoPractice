@@ -55,6 +55,7 @@ export default function ProductInteractive({
     inside_dhaka_charge: number;
     outside_dhaka_charge: number;
     min_quantity: number;
+    min_order_amount: number;
   } | null>(null);
 
   useEffect(() => {
@@ -97,6 +98,7 @@ export default function ProductInteractive({
                 inside_dhaka_charge: Number(rule.inside_dhaka_charge ?? 0),
                 outside_dhaka_charge: Number(rule.outside_dhaka_charge ?? 0),
                 min_quantity: Number(rule.min_quantity || 1),
+                min_order_amount: Number(rule.min_order_amount || 0),
               });
               break;
             }
@@ -429,30 +431,47 @@ export default function ProductInteractive({
 
       {/* Delivery Offer Dynamic Progress Banner */}
       {matchedDeliveryRule && (() => {
+        const minAmount = matchedDeliveryRule.min_order_amount || 0;
         const requiredQty = matchedDeliveryRule.min_quantity || 1;
+        const isSpendTrigger = minAmount > 0;
         const isFree = matchedDeliveryRule.rule_type === "free";
-        const offerName = isFree ? (locale === "bn" ? "ফ্রি ডেলিভারি" : "Free Delivery") : (locale === "bn" ? "কম ডেলিভারি চার্জ" : "Discounted Delivery");
+        const offerName = isFree
+          ? (locale === "bn" ? "ফ্রি ডেলিভারি" : "Free Delivery")
+          : (locale === "bn" ? "কম ডেলিভারি চার্জ" : "Discounted Delivery");
 
-        const inCartQty =
-          cart?.items
-            ?.filter((item) => {
-              if (matchedDeliveryRule.target_type === "product") {
-                return Number(item.product.id) === Number(productId);
-              }
-              const itemColId =
-                typeof item.product.collection === "object" &&
+        // Calculate current in-cart progress for matching items
+        const matchingCartItems = cart?.items?.filter((item) => {
+          if (matchedDeliveryRule.target_type === "product") {
+            return Number(item.product.id) === Number(productId);
+          }
+          const itemColId =
+            typeof item.product.collection === "object" &&
+            item.product.collection !== null
+              ? Number(item.product.collection.id)
+              : item.product.collection !== undefined &&
                 item.product.collection !== null
-                  ? Number(item.product.collection.id)
-                  : item.product.collection !== undefined &&
-                    item.product.collection !== null
-                  ? Number(item.product.collection)
-                  : null;
-              return itemColId !== null && itemColId === Number(collectionId);
-            })
-            .reduce((sum, item) => sum + item.quantity, 0) || 0;
+              ? Number(item.product.collection)
+              : null;
+          return itemColId !== null && itemColId === Number(collectionId);
+        }) || [];
 
-        const remaining = Math.max(0, requiredQty - inCartQty);
-        const isQualified = inCartQty >= requiredQty;
+        const inCartQty = matchingCartItems.reduce((sum, item) => sum + item.quantity, 0);
+        const inCartSpend = matchingCartItems.reduce((sum, item) => {
+          const itemPrice = Number(
+            (item as any).variant?.price_override ??
+            item.product.discounted_price ??
+            item.product.unit_price ??
+            0
+          );
+          return sum + itemPrice * item.quantity;
+        }, 0);
+
+        const isQualified = isSpendTrigger
+          ? inCartSpend >= minAmount
+          : inCartQty >= requiredQty;
+
+        const remainingSpend = Math.max(0, minAmount - inCartSpend);
+        const remainingQty = Math.max(0, requiredQty - inCartQty);
 
         return (
           <div
@@ -469,30 +488,58 @@ export default function ProductInteractive({
                   <p className="font-extrabold uppercase tracking-tight text-emerald-600 dark:text-emerald-400">
                     {locale === "bn" ? `অভিনন্দন! আপনি ${offerName} পেয়েছেন!` : `Congratulations! You got ${offerName}!`}
                   </p>
-                ) : inCartQty > 0 ? (
-                  <p>
-                    {locale === "bn" ? (
-                      <>
-                        {offerName} পেতে আরও <span className="text-accent font-black">{remaining.toLocaleString("bn-BD")} টি পণ্য</span> কিনুন!
-                      </>
-                    ) : (
-                      <>
-                        Buy <span className="text-accent font-black">{remaining} more</span> to get {offerName}!
-                      </>
-                    )}
-                  </p>
+                ) : isSpendTrigger ? (
+                  inCartSpend > 0 ? (
+                    <p>
+                      {locale === "bn" ? (
+                        <>
+                          {offerName} পেতে আরও <span className="text-accent font-black">{formatCurrency(remainingSpend)}</span> এর পণ্য কার্টে যোগ করুন!
+                        </>
+                      ) : (
+                        <>
+                          Add <span className="text-accent font-black">{formatCurrency(remainingSpend)} more</span> to get {offerName}!
+                        </>
+                      )}
+                    </p>
+                  ) : (
+                    <p>
+                      {locale === "bn" ? (
+                        <>
+                          {offerName} পেতে কমপক্ষে <span className="text-accent font-black">{formatCurrency(minAmount)}</span> এর পণ্য কিনুন!
+                        </>
+                      ) : (
+                        <>
+                          Spend <span className="text-accent font-black">{formatCurrency(minAmount)}</span> to get {offerName}!
+                        </>
+                      )}
+                    </p>
+                  )
                 ) : (
-                  <p>
-                    {locale === "bn" ? (
-                      <>
-                        {offerName} পেতে <span className="text-accent font-black">{requiredQty.toLocaleString("bn-BD")} টি পণ্য</span> কিনুন!
-                      </>
-                    ) : (
-                      <>
-                        Buy <span className="text-accent font-black">{requiredQty} items</span> to get {offerName}!
-                      </>
-                    )}
-                  </p>
+                  inCartQty > 0 ? (
+                    <p>
+                      {locale === "bn" ? (
+                        <>
+                          {offerName} পেতে আরও <span className="text-accent font-black">{remainingQty.toLocaleString("bn-BD")} টি পণ্য</span> কিনুন!
+                        </>
+                      ) : (
+                        <>
+                          Buy <span className="text-accent font-black">{remainingQty} more</span> to get {offerName}!
+                        </>
+                      )}
+                    </p>
+                  ) : (
+                    <p>
+                      {locale === "bn" ? (
+                        <>
+                          {offerName} পেতে <span className="text-accent font-black">{requiredQty.toLocaleString("bn-BD")} টি পণ্য</span> কিনুন!
+                        </>
+                      ) : (
+                        <>
+                          Buy <span className="text-accent font-black">{requiredQty} items</span> to get {offerName}!
+                        </>
+                      )}
+                    </p>
+                  )
                 )}
               </div>
             </div>
