@@ -783,10 +783,6 @@ class ProductImageViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {'product_id': self.kwargs['product_pk']}
 
-class GiftCardViewSet(ModelViewSet):
-    queryset = GiftCard.objects.all()
-    serializer_class = GiftCardSerializer
-    permission_classes = [AllowAny]
 
 class CustomerViewSet(ModelViewSet):
     queryset = Customer.objects.all()

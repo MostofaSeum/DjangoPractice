@@ -49,11 +49,11 @@ test.describe('Collections Listing & Detail Pages', () => {
           const card = collectionCards.nth(i);
           const img = card.locator('img').first();
           if (await img.isVisible()) {
-            // Verify img naturalWidth is loaded and not broken (naturalWidth > 0)
-            const isLoaded = await img.evaluate((image: HTMLImageElement) => {
-              return image.complete && image.naturalWidth > 0;
-            });
-            expect(isLoaded).toBe(true);
+            await img.scrollIntoViewIfNeeded();
+            // Wait for image to finish downloading and have valid natural dimensions
+            await expect.poll(async () => {
+              return await img.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0);
+            }, { timeout: 10000 }).toBe(true);
           }
         }
       }
