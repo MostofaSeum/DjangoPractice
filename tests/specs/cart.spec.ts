@@ -5,45 +5,54 @@ test.describe('Cart Page', () => {
     await page.goto('/cart', { waitUntil: 'domcontentloaded' });
   });
 
-  test('displays empty cart state when no items are added', async ({ page }) => {
+  test('displays empty cart state when no items are added and explore products link works', async ({ page }) => {
+    // Clear cart to guarantee empty state
+    await page.addInitScript(() => {
+      localStorage.removeItem('cart_id');
+      localStorage.removeItem('applied_coupon');
+    });
+    await page.goto('/cart', { waitUntil: 'domcontentloaded' });
+
     // If cart is empty, check empty state graphics & explore link
-    const emptyHeading = page.getByRole('heading', { name: /Your Cart is Empty|Cart is Empty/i });
-    if (await emptyHeading.isVisible()) {
-      await expect(emptyHeading).toBeVisible();
-      const exploreBtn = page.getByRole('link', { name: /Explore Products/i });
-      await expect(exploreBtn).toBeVisible();
-      await expect(exploreBtn).toHaveAttribute('href', '/products');
-    }
+    const emptyHeading = page.getByRole('heading', { name: /Your Cart is Empty|Cart is Empty|কার্ট খালি/i });
+    await expect(emptyHeading).toBeVisible({ timeout: 10000 });
+    const exploreBtn = page.getByRole('link', { name: /Explore Products|পণ্য দেখুন/i });
+    await expect(exploreBtn).toBeVisible();
+    await expect(exploreBtn).toHaveAttribute('href', '/products');
+    await exploreBtn.click();
+    await expect(page).toHaveURL(/\/products/, { timeout: 10000 });
   });
 
   test('can apply coupon code and validates input', async ({ page }) => {
+    await ensureStationaryItemInCart(page);
+
     // Look for coupon input field
-    const couponInput = page.getByPlaceholder(/Enter coupon code|COUPON/i);
+    const couponInput = page.getByPlaceholder(/Enter coupon code|COUPON/i).or(page.locator('form input[type="text"]').first());
     const applyCouponBtn = page.getByRole('button', { name: /Apply/i });
+    await expect(couponInput).toBeVisible({ timeout: 10000 });
 
-    if (await couponInput.isVisible()) {
-      // Test empty submission
-      await applyCouponBtn.click();
-      const errorMsg = page.getByText(/Please enter a coupon code/i).or(page.locator('.swal2-popup'));
-      await expect(errorMsg).toBeVisible({ timeout: 5000 });
+    // Test empty submission
+    await applyCouponBtn.click();
+    const errorMsg = page.getByText(/Please enter a coupon code/i).or(page.locator('.swal2-popup, .text-red-500'));
+    await expect(errorMsg.first()).toBeVisible({ timeout: 5000 });
 
-      // Test invalid coupon submission
-      await couponInput.fill('INVALIDCODE123');
-      await applyCouponBtn.click();
-      const invalidAlert = page.locator('.swal2-popup, [role="alert"]');
-      await expect(invalidAlert).toBeVisible({ timeout: 7000 });
-    }
+    // Test invalid coupon submission
+    await couponInput.fill('INVALIDCODE123');
+    await applyCouponBtn.click();
+    const invalidAlert = page.locator('.swal2-popup, [role="alert"], .text-red-500');
+    await expect(invalidAlert.first()).toBeVisible({ timeout: 7000 });
   });
 
   test('updates quantity and recalculates totals when items exist', async ({ page }) => {
+    await ensureStationaryItemInCart(page);
+
     const plusBtn = page.getByRole('button', { name: '+' }).first();
-    if (await plusBtn.isVisible()) {
-      const initialQty = await page.locator('span.w-10').first().innerText();
-      await plusBtn.click();
-      await page.waitForTimeout(500);
-      const updatedQty = await page.locator('span.w-10').first().innerText();
-      expect(Number(updatedQty)).toBeGreaterThan(Number(initialQty));
-    }
+    await expect(plusBtn).toBeVisible({ timeout: 10000 });
+    const initialQty = await page.locator('span.w-10').first().innerText();
+    await plusBtn.click();
+    await page.waitForTimeout(500);
+    const updatedQty = await page.locator('span.w-10').first().innerText();
+    expect(Number(updatedQty)).toBeGreaterThan(Number(initialQty));
   });
 
   // Helper function to add product 648 (Stationary collection) to cart reliably
@@ -369,5 +378,186 @@ test.describe('Cart Page', () => {
 
     // Verify navigation to checkout
     await expect(page).toHaveURL(/.*\/checkout/, { timeout: 15000 });
+  });
+
+  test('canceling item removal in confirmation modal keeps item in cart', async ({ page }) => {
+    await ensureStationaryItemInCart(page);
+
+    const deleteBtn = page.getByRole('button', { name: /Remove item|Delete|কার্ট থেকে সরান/i })
+      .or(page.locator('button img[alt="Delete"]').locator('xpath=..'))
+      .first();
+    await expect(deleteBtn).toBeVisible({ timeout: 10000 });
+
+    const itemRows = page.locator('.space-y-4 > div');
+    const countBefore = await itemRows.count();
+    expect(countBefore).toBeGreaterThan(0);
+
+    // Click delete
+    await deleteBtn.click();
+
+    // Confirm popup appears
+    const cancelBtn = page.getByRole('button', { name: /Cancel|বাতিল/i }).or(page.locator('.swal2-cancel'));
+    await expect(cancelBtn).toBeVisible({ timeout: 5000 });
+    await cancelBtn.click();
+
+    // Verify item count is unchanged
+    await page.waitForTimeout(500);
+    const countAfter = await itemRows.count();
+    expect(countAfter).toBe(countBefore);
+  });
+
+  test('removing an applied coupon restores order total to pre-discount amount', async ({ page }) => {
+    await ensureStationaryItemInCart(page);
+
+    const totalEl = page.locator('.text-2xl.text-accent.font-black').first();
+    await expect(totalEl).toBeVisible({ timeout: 10000 });
+    const originalTotal = parseFloat((await totalEl.innerText()).replace(/[^\d.]/g, ''));
+
+    // Apply TRIAL10
+    const couponInput = page.getByPlaceholder(/SUMMER|coupon|code|কুপন/i).or(page.locator('form input[type="text"]').first());
+    const applyCouponBtn = page.getByRole('button', { name: /Apply|প্রয়োগ/i });
+    await couponInput.fill('TRIAL10');
+    await applyCouponBtn.click();
+
+    // Verify coupon badge is displayed
+    const removeCouponBtn = page.getByRole('button', { name: /Remove|মুছুন|সরান/i });
+    await expect(removeCouponBtn).toBeVisible({ timeout: 10000 });
+
+    const discountedTotal = parseFloat((await totalEl.innerText()).replace(/[^\d.]/g, ''));
+    expect(discountedTotal).toBeLessThan(originalTotal);
+
+    // Click Remove coupon
+    await removeCouponBtn.click();
+
+    // Verify coupon badge is removed and coupon input reappears
+    await expect(couponInput).toBeVisible({ timeout: 5000 });
+    const restoredTotal = parseFloat((await totalEl.innerText()).replace(/[^\d.]/g, ''));
+    expect(restoredTotal).toBeCloseTo(originalTotal, 1);
+  });
+
+  test('rejects inactive or invalid coupon with an error notification', async ({ page }) => {
+    await ensureStationaryItemInCart(page);
+
+    // Ensure coupon is cleared first
+    const removeCouponBtn = page.getByRole('button', { name: /Remove|মুছুন|সরান/i });
+    if (await removeCouponBtn.isVisible()) {
+      await removeCouponBtn.click();
+    }
+
+    const couponInput = page.getByPlaceholder(/SUMMER|coupon|code|কুপন/i).or(page.locator('form input[type="text"]').first());
+    const applyCouponBtn = page.getByRole('button', { name: /Apply|প্রয়োগ/i });
+
+    // BEAUTY20 is inactive in the database
+    await couponInput.fill('BEAUTY20');
+    await applyCouponBtn.click();
+
+    // Error alert should appear
+    const errorAlert = page.locator('.swal2-popup').or(page.getByText(/invalid|সঠিক নয়|ত্রুটি/i));
+    await expect(errorAlert.first()).toBeVisible({ timeout: 8000 });
+
+    // Close error alert if open
+    const okBtn = page.locator('.swal2-confirm');
+    if (await okBtn.isVisible()) {
+      await okBtn.click();
+    }
+  });
+
+  test('adds product to cart directly from "You May Also Like" recommendations', async ({ page }) => {
+    await ensureStationaryItemInCart(page);
+
+    const youMayAlsoLikeHeading = page.getByRole('heading', {
+      name: /You May Also Like|আপনার পছন্দ হতে পারে/i,
+    });
+    await expect(youMayAlsoLikeHeading).toBeVisible({ timeout: 10000 });
+
+    const itemRows = page.locator('.space-y-4 > div');
+    const initialItemCount = await itemRows.count();
+
+    // Click "Add" button on the first recommended product card
+    const firstAddBtn = page.locator('.grid button').filter({ hasText: /Add|যোগ করুন/i }).first();
+    await expect(firstAddBtn).toBeVisible({ timeout: 5000 });
+    await firstAddBtn.click();
+
+    // Success toast appears
+    const successToast = page.locator('.swal2-popup').or(page.getByText(/Added.*to cart|কার্টে যোগ করা হয়েছে/i));
+    await expect(successToast.first()).toBeVisible({ timeout: 8000 });
+
+    // Wait for cart to reflect the new item
+    await expect(async () => {
+      const updatedItemCount = await itemRows.count();
+      expect(updatedItemCount).toBeGreaterThan(initialItemCount);
+    }).toPass({ timeout: 10000 });
+  });
+
+  test('clicking product title in cart navigates to product details page', async ({ page }) => {
+    await ensureStationaryItemInCart(page);
+
+    const productTitleLink = page.locator('.space-y-4 a[href*="/products/"]').filter({ hasText: /.+/ }).first();
+    await expect(productTitleLink).toBeVisible({ timeout: 10000 });
+
+    await productTitleLink.click();
+    await expect(page).toHaveURL(/\/products\/\d+/, { timeout: 10000 });
+  });
+
+  test('header cart badge reflects quantity changes in real time', async ({ page }) => {
+    await ensureStationaryItemInCart(page);
+
+    // Header cart badge span
+    const cartBadge = page.locator('header a[href="/cart"] span');
+    await expect(cartBadge).toBeVisible({ timeout: 10000 });
+    const initialBadgeCount = Number(await cartBadge.innerText());
+
+    // Click + button
+    const plusBtn = page.getByRole('button', { name: '+' }).first();
+    await plusBtn.click();
+
+    // Badge should increase
+    await expect(async () => {
+      const updatedBadgeCount = Number(await cartBadge.innerText());
+      expect(updatedBadgeCount).toBe(initialBadgeCount + 1);
+    }).toPass({ timeout: 10000 });
+  });
+
+  test('automatically removes coupon when all eligible items are removed from cart', async ({ page }) => {
+    await ensureStationaryItemInCart(page);
+
+    // Add a second product (product 1) so cart remains open when 648 is deleted
+    await page.evaluate(async () => {
+      const cartId = localStorage.getItem('cart_id');
+      if (cartId) {
+        await fetch(`http://127.0.0.1:8000/store/carts/${cartId}/items/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ product_id: 1, quantity: 1 }),
+        });
+      }
+    });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+
+    // Apply TRIAL10 (eligible only for stationary items like 648)
+    const couponInput = page.getByPlaceholder(/SUMMER|coupon|code|কুপন/i).or(page.locator('form input[type="text"]').first());
+    const applyCouponBtn = page.getByRole('button', { name: /Apply|প্রয়োগ/i });
+    await couponInput.fill('TRIAL10');
+    await applyCouponBtn.click();
+
+    // Confirm coupon is applied
+    const couponBadge = page.getByRole('button', { name: /Remove|মুছুন|সরান/i });
+    await expect(couponBadge).toBeVisible({ timeout: 10000 });
+
+    // Locate product 648 item row and delete it
+    const item648DeleteBtn = page.locator('.space-y-4 > div')
+      .filter({ has: page.locator('a[href*="/products/648"]') })
+      .locator('button')
+      .filter({ has: page.locator('img[alt="Delete"]') });
+
+    if (await item648DeleteBtn.isVisible()) {
+      await item648DeleteBtn.click();
+      const confirmBtn = page.getByRole('button', { name: /Yes, Remove|হ্যাঁ, সরান/i }).or(page.locator('.swal2-confirm'));
+      await confirmBtn.click();
+
+      // The coupon should automatically be removed since no stationary items remain
+      await expect(couponBadge).not.toBeVisible({ timeout: 10000 });
+      await expect(couponInput).toBeVisible({ timeout: 10000 });
+    }
   });
 });

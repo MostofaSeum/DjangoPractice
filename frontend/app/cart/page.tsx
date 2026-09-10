@@ -280,12 +280,23 @@ export default function CartPage() {
   };
 
   const handleRemoveCoupon = () => {
+    const code = appliedCoupon?.code;
     setAppliedCoupon(null);
     try {
       localStorage.removeItem("applied_coupon");
     } catch (e) {}
     setCouponInput("");
     setCouponError("");
+    if (code) {
+      Swal.fire({
+        position: "top-end",
+        icon: "info",
+        title: locale === "bn" ? `কুপন "${code}" সরানো হয়েছে।` : `Coupon "${code}" removed.`,
+        showConfirmButton: false,
+        timer: 1500,
+        toast: true,
+      });
+    }
   };
 
   // Calculate savings on eligible products
@@ -852,7 +863,7 @@ export default function CartPage() {
                       />
                       <button
                         type="submit"
-                        disabled={couponValidating || !couponInput.trim()}
+                        disabled={couponValidating}
                         className="px-4 py-2.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-wider hover:opacity-90 transition-all shadow-sm disabled:opacity-50 cursor-pointer"
                       >
                         {couponValidating ? t("cart.checking") : t("cart.apply")}
