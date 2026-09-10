@@ -1,22 +1,26 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Customer Profile & Wishlist Page', () => {
-  // Helper to ensure test user is authenticated
+  // Cache JWT tokens to avoid 30 redundant login requests across tests
+  let cachedAuth: { access: string; refresh: string } | null = null;
+
   async function ensureAuthenticated(page: any) {
     try {
-      // 1. Fast, reliable API authentication: obtain JWT directly
-      const response = await page.request.post('http://127.0.0.1:8000/auth/jwt/create/', {
-        data: {
-          username: 'hello',
-          password: 'Hello123456',
-        },
-      });
+      if (!cachedAuth) {
+        const response = await page.request.post('http://127.0.0.1:8000/auth/jwt/create/', {
+          data: {
+            username: 'hello',
+            password: 'Hello123456',
+          },
+        });
 
-      if (response.ok()) {
-        const data = await response.json();
-        const access = data.access;
-        const refresh = data.refresh;
+        if (response.ok()) {
+          cachedAuth = await response.json();
+        }
+      }
 
+      if (cachedAuth) {
+        const { access, refresh } = cachedAuth;
         // Seed tokens before page navigation so we can go directly to /profile without loading '/' first
         await page.addInitScript(({ access, refresh }: { access: string; refresh: string }) => {
           localStorage.setItem('access_token', access);
