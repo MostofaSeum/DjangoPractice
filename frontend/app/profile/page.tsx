@@ -113,7 +113,9 @@ export default function ProfilePage() {
   });
   const [addressSaving, setAddressSaving] = useState(false);
 
-  const [loading, setLoading] = useState(!user);
+  const [loading, setLoading] = useState(false);
+  const [addressesLoading, setAddressesLoading] = useState(true);
+  const [vibeCoinLoading, setVibeCoinLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -473,6 +475,18 @@ export default function ProfilePage() {
     }
   };
 
+  // Sync user info from auth immediately if available
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        first_name: prev.first_name || user.first_name || "",
+        last_name: prev.last_name || user.last_name || "",
+        email: prev.email || user.email || "",
+      }));
+    }
+  }, [user]);
+
   // Load user profile & customer info on mount
   useEffect(() => {
     if (authLoading) return;
@@ -483,47 +497,51 @@ export default function ProfilePage() {
     }
 
     const loadProfile = async () => {
-      try {
-        setOrdersLoading(true);
-        const headers: Record<string, string> = {};
-        if (token) headers["Authorization"] = `JWT ${token}`;
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `JWT ${token}`;
 
-        // Fetch User Info, Customer Info, Saved Addresses, and Orders simultaneously in a single fast parallel bundle
-        const [userRes, customerRes, addrRes, ordersRes] = await Promise.all([
-          fetch(`${API_BASE}/auth/users/me/`, { headers, credentials: "include" }),
-          fetch(`${API_BASE}/store/customers/me/`, { headers, credentials: "include" }),
-          fetch(`${API_BASE}/store/addresses/`, { headers, credentials: "include" }),
-          fetch(`${API_BASE}/store/orders/`, { headers, credentials: "include" }),
-        ]);
+      // 1. Fetch customer details & saved addresses concurrently
+      Promise.all([
+        fetch(`${API_BASE}/store/customers/me/`, { headers, credentials: "include" })
+          .then(async (res) => {
+            if (res.ok) {
+              const customerData = await res.json();
+              setVibeCoin(customerData.vibe_coin ?? 0);
+              setFormData((prev) => ({
+                ...prev,
+                phone: customerData.phone || prev.phone || "",
+                birth_date: customerData.birth_date || prev.birth_date || "",
+              }));
+            }
+          })
+          .catch((e) => console.error("Failed to load customer data:", e))
+          .finally(() => setVibeCoinLoading(false)),
 
-        const userData = userRes.ok ? await userRes.json() : (user || {});
-        const customerData = customerRes.ok ? await customerRes.json() : {};
+        fetch(`${API_BASE}/store/addresses/`, { headers, credentials: "include" })
+          .then(async (res) => {
+            if (res.ok) {
+              const addrData = await res.json();
+              setAddresses(Array.isArray(addrData) ? addrData : addrData.results || []);
+            }
+          })
+          .catch((e) => console.error("Failed to load addresses:", e))
+          .finally(() => setAddressesLoading(false)),
+      ]);
 
-        if (addrRes.ok) {
-          const addrData = await addrRes.json();
-          setAddresses(Array.isArray(addrData) ? addrData : addrData.results || []);
-        }
-
-        setVibeCoin(customerData.vibe_coin ?? 0);
-
-        setFormData({
-          first_name: userData.first_name || user?.first_name || "",
-          last_name: userData.last_name || user?.last_name || "",
-          email: userData.email || user?.email || "",
-          phone: customerData.phone || "",
-          birth_date: customerData.birth_date || "",
+      // 2. Fetch orders independently (does not block profile or address display)
+      setOrdersLoading(true);
+      fetch(`${API_BASE}/store/orders/`, { headers, credentials: "include" })
+        .then(async (res) => {
+          if (res.ok) {
+            const ordersData = await res.json();
+            setMyOrders(Array.isArray(ordersData) ? ordersData : ordersData.results || []);
+          }
+        })
+        .catch((err) => console.error("Failed to load orders:", err))
+        .finally(() => {
+          setOrdersLoading(false);
+          setLoading(false);
         });
-
-        if (ordersRes.ok) {
-          const ordersData = await ordersRes.json();
-          setMyOrders(Array.isArray(ordersData) ? ordersData : ordersData.results || []);
-        }
-      } catch (err) {
-        console.error("Failed to load profile:", err);
-      } finally {
-        setLoading(false);
-        setOrdersLoading(false);
-      }
     };
 
     loadProfile();
@@ -750,12 +768,9 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center p-8 font-bold uppercase tracking-widest text-xs transition-colors duration-300">
-        {locale === "bn" ? "প্রোফাইল লোড হচ্ছে..." : "Loading profile..."}
-      </div>
-    );
+  // If not authenticated and not loading auth, don't flash empty UI before router redirect
+  if (!user && !authLoading) {
+    return null;
   }
 
   return (

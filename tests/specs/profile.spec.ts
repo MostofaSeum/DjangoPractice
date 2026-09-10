@@ -17,9 +17,8 @@ test.describe('Customer Profile & Wishlist Page', () => {
         const access = data.access;
         const refresh = data.refresh;
 
-        // Navigate to site to access localStorage origin
-        await page.goto('/', { waitUntil: 'domcontentloaded' });
-        await page.evaluate(({ access, refresh }: { access: string; refresh: string }) => {
+        // Seed tokens before page navigation so we can go directly to /profile without loading '/' first
+        await page.addInitScript(({ access, refresh }: { access: string; refresh: string }) => {
           localStorage.setItem('access_token', access);
           if (refresh) localStorage.setItem('refresh_token', refresh);
         }, { access, refresh });
