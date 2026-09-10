@@ -34,9 +34,17 @@ export default function ProductTabs({
 }: ProductTabsProps) {
   const { user, token, loading: authLoading } = useAuth();
   const { t, locale } = useLanguage();
-  const [activeTab, setActiveTab] = useState<"description" | "reviews">(
-    "description",
-  );
+  const [activeTab, setActiveTab] = useState<"description" | "reviews">(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get("tab") === "reviews" || window.location.hash === "#reviews") {
+          return "reviews";
+        }
+      } catch {}
+    }
+    return "description";
+  });
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loadingReviews, setLoadingReviews] = useState<boolean>(false);
   const [reviewsFetched, setReviewsFetched] = useState<boolean>(false);
@@ -74,17 +82,33 @@ export default function ProductTabs({
     // Fetch initial reviews count on mount
     fetchReviews();
 
-    if (typeof window !== "undefined") {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get("tab") === "reviews" || window.location.hash === "#reviews") {
-        setActiveTab("reviews");
-        setTimeout(() => {
-          document
-            .getElementById("write-review-section")
-            ?.scrollIntoView({ behavior: "smooth" });
-        }, 350);
+    const checkTabParam = () => {
+      if (typeof window !== "undefined") {
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get("tab") === "reviews" || window.location.hash === "#reviews") {
+            setActiveTab("reviews");
+            setTimeout(() => {
+              document
+                .getElementById("write-review-section")
+                ?.scrollIntoView({ behavior: "smooth" });
+            }, 350);
+          }
+        } catch {}
       }
-    }
+    };
+
+    checkTabParam();
+    const timer = setTimeout(checkTabParam, 50);
+
+    window.addEventListener("popstate", checkTabParam);
+    window.addEventListener("hashchange", checkTabParam);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("popstate", checkTabParam);
+      window.removeEventListener("hashchange", checkTabParam);
+    };
   }, [fetchReviews]);
 
   useEffect(() => {

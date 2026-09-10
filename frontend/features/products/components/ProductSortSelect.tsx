@@ -20,11 +20,18 @@ export default function ProductSortSelect({
   const { t } = useLanguage();
 
   const handleSortChange = (newOrdering: string) => {
-    const params = new URLSearchParams();
-    if (newOrdering) params.set("ordering", newOrdering);
+    const params = new URLSearchParams(
+      typeof window !== "undefined" ? window.location.search : ""
+    );
+    if (newOrdering) {
+      params.set("ordering", newOrdering);
+    } else {
+      params.delete("ordering");
+    }
     if (minPrice) params.set("minPrice", minPrice);
     if (maxPrice) params.set("maxPrice", maxPrice);
     if (search) params.set("search", search);
+    params.delete("page");
 
     router.push(`/products?${params.toString()}`);
   };

@@ -142,11 +142,18 @@ export default function ProductSearchBar({
       return;
     }
 
-    const params = new URLSearchParams();
-    if (query.trim()) params.set("search", query.trim());
+    const params = new URLSearchParams(
+      typeof window !== "undefined" ? window.location.search : ""
+    );
+    if (query.trim()) {
+      params.set("search", query.trim());
+    } else {
+      params.delete("search");
+    }
     if (minPrice) params.set("minPrice", minPrice);
     if (maxPrice) params.set("maxPrice", maxPrice);
     if (ordering) params.set("ordering", ordering);
+    params.delete("page");
 
     router.push(`/products?${params.toString()}`);
   };
@@ -270,7 +277,11 @@ export default function ProductSearchBar({
       } ${className}`}
     >
       <form
-        onSubmit={handleSubmit}
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleSubmit(e);
+        }}
         className="flex items-center gap-2 w-full sm:w-auto"
       >
         {!isAdmin && minPrice && (
@@ -285,6 +296,7 @@ export default function ProductSearchBar({
 
         <div className={`relative ${isAdmin ? "w-full sm:w-60" : "flex-1"}`}>
           <input
+            id="catalog-search-input"
             type="text"
             name="search"
             value={query}
@@ -316,6 +328,7 @@ export default function ProductSearchBar({
 
           {query.length > 0 && (
             <button
+              id="catalog-search-clear-btn"
               type="button"
               onClick={handleClear}
               className={`absolute ${
@@ -355,6 +368,7 @@ export default function ProductSearchBar({
         </div>
 
         <button
+          id="catalog-search-submit-btn"
           type="submit"
           className={
             isAdmin
@@ -394,6 +408,7 @@ export default function ProductSearchBar({
       {/* Suggestions Dropdown */}
       {isOpen && query.trim().length >= 1 && (
         <div
+          id="search-suggestions-dropdown"
           className={`absolute left-0 right-0 ${
             isAdmin ? "sm:right-auto sm:w-80" : ""
           } top-full mt-2 bg-secondary border border-foreground/15 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150`}

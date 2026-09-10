@@ -439,3 +439,151 @@ Deletes a collection. Protected if products are currently assigned to it.
   "error": "Collection cannot be deleted because it includes one or more products."
 }
 ```
+
+---
+
+## 8. Product Reviews & Ratings
+
+### `GET /api/v1/store/reviews/` or `GET /api/v1/store/products/{product_pk}/reviews/`
+Lists reviews for all products or scoped to a specific product. Supports filtering by rating star, search, and date/rating ordering.
+
+* **Who Can Use:** Public
+* **Query Parameters:**
+  * `rating`: integer (`1` to `5`)
+  * `search`: string (matches reviewer name, product title, or review text)
+  * `ordering`: `-date`, `date`, `-rating`, `rating`
+
+#### Success Response (`200 OK`):
+```json
+[
+  {
+    "id": 18,
+    "user_id": 14,
+    "product": 12,
+    "product_title": "Velvet Matte Lipstick",
+    "name": "Rahim Uddin",
+    "rating": 5,
+    "description": "Incredible texture and long-lasting pigmentation!",
+    "image": "/media/store/reviews/swatch.jpg",
+    "images": [
+      { "id": 1, "image": "/media/store/reviews/swatch.jpg" }
+    ],
+    "date": "2026-09-02"
+  }
+]
+```
+
+---
+
+### `POST /api/v1/store/products/{product_pk}/reviews/`
+Submits a review for a specific product. Supports multi-image photo uploads (up to 5 images).
+
+* **Who Can Use:** Public / Authenticated (If authenticated, automatically links to customer account)
+* **Content-Type:** `multipart/form-data` or `application/json`
+
+#### Form-Data / JSON Fields:
+* `name`: String (Required, reviewer display name)
+* `rating`: Integer (Required, `1` to `5`)
+* `description`: String (Required, review text)
+* `images`: File list (Optional, up to 5 image attachments)
+
+#### Success Response (`201 Created`):
+*Returns created `Review` object.*
+
+---
+
+### `PATCH /api/v1/store/reviews/{id}/`
+Updates an existing review's rating, description, or modifies attached photos.
+
+* **Who Can Use:** Author of the review or Staff (`IsAdminUser`)
+* **Permission Check:** Users can only edit their own reviews.
+
+#### Request Body:
+```json
+{
+  "rating": 4,
+  "description": "Updated review text.",
+  "deleted_image_ids": [1]
+}
+```
+
+#### Success Response (`200 OK`):
+*Returns updated `Review` object.*
+
+---
+
+### `DELETE /api/v1/store/reviews/{id}/`
+Deletes a review and removes attached images.
+
+* **Who Can Use:** Author of the review or Staff (`IsAdminUser`)
+
+#### Success Response:
+`204 No Content`
+
+---
+
+## 9. Top-Level Product Variants Management
+
+### `GET /api/v1/store/variants/`
+Directly lists all product shade and size variants across the catalog.
+
+* **Who Can Use:** Public / Staff
+
+#### Success Response (`200 OK`):
+```json
+[
+  {
+    "id": 4,
+    "product": 12,
+    "product_title": "Velvet Matte Lipstick",
+    "name": "Shade 01 Ruby",
+    "color_name": "Ruby Red",
+    "color_code": "#D10024",
+    "size": "3.5g",
+    "price_override": null,
+    "discounted_price": "765.00",
+    "inventory": 20,
+    "image": "/media/store/variants/ruby.jpg",
+    "is_active": true
+  }
+]
+```
+
+---
+
+### `POST /api/v1/store/variants/`
+Creates a variant directly.
+
+* **Who Can Use:** Staff Only (`IsAdminUser`)
+
+#### Request Body:
+```json
+{
+  "product": 12,
+  "name": "Shade 02 Berry",
+  "color_name": "Deep Berry",
+  "color_code": "#8B004F",
+  "size": "3.5g",
+  "inventory": 25,
+  "is_active": true
+}
+```
+
+#### Success Response (`201 Created`):
+*Returns created `ProductVariant` object.*
+
+---
+
+### `PATCH /api/v1/store/variants/{id}/`
+Updates inventory, color code, or price override of a variant.
+
+#### Success Response (`200 OK`):
+*Returns updated `ProductVariant` object.*
+
+---
+
+### `DELETE /api/v1/store/variants/{id}/`
+Removes a variant.
+
+#### Success Response:
+`204 No Content`

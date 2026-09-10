@@ -309,7 +309,84 @@ Returns the authenticated customer profile, tier, and VibeCoin rewards balance.
   "email": "customer@example.com",
   "phone": "+8801712345678",
   "birth_date": "1998-05-15",
-  "membership": "G", // 'B' (Bronze), 'S' (Silver), 'G' (Gold)
+  "membership": "G",
   "vibe_coin": "1250.00"
 }
+```
+
+---
+
+### `PUT /api/v1/store/customers/me/`
+Updates customer profile details (phone number, birth date, and membership). Note: `vibe_coin` is read-only and can only be updated via loyalty redemptions and refunds.
+
+* **Who Can Use:** Authenticated Customer
+
+#### Request Body:
+```json
+{
+  "phone": "+8801799887766",
+  "birth_date": "1998-05-15"
+}
+```
+
+#### Success Response (`200 OK`):
+*Returns updated customer object.*
+
+---
+
+## 6. Admin Customer Management & Lifetime Order History
+
+### `GET /api/v1/store/customers/`
+Lists all registered non-staff customers with search and ordering.
+
+* **Who Can Use:** Staff Only (`IsAdminUser`)
+* **Search Fields:** `user__first_name`, `user__last_name`, `user__email`, `user__username`, `phone`
+
+#### Success Response (`200 OK`):
+```json
+[
+  {
+    "id": 8,
+    "user_id": 14,
+    "customer_name": "rahim_uddin",
+    "first_name": "Rahim",
+    "last_name": "Uddin",
+    "email": "customer@example.com",
+    "phone": "+8801712345678",
+    "birth_date": "1998-05-15",
+    "membership": "G",
+    "vibe_coin": "1250.00"
+  }
+]
+```
+
+---
+
+### `GET /api/v1/store/customers/{id}/history/`
+Retrieves lifetime order history, order items, and payment breakdown for a specific customer.
+
+* **Who Can Use:** Staff Only (`IsAdminUser` / `ViewCustomerHistoryPermission`)
+
+#### Success Response (`200 OK`):
+```json
+[
+  {
+    "id": 142,
+    "placed_at": "2026-09-03T11:50:00Z",
+    "payment_status": "C",
+    "payment_method": "B",
+    "delivery_charge": "60.00",
+    "items": [
+      {
+        "id": 204,
+        "product": {
+          "id": 12,
+          "title": "Velvet Matte Lipstick"
+        },
+        "quantity": 2,
+        "unit_price": "765.00"
+      }
+    ]
+  }
+]
 ```

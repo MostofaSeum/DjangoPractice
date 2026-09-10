@@ -10,13 +10,17 @@
 | # | Endpoint | Method | Who Can Use | Description |
 | :--- | :--- | :--- | :--- | :--- |
 | 1 | `otp/send/` | POST | Public / Guest | Request 6-digit numeric email OTP code |
-| 2 | `otp/verify/` | POST | Public / Guest | Verify OTP code and activate / create user account |
-| 3 | `jwt/create/` | POST | Public | Authenticate username/password and issue JWT token pair |
-| 4 | `jwt/refresh/` | POST | Authenticated | Refresh expired access token using refresh token or cookie |
+| 2 | `otp/verify/` | POST | Public / Guest | Verify OTP code and activate / create user account with JWT |
+| 3 | `jwt/create/` | POST | Public | Authenticate username/password and issue JWT token pair & HttpOnly cookies |
+| 4 | `jwt/refresh/` | POST | Authenticated | Refresh expired access token using refresh token in body or HttpOnly cookie |
 | 5 | `jwt/verify/` | POST | Public | Validate token integrity and expiry |
-| 6 | `logout/` | POST | Public / All | Clear authentication session and HttpOnly cookies |
-| 7 | `reset-password/` | POST | Public | Check username/email match or set new password |
-| 8 | `users/me/` | GET / PUT / PATCH | Authenticated | Retrieve or update active user account details |
+| 6 | `logout/` | POST | Public / All | Clear authentication session and delete HttpOnly cookies |
+| 7 | `reset-password/` | POST | Public | Check username/email match or set new password without email link |
+| 8 | `users/` | POST | Public | Direct user account registration (Djoser standard) |
+| 9 | `users/me/` | GET / PUT / PATCH | Authenticated | Retrieve or update active user account details |
+| 10 | `users/set_password/` | POST | Authenticated | Change password for logged-in user with current password validation |
+| 11 | `users/reset_password/` | POST | Public | Request Djoser email token-based password reset |
+| 12 | `users/reset_password_confirm/` | POST | Public | Complete Djoser password reset with UID and Token |
 
 ---
 
@@ -128,6 +132,7 @@ Authenticates existing credentials and issues JWT token pair along with HttpOnly
   "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
+*Sets `access_token` and `refresh_token` HttpOnly cookies.*
 
 #### Error Responses:
 * **`401 Unauthorized`**:
@@ -149,7 +154,7 @@ Generates a new active access token. Accepts the refresh token either via JSON b
 #### Request Body:
 ```json
 {
-  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." // optional if cookie is sent
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." // optional if cookie is present
 }
 ```
 
@@ -159,6 +164,7 @@ Generates a new active access token. Accepts the refresh token either via JSON b
   "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
+*Updates `access_token` HttpOnly cookie.*
 
 ---
 
@@ -175,7 +181,7 @@ Inspects if an existing access token is valid and unexpired.
 ```
 
 #### Success Response (`200 OK`):
-*No response content.*
+`{}` *(Empty object with 200 OK)*
 
 ---
 
@@ -195,14 +201,23 @@ Clears authentication state by invalidating and expiring the `access_token` and 
 
 ---
 
-## 7. Password Reset
+## 7. Password Reset (Direct Verification)
 
 ### `POST /api/v1/auth/reset-password/`
-Two-step password reset endpoint.
-1. **Validation Step:** Send `username` and `email` without passwords to verify account existence.
-2. **Execution Step:** Send `username`, `email`, `new_password`, and `confirm_password` to update.
+Two-step password reset endpoint protected by `AuthBurstThrottle` (10 req/min):
+1. **Validation Step:** Send `username` and `email` without passwords to verify that the account exists.
+2. **Execution Step:** Send `username`, `email`, `new_password`, and `confirm_password` to update password directly.
 
-#### Request Body (Update Password):
+#### Request Body (Step 1 - Verification):
+```json
+{
+  "username": "customer123",
+  "email": "customer@example.com"
+}
+```
+*Response (`200 OK`): `{"detail": "Account verified. You can now set your new password."}`*
+
+#### Request Body (Step 2 - Update Password):
 ```json
 {
   "username": "customer123",
@@ -215,7 +230,7 @@ Two-step password reset endpoint.
 #### Success Response (`200 OK`):
 ```json
 {
-  "detail": "Password has been successfully reset! You can now log in."
+  "detail": "Password has been successfully changed! You can now sign in."
 }
 ```
 
@@ -229,16 +244,45 @@ Two-step password reset endpoint.
 * **`400 Bad Request`** (Password mismatch):
 ```json
 {
-  "error": "Passwords do not match."
+  "error": "New password and confirm password do not match."
 }
 ```
 
 ---
 
-## 8. Current User Profile
+## 8. Direct User Registration (Djoser Standard)
+
+### `POST /api/v1/auth/users/`
+Creates a user account directly through Djoser without OTP verification.
+
+* **Who Can Use:** Public / Guest
+
+#### Request Body:
+```json
+{
+  "username": "customer123",
+  "email": "customer@example.com",
+  "password": "SecurePassword123!",
+  "first_name": "Rahim",
+  "last_name": "Uddin"
+}
+```
+
+#### Success Response (`201 Created`):
+```json
+{
+  "id": 15,
+  "username": "customer123",
+  "email": "customer@example.com"
+}
+```
+
+---
+
+## 9. Current User Profile
 
 ### `GET /api/v1/auth/users/me/`
-Retrieves information about the currently authenticated user based on the JWT token.
+Retrieves information about the currently authenticated user based on the JWT token or session.
 
 * **Who Can Use:** Authenticated (`Authorization: JWT <token>`)
 
@@ -252,3 +296,64 @@ Retrieves information about the currently authenticated user based on the JWT to
   "last_name": "Uddin"
 }
 ```
+
+### `PUT / PATCH /api/v1/auth/users/me/`
+Updates account details (first name, last name, email) for the authenticated user.
+
+#### Request Body:
+```json
+{
+  "first_name": "Rahim",
+  "last_name": "Ahmed"
+}
+```
+
+---
+
+## 10. Authenticated Password Change
+
+### `POST /api/v1/auth/users/set_password/`
+Allows an authenticated user to update their password by confirming their existing password.
+
+* **Who Can Use:** Authenticated Users
+
+#### Request Body:
+```json
+{
+  "current_password": "SecurePassword123!",
+  "new_password": "NewSecurePassword456!"
+}
+```
+
+#### Success Response:
+`204 No Content`
+
+---
+
+## 11. Djoser Token-Based Password Reset Flow
+
+### `POST /api/v1/auth/users/reset_password/`
+Sends a password reset email with a `uid` and `token`.
+
+#### Request Body:
+```json
+{
+  "email": "customer@example.com"
+}
+```
+*Success Response: `204 No Content`*
+
+---
+
+### `POST /api/v1/auth/users/reset_password_confirm/`
+Completes password reset using the emailed `uid`, `token`, and `new_password`.
+
+#### Request Body:
+```json
+{
+  "uid": "MTQ",
+  "token": "c7k10p-39d01248...",
+  "new_password": "BrandNewPassword789!"
+}
+```
+*Success Response: `204 No Content`*

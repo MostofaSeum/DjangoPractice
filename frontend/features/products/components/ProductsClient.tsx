@@ -6,6 +6,7 @@ import AddToCartButton from "@/features/products/components/AddToCartButton";
 import ProductSearchBar from "@/features/products/components/ProductSearchBar";
 import ProductSortSelect from "@/features/products/components/ProductSortSelect";
 import ProductDeliveryOfferBadge from "@/components/ProductDeliveryOfferBadge";
+import { useRouter } from "next/navigation";
 import { useLanguage } from "@/store/LanguageContext";
 import { Product } from "@/types/product";
 
@@ -30,12 +31,13 @@ export default function ProductsClient({
   ordering,
   search,
 }: ProductsClientProps) {
+  const router = useRouter();
   const { t, formatCurrency, locale } = useLanguage();
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans antialiased pb-24 transition-colors duration-300">
       {/* Breadcrumbs */}
-      <div className="bg-primary text-background dark:text-foreground border-b border-white/5 py-4 transition-colors duration-300">
+      <div id="products-breadcrumbs" className="bg-primary text-background dark:text-foreground border-b border-white/5 py-4 transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2.5 font-bold uppercase tracking-wider">
           <Link href="/" className="hover:underline">
             {t("products.breadcrumbHome")}
@@ -74,6 +76,21 @@ export default function ProductsClient({
               <form
                 method="GET"
                 action="/products"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const form = e.currentTarget;
+                  const min = (form.elements.namedItem("minPrice") as HTMLInputElement)?.value;
+                  const max = (form.elements.namedItem("maxPrice") as HTMLInputElement)?.value;
+                  const params = new URLSearchParams(
+                    typeof window !== "undefined" ? window.location.search : ""
+                  );
+                  if (min) params.set("minPrice", min); else params.delete("minPrice");
+                  if (max) params.set("maxPrice", max); else params.delete("maxPrice");
+                  if (ordering) params.set("ordering", ordering);
+                  if (search) params.set("search", search);
+                  params.delete("page");
+                  router.push(`/products?${params.toString()}`);
+                }}
                 className="flex flex-col gap-5"
               >
                 {/* Keep active sorting and search parameters */}
@@ -110,6 +127,7 @@ export default function ProductsClient({
 
                 <div className="flex flex-col gap-2 pt-2">
                   <button
+                    id="apply-price-filter-btn"
                     type="submit"
                     className="w-full py-2.5 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-colors cursor-pointer"
                   >
@@ -132,6 +150,7 @@ export default function ProductsClient({
             {/* Clear All Filters Button */}
             {(minPrice || maxPrice || ordering || search) && (
               <Link
+                id="clear-all-filters-btn"
                 href="/products"
                 className="w-full py-3 border border-current text-foreground bg-secondary rounded-2xl text-xs font-bold uppercase tracking-widest hover:opacity-80 transition-all flex items-center justify-center shadow-sm"
               >
@@ -142,7 +161,7 @@ export default function ProductsClient({
 
           {/* Right Panel: Product Grid */}
           <div className="flex-1 w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div id="products-grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.length > 0 ? (
                 products.map((product) => {
                   const activeVariant = product.variants?.find((v) => v.is_active !== false);
@@ -268,7 +287,7 @@ export default function ProductsClient({
                   );
                 })
               ) : (
-                <div className="col-span-full py-16 text-center text-sm font-bold uppercase tracking-wider opacity-60">
+                <div id="no-products-found" className="col-span-full py-16 text-center text-sm font-bold uppercase tracking-wider opacity-60">
                   {t("products.noProductsFound")}
                 </div>
               )}
@@ -280,6 +299,7 @@ export default function ProductsClient({
                 {/* Previous Button */}
                 {currentPage > 1 ? (
                   <Link
+                    id="pagination-prev"
                     href={{
                       pathname: "/products",
                       query: {
@@ -295,13 +315,13 @@ export default function ProductsClient({
                     {t("products.prev")}
                   </Link>
                 ) : (
-                  <span className="px-5 py-2.5 border border-current opacity-30 rounded-xl text-xs font-bold uppercase tracking-widest cursor-not-allowed">
+                  <span id="pagination-prev" className="px-5 py-2.5 border border-current opacity-30 rounded-xl text-xs font-bold uppercase tracking-widest cursor-not-allowed">
                     {t("products.prev")}
                   </span>
                 )}
 
                 {/* Page indicator */}
-                <span className="text-xs font-bold opacity-70 uppercase tracking-wider">
+                <span id="pagination-indicator" className="text-xs font-bold opacity-70 uppercase tracking-wider">
                   {locale === "bn"
                     ? `পৃষ্ঠা ${currentPage.toLocaleString("bn-BD")} / ${totalPages.toLocaleString("bn-BD")}`
                     : `Page ${currentPage} of ${totalPages}`}
@@ -310,6 +330,7 @@ export default function ProductsClient({
                 {/* Next Button */}
                 {currentPage < totalPages ? (
                   <Link
+                    id="pagination-next"
                     href={{
                       pathname: "/products",
                       query: {
@@ -325,7 +346,7 @@ export default function ProductsClient({
                     {t("products.next")}
                   </Link>
                 ) : (
-                  <span className="px-5 py-2.5 border border-current opacity-30 rounded-xl text-xs font-bold uppercase tracking-widest cursor-not-allowed">
+                  <span id="pagination-next" className="px-5 py-2.5 border border-current opacity-30 rounded-xl text-xs font-bold uppercase tracking-widest cursor-not-allowed">
                     {t("products.next")}
                   </span>
                 )}
