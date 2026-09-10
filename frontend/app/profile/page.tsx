@@ -958,21 +958,6 @@ export default function ProfilePage() {
                 </div>
               )}
             </div>
-
-            {/* Logout Action */}
-            <div className="mt-8 pt-6 border-t border-foreground/10">
-              <button
-                type="button"
-                onClick={() => {
-                  logout();
-                  router.push("/login");
-                }}
-                className="w-full py-3.5 px-4 rounded-2xl border border-red-500/30 text-red-500 hover:bg-red-500/10 font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-              >
-                <img src="/logout.png" alt="Logout" className="w-4 h-4 object-contain invert dark:invert-0" />
-                <span>{locale === "bn" ? "লগআউট করুন" : "Logout"}</span>
-              </button>
-            </div>
           </div>
 
           {/* User's Own Order History & VibeCoin (2 Columns) */}
