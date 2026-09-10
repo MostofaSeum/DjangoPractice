@@ -15,12 +15,18 @@ All public storefront and administrative API endpoints are versioned under:
 ```
 *Backward-compatibility alias:* Endpoints are also mirrored without `/api/v1/` (e.g. `/store/products/`, `/auth/jwt/create/`) to ensure existing clients continue operating without interruption.
 
-### 2. Authentication & Authorization
+### 2. Interactive API Explorers & Schema
+The backend exposes live OpenAPI 3 schema and interactive explorers:
+* **Swagger UI (Interactive API Explorer):** `http://127.0.0.1:8000/api/docs/`
+* **ReDoc (API Reference Documentation):** `http://127.0.0.1:8000/api/redoc/`
+* **Raw OpenAPI 3 YAML/JSON Schema:** `http://127.0.0.1:8000/api/schema/`
+
+### 3. Authentication & Authorization
 * **Public Endpoints:** Require no authorization header (e.g. browsing catalog, validating coupons, newsletter subscription, cart session).
 * **Customer Endpoints:** Require `Authorization: JWT <access_token>` or active session cookie (e.g. order history, saving addresses, submitting return claims, redeeming gift cards).
 * **Staff / Admin Endpoints:** Require an authenticated user with `is_staff = true` (e.g. dispatching orders, catalog CRUD, reviewing returns, bulk syncing).
 
-### 3. Standard Response Format & Error Codes
+### 4. Standard Response Format & Error Codes
 * **`200 OK`**: Successful `GET`, `PUT`, or `PATCH` operation.
 * **`201 Created`**: Successful `POST` entity creation.
 * **`204 No Content`**: Successful `DELETE` operation.
@@ -36,11 +42,11 @@ All public storefront and administrative API endpoints are versioned under:
 
 | # | Module Documentation | File Name | Description |
 | :--- | :--- | :--- | :--- |
-| **01** | [Authentication & User Management](./01_Authentication.md) | `01_Authentication.md` | Email OTP registration, JWT login/refresh/logout, password reset, and user profile management. |
-| **02** | [Catalog & Products](./02_Catalog_and_Products.md) | `02_Catalog_and_Products.md` | Product catalog, multi-option sorting, shade/size variants, galleries, reviews, Google Sheets & CSV sync, batch ZIP media uploads (up to 100MB), and full collection showcases (`?include_products=true`). |
-| **03** | [Cart & Promotions](./03_Cart_and_Promotions.md) | `03_Cart_and_Promotions.md` | Guest/customer cart drawers, cart items, promotional coupon codes, and conditional delivery rules. |
-| **04** | [Orders, Checkout & Addresses](./04_Orders_and_Checkout.md) | `04_Orders_and_Checkout.md` | Order placement, customer saved address book, MFS transaction auditing, customer order cancellation, and admin live order editing. |
+| **01** | [Authentication & User Management](./01_Authentication.md) | `01_Authentication.md` | Email OTP registration, Djoser registration, JWT login/refresh/logout, password change/reset, and HttpOnly cookie management. |
+| **02** | [Catalog & Products](./02_Catalog_and_Products.md) | `02_Catalog_and_Products.md` | Product catalog, multi-option sorting, shade/size variants (nested & top-level), product reviews with photo uploads, Google Sheets & CSV sync, batch ZIP media uploads, and collection showcases (`?include_products=true`). |
+| **03** | [Cart & Promotions](./03_Cart_and_Promotions.md) | `03_Cart_and_Promotions.md` | Guest/customer cart drawers, cart items, guest-to-customer cart synchronization (`carts/sync/`), bulk campaign promotions (`promotions/apply/`, `promotions/remove/`), coupon codes CRUD & validation, and conditional delivery rules. |
+| **04** | [Orders, Checkout & Addresses](./04_Orders_and_Checkout.md) | `04_Orders_and_Checkout.md` | Order placement, customer saved address book (5 address limit), customer order cancellation, admin live COD order editing, customer profile updates, and admin customer order history. |
 | **05** | [Logistics & Parcel Tracking](./05_Logistics_and_Tracking.md) | `05_Logistics_and_Tracking.md` | Courier partner dispatch (Steadfast, Pathao, RedX, Paperfly, Manual), MFS payment completion prerequisite check, live customer milestone tracking, and provider connectivity test. |
-| **06** | [Returns & Refunds](./06_Returns_and_Refunds.md) | `06_Returns_and_Refunds.md` | Customer return claim submission with photo proofs, refund channel selection, admin 1-way decision lock, and automated restock/VibeCoin credit. |
-| **07** | [Gift Cards, Loyalty & Engagement](./07_GiftCards_and_Engagement.md) | `07_GiftCards_and_Engagement.md` | 16-character digital gift cards, redemption directly into customer VibeCoin wallets, wishlist bookmarks, and newsletter subscribers. |
-| **08** | [Admin, Settings & Operations](./08_Admin_and_Settings.md) | `08_Admin_and_Settings.md` | Store identity branding & logo upload/delete, promotional top banner, homepage hero & bento grid layouts, automated conditional delivery rules, multi-currency Forex config, notification hub, base regional shipping rates, and audit logs. |
+| **06** | [Returns & Refunds](./06_Returns_and_Refunds.md) | `06_Returns_and_Refunds.md` | Customer return claim submission with multi-photo proofs, refund channel selection, admin 1-way decision lock, 200-word admin notes, and automated restock/VibeCoin credit. |
+| **07** | [Gift Cards, Loyalty & Engagement](./07_GiftCards_and_Engagement.md) | `07_GiftCards_and_Engagement.md` | Digital gift card denominations, gift card purchase, 16-character code redemption into VibeCoin wallets with email verification, wishlist bookmarks, and newsletter subscriber deduplication. |
+| **08** | [Admin, Settings & Operations](./08_Admin_and_Settings.md) | `08_Admin_and_Settings.md` | Store identity branding & logo upload/delete, top promotional banner, homepage hero & bento grid layouts, payment settings & MFS merchant wallets, notification hub with `since_id`, and immutable audit logs. |

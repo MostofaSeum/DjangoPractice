@@ -217,3 +217,91 @@ Clears all unread badges across the dashboard.
   "message": "All notifications marked as read."
 }
 ```
+
+---
+
+## 4. Merchant Payment Gateways & Wallets
+
+### `GET /api/v1/store/payment-settings/`
+Retrieves the merchant's bKash and Nagad numbers and payment method activation flags (COD, bKash, Nagad, VibeCoin).
+
+* **Who Can Use:** Public (Allows checkout page to render active payment methods)
+
+#### Success Response (`200 OK`):
+```json
+{
+  "id": 1,
+  "bkash_number": "01712345678",
+  "bkash_active": true,
+  "nagad_number": "01812345678",
+  "nagad_active": true,
+  "cod_active": true,
+  "vibecoin_active": true,
+  "last_updated": "2026-09-03T10:00:00Z"
+}
+```
+
+---
+
+### `POST /api/v1/store/payment-settings/` (also supports `PUT` / `PATCH`)
+Updates payment gateway settings or modifies merchant account numbers.
+
+* **Who Can Use:** Staff Only (`IsAdminUser`)
+
+#### Request Body:
+```json
+{
+  "bkash_number": "01799887766",
+  "bkash_active": true,
+  "nagad_number": "01899887766",
+  "nagad_active": true,
+  "cod_active": true,
+  "vibecoin_active": true
+}
+```
+
+#### Success Response (`200 OK`):
+*Returns updated `PaymentSetting` object.*
+
+---
+
+## 5. Audit Trail & Security Compliance Logs
+
+### `GET /api/v1/store/audit-logs/`
+Retrieves immutable administrative audit logs tracking order cancellations, site setting updates, and inventory changes.
+
+* **Who Can Use:** Staff Only (`IsAdminUser`)
+* **Security Rule:** Create, edit, and delete operations are strictly disabled (`405 Method Not Allowed`).
+* **Search Fields:** `entity_name`, `entity_id`, `performed_by_name`, `action`
+* **Ordering:** `-created_at` (default)
+
+#### Success Response (`200 OK`):
+```json
+[
+  {
+    "id": 84,
+    "entity_name": "Order",
+    "entity_id": "142",
+    "action": "UPDATE",
+    "performed_by": 1,
+    "performed_by_name": "Mostofa Seum",
+    "changes": {
+      "action": "order_cancelled",
+      "order_id": 142,
+      "reason": "Cancelled by customer",
+      "restocked": true
+    },
+    "ip_address": "127.0.0.1",
+    "created_at": "2026-09-03T12:05:00Z"
+  }
+]
+```
+
+---
+
+### `GET /api/v1/store/audit-logs/{id}/`
+Retrieves single audit log entry by ID.
+
+#### Success Response (`200 OK`):
+*Returns single `AuditLog` object.*
+
