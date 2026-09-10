@@ -357,6 +357,36 @@ test.describe('Storefront Homepage - Complete Test Suite', () => {
       const alertPopup = page.locator('.swal2-popup');
       await expect(alertPopup).toBeVisible({ timeout: 10000 });
     });
+
+    test('shows an error or duplicate notice when user submits the same email a 2nd time', async ({ page }) => {
+      const emailInput = page.getByPlaceholder(/Enter your email address|newsletter\.placeholder/i);
+      const subscribeBtn = page.getByRole('button', { name: /Subscribe|newsletter\.subscribe/i });
+
+      const duplicateEmail = `duplicate_${Date.now()}@example.com`;
+
+      // 1. First submission (registers the email)
+      await emailInput.fill(duplicateEmail);
+      await subscribeBtn.click();
+
+      const firstPopup = page.locator('.swal2-popup');
+      await expect(firstPopup).toBeVisible({ timeout: 10000 });
+
+      // Dismiss first popup if it has a confirm button
+      const confirmBtn = page.locator('.swal2-confirm');
+      if (await confirmBtn.isVisible()) {
+        await confirmBtn.click();
+        await page.waitForTimeout(500);
+      }
+
+      // 2. Second submission with the same email
+      await emailInput.fill(duplicateEmail);
+      await subscribeBtn.click();
+
+      // Verify error / duplicate notice popup appears
+      const duplicateAlert = page.locator('.swal2-popup');
+      await expect(duplicateAlert).toBeVisible({ timeout: 10000 });
+      await expect(duplicateAlert).toContainText(/Already Subscribed|We already have you|Subscription Error|already/i);
+    });
   });
 
   /* -------------------------------------------------------------------------- */
