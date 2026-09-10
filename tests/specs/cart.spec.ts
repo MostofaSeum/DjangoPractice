@@ -222,16 +222,114 @@ test.describe('Cart Page', () => {
     expect(totalAfterNum).toBeCloseTo(expectedFinalTotal, 1);
   });
 
-  test('displays order summary section with checkout button', async ({ page }) => {
-    const checkoutBtn = page.getByRole('button', { name: /Proceed to Checkout|Checkout/i }).or(
-      page.getByRole('link', { name: /Checkout/i })
-    );
+  test('loads up to 4 products in "You May Also Like" section from collection/category if available', async ({ page }) => {
+    await ensureStationaryItemInCart(page);
 
-    if (await checkoutBtn.isVisible()) {
-      await expect(checkoutBtn).toBeVisible();
-      // Click Proceed to checkout
-      await checkoutBtn.click();
-      await expect(page).toHaveURL(/checkout/);
+    // Look for the "You May Also Like" heading
+    const youMayAlsoLikeHeading = page.getByRole('heading', {
+      name: /You May Also Like|আপনার পছন্দ হতে পারে/i,
+    });
+
+    if (await youMayAlsoLikeHeading.isVisible({ timeout: 5000 })) {
+      await expect(youMayAlsoLikeHeading).toBeVisible();
+
+      // Find the grid container following the heading
+      const relatedSection = youMayAlsoLikeHeading.locator('xpath=ancestor::div[contains(@class, "border-t")]');
+      const relatedCards = relatedSection.locator('.grid > div');
+      const count = await relatedCards.count();
+
+      // Should load at most 4 products
+      expect(count).toBeGreaterThan(0);
+      expect(count).toBeLessThanOrEqual(4);
+
+      // Verify each card contains a product title and link
+      for (let i = 0; i < count; i++) {
+        const card = relatedCards.nth(i);
+        await expect(card.locator('h4')).toBeVisible();
+        await expect(card.locator('a[href*="/products/"]')).toBeVisible();
+      }
     }
+  });
+
+  test('calculates Product Discounts correctly in cart item and summary', async ({ page }) => {
+    await ensureStationaryItemInCart(page);
+
+    // Look for original subtotal and product discount rows in the summary card
+    const originalSubtotalEl = page.locator('.space-y-3\\.5 > div').first();
+    await expect(originalSubtotalEl).toBeVisible();
+
+    const productDiscountsRow = page.getByText(/Product Discounts|পণ্য ছাড়/i);
+    if (await productDiscountsRow.isVisible()) {
+      await expect(productDiscountsRow).toBeVisible();
+
+      // Check that savings value is formatted and non-zero
+      const savingsEl = productDiscountsRow.locator('xpath=following-sibling::span');
+      await expect(savingsEl).toBeVisible();
+      const savingsText = await savingsEl.innerText();
+      const savingsNum = parseFloat(savingsText.replace(/[^\d.]/g, ''));
+      expect(savingsNum).toBeGreaterThan(0);
+
+      // Check that discounted subtotal row is present and equals original - savings
+      const discountedSubtotalRow = page.getByText(/Discounted Subtotal|ছাড়ের পর উপমোট/i);
+      await expect(discountedSubtotalRow).toBeVisible();
+      const discountedSubtotalEl = discountedSubtotalRow.locator('xpath=following-sibling::span');
+      const discountedSubtotalNum = parseFloat((await discountedSubtotalEl.innerText()).replace(/[^\d.]/g, ''));
+
+      const originalSubtotalNum = parseFloat((await originalSubtotalEl.innerText()).replace(/[^\d.]/g, ''));
+      expect(discountedSubtotalNum).toBeCloseTo(originalSubtotalNum - savingsNum, 1);
+    }
+  });
+
+  test('Total Amount is calculated accurately after all addition or deduction of discounts and coupons', async ({ page }) => {
+    await ensureStationaryItemInCart(page);
+
+    // Ensure coupon is cleared first
+    const removeCouponBtn = page.getByRole('button', { name: /Remove|সরান/i });
+    if (await removeCouponBtn.isVisible()) {
+      await removeCouponBtn.click();
+      await page.waitForTimeout(500);
+    }
+
+    // Read initial total before coupon
+    const totalEl = page.locator('.text-2xl.text-accent.font-black').first();
+    await expect(totalEl).toBeVisible();
+    const initialTotal = parseFloat((await totalEl.innerText()).replace(/[^\d.]/g, ''));
+
+    // Apply valid TRIAL10 coupon
+    const couponInput = page.getByPlaceholder(/SUMMER|coupon|code|কুপন/i).or(page.locator('form input[type="text"]').first());
+    const applyCouponBtn = page.getByRole('button', { name: /Apply|প্রয়োগ/i });
+
+    if (await couponInput.isVisible()) {
+      await couponInput.fill('TRIAL10');
+      await applyCouponBtn.click();
+      await page.waitForTimeout(1000);
+
+      // Verify coupon discount row appears
+      const couponDiscountRow = page.getByText(/Coupon Discount|কুপন ছাড়/i);
+      if (await couponDiscountRow.isVisible()) {
+        const couponSavingsEl = couponDiscountRow.locator('xpath=following-sibling::span');
+        const couponSavings = parseFloat((await couponSavingsEl.innerText()).replace(/[^\d.]/g, ''));
+
+        // Total amount must exactly equal initialTotal minus couponSavings
+        const finalTotalEl = page.locator('.text-2xl.text-accent.font-black').first();
+        const finalTotal = parseFloat((await finalTotalEl.innerText()).replace(/[^\d.]/g, ''));
+
+        expect(finalTotal).toBeCloseTo(Math.max(0, initialTotal - couponSavings), 1);
+      }
+    }
+  });
+
+  test('Proceed to Checkout button successfully navigates to checkout page', async ({ page }) => {
+    await ensureStationaryItemInCart(page);
+
+    const checkoutBtn = page.getByRole('button', { name: /Proceed to Checkout|অর্ডারে এগিয়ে যান/i });
+    await expect(checkoutBtn).toBeVisible({ timeout: 10000 });
+    await expect(checkoutBtn).toBeEnabled();
+
+    // Click Proceed to Checkout
+    await checkoutBtn.click();
+
+    // Verify navigation to checkout
+    await expect(page).toHaveURL(/.*\/checkout/, { timeout: 15000 });
   });
 });
