@@ -90,7 +90,7 @@ export default function CollectionDetailClient({
           >
             {collection.title}
           </h1>
-          <div className="pt-0.5 max-w-2xl">
+          <div className="pt-0.5 w-fit max-w-full">
             <CollectionDeliveryBanner
               collectionId={collection.id}
               variant="banner"

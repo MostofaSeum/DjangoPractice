@@ -112,7 +112,7 @@ export default function CollectionDeliveryBanner({
   if (variant === "banner") {
     return (
       <div
-        className={`flex items-center gap-3 p-4 rounded-2xl backdrop-blur-md font-black text-xs uppercase tracking-wider shadow-md transition-all duration-300 ${
+        className={`inline-flex items-center w-fit gap-3 px-4 py-2.5 rounded-2xl backdrop-blur-md font-black text-xs uppercase tracking-wider shadow-md transition-all duration-300 ${
           darkOverlay
             ? "bg-primary/85 border border-foreground/30 text-button-fg"
             : "bg-primary/20 dark:bg-primary/40 border border-accent/40 text-foreground"
