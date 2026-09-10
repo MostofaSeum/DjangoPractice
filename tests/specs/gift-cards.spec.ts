@@ -53,6 +53,10 @@ test.describe('Gift Cards Feature Suite', () => {
       // Wait until user profile is hydrated in React AuthContext
       const userBtn = page.locator('header button').filter({ hasText: /AdminFirst|hello/i }).first();
       await expect(userBtn).toBeVisible({ timeout: 15000 });
+    } else {
+      // Wait until guest state is hydrated in React AuthContext
+      const signInLink = page.getByRole('link', { name: /Sign In|সাইন ইন/i }).first();
+      await expect(signInLink).toBeVisible({ timeout: 15000 });
     }
   }
 
@@ -121,6 +125,7 @@ test.describe('Gift Cards Feature Suite', () => {
 
       // Click first Purchase Card button
       const purchaseBtn = page.getByRole('button', { name: /Purchase Card|ক্রয় করুন/i }).first();
+      await purchaseBtn.scrollIntoViewIfNeeded();
       await purchaseBtn.click();
 
       // SweetAlert warning modal should appear
@@ -172,8 +177,9 @@ test.describe('Gift Cards Feature Suite', () => {
       const modal = page.locator('.fixed.inset-0');
       await expect(modal).toBeVisible({ timeout: 8000 });
 
-      // Displays card title and amount
-      await expect(modal.locator('h3')).toContainText(/500/);
+      // Displays card title heading
+      const cardTitleHeading = modal.getByRole('heading', { name: /500/i }).first();
+      await expect(cardTitleHeading).toBeVisible();
 
       // Click top-right ✕ button
       const closeBtn = modal.locator('button:has-text("✕")');
@@ -212,7 +218,7 @@ test.describe('Gift Cards Feature Suite', () => {
       const modal = page.locator('.fixed.inset-0');
       await expect(modal).toBeVisible();
 
-      const emailInput = modal.locator('input[type="email"]');
+      const emailInput = modal.locator('#recipientEmail');
       await expect(emailInput).toBeVisible();
 
       const submitBtn = modal.getByRole('button', { name: /Complete Order & Purchase|Place Order|ক্রয় সম্পন্ন করুন/i });
@@ -221,8 +227,10 @@ test.describe('Gift Cards Feature Suite', () => {
       await emailInput.fill('');
       await submitBtn.click();
 
-      const isInvalid = await emailInput.evaluate((el: HTMLInputElement) => !el.checkValidity() || el.value.trim() === '');
-      expect(isInvalid).toBeTruthy();
+      // Custom in-app error alert appears
+      const errorAlert = modal.locator('.p-4.bg-accent\\/10');
+      await expect(errorAlert).toBeVisible();
+      await expect(errorAlert).toContainText(/recipient email|প্রাপকের ইমেইল/i);
     });
 
     test('validates required sender mobile and transaction ID (TrxID)', async ({ page }) => {
@@ -235,15 +243,16 @@ test.describe('Gift Cards Feature Suite', () => {
       await expect(modal).toBeVisible();
 
       // Fill recipient email, but leave sender phone and TrxID empty
-      const emailInput = modal.locator('input[type="email"]');
+      const emailInput = modal.locator('#recipientEmail');
       await emailInput.fill('friend@example.com');
 
       const submitBtn = modal.getByRole('button', { name: /Complete Order & Purchase|Place Order|ক্রয় সম্পন্ন করুন/i });
       await submitBtn.click();
 
       // Error message prompt should be displayed
-      const errorAlert = modal.locator('text=/Please enter both Sender Phone Number and|অনুগ্রহ করে প্রেরকের মোবাইল নম্বর/i');
-      await expect(errorAlert.first()).toBeVisible();
+      const errorAlert = modal.locator('.p-4.bg-accent\\/10');
+      await expect(errorAlert).toBeVisible();
+      await expect(errorAlert).toContainText(/Please enter both Sender Phone Number and|অনুগ্রহ করে প্রেরকের মোবাইল নম্বর/i);
     });
 
     test('sanitizes recipient phone and transaction mobile to numeric digits with max length 11', async ({ page }) => {
@@ -256,14 +265,14 @@ test.describe('Gift Cards Feature Suite', () => {
       await expect(modal).toBeVisible();
 
       // Recipient phone sanitization
-      const recipientPhoneInput = modal.locator('input[type="tel"]').first();
+      const recipientPhoneInput = modal.locator('#recipientPhone');
       await recipientPhoneInput.fill('abc01712-345678xyz999');
       const recipientValue = await recipientPhoneInput.inputValue();
       expect(recipientValue).toBe('01712345678');
       expect(recipientValue.length).toBe(11);
 
       // Sender transaction mobile sanitization
-      const senderPhoneInput = modal.locator('input[type="tel"]').nth(1);
+      const senderPhoneInput = modal.locator('input[name="senderPhone"]').first();
       await senderPhoneInput.fill('01888-765432-extra');
       const senderValue = await senderPhoneInput.inputValue();
       expect(senderValue).toBe('01888765432');
@@ -279,7 +288,7 @@ test.describe('Gift Cards Feature Suite', () => {
       const modal = page.locator('.fixed.inset-0');
       await expect(modal).toBeVisible();
 
-      const emailInput = modal.locator('input[type="email"]');
+      const emailInput = modal.locator('#recipientEmail');
 
       // Enter someone else's email first -> no self-gifting note
       await emailInput.fill('someoneelse@example.com');
@@ -378,14 +387,14 @@ test.describe('Gift Cards Feature Suite', () => {
       const modal = page.locator('.fixed.inset-0');
       await expect(modal).toBeVisible();
 
-      // Fill out valid order form
-      const emailInput = modal.locator('input[type="email"]');
+      // Fill out valid order form using semantic attributes
+      const emailInput = modal.locator('#recipientEmail');
       await emailInput.fill('hello@gmail.com');
 
-      const senderPhoneInput = modal.locator('input[type="tel"]').nth(1);
+      const senderPhoneInput = modal.locator('input[name="senderPhone"]').first();
       await senderPhoneInput.fill('01711223344');
 
-      const trxIdInput = modal.locator('input[placeholder*="TrxID"]').or(modal.locator('input[placeholder*="TRX"]')).first();
+      const trxIdInput = modal.locator('input[name="transactionId"]').first();
       const uniqueTrx = `TRX${Date.now().toString().slice(-8)}`;
       await trxIdInput.fill(uniqueTrx);
 

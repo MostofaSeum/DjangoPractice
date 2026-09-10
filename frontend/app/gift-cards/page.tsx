@@ -188,7 +188,16 @@ export default function GiftCardsPage() {
 
   const handleCreateGiftCard = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedCard || !email) return;
+    if (!selectedCard) return;
+
+    if (!email.trim()) {
+      setErrorMessage(
+        locale === "bn"
+          ? "অনুগ্রহ করে প্রাপকের ইমেইল ঠিকানা লিখুন।"
+          : "Please enter recipient email address."
+      );
+      return;
+    }
 
     if (!transactionId.trim() || !transactionPhoneNo.trim()) {
       setErrorMessage(
@@ -204,9 +213,13 @@ export default function GiftCardsPage() {
 
     try {
       const apiBaseUrl = getApiBaseUrl();
+      const activeToken = token || (typeof window !== "undefined" ? localStorage.getItem("access_token") : null);
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
       };
+      if (activeToken) {
+        headers["Authorization"] = `JWT ${activeToken}`;
+      }
 
       const res = await fetch(`${apiBaseUrl}/store/gift-cards/`, {
         method: "POST",
@@ -412,7 +425,7 @@ export default function GiftCardsPage() {
             </button>
 
             {!successResult ? (
-              <form onSubmit={handleCreateGiftCard} className="space-y-6">
+              <form onSubmit={handleCreateGiftCard} noValidate className="space-y-6">
                 <div>
                   <span className="text-[10px] font-black tracking-widest uppercase text-accent block mb-1">
                     {t("giftCards.orderGiftCard")}
@@ -435,10 +448,12 @@ export default function GiftCardsPage() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
+                      <label htmlFor="recipientEmail" className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
                         {t("giftCards.recipientEmail")} *
                       </label>
                       <input
+                        id="recipientEmail"
+                        name="recipientEmail"
                         type="email"
                         required
                         value={email}
@@ -449,12 +464,14 @@ export default function GiftCardsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
+                      <label htmlFor="recipientPhone" className="block text-xs font-bold uppercase tracking-wider mb-2 opacity-80 text-foreground">
                         {t("giftCards.recipientPhone")}
                       </label>
                       <input
+                        id="recipientPhone"
+                        name="recipientPhone"
                         type="tel"
-                        maxLength={11}
+                        maxLength={16}
                         value={phone}
                         onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 11))}
                         placeholder="e.g. 017XXXXXXXX"

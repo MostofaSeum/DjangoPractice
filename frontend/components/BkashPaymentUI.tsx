@@ -84,13 +84,15 @@ export default function BkashPaymentUI({
         {/* Input Fields */}
         <div className="space-y-3">
           <div>
-            <label className="block text-[11px] font-extrabold uppercase tracking-wider text-white/90 mb-1">
+            <label htmlFor="bkashSenderPhone" className="block text-[11px] font-extrabold uppercase tracking-wider text-white/90 mb-1">
               {t("paymentUI.senderBkashMobile")} *
             </label>
             <input
+              id="bkashSenderPhone"
+              name="senderPhone"
               type="tel"
               required
-              maxLength={11}
+              maxLength={16}
               value={transactionPhoneNo}
               onChange={(e) =>
                 setTransactionPhoneNo(e.target.value.replace(/\D/g, "").slice(0, 11))
@@ -101,13 +103,15 @@ export default function BkashPaymentUI({
           </div>
 
           <div>
-            <label className="block text-[11px] font-extrabold uppercase tracking-wider text-white/90 mb-1">
+            <label htmlFor="bkashTransactionId" className="block text-[11px] font-extrabold uppercase tracking-wider text-white/90 mb-1">
               {t("paymentUI.transactionId")} *
             </label>
             <input
+              id="bkashTransactionId"
+              name="transactionId"
               type="text"
               required
-              maxLength={11}
+              maxLength={16}
               value={transactionId}
               onChange={(e) =>
                 setTransactionId(
