@@ -125,6 +125,44 @@ test.describe('Cart Page', () => {
     await expect(qtySpan).toBeVisible();
   });
 
+  test('clicking delete button prompts confirmation and deletes product from cart', async ({ page }) => {
+    await ensureStationaryItemInCart(page);
+
+    // Locate the delete button in the cart item row
+    const deleteBtn = page.getByRole('button', { name: /Remove item|Delete|কার্ট থেকে সরান/i })
+      .or(page.locator('button img[alt="Delete"]').locator('xpath=..'))
+      .first();
+
+    await expect(deleteBtn).toBeVisible({ timeout: 10000 });
+
+    // Count items before deletion
+    const itemRows = page.locator('.space-y-4 > div');
+    const countBefore = await itemRows.count();
+    expect(countBefore).toBeGreaterThan(0);
+
+    // Click delete button
+    await deleteBtn.click();
+
+    // SweetAlert confirmation dialog appears
+    const confirmPopup = page.locator('.swal2-popup');
+    await expect(confirmPopup).toBeVisible({ timeout: 5000 });
+
+    // Confirm deletion by clicking "Yes, Remove"
+    const confirmBtn = page.getByRole('button', { name: /Yes, Remove|হ্যাঁ, সরান/i }).or(page.locator('.swal2-confirm'));
+    await expect(confirmBtn).toBeVisible();
+    await confirmBtn.click();
+
+    // Verify item was deleted (either count decreases or empty cart state appears)
+    await page.waitForTimeout(1000);
+    const emptyState = page.getByRole('heading', { name: /Your Cart is Empty|Cart is Empty|কার্ট খালি/i });
+    if (await emptyState.isVisible()) {
+      await expect(emptyState).toBeVisible();
+    } else {
+      const countAfter = await itemRows.count();
+      expect(countAfter).toBeLessThan(countBefore);
+    }
+  });
+
   test('calculates item total and order summary accurately with quantity changes', async ({ page }) => {
     await ensureStationaryItemInCart(page);
 
