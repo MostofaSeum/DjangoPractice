@@ -41,7 +41,7 @@ export default function ProductDetailClient({
   return (
     <div className="min-h-screen bg-background text-foreground font-sans antialiased pb-8 transition-colors duration-300">
       {/* Breadcrumbs */}
-      <div className="bg-primary text-background dark:text-foreground border-b border-white/5 py-2.5 transition-colors duration-300">
+      <div id="product-breadcrumbs" className="bg-primary text-background dark:text-foreground border-b border-white/5 py-2.5 transition-colors duration-300">
         <div className="max-w-[1400px] mx-auto px-8 md:px-12 text-xs flex items-center space-x-2.5 font-bold uppercase tracking-wider">
           <Link href="/" className="hover:underline">
             {t("products.breadcrumbHome")}

@@ -553,20 +553,24 @@ export default function ProductInteractive({
           {!isOutOfStock && (
             <div className="flex items-center border border-foreground/15 rounded-xl overflow-hidden bg-background shadow-sm">
               <button
+                id="main-qty-minus"
                 onClick={handleDecrement}
                 className="px-4 py-2.5 hover:bg-secondary text-foreground font-black transition-colors cursor-pointer"
                 type="button"
+                aria-label="Decrease quantity"
               >
                 -
               </button>
-              <span className="w-12 text-center font-bold text-foreground">
+              <span id="main-qty-val" className="w-12 text-center font-bold text-foreground">
                 {locale === "bn" ? quantity.toLocaleString("bn-BD") : quantity}
               </span>
               <button
+                id="main-qty-plus"
                 onClick={handleIncrement}
                 disabled={quantity >= currentStock}
                 className="px-4 py-2.5 hover:bg-secondary text-foreground font-black transition-colors disabled:opacity-40 cursor-pointer"
                 type="button"
+                aria-label="Increase quantity"
               >
                 +
               </button>
@@ -574,11 +578,12 @@ export default function ProductInteractive({
           )}
 
           {isOutOfStock ? (
-            <span className="px-8 py-3.5 bg-hidden/15 text-hidden font-bold rounded-xl text-xs tracking-widest uppercase border border-hidden/30 flex items-center justify-center shadow-xs">
+            <span id="main-stock-badge" className="px-8 py-3.5 bg-hidden/15 text-hidden font-bold rounded-xl text-xs tracking-widest uppercase border border-hidden/30 flex items-center justify-center shadow-xs">
               {t("productDetail.outOfStock")}
             </span>
           ) : (
             <button
+              id="main-add-to-cart"
               onClick={handleAddToCart}
               disabled={loading}
               className="px-8 py-3.5 bg-button-bg text-button-fg hover:opacity-90 font-bold rounded-xl text-sm tracking-widest uppercase transition-colors shadow-md disabled:opacity-50 cursor-pointer flex items-center gap-2"
@@ -598,6 +603,7 @@ export default function ProductInteractive({
         {/* Wishlist Button */}
         <div>
           <button
+            id="main-wishlist-btn"
             type="button"
             onClick={handleToggleWishlist}
             disabled={wishlistLoading}

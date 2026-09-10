@@ -75,6 +75,7 @@ export default function ProductRatingHeader({ productId }: { productId: number }
 
   return (
     <div
+      id="product-rating-header"
       onClick={scrollToReviews}
       className="flex items-center space-x-2 mt-3 mb-6 cursor-pointer group w-fit"
       title="View Customer Reviews"

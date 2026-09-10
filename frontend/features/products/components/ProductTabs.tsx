@@ -450,6 +450,7 @@ export default function ProductTabs({
       {/* Tab Navigation Header */}
       <div className="flex justify-center items-center space-x-3 sm:space-x-4 border-b border-foreground/10 pb-4 mb-5 overflow-x-auto">
         <button
+          id="tab-description-btn"
           onClick={() => setActiveTab("description")}
           className={`px-5 py-2 rounded-xl text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 whitespace-nowrap cursor-pointer ${
             activeTab === "description"
@@ -462,6 +463,7 @@ export default function ProductTabs({
         </button>
 
         <button
+          id="tab-reviews-btn"
           onClick={() => {
             setActiveTab("reviews");
             if (!reviewsFetched) fetchReviews();
@@ -734,6 +736,7 @@ export default function ProductTabs({
                     {t("productDetail.yourReview")} *
                   </label>
                   <textarea
+                    id="review-textarea"
                     required
                     rows={4}
                     placeholder={t("productDetail.reviewPlaceholder")}
@@ -824,6 +827,7 @@ export default function ProductTabs({
                     </button>
                   )}
                   <button
+                    id="submit-review-btn"
                     type="submit"
                     disabled={submitting}
                     className="w-full sm:w-auto px-8 py-3.5 bg-button-bg text-button-fg rounded-xl font-extrabold text-xs uppercase tracking-widest hover:opacity-90 transition-all shadow-md disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer"
@@ -846,6 +850,7 @@ export default function ProductTabs({
       {/* Lightbox Modal for Enlarged Photo View */}
       {activeImageModal && (
         <div
+          id="review-image-modal"
           className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn"
           onClick={() => setActiveImageModal(null)}
         >
