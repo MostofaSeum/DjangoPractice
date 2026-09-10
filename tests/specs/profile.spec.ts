@@ -14,7 +14,7 @@ test.describe('Customer Profile & Wishlist Page', () => {
       await passwordInput.fill('Hello123456');
       await submitBtn.click();
       // Wait until successfully redirected away from login
-      await page.waitForURL((url) => !url.pathname.includes('/login'), { timeout: 10000 });
+      await page.waitForURL((url: URL) => !url.pathname.includes('/login'), { timeout: 10000 });
     }
   }
 
@@ -143,7 +143,7 @@ test.describe('Customer Profile & Wishlist Page', () => {
     const ordersHeading = page.locator('text=/My Order History|আমার অর্ডার হিস্ট্রি/i');
     await expect(ordersHeading.first()).toBeVisible();
 
-    const orderCards = page.locator('.space-y-3 > div:has(text*="Order #"), .space-y-3 > div:has(text*="অর্ডার #")');
+    const orderCards = page.locator('.space-y-3 > div:has-text("Order #"), .space-y-3 > div:has-text("অর্ডার #")');
     const orderCount = await orderCards.count();
 
     if (orderCount > 0) {
@@ -300,13 +300,19 @@ test.describe('Customer Profile & Wishlist Page', () => {
   });
 
   test('logout can be done perfectly', async ({ page }) => {
-    const logoutBtn = page.getByRole('button', { name: /Logout|লগআউট/i }).first();
-    await expect(logoutBtn).toBeVisible();
+    // 1. Locate the user menu button in the header (shows username and dropdown arrow)
+    const userMenuBtn = page.locator('header button:has(svg)').filter({ hasText: /AdminFirst|hello|[a-zA-Z0-9]+/i }).last();
+    await expect(userMenuBtn).toBeVisible({ timeout: 10000 });
+    await userMenuBtn.click();
 
-    await logoutBtn.click();
-    await page.waitForLoadState('domcontentloaded');
+    // 2. Locate and click Sign Out / লগআউট from the dropdown menu
+    const signOutBtn = page.getByRole('button', { name: /SIGN OUT|সাইন আউট|Logout|লগআউট/i }).first();
+    await expect(signOutBtn).toBeVisible({ timeout: 5000 });
+    await signOutBtn.click();
 
-    // Should redirect to login or homepage and clear authenticated state
-    await expect(page).toHaveURL(/\/login|\//);
+    // 3. Confirm redirected to login page or home page and sign in button reappears
+    await expect(page).toHaveURL(/\/login|\//, { timeout: 10000 });
+    const signInLink = page.getByRole('link', { name: /SIGN IN|সাইন ইন/i }).first();
+    await expect(signInLink).toBeVisible({ timeout: 10000 });
   });
 });
