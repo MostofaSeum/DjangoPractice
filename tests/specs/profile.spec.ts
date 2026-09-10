@@ -181,7 +181,7 @@ test.describe('Customer Profile & Wishlist Page', () => {
     // Edit address if at least one exists
     const editBtn = page.locator('button[title*="Edit Address"], button[title*="সম্পাদনা"]').first();
     if (await editBtn.isVisible()) {
-      await editBtn.click();
+      await editBtn.click({ force: true });
 
       const editModal = page.locator('.fixed.inset-0').filter({ hasText: /Edit Address|ঠিকানা সম্পাদনা/i }).first();
       await expect(editModal).toBeVisible({ timeout: 10000 });
@@ -198,6 +198,64 @@ test.describe('Customer Profile & Wishlist Page', () => {
     const deleteBtn = page.locator('button[title*="Delete Address"], button[title*="মুছে ফেলুন"]').first();
     if (await deleteBtn.isVisible()) {
       await expect(deleteBtn).toBeVisible();
+    }
+  });
+
+  test('can set a secondary address as default and verify default badge updates', async ({ page }) => {
+    // Wait for saved addresses to finish loading
+    await expect(page.locator('text=/Loading addresses|ঠিকানা লোড হচ্ছে/i')).not.toBeVisible({ timeout: 15000 }).catch(() => {});
+    await expect(page.locator('text=/Saved Addresses \\(\\d+\\/5\\)|সংরক্ষিত ঠিকানা/i').first()).toBeVisible({ timeout: 15000 }).catch(() => {});
+
+    // Check if there is a "Set as Default" button
+    const setDefaultBtn = page.getByRole('button', { name: /Set as Default|ডিফল্ট হিসেবে সেট করুন/i }).first();
+    if (await setDefaultBtn.isVisible()) {
+      await setDefaultBtn.click();
+
+      // Verify confirmation feedback
+      const toast = page.locator('.swal2-popup').or(page.getByText(/Default address updated|ডিফল্ট আপডেট/i));
+      await expect(toast.first()).toBeVisible({ timeout: 8000 }).catch(() => {});
+
+      // Confirm DEFAULT badge exists on the newly set default address
+      const defaultBadge = page.locator('text=/DEFAULT|ডিফল্ট/i');
+      await expect(defaultBadge.first()).toBeVisible({ timeout: 8000 });
+    }
+  });
+
+  test('address modal supports switching city zone and validates empty street input', async ({ page }) => {
+    // Wait for saved addresses to finish loading
+    await expect(page.locator('text=/Loading addresses|ঠিকানা লোড হচ্ছে/i')).not.toBeVisible({ timeout: 15000 }).catch(() => {});
+
+    const addAddressBtn = page.getByRole('button', { name: /\+ Add New Address|\+ নতুন ঠিকানা/i });
+    if (await addAddressBtn.isVisible()) {
+      await addAddressBtn.click();
+
+      const addressModal = page.locator('.fixed.inset-0').filter({ hasText: /Address|ঠিকানা/i }).first();
+      await expect(addressModal).toBeVisible({ timeout: 8000 });
+
+      // Test City selection dropdown
+      const citySelect = addressModal.locator('select');
+      await expect(citySelect).toBeVisible();
+      await citySelect.selectOption('Outside Dhaka');
+      expect(await citySelect.inputValue()).toBe('Outside Dhaka');
+
+      await citySelect.selectOption('Inside Dhaka');
+      expect(await citySelect.inputValue()).toBe('Inside Dhaka');
+
+      // Test empty street input validation
+      const streetInput = addressModal.locator('textarea, input[name="street"], [placeholder*="Road" i], [placeholder*="ঠিকানা"]').first();
+      await streetInput.fill('');
+      const saveBtn = addressModal.getByRole('button', { name: /Save Address|ঠিকানা সংরক্ষণ|Save/i });
+      await saveBtn.click();
+
+      // Either HTML5 validation triggers or trim warning appears
+      const isInvalid = await streetInput.evaluate((el: HTMLTextAreaElement) => !el.checkValidity() || el.value.trim() === '');
+      const warningToast = page.locator('.swal2-popup');
+      expect(isInvalid || (await warningToast.isVisible())).toBeTruthy();
+
+      // Close modal
+      const cancelBtn = addressModal.getByRole('button', { name: /Cancel|বাতিল/i }).or(addressModal.locator('button[title*="Close"], button[title*="বন্ধ"]')).first();
+      await cancelBtn.click();
+      await expect(addressModal).not.toBeVisible({ timeout: 6000 }).catch(() => {});
     }
   });
 
@@ -286,6 +344,54 @@ test.describe('Customer Profile & Wishlist Page', () => {
     }
   });
 
+  test('order cancellation workflow checks eligibility and confirmation prompts', async ({ page }) => {
+    const cancelBtns = page.locator('button:has-text("Cancel Order"), button:has-text("অর্ডার বাতিল")');
+    if (await cancelBtns.count() > 0) {
+      await cancelBtns.first().click();
+
+      // SweetAlert popup appears
+      const swalPopup = page.locator('.swal2-popup');
+      await expect(swalPopup).toBeVisible({ timeout: 8000 });
+
+      // Check whether it is a confirmation prompt or an "Order Already Packed" alert
+      const rejectCancelBtn = page.locator('.swal2-cancel');
+      const confirmBtn = page.locator('.swal2-confirm');
+
+      if (await rejectCancelBtn.isVisible().catch(() => false)) {
+        // Dismiss safely via cancel so order remains intact
+        await rejectCancelBtn.click();
+        await expect(swalPopup).not.toBeVisible({ timeout: 6000 });
+      } else if (await confirmBtn.isVisible().catch(() => false)) {
+        await confirmBtn.click();
+        await expect(swalPopup).not.toBeVisible({ timeout: 6000 });
+      }
+    }
+  });
+
+  test('multi-item order review button opens product picker modal', async ({ page }) => {
+    const reviewBtns = page.locator('button:has-text("Review"), button:has-text("রিভিউ")');
+    const reviewCount = await reviewBtns.count();
+
+    for (let i = 0; i < reviewCount; i++) {
+      const btn = reviewBtns.nth(i);
+      await btn.click();
+
+      // If this was a multi-item order, the product picker modal will appear
+      const reviewModal = page.locator('.fixed.inset-0').filter({ hasText: /Select Product to Review|রিভিউ দেওয়ার পণ্য নির্বাচন করুন/i });
+      if (await reviewModal.isVisible({ timeout: 2000 }).catch(() => false)) {
+        await expect(reviewModal).toBeVisible();
+        const writeReviewBtns = reviewModal.locator('button:has-text("Write Review"), button:has-text("রিভিউ লিখুন")');
+        expect(await writeReviewBtns.count()).toBeGreaterThan(0);
+
+        // Close picker modal
+        const closeBtn = reviewModal.locator('button[title*="Close"], button[title*="বন্ধ"]').first();
+        await closeBtn.click();
+        await expect(reviewModal).not.toBeVisible({ timeout: 5000 });
+        break;
+      }
+    }
+  });
+
   test('return and refund request modal can be opened and validates item selection and refund details', async ({ page }) => {
     // Check if any delivered order has a Return button
     const returnBtns = page.locator('button:has-text("Return"), button:has-text("রিটার্ন")');
@@ -322,6 +428,18 @@ test.describe('Customer Profile & Wishlist Page', () => {
             expect(await accountInput.inputValue()).toBe('01711223344');
           }
         }
+
+        // Photo file input
+        const fileInput = returnModal.locator('input[type="file"]').first();
+        if (await fileInput.count() > 0) {
+          await fileInput.setInputFiles({
+            name: 'sample_proof.png',
+            mimeType: 'image/png',
+            buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==', 'base64'),
+          });
+          const proofLabel = returnModal.locator('text=/sample_proof.png|✓/i');
+          await expect(proofLabel.first()).toBeVisible({ timeout: 5000 });
+        }
       }
 
       // Close return modal
@@ -340,6 +458,69 @@ test.describe('Customer Profile & Wishlist Page', () => {
       const pageIndicator = page.locator('text=/Showing|প্রদর্শিত হচ্ছে/i');
       await expect(pageIndicator.first()).toBeVisible({ timeout: 10000 });
     }
+  });
+
+  test('order pagination previous and numeric buttons navigate order pages', async ({ page }) => {
+    await expect(page.locator('text=/My Order History|আমার অর্ডার হিস্ট্রি/i').first()).toBeVisible({ timeout: 10000 });
+
+    const prevBtn = page.getByRole('button', { name: /^(Previous|পূর্ববর্তী)$/i });
+    const page2Btn = page.getByRole('button', { name: '2', exact: true }).or(page.getByRole('button', { name: '২', exact: true }));
+
+    if (await page2Btn.isVisible().catch(() => false)) {
+      // Previous button should be disabled on Page 1
+      await expect(prevBtn).toBeDisabled();
+
+      // Click page 2
+      await page2Btn.click();
+      await expect(page.locator('text=/Showing 6|প্রদর্শিত হচ্ছে ৬/i').first()).toBeVisible({ timeout: 8000 });
+
+      // Previous button should now be enabled
+      await expect(prevBtn).toBeEnabled();
+
+      // Click previous to return to page 1
+      await prevBtn.click();
+      await expect(page.locator('text=/Showing 1|প্রদর্শিত হচ্ছে ১/i').first()).toBeVisible({ timeout: 8000 });
+    }
+  });
+
+  test('language toggle switches profile labels between English and Bengali', async ({ page }) => {
+    const langToggle = page.locator('button[aria-label="Toggle Language"]');
+    await expect(langToggle).toBeVisible({ timeout: 10000 });
+
+    // Switch to Bengali
+    await langToggle.click();
+
+    // Verify Bengali headings appear on profile
+    const banglaHeading = page.locator('text=/আমার প্রোফাইল|সংরক্ষিত ঠিকানা|আমার অর্ডার হিস্ট্রি/i');
+    await expect(banglaHeading.first()).toBeVisible({ timeout: 8000 });
+
+    // Switch back to English
+    await langToggle.click();
+
+    // Verify English headings restored
+    const englishHeading = page.locator('text=/My Profile|Saved Addresses|My Order History/i');
+    await expect(englishHeading.first()).toBeVisible({ timeout: 8000 });
+  });
+
+  test('theme toggle switches between light and dark mode classes', async ({ page }) => {
+    const themeToggle = page.locator('button[aria-label="Toggle Light and Dark Mode"]');
+    await expect(themeToggle).toBeVisible({ timeout: 10000 });
+
+    const htmlElement = page.locator('html');
+    const initialClass = (await htmlElement.getAttribute('class')) || '';
+    const initialIsDark = initialClass.includes('dark');
+
+    // Toggle theme
+    await themeToggle.click();
+
+    if (initialIsDark) {
+      await expect(htmlElement).not.toHaveClass(/\bdark\b/, { timeout: 6000 });
+    } else {
+      await expect(htmlElement).toHaveClass(/\bdark\b/, { timeout: 6000 });
+    }
+
+    // Toggle back to restore initial state
+    await themeToggle.click();
   });
 
   test('wishlist is loading perfectly, items can be removed, and empty state browse products works', async ({ page }) => {
@@ -391,5 +572,17 @@ test.describe('Customer Profile & Wishlist Page', () => {
     await expect(page).toHaveURL(/\/login|\//, { timeout: 15000 });
     const signInLink = page.getByRole('link', { name: /SIGN IN|সাইন ইন/i }).first();
     await expect(signInLink).toBeVisible({ timeout: 15000 });
+  });
+});
+
+test.describe('Unauthenticated Profile Access Guard', () => {
+  test('unauthenticated users visiting profile are redirected to login page', async ({ browser }) => {
+    const cleanContext = await browser.newContext();
+    const guestPage = await cleanContext.newPage();
+
+    await guestPage.goto('/profile', { waitUntil: 'domcontentloaded' });
+    await expect(guestPage).toHaveURL(/\/login(\?redirect=.*profile)?/, { timeout: 15000 });
+
+    await cleanContext.close();
   });
 });

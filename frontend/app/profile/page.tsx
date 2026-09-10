@@ -649,6 +649,17 @@ export default function ProfilePage() {
   const handleSaveAddress = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
+
+    if (!addressFormData.title.trim() || !addressFormData.street.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: locale === "bn" ? "তথ্য অসম্পূর্ণ" : "Incomplete Information",
+        text: locale === "bn" ? "অনুগ্রহ করে ঠিকানার শিরোনাম এবং বিস্তারিত লিখুন।" : "Please enter a valid title and street address.",
+        confirmButtonColor: "var(--accent)",
+      });
+      return;
+    }
+
     setAddressSaving(true);
     try {
       const url = editingAddress
