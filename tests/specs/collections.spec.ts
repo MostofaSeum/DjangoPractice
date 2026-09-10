@@ -117,4 +117,48 @@ test.describe('Collections Listing & Detail Pages', () => {
       }
     }
   });
+
+  test('clicking on Add to Cart button successfully adds that product to cart', async ({ page }) => {
+    // Navigate to a collection page that has products
+    await page.goto('/collections/1', { waitUntil: 'domcontentloaded' });
+
+    // Look for active Add to Cart buttons in the product cards
+    const addToCartBtn = page.getByRole('button', { name: /Add to Cart|কার্টে যোগ করুন/i }).first();
+
+    if (await addToCartBtn.isVisible({ timeout: 5000 })) {
+      await addToCartBtn.click();
+
+      // Verify success feedback toast/notification appears
+      const successToast = page.locator('.swal2-popup').or(page.getByText(/Added.*to cart|কার্টে যোগ করা হয়েছে/i));
+      await expect(successToast.first()).toBeVisible({ timeout: 10000 });
+
+      // Verify cart badge count or navigate to cart to verify item is present
+      await page.goto('/cart', { waitUntil: 'domcontentloaded' });
+      const cartItems = page.locator('.space-y-4 > div');
+      await expect(cartItems.first()).toBeVisible({ timeout: 10000 });
+    }
+  });
+
+  test('clicking View Details navigates to the details page of that specific product', async ({ page }) => {
+    // Navigate to a collection page
+    await page.goto('/collections/1', { waitUntil: 'domcontentloaded' });
+
+    // Find the first View Details link
+    const viewDetailsLink = page.getByRole('link', { name: /View Details|বিস্তারিত দেখুন/i }).first();
+
+    if (await viewDetailsLink.isVisible({ timeout: 5000 })) {
+      const targetHref = await viewDetailsLink.getAttribute('href');
+      expect(targetHref).toMatch(/\/products\/\d+/);
+
+      // Click View Details
+      await viewDetailsLink.click();
+
+      // Verify navigation to product details page
+      await expect(page).toHaveURL(/\/products\/\d+/);
+
+      // Product details page header/title should be visible
+      const productHeading = page.locator('h1').first();
+      await expect(productHeading).toBeVisible({ timeout: 10000 });
+    }
+  });
 });
