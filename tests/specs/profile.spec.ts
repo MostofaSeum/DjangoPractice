@@ -555,8 +555,6 @@ test.describe('Customer Profile & Wishlist Page', () => {
       await expect(browseBtn).toBeVisible({ timeout: 10000 });
       await expect(browseBtn).toHaveAttribute('href', '/products');
     }
-
-    await page.close().catch(() => {});
   });
 
   test('logout can be done perfectly', async ({ page }) => {

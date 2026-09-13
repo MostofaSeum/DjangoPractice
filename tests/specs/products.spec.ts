@@ -2,9 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Products Listing Page (Catalog)', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/products', { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('networkidle').catch(() => {});
-    await page.waitForTimeout(300);
+    await page.goto('/products');
   });
 
   // 1. Layout & Core Catalog Controls
