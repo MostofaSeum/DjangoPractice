@@ -517,7 +517,10 @@ export default function ProfilePage() {
     if (authLoading) return;
 
     if (!user) {
-      router.push("/login?redirect=/profile");
+      router.replace("/login?redirect=/profile");
+      if (typeof window !== "undefined" && window.location.pathname.includes("/profile")) {
+        window.location.replace("/login?redirect=/profile");
+      }
       return;
     }
 
