@@ -6,7 +6,7 @@ test.describe('Products Listing Page (Catalog)', () => {
   });
 
   // 1. Layout & Core Catalog Controls
-  test('loads product catalog page with title, search input, filter controls, and sorting', async ({ page }) => {
+  test.only('loads product catalog page with title, search input, filter controls, and sorting', async ({ page }) => {
     // Page Title
     await expect(page).toHaveTitle(/Products|Shop|VibeMart/i);
 
@@ -34,7 +34,7 @@ test.describe('Products Listing Page (Catalog)', () => {
   });
 
   // 2. Live Search Autocomplete & Suggestions Dropdown
-  test('search field autocomplete displays live suggestions with items, thumbnails, and prices', async ({ page }) => {
+  test.only('search field autocomplete displays live suggestions with items, thumbnails, and prices', async ({ page }) => {
     const searchInput = page.locator('#catalog-search-input');
     await expect(searchInput).toBeVisible();
 
@@ -93,7 +93,7 @@ test.describe('Products Listing Page (Catalog)', () => {
   });
 
   // 5. Search Submission & URL Synchronization
-  test('search field is working perfectly and updates the URL and search results', async ({ page }) => {
+  test.only('search field is working perfectly and updates the URL and search results', async ({ page }) => {
     const searchInput = page.locator('#catalog-search-input');
     await expect(searchInput).toBeVisible();
 
@@ -132,7 +132,7 @@ test.describe('Products Listing Page (Catalog)', () => {
   });
 
   // 8. Sort Ordering (Testing Multiple Sort Options)
-  test('sort ordering all functions are actually working', async ({ page }) => {
+  test.only('sort ordering all functions are actually working', async ({ page }) => {
     const sortSelect = page.locator('select#product-sort');
     await expect(sortSelect).toBeVisible();
     await page.waitForTimeout(200);
@@ -320,7 +320,7 @@ test.describe('Products Listing Page (Catalog)', () => {
   });
 
   // 18. Pagination Full Flow (Disabled Prev on Page 1 -> Next to Page 2 -> Prev back to Page 1)
-  test('pagination is working cleanly with boundary states and page changes', async ({ page }) => {
+  test.only('pagination is working cleanly with boundary states and page changes', async ({ page }) => {
     const prevBtn = page.locator('#pagination-prev');
     const nextBtn = page.locator('#pagination-next');
     const pageIndicator = page.locator('#pagination-indicator');
