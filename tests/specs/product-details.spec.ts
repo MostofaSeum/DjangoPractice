@@ -48,8 +48,7 @@ test.describe('Product Details Page', () => {
 
   test.beforeEach(async ({ page }) => {
     // Navigate to a valid product details page (product id: 3, Shrimp - 21/25 with inventory)
-    await page.goto('/products/3', { waitUntil: 'domcontentloaded' });
-    await page.waitForLoadState('networkidle').catch(() => {});
+    await page.goto('/products/3');
   });
 
   // 1. Core UI Elements & Primary Add to Cart
