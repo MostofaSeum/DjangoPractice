@@ -29,8 +29,8 @@ test.describe('Collections Listing & Detail Pages', () => {
       const homeLink = page.getByRole('link', { name: /Home|হোম/i }).first();
       await expect(homeLink).toBeVisible({ timeout: 15000 });
 
-      // Breadcrumb Categories label
-      const categoriesLabel = page.locator('span').filter({ hasText: /Categories|Collections|ক্যাটাগরি/i }).first();
+      // Breadcrumb Categories label (target visible span so closed mobile menu in header is not matched)
+      const categoriesLabel = page.locator('span:visible').filter({ hasText: /Categories|Collections|ক্যাটাগরি/i }).first();
       await expect(categoriesLabel).toBeVisible();
 
       // Click Home link and verify navigation to homepage
