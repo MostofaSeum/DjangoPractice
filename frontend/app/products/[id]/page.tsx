@@ -8,6 +8,8 @@ interface Product {
   title: string;
   unit_price: number;
   discount_percent?: number;
+  discount_valid_until?: string | null;
+  is_discount_active?: boolean;
   discounted_price?: number;
   inventory: number;
   total_inventory?: number;
@@ -15,7 +17,7 @@ interface Product {
   description: string;
   collection: number | { id: number; title: string };
   images?: { id: number; image: string }[];
-  variants?: Array<{ id: number; name: string; inventory?: number; is_active?: boolean }>;
+  variants?: Array<{ id: number; name: string; price_override?: number | string | null; discounted_price?: number; inventory?: number; is_active?: boolean }>;
   units_sold?: number;
   average_rating?: number;
   review_count?: number;

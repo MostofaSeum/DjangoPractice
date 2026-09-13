@@ -14,12 +14,16 @@ interface Product {
   title: string;
   unit_price: number;
   discount_percent?: number;
+  discount_valid_until?: string | null;
+  is_discount_active?: boolean;
   discounted_price?: number;
   inventory: number;
+  total_inventory?: number;
   short_description?: string;
   description: string;
   collection: number | { id: number; title: string };
   images?: { id: number; image: string }[];
+  variants?: Array<{ id: number; name: string; price_override?: number | string | null; discounted_price?: number; inventory?: number; is_active?: boolean }>;
   units_sold?: number;
 }
 
@@ -145,41 +149,88 @@ export default function ProductDetailClient({
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-              {relatedProducts.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-secondary text-foreground rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="aspect-square bg-primary/5 dark:bg-primary/40 rounded-xl mb-4 flex items-center justify-center overflow-hidden relative">
-                      <ProductImage title={item.title} images={item.images} />
+              {relatedProducts.map((item) => {
+                const activeVariant = item.variants?.find((v) => v.is_active !== false);
+                const basePrice = activeVariant?.price_override
+                  ? Number(activeVariant.price_override)
+                  : Number(item.unit_price || 0);
+
+                const discountPercent = Number(item.discount_percent || 0);
+                const isExpired =
+                  item.discount_valid_until &&
+                  new Date() > new Date(item.discount_valid_until);
+                const isDiscountActive =
+                  item.is_discount_active !== false && !isExpired;
+
+                let effectivePrice = basePrice;
+                if (activeVariant?.discounted_price !== undefined) {
+                  effectivePrice = Number(activeVariant.discounted_price);
+                } else if (item.discounted_price !== undefined) {
+                  effectivePrice = Number(item.discounted_price);
+                } else if (discountPercent > 0 && isDiscountActive) {
+                  effectivePrice = basePrice * (1 - discountPercent / 100);
+                }
+
+                const hasDiscount = isDiscountActive && basePrice > effectivePrice;
+                const computedDiscountPercent = hasDiscount
+                  ? discountPercent > 0
+                    ? discountPercent
+                    : Math.round(((basePrice - effectivePrice) / basePrice) * 100)
+                  : 0;
+
+                return (
+                  <div
+                    key={item.id}
+                    className="bg-secondary text-foreground rounded-2xl p-5 shadow-sm border border-foreground/10 hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="aspect-square bg-primary/5 dark:bg-primary/40 rounded-xl mb-4 flex items-center justify-center overflow-hidden relative">
+                        {hasDiscount && computedDiscountPercent > 0 && (
+                          <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-accent text-button-fg font-extrabold text-[9px] uppercase tracking-wider shadow-md z-10 flex items-center gap-1">
+                            <img
+                              src="/discount.png"
+                              alt="Discount"
+                              className="w-3.5 h-3.5 object-contain brightness-0 invert"
+                            />
+                            -{locale === "bn" ? Math.round(computedDiscountPercent).toLocaleString("bn-BD") : Math.round(computedDiscountPercent)}% {locale === "bn" ? "ছাড়" : t("trending.off")}
+                          </span>
+                        )}
+                        <ProductImage title={item.title} images={item.images} />
+                      </div>
+                      <h3 className="font-bold text-sm text-foreground mb-1 line-clamp-1 group-hover:text-accent transition-colors">
+                        {item.title}
+                      </h3>
                     </div>
-                    <h3 className="font-bold text-sm text-foreground mb-1 line-clamp-1 group-hover:text-accent transition-colors">
-                      {item.title}
-                    </h3>
-                  </div>
-                  <div className="mt-4">
-                    <p className="text-accent font-extrabold text-sm mb-4">
-                      {formatCurrency(item.unit_price)}
-                    </p>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Link
-                        href={`/products/${item.id}`}
-                        className="py-2.5 px-2 border border-current text-foreground rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-button-bg hover:text-button-fg transition-colors flex items-center justify-center text-center"
-                      >
-                        {t("productDetail.viewDetails")}
-                      </Link>
-                      <AddToCartButton
-                        productId={item.id}
-                        productTitle={item.title}
-                        inventory={item.inventory ?? 999}
-                        variants={(item as any).variants}
-                        className="py-2.5 px-2 bg-button-bg text-button-fg rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center"
-                      />
+                    <div className="mt-4">
+                      <div className="flex items-baseline gap-2 mb-4">
+                        <span className="text-accent font-extrabold text-sm">
+                          {formatCurrency(effectivePrice)}
+                        </span>
+                        {hasDiscount && (
+                          <span className="text-xs line-through opacity-50 font-bold">
+                            {formatCurrency(basePrice)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Link
+                          href={`/products/${item.id}`}
+                          className="py-2.5 px-2 border border-current text-foreground rounded-xl font-bold text-[10px] uppercase tracking-wider hover:bg-button-bg hover:text-button-fg transition-colors flex items-center justify-center text-center"
+                        >
+                          {t("productDetail.viewDetails")}
+                        </Link>
+                        <AddToCartButton
+                          productId={item.id}
+                          productTitle={item.title}
+                          inventory={item.total_inventory ?? item.inventory ?? 999}
+                          variants={item.variants}
+                          className="py-2.5 px-2 bg-button-bg text-button-fg rounded-xl font-bold text-[10px] uppercase tracking-wider hover:opacity-90 transition-colors flex items-center justify-center gap-1 text-center"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
