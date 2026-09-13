@@ -50,8 +50,10 @@ export default function GiftCardsPage() {
   const [successResult, setSuccessResult] = useState<{ card_code: string; price: number; expiry_date: string } | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [copied, setCopied] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
+    setIsHydrated(true);
     const fetchPaymentSettings = async () => {
       try {
         const apiBaseUrl = getApiBaseUrl();
@@ -83,7 +85,7 @@ export default function GiftCardsPage() {
         text: locale === "bn" ? "গিফট কার্ড ক্রয় করতে আপনাকে লগইন করতে হবে।" : "You must be logged in to purchase a gift card.",
         confirmButtonColor: "var(--button-bg)",
       }).then(() => {
-        router.push(`/login?redirect=${encodeURIComponent("/gift-cards")}`);
+        window.location.href = `/login?redirect=${encodeURIComponent("/gift-cards")}`;
       });
       return;
     }
@@ -107,7 +109,7 @@ export default function GiftCardsPage() {
         text: locale === "bn" ? "গিফট কার্ড রিডিম করতে আপনাকে লগইন করতে হবে।" : "You must be logged in to redeem a gift card.",
         confirmButtonColor: "var(--button-bg)",
       }).then(() => {
-        router.push(`/login?redirect=${encodeURIComponent("/gift-cards")}`);
+        window.location.href = `/login?redirect=${encodeURIComponent("/gift-cards")}`;
       });
       return;
     }
@@ -324,7 +326,7 @@ export default function GiftCardsPage() {
         </div>
       </div>
 
-      <main className="max-w-[1400px] mx-auto px-8 md:px-12 mt-12">
+      <main data-hydrated={isHydrated ? "true" : undefined} className="max-w-[1400px] mx-auto px-8 md:px-12 mt-12">
         {/* Header Title Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-4">
           <div>

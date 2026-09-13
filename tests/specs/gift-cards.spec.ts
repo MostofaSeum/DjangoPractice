@@ -48,6 +48,8 @@ test.describe('Gift Cards Feature Suite', () => {
     );
 
     await page.goto('/gift-cards', { waitUntil: 'domcontentloaded' });
+    // Wait until React client hydration is complete
+    await page.locator('main[data-hydrated="true"]').waitFor({ timeout: 15000 });
 
     if (authenticated) {
       // Wait until user profile is hydrated in React AuthContext
