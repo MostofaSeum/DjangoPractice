@@ -126,6 +126,31 @@ export default function ProfilePage() {
     setTimeout(() => setCopiedTrackingId(false), 2000);
   };
 
+  const getPageNumbers = (currentPage: number, totalPages: number) => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    const pages: (number | string)[] = [];
+    if (currentPage <= 4) {
+      for (let i = 1; i <= 5; i++) pages.push(i);
+      pages.push("...");
+      pages.push(totalPages);
+    } else if (currentPage >= totalPages - 3) {
+      pages.push(1);
+      pages.push("...");
+      for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      pages.push("...");
+      pages.push(currentPage - 1);
+      pages.push(currentPage);
+      pages.push(currentPage + 1);
+      pages.push("...");
+      pages.push(totalPages);
+    }
+    return pages;
+  };
+
   const getExternalTrackingUrl = (order: Order) => {
     if (!order.tracking_code) return null;
     const template = order.courier_partner_details?.tracking_url;
@@ -1296,13 +1321,13 @@ export default function ProfilePage() {
                                 .replace("{total}", String(totalOrders))}
                         </p>
 
-                        <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                        <div className="flex items-center gap-1.5 justify-center">
                           {/* Previous Page Button */}
                           <button
                             type="button"
                             disabled={currentOrdersPage === 1}
                             onClick={() => setCurrentOrdersPage((prev) => Math.max(1, prev - 1))}
-                            className="px-3 py-1.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold uppercase tracking-wider hover:bg-foreground/5 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center gap-1 cursor-pointer shadow-xs"
+                            className="px-3 py-1.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold uppercase tracking-wider hover:bg-foreground/5 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center gap-1 cursor-pointer shadow-xs shrink-0"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                               <polyline points="15 18 9 12 15 6"></polyline>
@@ -1312,20 +1337,27 @@ export default function ProfilePage() {
 
                           {/* Page Number Buttons */}
                           <div className="flex items-center gap-1">
-                            {Array.from({ length: totalOrdersPages }, (_, idx) => idx + 1).map((pageNum) => {
+                            {getPageNumbers(currentOrdersPage, totalOrdersPages).map((pageNum, idx) => {
+                              if (pageNum === "...") {
+                                return (
+                                  <span key={`dots-${idx}`} className="px-1.5 text-xs font-bold opacity-50 select-none">
+                                    ...
+                                  </span>
+                                );
+                              }
                               const isActive = pageNum === currentOrdersPage;
                               return (
                                 <button
                                   key={pageNum}
                                   type="button"
-                                  onClick={() => setCurrentOrdersPage(pageNum)}
-                                  className={`w-8 h-8 rounded-xl text-xs font-black transition-all flex items-center justify-center cursor-pointer ${
+                                  onClick={() => setCurrentOrdersPage(Number(pageNum))}
+                                  className={`w-8 h-8 rounded-xl text-xs font-black transition-all flex items-center justify-center cursor-pointer shrink-0 ${
                                     isActive
                                       ? "bg-accent text-button-fg shadow-xs border border-accent"
                                       : "bg-background border border-foreground/15 text-foreground hover:bg-foreground/5"
                                   }`}
                                 >
-                                  {locale === "bn" ? pageNum.toLocaleString("bn-BD") : pageNum}
+                                  {locale === "bn" ? Number(pageNum).toLocaleString("bn-BD") : pageNum}
                                 </button>
                               );
                             })}
@@ -1336,7 +1368,7 @@ export default function ProfilePage() {
                             type="button"
                             disabled={currentOrdersPage === totalOrdersPages}
                             onClick={() => setCurrentOrdersPage((prev) => Math.min(totalOrdersPages, prev + 1))}
-                            className="px-3 py-1.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold uppercase tracking-wider hover:bg-foreground/5 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center gap-1 cursor-pointer shadow-xs"
+                            className="px-3 py-1.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold uppercase tracking-wider hover:bg-foreground/5 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center gap-1 cursor-pointer shadow-xs shrink-0"
                           >
                             <span>{t("profile.next") || (locale === "bn" ? "পরবর্তী" : "Next")}</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
