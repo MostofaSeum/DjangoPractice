@@ -22,7 +22,9 @@ export default function Header() {
   const { t, locale } = useLanguage();
   const isBn = locale === "bn";
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
   const [brandTitleEn, setBrandTitleEn] = useState("VIBEMART");
   const [brandTitleBn, setBrandTitleBn] = useState("");
   const [brandLogo, setBrandLogo] = useState<string | null>(null);
@@ -54,11 +56,24 @@ export default function Header() {
     }
   }, [user, pathname, router]);
 
-  // Close dropdown on outside click
+  // Close mobile menu on pathname change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setDropdownOpen(false);
+  }, [pathname]);
+
+  // Close dropdown & mobile menu on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setDropdownOpen(false);
+      }
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(e.target as Node) &&
+        !(e.target as HTMLElement)?.closest("#mobile-menu-toggle-btn")
+      ) {
+        setMobileMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -230,8 +245,81 @@ export default function Header() {
               {t("nav.signIn")}
             </Link>
           )}
+
+          {/* Mobile Burger Menu Button (Phone View Only) */}
+          <button
+            id="mobile-menu-toggle-btn"
+            type="button"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            aria-label="Toggle navigation menu"
+            aria-expanded={mobileMenuOpen}
+            className="md:hidden p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-logo transition-all flex items-center justify-center cursor-pointer select-none"
+          >
+            {mobileMenuOpen ? (
+              /* Close (X) Icon */
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            ) : (
+              /* Hamburger Icon */
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            )}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Drawer Navigation Menu (Phone View Only) */}
+      {mobileMenuOpen && (
+        <div
+          ref={mobileMenuRef}
+          className="md:hidden mt-3 pt-3 pb-2 border-t border-white/10 flex flex-col gap-1 animate-in fade-in slide-in-from-top-2 duration-200"
+        >
+          {navLinks.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
+                  isActive
+                    ? "bg-white/15 text-logo font-black border-l-4 border-accent pl-3"
+                    : "text-logo opacity-85 hover:opacity-100 hover:bg-white/10"
+                }`}
+              >
+                <span>{link.name}</span>
+                {isActive && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent" />
+                )}
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </header>
   );
 }
