@@ -56,12 +56,31 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname() || "/";
 
-  // Detect initial locale from URL prefix
-  const urlIsBn = pathname.startsWith("/bn") || pathname === "/bn";
-  const [locale, setLocaleState] = useState<Locale>(urlIsBn ? "bn" : "en");
+  // Detect initial locale from localStorage, cookie, or URL prefix
+  const [locale, setLocaleState] = useState<Locale>("en");
   const [currency, setCurrencyState] = useState<string>("BDT");
   const [rates, setRates] = useState<Record<string, number>>(DEFAULT_RATES_FROM_BDT);
   const [mounted, setMounted] = useState(false);
+
+  // Initialize locale on mount from localStorage / cookie / URL
+  useEffect(() => {
+    let savedLocale: Locale = "en";
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("vibemart_locale");
+      if (stored === "en" || stored === "bn") {
+        savedLocale = stored;
+      } else {
+        const cookieMatch = document.cookie.match(/NEXT_LOCALE=(en|bn)/);
+        if (cookieMatch && (cookieMatch[1] === "en" || cookieMatch[1] === "bn")) {
+          savedLocale = cookieMatch[1] as Locale;
+        } else if (pathname.startsWith("/bn") || pathname === "/bn") {
+          savedLocale = "bn";
+        }
+      }
+    }
+    setLocaleState(savedLocale);
+    setMounted(true);
+  }, []);
 
   // Fetch Live Site Settings (Active Currency) + Live Forex Rates
   useEffect(() => {
@@ -100,40 +119,20 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     fetchCurrencyAndRates();
   }, []);
 
+  // Sync only if user explicitly navigates to a /bn URL
   useEffect(() => {
     const isBnInPath = pathname.startsWith("/bn") || pathname === "/bn";
     if (isBnInPath) {
       setLocaleState("bn");
       localStorage.setItem("vibemart_locale", "bn");
       document.cookie = "NEXT_LOCALE=bn; path=/; max-age=31536000; SameSite=Lax";
-    } else {
-      setLocaleState("en");
-      localStorage.setItem("vibemart_locale", "en");
-      document.cookie = "NEXT_LOCALE=en; path=/; max-age=31536000; SameSite=Lax";
     }
-    setMounted(true);
   }, [pathname]);
 
   const setLocale = (newLocale: Locale) => {
     setLocaleState(newLocale);
     localStorage.setItem("vibemart_locale", newLocale);
     document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
-
-    if (typeof window !== "undefined") {
-      let targetPath = pathname;
-      if (newLocale === "bn") {
-        if (!pathname.startsWith("/bn")) {
-          targetPath = pathname === "/" ? "/bn" : `/bn${pathname}`;
-        }
-      } else {
-        if (pathname.startsWith("/bn")) {
-          targetPath = pathname.replace(/^\/bn/, "") || "/";
-        }
-      }
-      if (targetPath !== pathname) {
-        window.history.pushState(null, "", targetPath);
-      }
-    }
   };
 
   const setCurrency = (newCurrency: string) => {
