@@ -127,24 +127,22 @@ export default function ProfilePage() {
   };
 
   const getPageNumbers = (currentPage: number, totalPages: number) => {
-    if (totalPages <= 7) {
+    if (totalPages <= 5) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
     const pages: (number | string)[] = [];
-    if (currentPage <= 4) {
-      for (let i = 1; i <= 5; i++) pages.push(i);
-      pages.push("...");
+    if (currentPage <= 3) {
+      for (let i = 1; i <= Math.min(3, totalPages); i++) pages.push(i);
+      if (totalPages > 4) pages.push("...");
       pages.push(totalPages);
-    } else if (currentPage >= totalPages - 3) {
+    } else if (currentPage >= totalPages - 2) {
       pages.push(1);
-      pages.push("...");
-      for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+      if (totalPages > 4) pages.push("...");
+      for (let i = totalPages - 2; i <= totalPages; i++) pages.push(i);
     } else {
       pages.push(1);
       pages.push("...");
-      pages.push(currentPage - 1);
       pages.push(currentPage);
-      pages.push(currentPage + 1);
       pages.push("...");
       pages.push(totalPages);
     }
@@ -1321,26 +1319,27 @@ export default function ProfilePage() {
                                 .replace("{total}", String(totalOrders))}
                         </p>
 
-                        <div className="flex items-center gap-1.5 justify-center">
+                        <div className="w-full sm:w-auto flex items-center justify-center gap-1 sm:gap-1.5 overflow-x-auto py-1 max-w-full">
                           {/* Previous Page Button */}
                           <button
                             type="button"
                             disabled={currentOrdersPage === 1}
                             onClick={() => setCurrentOrdersPage((prev) => Math.max(1, prev - 1))}
-                            className="px-3 py-1.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold uppercase tracking-wider hover:bg-foreground/5 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center gap-1 cursor-pointer shadow-xs shrink-0"
+                            className="px-2 sm:px-3 py-1.5 rounded-xl border border-foreground/15 bg-background text-foreground text-[10px] sm:text-xs font-bold uppercase tracking-wider hover:bg-foreground/5 disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1 cursor-pointer shadow-xs shrink-0"
+                            title={t("profile.prev") || (locale === "bn" ? "পূর্ববর্তী" : "Previous")}
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                               <polyline points="15 18 9 12 15 6"></polyline>
                             </svg>
-                            <span>{t("profile.prev") || (locale === "bn" ? "পূর্ববর্তী" : "Previous")}</span>
+                            <span className="hidden xs:inline">{t("profile.prev") || (locale === "bn" ? "পূর্ববর্তী" : "Previous")}</span>
                           </button>
 
                           {/* Page Number Buttons */}
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
                             {getPageNumbers(currentOrdersPage, totalOrdersPages).map((pageNum, idx) => {
                               if (pageNum === "...") {
                                 return (
-                                  <span key={`dots-${idx}`} className="px-1.5 text-xs font-bold opacity-50 select-none">
+                                  <span key={`dots-${idx}`} className="px-1 sm:px-1.5 text-xs font-bold opacity-50 select-none">
                                     ...
                                   </span>
                                 );
@@ -1351,7 +1350,7 @@ export default function ProfilePage() {
                                   key={pageNum}
                                   type="button"
                                   onClick={() => setCurrentOrdersPage(Number(pageNum))}
-                                  className={`w-8 h-8 rounded-xl text-xs font-black transition-all flex items-center justify-center cursor-pointer shrink-0 ${
+                                  className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-black transition-all flex items-center justify-center cursor-pointer shrink-0 ${
                                     isActive
                                       ? "bg-accent text-button-fg shadow-xs border border-accent"
                                       : "bg-background border border-foreground/15 text-foreground hover:bg-foreground/5"
@@ -1368,10 +1367,11 @@ export default function ProfilePage() {
                             type="button"
                             disabled={currentOrdersPage === totalOrdersPages}
                             onClick={() => setCurrentOrdersPage((prev) => Math.min(totalOrdersPages, prev + 1))}
-                            className="px-3 py-1.5 rounded-xl border border-foreground/15 bg-background text-foreground text-xs font-bold uppercase tracking-wider hover:bg-foreground/5 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center gap-1 cursor-pointer shadow-xs shrink-0"
+                            className="px-2 sm:px-3 py-1.5 rounded-xl border border-foreground/15 bg-background text-foreground text-[10px] sm:text-xs font-bold uppercase tracking-wider hover:bg-foreground/5 disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center gap-1 cursor-pointer shadow-xs shrink-0"
+                            title={t("profile.next") || (locale === "bn" ? "পরবর্তী" : "Next")}
                           >
-                            <span>{t("profile.next") || (locale === "bn" ? "পরবর্তী" : "Next")}</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <span className="hidden xs:inline">{t("profile.next") || (locale === "bn" ? "পরবর্তী" : "Next")}</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                               <polyline points="9 18 15 12 9 6"></polyline>
                             </svg>
                           </button>
