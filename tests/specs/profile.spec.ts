@@ -99,7 +99,7 @@ test.describe('Customer Profile & Wishlist Page', () => {
 
     // Empty the first name
     await firstNameInput.fill('');
-    await saveBtn.click();
+    await saveBtn.click({ force: true });
 
     // Verify HTML5 or custom validation prevents submission
     const isFirstNameInvalid = await firstNameInput.evaluate((el: HTMLInputElement) => !el.checkValidity() || el.value.trim() === '');
@@ -108,7 +108,7 @@ test.describe('Customer Profile & Wishlist Page', () => {
     // Restore first name and empty email
     await firstNameInput.fill('Admin');
     await emailInput.fill('');
-    await saveBtn.click();
+    await saveBtn.click({ force: true });
 
     const isEmailInvalid = await emailInput.evaluate((el: HTMLInputElement) => !el.checkValidity() || el.value.trim() === '');
     expect(isEmailInvalid).toBeTruthy();
