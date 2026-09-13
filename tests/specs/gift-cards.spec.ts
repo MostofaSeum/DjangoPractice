@@ -79,7 +79,7 @@ test.describe('Gift Cards Feature Suite', () => {
       const homeBreadcrumb = page.getByRole('link', { name: /Home|হোম/i }).first();
       await expect(homeBreadcrumb).toBeVisible();
 
-      const giftCardsLabel = page.locator('span').filter({ hasText: /Gift Cards|গিফট কার্ড/i }).first();
+      const giftCardsLabel = page.locator('span:visible').filter({ hasText: /Gift Cards|গিফট কার্ড/i }).first();
       await expect(giftCardsLabel).toBeVisible();
 
       // Click Home breadcrumb link and verify navigation to homepage
