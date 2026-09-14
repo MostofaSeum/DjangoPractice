@@ -5,6 +5,8 @@ import { useLanguage } from "@/store/LanguageContext";
 import { Collection } from "@/features/admin/types";
 import HomepageSettingsSubTab from "./HomepageSettingsSubTab";
 import Swal from "sweetalert2";
+import AutoTranslateButton from "@/features/admin/components/common/AutoTranslateButton";
+import { translateText } from "@/services/translationService";
 
 interface StoreSettingsTabProps {
   apiBase: string;
@@ -266,6 +268,63 @@ export default function StoreSettingsTab({
     }
   };
 
+  const [batchTranslatingGeneral, setBatchTranslatingGeneral] = useState(false);
+
+  const handleAutoTranslateAllGeneral = async () => {
+    setBatchTranslatingGeneral(true);
+    try {
+      let count = 0;
+      if (siteTitle?.trim() && !siteTitleBn?.trim()) {
+        const val = await translateText(siteTitle);
+        if (val) { setSiteTitleBn(val.slice(0, 25)); count++; }
+      }
+      if (tagline?.trim() && !taglineBn?.trim()) {
+        const val = await translateText(tagline);
+        if (val) { setTaglineBn(val.slice(0, 45)); count++; }
+      }
+      if (brandDescription?.trim() && !brandDescriptionBn?.trim()) {
+        const val = await translateText(brandDescription);
+        if (val) { setBrandDescriptionBn(val.slice(0, 400)); count++; }
+      }
+      if (storeAddress?.trim() && !storeAddressBn?.trim()) {
+        const val = await translateText(storeAddress);
+        if (val) { setStoreAddressBn(val.slice(0, 250)); count++; }
+      }
+      if (workingHours?.trim() && !workingHoursBn?.trim()) {
+        const val = await translateText(workingHours);
+        if (val) { setWorkingHoursBn(val.slice(0, 80)); count++; }
+      }
+      if (footerCopyright?.trim() && !footerCopyrightBn?.trim()) {
+        const val = await translateText(footerCopyright);
+        if (val) { setFooterCopyrightBn(val.slice(0, 120)); count++; }
+      }
+
+      if (count > 0) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: isBn ? "স্টোর সেটিংস সফলভাবে বাংলায় অনুবাদ হয়েছে!" : "Store settings auto-translated to Bangla!",
+          showConfirmButton: false,
+          timer: 1800,
+          toast: true,
+        });
+      } else {
+        Swal.fire({
+          position: "top-end",
+          icon: "info",
+          title: isBn ? "সকল বাংলা ফিল্ড ইতিমধ্যেই পূর্ণ আছে" : "All Bangla fields are already populated",
+          showConfirmButton: false,
+          timer: 1800,
+          toast: true,
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setBatchTranslatingGeneral(false);
+    }
+  };
+
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!hasChanges) return;
@@ -506,11 +565,22 @@ export default function StoreSettingsTab({
 
           {/* Website Title, Tagline & Philosophy */}
           <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm space-y-4">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-accent" />
-              <h2 className="text-base font-black uppercase tracking-tight text-foreground">
-                {isBn ? "ব্র্যান্ড ও পরিচয়" : "Brand & Identity"}
-              </h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-foreground/10 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-accent" />
+                <h2 className="text-base font-black uppercase tracking-tight text-foreground">
+                  {isBn ? "ব্র্যান্ড ও পরিচয়" : "Brand & Identity"}
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={handleAutoTranslateAllGeneral}
+                disabled={batchTranslatingGeneral}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-accent/10 hover:bg-accent text-accent hover:text-white dark:hover:text-black text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer disabled:opacity-50"
+                title="Auto-translate all empty General Bangla fields from English"
+              >
+                {batchTranslatingGeneral ? "Translating..." : "✨ Auto-Fill All Bangla with AI"}
+              </button>
             </div>
 
             {/* Site Title: English & Bangla */}
@@ -534,7 +604,13 @@ export default function StoreSettingsTab({
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "ওয়েবসাইটের নাম (বাংলা)" : "Website Title (BN)"}</span>
-                  {renderCharCounter(siteTitleBn.length, 25)}
+                  <div className="flex items-center gap-2">
+                    {renderCharCounter(siteTitleBn.length, 25)}
+                    <AutoTranslateButton
+                      sourceText={siteTitle}
+                      onTranslated={(val) => setSiteTitleBn(val.slice(0, 25))}
+                    />
+                  </div>
                 </label>
                 <input
                   type="text"
@@ -567,7 +643,13 @@ export default function StoreSettingsTab({
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "ট্যাগলাইন (বাংলা)" : "Store Tagline (BN)"}</span>
-                  {renderCharCounter(taglineBn.length, 45)}
+                  <div className="flex items-center gap-2">
+                    {renderCharCounter(taglineBn.length, 45)}
+                    <AutoTranslateButton
+                      sourceText={tagline}
+                      onTranslated={(val) => setTaglineBn(val.slice(0, 45))}
+                    />
+                  </div>
                 </label>
                 <input
                   type="text"
@@ -620,19 +702,25 @@ export default function StoreSettingsTab({
             <div className="space-y-1.5">
               <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                 <span>{isBn ? "ব্র্যান্ড দর্শন (বাংলা - ফুটারে প্রদর্শিত)" : "Brand Philosophy (BN - Footer)"}</span>
-                {(() => {
-                  const words = brandDescriptionBn.trim().split(/\s+/).filter(Boolean).length;
-                  if (words < 55) return null;
-                  return (
-                    <span
-                      className={`text-[9px] font-mono transition-colors ${
-                        words >= 70 ? "text-red-500 font-bold opacity-100" : "opacity-60 text-foreground"
-                      }`}
-                    >
-                      {words}/70 words
-                    </span>
-                  );
-                })()}
+                <div className="flex items-center gap-2">
+                  {(() => {
+                    const words = brandDescriptionBn.trim().split(/\s+/).filter(Boolean).length;
+                    if (words < 55) return null;
+                    return (
+                      <span
+                        className={`text-[9px] font-mono transition-colors ${
+                          words >= 70 ? "text-red-500 font-bold opacity-100" : "opacity-60 text-foreground"
+                        }`}
+                      >
+                        {words}/70 words
+                      </span>
+                    );
+                  })()}
+                  <AutoTranslateButton
+                    sourceText={brandDescription}
+                    onTranslated={(val) => setBrandDescriptionBn(val.slice(0, 400))}
+                  />
+                </div>
               </label>
               <textarea
                 rows={3}
@@ -718,7 +806,13 @@ export default function StoreSettingsTab({
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "অফিস ঠিকানা (বাংলা)" : "Store Office Address (BN)"}</span>
-                  {renderCharCounter(storeAddressBn.length, 250)}
+                  <div className="flex items-center gap-2">
+                    {renderCharCounter(storeAddressBn.length, 250)}
+                    <AutoTranslateButton
+                      sourceText={storeAddress}
+                      onTranslated={(val) => setStoreAddressBn(val.slice(0, 250))}
+                    />
+                  </div>
                 </label>
                 <textarea
                   rows={2}
@@ -751,7 +845,13 @@ export default function StoreSettingsTab({
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "কাজের সময় (বাংলা)" : "Working Hours (BN)"}</span>
-                  {renderCharCounter(workingHoursBn.length, 80)}
+                  <div className="flex items-center gap-2">
+                    {renderCharCounter(workingHoursBn.length, 80)}
+                    <AutoTranslateButton
+                      sourceText={workingHours}
+                      onTranslated={(val) => setWorkingHoursBn(val.slice(0, 80))}
+                    />
+                  </div>
                 </label>
                 <input
                   type="text"
@@ -784,7 +884,13 @@ export default function StoreSettingsTab({
               <div className="space-y-1.5">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "কপিরাইট নোটিশ (বাংলা)" : "Copyright Notice (BN)"}</span>
-                  {renderCharCounter(footerCopyrightBn.length, 120)}
+                  <div className="flex items-center gap-2">
+                    {renderCharCounter(footerCopyrightBn.length, 120)}
+                    <AutoTranslateButton
+                      sourceText={footerCopyright}
+                      onTranslated={(val) => setFooterCopyrightBn(val.slice(0, 120))}
+                    />
+                  </div>
                 </label>
                 <input
                   type="text"

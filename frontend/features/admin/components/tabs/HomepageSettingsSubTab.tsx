@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useLanguage } from "@/store/LanguageContext";
 import { Collection } from "@/features/admin/types";
 import Swal from "sweetalert2";
+import AutoTranslateButton from "@/features/admin/components/common/AutoTranslateButton";
+import { translateText, translateWordList } from "@/services/translationService";
 
 interface HomepageSettingsSubTabProps {
   apiBase: string;
@@ -331,6 +333,115 @@ export default function HomepageSettingsSubTab({
 
   const handleFieldChange = (key: keyof HomepageSettingsState, value: any) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const [batchTranslatingHero, setBatchTranslatingHero] = useState(false);
+  const [batchTranslatingBento, setBatchTranslatingBento] = useState(false);
+
+  const handleAutoTranslateAllHero = async () => {
+    setBatchTranslatingHero(true);
+    try {
+      const updates: Partial<HomepageSettingsState> = {};
+      if (formData.hero_badge?.trim() && !formData.hero_badge_bn?.trim()) {
+        updates.hero_badge_bn = await translateText(formData.hero_badge);
+      }
+      if (formData.hero_title_prefix?.trim() && !formData.hero_title_prefix_bn?.trim()) {
+        updates.hero_title_prefix_bn = await translateText(formData.hero_title_prefix);
+      }
+      if (formData.hero_rotating_words?.trim() && !formData.hero_rotating_words_bn?.trim()) {
+        updates.hero_rotating_words_bn = await translateWordList(formData.hero_rotating_words);
+      }
+      if (formData.hero_subtitle?.trim() && !formData.hero_subtitle_bn?.trim()) {
+        updates.hero_subtitle_bn = await translateText(formData.hero_subtitle);
+      }
+      if (formData.hero_btn_text?.trim() && !formData.hero_btn_text_bn?.trim()) {
+        updates.hero_btn_text_bn = await translateText(formData.hero_btn_text);
+      }
+      if (formData.discover_title?.trim() && !formData.discover_title_bn?.trim()) {
+        updates.discover_title_bn = await translateText(formData.discover_title);
+      }
+      if (formData.discover_subtitle?.trim() && !formData.discover_subtitle_bn?.trim()) {
+        updates.discover_subtitle_bn = await translateText(formData.discover_subtitle);
+      }
+      if (formData.discover_btn_text?.trim() && !formData.discover_btn_text_bn?.trim()) {
+        updates.discover_btn_text_bn = await translateText(formData.discover_btn_text);
+      }
+
+      if (Object.keys(updates).length > 0) {
+        setFormData((prev) => ({ ...prev, ...updates }));
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: isBn ? "হিরো টেক্সট সফলভাবে বাংলায় অনুবাদ হয়েছে!" : "Hero texts auto-translated to Bangla!",
+          showConfirmButton: false,
+          timer: 1800,
+          toast: true,
+        });
+      } else {
+        Swal.fire({
+          position: "top-end",
+          icon: "info",
+          title: isBn ? "সকল হিরো বাংলা ফিল্ড ইতিমধ্যেই পূর্ণ আছে" : "All Hero Bangla fields are already populated",
+          showConfirmButton: false,
+          timer: 1800,
+          toast: true,
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setBatchTranslatingHero(false);
+    }
+  };
+
+  const handleAutoTranslateAllBento = async () => {
+    setBatchTranslatingBento(true);
+    try {
+      const updates: Partial<HomepageSettingsState> = {};
+      if (formData.bento_tile_1_title?.trim() && !formData.bento_tile_1_title_bn?.trim()) {
+        updates.bento_tile_1_title_bn = await translateText(formData.bento_tile_1_title);
+      }
+      if (formData.bento_tile_2_title?.trim() && !formData.bento_tile_2_title_bn?.trim()) {
+        updates.bento_tile_2_title_bn = await translateText(formData.bento_tile_2_title);
+      }
+      if (formData.bento_tile_3_title?.trim() && !formData.bento_tile_3_title_bn?.trim()) {
+        updates.bento_tile_3_title_bn = await translateText(formData.bento_tile_3_title);
+      }
+      if (formData.bento_tile_4_title?.trim() && !formData.bento_tile_4_title_bn?.trim()) {
+        updates.bento_tile_4_title_bn = await translateText(formData.bento_tile_4_title);
+      }
+      if (formData.bento_tile_247_title?.trim() && !formData.bento_tile_247_title_bn?.trim()) {
+        updates.bento_tile_247_title_bn = await translateText(formData.bento_tile_247_title);
+      }
+      if (formData.bento_tile_delivery_title?.trim() && !formData.bento_tile_delivery_title_bn?.trim()) {
+        updates.bento_tile_delivery_title_bn = await translateText(formData.bento_tile_delivery_title);
+      }
+
+      if (Object.keys(updates).length > 0) {
+        setFormData((prev) => ({ ...prev, ...updates }));
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: isBn ? "বেন্টো গ্রিড টাইটেল সফলভাবে বাংলায় অনুবাদ হয়েছে!" : "Bento titles auto-translated to Bangla!",
+          showConfirmButton: false,
+          timer: 1800,
+          toast: true,
+        });
+      } else {
+        Swal.fire({
+          position: "top-end",
+          icon: "info",
+          title: isBn ? "সকল বেন্টো বাংলা ফিল্ড ইতিমধ্যেই পূর্ণ আছে" : "All Bento Bangla fields are already populated",
+          showConfirmButton: false,
+          timer: 1800,
+          toast: true,
+        });
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setBatchTranslatingBento(false);
+    }
   };
 
   const confirmRemoveImage = (onConfirm: () => void) => {
@@ -817,18 +928,29 @@ export default function HomepageSettingsSubTab({
 
       {/* 2. HERO SECTION & TYPOGRAPHY */}
       <div className="bg-secondary p-6 sm:p-8 rounded-3xl border border-foreground/10 shadow-sm space-y-6">
-        <div className="border-b border-foreground/10 pb-4">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-accent" />
-            <h2 className="text-base sm:text-lg font-black uppercase tracking-tight text-foreground">
-              {isBn ? "হিরো সেকশন ও টেক্সট কন্ট্রোল (Hero Section & Texts)" : "Hero Section & Texts"}
-            </h2>
+        <div className="border-b border-foreground/10 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-accent" />
+              <h2 className="text-base sm:text-lg font-black uppercase tracking-tight text-foreground">
+                {isBn ? "হিরো সেকশন ও টেক্সট কন্ট্রোল (Hero Section & Texts)" : "Hero Section & Texts"}
+              </h2>
+            </div>
+            <p className="text-xs opacity-70 mt-1">
+              {isBn
+                ? "হোমপেজের প্রধান শিরোনাম, ঘূর্ণায়মান শব্দমালা এবং বিবরণ সরাসরি পরিবর্তন করুন।"
+                : "Customize the primary hero headline, rotating animated keywords, subtitles, and CTA buttons."}
+            </p>
           </div>
-          <p className="text-xs opacity-70 mt-1">
-            {isBn
-              ? "হোমপেজের প্রধান শিরোনাম, ঘূর্ণায়মান শব্দমালা এবং বিবরণ সরাসরি পরিবর্তন করুন।"
-              : "Customize the primary hero headline, rotating animated keywords, subtitles, and CTA buttons."}
-          </p>
+          <button
+            type="button"
+            onClick={handleAutoTranslateAllHero}
+            disabled={batchTranslatingHero}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-accent/10 hover:bg-accent text-accent hover:text-white dark:hover:text-black text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer disabled:opacity-50"
+            title="Auto-translate all empty Hero Bangla fields from English"
+          >
+            {batchTranslatingHero ? "Translating..." : "✨ Auto-Fill Hero Bangla with AI"}
+          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -851,7 +973,13 @@ export default function HomepageSettingsSubTab({
           <div className="space-y-1.5">
             <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "ছোট ব্যাজ টেক্সট (বাংলা)" : "Hero Badge Label (BN)"}</span>
-              {renderCharCounter(formData.hero_badge_bn.length, 35)}
+              <div className="flex items-center gap-2">
+                {renderCharCounter(formData.hero_badge_bn.length, 35)}
+                <AutoTranslateButton
+                  sourceText={formData.hero_badge}
+                  onTranslated={(val) => handleFieldChange("hero_badge_bn", val)}
+                />
+              </div>
             </label>
             <input
               type="text"
@@ -882,7 +1010,13 @@ export default function HomepageSettingsSubTab({
           <div className="space-y-1.5">
             <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "প্রধান শিরোনামের শুরু (বাংলা)" : "Main Title Prefix (BN)"}</span>
-              {renderCharCounter(formData.hero_title_prefix_bn.length, 50)}
+              <div className="flex items-center gap-2">
+                {renderCharCounter(formData.hero_title_prefix_bn.length, 50)}
+                <AutoTranslateButton
+                  sourceText={formData.hero_title_prefix}
+                  onTranslated={(val) => handleFieldChange("hero_title_prefix_bn", val)}
+                />
+              </div>
             </label>
             <input
               type="text"
@@ -914,7 +1048,14 @@ export default function HomepageSettingsSubTab({
           <div className="space-y-1.5">
             <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "রোটেটিং শব্দমালা (বাংলা - কমা দিয়ে আলাদা)" : "Rotating Words (BN - comma separated)"}</span>
-              {renderCharCounter(formData.hero_rotating_words_bn.length, 100)}
+              <div className="flex items-center gap-2">
+                {renderCharCounter(formData.hero_rotating_words_bn.length, 100)}
+                <AutoTranslateButton
+                  sourceText={formData.hero_rotating_words}
+                  isWordList={true}
+                  onTranslated={(val) => handleFieldChange("hero_rotating_words_bn", val)}
+                />
+              </div>
             </label>
             <input
               type="text"
@@ -946,7 +1087,13 @@ export default function HomepageSettingsSubTab({
           <div className="space-y-1.5">
             <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "হিরো সাবটাইটেল (বাংলা)" : "Hero Subtitle (BN)"}</span>
-              {renderCharCounter(formData.hero_subtitle_bn.length, 250)}
+              <div className="flex items-center gap-2">
+                {renderCharCounter(formData.hero_subtitle_bn.length, 250)}
+                <AutoTranslateButton
+                  sourceText={formData.hero_subtitle}
+                  onTranslated={(val) => handleFieldChange("hero_subtitle_bn", val)}
+                />
+              </div>
             </label>
             <textarea
               rows={2}
@@ -977,7 +1124,13 @@ export default function HomepageSettingsSubTab({
           <div className="space-y-1.5">
             <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
               <span>{isBn ? "বাটন টেক্সট (বাংলা)" : "Button Text (BN)"}</span>
-              {renderCharCounter(formData.hero_btn_text_bn.length, 35)}
+              <div className="flex items-center gap-2">
+                {renderCharCounter(formData.hero_btn_text_bn.length, 35)}
+                <AutoTranslateButton
+                  sourceText={formData.hero_btn_text}
+                  onTranslated={(val) => handleFieldChange("hero_btn_text_bn", val)}
+                />
+              </div>
             </label>
             <input
               type="text"
@@ -1032,7 +1185,13 @@ export default function HomepageSettingsSubTab({
             <div className="space-y-1.5">
               <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                 <span>{isBn ? "কার্ড টাইটেল (বাংলা)" : "Card Title (BN)"}</span>
-                {renderCharCounter(formData.discover_title_bn.length, 50)}
+                <div className="flex items-center gap-2">
+                  {renderCharCounter(formData.discover_title_bn.length, 50)}
+                  <AutoTranslateButton
+                    sourceText={formData.discover_title}
+                    onTranslated={(val) => handleFieldChange("discover_title_bn", val)}
+                  />
+                </div>
               </label>
               <input
                 type="text"
@@ -1063,7 +1222,13 @@ export default function HomepageSettingsSubTab({
             <div className="space-y-1.5">
               <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                 <span>{isBn ? "কার্ড বিবরণ (বাংলা)" : "Card Description (BN)"}</span>
-                {renderCharCounter(formData.discover_subtitle_bn.length, 200)}
+                <div className="flex items-center gap-2">
+                  {renderCharCounter(formData.discover_subtitle_bn.length, 200)}
+                  <AutoTranslateButton
+                    sourceText={formData.discover_subtitle}
+                    onTranslated={(val) => handleFieldChange("discover_subtitle_bn", val)}
+                  />
+                </div>
               </label>
               <input
                 type="text"
@@ -1094,7 +1259,13 @@ export default function HomepageSettingsSubTab({
             <div className="space-y-1.5">
               <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                 <span>{isBn ? "বাটন টেক্সট (বাংলা)" : "Button Text (BN)"}</span>
-                {renderCharCounter(formData.discover_btn_text_bn.length, 35)}
+                <div className="flex items-center gap-2">
+                  {renderCharCounter(formData.discover_btn_text_bn.length, 35)}
+                  <AutoTranslateButton
+                    sourceText={formData.discover_btn_text}
+                    onTranslated={(val) => handleFieldChange("discover_btn_text_bn", val)}
+                  />
+                </div>
               </label>
               <input
                 type="text"
@@ -1127,18 +1298,29 @@ export default function HomepageSettingsSubTab({
 
       {/* 3. BENTO GRID TILES MANAGER (6 SLOTS) */}
       <div className="bg-secondary p-6 sm:p-8 rounded-3xl border border-foreground/10 shadow-sm space-y-6">
-        <div className="border-b border-foreground/10 pb-4">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-accent" />
-            <h2 className="text-base sm:text-lg font-black uppercase tracking-tight text-foreground">
-              {isBn ? "বেন্টো গ্রিড কার্ডসমূহ (Bento Grid Tiles - ৬টি স্লট)" : "Bento Grid Tiles (6 Slots)"}
-            </h2>
+        <div className="border-b border-foreground/10 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-accent" />
+              <h2 className="text-base sm:text-lg font-black uppercase tracking-tight text-foreground">
+                {isBn ? "বেন্টো গ্রিড কার্ডসমূহ (Bento Grid Tiles - ৬টি স্লট)" : "Bento Grid Tiles (6 Slots)"}
+              </h2>
+            </div>
+            <p className="text-xs opacity-70 mt-1">
+              {isBn
+                ? "হোমপেজের ৪টি ক্যাটাগরি স্লট, ২৪/৭ ড্রপস এবং ফ্রি ডেলিভারি স্লটের ছবি, টাইটেল ও লিংক নিয়ন্ত্রণ করুন।"
+                : "Manage titles, links, and custom photos for the 4 category positions, 24/7 drops, and fast delivery tiles."}
+            </p>
           </div>
-          <p className="text-xs opacity-70 mt-1">
-            {isBn
-              ? "হোমপেজের ৪টি ক্যাটাগরি স্লট, ২৪/৭ ড্রপস এবং ফ্রি ডেলিভারি স্লটের ছবি, টাইটেল ও লিংক নিয়ন্ত্রণ করুন।"
-              : "Manage titles, links, and custom photos for the 4 category positions, 24/7 drops, and fast delivery tiles."}
-          </p>
+          <button
+            type="button"
+            onClick={handleAutoTranslateAllBento}
+            disabled={batchTranslatingBento}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-accent/10 hover:bg-accent text-accent hover:text-white dark:hover:text-black text-xs font-bold transition-all shadow-xs shrink-0 cursor-pointer disabled:opacity-50"
+            title="Auto-translate all empty Bento Bangla titles from English"
+          >
+            {batchTranslatingBento ? "Translating..." : "✨ Auto-Fill Bento Bangla with AI"}
+          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1169,7 +1351,13 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা)" : "Title (BN)"}</span>
-                  {renderCharCounter(formData.bento_tile_1_title_bn.length, 45)}
+                  <div className="flex items-center gap-2">
+                    {renderCharCounter(formData.bento_tile_1_title_bn.length, 45)}
+                    <AutoTranslateButton
+                      sourceText={formData.bento_tile_1_title}
+                      onTranslated={(val) => handleFieldChange("bento_tile_1_title_bn", val)}
+                    />
+                  </div>
                 </label>
                 <input
                   type="text"
@@ -1289,7 +1477,13 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা)" : "Title (BN)"}</span>
-                  {renderCharCounter(formData.bento_tile_2_title_bn.length, 45)}
+                  <div className="flex items-center gap-2">
+                    {renderCharCounter(formData.bento_tile_2_title_bn.length, 45)}
+                    <AutoTranslateButton
+                      sourceText={formData.bento_tile_2_title}
+                      onTranslated={(val) => handleFieldChange("bento_tile_2_title_bn", val)}
+                    />
+                  </div>
                 </label>
                 <input
                   type="text"
@@ -1409,7 +1603,13 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা)" : "Title (BN)"}</span>
-                  {renderCharCounter(formData.bento_tile_3_title_bn.length, 45)}
+                  <div className="flex items-center gap-2">
+                    {renderCharCounter(formData.bento_tile_3_title_bn.length, 45)}
+                    <AutoTranslateButton
+                      sourceText={formData.bento_tile_3_title}
+                      onTranslated={(val) => handleFieldChange("bento_tile_3_title_bn", val)}
+                    />
+                  </div>
                 </label>
                 <input
                   type="text"
@@ -1529,7 +1729,13 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা)" : "Title (BN)"}</span>
-                  {renderCharCounter(formData.bento_tile_4_title_bn.length, 45)}
+                  <div className="flex items-center gap-2">
+                    {renderCharCounter(formData.bento_tile_4_title_bn.length, 45)}
+                    <AutoTranslateButton
+                      sourceText={formData.bento_tile_4_title}
+                      onTranslated={(val) => handleFieldChange("bento_tile_4_title_bn", val)}
+                    />
+                  </div>
                 </label>
                 <input
                   type="text"
@@ -1649,7 +1855,13 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা - ঐচ্ছিক)" : "Title (BN - Optional)"}</span>
-                  {renderCharCounter(formData.bento_tile_247_title_bn.length, 45)}
+                  <div className="flex items-center gap-2">
+                    {renderCharCounter(formData.bento_tile_247_title_bn.length, 45)}
+                    <AutoTranslateButton
+                      sourceText={formData.bento_tile_247_title}
+                      onTranslated={(val) => handleFieldChange("bento_tile_247_title_bn", val)}
+                    />
+                  </div>
                 </label>
                 <input
                   type="text"
@@ -1765,7 +1977,13 @@ export default function HomepageSettingsSubTab({
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                   <span>{isBn ? "টাইটেল (বাংলা - ঐচ্ছিক)" : "Title (BN - Optional)"}</span>
-                  {renderCharCounter(formData.bento_tile_delivery_title_bn.length, 45)}
+                  <div className="flex items-center gap-2">
+                    {renderCharCounter(formData.bento_tile_delivery_title_bn.length, 45)}
+                    <AutoTranslateButton
+                      sourceText={formData.bento_tile_delivery_title}
+                      onTranslated={(val) => handleFieldChange("bento_tile_delivery_title_bn", val)}
+                    />
+                  </div>
                 </label>
                 <input
                   type="text"

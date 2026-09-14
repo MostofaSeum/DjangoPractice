@@ -9,33 +9,71 @@ export async function POST(req: NextRequest) {
     }
 
     const trimmed = text.trim();
-    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(
-      sl
-    )}&tl=${encodeURIComponent(tl)}&dt=t&q=${encodeURIComponent(trimmed)}`;
 
-    const res = await fetch(url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      },
-      next: { revalidate: 3600 },
-    });
+    // Strategy 1: Google Translate public API
+    try {
+      const googleUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(
+        sl
+      )}&tl=${encodeURIComponent(tl)}&dt=t&q=${encodeURIComponent(trimmed)}`;
 
-    if (!res.ok) {
-      throw new Error(`Google Translate responded with HTTP ${res.status}`);
+      const googleRes = await fetch(googleUrl, {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        },
+        next: { revalidate: 3600 },
+      });
+
+      if (googleRes.ok) {
+        const textResp = await googleRes.text();
+        if (!textResp.includes("<!DOCTYPE") && !textResp.includes("<html")) {
+          const data = JSON.parse(textResp);
+          if (Array.isArray(data?.[0])) {
+            const translated = data[0]
+              .map((segment: any) => (Array.isArray(segment) ? segment[0] || "" : ""))
+              .join("");
+            if (translated && translated.trim()) {
+              return NextResponse.json({ translatedText: translated.trim() });
+            }
+          }
+        }
+      }
+    } catch {
+      // Continue to fallback
     }
 
-    const data = await res.json();
+    // Strategy 2: High-reliability translation fallback (MyMemory API)
+    try {
+      const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
+        trimmed
+      )}&langpair=${encodeURIComponent(sl)}|${encodeURIComponent(tl)}`;
 
-    // Google Translate returns an array of segments: [[["translated", "source", ...], ...], ...]
-    let translatedText = "";
-    if (Array.isArray(data?.[0])) {
-      translatedText = data[0]
-        .map((segment: any) => (Array.isArray(segment) ? segment[0] || "" : ""))
-        .join("");
+      const mmRes = await fetch(myMemoryUrl, {
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (mmRes.ok) {
+        const mmData = await mmRes.json();
+        const translated = mmData?.responseData?.translatedText;
+        if (translated && typeof translated === "string" && translated.trim()) {
+          // Clean up any html entity escapes e.g. &#39;
+          const cleaned = translated
+            .replace(/&#39;/g, "'")
+            .replace(/&quot;/g, '"')
+            .replace(/&amp;/g, "&")
+            .replace(/&lt;/g, "<")
+            .replace(/&gt;/g, ">");
+
+          return NextResponse.json({ translatedText: cleaned.trim() });
+        }
+      }
+    } catch (mmErr: any) {
+      console.error("MyMemory fallback error:", mmErr);
     }
 
-    return NextResponse.json({ translatedText });
+    return NextResponse.json({ translatedText: trimmed });
   } catch (error: any) {
     console.error("Translation API Route error:", error);
     return NextResponse.json(
