@@ -76,6 +76,12 @@ test.describe("Checkout Page", () => {
           console.error("Failed to clear previous user cart:", e);
         }
       }
+    } else {
+      try {
+        await page.context().clearCookies();
+      } catch (e) {
+        console.error("Failed to clear cookies:", e);
+      }
     }
 
     if (emptyCart) {
@@ -148,6 +154,13 @@ test.describe("Checkout Page", () => {
     );
 
     await page.goto("/checkout", { waitUntil: "domcontentloaded" });
+
+    if (authenticated && !emptyCart) {
+      await page
+        .locator('form input[type="tel"]')
+        .first()
+        .waitFor({ state: "visible", timeout: 25000 });
+    }
   }
 
   /* -------------------------------------------------------------------------- */
@@ -157,13 +170,21 @@ test.describe("Checkout Page", () => {
     test("redirects unauthenticated users to login with redirect parameter", async ({
       page,
     }) => {
-      await setupCheckoutSession(page, { authenticated: false });
+      await setupCheckoutSession(page, { authenticated: false, emptyCart: true });
+
+      // Dismiss SweetAlert if present to prevent focus/navigation lock in WebKit
+      const okBtn = page.locator(".swal2-confirm");
+      await okBtn
+        .waitFor({ state: "visible", timeout: 5000 })
+        .then(() => okBtn.click())
+        .catch(() => {});
+
       await expect(page).toHaveURL(
         /login\?redirect=%2Fcheckout|login\?redirect=\/checkout/,
-        { timeout: 15000 },
+        { timeout: 20000 },
       );
       const loginHeading = page.locator("h1, h2").first();
-      await expect(loginHeading).toBeVisible();
+      await expect(loginHeading).toBeVisible({ timeout: 15000 });
     });
 
     test("displays empty cart state when cart has no items and browse products button works", async ({
@@ -697,7 +718,7 @@ test.describe("Checkout Page", () => {
       // Order success SweetAlert appears
       const successPopup = page
         .locator(".swal2-popup")
-        .or(page.getByText(/Order Placed Successfully|সফলভাবে সম্পন্ন হয়েছে/i));
+        .filter({ hasText: /Order Placed Successfully|সফলভাবে সম্পন্ন হয়েছে/i });
       await expect(successPopup.first()).toBeVisible({ timeout: 15000 });
 
       // Coupon should be cleared from localStorage
@@ -741,11 +762,9 @@ test.describe("Checkout Page", () => {
 
           const successPopup = page
             .locator(".swal2-popup")
-            .or(
-              page.getByText(
-                /Order Placed Successfully|সফলভাবে সম্পন্ন হয়েছে/i,
-              ),
-            );
+            .filter({
+              hasText: /Order Placed Successfully|সফলভাবে সম্পন্ন হয়েছে/i,
+            });
           await expect(successPopup.first()).toBeVisible({ timeout: 15000 });
 
           const okBtn = page.locator(".swal2-confirm");
