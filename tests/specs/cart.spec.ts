@@ -49,18 +49,19 @@ test.describe('Cart Page', () => {
 
     const plusBtn = page.getByRole('button', { name: '+' }).first();
     await expect(plusBtn).toBeVisible({ timeout: 10000 });
-    const initialQty = await page.locator('span.w-10').first().innerText();
+    const qtySpan = page.locator('span.w-10').first();
+    const initialQty = Number(await qtySpan.innerText());
     await plusBtn.click();
-    await page.waitForTimeout(500);
-    const updatedQty = await page.locator('span.w-10').first().innerText();
-    expect(Number(updatedQty)).toBeGreaterThan(Number(initialQty));
+    await expect(qtySpan).toHaveText(String(initialQty + 1), { timeout: 10000 });
+    const updatedQty = Number(await qtySpan.innerText());
+    expect(updatedQty).toBeGreaterThan(initialQty);
   });
 
   // Helper function to add product 648 (Stationary collection) to cart reliably
   async function ensureStationaryItemInCart(page: any) {
     await page.goto('/cart', { waitUntil: 'domcontentloaded' });
     
-    // Add product 648 directly to cart using API
+    // Add or ensure product 648 in cart using API
     await page.evaluate(async () => {
       try {
         let cartId = localStorage.getItem('cart_id');
@@ -76,6 +77,22 @@ test.describe('Cart Page', () => {
         }
 
         if (cartId) {
+          // Check if product 648 is already in the cart
+          const checkRes = await fetch(`http://127.0.0.1:8000/store/carts/${cartId}/`);
+          if (checkRes.ok) {
+            const cartData = await checkRes.json();
+            const existingItem = cartData.items?.find((i: any) => i.product.id === 648);
+            if (existingItem) {
+              // Reset quantity to 1 if already present
+              await fetch(`http://127.0.0.1:8000/store/carts/${cartId}/items/${existingItem.id}/`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: 1 }),
+              });
+              return;
+            }
+          }
+
           await fetch(`http://127.0.0.1:8000/store/carts/${cartId}/items/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -101,38 +118,39 @@ test.describe('Cart Page', () => {
     const minusBtn = page.getByRole('button', { name: '-' }).first();
     const plusBtn = page.getByRole('button', { name: '+' }).first();
 
+    // Read current initial quantity
+    const initialQty = Number(await qtySpan.innerText());
+
     // Increase first to ensure we can test decrementing
     await plusBtn.click();
-    await page.waitForTimeout(500);
-    const elevatedQty = Number(await qtySpan.innerText());
-    expect(elevatedQty).toBeGreaterThanOrEqual(2);
+    await expect(qtySpan).toHaveText(String(initialQty + 1), { timeout: 10000 });
+    const elevatedQty = initialQty + 1;
 
     // Decrease back
     await minusBtn.click();
-    await page.waitForTimeout(500);
-    const decreasedQty = Number(await qtySpan.innerText());
-    expect(decreasedQty).toBe(elevatedQty - 1);
+    await expect(qtySpan).toHaveText(String(elevatedQty - 1), { timeout: 10000 });
 
-    // Click minus multiple times to hit boundary
+    // Click minus multiple times to hit boundary of 1
     for (let i = 0; i < 5; i++) {
-      const currentQty = Number(await qtySpan.innerText());
+      const currentText = await qtySpan.innerText();
+      const currentQty = Number(currentText);
       if (currentQty > 1) {
         await minusBtn.click();
-        await page.waitForTimeout(300);
+        await expect(qtySpan).toHaveText(String(currentQty - 1), { timeout: 10000 });
+      } else {
+        break;
       }
     }
 
     // Now quantity should be 1
-    const qtyAtOne = Number(await qtySpan.innerText());
-    expect(qtyAtOne).toBe(1);
+    await expect(qtySpan).toHaveText('1');
 
     // Click minus button again at quantity 1
     await minusBtn.click();
     await page.waitForTimeout(500);
 
     // Quantity should remain 1, item is not deleted
-    const finalQty = Number(await qtySpan.innerText());
-    expect(finalQty).toBe(1);
+    await expect(qtySpan).toHaveText('1');
     await expect(qtySpan).toBeVisible();
   });
 
