@@ -409,10 +409,16 @@ test.describe('Checkout Page', () => {
         },
       });
 
-      // Coupon should be removed from localStorage and not shown in order summary
-      await page.waitForTimeout(1000);
-      const savedCoupon = await page.evaluate(() => localStorage.getItem('applied_coupon'));
-      expect(savedCoupon).toBeNull();
+      // Wait for cart and checkout order summary to finish loading
+      const subtotalEl = page.locator('.space-y-3 span.font-bold.text-foreground').first();
+      await expect(subtotalEl).toBeVisible({ timeout: 15000 });
+
+      // Poll until coupon is automatically removed from localStorage
+      await expect.poll(
+        () => page.evaluate(() => localStorage.getItem('applied_coupon')),
+        { timeout: 10000 }
+      ).toBeNull();
+
       const couponRow = page.locator('.space-y-3').getByText(/INELIGIBLE_COUPON/i);
       await expect(couponRow).toHaveCount(0);
     });
