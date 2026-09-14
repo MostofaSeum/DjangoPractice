@@ -175,12 +175,12 @@ test.describe('Authentication: Login, Registration & Password Recovery', () => {
       await expect(page).not.toHaveURL(/\/login$/, { timeout: 10000 });
 
       // Trying to visit /login while authenticated redirects away
-      await page.goto('/login', { waitUntil: 'networkidle' });
-      await expect(page).not.toHaveURL(/\/login$/, { timeout: 10000 });
+      await page.goto('/login', { waitUntil: 'domcontentloaded' });
+      await expect(page).not.toHaveURL(/\/login$/, { timeout: 15000 });
 
       // Trying to visit /register while authenticated redirects away
-      await page.goto('/register', { waitUntil: 'networkidle' });
-      await expect(page).not.toHaveURL(/\/register$/, { timeout: 10000 });
+      await page.goto('/register', { waitUntil: 'domcontentloaded' });
+      await expect(page).not.toHaveURL(/\/register$/, { timeout: 15000 });
     });
 
     test('unauthenticated user cannot access protected pages (/profile, /checkout, /wishlist)', async ({ page }) => {

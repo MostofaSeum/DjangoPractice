@@ -38,9 +38,9 @@ function RegisterForm() {
     if (authLoading) return;
     if (user) {
       if (user.is_staff) {
-        router.push("/admin");
+        router.replace("/admin");
       } else {
-        router.push(redirectUrl);
+        router.replace(redirectUrl);
       }
     }
   }, [user, authLoading, router, redirectUrl]);
