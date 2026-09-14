@@ -118,6 +118,7 @@ export default function CartPage() {
     if (!hasMatchingProduct) {
       setAppliedCoupon(null);
       localStorage.removeItem("applied_coupon");
+      setCouponInput("");
       Swal.fire({
         position: "top-end",
         icon: "info",
@@ -246,6 +247,7 @@ export default function CartPage() {
           localStorage.setItem("applied_coupon", JSON.stringify(couponData));
         } catch (e) {}
         setCouponError("");
+        setCouponInput("");
         Swal.fire({
           position: "top-end",
           icon: "success",
@@ -259,6 +261,7 @@ export default function CartPage() {
       } else {
         const errorMsg = data.error || (locale === "bn" ? "এই কুপন কোডটি সঠিক নয়।" : "This coupon code is invalid.");
         setCouponError(errorMsg);
+        setCouponInput("");
         Swal.fire({
           icon: "error",
           title: locale === "bn" ? "কুপন ত্রুটি" : "Coupon Error",
@@ -268,6 +271,7 @@ export default function CartPage() {
       }
     } catch (err) {
       console.error("Coupon validation error:", err);
+      setCouponInput("");
       Swal.fire({
         icon: "error",
         title: locale === "bn" ? "ভ্যালিডেশন ত্রুটি" : "Validation Error",
@@ -505,6 +509,7 @@ export default function CartPage() {
             localStorage.removeItem("applied_coupon");
           } catch (e) {}
           setCouponError(errorMsg);
+          setCouponInput("");
 
           await Swal.fire({
             icon: "error",

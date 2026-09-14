@@ -41,6 +41,7 @@ test.describe('Cart Page', () => {
     await applyCouponBtn.click();
     const invalidAlert = page.locator('.swal2-popup, [role="alert"], .text-red-500');
     await expect(invalidAlert.first()).toBeVisible({ timeout: 7000 });
+    await expect(couponInput).toHaveValue('');
   });
 
   test('updates quantity and recalculates totals when items exist', async ({ page }) => {
