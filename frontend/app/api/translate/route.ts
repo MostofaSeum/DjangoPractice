@@ -30,7 +30,9 @@ export async function POST(req: NextRequest) {
           const data = JSON.parse(textResp);
           if (Array.isArray(data?.[0])) {
             const translated = data[0]
-              .map((segment: any) => (Array.isArray(segment) ? segment[0] || "" : ""))
+              .map((segment: any) =>
+                Array.isArray(segment) ? segment[0] || "" : "",
+              )
               .join("");
             if (translated && translated.trim()) {
               return NextResponse.json({ translatedText: translated.trim() });
@@ -45,7 +47,7 @@ export async function POST(req: NextRequest) {
     // Strategy 2: High-reliability translation fallback (MyMemory API)
     try {
       const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
-        trimmed
+        trimmed,
       )}&langpair=${encodeURIComponent(sl)}|${encodeURIComponent(tl)}`;
 
       const mmRes = await fetch(myMemoryUrl, {
@@ -78,7 +80,7 @@ export async function POST(req: NextRequest) {
     console.error("Translation API Route error:", error);
     return NextResponse.json(
       { error: error?.message || "Failed to translate text." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
