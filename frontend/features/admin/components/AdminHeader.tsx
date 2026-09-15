@@ -16,6 +16,7 @@ interface AdminHeaderProps {
   onNavigateToOrder?: (orderId: string) => void;
   onNavigateToReturn?: (orderId: string) => void;
   onNavigateToTab?: (tab: AdminTab) => void;
+  onToggleMobileMenu?: () => void;
 }
 
 export default function AdminHeader({
@@ -28,6 +29,7 @@ export default function AdminHeader({
   onNavigateToOrder,
   onNavigateToReturn,
   onNavigateToTab,
+  onToggleMobileMenu,
 }: AdminHeaderProps) {
   const { t } = useLanguage();
 
@@ -61,29 +63,54 @@ export default function AdminHeader({
   };
 
   return (
-    <header className="bg-primary text-background dark:text-foreground h-[65px] px-6 md:px-10 border-b border-white/10 shadow-sm transition-colors duration-300 sticky top-0 z-40 flex items-center">
-      <div className="flex justify-between items-center gap-4 w-full">
-        <div className="flex items-center gap-3">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="bg-accent text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest rounded-md">
+    <header className="bg-primary text-background dark:text-foreground h-[65px] px-2.5 sm:px-4 md:px-10 border-b border-white/10 shadow-sm transition-colors duration-300 sticky top-0 z-40 flex items-center">
+      <div className="flex justify-between items-center gap-1.5 sm:gap-4 w-full min-w-0">
+        <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
+          {/* Mobile Hamburger Menu Toggle (Hidden on desktop md:) */}
+          {onToggleMobileMenu && (
+            <button
+              type="button"
+              onClick={onToggleMobileMenu}
+              className="md:hidden p-1.5 sm:p-2 -ml-1 sm:-ml-1.5 rounded-xl text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer shrink-0"
+              title="Open Navigation Menu"
+              aria-label="Open Navigation Menu"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2.5"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+          )}
+
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="bg-accent text-white text-[9px] font-black px-2 py-0.5 uppercase tracking-widest rounded-md hidden xs:inline-block shrink-0">
                 {t("admin.header.staffPortal")}
               </span>
-              <h1 className="text-lg md:text-xl font-black uppercase tracking-tight">
+              <h1 className="text-xs sm:text-base md:text-xl font-black uppercase tracking-tight truncate max-w-[85px] min-[360px]:max-w-[110px] min-[400px]:max-w-[160px] sm:max-w-none">
                 {t("admin.header.dashboard")}
               </h1>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1 min-[360px]:gap-1.5 sm:gap-3 shrink-0">
           {/* Active Tab Refresh Button */}
           {onRefresh && (
             <button
               onClick={onRefresh}
               disabled={isRefreshing}
               title={`${t("admin.header.refresh")} ${getTabDisplayName(activeTab)}`}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border border-white/15 bg-white/10 text-white dark:text-foreground hover:bg-white/20 active:scale-95 cursor-pointer ${
+              className={`flex items-center justify-center gap-2 p-1.5 sm:px-3.5 sm:py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border border-white/15 bg-white/10 text-white dark:text-foreground hover:bg-white/20 active:scale-95 cursor-pointer shrink-0 ${
                 isRefreshing ? "opacity-60 cursor-not-allowed" : ""
               }`}
             >
@@ -119,13 +146,34 @@ export default function AdminHeader({
             />
           )}
 
-          <LanguageToggle />
-          <ThemeToggle />
+          <div className="shrink-0">
+            <LanguageToggle />
+          </div>
+          <div className="shrink-0">
+            <ThemeToggle />
+          </div>
           <button
             onClick={onLogout}
-            className="bg-accent/20 text-accent hover:bg-accent/30 px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider border border-accent/20 transition-colors cursor-pointer"
+            title={t("admin.header.logout")}
+            aria-label={t("admin.header.logout")}
+            className="bg-accent/20 text-accent hover:bg-accent/30 p-1.5 sm:px-3.5 sm:py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider border border-accent/20 transition-colors cursor-pointer flex items-center gap-1.5 shrink-0"
           >
-            {t("admin.header.logout")}
+            <svg
+              className="w-4 h-4 shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2.5"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+              />
+            </svg>
+            <span className="hidden sm:inline">
+              {t("admin.header.logout")}
+            </span>
           </button>
         </div>
       </div>

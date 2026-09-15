@@ -555,7 +555,12 @@
       "analytics": "রিপোর্ট ও অ্যানালিটিক্স",
       "settings": "স্টোর সেটিংস",
       "collapse": "সাইডবার ছোট করুন",
-      "expand": "সাইডবার বড় করুন"
+      "expand": "সাইডবার বড় করুন",
+      "allProducts": "সকল পণ্য",
+      "addNewProduct": "নতুন পণ্য যোগ",
+      "stockAlerts": "স্টক এলার্ট",
+      "allCollections": "সকল কালেকশন",
+      "addNewCategory": "নতুন ক্যাটাগরি যোগ"
     },
     "tabs": {
       "dashboard": "ওভারভিউ ড্যাশবোর্ড",

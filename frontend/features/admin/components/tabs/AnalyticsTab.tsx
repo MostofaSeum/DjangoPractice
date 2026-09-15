@@ -706,8 +706,30 @@ export default function AnalyticsTab({
   }, [orders, isBn]);
 
   return (
-    <div className="space-y-8">
-
+    <div className="space-y-6 md:space-y-8">
+      {/* Mobile-Only Horizontal Subtab Pill Navigation */}
+      <div className="flex md:hidden items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
+        {[
+          { id: "sales" as AnalyticsSubTab, label: isBn ? "বিক্রয় ও আয়" : "Sales" },
+          { id: "coupons" as AnalyticsSubTab, label: isBn ? "কুপন" : "Coupons" },
+          { id: "payments" as AnalyticsSubTab, label: isBn ? "পেমেন্ট" : "Payments" },
+          { id: "top-products" as AnalyticsSubTab, label: isBn ? "টপ প্রোডাক্টস" : "Top Products" },
+          { id: "delivery-orders" as AnalyticsSubTab, label: isBn ? "কুরিয়ার রিপোর্ট" : "Delivery" },
+        ].map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setActiveSubTab(item.id)}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
+              activeSubTab === item.id
+                ? "bg-accent text-white shadow-xs font-black"
+                : "bg-secondary text-foreground/70 hover:bg-foreground/5 border border-foreground/10"
+            }`}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
 
       {/* 1. SALES & REVENUE ANALYTICS SUBSECTION */}
       {activeSubTab === "sales" && (

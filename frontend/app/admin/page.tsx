@@ -64,6 +64,7 @@ export default function AdminDashboardPage() {
   const [settingsSubTab, setSettingsSubTab] = useState<SettingsSubTab>("homepage");
   const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   const handleSettingsSubTabSwitch = (subTab: SettingsSubTab) => {
@@ -2912,6 +2913,7 @@ export default function AdminDashboardPage() {
         onNavigateToTab={(tab) => {
           handleTabSwitch(tab);
         }}
+        onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
       />
 
       {/* Main Layout Body: Left Sidebar + Right Content Area */}
@@ -2957,11 +2959,13 @@ export default function AdminDashboardPage() {
           }
           couponsCount={couponsList.length}
           courierCount={courierProviders.length}
+          isMobileOpen={isMobileMenuOpen}
+          setIsMobileOpen={setIsMobileMenuOpen}
+          onLogout={handleLogout}
         />
 
-
         {/* Right Main Content Area */}
-        <main className="flex-1 p-6 md:p-10 max-w-[1600px] w-full overflow-x-hidden transition-all duration-300">
+        <main className="flex-1 p-3.5 pb-28 sm:p-6 sm:pb-32 md:p-10 md:pb-36 max-w-[1600px] w-full overflow-x-hidden transition-all duration-300">
           {/* 0. OVERVIEW DASHBOARD TAB */}
           {activeTab === "dashboard" && (
             <DashboardOverviewTab

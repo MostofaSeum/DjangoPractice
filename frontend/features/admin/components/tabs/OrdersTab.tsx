@@ -299,10 +299,37 @@ export default function OrdersTab({
   };
 
   return (
-    <div className="bg-secondary text-foreground p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
+    <div className="bg-secondary text-foreground p-4 sm:p-6 md:p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
+      {/* Mobile-Only Subtab Switcher: All Orders vs Returns */}
+      {onSubTabChange && (
+        <div className="flex md:hidden items-center gap-2 overflow-x-auto pb-3 mb-4 border-b border-foreground/10 custom-scrollbar">
+          <button
+            type="button"
+            onClick={() => onSubTabChange("all")}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
+              activeSubTab === "all"
+                ? "bg-accent text-white shadow-xs font-black"
+                : "bg-primary/5 text-foreground/70 border border-foreground/10"
+            }`}
+          >
+            {isBn ? "সকল অর্ডার" : "All Orders"}
+          </button>
+          <button
+            type="button"
+            onClick={() => onSubTabChange("returns")}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
+              activeSubTab === "returns"
+                ? "bg-accent text-white shadow-xs font-black"
+                : "bg-primary/5 text-foreground/70 border border-foreground/10"
+            }`}
+          >
+            {isBn ? "রিটার্ন ও রিফান্ড" : "Returns & Claims"}
+          </button>
+        </div>
+      )}
 
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6 pb-4 border-b border-foreground/10">
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto overflow-x-auto pb-1 custom-scrollbar">
           {/* Status Filter Buttons depending on active sub tab */}
           {activeSubTab === "all" ? (
             <div className="flex items-center gap-1.5 p-1 bg-primary/5 dark:bg-primary/30 rounded-xl border border-foreground/10">
@@ -443,8 +470,113 @@ export default function OrdersTab({
       </div>
 
       {filteredOrders.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div>
+          {/* 1. MOBILE-ONLY COMPACT ORDER CARDS (< md screens) */}
+          <div className="md:hidden space-y-3">
+            {paginatedOrders.map((order) => {
+              const itemCount = order.items
+                ? order.items.reduce((sum, i) => sum + i.quantity, 0)
+                : 0;
+              const isCancelled = order.tracking_status === "cancelled";
+              const displayOrderId = isBn ? order.id.toLocaleString("bn-BD") : order.id;
+              const displayItemCount = isBn ? `${itemCount.toLocaleString("bn-BD")} টি` : `${itemCount} item(s)`;
+
+              return (
+                <div
+                  key={`mobile-${order.id}`}
+                  className="bg-primary/5 dark:bg-primary/20 p-3.5 rounded-2xl border border-foreground/10 space-y-3"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-black tracking-tight text-foreground">
+                      #{displayOrderId}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${
+                        isCancelled
+                          ? "bg-hidden/15 text-hidden border-hidden/30"
+                          : order.tracking_status === "delivered"
+                          ? "bg-visible/15 text-visible border-visible/30"
+                          : order.tracking_status === "returned"
+                          ? "bg-hidden/15 text-hidden border-hidden/30"
+                          : order.tracking_status
+                          ? "bg-accent/15 text-accent border-accent/30"
+                          : "bg-primary/10 text-foreground/70 border-foreground/15"
+                      }`}
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                      {getTrackingStatusLabel(order.tracking_status, order.tracking_status_display)}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-baseline text-xs">
+                    <div>
+                      <p className="font-bold text-foreground">
+                        {order.customer_name || (isBn ? "গেস্ট গ্রাহক" : "Guest Customer")}
+                      </p>
+                      <p className="text-[10px] text-foreground/60">
+                        {displayItemCount} • {order.payment_method === "C" ? "COD" : order.payment_method === "B" ? "bKash" : order.payment_method === "N" ? "Nagad" : "Online"}
+                      </p>
+                    </div>
+
+                    <select
+                      value={order.payment_status || "P"}
+                      disabled={isCancelled}
+                      onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
+                      className={`px-2.5 py-1 rounded-full text-[10px] uppercase font-black tracking-wider outline-none border cursor-pointer ${
+                        isCancelled
+                          ? "bg-hidden/10 text-hidden border-hidden/30 opacity-75"
+                          : order.payment_status === "C"
+                          ? "bg-visible/15 text-visible border-visible/30"
+                          : order.payment_status === "F"
+                          ? "bg-hidden/15 text-hidden border-hidden/30"
+                          : "bg-accent/15 text-accent border-accent/30"
+                      }`}
+                    >
+                      <option value="P" className="bg-secondary text-foreground">{isBn ? "পেন্ডিং (P)" : "Pending (P)"}</option>
+                      <option value="C" className="bg-secondary text-foreground">{isBn ? "কমপ্লিট (C)" : "Complete (C)"}</option>
+                      <option value="F" className="bg-secondary text-foreground">{isCancelled ? (isBn ? "বাতিল (F)" : "Cancelled (F)") : (isBn ? "ফেইল্ড (F)" : "Failed (F)")}</option>
+                    </select>
+                  </div>
+
+                  <div className="pt-2 border-t border-foreground/10 flex items-center justify-between gap-2">
+                    <span className="text-[10px] text-foreground/60">
+                      {order.placed_at ? new Date(order.placed_at).toLocaleDateString(locale === "bn" ? "bn-BD" : "en-US", { month: "short", day: "numeric" }) : ""}
+                    </span>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedOrderDetails(order)}
+                        className="px-3 py-1 bg-button-bg text-button-fg rounded-lg font-bold text-[10px] uppercase tracking-wider cursor-pointer"
+                      >
+                        {isBn ? "বিস্তারিত" : "Details"}
+                      </button>
+                      {activeSubTab === "returns" && order.return_requests?.[0] && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setReviewingReturnOrder(order);
+                            setAdminNoteInput(order.return_requests?.[0]?.admin_note || "");
+                            setCustomRefundAmount(order.return_requests?.[0]?.refund_amount || "");
+                            setRefundTrxInput("");
+                            setReturnActionError("");
+                            setReturnActionSuccess("");
+                          }}
+                          className="px-2.5 py-1 bg-accent text-white rounded-lg font-bold text-[10px] uppercase tracking-wider cursor-pointer"
+                        >
+                          {isBn ? "রিভিউ" : "Review"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* 2. DESKTOP-ONLY FULL TABLE: Preserved 100% identically on md:block */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-foreground/10 text-[10px] font-black uppercase tracking-wider opacity-60">
                 <th className="py-3 px-2">{isBn ? "অর্ডার আইডি" : "Order ID"}</th>
@@ -772,6 +904,7 @@ export default function OrdersTab({
               })}
             </tbody>
           </table>
+        </div>
 
           {/* Pagination Controls (50 Orders Per Page) */}
           {totalOrdersPages > 1 && (

@@ -448,6 +448,32 @@ export default function StoreSettingsTab({
 
   return (
     <div className="space-y-6">
+      {/* Mobile-Only Horizontal Subtab Pill Navigation */}
+      <div className="flex md:hidden items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
+        <button
+          type="button"
+          onClick={() => handleSubTabChange("homepage")}
+          className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
+            activeSubTab === "homepage"
+              ? "bg-accent text-white shadow-xs font-black"
+              : "bg-secondary text-foreground/70 hover:bg-foreground/5 border border-foreground/10"
+          }`}
+        >
+          {isBn ? "হোমপেজ ও ব্যানার" : "Homepage & Banners"}
+        </button>
+        <button
+          type="button"
+          onClick={() => handleSubTabChange("general")}
+          className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
+            activeSubTab === "general"
+              ? "bg-accent text-white shadow-xs font-black"
+              : "bg-secondary text-foreground/70 hover:bg-foreground/5 border border-foreground/10"
+          }`}
+        >
+          {isBn ? "সাধারণ সেটিংস" : "General Settings"}
+        </button>
+      </div>
+
       {/* SubTab Content */}
       {activeSubTab === "homepage" ? (
         <HomepageSettingsSubTab

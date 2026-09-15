@@ -9,46 +9,59 @@ export async function POST(req: NextRequest) {
     }
 
     const trimmed = text.trim();
+    const apiKey =
+      process.env.GEMINI_API_KEY ||
+      "";
 
-    // Strategy 1: Google Translate public API
-    try {
-      const googleUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(
-        sl
-      )}&tl=${encodeURIComponent(tl)}&dt=t&q=${encodeURIComponent(trimmed)}`;
+    // Strategy 1: Google Gemini AI (State of the Art Translation)
+    if (apiKey) {
+      try {
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+        const prompt = `Translate the following English text into natural, fluent, and elegant Bengali (Bangla) suitable for an e-commerce website.
+Return ONLY the direct Bengali translation without quotation marks, bullet points, explanations, or notes.
 
-      const googleRes = await fetch(googleUrl, {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        },
-        next: { revalidate: 3600 },
-      });
+Text: "${trimmed}"`;
 
-      if (googleRes.ok) {
-        const textResp = await googleRes.text();
-        if (!textResp.includes("<!DOCTYPE") && !textResp.includes("<html")) {
-          const data = JSON.parse(textResp);
-          if (Array.isArray(data?.[0])) {
-            const translated = data[0]
-              .map((segment: any) =>
-                Array.isArray(segment) ? segment[0] || "" : "",
-              )
-              .join("");
-            if (translated && translated.trim()) {
-              return NextResponse.json({ translatedText: translated.trim() });
+        const geminiRes = await fetch(geminiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [{ text: prompt }],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.1,
+            },
+          }),
+        });
+
+        if (geminiRes.ok) {
+          const data = await geminiRes.json();
+          const translated = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (translated && typeof translated === "string" && translated.trim()) {
+            const cleaned = translated
+              .trim()
+              .replace(/^["'“”‘]+|["'“”’]+$/g, "")
+              .trim();
+
+            if (cleaned) {
+              return NextResponse.json({ translatedText: cleaned });
             }
           }
         }
+      } catch (geminiErr) {
+        console.error("Gemini AI Translation error:", geminiErr);
       }
-    } catch {
-      // Continue to fallback
     }
 
     // Strategy 2: High-reliability translation fallback (MyMemory API)
     try {
+      const memoryTl = tl === "bn" ? "bn-BD" : tl;
       const myMemoryUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
-        trimmed,
-      )}&langpair=${encodeURIComponent(sl)}|${encodeURIComponent(tl)}`;
+        trimmed
+      )}&langpair=${encodeURIComponent(sl)}|${encodeURIComponent(memoryTl)}`;
 
       const mmRes = await fetch(myMemoryUrl, {
         headers: {
@@ -60,7 +73,6 @@ export async function POST(req: NextRequest) {
         const mmData = await mmRes.json();
         const translated = mmData?.responseData?.translatedText;
         if (translated && typeof translated === "string" && translated.trim()) {
-          // Clean up any html entity escapes e.g. &#39;
           const cleaned = translated
             .replace(/&#39;/g, "'")
             .replace(/&quot;/g, '"')
@@ -80,7 +92,7 @@ export async function POST(req: NextRequest) {
     console.error("Translation API Route error:", error);
     return NextResponse.json(
       { error: error?.message || "Failed to translate text." },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

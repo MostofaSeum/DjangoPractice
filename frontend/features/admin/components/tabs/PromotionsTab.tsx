@@ -1141,7 +1141,7 @@ export default function PromotionsTab({
               }
 
               return (
-                <div className="space-y-4 max-h-[580px] overflow-y-auto pr-1">
+                <div className="space-y-4 max-h-[640px] overflow-y-auto pr-1 custom-scrollbar">
                   {filtered.map((rule) => {
                     const isFree = rule.rule_type === "free";
                     const isBeingEdited = editingDeliveryRuleId === rule.id;

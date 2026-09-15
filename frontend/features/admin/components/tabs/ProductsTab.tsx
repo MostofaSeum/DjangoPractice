@@ -174,7 +174,7 @@ export default function ProductsTab({
   adminDataVersion,
   onSubTabSwitch,
 }: ProductsTabProps) {
-  const { locale, formatCurrency } = useLanguage();
+  const { locale, formatCurrency, t } = useLanguage();
   const isBn = locale === "bn";
 
   const [featuredSearch, setFeaturedSearch] = useState("");
@@ -196,6 +196,32 @@ export default function ProductsTab({
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Mobile-Only Horizontal Subtab Pill Navigation */}
+      {onSubTabSwitch && (
+        <div className="flex md:hidden items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
+          {[
+            { id: "all" as ProductSubTab, label: isBn ? "সকল পণ্য" : "All Products" },
+            { id: "add" as ProductSubTab, label: isBn ? "নতুন পণ্য" : "Add New" },
+            { id: "stock-health" as ProductSubTab, label: isBn ? "স্টক এলার্ট" : "Stock Alerts" },
+            { id: "reviews" as ProductSubTab, label: isBn ? "রিভিউ" : "Reviews" },
+            { id: "sheets-sync" as ProductSubTab, label: isBn ? "শিট সিঙ্ক" : "Sheets Sync" },
+          ].map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onSubTabSwitch(item.id)}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
+                productSubTab === item.id
+                  ? "bg-accent text-white shadow-xs font-black"
+                  : "bg-secondary text-foreground/70 hover:bg-foreground/5 border border-foreground/10"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* SUBTAB 4: Stock Health Alerts */}
       {productSubTab === "stock-health" && (
         <StockHealthTab

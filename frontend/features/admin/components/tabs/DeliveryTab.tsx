@@ -209,7 +209,7 @@ export default function DeliveryTab({
   return (
     <div className="bg-secondary text-foreground p-6 sm:p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300 space-y-8">
       {/* Header & Sub-Tab Switcher */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-6 border-b border-foreground/10">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-6 pb-6 border-b border-foreground/10">
         <div>
           <div className="flex items-center gap-3 mb-1">
             <div>
@@ -221,6 +221,27 @@ export default function DeliveryTab({
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Mobile-Only Horizontal Subtab Pill Navigation */}
+        <div className="flex md:hidden items-center gap-2 overflow-x-auto w-full pb-1 custom-scrollbar">
+          {[
+            { id: "rates" as DeliverySubTab, label: isBn ? "চার্জ ও সময়সীমা" : "Rates & Timeframes" },
+            { id: "couriers" as DeliverySubTab, label: isBn ? "কুরিয়ার ও এপিআই" : "Couriers & APIs" },
+          ].map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setDeliverySubTab(item.id)}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
+                deliverySubTab === item.id
+                  ? "bg-accent text-white shadow-xs font-black"
+                  : "bg-primary/5 dark:bg-primary/20 text-foreground/70 hover:bg-foreground/5 border border-foreground/10"
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
         </div>
       </div>
 
