@@ -7,6 +7,8 @@ import { WishlistProvider } from "@/store/WishlistContext";
 import Header from "@/components/ui/Header";
 import Footer from "@/components/ui/Footer";
 import FloatingChatWidget from "@/components/ui/FloatingChatWidget";
+import MetaPixel from "@/components/analytics/MetaPixel";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -83,6 +85,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col transition-colors duration-300">
+        <Suspense fallback={null}>
+          <MetaPixel />
+        </Suspense>
         <LanguageProvider>
           <ThemeProvider>
             <AuthProvider>

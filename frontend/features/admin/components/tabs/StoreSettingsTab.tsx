@@ -36,6 +36,7 @@ interface SiteSettingsState {
   instagramUrl: string;
   youtubeUrl: string;
   whatsappNumber: string;
+  metaPixelId: string;
 }
 
 const DEFAULT_SETTINGS: SiteSettingsState = {
@@ -59,6 +60,7 @@ const DEFAULT_SETTINGS: SiteSettingsState = {
   instagramUrl: "https://instagram.com",
   youtubeUrl: "https://youtube.com",
   whatsappNumber: "+8801700000000",
+  metaPixelId: "",
 };
 
 const AVAILABLE_CURRENCIES = [
@@ -134,6 +136,7 @@ export default function StoreSettingsTab({
   const [instagramUrl, setInstagramUrl] = useState(DEFAULT_SETTINGS.instagramUrl);
   const [youtubeUrl, setYoutubeUrl] = useState(DEFAULT_SETTINGS.youtubeUrl);
   const [whatsappNumber, setWhatsappNumber] = useState(DEFAULT_SETTINGS.whatsappNumber);
+  const [metaPixelId, setMetaPixelId] = useState(DEFAULT_SETTINGS.metaPixelId);
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -171,6 +174,7 @@ export default function StoreSettingsTab({
           instagramUrl: data.instagram_url !== undefined && data.instagram_url !== null ? data.instagram_url : "",
           youtubeUrl: data.youtube_url !== undefined && data.youtube_url !== null ? data.youtube_url : "",
           whatsappNumber: data.whatsapp_number !== undefined && data.whatsapp_number !== null ? data.whatsapp_number : "",
+          metaPixelId: data.meta_pixel_id !== undefined && data.meta_pixel_id !== null ? data.meta_pixel_id : "",
         };
 
         setInitialSettings(loaded);
@@ -193,6 +197,7 @@ export default function StoreSettingsTab({
         setInstagramUrl(loaded.instagramUrl);
         setYoutubeUrl(loaded.youtubeUrl);
         setWhatsappNumber(loaded.whatsappNumber);
+        setMetaPixelId(loaded.metaPixelId);
 
         if (data.logo) {
           setInitialLogoUrl(data.logo);
@@ -233,6 +238,7 @@ export default function StoreSettingsTab({
     if (instagramUrl !== initialSettings.instagramUrl) return true;
     if (youtubeUrl !== initialSettings.youtubeUrl) return true;
     if (whatsappNumber !== initialSettings.whatsappNumber) return true;
+    if (metaPixelId !== initialSettings.metaPixelId) return true;
     return false;
   }, [
     logoFile,
@@ -356,6 +362,7 @@ export default function StoreSettingsTab({
       formData.append("instagram_url", instagramUrl);
       formData.append("youtube_url", youtubeUrl);
       formData.append("whatsapp_number", whatsappNumber);
+      formData.append("meta_pixel_id", metaPixelId);
 
       if (logoFile) {
         formData.append("logo", logoFile);
@@ -393,6 +400,7 @@ export default function StoreSettingsTab({
           instagramUrl,
           youtubeUrl,
           whatsappNumber,
+          metaPixelId,
         };
         setInitialSettings(updated);
         setInitialLogoUrl(data.logo || null);
@@ -1004,6 +1012,41 @@ export default function StoreSettingsTab({
                   placeholder="+8801700000000"
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Meta (Facebook) Pixel Settings */}
+          <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm space-y-5">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-accent" />
+              <h2 className="text-base font-black uppercase tracking-tight text-foreground">
+                {isBn ? "মেটা (ফেসবুক) পিক্সেল ট্র্যাকিং" : "Meta (Facebook) Pixel Tracking"}
+              </h2>
+            </div>
+            <p className="text-xs opacity-70">
+              {isBn
+                ? "ফেসবুক ও ইনস্টাগ্রাম বিজ্ঞাপনের জন্য আপনার মেটা পিক্সেল আইডি এখানে দিন (যেমন: 123456789012345)। এটি স্বয়ংক্রিয়ভাবে পেজ ভিউ, ভিউ কন্টেন্ট, অ্যাড টু কার্ট এবং পারচেজ ট্র্যাক করবে।"
+                : "Enter your Meta (Facebook) Pixel ID (e.g. 123456789012345) to enable conversion tracking, PageView, ViewContent, AddToCart, and Purchase events across your storefront."}
+            </p>
+
+            <div className="max-w-md space-y-1.5">
+              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                <span>{isBn ? "মেটা পিক্সেল আইডি" : "Meta Pixel ID"}</span>
+                {renderCharCounter(metaPixelId.length, 50)}
+              </label>
+              <input
+                type="text"
+                maxLength={50}
+                value={metaPixelId}
+                onChange={(e) => setMetaPixelId(e.target.value.trim().slice(0, 50))}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-mono font-medium border border-foreground/15 focus:outline-none focus:border-accent"
+                placeholder="e.g. 123456789012345"
+              />
+              <p className="text-[10px] opacity-60">
+                {isBn
+                  ? "খালি রাখলে পিক্সেল ট্র্যাকিং নিষ্ক্রিয় থাকবে।"
+                  : "Leave blank to disable Pixel tracking on the storefront."}
+              </p>
             </div>
           </div>
 

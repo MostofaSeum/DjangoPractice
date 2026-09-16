@@ -621,6 +621,7 @@ class SiteSetting(models.Model):
     instagram_url = models.URLField(max_length=500, default='https://instagram.com', blank=True)
     youtube_url = models.URLField(max_length=500, default='https://youtube.com', blank=True)
     whatsapp_number = models.CharField(max_length=50, default='+8801700000000', blank=True)
+    meta_pixel_id = models.CharField(max_length=50, blank=True, default='', help_text="Meta (Facebook) Pixel ID")
     footer_copyright = models.CharField(
         max_length=255,
         default='© 2026 VIBEMART. ALL RIGHTS RESERVED.',

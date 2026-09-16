@@ -7,7 +7,9 @@ import AddToCartButton from "@/features/products/components/AddToCartButton";
 import ProductImage from "@/components/ui/ProductImage";
 import ProductRatingHeader from "./ProductRatingHeader";
 import ProductInteractive from "./ProductInteractive";
+import { useEffect } from "react";
 import { useLanguage } from "@/store/LanguageContext";
+import { trackPixelEvent } from "@/services/metaPixel";
 
 interface Product {
   id: number;
@@ -40,7 +42,21 @@ export default function ProductDetailClient({
   collectionTitle,
   relatedProducts,
 }: ProductDetailClientProps) {
-  const { t, formatCurrency, locale } = useLanguage();
+  const { t, formatCurrency, locale, currency } = useLanguage();
+
+  // Track Meta Pixel ViewContent event
+  useEffect(() => {
+    if (product) {
+      const price = product.discounted_price || product.unit_price;
+      trackPixelEvent("ViewContent", {
+        content_name: product.title,
+        content_ids: [String(product.id)],
+        content_type: "product",
+        value: Number(price) || 0,
+        currency: currency || "BDT",
+      });
+    }
+  }, [product?.id, currency]);
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans antialiased pb-8 transition-colors duration-300">

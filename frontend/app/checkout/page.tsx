@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 import BkashPaymentUI from "@/components/BkashPaymentUI";
 import NagadPaymentUI from "@/components/NagadPaymentUI";
 import { Address } from "@/types/product";
+import { trackPixelEvent } from "@/services/metaPixel";
 
 const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
@@ -193,6 +194,18 @@ export default function CheckoutPage() {
 
     initializeCheckout();
   }, [user, token, authLoading, router]);
+
+  // Track Meta Pixel InitiateCheckout
+  useEffect(() => {
+    if (cart && cart.items.length > 0) {
+      trackPixelEvent("InitiateCheckout", {
+        num_items: cart.items.length,
+        content_ids: cart.items.map((i) => String(i.product.id)),
+        value: Number(cart.total_price) || 0,
+        currency: "BDT",
+      });
+    }
+  }, [cart?.id]);
 
   // Automatically remove coupon if no eligible items remain in cart
   useEffect(() => {
@@ -577,6 +590,20 @@ export default function CheckoutPage() {
 
       if (res.ok) {
         const orderData = await res.json();
+
+        // Track Meta Pixel Purchase event
+        try {
+          trackPixelEvent("Purchase", {
+            value: Number(finalTotal) || 0,
+            currency: "BDT",
+            content_ids: cart?.items.map((it) => String(it.product.id)) || [],
+            content_type: "product",
+            num_items: cart?.items.length || 1,
+            order_id: String(orderData.id),
+          });
+        } catch {
+          // Non-critical
+        }
 
         // Reset local cart storage & coupon storage
         localStorage.removeItem("cart_id");

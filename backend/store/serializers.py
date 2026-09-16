@@ -1042,6 +1042,7 @@ class SiteSettingSerializer(serializers.ModelSerializer):
     instagram_url = serializers.URLField(max_length=255, required=False, allow_blank=True)
     youtube_url = serializers.URLField(max_length=255, required=False, allow_blank=True)
     whatsapp_number = serializers.CharField(max_length=50, required=False, allow_blank=True)
+    meta_pixel_id = serializers.CharField(max_length=50, required=False, allow_blank=True)
     footer_copyright = serializers.CharField(max_length=100, required=False, allow_blank=True)
     footer_copyright_bn = serializers.CharField(max_length=120, required=False, allow_blank=True)
 
@@ -1066,6 +1067,7 @@ class SiteSettingSerializer(serializers.ModelSerializer):
             'instagram_url',
             'youtube_url',
             'whatsapp_number',
+            'meta_pixel_id',
             'footer_copyright',
             'footer_copyright_bn',
             'currency_code',

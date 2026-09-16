@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useAuth } from "./AuthContext";
 import { siteConfig } from "@/config/siteConfig";
+import { trackPixelEvent } from "@/services/metaPixel";
 
 export interface CartVariant {
   id: number;
@@ -196,6 +197,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const updatedCart = await res.json();
         setCart(updatedCart);
+
+        // Track Meta Pixel AddToCart
+        try {
+          const addedItem = updatedCart.items?.find((it: any) => it.product?.id === productId);
+          if (addedItem) {
+            const price = addedItem.variant
+              ? Number(addedItem.variant.discounted_price || addedItem.variant.effective_price || addedItem.product.discounted_price || addedItem.product.unit_price)
+              : Number(addedItem.product.discounted_price || addedItem.product.unit_price);
+            trackPixelEvent("AddToCart", {
+              content_name: addedItem.product.title,
+              content_ids: [String(productId)],
+              content_type: "product",
+              value: (price || 0) * quantity,
+              currency: "BDT",
+            });
+          }
+        } catch {
+          // Non-critical
+        }
       }
     } catch (err) {
       console.error("Add to cart error:", err);
