@@ -6,6 +6,7 @@ import { AuthProvider } from "@/store/AuthContext";
 import { WishlistProvider } from "@/store/WishlistContext";
 import Header from "@/components/ui/Header";
 import Footer from "@/components/ui/Footer";
+import FloatingChatWidget from "@/components/ui/FloatingChatWidget";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -90,6 +91,7 @@ export default function RootLayout({
                   <Header />
                   <div className="flex-1">{children}</div>
                   <Footer />
+                  <FloatingChatWidget />
                 </WishlistProvider>
               </CartProvider>
             </AuthProvider>
