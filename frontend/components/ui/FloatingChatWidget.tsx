@@ -70,13 +70,43 @@ export default function FloatingChatWidget() {
   // Ensure country code 880 if BD number starts with 01
   const formattedWhatsApp = cleanPhone.startsWith("01") ? `88${cleanPhone}` : cleanPhone;
 
-  // Extract Facebook page username or fallback
+  // Build smart context message
+  const getContextMessage = () => {
+    let defaultMsg = isBn
+      ? `হ্যালো ${storeName}, আমি আপনাদের শপ ও প্রোডাক্ট সম্পর্কে জানতে আগ্রহী!`
+      : `Hi ${storeName}, I have an inquiry about your products!`;
+
+    if (typeof window !== "undefined") {
+      const siteBase = process.env.NEXT_PUBLIC_SITE_URL
+        ? process.env.NEXT_PUBLIC_SITE_URL.replace(/\/+$/, "")
+        : window.location.origin;
+
+      const productUrl = `${siteBase}${pathname}`;
+
+      const cleanTitle = (document.title || "")
+        .split("|")[0]
+        .replace(new RegExp(storeName, "gi"), "")
+        .trim() || document.title || "Product";
+
+      if (pathname.includes("/products/")) {
+        defaultMsg = isBn
+          ? `হ্যালো ${storeName}! আমি এই পণ্যটি সম্পর্কে জানতে চাই:\n${cleanTitle}\nলিঙ্ক: ${productUrl}`
+          : `Hello ${storeName}! I am inquiring about this item:\n${cleanTitle}\nLink: ${productUrl}`;
+      }
+    }
+
+    return defaultMsg;
+  };
+
+  // Extract Facebook page username or fallback with pre-filled message
   const getMessengerUrl = () => {
+    const msg = encodeURIComponent(getContextMessage());
     if (!facebookUrl) {
-      return "https://m.me/brainicontech";
+      return `https://m.me/brainicontech?text=${msg}`;
     }
     if (facebookUrl.includes("m.me/")) {
-      return facebookUrl;
+      const base = facebookUrl.split("?")[0].replace(/\/+$/, "");
+      return `${base}?text=${msg}`;
     }
     const cleaned = facebookUrl
       .replace(/^https?:\/\/(www\.)?facebook\.com\//i, "")
@@ -84,26 +114,13 @@ export default function FloatingChatWidget() {
       .split("?")[0]
       .split("/")[0];
 
-    return cleaned ? `https://m.me/${cleaned}` : "https://m.me/brainicontech";
+    return cleaned ? `https://m.me/${cleaned}?text=${msg}` : `https://m.me/brainicontech?text=${msg}`;
   };
 
-  // Build smart context message
+  // Build smart context message for WhatsApp
   const getWhatsAppUrl = () => {
-    let defaultMsg = isBn
-      ? `হ্যালো ${storeName}, আমি আপনাদের শপ ও প্রোডাক্ট সম্পর্কে জানতে আগ্রহী!`
-      : `Hi ${storeName}, I have an inquiry about your products!`;
-
-    if (typeof window !== "undefined") {
-      const currentUrl = window.location.href;
-      const pageTitle = document.title || "";
-      if (pathname.includes("/products/")) {
-        defaultMsg = isBn
-          ? `হ্যালো ${storeName}! আমি এই পণ্যটি সম্পর্কে জানতে চাই:\n${pageTitle}\nলিঙ্ক: ${currentUrl}`
-          : `Hello ${storeName}! I am inquiring about this item:\n${pageTitle}\nLink: ${currentUrl}`;
-      }
-    }
-
-    return `https://wa.me/${formattedWhatsApp}?text=${encodeURIComponent(defaultMsg)}`;
+    const msg = encodeURIComponent(getContextMessage());
+    return `https://wa.me/${formattedWhatsApp}?text=${msg}`;
   };
 
   return (
