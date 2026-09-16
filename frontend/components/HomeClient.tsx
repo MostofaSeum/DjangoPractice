@@ -612,14 +612,14 @@ export default function HomeClient({
 
       <main className="pb-12">
         {/* Featured Categories */}
-        <section className="max-w-[1400px] mx-auto px-8 md:px-12 mt-16 md:mt-20">
-          <div className="flex justify-between items-end mb-6 md:mb-8">
-            <h2 className="text-3xl font-black uppercase tracking-tighter">
+        <section className="max-w-[1400px] mx-auto px-4 sm:px-8 md:px-12 mt-12 md:mt-20">
+          <div className="flex justify-between items-center mb-6 md:mb-8 gap-4">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight sm:tracking-tighter leading-tight">
               {t("categories.featuredTitle")}
             </h2>
             <Link
               href="/collections"
-              className="px-4 py-2 bg-primary/5 text-foreground border border-foreground/15 hover:bg-primary hover:text-secondary rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-sm inline-flex items-center gap-1"
+              className="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 bg-primary/5 text-foreground border border-foreground/15 hover:bg-primary hover:text-secondary rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-widest transition-all shadow-sm inline-flex items-center gap-1"
             >
               {t("categories.viewAll")}
             </Link>
@@ -718,14 +718,14 @@ export default function HomeClient({
         </section>
 
         {/* Trending Now */}
-        <section className="max-w-[1400px] mx-auto px-8 md:px-12 mt-16 md:mt-20">
-          <div className="flex justify-between items-end mb-6 md:mb-8">
-            <h2 className="text-3xl font-black uppercase tracking-tighter">
+        <section className="max-w-[1400px] mx-auto px-4 sm:px-8 md:px-12 mt-12 md:mt-20">
+          <div className="flex justify-between items-center mb-6 md:mb-8 gap-4">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight sm:tracking-tighter leading-tight">
               {t("trending.title")}
             </h2>
             <Link
               href="/products"
-              className="px-4 py-2 bg-primary/5 text-foreground border border-foreground/15 hover:bg-primary hover:text-secondary rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all shadow-sm inline-flex items-center gap-1"
+              className="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 bg-primary/5 text-foreground border border-foreground/15 hover:bg-primary hover:text-secondary rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-widest transition-all shadow-sm inline-flex items-center gap-1"
             >
               {t("trending.viewAll")}
             </Link>

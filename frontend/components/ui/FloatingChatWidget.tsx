@@ -98,23 +98,27 @@ export default function FloatingChatWidget() {
     return defaultMsg;
   };
 
-  // Extract Facebook page username or fallback with pre-filled message
+  // Extract Facebook page username or fallback
   const getMessengerUrl = () => {
-    const msg = encodeURIComponent(getContextMessage());
+    // If empty, fallback to brainicontech
     if (!facebookUrl) {
-      return `https://m.me/brainicontech?text=${msg}`;
+      return "https://m.me/brainicontech";
     }
+    // If it's already an m.me link
     if (facebookUrl.includes("m.me/")) {
-      const base = facebookUrl.split("?")[0].replace(/\/+$/, "");
-      return `${base}?text=${msg}`;
+      return facebookUrl.split("?")[0].replace(/\/+$/, "");
     }
+    // Extract page name or ID from facebook.com URL
     const cleaned = facebookUrl
       .replace(/^https?:\/\/(www\.)?facebook\.com\//i, "")
       .replace(/\/+$/, "")
       .split("?")[0]
       .split("/")[0];
 
-    return cleaned ? `https://m.me/${cleaned}?text=${msg}` : `https://m.me/brainicontech?text=${msg}`;
+    // If page is just "facebook.com" or empty, fallback
+    return cleaned && cleaned.toLowerCase() !== "facebook" && cleaned.toLowerCase() !== "www"
+      ? `https://m.me/${cleaned}`
+      : "https://m.me/brainicontech";
   };
 
   // Build smart context message for WhatsApp
@@ -126,30 +130,30 @@ export default function FloatingChatWidget() {
   return (
     <div
       ref={widgetRef}
-      className="fixed bottom-6 right-6 z-50 flex flex-col items-end print:hidden select-none"
+      className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end print:hidden select-none"
     >
       {/* Expanded Chat Options Popup */}
       {isOpen && (
-        <div className="mb-3 w-72 sm:w-80 rounded-2xl bg-secondary/95 backdrop-blur-md border border-foreground/15 shadow-2xl p-4 text-foreground animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="mb-2 sm:mb-3 w-[calc(100vw-2rem)] sm:w-80 max-w-[320px] rounded-2xl bg-secondary/95 backdrop-blur-md border border-foreground/15 shadow-2xl p-3 sm:p-4 text-foreground animate-in fade-in slide-in-from-bottom-3 duration-200">
           {/* Header */}
-          <div className="flex items-center justify-between pb-3 border-b border-foreground/10">
-            <div className="flex items-center gap-2.5">
-              <div className="relative flex h-3 w-3">
+          <div className="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-foreground/10">
+            <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+              <div className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3 flex-shrink-0">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-visible opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-visible"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-visible"></span>
               </div>
-              <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
+              <div className="min-w-0">
+                <h4 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-foreground truncate">
                   {isBn ? "সরাসরি যোগাযোগ করুন" : "Live Chat Support"}
                 </h4>
-                <p className="text-[11px] opacity-70">
+                <p className="text-[10px] sm:text-[11px] opacity-70 truncate">
                   {isBn ? "আমরা সাধারণত সাথে সাথেই উত্তর দেই" : "We usually reply within minutes"}
                 </p>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1 rounded-lg opacity-60 hover:opacity-100 hover:bg-foreground/10 text-foreground transition-colors flex items-center justify-center"
+              className="p-1.5 rounded-lg opacity-60 hover:opacity-100 hover:bg-foreground/10 text-foreground transition-colors flex items-center justify-center flex-shrink-0 ml-1"
               aria-label="Close Chat"
             >
               <Image
@@ -157,21 +161,21 @@ export default function FloatingChatWidget() {
                 alt="Close"
                 width={14}
                 height={14}
-                className="w-3.5 h-3.5 object-contain dark:invert"
+                className="w-3 h-3 sm:w-3.5 sm:h-3.5 object-contain dark:invert"
               />
             </button>
           </div>
 
           {/* Chat Options */}
-          <div className="mt-3 space-y-2.5">
+          <div className="mt-2.5 sm:mt-3 space-y-2 sm:space-y-2.5">
             {/* WhatsApp Option */}
             <a
               href={getWhatsAppUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-xl bg-background hover:bg-accent/10 border border-foreground/10 hover:border-accent/40 text-foreground transition-all duration-200 group"
+              className="flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl bg-background hover:bg-accent/10 border border-foreground/10 hover:border-accent/40 text-foreground transition-all duration-200 group active:scale-[0.98]"
             >
-              <div className="w-10 h-10 rounded-full bg-secondary border border-foreground/15 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-2">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-secondary border border-foreground/15 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-2">
                 <Image
                   src="/whatsapp.png"
                   alt="WhatsApp"
@@ -181,13 +185,13 @@ export default function FloatingChatWidget() {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-foreground">WhatsApp</span>
-                  <span className="text-[10px] uppercase font-semibold tracking-wider text-visible bg-visible/10 px-1.5 py-0.5 rounded">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-xs sm:text-sm font-bold text-foreground truncate">WhatsApp</span>
+                  <span className="text-[9px] sm:text-[10px] uppercase font-semibold tracking-wider text-visible bg-visible/10 px-1.5 py-0.5 rounded flex-shrink-0">
                     {isBn ? "অনলাইন" : "Online"}
                   </span>
                 </div>
-                <p className="text-[11px] opacity-75 truncate">
+                <p className="text-[10px] sm:text-[11px] opacity-75 truncate">
                   {isBn ? "হোয়াটসঅ্যাপে দ্রুত মেসেজ দিন" : "Chat with us on WhatsApp"}
                 </p>
               </div>
@@ -198,9 +202,9 @@ export default function FloatingChatWidget() {
               href={getMessengerUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-xl bg-background hover:bg-accent/10 border border-foreground/10 hover:border-accent/40 text-foreground transition-all duration-200 group"
+              className="flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl bg-background hover:bg-accent/10 border border-foreground/10 hover:border-accent/40 text-foreground transition-all duration-200 group active:scale-[0.98]"
             >
-              <div className="w-10 h-10 rounded-full bg-secondary border border-foreground/15 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-2">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-secondary border border-foreground/15 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-2">
                 <Image
                   src="/messenger.png"
                   alt="Messenger"
@@ -210,21 +214,21 @@ export default function FloatingChatWidget() {
                 />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-foreground">Messenger</span>
-                  <span className="text-[10px] uppercase font-semibold tracking-wider text-accent bg-accent/10 px-1.5 py-0.5 rounded">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-xs sm:text-sm font-bold text-foreground truncate">Messenger</span>
+                  <span className="text-[9px] sm:text-[10px] uppercase font-semibold tracking-wider text-accent bg-accent/10 px-1.5 py-0.5 rounded flex-shrink-0">
                     Facebook
                   </span>
                 </div>
-                <p className="text-[11px] opacity-75 truncate">
+                <p className="text-[10px] sm:text-[11px] opacity-75 truncate">
                   {isBn ? "ফেসবুক মেসেঞ্জারে চ্যাট করুন" : "Chat on Facebook Messenger"}
                 </p>
               </div>
             </a>
           </div>
 
-          <div className="mt-3 pt-2 text-center border-t border-foreground/10">
-            <span className="text-[10px] opacity-60 tracking-wider">
+          <div className="mt-2.5 sm:mt-3 pt-2 text-center border-t border-foreground/10">
+            <span className="text-[9px] sm:text-[10px] opacity-60 tracking-wider">
               Powered by {storeName}
             </span>
           </div>
@@ -234,7 +238,7 @@ export default function FloatingChatWidget() {
       {/* Main Floating Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative flex items-center justify-center w-14 h-14 rounded-full bg-accent text-button-fg shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-accent/30 group"
+        className="relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-accent text-button-fg shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-accent/30 group"
         aria-label="Open Chat Widget"
       >
         {/* Glow / Pulse ring */}
@@ -247,7 +251,7 @@ export default function FloatingChatWidget() {
             alt="Close"
             width={20}
             height={20}
-            className="w-5 h-5 object-contain brightness-0 invert"
+            className="w-4 h-4 sm:w-5 sm:h-5 object-contain brightness-0 invert"
           />
         ) : (
           <div className="relative flex items-center justify-center">
@@ -257,12 +261,12 @@ export default function FloatingChatWidget() {
               alt="Chat"
               width={30}
               height={30}
-              className="w-7 h-7 object-contain brightness-0 invert"
+              className="w-6 h-6 sm:w-7 sm:h-7 object-contain brightness-0 invert"
             />
             {/* Online badge */}
-            <span className="absolute -top-1.5 -right-1.5 flex h-3 w-3">
+            <span className="absolute -top-1 -right-1 sm:-top-1.5 sm:-right-1.5 flex h-2.5 w-2.5 sm:h-3 sm:w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-visible opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-visible border-2 border-secondary"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-visible border-2 border-secondary"></span>
             </span>
           </div>
         )}
