@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useLanguage } from "@/store/LanguageContext";
 import { siteConfig } from "@/config/siteConfig";
@@ -74,11 +75,9 @@ export default function FloatingChatWidget() {
     if (!facebookUrl) {
       return "https://m.me/brainicontech";
     }
-    // Check if it's already an m.me link
     if (facebookUrl.includes("m.me/")) {
       return facebookUrl;
     }
-    // Clean up facebook.com URL to extract page name/id
     const cleaned = facebookUrl
       .replace(/^https?:\/\/(www\.)?facebook\.com\//i, "")
       .replace(/\/+$/, "")
@@ -133,22 +132,16 @@ export default function FloatingChatWidget() {
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1 rounded-lg opacity-60 hover:opacity-100 hover:bg-foreground/10 text-foreground transition-colors"
+              className="p-1 rounded-lg opacity-60 hover:opacity-100 hover:bg-foreground/10 text-foreground transition-colors flex items-center justify-center"
               aria-label="Close Chat"
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2.5"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <Image
+                src="/icons/close-x.png"
+                alt="Close"
+                width={14}
+                height={14}
+                className="w-3.5 h-3.5 object-contain dark:invert"
+              />
             </button>
           </div>
 
@@ -161,13 +154,14 @@ export default function FloatingChatWidget() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-3 rounded-xl bg-background hover:bg-accent/10 border border-foreground/10 hover:border-accent/40 text-foreground transition-all duration-200 group"
             >
-              <div className="w-10 h-10 rounded-full bg-accent text-button-fg flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                <svg
-                  className="w-5 h-5 fill-current"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.598 2.664-.699c.971.53 1.771.815 2.796.815 3.18 0 5.767-2.587 5.768-5.766.001-3.181-2.586-5.767-5.768-5.767zm9.969 5.766c-.003 5.519-4.49 9.998-10 9.998-1.678 0-3.321-.424-4.787-1.229l-5.213 1.368 1.393-5.086c-.886-1.528-1.393-3.289-1.393-5.051 0-5.518 4.491-10 10-10 5.513 0 10 4.482 10 10z" />
-                </svg>
+              <div className="w-10 h-10 rounded-full bg-secondary border border-foreground/10 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-1.5">
+                <Image
+                  src="/whatsapp.png"
+                  alt="WhatsApp"
+                  width={28}
+                  height={28}
+                  className="w-7 h-7 object-contain"
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
@@ -189,13 +183,14 @@ export default function FloatingChatWidget() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-3 rounded-xl bg-background hover:bg-accent/10 border border-foreground/10 hover:border-accent/40 text-foreground transition-all duration-200 group"
             >
-              <div className="w-10 h-10 rounded-full bg-primary text-button-fg flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                <svg
-                  className="w-5 h-5 fill-current"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 2C6.477 2 2 6.145 2 11.259c0 2.913 1.454 5.512 3.727 7.185V22l3.41-1.871c.905.251 1.868.388 2.863.388 5.523 0 10-4.145 10-9.258C22 6.145 17.523 2 12 2zm1.07 12.443l-2.618-2.793-5.109 2.793 5.617-5.964 2.684 2.793 5.043-2.793-5.617 5.964z" />
-                </svg>
+              <div className="w-10 h-10 rounded-full bg-secondary border border-foreground/10 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-1.5">
+                <Image
+                  src="/messenger.png"
+                  alt="Messenger"
+                  width={28}
+                  height={28}
+                  className="w-7 h-7 object-contain"
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
@@ -228,35 +223,27 @@ export default function FloatingChatWidget() {
         {/* Glow / Pulse ring */}
         <span className="absolute -inset-1 rounded-full bg-accent opacity-30 group-hover:opacity-60 animate-pulse pointer-events-none" />
 
-        {/* Dynamic Icon toggling */}
+        {/* Dynamic Icon toggling with Image */}
         {isOpen ? (
-          <svg
-            className="w-6 h-6 transform rotate-0 transition-transform duration-200"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2.5"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <Image
+            src="/icons/close-x.png"
+            alt="Close"
+            width={20}
+            height={20}
+            className="w-5 h-5 object-contain brightness-0 invert"
+          />
         ) : (
           <div className="relative flex items-center justify-center">
-            {/* Chat bubble icon */}
-            <svg
-              className="w-7 h-7 fill-current"
-              viewBox="0 0 24 24"
-            >
-              <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z" />
-              <circle cx="8" cy="10" r="1.2" />
-              <circle cx="12" cy="10" r="1.2" />
-              <circle cx="16" cy="10" r="1.2" />
-            </svg>
+            {/* Chat bubble image */}
+            <Image
+              src="/bubble-chat.png"
+              alt="Chat"
+              width={30}
+              height={30}
+              className="w-7 h-7 object-contain brightness-0 invert"
+            />
             {/* Online badge */}
-            <span className="absolute -top-1 -right-1 flex h-3 w-3">
+            <span className="absolute -top-1.5 -right-1.5 flex h-3 w-3">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-visible opacity-75"></span>
               <span className="relative inline-flex rounded-full h-3 w-3 bg-visible border-2 border-secondary"></span>
             </span>
