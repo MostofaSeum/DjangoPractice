@@ -15,7 +15,6 @@ export default function FloatingChatWidget() {
 
   const [isOpen, setIsOpen] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState("");
-  const [supportPhone, setSupportPhone] = useState("");
   const [facebookUrl, setFacebookUrl] = useState("");
   const [storeName, setStoreName] = useState("VibeMart");
   const widgetRef = useRef<HTMLDivElement>(null);
@@ -32,7 +31,6 @@ export default function FloatingChatWidget() {
           const data = await res.json();
           if (isMounted) {
             if (data.whatsapp_number) setWhatsappNumber(data.whatsapp_number.trim());
-            if (data.support_phone) setSupportPhone(data.support_phone.trim());
             if (data.facebook_url) setFacebookUrl(data.facebook_url.trim());
             if (data.site_title) setStoreName(data.site_title.trim());
           }
@@ -67,22 +65,10 @@ export default function FloatingChatWidget() {
     return null;
   }
 
-  // Use WhatsApp Number first; if default or empty, fallback to Support Phone
-  const rawTargetNumber =
-    whatsappNumber && !whatsappNumber.includes("1700000000") && !whatsappNumber.includes("1700-000000")
-      ? whatsappNumber
-      : supportPhone && !supportPhone.includes("1700000000") && !supportPhone.includes("1700-000000")
-      ? supportPhone
-      : whatsappNumber || supportPhone || "01722785605";
-
-  // Sanitize WhatsApp number (remove +, spaces, dashes, parentheses)
-  const cleanDigits = rawTargetNumber.replace(/[^0-9]/g, "");
-  // If number starts with 01, prepend BD country code 88
-  const formattedWhatsApp = cleanDigits.startsWith("01")
-    ? `88${cleanDigits}`
-    : cleanDigits.startsWith("8801")
-    ? cleanDigits
-    : cleanDigits;
+  // Sanitize WhatsApp number (remove +, spaces, dashes)
+  const cleanPhone = (whatsappNumber || "01722785605").replace(/[^0-9]/g, "");
+  // Ensure country code 880 if BD number starts with 01
+  const formattedWhatsApp = cleanPhone.startsWith("01") ? `88${cleanPhone}` : cleanPhone;
 
   // Extract Facebook page username or fallback
   const getMessengerUrl = () => {
