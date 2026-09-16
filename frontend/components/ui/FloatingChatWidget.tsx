@@ -119,8 +119,8 @@ export default function FloatingChatWidget() {
           <div className="flex items-center justify-between pb-3 border-b border-foreground/10">
             <div className="flex items-center gap-2.5">
               <div className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-visible opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-visible"></span>
               </div>
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
@@ -133,7 +133,7 @@ export default function FloatingChatWidget() {
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1 rounded-lg opacity-60 hover:opacity-100 hover:bg-foreground/10 transition-colors"
+              className="p-1 rounded-lg opacity-60 hover:opacity-100 hover:bg-foreground/10 text-foreground transition-colors"
               aria-label="Close Chat"
             >
               <svg
@@ -159,9 +159,9 @@ export default function FloatingChatWidget() {
               href={getWhatsAppUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 text-foreground transition-all duration-200 group"
+              className="flex items-center gap-3 p-3 rounded-xl bg-background hover:bg-accent/10 border border-foreground/10 hover:border-accent/40 text-foreground transition-all duration-200 group"
             >
-              <div className="w-10 h-10 rounded-full bg-[#25D366] text-white flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-105 transition-transform">
+              <div className="w-10 h-10 rounded-full bg-accent text-button-fg flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
                 <svg
                   className="w-5 h-5 fill-current"
                   viewBox="0 0 24 24"
@@ -172,7 +172,7 @@ export default function FloatingChatWidget() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-foreground">WhatsApp</span>
-                  <span className="text-[10px] uppercase font-semibold tracking-wider text-[#25D366] bg-[#25D366]/15 px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] uppercase font-semibold tracking-wider text-visible bg-visible/10 px-1.5 py-0.5 rounded">
                     {isBn ? "অনলাইন" : "Online"}
                   </span>
                 </div>
@@ -187,9 +187,9 @@ export default function FloatingChatWidget() {
               href={getMessengerUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 p-3 rounded-xl bg-[#0084FF]/10 hover:bg-[#0084FF]/20 border border-[#0084FF]/30 text-foreground transition-all duration-200 group"
+              className="flex items-center gap-3 p-3 rounded-xl bg-background hover:bg-accent/10 border border-foreground/10 hover:border-accent/40 text-foreground transition-all duration-200 group"
             >
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#0084FF] via-[#00C6FF] to-[#A800FF] text-white flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-105 transition-transform">
+              <div className="w-10 h-10 rounded-full bg-primary text-button-fg flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
                 <svg
                   className="w-5 h-5 fill-current"
                   viewBox="0 0 24 24"
@@ -200,7 +200,7 @@ export default function FloatingChatWidget() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-foreground">Messenger</span>
-                  <span className="text-[10px] uppercase font-semibold tracking-wider text-[#0084FF] bg-[#0084FF]/15 px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] uppercase font-semibold tracking-wider text-accent bg-accent/10 px-1.5 py-0.5 rounded">
                     Facebook
                   </span>
                 </div>
@@ -222,7 +222,7 @@ export default function FloatingChatWidget() {
       {/* Main Floating Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative flex items-center justify-center w-14 h-14 rounded-full bg-accent text-white shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-accent/30 group"
+        className="relative flex items-center justify-center w-14 h-14 rounded-full bg-accent text-button-fg shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-accent/30 group"
         aria-label="Open Chat Widget"
       >
         {/* Glow / Pulse ring */}
@@ -257,8 +257,8 @@ export default function FloatingChatWidget() {
             </svg>
             {/* Online badge */}
             <span className="absolute -top-1 -right-1 flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-accent"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-visible opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-visible border-2 border-secondary"></span>
             </span>
           </div>
         )}
