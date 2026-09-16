@@ -137,7 +137,8 @@ export default function FloatingChatWidget() {
   return (
     <div
       ref={widgetRef}
-      className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end print:hidden select-none"
+      className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] right-[calc(1rem+env(safe-area-inset-right,0px))] sm:bottom-6 sm:right-6 z-[9999] flex flex-col items-end print:hidden select-none pointer-events-auto"
+      style={{ zIndex: 9999 }}
     >
       {/* Expanded Chat Options Popup */}
       {isOpen && (
