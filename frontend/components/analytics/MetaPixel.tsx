@@ -49,12 +49,6 @@ export default function MetaPixel() {
   useEffect(() => {
     if (!pixelId) return;
 
-    // Skip the first run because fbq('track', 'PageView') is executed immediately upon script initialization
-    if (isFirstLoad.current) {
-      isFirstLoad.current = false;
-      return;
-    }
-
     trackPageView();
   }, [pathname, searchParams, pixelId]);
 

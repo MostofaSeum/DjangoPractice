@@ -14,6 +14,9 @@ declare global {
 // Track standard PageView
 export const trackPageView = () => {
   if (typeof window !== "undefined" && typeof window.fbq === "function") {
+    if (process.env.NODE_ENV === "development") {
+      console.log("[MetaPixel] Track: PageView");
+    }
     window.fbq("track", "PageView");
   }
 };
@@ -34,6 +37,9 @@ export const trackPixelEvent = (
   data: Record<string, any> = {}
 ) => {
   if (typeof window !== "undefined" && typeof window.fbq === "function") {
+    if (process.env.NODE_ENV === "development") {
+      console.log(`[MetaPixel] Track: ${eventName}`, data);
+    }
     window.fbq("track", eventName, data);
   }
 };
