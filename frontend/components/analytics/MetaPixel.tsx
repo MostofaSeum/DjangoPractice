@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import Script from "next/script";
 import { siteConfig } from "@/config/siteConfig";
@@ -12,17 +12,13 @@ export default function MetaPixel() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [pixelId, setPixelId] = useState<string>("");
-  const isFirstLoad = useRef(true);
 
   // 1. Fetch pixel ID from dynamic Site Settings (fallback to env variable if present)
   useEffect(() => {
     let isMounted = true;
     const fetchPixelSettings = async () => {
-      // Check env variable fallback first
       const envPixel = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim();
-      if (envPixel && isMounted) {
-        setPixelId(envPixel);
-      }
+      let activeId = envPixel || "";
 
       try {
         const res = await fetch(`${API_BASE}/store/site-settings/`, {
@@ -30,12 +26,16 @@ export default function MetaPixel() {
         });
         if (res.ok) {
           const data = await res.json();
-          if (isMounted && data.meta_pixel_id) {
-            setPixelId(String(data.meta_pixel_id).trim());
+          if (data.meta_pixel_id) {
+            activeId = String(data.meta_pixel_id).trim();
           }
         }
       } catch (err) {
         console.error("Failed to load Meta Pixel settings:", err);
+      }
+
+      if (isMounted && activeId) {
+        setPixelId(activeId);
       }
     };
 
@@ -48,11 +48,9 @@ export default function MetaPixel() {
   // 2. Track PageView on route changes (SPA navigation)
   useEffect(() => {
     if (!pixelId) return;
-
     trackPageView();
   }, [pathname, searchParams, pixelId]);
 
-  // Don't inject script if no pixel ID is configured
   if (!pixelId) return null;
 
   return (

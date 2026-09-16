@@ -13,11 +13,24 @@ declare global {
 
 // Track standard PageView
 export const trackPageView = () => {
-  if (typeof window !== "undefined" && typeof window.fbq === "function") {
-    if (process.env.NODE_ENV === "development") {
-      console.log("[MetaPixel] Track: PageView");
-    }
+  if (typeof window === "undefined") return;
+
+  if (process.env.NODE_ENV === "development") {
+    console.log("[MetaPixel] Track: PageView");
+  }
+
+  if (typeof window.fbq === "function") {
     window.fbq("track", "PageView");
+  } else {
+    // If fbq is not yet ready, queue it on _fbq or retry
+    window._fbq = window._fbq || window.fbq;
+    const interval = setInterval(() => {
+      if (typeof window.fbq === "function") {
+        clearInterval(interval);
+        window.fbq("track", "PageView");
+      }
+    }, 200);
+    setTimeout(() => clearInterval(interval), 5000);
   }
 };
 
@@ -36,11 +49,23 @@ export const trackPixelEvent = (
     | string,
   data: Record<string, any> = {}
 ) => {
-  if (typeof window !== "undefined" && typeof window.fbq === "function") {
-    if (process.env.NODE_ENV === "development") {
-      console.log(`[MetaPixel] Track: ${eventName}`, data);
-    }
+  if (typeof window === "undefined") return;
+
+  if (process.env.NODE_ENV === "development") {
+    console.log(`[MetaPixel] Track: ${eventName}`, data);
+  }
+
+  if (typeof window.fbq === "function") {
     window.fbq("track", eventName, data);
+  } else {
+    // Queue if script is still initializing
+    const interval = setInterval(() => {
+      if (typeof window.fbq === "function") {
+        clearInterval(interval);
+        window.fbq("track", eventName, data);
+      }
+    }, 200);
+    setTimeout(() => clearInterval(interval), 5000);
   }
 };
 

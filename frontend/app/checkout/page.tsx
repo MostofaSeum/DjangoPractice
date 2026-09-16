@@ -197,15 +197,15 @@ export default function CheckoutPage() {
 
   // Track Meta Pixel InitiateCheckout
   useEffect(() => {
-    if (cart && cart.items.length > 0) {
+    if (cart && cart.items && cart.items.length > 0) {
       trackPixelEvent("InitiateCheckout", {
         num_items: cart.items.length,
-        content_ids: cart.items.map((i) => String(i.product.id)),
+        content_ids: cart.items.map((i) => String(i.product?.id || i.id)),
         value: Number(cart.total_price) || 0,
         currency: "BDT",
       });
     }
-  }, [cart?.id]);
+  }, [cart?.id, cart?.items?.length]);
 
   // Automatically remove coupon if no eligible items remain in cart
   useEffect(() => {
