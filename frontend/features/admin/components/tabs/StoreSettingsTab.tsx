@@ -263,6 +263,7 @@ export default function StoreSettingsTab({
     instagramUrl,
     youtubeUrl,
     whatsappNumber,
+    metaPixelId,
     initialSettings,
   ]);
 
