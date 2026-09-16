@@ -14,10 +14,15 @@ export default function FloatingChatWidget() {
   const isBn = locale === "bn";
 
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [facebookUrl, setFacebookUrl] = useState("");
   const [storeName, setStoreName] = useState("VibeMart");
   const widgetRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Fetch contact data from site settings
   useEffect(() => {
@@ -45,23 +50,25 @@ export default function FloatingChatWidget() {
     };
   }, []);
 
-  // Close popup when clicking outside
+  // Close popup when clicking outside (support both click and touchstart)
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: Event) => {
       if (widgetRef.current && !widgetRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
     }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
     };
   }, [isOpen]);
 
-  // Don't render on admin dashboard
-  if (pathname?.startsWith("/admin")) {
+  // Don't render on admin dashboard or before client mounted
+  if (!mounted || pathname?.startsWith("/admin")) {
     return null;
   }
 
