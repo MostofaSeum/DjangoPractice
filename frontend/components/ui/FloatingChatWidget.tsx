@@ -154,13 +154,13 @@ export default function FloatingChatWidget() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-3 rounded-xl bg-background hover:bg-accent/10 border border-foreground/10 hover:border-accent/40 text-foreground transition-all duration-200 group"
             >
-              <div className="w-10 h-10 rounded-full bg-secondary border border-foreground/10 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-1.5">
+              <div className="w-10 h-10 rounded-full bg-secondary border border-foreground/15 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-2">
                 <Image
                   src="/whatsapp.png"
                   alt="WhatsApp"
                   width={28}
                   height={28}
-                  className="w-7 h-7 object-contain"
+                  className="w-full h-full object-contain dark:invert transition-all"
                 />
               </div>
               <div className="flex-1 min-w-0">
@@ -183,13 +183,13 @@ export default function FloatingChatWidget() {
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-3 rounded-xl bg-background hover:bg-accent/10 border border-foreground/10 hover:border-accent/40 text-foreground transition-all duration-200 group"
             >
-              <div className="w-10 h-10 rounded-full bg-secondary border border-foreground/10 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-1.5">
+              <div className="w-10 h-10 rounded-full bg-secondary border border-foreground/15 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-2">
                 <Image
                   src="/messenger.png"
                   alt="Messenger"
                   width={28}
                   height={28}
-                  className="w-7 h-7 object-contain"
+                  className="w-full h-full object-contain dark:invert transition-all"
                 />
               </div>
               <div className="flex-1 min-w-0">
