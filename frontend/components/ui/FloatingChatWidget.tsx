@@ -298,8 +298,8 @@ export default function FloatingChatWidget() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
-                      <span className="text-xs sm:text-sm font-bold text-foreground truncate">
-                        {isBn ? "এআই সহকারী VibeBuddy" : "AI Assistant VibeBuddy"}
+                      <span className="text-xs sm:text-sm font-bold text-foreground">
+                        {isBn ? "VibeBuddy এআই" : "VibeBuddy AI"}
                       </span>
                       <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-button-fg bg-accent px-1.5 py-0.5 rounded-md flex-shrink-0">
                         24/7 AI
