@@ -10,6 +10,7 @@ import ProductInteractive from "./ProductInteractive";
 import { useEffect } from "react";
 import { useLanguage } from "@/store/LanguageContext";
 import { trackPixelEvent } from "@/services/metaPixel";
+import { trackGAEvent } from "@/services/googleAnalytics";
 
 interface Product {
   id: number;
@@ -54,6 +55,18 @@ export default function ProductDetailClient({
         content_type: "product",
         value: Number(price) || 0,
         currency: currency || "BDT",
+      });
+
+      trackGAEvent("view_item", {
+        currency: currency || "BDT",
+        value: Number(price) || 0,
+        items: [
+          {
+            item_id: String(product.id),
+            item_name: product.title,
+            price: Number(price) || 0,
+          },
+        ],
       });
     }
   }, [product?.id, currency]);

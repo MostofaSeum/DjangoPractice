@@ -8,6 +8,7 @@ import Header from "@/components/ui/Header";
 import Footer from "@/components/ui/Footer";
 import FloatingChatWidget from "@/components/ui/FloatingChatWidget";
 import MetaPixel from "@/components/analytics/MetaPixel";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 import { Suspense } from "react";
 
 const geistSans = Geist({
@@ -88,6 +89,7 @@ export default async function RootLayout({
 }>) {
   const apiBaseUrl = getApiBaseUrl();
   let pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim() || "";
+  let gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || "";
   try {
     const res = await fetch(`${apiBaseUrl}/store/site-settings/`, {
       next: { revalidate: 60 },
@@ -96,6 +98,9 @@ export default async function RootLayout({
       const data = await res.json();
       if (data.meta_pixel_id) {
         pixelId = String(data.meta_pixel_id).trim();
+      }
+      if (data.google_analytics_id) {
+        gaId = String(data.google_analytics_id).trim();
       }
     }
   } catch {
@@ -141,6 +146,9 @@ fbq('track', 'PageView');`,
       <body className="min-h-full flex flex-col overflow-x-clip transition-colors duration-300">
         <Suspense fallback={null}>
           <MetaPixel initialPixelId={pixelId} />
+        </Suspense>
+        <Suspense fallback={null}>
+          <GoogleAnalytics initialGaId={gaId} />
         </Suspense>
         <LanguageProvider>
           <ThemeProvider>

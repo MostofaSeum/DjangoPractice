@@ -622,6 +622,12 @@ class SiteSetting(models.Model):
     youtube_url = models.URLField(max_length=500, default='https://youtube.com', blank=True)
     whatsapp_number = models.CharField(max_length=50, default='+8801700000000', blank=True)
     meta_pixel_id = models.CharField(max_length=50, blank=True, default='', help_text="Meta (Facebook) Pixel ID")
+    google_analytics_id = models.CharField(
+        max_length=50,
+        blank=True,
+        default='',
+        help_text="Google Analytics 4 Measurement ID (e.g. G-XXXXXXXXXX)"
+    )
     
     # AI Assistant (VibeBuddy) & Proactive Nudge Settings
     ai_chat_active = models.BooleanField(default=True, help_text="Enable or disable the AI chat widget storewide")

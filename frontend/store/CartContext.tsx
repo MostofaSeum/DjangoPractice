@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { useAuth } from "./AuthContext";
 import { siteConfig } from "@/config/siteConfig";
 import { trackPixelEvent } from "@/services/metaPixel";
+import { trackGAEvent } from "@/services/googleAnalytics";
 
 export interface CartVariant {
   id: number;
@@ -216,15 +217,38 @@ export function CartProvider({ children }: { children: ReactNode }) {
               value: (price || 0) * quantity,
               currency: "BDT",
             });
+
+            trackGAEvent("add_to_cart", {
+              currency: "BDT",
+              value: (price || 0) * quantity,
+              items: [
+                {
+                  item_id: String(productId),
+                  item_name: addedItem.product?.title || "Product",
+                  price: price || 0,
+                  quantity: quantity,
+                },
+              ],
+            });
           } else {
             trackPixelEvent("AddToCart", {
               content_ids: [String(productId)],
               content_type: "product",
               currency: "BDT",
             });
+
+            trackGAEvent("add_to_cart", {
+              currency: "BDT",
+              items: [
+                {
+                  item_id: String(productId),
+                  quantity: quantity,
+                },
+              ],
+            });
           }
         } catch (e) {
-          console.error("Meta Pixel AddToCart error:", e);
+          console.error("Analytics AddToCart error:", e);
         }
       }
     } catch (err) {

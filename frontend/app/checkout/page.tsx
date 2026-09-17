@@ -11,6 +11,7 @@ import BkashPaymentUI from "@/components/BkashPaymentUI";
 import NagadPaymentUI from "@/components/NagadPaymentUI";
 import { Address } from "@/types/product";
 import { trackPixelEvent } from "@/services/metaPixel";
+import { trackGAEvent } from "@/services/googleAnalytics";
 
 const API_BASE = (
   process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
@@ -203,6 +204,17 @@ export default function CheckoutPage() {
         content_ids: cart.items.map((i) => String(i.product?.id || i.id)),
         value: Number(cart.total_price) || 0,
         currency: "BDT",
+      });
+
+      trackGAEvent("begin_checkout", {
+        currency: "BDT",
+        value: Number(cart.total_price) || 0,
+        items: cart.items.map((i) => ({
+          item_id: String(i.product?.id || i.id),
+          item_name: i.product?.title || "Product",
+          price: Number(i.product?.discounted_price || i.product?.unit_price || 0),
+          quantity: i.quantity,
+        })),
       });
     }
   }, [cart?.id, cart?.items?.length]);
@@ -591,7 +603,7 @@ export default function CheckoutPage() {
       if (res.ok) {
         const orderData = await res.json();
 
-        // Track Meta Pixel Purchase event
+        // Track Meta Pixel & GA4 Purchase event
         try {
           trackPixelEvent("Purchase", {
             value: Number(finalTotal) || 0,
@@ -600,6 +612,18 @@ export default function CheckoutPage() {
             content_type: "product",
             num_items: cart?.items.length || 1,
             order_id: String(orderData.id),
+          });
+
+          trackGAEvent("purchase", {
+            transaction_id: String(orderData.id),
+            value: Number(finalTotal) || 0,
+            currency: "BDT",
+            items: cart?.items.map((it) => ({
+              item_id: String(it.product.id),
+              item_name: it.product.title || "Product",
+              price: Number(it.product.discounted_price || it.product.unit_price || 0),
+              quantity: it.quantity,
+            })) || [],
           });
         } catch {
           // Non-critical

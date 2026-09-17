@@ -37,6 +37,7 @@ interface SiteSettingsState {
   youtubeUrl: string;
   whatsappNumber: string;
   metaPixelId: string;
+  googleAnalyticsId: string;
   aiChatActive: boolean;
   aiNudgeActive: boolean;
   aiNudgeDelaySeconds: number;
@@ -69,6 +70,7 @@ const DEFAULT_SETTINGS: SiteSettingsState = {
   youtubeUrl: "https://youtube.com",
   whatsappNumber: "+8801700000000",
   metaPixelId: "",
+  googleAnalyticsId: "",
   aiChatActive: true,
   aiNudgeActive: true,
   aiNudgeDelaySeconds: 5,
@@ -153,6 +155,7 @@ export default function StoreSettingsTab({
   const [youtubeUrl, setYoutubeUrl] = useState(DEFAULT_SETTINGS.youtubeUrl);
   const [whatsappNumber, setWhatsappNumber] = useState(DEFAULT_SETTINGS.whatsappNumber);
   const [metaPixelId, setMetaPixelId] = useState(DEFAULT_SETTINGS.metaPixelId);
+  const [googleAnalyticsId, setGoogleAnalyticsId] = useState(DEFAULT_SETTINGS.googleAnalyticsId);
   const [aiChatActive, setAiChatActive] = useState(DEFAULT_SETTINGS.aiChatActive);
   const [aiNudgeActive, setAiNudgeActive] = useState(DEFAULT_SETTINGS.aiNudgeActive);
   const [aiNudgeDelaySeconds, setAiNudgeDelaySeconds] = useState(DEFAULT_SETTINGS.aiNudgeDelaySeconds);
@@ -199,6 +202,7 @@ export default function StoreSettingsTab({
           youtubeUrl: data.youtube_url !== undefined && data.youtube_url !== null ? data.youtube_url : "",
           whatsappNumber: data.whatsapp_number !== undefined && data.whatsapp_number !== null ? data.whatsapp_number : "",
           metaPixelId: data.meta_pixel_id !== undefined && data.meta_pixel_id !== null ? data.meta_pixel_id : "",
+          googleAnalyticsId: data.google_analytics_id !== undefined && data.google_analytics_id !== null ? data.google_analytics_id : "",
           aiChatActive: data.ai_chat_active !== undefined ? Boolean(data.ai_chat_active) : true,
           aiNudgeActive: data.ai_nudge_active !== undefined ? Boolean(data.ai_nudge_active) : true,
           aiNudgeDelaySeconds: Number(data.ai_nudge_delay_seconds) || 5,
@@ -230,6 +234,7 @@ export default function StoreSettingsTab({
         setYoutubeUrl(loaded.youtubeUrl);
         setWhatsappNumber(loaded.whatsappNumber);
         setMetaPixelId(loaded.metaPixelId);
+        setGoogleAnalyticsId(loaded.googleAnalyticsId);
         setAiChatActive(loaded.aiChatActive);
         setAiNudgeActive(loaded.aiNudgeActive);
         setAiNudgeDelaySeconds(loaded.aiNudgeDelaySeconds);
@@ -279,6 +284,7 @@ export default function StoreSettingsTab({
     if (youtubeUrl !== initialSettings.youtubeUrl) return true;
     if (whatsappNumber !== initialSettings.whatsappNumber) return true;
     if (metaPixelId !== initialSettings.metaPixelId) return true;
+    if (googleAnalyticsId !== initialSettings.googleAnalyticsId) return true;
     if (aiChatActive !== initialSettings.aiChatActive) return true;
     if (aiNudgeActive !== initialSettings.aiNudgeActive) return true;
     if (aiNudgeDelaySeconds !== initialSettings.aiNudgeDelaySeconds) return true;
@@ -312,6 +318,7 @@ export default function StoreSettingsTab({
     youtubeUrl,
     whatsappNumber,
     metaPixelId,
+    googleAnalyticsId,
     aiChatActive,
     aiNudgeActive,
     aiNudgeDelaySeconds,
@@ -420,6 +427,7 @@ export default function StoreSettingsTab({
       formData.append("youtube_url", youtubeUrl);
       formData.append("whatsapp_number", whatsappNumber);
       formData.append("meta_pixel_id", metaPixelId);
+      formData.append("google_analytics_id", googleAnalyticsId);
       formData.append("ai_chat_active", String(aiChatActive));
       formData.append("ai_nudge_active", String(aiNudgeActive));
       formData.append("ai_nudge_delay_seconds", String(aiNudgeDelaySeconds));
@@ -466,6 +474,7 @@ export default function StoreSettingsTab({
           youtubeUrl,
           whatsappNumber,
           metaPixelId,
+          googleAnalyticsId,
           aiChatActive,
           aiNudgeActive,
           aiNudgeDelaySeconds,
@@ -1119,6 +1128,41 @@ export default function StoreSettingsTab({
                 {isBn
                   ? "খালি রাখলে পিক্সেল ট্র্যাকিং নিষ্ক্রিয় থাকবে।"
                   : "Leave blank to disable Pixel tracking on the storefront."}
+              </p>
+            </div>
+          </div>
+
+          {/* Google Analytics 4 (GA4) Settings */}
+          <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm space-y-5">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-accent" />
+              <h2 className="text-base font-black uppercase tracking-tight text-foreground">
+                {isBn ? "গুগল অ্যানালিটিক্স ৪ (GA4) ট্র্যাকিং" : "Google Analytics 4 (GA4) Tracking"}
+              </h2>
+            </div>
+            <p className="text-xs opacity-70">
+              {isBn
+                ? "ওয়েবসাইট ট্র্যাফিক, ব্যবহারকারীর আচরণ এবং ই-কমার্স রূপান্তর ট্র্যাক করতে আপনার Google Analytics 4 Measurement ID দিন (যেমন: G-XXXXXXXXXX)।"
+                : "Enter your Google Analytics 4 Measurement ID (e.g. G-XXXXXXXXXX) to monitor store visitors, user engagement, and e-commerce conversions."}
+            </p>
+
+            <div className="max-w-md space-y-1.5">
+              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                <span>{isBn ? "গুগল মেজারমেন্ট আইডি" : "Measurement ID"}</span>
+                {renderCharCounter(googleAnalyticsId.length, 50)}
+              </label>
+              <input
+                type="text"
+                maxLength={50}
+                value={googleAnalyticsId}
+                onChange={(e) => setGoogleAnalyticsId(e.target.value.trim().toUpperCase().slice(0, 50))}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-mono font-medium border border-foreground/15 focus:outline-none focus:border-accent"
+                placeholder="e.g. G-XXXXXXXXXX"
+              />
+              <p className="text-[10px] opacity-60">
+                {isBn
+                  ? "খালি রাখলে গুগল অ্যানালিটিক্স ট্র্যাকিং নিষ্ক্রিয় থাকবে।"
+                  : "Leave blank to disable Google Analytics on the storefront."}
               </p>
             </div>
           </div>

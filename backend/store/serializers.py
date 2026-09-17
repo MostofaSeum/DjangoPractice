@@ -1043,6 +1043,7 @@ class SiteSettingSerializer(serializers.ModelSerializer):
     youtube_url = serializers.URLField(max_length=255, required=False, allow_blank=True)
     whatsapp_number = serializers.CharField(max_length=50, required=False, allow_blank=True)
     meta_pixel_id = serializers.CharField(max_length=50, required=False, allow_blank=True)
+    google_analytics_id = serializers.CharField(max_length=50, required=False, allow_blank=True)
     ai_chat_active = serializers.BooleanField(required=False, default=True)
     ai_nudge_active = serializers.BooleanField(required=False, default=True)
     ai_nudge_delay_seconds = serializers.IntegerField(required=False, default=5, min_value=1, max_value=120)
@@ -1076,6 +1077,7 @@ class SiteSettingSerializer(serializers.ModelSerializer):
             'youtube_url',
             'whatsapp_number',
             'meta_pixel_id',
+            'google_analytics_id',
             'ai_chat_active',
             'ai_nudge_active',
             'ai_nudge_delay_seconds',
