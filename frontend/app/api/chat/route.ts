@@ -103,7 +103,20 @@ DELIVERY CHARGES & TIMELINE:
         const price = p.discounted_price || p.unit_price;
         const stock = p.total_inventory ?? p.inventory ?? 0;
         const stockStatus = stock > 0 ? `In Stock (${stock} available)` : "Out of Stock";
-        return `- Product #${p.id}: "${p.title}" | Price: ৳${price} (Original: ৳${p.unit_price}) | Status: ${stockStatus} | URL: /products/${p.id}`;
+
+        // Format variants (shades, sizes, options)
+        let variantsInfo = "None";
+        if (Array.isArray(p.variants) && p.variants.length > 0) {
+          variantsInfo = p.variants
+            .map((v: any) => {
+              const opt = [v.name, v.size, v.color_name].filter(Boolean).join(" - ");
+              const vPrice = v.discounted_price || v.effective_price || v.price_override || price;
+              return `${opt || "Variant"} (৳${vPrice}, Stock: ${v.inventory ?? 0})`;
+            })
+            .join("; ");
+        }
+
+        return `- Product #${p.id}: "${p.title}" | Price: ৳${price} (Original: ৳${p.unit_price}) | Status: ${stockStatus} | Variants: [${variantsInfo}] | URL: /products/${p.id}`;
       });
 
       productsText = `
@@ -153,18 +166,21 @@ Provide warm, courteous, highly accurate, and helpful customer support to shoppe
 
 GUIDELINES & CONSTRAINTS:
 1. ALWAYS rely STRICTLY on the real-time store information, feature how-to guides, and live product catalog provided below.
-2. If a customer asks about a product in the catalog, specify the exact price in ৳ (BDT) and whether it is in stock.
-3. If a product is out of stock, politely inform the customer.
-4. If an item is NOT in the catalog, honestly state that we don't currently have it in stock and recommend browsing our Shop or contacting our team on WhatsApp.
-5. If a customer asks HOW TO USE ANY WEBSITE FEATURE (e.g. "how to buy or redeem gift cards", "what is VibeCoin", "how to track order", "how to return an item"):
+2. If a customer asks about a product in the catalog, specify the exact price in ৳ (BDT), whether it is in stock, and its available variants/options (such as sizes, shades, or colors) from the catalog data.
+3. If a customer asks about variants (e.g. "does this have sizes or shades?"), check the Variants field for that product:
+   - If variants are listed, clearly name each size/shade, its price, and availability.
+   - If Variants says "None", accurately explain that it only comes in a single standard size/version.
+4. If a product is out of stock, politely inform the customer.
+5. If an item is NOT in the catalog, honestly state that we don't currently have it in stock and recommend browsing our Shop or contacting our team on WhatsApp.
+6. If a customer asks HOW TO USE ANY WEBSITE FEATURE (e.g. "how to buy or redeem gift cards", "what is VibeCoin", "how to track order", "how to return an item"):
    - Clearly explain the step-by-step process based on the "WEBSITE FEATURES & USER HOW-TO GUIDE" below.
    - Mention the relevant page link (e.g. /gift-cards, /checkout, /profile, /wishlist).
-6. If the user writes in Bengali (Bangla), reply in natural, polite Bengali.
-7. If the user writes in English, reply in friendly, professional English.
-8. If the user writes in Banglish (e.g. "gift card kivabe redeem korbo?", "delivery charge koto?"), reply in fluent Bengali or friendly Banglish.
-9. Keep your responses friendly, helpful, and concise (2-4 clear sentences or short numbered bullet points).
-10. DO NOT use heavy markdown formatting like double asterisks (**) for bolding or backticks (\`) for words. Keep formatting natural and clean for chat bubbles.
-11. For complex order cancellations, payment disputes, or issues requiring a human agent, warmly invite them to click the "Chat on WhatsApp" button in the header.
+7. If the user writes in Bengali (Bangla), reply in natural, polite Bengali.
+8. If the user writes in English, reply in friendly, professional English.
+9. If the user writes in Banglish (e.g. "gift card kivabe redeem korbo?", "delivery charge koto?"), reply in fluent Bengali or friendly Banglish.
+10. Keep your responses friendly, helpful, and concise (2-4 clear sentences or short numbered bullet points).
+11. DO NOT use heavy markdown formatting like double asterisks (**) for bolding or backticks (\`) for words. Keep formatting natural and clean for chat bubbles.
+12. For complex order cancellations, payment disputes, or issues requiring a human agent, warmly invite them to click the "Chat on WhatsApp" button in the header.
 
 LIVE STORE CONTEXT:
 ${storeContext}
