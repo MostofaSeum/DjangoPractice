@@ -293,8 +293,14 @@ export default function FloatingChatWidget() {
                   onClick={() => setViewMode("ai_chat")}
                   className="w-full flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl bg-background hover:bg-accent/10 border border-accent/40 hover:border-accent text-foreground transition-all duration-200 group active:scale-[0.98] text-left cursor-pointer relative overflow-hidden"
                 >
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-accent text-button-fg flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
-                    <span className="text-lg">✨</span>
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-1.5">
+                    <Image
+                      src="/bot.png"
+                      alt="VibeBuddy"
+                      width={28}
+                      height={28}
+                      className="w-full h-full object-contain dark:invert transition-all"
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
@@ -391,8 +397,14 @@ export default function FloatingChatWidget() {
                     <span>‹</span>
                   </button>
                   <div className="relative flex-shrink-0">
-                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-accent text-button-fg flex items-center justify-center font-bold text-xs shadow-xs">
-                      ✨
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0 shadow-xs overflow-hidden p-1">
+                      <Image
+                        src="/bot.png"
+                        alt="VibeBuddy"
+                        width={24}
+                        height={24}
+                        className="w-full h-full object-contain dark:invert"
+                      />
                     </div>
                     <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-visible ring-2 ring-secondary" />
                   </div>
