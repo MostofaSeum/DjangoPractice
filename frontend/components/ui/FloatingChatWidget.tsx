@@ -42,26 +42,27 @@ export default function FloatingChatWidget() {
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const prevUserIdRef = useRef<number | null | undefined>(undefined);
 
-  // Proactive AI Nudge: triggers after user stays on a product details page for 7 seconds
+  // Proactive AI Nudge: triggers after 5 seconds on landing page or product details page, then auto-closes after 8 seconds
   useEffect(() => {
     if (nudgeTimeoutRef.current) {
       clearTimeout(nudgeTimeoutRef.current);
     }
     setShowNudge(false);
 
-    // Check if current route is a product details page (e.g. /products/123)
+    // Landing page (home '/') or product details page (e.g. /products/123)
+    const isLandingPage = pathname === "/" || pathname === "";
     const isProductPage = pathname?.startsWith("/products/") && pathname.split("/").length >= 3;
 
-    if (isProductPage && !isOpen && hasNudgedPageRef.current !== pathname) {
+    if ((isLandingPage || isProductPage) && !isOpen && hasNudgedPageRef.current !== pathname) {
       nudgeTimeoutRef.current = setTimeout(() => {
         setShowNudge(true);
         hasNudgedPageRef.current = pathname;
 
-        // Automatically close the popup after 10 seconds
+        // Automatically close the popup after 8 seconds
         setTimeout(() => {
           setShowNudge(false);
-        }, 10000);
-      }, 7000); // 7 seconds dwell time
+        }, 8000);
+      }, 5000); // 5 seconds dwell time
     }
 
     return () => {
