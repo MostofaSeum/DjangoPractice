@@ -109,22 +109,22 @@ export default function Header() {
   const userName = user?.first_name || user?.username || "Account";
 
   return (
-    <header className="w-full z-50 py-3.5 md:py-5 px-3.5 sm:px-6 md:px-12 bg-primary text-logo sticky top-0 shadow-md border-b border-white/5 transition-colors duration-300">
-      <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-2">
+    <header className="w-full z-50 py-2.5 sm:py-3.5 md:py-5 px-2.5 sm:px-6 md:px-12 bg-primary text-logo sticky top-0 shadow-md border-b border-white/5 transition-colors duration-300">
+      <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-1.5 sm:gap-2">
         {/* Brand Logo & Title */}
         <Link
           href="/"
-          className="flex items-center gap-2 sm:gap-3 hover:opacity-90 transition-opacity group shrink-0"
+          className="flex items-center gap-1.5 sm:gap-3 hover:opacity-90 transition-opacity group shrink min-w-0"
         >
           {brandLogo && (
             <img
               src={brandLogo}
               alt={brandTitle}
-              className="h-7 sm:h-8 md:h-9 max-w-[100px] sm:max-w-[120px] object-contain group-hover:scale-105 transition-transform"
+              className="h-6 sm:h-8 md:h-9 max-w-[80px] sm:max-w-[120px] object-contain group-hover:scale-105 transition-transform shrink-0"
             />
           )}
           {brandTitle && (
-            <span className="text-lg sm:text-xl md:text-2xl font-black tracking-tighter uppercase text-logo whitespace-nowrap">
+            <span className="text-base sm:text-xl md:text-2xl font-black tracking-tighter uppercase text-logo truncate">
               {brandTitle}
             </span>
           )}
@@ -151,7 +151,7 @@ export default function Header() {
         </nav>
 
         {/* Right Action Icons (Language, Theme, Cart, Auth) */}
-        <div className="flex items-center gap-1.5 sm:gap-3 md:gap-5 text-[11px] font-bold uppercase tracking-widest shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2.5 md:gap-5 text-[11px] font-bold uppercase tracking-widest shrink-0">
           <LanguageToggle />
           <ThemeToggle />
           <div className="px-0.5 sm:px-1">
@@ -164,15 +164,15 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setDropdownOpen((prev) => !prev)}
-                className="hover:bg-white/25 transition-all bg-white/15 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-white/30 font-bold flex items-center gap-1.5 text-logo shadow-sm text-[10px] sm:text-[11px] max-w-[125px] sm:max-w-[170px]"
+                className="hover:bg-white/25 transition-all bg-white/15 px-2 py-1 sm:px-4 sm:py-2 rounded-full border border-white/30 font-bold flex items-center gap-1 text-logo shadow-sm text-[10px] sm:text-[11px] max-w-[100px] sm:max-w-[170px]"
               >
                 <span className="truncate">
                   {userName}
                 </span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="11"
-                  height="11"
+                  width="10"
+                  height="10"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -240,7 +240,7 @@ export default function Header() {
                   ? `/login?redirect=${encodeURIComponent(pathname)}`
                   : "/login"
               }
-              className="ml-2 md:ml-3 hover:bg-white/25 transition-all bg-white/15 px-5 py-2 rounded-full border border-white/30 font-bold shadow-sm text-xs uppercase tracking-wider"
+              className="ml-0.5 sm:ml-2 md:ml-3 hover:bg-white/25 transition-all bg-white/15 px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full border border-white/30 font-bold shadow-sm text-[10px] sm:text-xs uppercase tracking-wider whitespace-nowrap"
             >
               {t("nav.signIn")}
             </Link>
@@ -253,7 +253,7 @@ export default function Header() {
             onClick={() => setMobileMenuOpen((prev) => !prev)}
             aria-label="Toggle navigation menu"
             aria-expanded={mobileMenuOpen}
-            className="md:hidden w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 border border-white/20 text-logo transition-all flex flex-col items-center justify-center gap-[5px] cursor-pointer select-none"
+            className="md:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 border border-white/20 text-logo transition-all flex flex-col items-center justify-center gap-[4px] sm:gap-[5px] cursor-pointer select-none shrink-0"
           >
             {/* Morphing Hamburger / X Bars */}
             <span

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import { CartProvider } from "@/store/CartContext";
@@ -70,6 +70,13 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+};
+
 import { ThemeProvider } from "@/store/ThemeContext";
 import { LanguageProvider } from "@/store/LanguageContext";
 
@@ -84,7 +91,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col transition-colors duration-300">
+      <body className="min-h-full flex flex-col overflow-x-clip transition-colors duration-300">
         <Suspense fallback={null}>
           <MetaPixel />
         </Suspense>

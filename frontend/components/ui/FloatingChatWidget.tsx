@@ -14,15 +14,10 @@ export default function FloatingChatWidget() {
   const isBn = locale === "bn";
 
   const [isOpen, setIsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [facebookUrl, setFacebookUrl] = useState("");
   const [storeName, setStoreName] = useState("VibeMart");
   const widgetRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Fetch contact data from site settings
   useEffect(() => {
@@ -67,8 +62,8 @@ export default function FloatingChatWidget() {
     };
   }, [isOpen]);
 
-  // Don't render on admin dashboard or before client mounted
-  if (!mounted || pathname?.startsWith("/admin")) {
+  // Don't render on admin dashboard
+  if (pathname?.startsWith("/admin")) {
     return null;
   }
 
@@ -137,8 +132,12 @@ export default function FloatingChatWidget() {
   return (
     <div
       ref={widgetRef}
-      className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] right-[calc(1rem+env(safe-area-inset-right,0px))] sm:bottom-6 sm:right-6 z-[9999] flex flex-col items-end print:hidden select-none pointer-events-auto"
-      style={{ zIndex: 9999 }}
+      className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9999] flex flex-col items-end print:hidden select-none pointer-events-auto"
+      style={{
+        zIndex: 9999,
+        bottom: "max(1rem, calc(1rem + env(safe-area-inset-bottom, 0px)))",
+        right: "max(1rem, calc(1rem + env(safe-area-inset-right, 0px)))",
+      }}
     >
       {/* Expanded Chat Options Popup */}
       {isOpen && (
@@ -160,8 +159,9 @@ export default function FloatingChatWidget() {
               </div>
             </div>
             <button
+              type="button"
               onClick={() => setIsOpen(false)}
-              className="p-1.5 rounded-lg opacity-60 hover:opacity-100 hover:bg-foreground/10 text-foreground transition-colors flex items-center justify-center flex-shrink-0 ml-1"
+              className="p-1.5 rounded-lg opacity-60 hover:opacity-100 hover:bg-foreground/10 text-foreground transition-colors flex items-center justify-center flex-shrink-0 ml-1 cursor-pointer"
               aria-label="Close Chat"
             >
               <Image
@@ -169,6 +169,7 @@ export default function FloatingChatWidget() {
                 alt="Close"
                 width={14}
                 height={14}
+                priority
                 className="w-3 h-3 sm:w-3.5 sm:h-3.5 object-contain dark:invert"
               />
             </button>
@@ -245,8 +246,9 @@ export default function FloatingChatWidget() {
 
       {/* Main Floating Trigger Button */}
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-accent text-button-fg shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-accent/30 group"
+        className="relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-accent text-button-fg shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-accent/30 group cursor-pointer"
         aria-label="Open Chat Widget"
       >
         {/* Glow / Pulse ring */}
@@ -259,6 +261,7 @@ export default function FloatingChatWidget() {
             alt="Close"
             width={20}
             height={20}
+            priority
             className="w-4 h-4 sm:w-5 sm:h-5 object-contain brightness-0 invert"
           />
         ) : (
@@ -269,6 +272,7 @@ export default function FloatingChatWidget() {
               alt="Chat"
               width={30}
               height={30}
+              priority
               className="w-6 h-6 sm:w-7 sm:h-7 object-contain brightness-0 invert"
             />
             {/* Online badge */}
