@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getApiBaseUrl } from "@/config/siteConfig";
 
+export const dynamic = "force-dynamic";
+
 // Simple in-memory cache for live store catalog & settings (60s TTL)
 let cachedContext = "";
 let cacheTimestamp = 0;
