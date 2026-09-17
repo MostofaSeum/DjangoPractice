@@ -1123,13 +1123,13 @@ export default function StoreSettingsTab({
             </div>
           </div>
 
-          {/* AI Assistant (VibeBuddy) & Proactive Nudge Settings */}
+          {/* AI Assistant & Proactive Nudge Settings */}
           <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm space-y-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-accent" />
                 <h2 className="text-base font-black uppercase tracking-tight text-foreground">
-                  {isBn ? "এআই সহকারী (VibeBuddy) ও পপআপ সেটিংস" : "AI Assistant (VibeBuddy) & Popup Settings"}
+                  {isBn ? "এআই সহকারী ও পপআপ সেটিংস" : "AI Assistant & Popup Settings"}
                 </h2>
               </div>
               <div className="flex items-center gap-3">

@@ -205,8 +205,8 @@ export default function FloatingChatWidget() {
     };
   }, [isOpen]);
 
-  // Don't render on admin dashboard or if AI chat is disabled storewide
-  if (pathname?.startsWith("/admin") || !aiChatActive) {
+  // Don't render on admin dashboard
+  if (pathname?.startsWith("/admin")) {
     return null;
   }
 
@@ -401,35 +401,37 @@ export default function FloatingChatWidget() {
 
               {/* Chat Options */}
               <div className="mt-2.5 sm:mt-3 space-y-2 sm:space-y-2.5">
-                {/* 1. AI Chat Assistant (Featured) */}
-                <button
-                  type="button"
-                  onClick={() => setViewMode("ai_chat")}
-                  className="w-full flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl bg-background hover:bg-accent/10 border border-accent/40 hover:border-accent text-foreground transition-all duration-200 group active:scale-[0.98] text-left cursor-pointer relative overflow-hidden"
-                >
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-secondary border border-foreground/15 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-2">
-                    <Image
-                      src="/bot.png"
-                      alt="VibeBuddy"
-                      width={28}
-                      height={28}
-                      className="w-full h-full object-contain dark:invert transition-all"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-1">
-                      <span className="text-xs sm:text-sm font-bold text-foreground">
-                        {isBn ? "VibeBuddy এআই" : "VibeBuddy AI"}
-                      </span>
-                      <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-button-fg bg-accent px-1.5 py-0.5 rounded-md flex-shrink-0">
-                        24/7 AI
-                      </span>
+                {/* 1. AI Chat Assistant (Featured) - Only rendered when AI Chat is active */}
+                {aiChatActive && (
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("ai_chat")}
+                    className="w-full flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl bg-background hover:bg-accent/10 border border-accent/40 hover:border-accent text-foreground transition-all duration-200 group active:scale-[0.98] text-left cursor-pointer relative overflow-hidden"
+                  >
+                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-secondary border border-foreground/15 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-2">
+                      <Image
+                        src="/bot.png"
+                        alt="VibeBuddy"
+                        width={28}
+                        height={28}
+                        className="w-full h-full object-contain dark:invert transition-all"
+                      />
                     </div>
-                    <p className="text-[10px] sm:text-[11px] opacity-75 truncate">
-                      {isBn ? "প্রোডাক্ট, স্টক ও ডেলিভারি তথ্য জানুন" : "Instant answers on products & delivery"}
-                    </p>
-                  </div>
-                </button>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-1">
+                        <span className="text-xs sm:text-sm font-bold text-foreground">
+                          {isBn ? "VibeBuddy এআই" : "VibeBuddy AI"}
+                        </span>
+                        <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-button-fg bg-accent px-1.5 py-0.5 rounded-md flex-shrink-0">
+                          24/7 AI
+                        </span>
+                      </div>
+                      <p className="text-[10px] sm:text-[11px] opacity-75 truncate">
+                        {isBn ? "প্রোডাক্ট, স্টক ও ডেলিভারি তথ্য জানুন" : "Instant answers on products & delivery"}
+                      </p>
+                    </div>
+                  </button>
+                )}
 
                 {/* 2. WhatsApp Option */}
                 <a
