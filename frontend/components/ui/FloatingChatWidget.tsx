@@ -8,16 +8,54 @@ import { siteConfig } from "@/config/siteConfig";
 
 const API_BASE = siteConfig.apiBaseUrl.replace(/\/+$/, "");
 
+interface ChatMessage {
+  id: string;
+  sender: "user" | "bot";
+  text: string;
+  timestamp: string;
+}
+
 export default function FloatingChatWidget() {
   const pathname = usePathname();
   const { locale } = useLanguage();
   const isBn = locale === "bn";
 
   const [isOpen, setIsOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"menu" | "ai_chat">("menu");
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [facebookUrl, setFacebookUrl] = useState("");
   const [storeName, setStoreName] = useState("VibeMart");
+
+  // AI Chat state
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [inputVal, setInputVal] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+
   const widgetRef = useRef<HTMLDivElement>(null);
+  const chatScrollRef = useRef<HTMLDivElement>(null);
+
+  // Initialize welcome message when AI chat opens
+  useEffect(() => {
+    if (viewMode === "ai_chat" && messages.length === 0) {
+      setMessages([
+        {
+          id: "welcome",
+          sender: "bot",
+          text: isBn
+            ? `হ্যালো! আমি ${storeName}-এর এআই সহকারী মায়া। আমাদের পণ্য, মূল্য, স্টক বা ডেলিভারি চার্জ সম্পর্কে কিছু জানতে চান? আমি সাহায্য করতে পারি!`
+            : `Hello! I'm Maya, your 24/7 AI shopping assistant at ${storeName}. Feel free to ask about our products, live prices, stock, or delivery charges!`,
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        },
+      ]);
+    }
+  }, [viewMode, isBn, storeName]);
+
+  // Auto-scroll chat to bottom
+  useEffect(() => {
+    if (viewMode === "ai_chat" && chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    }
+  }, [messages, isTyping, viewMode]);
 
   // Fetch contact data from site settings
   useEffect(() => {
@@ -45,7 +83,7 @@ export default function FloatingChatWidget() {
     };
   }, []);
 
-  // Close popup when clicking outside (support both click and touchstart)
+  // Close popup when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: Event) => {
       if (widgetRef.current && !widgetRef.current.contains(event.target as Node)) {
@@ -69,10 +107,9 @@ export default function FloatingChatWidget() {
 
   // Sanitize WhatsApp number (remove +, spaces, dashes)
   const cleanPhone = (whatsappNumber || "01722785605").replace(/[^0-9]/g, "");
-  // Ensure country code 880 if BD number starts with 01
   const formattedWhatsApp = cleanPhone.startsWith("01") ? `88${cleanPhone}` : cleanPhone;
 
-  // Build smart context message
+  // Build smart context message for WhatsApp
   const getContextMessage = () => {
     let defaultMsg = isBn
       ? `হ্যালো ${storeName}, আমি আপনাদের শপ ও প্রোডাক্ট সম্পর্কে জানতে আগ্রহী!`
@@ -84,11 +121,11 @@ export default function FloatingChatWidget() {
         : window.location.origin;
 
       const productUrl = `${siteBase}${pathname}`;
-
-      const cleanTitle = (document.title || "")
-        .split("|")[0]
-        .replace(new RegExp(storeName, "gi"), "")
-        .trim() || document.title || "Product";
+      const cleanTitle =
+        (document.title || "")
+          .split("|")[0]
+          .replace(new RegExp(storeName, "gi"), "")
+          .trim() || document.title || "Product";
 
       if (pathname.includes("/products/")) {
         defaultMsg = isBn
@@ -102,32 +139,96 @@ export default function FloatingChatWidget() {
 
   // Extract Facebook page username or fallback
   const getMessengerUrl = () => {
-    // If empty, fallback to brainicontech
-    if (!facebookUrl) {
-      return "https://m.me/brainicontech";
-    }
-    // If it's already an m.me link
-    if (facebookUrl.includes("m.me/")) {
-      return facebookUrl.split("?")[0].replace(/\/+$/, "");
-    }
-    // Extract page name or ID from facebook.com URL
+    if (!facebookUrl) return "https://m.me/brainicontech";
+    if (facebookUrl.includes("m.me/")) return facebookUrl.split("?")[0].replace(/\/+$/, "");
+
     const cleaned = facebookUrl
       .replace(/^https?:\/\/(www\.)?facebook\.com\//i, "")
       .replace(/\/+$/, "")
       .split("?")[0]
       .split("/")[0];
 
-    // If page is just "facebook.com" or empty, fallback
     return cleaned && cleaned.toLowerCase() !== "facebook" && cleaned.toLowerCase() !== "www"
       ? `https://m.me/${cleaned}`
       : "https://m.me/brainicontech";
   };
 
-  // Build smart context message for WhatsApp
   const getWhatsAppUrl = () => {
     const msg = encodeURIComponent(getContextMessage());
     return `https://wa.me/${formattedWhatsApp}?text=${msg}`;
   };
+
+  // Send message to Gemini AI API
+  const handleSendMessage = async (textToSend?: string) => {
+    const query = (textToSend || inputVal).trim();
+    if (!query || isTyping) return;
+
+    setInputVal("");
+    const userMsg: ChatMessage = {
+      id: `usr_${Date.now()}`,
+      sender: "user",
+      text: query,
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    };
+
+    setMessages((prev) => [...prev, userMsg]);
+    setIsTyping(true);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: query,
+          history: messages.slice(-6),
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const replyText = data.reply || (isBn ? "আমি বুঝতে পারছি। দয়া করে বিস্তারিত বলুন।" : "I understand. How else can I help?");
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `bot_${Date.now()}`,
+            sender: "bot",
+            text: replyText,
+            timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          },
+        ]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `err_${Date.now()}`,
+            sender: "bot",
+            text: isBn
+              ? "সাময়িক সংযোগজনিত সমস্যা হয়েছে। অনুগ্রহ করে হোয়াটসঅ্যাপে মেসেজ দিন।"
+              : "Temporary connection error. Please message us on WhatsApp for quick assistance.",
+            timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          },
+        ]);
+      }
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `err_${Date.now()}`,
+          sender: "bot",
+          text: isBn
+            ? "নেটওয়ার্ক ত্রুটি হয়েছে। হোয়াটসঅ্যাপে সরাসরি আমাদের সাথে যুক্ত হতে পারেন।"
+            : "Network error occurred. You can reach our human team directly on WhatsApp.",
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        },
+      ]);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  const quickQuestions = isBn
+    ? ["ডেলিভারি চার্জ কত?", "পেমেন্ট মেথড কি কি?", "অর্ডার ট্র্যাকিং কিভাবে করব?"]
+    : ["What are delivery charges?", "What payment methods do you accept?", "How to track my order?"];
 
   return (
     <div
@@ -139,108 +240,294 @@ export default function FloatingChatWidget() {
         right: "max(1rem, calc(1rem + env(safe-area-inset-right, 0px)))",
       }}
     >
-      {/* Expanded Chat Options Popup */}
+      {/* Expanded Popup (Menu Mode OR AI Chat Mode) */}
       {isOpen && (
-        <div className="mb-2 sm:mb-3 w-[calc(100vw-2rem)] sm:w-80 max-w-[320px] rounded-2xl bg-secondary/95 backdrop-blur-md border border-foreground/15 shadow-2xl p-3 sm:p-4 text-foreground animate-in fade-in slide-in-from-bottom-3 duration-200">
-          {/* Header */}
-          <div className="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-foreground/10">
-            <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-              <div className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3 flex-shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-visible opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-visible"></span>
+        <div
+          className={`mb-2 sm:mb-3 w-[calc(100vw-2rem)] rounded-2xl bg-secondary/95 backdrop-blur-md border border-foreground/15 shadow-2xl text-foreground animate-in fade-in slide-in-from-bottom-3 duration-200 overflow-hidden flex flex-col ${
+            viewMode === "ai_chat"
+              ? "sm:w-96 max-w-[380px] h-[480px] sm:h-[520px]"
+              : "sm:w-80 max-w-[320px] p-3 sm:p-4"
+          }`}
+        >
+          {viewMode === "menu" ? (
+            /* MENU MODE */
+            <div>
+              {/* Header */}
+              <div className="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-foreground/10">
+                <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+                  <div className="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3 flex-shrink-0">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-visible opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-visible"></span>
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-foreground truncate">
+                      {isBn ? "সহায়তা কেন্দ্র" : "Support Center"}
+                    </h4>
+                    <p className="text-[10px] sm:text-[11px] opacity-70 truncate">
+                      {isBn ? "আমরা সাধারণত সাথে সাথেই উত্তর দেই" : "Choose how you'd like to chat"}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  className="p-1.5 rounded-lg opacity-60 hover:opacity-100 hover:bg-foreground/10 text-foreground transition-colors flex items-center justify-center flex-shrink-0 ml-1 cursor-pointer"
+                  aria-label="Close Chat"
+                >
+                  <Image
+                    src="/icons/close-x.png"
+                    alt="Close"
+                    width={14}
+                    height={14}
+                    priority
+                    className="w-3 h-3 sm:w-3.5 sm:h-3.5 object-contain dark:invert"
+                  />
+                </button>
               </div>
-              <div className="min-w-0">
-                <h4 className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-foreground truncate">
-                  {isBn ? "সরাসরি যোগাযোগ করুন" : "Live Chat Support"}
-                </h4>
-                <p className="text-[10px] sm:text-[11px] opacity-70 truncate">
-                  {isBn ? "আমরা সাধারণত সাথে সাথেই উত্তর দেই" : "We usually reply within minutes"}
-                </p>
+
+              {/* Chat Options */}
+              <div className="mt-2.5 sm:mt-3 space-y-2 sm:space-y-2.5">
+                {/* 1. AI Chat Assistant (Featured) */}
+                <button
+                  type="button"
+                  onClick={() => setViewMode("ai_chat")}
+                  className="w-full flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl bg-background hover:bg-accent/10 border border-accent/40 hover:border-accent text-foreground transition-all duration-200 group active:scale-[0.98] text-left cursor-pointer relative overflow-hidden"
+                >
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-accent text-button-fg flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+                    <span className="text-lg">✨</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-xs sm:text-sm font-bold text-foreground truncate">
+                        {isBn ? "এআই সহকারী মায়া" : "AI Assistant Maya"}
+                      </span>
+                      <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-button-fg bg-accent px-1.5 py-0.5 rounded-md flex-shrink-0">
+                        24/7 AI
+                      </span>
+                    </div>
+                    <p className="text-[10px] sm:text-[11px] opacity-75 truncate">
+                      {isBn ? "প্রোডাক্ট, স্টক ও ডেলিভারি তথ্য জানুন" : "Instant answers on products & delivery"}
+                    </p>
+                  </div>
+                </button>
+
+                {/* 2. WhatsApp Option */}
+                <a
+                  href={getWhatsAppUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl bg-background hover:bg-foreground/5 border border-foreground/10 hover:border-foreground/20 text-foreground transition-all duration-200 group active:scale-[0.98]"
+                >
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-secondary border border-foreground/15 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-2">
+                    <Image
+                      src="/whatsapp.png"
+                      alt="WhatsApp"
+                      width={28}
+                      height={28}
+                      className="w-full h-full object-contain dark:invert transition-all"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-xs sm:text-sm font-bold text-foreground truncate">WhatsApp</span>
+                      <span className="text-[9px] sm:text-[10px] uppercase font-semibold tracking-wider text-visible bg-visible/10 px-1.5 py-0.5 rounded flex-shrink-0">
+                        {isBn ? "অনলাইন" : "Human"}
+                      </span>
+                    </div>
+                    <p className="text-[10px] sm:text-[11px] opacity-75 truncate">
+                      {isBn ? "হোয়াটসঅ্যাপে সরাসরি কথা বলুন" : "Chat directly with support team"}
+                    </p>
+                  </div>
+                </a>
+
+                {/* 3. Messenger Option */}
+                <a
+                  href={getMessengerUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl bg-background hover:bg-foreground/5 border border-foreground/10 hover:border-foreground/20 text-foreground transition-all duration-200 group active:scale-[0.98]"
+                >
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-secondary border border-foreground/15 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-2">
+                    <Image
+                      src="/messenger.png"
+                      alt="Messenger"
+                      width={28}
+                      height={28}
+                      className="w-full h-full object-contain dark:invert transition-all"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="text-xs sm:text-sm font-bold text-foreground truncate">Messenger</span>
+                      <span className="text-[9px] sm:text-[10px] uppercase font-semibold tracking-wider text-accent bg-accent/10 px-1.5 py-0.5 rounded flex-shrink-0">
+                        Facebook
+                      </span>
+                    </div>
+                    <p className="text-[10px] sm:text-[11px] opacity-75 truncate">
+                      {isBn ? "ফেসবুক মেসেঞ্জারে মেসেজ দিন" : "Chat on Facebook Messenger"}
+                    </p>
+                  </div>
+                </a>
+              </div>
+
+              <div className="mt-2.5 sm:mt-3 pt-2 text-center border-t border-foreground/10">
+                <span className="text-[9px] sm:text-[10px] opacity-60 tracking-wider">
+                  Powered by {storeName}
+                </span>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="p-1.5 rounded-lg opacity-60 hover:opacity-100 hover:bg-foreground/10 text-foreground transition-colors flex items-center justify-center flex-shrink-0 ml-1 cursor-pointer"
-              aria-label="Close Chat"
-            >
-              <Image
-                src="/icons/close-x.png"
-                alt="Close"
-                width={14}
-                height={14}
-                priority
-                className="w-3 h-3 sm:w-3.5 sm:h-3.5 object-contain dark:invert"
-              />
-            </button>
-          </div>
-
-          {/* Chat Options */}
-          <div className="mt-2.5 sm:mt-3 space-y-2 sm:space-y-2.5">
-            {/* WhatsApp Option */}
-            <a
-              href={getWhatsAppUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl bg-background hover:bg-accent/10 border border-foreground/10 hover:border-accent/40 text-foreground transition-all duration-200 group active:scale-[0.98]"
-            >
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-secondary border border-foreground/15 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-2">
-                <Image
-                  src="/whatsapp.png"
-                  alt="WhatsApp"
-                  width={28}
-                  height={28}
-                  className="w-full h-full object-contain dark:invert transition-all"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <span className="text-xs sm:text-sm font-bold text-foreground truncate">WhatsApp</span>
-                  <span className="text-[9px] sm:text-[10px] uppercase font-semibold tracking-wider text-visible bg-visible/10 px-1.5 py-0.5 rounded flex-shrink-0">
-                    {isBn ? "অনলাইন" : "Online"}
-                  </span>
+          ) : (
+            /* AI CHAT MODE */
+            <div className="flex flex-col h-full">
+              {/* Header */}
+              <div className="flex items-center justify-between px-3 py-2.5 sm:px-4 sm:py-3 border-b border-foreground/10 bg-secondary/80">
+                <div className="flex items-center gap-2 min-w-0">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode("menu")}
+                    className="p-1 rounded-lg opacity-70 hover:opacity-100 hover:bg-foreground/10 transition-colors cursor-pointer text-xs flex items-center gap-0.5"
+                    title="Back to options"
+                  >
+                    <span>‹</span>
+                  </button>
+                  <div className="relative flex-shrink-0">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-accent text-button-fg flex items-center justify-center font-bold text-xs shadow-xs">
+                      ✨
+                    </div>
+                    <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-visible ring-2 ring-secondary" />
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-xs font-bold text-foreground truncate flex items-center gap-1.5">
+                      <span>Maya</span>
+                      <span className="text-[8px] uppercase tracking-wider font-semibold px-1 rounded bg-accent/15 text-accent">
+                        AI Bot
+                      </span>
+                    </h4>
+                    <p className="text-[10px] opacity-60 truncate">
+                      {isBn ? "২৪/৭ লাইভ শপ সহকারী" : "24/7 Live Store Assistant"}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-[10px] sm:text-[11px] opacity-75 truncate">
-                  {isBn ? "হোয়াটসঅ্যাপে দ্রুত মেসেজ দিন" : "Chat with us on WhatsApp"}
-                </p>
-              </div>
-            </a>
 
-            {/* Messenger Option */}
-            <a
-              href={getMessengerUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl bg-background hover:bg-accent/10 border border-foreground/10 hover:border-accent/40 text-foreground transition-all duration-200 group active:scale-[0.98]"
-            >
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-secondary border border-foreground/15 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-2">
-                <Image
-                  src="/messenger.png"
-                  alt="Messenger"
-                  width={28}
-                  height={28}
-                  className="w-full h-full object-contain dark:invert transition-all"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-1">
-                  <span className="text-xs sm:text-sm font-bold text-foreground truncate">Messenger</span>
-                  <span className="text-[9px] sm:text-[10px] uppercase font-semibold tracking-wider text-accent bg-accent/10 px-1.5 py-0.5 rounded flex-shrink-0">
-                    Facebook
-                  </span>
+                <div className="flex items-center gap-1">
+                  {/* Quick WhatsApp Handoff */}
+                  <a
+                    href={getWhatsAppUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Talk to Human on WhatsApp"
+                    className="p-1.5 rounded-lg opacity-70 hover:opacity-100 hover:bg-foreground/10 text-foreground transition-colors flex items-center justify-center flex-shrink-0"
+                  >
+                    <Image
+                      src="/whatsapp.png"
+                      alt="WhatsApp"
+                      width={16}
+                      height={16}
+                      className="w-4 h-4 object-contain dark:invert"
+                    />
+                  </a>
+                  {/* Close button */}
+                  <button
+                    type="button"
+                    onClick={() => setIsOpen(false)}
+                    className="p-1.5 rounded-lg opacity-60 hover:opacity-100 hover:bg-foreground/10 text-foreground transition-colors flex items-center justify-center flex-shrink-0 cursor-pointer"
+                    aria-label="Close Chat"
+                  >
+                    <Image
+                      src="/icons/close-x.png"
+                      alt="Close"
+                      width={12}
+                      height={12}
+                      className="w-3 h-3 object-contain dark:invert"
+                    />
+                  </button>
                 </div>
-                <p className="text-[10px] sm:text-[11px] opacity-75 truncate">
-                  {isBn ? "ফেসবুক মেসেঞ্জারে চ্যাট করুন" : "Chat on Facebook Messenger"}
-                </p>
               </div>
-            </a>
-          </div>
 
-          <div className="mt-2.5 sm:mt-3 pt-2 text-center border-t border-foreground/10">
-            <span className="text-[9px] sm:text-[10px] opacity-60 tracking-wider">
-              Powered by {storeName}
-            </span>
-          </div>
+              {/* Message Stream */}
+              <div
+                ref={chatScrollRef}
+                className="flex-1 p-3 sm:p-4 overflow-y-auto space-y-3 custom-scrollbar text-xs"
+              >
+                {messages.map((m) => (
+                  <div
+                    key={m.id}
+                    className={`flex flex-col ${m.sender === "user" ? "items-end" : "items-start"}`}
+                  >
+                    <div
+                      className={`max-w-[85%] rounded-2xl px-3.5 py-2 sm:px-4 sm:py-2.5 leading-relaxed break-words shadow-xs ${
+                        m.sender === "user"
+                          ? "bg-accent text-button-fg rounded-br-none"
+                          : "bg-background border border-foreground/10 text-foreground rounded-bl-none"
+                      }`}
+                    >
+                      <p className="whitespace-pre-wrap">{m.text}</p>
+                    </div>
+                    <span className="text-[9px] opacity-50 mt-1 px-1">{m.timestamp}</span>
+                  </div>
+                ))}
+
+                {/* Typing Indicator */}
+                {isTyping && (
+                  <div className="flex items-center gap-1.5 bg-background border border-foreground/10 text-foreground rounded-2xl rounded-bl-none px-3 py-2 w-fit">
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent animate-bounce" />
+                    <span
+                      className="w-1.5 h-1.5 rounded-full bg-accent animate-bounce"
+                      style={{ animationDelay: "0.2s" }}
+                    />
+                    <span
+                      className="w-1.5 h-1.5 rounded-full bg-accent animate-bounce"
+                      style={{ animationDelay: "0.4s" }}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Quick Starter Question Chips (Only shown when 1-2 messages exist) */}
+              {messages.length <= 2 && (
+                <div className="px-3 pb-2 flex gap-1.5 overflow-x-auto no-scrollbar">
+                  {quickQuestions.map((q, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handleSendMessage(q)}
+                      className="text-[10px] px-2.5 py-1 rounded-full bg-background border border-foreground/15 hover:border-accent hover:text-accent whitespace-nowrap transition-colors flex-shrink-0 cursor-pointer"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Input Bar */}
+              <div className="p-2.5 sm:p-3 border-t border-foreground/10 bg-secondary/80">
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <input
+                    type="text"
+                    value={inputVal}
+                    onChange={(e) => setInputVal(e.target.value)}
+                    placeholder={
+                      isBn ? "একটি প্রশ্ন লিখুন..." : "Ask about products, delivery..."
+                    }
+                    className="flex-1 px-3 py-2 rounded-xl bg-background border border-foreground/15 text-foreground text-xs focus:outline-none focus:border-accent placeholder:opacity-50"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!inputVal.trim() || isTyping}
+                    className="px-3 py-2 rounded-xl bg-accent text-button-fg font-bold text-xs hover:opacity-90 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer flex items-center justify-center flex-shrink-0"
+                  >
+                    <span>➤</span>
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -266,7 +553,6 @@ export default function FloatingChatWidget() {
           />
         ) : (
           <div className="relative flex items-center justify-center">
-            {/* Chat bubble image */}
             <Image
               src="/bubble-chat.png"
               alt="Chat"
