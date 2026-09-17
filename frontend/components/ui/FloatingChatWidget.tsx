@@ -654,6 +654,9 @@ export default function FloatingChatWidget() {
               </div>
             </div>
           )}
+          </div>
+        )}
+
       {/* Proactive Product Details Nudge Bubble */}
       {!isOpen && showNudge && (
         <div className="mb-2 mr-1 flex items-end gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
