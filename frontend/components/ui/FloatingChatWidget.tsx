@@ -56,6 +56,11 @@ export default function FloatingChatWidget() {
       nudgeTimeoutRef.current = setTimeout(() => {
         setShowNudge(true);
         hasNudgedPageRef.current = pathname;
+
+        // Automatically close the popup after 10 seconds
+        setTimeout(() => {
+          setShowNudge(false);
+        }, 10000);
       }, 7000); // 7 seconds dwell time
     }
 
