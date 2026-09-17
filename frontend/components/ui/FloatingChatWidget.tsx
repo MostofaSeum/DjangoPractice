@@ -42,8 +42,8 @@ export default function FloatingChatWidget() {
           id: "welcome",
           sender: "bot",
           text: isBn
-            ? `হ্যালো! আমি ${storeName}-এর এআই সহকারী মায়া। আমাদের পণ্য, মূল্য, স্টক বা ডেলিভারি চার্জ সম্পর্কে কিছু জানতে চান? আমি সাহায্য করতে পারি!`
-            : `Hello! I'm Maya, your 24/7 AI shopping assistant at ${storeName}. Feel free to ask about our products, live prices, stock, or delivery charges!`,
+            ? `হ্যালো! আমি ${storeName}-এর এআই সহকারী VibeBuddy। আমাদের পণ্য, মূল্য, স্টক বা ডেলিভারি চার্জ সম্পর্কে কিছু জানতে চান? আমি সাহায্য করতে পারি!`
+            : `Hello! I'm VibeBuddy, your 24/7 AI shopping companion at ${storeName}. Feel free to ask about our cosmetics, live prices, stock, or delivery charges!`,
           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         },
       ]);
@@ -299,7 +299,7 @@ export default function FloatingChatWidget() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
                       <span className="text-xs sm:text-sm font-bold text-foreground truncate">
-                        {isBn ? "এআই সহকারী মায়া" : "AI Assistant Maya"}
+                        {isBn ? "এআই সহকারী VibeBuddy" : "AI Assistant VibeBuddy"}
                       </span>
                       <span className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-button-fg bg-accent px-1.5 py-0.5 rounded-md flex-shrink-0">
                         24/7 AI
@@ -398,7 +398,7 @@ export default function FloatingChatWidget() {
                   </div>
                   <div className="min-w-0">
                     <h4 className="text-xs font-bold text-foreground truncate flex items-center gap-1.5">
-                      <span>Maya</span>
+                      <span>VibeBuddy</span>
                       <span className="text-[8px] uppercase tracking-wider font-semibold px-1 rounded bg-accent/15 text-accent">
                         AI Bot
                       </span>

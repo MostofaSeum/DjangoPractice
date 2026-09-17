@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
     const storeContext = await getLiveStoreContext();
 
     // Construct system instructions
-    const systemPrompt = `You are Maya, the official 24/7 AI shopping assistant for "VibeMart" (a premium cosmetics, fashion, and beauty storefront in Bangladesh).
+    const systemPrompt = `You are VibeBuddy, the official 24/7 AI shopping assistant and beauty companion for "VibeMart" (a premium cosmetics, fashion, and beauty storefront in Bangladesh).
 
 YOUR GOAL:
 Provide warm, courteous, highly accurate, and helpful customer support to shoppers inquiring about products, prices, stock, delivery charges, ordering, and policies.
@@ -139,7 +139,7 @@ ${storeContext}
         role: "model",
         parts: [
           {
-            text: "Understood! I am Maya, ready to assist VibeMart customers with live inventory, accurate prices, delivery charges, and shopping guidance.",
+            text: "Understood! I am VibeBuddy, ready to assist VibeMart customers with live inventory, accurate prices, delivery charges, and shopping guidance.",
           },
         ],
       },
