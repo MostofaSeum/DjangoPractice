@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useLanguage } from "@/store/LanguageContext";
+import { useAuth } from "@/store/AuthContext";
 import { siteConfig } from "@/config/siteConfig";
 
 const API_BASE = siteConfig.apiBaseUrl.replace(/\/+$/, "");
@@ -19,6 +20,7 @@ export default function FloatingChatWidget() {
   const pathname = usePathname();
   const { locale } = useLanguage();
   const isBn = locale === "bn";
+  const { user } = useAuth();
 
   const [isOpen, setIsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"menu" | "ai_chat">("menu");
@@ -33,6 +35,33 @@ export default function FloatingChatWidget() {
 
   const widgetRef = useRef<HTMLDivElement>(null);
   const chatScrollRef = useRef<HTMLDivElement>(null);
+  const prevUserIdRef = useRef<number | null | undefined>(undefined);
+
+  // Auto-reset chat when user logs out or switches accounts
+  useEffect(() => {
+    const currentId = user?.id ?? null;
+    if (prevUserIdRef.current !== undefined && prevUserIdRef.current !== currentId) {
+      // User logged out or changed
+      setMessages([]);
+      setInputVal("");
+      setViewMode("menu");
+    }
+    prevUserIdRef.current = currentId;
+  }, [user]);
+
+  // Clear chat handler
+  const handleClearChat = () => {
+    setMessages([
+      {
+        id: `welcome_${Date.now()}`,
+        sender: "bot",
+        text: isBn
+          ? `হ্যালো! আমি ${storeName}-এর এআই সহকারী VibeBuddy। আমাদের পণ্য, মূল্য, স্টক বা ডেলিভারি চার্জ সম্পর্কে কিছু জানতে চান? আমি সাহায্য করতে পারি!`
+          : `Hello! I'm VibeBuddy, your 24/7 AI shopping companion at ${storeName}. Feel free to ask about our cosmetics, live prices, stock, or delivery charges!`,
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      },
+    ]);
+  };
 
   // Initialize welcome message when AI chat opens
   useEffect(() => {
@@ -416,6 +445,17 @@ export default function FloatingChatWidget() {
                 </div>
 
                 <div className="flex items-center gap-1">
+                  {/* Clear / Restart Chat button */}
+                  <button
+                    type="button"
+                    onClick={handleClearChat}
+                    title={isBn ? "চ্যাট রিসেট করুন" : "Reset / Clear Chat"}
+                    className="p-1.5 rounded-lg opacity-60 hover:opacity-100 hover:bg-foreground/10 text-foreground transition-colors flex items-center justify-center flex-shrink-0 cursor-pointer"
+                    aria-label="Reset Chat"
+                  >
+                    <span className="text-xs">🔄</span>
+                  </button>
+
                   {/* Quick WhatsApp Handoff */}
                   <a
                     href={getWhatsAppUrl()}
