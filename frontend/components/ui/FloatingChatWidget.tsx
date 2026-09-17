@@ -453,7 +453,13 @@ export default function FloatingChatWidget() {
                     className="p-1.5 rounded-lg opacity-60 hover:opacity-100 hover:bg-foreground/10 text-foreground transition-colors flex items-center justify-center flex-shrink-0 cursor-pointer"
                     aria-label="Reset Chat"
                   >
-                    <span className="text-xs">🔄</span>
+                    <Image
+                      src="/undo.png"
+                      alt="Reset Chat"
+                      width={15}
+                      height={15}
+                      className="w-3.5 h-3.5 object-contain dark:invert transition-all"
+                    />
                   </button>
 
                   {/* Quick WhatsApp Handoff */}
