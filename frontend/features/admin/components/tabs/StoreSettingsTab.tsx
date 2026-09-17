@@ -779,7 +779,7 @@ export default function StoreSettingsTab({
             </div>
 
             {/* Brand Philosophy English */}
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <div className="flex items-center justify-between">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
                   {isBn ? "ব্র্যান্ড দর্শন (English - ফুটারে প্রদর্শিত)" : "Brand Philosophy (EN - Footer)"}
@@ -799,7 +799,7 @@ export default function StoreSettingsTab({
                 })()}
               </div>
               <textarea
-                rows={3}
+                rows={2}
                 maxLength={350}
                 value={brandDescription}
                 onChange={(e) => {
@@ -809,13 +809,13 @@ export default function StoreSettingsTab({
                     setBrandDescription(val);
                   }
                 }}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent resize-none leading-relaxed"
+                className="w-full px-3 py-2 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent resize-none leading-snug"
                 placeholder="Enter store brand philosophy in English (max 70 words)..."
               />
             </div>
 
             {/* Brand Philosophy Bangla */}
-            <div className="space-y-1.5">
+            <div className="space-y-1">
               <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                 <span>{isBn ? "ব্র্যান্ড দর্শন (বাংলা - ফুটারে প্রদর্শিত)" : "Brand Philosophy (BN - Footer)"}</span>
                 <div className="flex items-center gap-2">
@@ -839,7 +839,7 @@ export default function StoreSettingsTab({
                 </div>
               </label>
               <textarea
-                rows={3}
+                rows={2}
                 maxLength={400}
                 value={brandDescriptionBn}
                 onChange={(e) => {
@@ -849,7 +849,7 @@ export default function StoreSettingsTab({
                     setBrandDescriptionBn(val);
                   }
                 }}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent resize-none leading-relaxed"
+                className="w-full px-3 py-2 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent resize-none leading-snug"
                 placeholder="ফুটারে প্রদর্শনের জন্য বাংলায় স্টোরের বিবরণ লিখুন (সর্বোচ্চ ৭০ শব্দ)..."
               />
             </div>
@@ -1132,7 +1132,7 @@ export default function StoreSettingsTab({
             </div>
           </div>
 
-          {/* Google Analytics 4 (GA4) Settings */}
+          {/* Google Analytics 4 (GA4) Settings (Under Meta Pixel) */}
           <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm space-y-5">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-accent" />
@@ -1166,206 +1166,206 @@ export default function StoreSettingsTab({
               </p>
             </div>
           </div>
+          </div>
+        </div>
 
-          {/* AI Assistant & Proactive Nudge Settings */}
-          <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-accent" />
-                <h2 className="text-base font-black uppercase tracking-tight text-foreground">
-                  {isBn ? "এআই সহকারী ও পপআপ সেটিংস" : "AI Assistant & Popup Settings"}
-                </h2>
-              </div>
-              <div className="flex items-center gap-3">
-                <label className="text-xs font-bold text-foreground cursor-pointer flex items-center gap-2">
-                  <span>{isBn ? "চ্যাটবট সক্রিয়" : "AI Chat Active"}</span>
-                  <input
-                    type="checkbox"
-                    checked={aiChatActive}
-                    onChange={(e) => setAiChatActive(e.target.checked)}
-                    className="w-4 h-4 rounded text-accent focus:ring-accent accent-accent cursor-pointer"
-                  />
-                </label>
-              </div>
+        {/* AI Assistant & Proactive Nudge Settings - Takes Full Screen Width */}
+        <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-accent" />
+              <h2 className="text-base font-black uppercase tracking-tight text-foreground">
+                {isBn ? "এআই সহকারী ও পপআপ সেটিংস" : "AI Assistant & Popup Settings"}
+              </h2>
             </div>
-            <p className="text-xs opacity-70">
-              {isBn
-                ? "গ্রাহকদের কেনাকাটায় সাহায্য করার জন্য লাইভ এআই চ্যাটবট এবং হোম ও প্রোডাক্ট পেজের স্বয়ংক্রিয় প্রম্পট পপআপ নিয়ন্ত্রণ করুন।"
-                : "Manage the storefront 24/7 AI shopping companion and configure proactive speech bubble popups on landing and product pages."}
-            </p>
+            <div className="flex items-center gap-3">
+              <label className="text-xs font-bold text-foreground cursor-pointer flex items-center gap-2">
+                <span>{isBn ? "চ্যাটবট সক্রিয়" : "AI Chat Active"}</span>
+                <input
+                  type="checkbox"
+                  checked={aiChatActive}
+                  onChange={(e) => setAiChatActive(e.target.checked)}
+                  className="w-4 h-4 rounded text-accent focus:ring-accent accent-accent cursor-pointer"
+                />
+              </label>
+            </div>
+          </div>
+          <p className="text-xs opacity-70">
+            {isBn
+              ? "গ্রাহকদের কেনাকাটায় সাহায্য করার জন্য লাইভ এআই চ্যাটবট এবং হোম ও প্রোডাক্ট পেজের স্বয়ংক্রিয় প্রম্পট পপআপ নিয়ন্ত্রণ করুন।"
+              : "Manage the storefront 24/7 AI shopping companion and configure proactive speech bubble popups on landing and product pages."}
+          </p>
 
-            {/* Proactive Popup Toggle & Timers */}
-            <div className="p-4 rounded-2xl bg-background border border-foreground/10 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xs font-bold text-foreground">
-                    {isBn ? "স্বয়ংক্রিয় প্রম্পট পপআপ (Proactive Nudge)" : "Proactive Popup Bubble"}
-                  </h3>
-                  <p className="text-[11px] opacity-60">
-                    {isBn
-                      ? "হোমপেজ ও প্রোডাক্ট পেজে গ্রাহকের দৃষ্টি আকর্ষণে ছোট স্পিচ বাবল দেখানো হবে।"
-                      : "Shows a friendly floating speech bubble inviting shoppers to ask questions."}
+          {/* Proactive Popup Toggle & Timers */}
+          <div className="p-4 rounded-2xl bg-background border border-foreground/10 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xs font-bold text-foreground">
+                  {isBn ? "স্বয়ংক্রিয় প্রম্পট পপআপ (Proactive Nudge)" : "Proactive Popup Bubble"}
+                </h3>
+                <p className="text-[11px] opacity-60">
+                  {isBn
+                    ? "হোমপেজ ও প্রোডাক্ট পেজে গ্রাহকের দৃষ্টি আকর্ষণে ছোট স্পিচ বাবল দেখানো হবে।"
+                    : "Shows a friendly floating speech bubble inviting shoppers to ask questions."}
+                </p>
+              </div>
+              <label className="flex items-center gap-2 text-xs font-bold text-foreground cursor-pointer">
+                <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold bg-accent/15 text-accent">
+                  {aiNudgeActive ? (isBn ? "সক্রিয়" : "Active") : (isBn ? "নিষ্ক্রিয়" : "Disabled")}
+                </span>
+                <input
+                  type="checkbox"
+                  checked={aiNudgeActive}
+                  onChange={(e) => setAiNudgeActive(e.target.checked)}
+                  className="w-4 h-4 rounded text-accent focus:ring-accent accent-accent cursor-pointer"
+                />
+              </label>
+            </div>
+
+            {aiNudgeActive && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-foreground/10">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
+                    {isBn ? "পপআপ আসার সময় (Delay in Seconds)" : "Popup Delay (Seconds)"}
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={60}
+                    value={aiNudgeDelaySeconds}
+                    onChange={(e) => setAiNudgeDelaySeconds(Math.max(1, Number(e.target.value) || 1))}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-secondary text-foreground text-xs font-bold border border-foreground/15 focus:outline-none focus:border-accent"
+                  />
+                  <p className="text-[10px] opacity-50">
+                    {isBn ? "পেজে আসার কত সেকেন্ড পর পপআপ আসবে (ডিফল্ট: ৫)" : "How many seconds after page load before the bubble pops up (default: 5)"}
                   </p>
                 </div>
-                <label className="flex items-center gap-2 text-xs font-bold text-foreground cursor-pointer">
-                  <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold bg-accent/15 text-accent">
-                    {aiNudgeActive ? (isBn ? "সক্রিয়" : "Active") : (isBn ? "নিষ্ক্রিয়" : "Disabled")}
-                  </span>
+
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
+                    {isBn ? "পপআপ থাকার সময় (Duration in Seconds)" : "Popup Duration (Seconds)"}
+                  </label>
                   <input
-                    type="checkbox"
-                    checked={aiNudgeActive}
-                    onChange={(e) => setAiNudgeActive(e.target.checked)}
-                    className="w-4 h-4 rounded text-accent focus:ring-accent accent-accent cursor-pointer"
+                    type="number"
+                    min={1}
+                    max={60}
+                    value={aiNudgeDurationSeconds}
+                    onChange={(e) => setAiNudgeDurationSeconds(Math.max(1, Number(e.target.value) || 1))}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-secondary text-foreground text-xs font-bold border border-foreground/15 focus:outline-none focus:border-accent"
                   />
-                </label>
-              </div>
-
-              {aiNudgeActive && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-foreground/10">
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
-                      {isBn ? "পপআপ আসার সময় (Delay in Seconds)" : "Popup Delay (Seconds)"}
-                    </label>
-                    <input
-                      type="number"
-                      min={1}
-                      max={60}
-                      value={aiNudgeDelaySeconds}
-                      onChange={(e) => setAiNudgeDelaySeconds(Math.max(1, Number(e.target.value) || 1))}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-secondary text-foreground text-xs font-bold border border-foreground/15 focus:outline-none focus:border-accent"
-                    />
-                    <p className="text-[10px] opacity-50">
-                      {isBn ? "পেজে আসার কত সেকেন্ড পর পপআপ আসবে (ডিফল্ট: ৫)" : "How many seconds after page load before the bubble pops up (default: 5)"}
-                    </p>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
-                      {isBn ? "পপআপ থাকার সময় (Duration in Seconds)" : "Popup Duration (Seconds)"}
-                    </label>
-                    <input
-                      type="number"
-                      min={1}
-                      max={60}
-                      value={aiNudgeDurationSeconds}
-                      onChange={(e) => setAiNudgeDurationSeconds(Math.max(1, Number(e.target.value) || 1))}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-secondary text-foreground text-xs font-bold border border-foreground/15 focus:outline-none focus:border-accent"
-                    />
-                    <p className="text-[10px] opacity-50">
-                      {isBn ? "কত সেকেন্ড পর স্বয়ংক্রিয়ভাবে বন্ধ হবে (ডিফল্ট: ৮)" : "How many seconds the bubble stays visible before auto-closing (default: 8)"}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Custom Messages for Home & Product Pages */}
-            {aiNudgeActive && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
-                      <span>{isBn ? "হোমপেজ বার্তা (English)" : "Home Page Message (EN)"}</span>
-                      {renderCharCounter(aiNudgeHomeMsg.length, 200)}
-                    </label>
-                    <input
-                      type="text"
-                      maxLength={200}
-                      value={aiNudgeHomeMsg}
-                      onChange={(e) => setAiNudgeHomeMsg(e.target.value.slice(0, 200))}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
-                      placeholder="Welcome to VibeMart! Need any shopping help? Let's chat 👋"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
-                      <span>{isBn ? "হোমপেজ বার্তা (বাংলা)" : "Home Page Message (BN)"}</span>
-                      <div className="flex items-center gap-2">
-                        {renderCharCounter(aiNudgeHomeMsgBn.length, 250)}
-                        <AutoTranslateButton
-                          sourceText={aiNudgeHomeMsg}
-                          onTranslated={(val) => setAiNudgeHomeMsgBn(val.slice(0, 250))}
-                        />
-                      </div>
-                    </label>
-                    <input
-                      type="text"
-                      maxLength={250}
-                      value={aiNudgeHomeMsgBn}
-                      onChange={(e) => setAiNudgeHomeMsgBn(e.target.value.slice(0, 250))}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
-                      placeholder="স্বাগতম VibeMart-এ! কেনাকাটায় কোনো সাহায্য লাগবে? চ্যাট করুন 👋"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
-                      <span>{isBn ? "প্রোডাক্ট পেজ বার্তা (English)" : "Product Page Message (EN)"}</span>
-                      {renderCharCounter(aiNudgeProductMsg.length, 200)}
-                    </label>
-                    <input
-                      type="text"
-                      maxLength={200}
-                      value={aiNudgeProductMsg}
-                      onChange={(e) => setAiNudgeProductMsg(e.target.value.slice(0, 200))}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
-                      placeholder="Any confusion or questions? Just ask me"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
-                      <span>{isBn ? "প্রোডাক্ট পেজ বার্তা (বাংলা)" : "Product Page Message (BN)"}</span>
-                      <div className="flex items-center gap-2">
-                        {renderCharCounter(aiNudgeProductMsgBn.length, 250)}
-                        <AutoTranslateButton
-                          sourceText={aiNudgeProductMsg}
-                          onTranslated={(val) => setAiNudgeProductMsgBn(val.slice(0, 250))}
-                        />
-                      </div>
-                    </label>
-                    <input
-                      type="text"
-                      maxLength={250}
-                      value={aiNudgeProductMsgBn}
-                      onChange={(e) => setAiNudgeProductMsgBn(e.target.value.slice(0, 250))}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
-                      placeholder="কোনো প্রশ্ন বা দ্বিধা আছে? আমাকে জিজ্ঞেস করুন!"
-                    />
-                  </div>
+                  <p className="text-[10px] opacity-50">
+                    {isBn ? "কত সেকেন্ড পর স্বয়ংক্রিয়ভাবে বন্ধ হবে (ডিফল্ট: ৮)" : "How many seconds the bubble stays visible before auto-closing (default: 8)"}
+                  </p>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Action Button */}
-          <div className="flex justify-end gap-3 pt-2">
-            <button
-              type="submit"
-              disabled={!hasChanges || saving}
-              className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 ${
-                !hasChanges || saving
-                  ? "bg-foreground/15 text-foreground/70 border border-foreground/20 cursor-not-allowed"
-                  : "bg-button-bg text-button-fg hover:opacity-90 active:scale-95 cursor-pointer shadow-sm"
-              }`}
-            >
-              {saving ? (
-                <>
-                  <svg className="animate-spin h-4 w-4 text-current" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  <span>{isBn ? "সংরক্ষণ..." : "Saving..."}</span>
-                </>
-              ) : (
-                <span>{isBn ? "সংরক্ষণ" : "Save Changes"}</span>
-              )}
-            </button>
-          </div>
-          </div>
+          {/* Custom Messages for Home & Product Pages */}
+          {aiNudgeActive && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                    <span>{isBn ? "হোমপেজ বার্তা (English)" : "Home Page Message (EN)"}</span>
+                    {renderCharCounter(aiNudgeHomeMsg.length, 200)}
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={200}
+                    value={aiNudgeHomeMsg}
+                    onChange={(e) => setAiNudgeHomeMsg(e.target.value.slice(0, 200))}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
+                    placeholder="Welcome to VibeMart! Need any shopping help? Let's chat 👋"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                    <span>{isBn ? "হোমপেজ বার্তা (বাংলা)" : "Home Page Message (BN)"}</span>
+                    <div className="flex items-center gap-2">
+                      {renderCharCounter(aiNudgeHomeMsgBn.length, 250)}
+                      <AutoTranslateButton
+                        sourceText={aiNudgeHomeMsg}
+                        onTranslated={(val) => setAiNudgeHomeMsgBn(val.slice(0, 250))}
+                      />
+                    </div>
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={250}
+                    value={aiNudgeHomeMsgBn}
+                    onChange={(e) => setAiNudgeHomeMsgBn(e.target.value.slice(0, 250))}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
+                    placeholder="স্বাগতম VibeMart-এ! কেনাকাটায় কোনো সাহায্য লাগবে? চ্যাট করুন 👋"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                    <span>{isBn ? "প্রোডাক্ট পেজ বার্তা (English)" : "Product Page Message (EN)"}</span>
+                    {renderCharCounter(aiNudgeProductMsg.length, 200)}
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={200}
+                    value={aiNudgeProductMsg}
+                    onChange={(e) => setAiNudgeProductMsg(e.target.value.slice(0, 200))}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
+                    placeholder="Any confusion or questions? Just ask me"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                    <span>{isBn ? "প্রোডাক্ট পেজ বার্তা (বাংলা)" : "Product Page Message (BN)"}</span>
+                    <div className="flex items-center gap-2">
+                      {renderCharCounter(aiNudgeProductMsgBn.length, 250)}
+                      <AutoTranslateButton
+                        sourceText={aiNudgeProductMsg}
+                        onTranslated={(val) => setAiNudgeProductMsgBn(val.slice(0, 250))}
+                      />
+                    </div>
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={250}
+                    value={aiNudgeProductMsgBn}
+                    onChange={(e) => setAiNudgeProductMsgBn(e.target.value.slice(0, 250))}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
+                    placeholder="কোনো প্রশ্ন বা দ্বিধা আছে? আমাকে জিজ্ঞেস করুন!"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Action Button */}
+        <div className="flex justify-end gap-3 pt-2">
+          <button
+            type="submit"
+            disabled={!hasChanges || saving}
+            className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 ${
+              !hasChanges || saving
+                ? "bg-foreground/15 text-foreground/70 border border-foreground/20 cursor-not-allowed"
+                : "bg-button-bg text-button-fg hover:opacity-90 active:scale-95 cursor-pointer shadow-sm"
+            }`}
+          >
+            {saving ? (
+              <>
+                <svg className="animate-spin h-4 w-4 text-current" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                <span>{isBn ? "সংরক্ষণ..." : "Saving..."}</span>
+              </>
+            ) : (
+              <span>{isBn ? "সংরক্ষণ" : "Save Changes"}</span>
+            )}
+          </button>
         </div>
       </form>
       )}
