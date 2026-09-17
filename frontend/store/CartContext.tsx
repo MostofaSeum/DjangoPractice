@@ -200,21 +200,31 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
         // Track Meta Pixel AddToCart
         try {
-          const addedItem = updatedCart.items?.find((it: any) => it.product?.id === productId);
+          const addedItem = updatedCart.items?.find((it: any) => 
+            Number(it.product?.id) === Number(productId) && 
+            (!variantId || Number(it.variant?.id) === Number(variantId))
+          ) || updatedCart.items?.find((it: any) => Number(it.product?.id) === Number(productId));
+
           if (addedItem) {
             const price = addedItem.variant
-              ? Number(addedItem.variant.discounted_price || addedItem.variant.effective_price || addedItem.product.discounted_price || addedItem.product.unit_price)
-              : Number(addedItem.product.discounted_price || addedItem.product.unit_price);
+              ? Number(addedItem.variant.discounted_price || addedItem.variant.effective_price || addedItem.variant.price_override || addedItem.product?.discounted_price || addedItem.product?.unit_price)
+              : Number(addedItem.product?.discounted_price || addedItem.product?.unit_price);
             trackPixelEvent("AddToCart", {
-              content_name: addedItem.product.title,
+              content_name: addedItem.product?.title || "Product",
               content_ids: [String(productId)],
               content_type: "product",
               value: (price || 0) * quantity,
               currency: "BDT",
             });
+          } else {
+            trackPixelEvent("AddToCart", {
+              content_ids: [String(productId)],
+              content_type: "product",
+              currency: "BDT",
+            });
           }
-        } catch {
-          // Non-critical
+        } catch (e) {
+          console.error("Meta Pixel AddToCart error:", e);
         }
       }
     } catch (err) {

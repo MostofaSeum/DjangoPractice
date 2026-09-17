@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import Script from "next/script";
 import { siteConfig } from "@/config/siteConfig";
-import { trackPageView } from "@/services/metaPixel";
+import { initMetaPixel, trackPageView } from "@/services/metaPixel";
 
 const API_BASE = siteConfig.apiBaseUrl.replace(/\/+$/, "");
 
@@ -12,8 +11,9 @@ export default function MetaPixel() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [pixelId, setPixelId] = useState<string>("");
+  const isFirstRender = useRef(true);
 
-  // 1. Fetch pixel ID from dynamic Site Settings (fallback to env variable if present)
+  // 1. Fetch pixel ID from dynamic Site Settings (or env variable fallback) and initialize
   useEffect(() => {
     let isMounted = true;
     const fetchPixelSettings = async () => {
@@ -36,6 +36,7 @@ export default function MetaPixel() {
 
       if (isMounted && activeId) {
         setPixelId(activeId);
+        initMetaPixel(activeId);
       }
     };
 
@@ -45,43 +46,29 @@ export default function MetaPixel() {
     };
   }, []);
 
-  // 2. Track PageView on route changes (SPA navigation)
+  // 2. Track PageView on SPA route changes (skip initial render since initMetaPixel already fires PageView)
   useEffect(() => {
     if (!pixelId) return;
+
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
     trackPageView();
   }, [pathname, searchParams, pixelId]);
 
   if (!pixelId) return null;
 
   return (
-    <>
-      <Script
-        id="meta-pixel-script"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            !function(f,b,e,v,n,t,s)
-            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-            n.queue=[];t=b.createElement(e);t.async=!0;
-            t.src=v;s=b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t,s)}(window, document,'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '${pixelId}');
-            fbq('track', 'PageView');
-          `,
-        }}
+    <noscript>
+      <img
+        height="1"
+        width="1"
+        style={{ display: "none" }}
+        src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
+        alt=""
       />
-      <noscript>
-        <img
-          height="1"
-          width="1"
-          style={{ display: "none" }}
-          src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
-          alt=""
-        />
-      </noscript>
-    </>
+    </noscript>
   );
 }

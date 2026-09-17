@@ -11,6 +11,48 @@ declare global {
   }
 }
 
+// Initialize Meta Pixel
+export const initMetaPixel = (pixelId: string) => {
+  if (typeof window === "undefined" || !pixelId) return;
+
+  if (typeof window.fbq === "function" && (window.fbq as any).loaded) {
+    return;
+  }
+
+  // Standard Meta Pixel snippet
+  const fbq: any = function (...args: any[]) {
+    fbq.callMethod ? fbq.callMethod.apply(fbq, args) : fbq.queue.push(args);
+  };
+  if (!window._fbq) window._fbq = fbq;
+  fbq.push = fbq;
+  fbq.loaded = true;
+  fbq.version = "2.0";
+  fbq.queue = [];
+  window.fbq = fbq;
+
+  // Insert fbevents.js script
+  const scriptId = "meta-pixel-fbevents";
+  if (!document.getElementById(scriptId)) {
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.async = true;
+    script.src = "https://connect.facebook.net/en_US/fbevents.js";
+    const firstScript = document.getElementsByTagName("script")[0];
+    if (firstScript && firstScript.parentNode) {
+      firstScript.parentNode.insertBefore(script, firstScript);
+    } else {
+      document.head.appendChild(script);
+    }
+  }
+
+  window.fbq?.("init", pixelId);
+  window.fbq?.("track", "PageView");
+
+  if (process.env.NODE_ENV === "development") {
+    console.log(`[MetaPixel] Initialized with ID: ${pixelId}`);
+  }
+};
+
 // Track standard PageView
 export const trackPageView = () => {
   if (typeof window === "undefined") return;
@@ -21,16 +63,8 @@ export const trackPageView = () => {
 
   if (typeof window.fbq === "function") {
     window.fbq("track", "PageView");
-  } else {
-    // If fbq is not yet ready, queue it on _fbq or retry
-    window._fbq = window._fbq || window.fbq;
-    const interval = setInterval(() => {
-      if (typeof window.fbq === "function") {
-        clearInterval(interval);
-        window.fbq("track", "PageView");
-      }
-    }, 200);
-    setTimeout(() => clearInterval(interval), 5000);
+  } else if (window._fbq && Array.isArray((window._fbq as any).queue)) {
+    (window._fbq as any).push(["track", "PageView"]);
   }
 };
 
