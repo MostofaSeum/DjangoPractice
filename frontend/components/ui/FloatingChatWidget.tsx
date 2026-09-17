@@ -513,7 +513,36 @@ export default function FloatingChatWidget() {
                           : "bg-background border border-foreground/10 text-foreground rounded-bl-none"
                       }`}
                     >
-                      <p className="whitespace-pre-wrap">{m.text}</p>
+                      <div className="whitespace-pre-wrap">
+                        {m.text.split("\n").map((line, lIdx) => {
+                          // Simple regex to parse **bold** and `code`
+                          const parts = line.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+                          return (
+                            <div key={lIdx} className={lIdx > 0 ? "mt-1" : ""}>
+                              {parts.map((part, pIdx) => {
+                                if (part.startsWith("**") && part.endsWith("**")) {
+                                  return (
+                                    <strong key={pIdx} className="font-semibold text-foreground">
+                                      {part.slice(2, -2)}
+                                    </strong>
+                                  );
+                                }
+                                if (part.startsWith("`") && part.endsWith("`")) {
+                                  return (
+                                    <span
+                                      key={pIdx}
+                                      className="px-1 py-0.5 rounded bg-foreground/10 text-accent font-medium text-[11px]"
+                                    >
+                                      {part.slice(1, -1)}
+                                    </span>
+                                  );
+                                }
+                                return <span key={pIdx}>{part}</span>;
+                              })}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                     <span className="text-[9px] opacity-50 mt-1 px-1">{m.timestamp}</span>
                   </div>
