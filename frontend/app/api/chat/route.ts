@@ -165,32 +165,45 @@ ${storeContext}
       parts: [{ text: message.trim().slice(0, 500) }],
     });
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const candidateModels = [
+      "gemini-3.5-flash-lite",
+      "gemini-3.5-flash",
+      "gemini-3.6-flash",
+      "gemini-flash-latest",
+    ];
 
-    const res = await fetch(geminiUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: formattedContents,
-        generationConfig: {
-          temperature: 0.4,
-          maxOutputTokens: 350,
-        },
-      }),
-    });
+    let candidateText = "";
 
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error("Gemini API Error:", res.status, errText);
-      return NextResponse.json({
-        reply:
-          "I am having a brief connection delay. Please feel free to message our support team on WhatsApp or try asking again!",
-      });
+    for (const modelName of candidateModels) {
+      try {
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+
+        const res = await fetch(geminiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: formattedContents,
+            generationConfig: {
+              temperature: 0.4,
+              maxOutputTokens: 350,
+            },
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          candidateText =
+            data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+          if (candidateText) {
+            break;
+          }
+        } else {
+          console.warn(`Gemini model ${modelName} returned status:`, res.status);
+        }
+      } catch (callErr) {
+        console.warn(`Error calling model ${modelName}:`, callErr);
+      }
     }
-
-    const data = await res.json();
-    const candidateText =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
 
     if (!candidateText) {
       return NextResponse.json({
