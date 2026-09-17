@@ -622,6 +622,32 @@ class SiteSetting(models.Model):
     youtube_url = models.URLField(max_length=500, default='https://youtube.com', blank=True)
     whatsapp_number = models.CharField(max_length=50, default='+8801700000000', blank=True)
     meta_pixel_id = models.CharField(max_length=50, blank=True, default='', help_text="Meta (Facebook) Pixel ID")
+    
+    # AI Assistant (VibeBuddy) & Proactive Nudge Settings
+    ai_chat_active = models.BooleanField(default=True, help_text="Enable or disable the AI chat widget storewide")
+    ai_nudge_active = models.BooleanField(default=True, help_text="Enable or disable proactive popup bubble on home & product pages")
+    ai_nudge_delay_seconds = models.PositiveIntegerField(default=5, help_text="Seconds to wait before popup appears")
+    ai_nudge_duration_seconds = models.PositiveIntegerField(default=8, help_text="Seconds the popup stays open before auto-closing")
+    ai_nudge_home_msg = models.CharField(
+        max_length=200,
+        default="Welcome to VibeMart! Need any shopping help? Let's chat 👋",
+        blank=True
+    )
+    ai_nudge_home_msg_bn = models.CharField(
+        max_length=250,
+        default="স্বাগতম VibeMart-এ! কেনাকাটায় কোনো সাহায্য লাগবে? চ্যাট করুন 👋",
+        blank=True
+    )
+    ai_nudge_product_msg = models.CharField(
+        max_length=200,
+        default="Any confusion or questions? Just ask me",
+        blank=True
+    )
+    ai_nudge_product_msg_bn = models.CharField(
+        max_length=250,
+        default="কোনো প্রশ্ন বা দ্বিধা আছে? আমাকে জিজ্ঞেস করুন!",
+        blank=True
+    )
     footer_copyright = models.CharField(
         max_length=255,
         default='© 2026 VIBEMART. ALL RIGHTS RESERVED.',

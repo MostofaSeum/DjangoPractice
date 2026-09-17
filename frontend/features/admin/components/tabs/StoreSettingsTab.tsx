@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useLanguage } from "@/store/LanguageContext";
 import { Collection } from "@/features/admin/types";
 import HomepageSettingsSubTab from "./HomepageSettingsSubTab";
@@ -37,6 +37,14 @@ interface SiteSettingsState {
   youtubeUrl: string;
   whatsappNumber: string;
   metaPixelId: string;
+  aiChatActive: boolean;
+  aiNudgeActive: boolean;
+  aiNudgeDelaySeconds: number;
+  aiNudgeDurationSeconds: number;
+  aiNudgeHomeMsg: string;
+  aiNudgeHomeMsgBn: string;
+  aiNudgeProductMsg: string;
+  aiNudgeProductMsgBn: string;
 }
 
 const DEFAULT_SETTINGS: SiteSettingsState = {
@@ -61,6 +69,14 @@ const DEFAULT_SETTINGS: SiteSettingsState = {
   youtubeUrl: "https://youtube.com",
   whatsappNumber: "+8801700000000",
   metaPixelId: "",
+  aiChatActive: true,
+  aiNudgeActive: true,
+  aiNudgeDelaySeconds: 5,
+  aiNudgeDurationSeconds: 8,
+  aiNudgeHomeMsg: "Welcome to VibeMart! Need any shopping help? Let's chat 👋",
+  aiNudgeHomeMsgBn: "স্বাগতম VibeMart-এ! কেনাকাটায় কোনো সাহায্য লাগবে? চ্যাট করুন 👋",
+  aiNudgeProductMsg: "Any confusion or questions? Just ask me",
+  aiNudgeProductMsgBn: "কোনো প্রশ্ন বা দ্বিধা আছে? আমাকে জিজ্ঞেস করুন!",
 };
 
 const AVAILABLE_CURRENCIES = [
@@ -137,6 +153,14 @@ export default function StoreSettingsTab({
   const [youtubeUrl, setYoutubeUrl] = useState(DEFAULT_SETTINGS.youtubeUrl);
   const [whatsappNumber, setWhatsappNumber] = useState(DEFAULT_SETTINGS.whatsappNumber);
   const [metaPixelId, setMetaPixelId] = useState(DEFAULT_SETTINGS.metaPixelId);
+  const [aiChatActive, setAiChatActive] = useState(DEFAULT_SETTINGS.aiChatActive);
+  const [aiNudgeActive, setAiNudgeActive] = useState(DEFAULT_SETTINGS.aiNudgeActive);
+  const [aiNudgeDelaySeconds, setAiNudgeDelaySeconds] = useState(DEFAULT_SETTINGS.aiNudgeDelaySeconds);
+  const [aiNudgeDurationSeconds, setAiNudgeDurationSeconds] = useState(DEFAULT_SETTINGS.aiNudgeDurationSeconds);
+  const [aiNudgeHomeMsg, setAiNudgeHomeMsg] = useState(DEFAULT_SETTINGS.aiNudgeHomeMsg);
+  const [aiNudgeHomeMsgBn, setAiNudgeHomeMsgBn] = useState(DEFAULT_SETTINGS.aiNudgeHomeMsgBn);
+  const [aiNudgeProductMsg, setAiNudgeProductMsg] = useState(DEFAULT_SETTINGS.aiNudgeProductMsg);
+  const [aiNudgeProductMsgBn, setAiNudgeProductMsgBn] = useState(DEFAULT_SETTINGS.aiNudgeProductMsgBn);
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -146,7 +170,7 @@ export default function StoreSettingsTab({
   const [saving, setSaving] = useState(false);
 
   // Fetch initial settings
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch(`${apiBase}/store/site-settings/`, {
@@ -175,6 +199,14 @@ export default function StoreSettingsTab({
           youtubeUrl: data.youtube_url !== undefined && data.youtube_url !== null ? data.youtube_url : "",
           whatsappNumber: data.whatsapp_number !== undefined && data.whatsapp_number !== null ? data.whatsapp_number : "",
           metaPixelId: data.meta_pixel_id !== undefined && data.meta_pixel_id !== null ? data.meta_pixel_id : "",
+          aiChatActive: data.ai_chat_active !== undefined ? Boolean(data.ai_chat_active) : true,
+          aiNudgeActive: data.ai_nudge_active !== undefined ? Boolean(data.ai_nudge_active) : true,
+          aiNudgeDelaySeconds: Number(data.ai_nudge_delay_seconds) || 5,
+          aiNudgeDurationSeconds: Number(data.ai_nudge_duration_seconds) || 8,
+          aiNudgeHomeMsg: data.ai_nudge_home_msg !== undefined && data.ai_nudge_home_msg !== null ? data.ai_nudge_home_msg : DEFAULT_SETTINGS.aiNudgeHomeMsg,
+          aiNudgeHomeMsgBn: data.ai_nudge_home_msg_bn !== undefined && data.ai_nudge_home_msg_bn !== null ? data.ai_nudge_home_msg_bn : DEFAULT_SETTINGS.aiNudgeHomeMsgBn,
+          aiNudgeProductMsg: data.ai_nudge_product_msg !== undefined && data.ai_nudge_product_msg !== null ? data.ai_nudge_product_msg : DEFAULT_SETTINGS.aiNudgeProductMsg,
+          aiNudgeProductMsgBn: data.ai_nudge_product_msg_bn !== undefined && data.ai_nudge_product_msg_bn !== null ? data.ai_nudge_product_msg_bn : DEFAULT_SETTINGS.aiNudgeProductMsgBn,
         };
 
         setInitialSettings(loaded);
@@ -198,6 +230,14 @@ export default function StoreSettingsTab({
         setYoutubeUrl(loaded.youtubeUrl);
         setWhatsappNumber(loaded.whatsappNumber);
         setMetaPixelId(loaded.metaPixelId);
+        setAiChatActive(loaded.aiChatActive);
+        setAiNudgeActive(loaded.aiNudgeActive);
+        setAiNudgeDelaySeconds(loaded.aiNudgeDelaySeconds);
+        setAiNudgeDurationSeconds(loaded.aiNudgeDurationSeconds);
+        setAiNudgeHomeMsg(loaded.aiNudgeHomeMsg);
+        setAiNudgeHomeMsgBn(loaded.aiNudgeHomeMsgBn);
+        setAiNudgeProductMsg(loaded.aiNudgeProductMsg);
+        setAiNudgeProductMsgBn(loaded.aiNudgeProductMsgBn);
 
         if (data.logo) {
           setInitialLogoUrl(data.logo);
@@ -209,11 +249,11 @@ export default function StoreSettingsTab({
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiBase]);
 
   useEffect(() => {
     fetchSettings();
-  }, [apiBase]);
+  }, [fetchSettings]);
 
   // Check if any change has been made
   const hasChanges = useMemo(() => {
@@ -239,6 +279,14 @@ export default function StoreSettingsTab({
     if (youtubeUrl !== initialSettings.youtubeUrl) return true;
     if (whatsappNumber !== initialSettings.whatsappNumber) return true;
     if (metaPixelId !== initialSettings.metaPixelId) return true;
+    if (aiChatActive !== initialSettings.aiChatActive) return true;
+    if (aiNudgeActive !== initialSettings.aiNudgeActive) return true;
+    if (aiNudgeDelaySeconds !== initialSettings.aiNudgeDelaySeconds) return true;
+    if (aiNudgeDurationSeconds !== initialSettings.aiNudgeDurationSeconds) return true;
+    if (aiNudgeHomeMsg !== initialSettings.aiNudgeHomeMsg) return true;
+    if (aiNudgeHomeMsgBn !== initialSettings.aiNudgeHomeMsgBn) return true;
+    if (aiNudgeProductMsg !== initialSettings.aiNudgeProductMsg) return true;
+    if (aiNudgeProductMsgBn !== initialSettings.aiNudgeProductMsgBn) return true;
     return false;
   }, [
     logoFile,
@@ -264,6 +312,14 @@ export default function StoreSettingsTab({
     youtubeUrl,
     whatsappNumber,
     metaPixelId,
+    aiChatActive,
+    aiNudgeActive,
+    aiNudgeDelaySeconds,
+    aiNudgeDurationSeconds,
+    aiNudgeHomeMsg,
+    aiNudgeHomeMsgBn,
+    aiNudgeProductMsg,
+    aiNudgeProductMsgBn,
     initialSettings,
   ]);
 
@@ -364,6 +420,14 @@ export default function StoreSettingsTab({
       formData.append("youtube_url", youtubeUrl);
       formData.append("whatsapp_number", whatsappNumber);
       formData.append("meta_pixel_id", metaPixelId);
+      formData.append("ai_chat_active", String(aiChatActive));
+      formData.append("ai_nudge_active", String(aiNudgeActive));
+      formData.append("ai_nudge_delay_seconds", String(aiNudgeDelaySeconds));
+      formData.append("ai_nudge_duration_seconds", String(aiNudgeDurationSeconds));
+      formData.append("ai_nudge_home_msg", aiNudgeHomeMsg);
+      formData.append("ai_nudge_home_msg_bn", aiNudgeHomeMsgBn);
+      formData.append("ai_nudge_product_msg", aiNudgeProductMsg);
+      formData.append("ai_nudge_product_msg_bn", aiNudgeProductMsgBn);
 
       if (logoFile) {
         formData.append("logo", logoFile);
@@ -402,6 +466,14 @@ export default function StoreSettingsTab({
           youtubeUrl,
           whatsappNumber,
           metaPixelId,
+          aiChatActive,
+          aiNudgeActive,
+          aiNudgeDelaySeconds,
+          aiNudgeDurationSeconds,
+          aiNudgeHomeMsg,
+          aiNudgeHomeMsgBn,
+          aiNudgeProductMsg,
+          aiNudgeProductMsgBn,
         };
         setInitialSettings(updated);
         setInitialLogoUrl(data.logo || null);
@@ -1049,6 +1121,180 @@ export default function StoreSettingsTab({
                   : "Leave blank to disable Pixel tracking on the storefront."}
               </p>
             </div>
+          </div>
+
+          {/* AI Assistant (VibeBuddy) & Proactive Nudge Settings */}
+          <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-accent" />
+                <h2 className="text-base font-black uppercase tracking-tight text-foreground">
+                  {isBn ? "এআই সহকারী (VibeBuddy) ও পপআপ সেটিংস" : "AI Assistant (VibeBuddy) & Popup Settings"}
+                </h2>
+              </div>
+              <div className="flex items-center gap-3">
+                <label className="text-xs font-bold text-foreground cursor-pointer flex items-center gap-2">
+                  <span>{isBn ? "চ্যাটবট সক্রিয়" : "AI Chat Active"}</span>
+                  <input
+                    type="checkbox"
+                    checked={aiChatActive}
+                    onChange={(e) => setAiChatActive(e.target.checked)}
+                    className="w-4 h-4 rounded text-accent focus:ring-accent accent-accent cursor-pointer"
+                  />
+                </label>
+              </div>
+            </div>
+            <p className="text-xs opacity-70">
+              {isBn
+                ? "গ্রাহকদের কেনাকাটায় সাহায্য করার জন্য লাইভ এআই চ্যাটবট এবং হোম ও প্রোডাক্ট পেজের স্বয়ংক্রিয় প্রম্পট পপআপ নিয়ন্ত্রণ করুন।"
+                : "Manage the storefront 24/7 AI shopping companion and configure proactive speech bubble popups on landing and product pages."}
+            </p>
+
+            {/* Proactive Popup Toggle & Timers */}
+            <div className="p-4 rounded-2xl bg-background border border-foreground/10 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xs font-bold text-foreground">
+                    {isBn ? "স্বয়ংক্রিয় প্রম্পট পপআপ (Proactive Nudge)" : "Proactive Popup Bubble"}
+                  </h3>
+                  <p className="text-[11px] opacity-60">
+                    {isBn
+                      ? "হোমপেজ ও প্রোডাক্ট পেজে গ্রাহকের দৃষ্টি আকর্ষণে ছোট স্পিচ বাবল দেখানো হবে।"
+                      : "Shows a friendly floating speech bubble inviting shoppers to ask questions."}
+                  </p>
+                </div>
+                <label className="flex items-center gap-2 text-xs font-bold text-foreground cursor-pointer">
+                  <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold bg-accent/15 text-accent">
+                    {aiNudgeActive ? (isBn ? "সক্রিয়" : "Active") : (isBn ? "নিষ্ক্রিয়" : "Disabled")}
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={aiNudgeActive}
+                    onChange={(e) => setAiNudgeActive(e.target.checked)}
+                    className="w-4 h-4 rounded text-accent focus:ring-accent accent-accent cursor-pointer"
+                  />
+                </label>
+              </div>
+
+              {aiNudgeActive && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-foreground/10">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
+                      {isBn ? "পপআপ আসার সময় (Delay in Seconds)" : "Popup Delay (Seconds)"}
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={60}
+                      value={aiNudgeDelaySeconds}
+                      onChange={(e) => setAiNudgeDelaySeconds(Math.max(1, Number(e.target.value) || 1))}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-secondary text-foreground text-xs font-bold border border-foreground/15 focus:outline-none focus:border-accent"
+                    />
+                    <p className="text-[10px] opacity-50">
+                      {isBn ? "পেজে আসার কত সেকেন্ড পর পপআপ আসবে (ডিফল্ট: ৫)" : "How many seconds after page load before the bubble pops up (default: 5)"}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
+                      {isBn ? "পপআপ থাকার সময় (Duration in Seconds)" : "Popup Duration (Seconds)"}
+                    </label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={60}
+                      value={aiNudgeDurationSeconds}
+                      onChange={(e) => setAiNudgeDurationSeconds(Math.max(1, Number(e.target.value) || 1))}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-secondary text-foreground text-xs font-bold border border-foreground/15 focus:outline-none focus:border-accent"
+                    />
+                    <p className="text-[10px] opacity-50">
+                      {isBn ? "কত সেকেন্ড পর স্বয়ংক্রিয়ভাবে বন্ধ হবে (ডিফল্ট: ৮)" : "How many seconds the bubble stays visible before auto-closing (default: 8)"}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Custom Messages for Home & Product Pages */}
+            {aiNudgeActive && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                      <span>{isBn ? "হোমপেজ বার্তা (English)" : "Home Page Message (EN)"}</span>
+                      {renderCharCounter(aiNudgeHomeMsg.length, 200)}
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={200}
+                      value={aiNudgeHomeMsg}
+                      onChange={(e) => setAiNudgeHomeMsg(e.target.value.slice(0, 200))}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
+                      placeholder="Welcome to VibeMart! Need any shopping help? Let's chat 👋"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                      <span>{isBn ? "হোমপেজ বার্তা (বাংলা)" : "Home Page Message (BN)"}</span>
+                      <div className="flex items-center gap-2">
+                        {renderCharCounter(aiNudgeHomeMsgBn.length, 250)}
+                        <AutoTranslateButton
+                          sourceText={aiNudgeHomeMsg}
+                          onTranslated={(val) => setAiNudgeHomeMsgBn(val.slice(0, 250))}
+                        />
+                      </div>
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={250}
+                      value={aiNudgeHomeMsgBn}
+                      onChange={(e) => setAiNudgeHomeMsgBn(e.target.value.slice(0, 250))}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
+                      placeholder="স্বাগতম VibeMart-এ! কেনাকাটায় কোনো সাহায্য লাগবে? চ্যাট করুন 👋"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                      <span>{isBn ? "প্রোডাক্ট পেজ বার্তা (English)" : "Product Page Message (EN)"}</span>
+                      {renderCharCounter(aiNudgeProductMsg.length, 200)}
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={200}
+                      value={aiNudgeProductMsg}
+                      onChange={(e) => setAiNudgeProductMsg(e.target.value.slice(0, 200))}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
+                      placeholder="Any confusion or questions? Just ask me"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                      <span>{isBn ? "প্রোডাক্ট পেজ বার্তা (বাংলা)" : "Product Page Message (BN)"}</span>
+                      <div className="flex items-center gap-2">
+                        {renderCharCounter(aiNudgeProductMsgBn.length, 250)}
+                        <AutoTranslateButton
+                          sourceText={aiNudgeProductMsg}
+                          onTranslated={(val) => setAiNudgeProductMsgBn(val.slice(0, 250))}
+                        />
+                      </div>
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={250}
+                      value={aiNudgeProductMsgBn}
+                      onChange={(e) => setAiNudgeProductMsgBn(e.target.value.slice(0, 250))}
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent"
+                      placeholder="কোনো প্রশ্ন বা দ্বিধা আছে? আমাকে জিজ্ঞেস করুন!"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Action Button */}

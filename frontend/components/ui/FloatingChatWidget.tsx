@@ -28,6 +28,16 @@ export default function FloatingChatWidget() {
   const [facebookUrl, setFacebookUrl] = useState("");
   const [storeName, setStoreName] = useState("VibeMart");
 
+  // Dynamic AI & Popup settings from Admin Site Settings
+  const [aiChatActive, setAiChatActive] = useState<boolean>(true);
+  const [aiNudgeActive, setAiNudgeActive] = useState<boolean>(true);
+  const [aiNudgeDelaySeconds, setAiNudgeDelaySeconds] = useState<number>(5);
+  const [aiNudgeDurationSeconds, setAiNudgeDurationSeconds] = useState<number>(8);
+  const [aiNudgeHomeMsg, setAiNudgeHomeMsg] = useState<string>("");
+  const [aiNudgeHomeMsgBn, setAiNudgeHomeMsgBn] = useState<string>("");
+  const [aiNudgeProductMsg, setAiNudgeProductMsg] = useState<string>("");
+  const [aiNudgeProductMsgBn, setAiNudgeProductMsgBn] = useState<string>("");
+
   // AI Chat state
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputVal, setInputVal] = useState("");
@@ -36,41 +46,56 @@ export default function FloatingChatWidget() {
   // Proactive nudge state on product pages
   const [showNudge, setShowNudge] = useState(false);
   const nudgeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const nudgeDismissTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasNudgedPageRef = useRef<string>("");
 
   const widgetRef = useRef<HTMLDivElement>(null);
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const prevUserIdRef = useRef<number | null | undefined>(undefined);
 
-  // Proactive AI Nudge: triggers after 5 seconds on landing page or product details page, then auto-closes after 8 seconds
+  // Proactive AI Nudge: triggers after admin-configured delay, then auto-closes after admin-configured duration
   useEffect(() => {
     if (nudgeTimeoutRef.current) {
       clearTimeout(nudgeTimeoutRef.current);
     }
+    if (nudgeDismissTimeoutRef.current) {
+      clearTimeout(nudgeDismissTimeoutRef.current);
+    }
     setShowNudge(false);
+
+    // If proactive popup or overall AI chat is turned off by admin, skip
+    if (!aiChatActive || !aiNudgeActive) {
+      return;
+    }
 
     // Landing page (home '/') or product details page (e.g. /products/123)
     const isLandingPage = pathname === "/" || pathname === "";
     const isProductPage = pathname?.startsWith("/products/") && pathname.split("/").length >= 3;
 
     if ((isLandingPage || isProductPage) && !isOpen && hasNudgedPageRef.current !== pathname) {
+      const delayMs = Math.max(1, aiNudgeDelaySeconds) * 1000;
+      const durationMs = Math.max(1, aiNudgeDurationSeconds) * 1000;
+
       nudgeTimeoutRef.current = setTimeout(() => {
         setShowNudge(true);
         hasNudgedPageRef.current = pathname;
 
-        // Automatically close the popup after 8 seconds
-        setTimeout(() => {
+        // Automatically close the popup after configured duration
+        nudgeDismissTimeoutRef.current = setTimeout(() => {
           setShowNudge(false);
-        }, 8000);
-      }, 5000); // 5 seconds dwell time
+        }, durationMs);
+      }, delayMs);
     }
 
     return () => {
       if (nudgeTimeoutRef.current) {
         clearTimeout(nudgeTimeoutRef.current);
       }
+      if (nudgeDismissTimeoutRef.current) {
+        clearTimeout(nudgeDismissTimeoutRef.current);
+      }
     };
-  }, [pathname, isOpen]);
+  }, [pathname, isOpen, aiChatActive, aiNudgeActive, aiNudgeDelaySeconds, aiNudgeDurationSeconds]);
 
   // When user opens the chat, dismiss the nudge
   useEffect(() => {
@@ -128,7 +153,7 @@ export default function FloatingChatWidget() {
     }
   }, [messages, isTyping, viewMode]);
 
-  // Fetch contact data from site settings
+  // Fetch contact data and AI popup settings from site settings
   useEffect(() => {
     let isMounted = true;
     const fetchSettings = async () => {
@@ -142,6 +167,15 @@ export default function FloatingChatWidget() {
             if (data.whatsapp_number) setWhatsappNumber(data.whatsapp_number.trim());
             if (data.facebook_url) setFacebookUrl(data.facebook_url.trim());
             if (data.site_title) setStoreName(data.site_title.trim());
+
+            if (typeof data.ai_chat_active === "boolean") setAiChatActive(data.ai_chat_active);
+            if (typeof data.ai_nudge_active === "boolean") setAiNudgeActive(data.ai_nudge_active);
+            if (typeof data.ai_nudge_delay_seconds === "number") setAiNudgeDelaySeconds(data.ai_nudge_delay_seconds);
+            if (typeof data.ai_nudge_duration_seconds === "number") setAiNudgeDurationSeconds(data.ai_nudge_duration_seconds);
+            if (data.ai_nudge_home_msg) setAiNudgeHomeMsg(data.ai_nudge_home_msg);
+            if (data.ai_nudge_home_msg_bn) setAiNudgeHomeMsgBn(data.ai_nudge_home_msg_bn);
+            if (data.ai_nudge_product_msg) setAiNudgeProductMsg(data.ai_nudge_product_msg);
+            if (data.ai_nudge_product_msg_bn) setAiNudgeProductMsgBn(data.ai_nudge_product_msg_bn);
           }
         }
       } catch (err) {
@@ -171,8 +205,8 @@ export default function FloatingChatWidget() {
     };
   }, [isOpen]);
 
-  // Don't render on admin dashboard
-  if (pathname?.startsWith("/admin")) {
+  // Don't render on admin dashboard or if AI chat is disabled storewide
+  if (pathname?.startsWith("/admin") || !aiChatActive) {
     return null;
   }
 
@@ -700,11 +734,11 @@ export default function FloatingChatWidget() {
             <p className="text-[11px] leading-snug font-medium text-foreground/90">
               {pathname === "/" || pathname === ""
                 ? isBn
-                  ? `স্বাগতম ${storeName}-এ! কেনাকাটায় কোনো সাহায্য লাগবে? চ্যাট করুন 👋`
-                  : `Welcome to ${storeName}! Need any shopping help? Let's chat 👋`
+                  ? (aiNudgeHomeMsgBn || aiNudgeHomeMsg || `স্বাগতম ${storeName}-এ! কেনাকাটায় কোনো সাহায্য লাগবে? চ্যাট করুন 👋`)
+                  : (aiNudgeHomeMsg || `Welcome to ${storeName}! Need any shopping help? Let's chat 👋`)
                 : isBn
-                ? "কোনো প্রশ্ন বা দ্বিধা আছে? আমাকে জিজ্ঞেস করুন!"
-                : "Any confusion or questions? Just ask me"}
+                ? (aiNudgeProductMsgBn || aiNudgeProductMsg || "কোনো প্রশ্ন বা দ্বিধা আছে? আমাকে জিজ্ঞেস করুন!")
+                : (aiNudgeProductMsg || "Any confusion or questions? Just ask me")}
             </p>
             <div className="mt-1.5 flex items-center gap-1 text-[10px] font-bold text-accent group-hover:underline">
               <span>{isBn ? "চ্যাট করুন" : "Chat with VibeBuddy"}</span>

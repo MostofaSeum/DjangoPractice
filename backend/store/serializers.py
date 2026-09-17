@@ -1043,6 +1043,14 @@ class SiteSettingSerializer(serializers.ModelSerializer):
     youtube_url = serializers.URLField(max_length=255, required=False, allow_blank=True)
     whatsapp_number = serializers.CharField(max_length=50, required=False, allow_blank=True)
     meta_pixel_id = serializers.CharField(max_length=50, required=False, allow_blank=True)
+    ai_chat_active = serializers.BooleanField(required=False, default=True)
+    ai_nudge_active = serializers.BooleanField(required=False, default=True)
+    ai_nudge_delay_seconds = serializers.IntegerField(required=False, default=5, min_value=1, max_value=120)
+    ai_nudge_duration_seconds = serializers.IntegerField(required=False, default=8, min_value=1, max_value=120)
+    ai_nudge_home_msg = serializers.CharField(max_length=200, required=False, allow_blank=True)
+    ai_nudge_home_msg_bn = serializers.CharField(max_length=250, required=False, allow_blank=True)
+    ai_nudge_product_msg = serializers.CharField(max_length=200, required=False, allow_blank=True)
+    ai_nudge_product_msg_bn = serializers.CharField(max_length=250, required=False, allow_blank=True)
     footer_copyright = serializers.CharField(max_length=100, required=False, allow_blank=True)
     footer_copyright_bn = serializers.CharField(max_length=120, required=False, allow_blank=True)
 
@@ -1068,6 +1076,14 @@ class SiteSettingSerializer(serializers.ModelSerializer):
             'youtube_url',
             'whatsapp_number',
             'meta_pixel_id',
+            'ai_chat_active',
+            'ai_nudge_active',
+            'ai_nudge_delay_seconds',
+            'ai_nudge_duration_seconds',
+            'ai_nudge_home_msg',
+            'ai_nudge_home_msg_bn',
+            'ai_nudge_product_msg',
+            'ai_nudge_product_msg_bn',
             'footer_copyright',
             'footer_copyright_bn',
             'currency_code',
