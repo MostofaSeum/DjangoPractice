@@ -779,7 +779,7 @@ export default function StoreSettingsTab({
             </div>
 
             {/* Brand Philosophy English */}
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="text-[11px] font-black uppercase tracking-wider opacity-70">
                   {isBn ? "ব্র্যান্ড দর্শন (English - ফুটারে প্রদর্শিত)" : "Brand Philosophy (EN - Footer)"}
@@ -799,7 +799,7 @@ export default function StoreSettingsTab({
                 })()}
               </div>
               <textarea
-                rows={2}
+                rows={4}
                 maxLength={350}
                 value={brandDescription}
                 onChange={(e) => {
@@ -809,13 +809,13 @@ export default function StoreSettingsTab({
                     setBrandDescription(val);
                   }
                 }}
-                className="w-full px-3 py-2 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent resize-none leading-snug"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent resize-none leading-relaxed"
                 placeholder="Enter store brand philosophy in English (max 70 words)..."
               />
             </div>
 
             {/* Brand Philosophy Bangla */}
-            <div className="space-y-1">
+            <div className="space-y-1.5">
               <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
                 <span>{isBn ? "ব্র্যান্ড দর্শন (বাংলা - ফুটারে প্রদর্শিত)" : "Brand Philosophy (BN - Footer)"}</span>
                 <div className="flex items-center gap-2">
@@ -839,7 +839,7 @@ export default function StoreSettingsTab({
                 </div>
               </label>
               <textarea
-                rows={2}
+                rows={4}
                 maxLength={400}
                 value={brandDescriptionBn}
                 onChange={(e) => {
@@ -849,7 +849,7 @@ export default function StoreSettingsTab({
                     setBrandDescriptionBn(val);
                   }
                 }}
-                className="w-full px-3 py-2 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent resize-none leading-snug"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-medium border border-foreground/15 focus:outline-none focus:border-accent resize-none leading-relaxed"
                 placeholder="ফুটারে প্রদর্শনের জন্য বাংলায় স্টোরের বিবরণ লিখুন (সর্বোচ্চ ৭০ শব্দ)..."
               />
             </div>
