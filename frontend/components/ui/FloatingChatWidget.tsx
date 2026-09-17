@@ -33,9 +33,45 @@ export default function FloatingChatWidget() {
   const [inputVal, setInputVal] = useState("");
   const [isTyping, setIsTyping] = useState(false);
 
+  // Proactive nudge state on product pages
+  const [showNudge, setShowNudge] = useState(false);
+  const nudgeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hasNudgedPageRef = useRef<string>("");
+
   const widgetRef = useRef<HTMLDivElement>(null);
   const chatScrollRef = useRef<HTMLDivElement>(null);
   const prevUserIdRef = useRef<number | null | undefined>(undefined);
+
+  // Proactive AI Nudge: triggers after user stays on a product details page for 7 seconds
+  useEffect(() => {
+    if (nudgeTimeoutRef.current) {
+      clearTimeout(nudgeTimeoutRef.current);
+    }
+    setShowNudge(false);
+
+    // Check if current route is a product details page (e.g. /products/123)
+    const isProductPage = pathname?.startsWith("/products/") && pathname.split("/").length >= 3;
+
+    if (isProductPage && !isOpen && hasNudgedPageRef.current !== pathname) {
+      nudgeTimeoutRef.current = setTimeout(() => {
+        setShowNudge(true);
+        hasNudgedPageRef.current = pathname;
+      }, 7000); // 7 seconds dwell time
+    }
+
+    return () => {
+      if (nudgeTimeoutRef.current) {
+        clearTimeout(nudgeTimeoutRef.current);
+      }
+    };
+  }, [pathname, isOpen]);
+
+  // When user opens the chat, dismiss the nudge
+  useEffect(() => {
+    if (isOpen) {
+      setShowNudge(false);
+    }
+  }, [isOpen]);
 
   // Auto-reset chat when user logs out or switches accounts
   useEffect(() => {
@@ -618,6 +654,50 @@ export default function FloatingChatWidget() {
               </div>
             </div>
           )}
+      {/* Proactive Product Details Nudge Bubble */}
+      {!isOpen && showNudge && (
+        <div className="mb-2 mr-1 flex items-end gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div
+            onClick={() => {
+              setShowNudge(false);
+              setViewMode("ai_chat");
+              setIsOpen(true);
+            }}
+            className="group relative cursor-pointer rounded-2xl bg-secondary/95 backdrop-blur-md border border-accent/40 hover:border-accent p-3 shadow-xl max-w-[240px] text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowNudge(false);
+              }}
+              className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-foreground/10 hover:bg-foreground/20 text-foreground flex items-center justify-center text-[10px] font-bold transition-colors"
+              title="Dismiss"
+            >
+              ✕
+            </button>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-5 h-5 rounded-full bg-secondary border border-foreground/15 flex items-center justify-center p-0.5 flex-shrink-0">
+                <Image
+                  src="/bot.png"
+                  alt="VibeBuddy"
+                  width={16}
+                  height={16}
+                  className="w-full h-full object-contain dark:invert"
+                />
+              </div>
+              <span className="text-[11px] font-bold text-accent">VibeBuddy</span>
+            </div>
+            <p className="text-[11px] leading-snug font-medium text-foreground/90">
+              {isBn
+                ? "এই প্রোডাক্টটি সম্পর্কে কোনো প্রশ্ন আছে? সাইজ, কালার বা দাম জানতে আমাকে জিজ্ঞেস করুন! ✨"
+                : "Looking at this item? Ask me about sizes, shades, live stock, or delivery! ✨"}
+            </p>
+            <div className="mt-1.5 flex items-center gap-1 text-[10px] font-bold text-accent group-hover:underline">
+              <span>{isBn ? "চ্যাট করুন" : "Ask VibeBuddy"}</span>
+              <span>→</span>
+            </div>
+          </div>
         </div>
       )}
 
