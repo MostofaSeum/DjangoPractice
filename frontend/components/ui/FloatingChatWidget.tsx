@@ -698,12 +698,16 @@ export default function FloatingChatWidget() {
               <span className="text-[11px] font-bold text-accent">VibeBuddy</span>
             </div>
             <p className="text-[11px] leading-snug font-medium text-foreground/90">
-              {isBn
+              {pathname === "/" || pathname === ""
+                ? isBn
+                  ? `স্বাগতম ${storeName}-এ! কেনাকাটায় কোনো সাহায্য লাগবে? চ্যাট করুন 👋`
+                  : `Welcome to ${storeName}! Need any shopping help? Let's chat 👋`
+                : isBn
                 ? "কোনো প্রশ্ন বা দ্বিধা আছে? আমাকে জিজ্ঞেস করুন!"
                 : "Any confusion or questions? Just ask me"}
             </p>
             <div className="mt-1.5 flex items-center gap-1 text-[10px] font-bold text-accent group-hover:underline">
-              <span>{isBn ? "চ্যাট করুন" : "Ask VibeBuddy"}</span>
+              <span>{isBn ? "চ্যাট করুন" : "Chat with VibeBuddy"}</span>
               <span>→</span>
             </div>
           </div>
