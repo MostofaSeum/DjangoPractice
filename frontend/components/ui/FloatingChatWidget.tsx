@@ -20,7 +20,7 @@ export default function FloatingChatWidget() {
   const pathname = usePathname();
   const { locale } = useLanguage();
   const isBn = locale === "bn";
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
   const [isOpen, setIsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"menu" | "ai_chat">("menu");
@@ -204,9 +204,14 @@ export default function FloatingChatWidget() {
     setIsTyping(true);
 
     try {
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) {
+        headers["Authorization"] = `JWT ${token}`;
+      }
+
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({
           message: query,
           history: messages.slice(-6),
@@ -255,9 +260,13 @@ export default function FloatingChatWidget() {
     }
   };
 
-  const quickQuestions = isBn
-    ? ["ডেলিভারি চার্জ কত?", "পেমেন্ট মেথড কি কি?", "অর্ডার ট্র্যাকিং কিভাবে করব?"]
-    : ["What are delivery charges?", "What payment methods do you accept?", "How to track my order?"];
+  const quickQuestions = user
+    ? isBn
+      ? ["আমার ভাইবকয়েন ব্যালেন্স কত?", "আমার সাম্প্রতিক অর্ডার দেখাও", "গিফট কার্ড কিভাবে রিডিম করব?"]
+      : ["What is my VibeCoin balance?", "Where is my order?", "How to redeem a Gift Card?"]
+    : isBn
+      ? ["ডেলিভারি চার্জ কত?", "পেমেন্ট মেথড কি কি?", "গিফট কার্ড কিভাবে কিনব?"]
+      : ["What are delivery charges?", "What payment methods do you accept?", "How to buy Gift Cards?"];
 
   return (
     <div

@@ -158,6 +158,68 @@ export async function POST(req: NextRequest) {
     // Load dynamic real-time store context
     const storeContext = await getLiveStoreContext();
 
+    // Check for logged-in user Authorization token
+    let userContext = `
+USER STATUS: Guest / Not Logged In.
+(If the user asks about their orders, balance, or profile, gently invite them to log in to VibeMart first).
+`;
+    const authHeader = req.headers.get("authorization");
+    if (authHeader && authHeader.startsWith("JWT ")) {
+      const apiBase = getApiBaseUrl();
+      try {
+        const [userRes, custRes, ordersRes] = await Promise.all([
+          fetch(`${apiBase}/auth/users/me/`, { headers: { Authorization: authHeader } }),
+          fetch(`${apiBase}/store/customers/me/`, { headers: { Authorization: authHeader } }),
+          fetch(`${apiBase}/store/orders/`, { headers: { Authorization: authHeader } }),
+        ]);
+
+        let userName = "Valued Customer";
+        let email = "";
+        let phone = "Not set";
+        let vibeCoin = 0;
+        let ordersList: string[] = [];
+
+        if (userRes.ok) {
+          const u = await userRes.json();
+          userName = [u.first_name, u.last_name].filter(Boolean).join(" ") || u.username || "Customer";
+          email = u.email || "";
+        }
+
+        if (custRes.ok) {
+          const c = await custRes.json();
+          vibeCoin = c.vibe_coin ?? 0;
+          if (c.phone) phone = c.phone;
+        }
+
+        if (ordersRes.ok) {
+          const ord = await ordersRes.json();
+          const ordersArray = Array.isArray(ord) ? ord : ord.results || [];
+          ordersList = ordersArray.slice(0, 5).map((o: any) => {
+            const itemsSummary = o.items
+              ? o.items
+                  .map((it: any) => `${it.product?.title || "Item"} x${it.quantity}`)
+                  .join(", ")
+              : "Items";
+            const tracking = o.tracking_status_display || o.tracking_status || "Processing";
+            const date = o.placed_at ? new Date(o.placed_at).toLocaleDateString() : "";
+            return `- Order #${o.id}: Status "${tracking}" | Items: [${itemsSummary}] | Date: ${date} | Courier: ${o.courier_partner_details?.name || "In-House"}`;
+          });
+        }
+
+        userContext = `
+CURRENT LOGGED-IN CUSTOMER PROFILE (ACTIVE SESSION):
+- Customer Name: ${userName}
+- Email: ${email}
+- Phone: ${phone}
+- VibeCoin Wallet Balance: ${vibeCoin} VC (৳${vibeCoin})
+- Recent Order History (${ordersList.length} recent orders):
+${ordersList.length > 0 ? ordersList.join("\n") : "No previous orders placed yet."}
+`;
+      } catch (err) {
+        console.error("Failed to fetch customer profile context for AI chat:", err);
+      }
+    }
+
     // Construct system instructions
     const systemPrompt = `You are VibeBuddy, the official 24/7 AI shopping assistant and beauty companion for "VibeMart" (a premium cosmetics, fashion, and beauty storefront in Bangladesh).
 
@@ -165,22 +227,28 @@ YOUR GOAL:
 Provide warm, courteous, highly accurate, and helpful customer support to shoppers inquiring about products, prices, stock, delivery charges, ordering, policies, and ALL website features (Gift Cards, VibeCoin, Order Tracking, Returns, etc.).
 
 GUIDELINES & CONSTRAINTS:
-1. ALWAYS rely STRICTLY on the real-time store information, feature how-to guides, and live product catalog provided below.
-2. If a customer asks about a product in the catalog, specify the exact price in ৳ (BDT), whether it is in stock, and its available variants/options (such as sizes, shades, or colors) from the catalog data.
-3. If a customer asks about variants (e.g. "does this have sizes or shades?"), check the Variants field for that product:
+1. ALWAYS rely STRICTLY on the real-time store information, feature how-to guides, customer profile data, and live product catalog provided below.
+2. If the user asks about THEIR OWN ACCOUNT (e.g. "what is my name?", "what is my VibeCoin balance?", "track my order", "what did I buy?", "show my order history"):
+   - Check the "CURRENT LOGGED-IN CUSTOMER PROFILE" below.
+   - If they are logged in, address them by their name, tell them their exact VibeCoin balance, or detail their recent orders and tracking statuses.
+   - If they are NOT logged in, politely let them know: "You are currently browsing as a guest. Please sign in to your VibeMart account so I can view your orders and VibeCoin balance!"
+3. If a customer asks about a product in the catalog, specify the exact price in ৳ (BDT), whether it is in stock, and its available variants/options (such as sizes, shades, or colors) from the catalog data.
+4. If a customer asks about variants (e.g. "does this have sizes or shades?"), check the Variants field for that product:
    - If variants are listed, clearly name each size/shade, its price, and availability.
    - If Variants says "None", accurately explain that it only comes in a single standard size/version.
-4. If a product is out of stock, politely inform the customer.
-5. If an item is NOT in the catalog, honestly state that we don't currently have it in stock and recommend browsing our Shop or contacting our team on WhatsApp.
-6. If a customer asks HOW TO USE ANY WEBSITE FEATURE (e.g. "how to buy or redeem gift cards", "what is VibeCoin", "how to track order", "how to return an item"):
+5. If a product is out of stock, politely inform the customer.
+6. If an item is NOT in the catalog, honestly state that we don't currently have it in stock and recommend browsing our Shop or contacting our team on WhatsApp.
+7. If a customer asks HOW TO USE ANY WEBSITE FEATURE (e.g. "how to buy or redeem gift cards", "what is VibeCoin", "how to track order", "how to return an item"):
    - Clearly explain the step-by-step process based on the "WEBSITE FEATURES & USER HOW-TO GUIDE" below.
    - Mention the relevant page link (e.g. /gift-cards, /checkout, /profile, /wishlist).
-7. If the user writes in Bengali (Bangla), reply in natural, polite Bengali.
-8. If the user writes in English, reply in friendly, professional English.
-9. If the user writes in Banglish (e.g. "gift card kivabe redeem korbo?", "delivery charge koto?"), reply in fluent Bengali or friendly Banglish.
-10. Keep your responses friendly, helpful, and concise (2-4 clear sentences or short numbered bullet points).
-11. DO NOT use heavy markdown formatting like double asterisks (**) for bolding or backticks (\`) for words. Keep formatting natural and clean for chat bubbles.
-12. For complex order cancellations, payment disputes, or issues requiring a human agent, warmly invite them to click the "Chat on WhatsApp" button in the header.
+8. If the user writes in Bengali (Bangla), reply in natural, polite Bengali.
+9. If the user writes in English, reply in friendly, professional English.
+10. If the user writes in Banglish (e.g. "amar order kothay?", "amar coin koto?"), reply in fluent Bengali or friendly Banglish.
+11. Keep your responses friendly, helpful, and concise (2-4 clear sentences or short numbered bullet points).
+12. DO NOT use heavy markdown formatting like double asterisks (**) for bolding or backticks (\`) for words. Keep formatting natural and clean for chat bubbles.
+13. For complex order cancellations, payment disputes, or issues requiring a human agent, warmly invite them to click the "Chat on WhatsApp" button in the header.
+
+${userContext}
 
 LIVE STORE CONTEXT:
 ${storeContext}
