@@ -7,14 +7,24 @@ import { initMetaPixel, trackPageView } from "@/services/metaPixel";
 
 const API_BASE = siteConfig.apiBaseUrl.replace(/\/+$/, "");
 
-export default function MetaPixel() {
+interface MetaPixelProps {
+  initialPixelId?: string;
+}
+
+export default function MetaPixel({ initialPixelId = "" }: MetaPixelProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [pixelId, setPixelId] = useState<string>("");
+  const [pixelId, setPixelId] = useState<string>(initialPixelId);
   const isFirstRender = useRef(true);
 
-  // 1. Fetch pixel ID from dynamic Site Settings (or env variable fallback) and initialize
+  // 1. Initialize immediately if initialPixelId is provided, or fetch dynamically
   useEffect(() => {
+    if (initialPixelId) {
+      setPixelId(initialPixelId);
+      initMetaPixel(initialPixelId);
+      return;
+    }
+
     let isMounted = true;
     const fetchPixelSettings = async () => {
       const envPixel = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim();
@@ -44,7 +54,7 @@ export default function MetaPixel() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [initialPixelId]);
 
   // 2. Track PageView on SPA route changes (skip initial render since initMetaPixel already fires PageView)
   useEffect(() => {
@@ -58,17 +68,5 @@ export default function MetaPixel() {
     trackPageView();
   }, [pathname, searchParams, pixelId]);
 
-  if (!pixelId) return null;
-
-  return (
-    <noscript>
-      <img
-        height="1"
-        width="1"
-        style={{ display: "none" }}
-        src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
-        alt=""
-      />
-    </noscript>
-  );
+  return null;
 }
