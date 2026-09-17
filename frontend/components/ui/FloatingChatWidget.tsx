@@ -293,7 +293,7 @@ export default function FloatingChatWidget() {
                   onClick={() => setViewMode("ai_chat")}
                   className="w-full flex items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3 rounded-xl bg-background hover:bg-accent/10 border border-accent/40 hover:border-accent text-foreground transition-all duration-200 group active:scale-[0.98] text-left cursor-pointer relative overflow-hidden"
                 >
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-1.5">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-secondary border border-foreground/15 flex items-center justify-center flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform overflow-hidden p-2">
                     <Image
                       src="/bot.png"
                       alt="VibeBuddy"
@@ -336,9 +336,6 @@ export default function FloatingChatWidget() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
                       <span className="text-xs sm:text-sm font-bold text-foreground truncate">WhatsApp</span>
-                      <span className="text-[9px] sm:text-[10px] uppercase font-semibold tracking-wider text-visible bg-visible/10 px-1.5 py-0.5 rounded flex-shrink-0">
-                        {isBn ? "অনলাইন" : "Human"}
-                      </span>
                     </div>
                     <p className="text-[10px] sm:text-[11px] opacity-75 truncate">
                       {isBn ? "হোয়াটসঅ্যাপে সরাসরি কথা বলুন" : "Chat directly with support team"}
@@ -365,9 +362,6 @@ export default function FloatingChatWidget() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
                       <span className="text-xs sm:text-sm font-bold text-foreground truncate">Messenger</span>
-                      <span className="text-[9px] sm:text-[10px] uppercase font-semibold tracking-wider text-accent bg-accent/10 px-1.5 py-0.5 rounded flex-shrink-0">
-                        Facebook
-                      </span>
                     </div>
                     <p className="text-[10px] sm:text-[11px] opacity-75 truncate">
                       {isBn ? "ফেসবুক মেসেঞ্জারে মেসেজ দিন" : "Chat on Facebook Messenger"}
