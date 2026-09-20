@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useLanguage } from "@/store/LanguageContext";
+import { useTheme } from "@/store/ThemeContext";
 import { Collection } from "@/features/admin/types";
 import HomepageSettingsSubTab from "./HomepageSettingsSubTab";
 import Swal from "sweetalert2";
 import AutoTranslateButton from "@/features/admin/components/common/AutoTranslateButton";
 import { translateText } from "@/services/translationService";
+import { THEME_PALETTES, DEFAULT_THEME_PALETTE_ID } from "@/config/themePalettes";
 
 interface StoreSettingsTabProps {
   apiBase: string;
@@ -46,6 +48,7 @@ interface SiteSettingsState {
   aiNudgeHomeMsgBn: string;
   aiNudgeProductMsg: string;
   aiNudgeProductMsgBn: string;
+  themePalette: string;
 }
 
 const DEFAULT_SETTINGS: SiteSettingsState = {
@@ -53,6 +56,7 @@ const DEFAULT_SETTINGS: SiteSettingsState = {
   siteTitleBn: "",
   tagline: "MAKE-UP STYLE",
   taglineBn: "",
+  themePalette: DEFAULT_THEME_PALETTE_ID,
   brandDescription:
     "VibeMart is a recognized multi-category fashion and lifestyle store built on the principle of \"best price at the highest quality\". Our collections are curated with premium materials that are durable, stylish, and perfect for your vibe.",
   brandDescriptionBn: "",
@@ -118,6 +122,7 @@ export default function StoreSettingsTab({
   onSubTabChange,
 }: StoreSettingsTabProps) {
   const { locale, setCurrency } = useLanguage();
+  const { setPalette } = useTheme();
   const isBn = locale === "bn";
 
   const [internalSubTab, setInternalSubTab] = useState<"general" | "homepage">("homepage");
@@ -135,6 +140,7 @@ export default function StoreSettingsTab({
   const [initialSettings, setInitialSettings] = useState<SiteSettingsState>(DEFAULT_SETTINGS);
 
   // Form states
+  const [themePalette, setThemePalette] = useState(DEFAULT_SETTINGS.themePalette);
   const [siteTitle, setSiteTitle] = useState(DEFAULT_SETTINGS.siteTitle);
   const [siteTitleBn, setSiteTitleBn] = useState(DEFAULT_SETTINGS.siteTitleBn);
   const [tagline, setTagline] = useState(DEFAULT_SETTINGS.tagline);
@@ -182,6 +188,7 @@ export default function StoreSettingsTab({
       if (res.ok) {
         const data = await res.json();
         const loaded: SiteSettingsState = {
+          themePalette: data.theme_palette || DEFAULT_THEME_PALETTE_ID,
           siteTitle: data.site_title !== undefined && data.site_title !== null ? data.site_title : "VibeMart",
           siteTitleBn: data.site_title_bn !== undefined && data.site_title_bn !== null ? data.site_title_bn : "",
           tagline: data.tagline !== undefined && data.tagline !== null ? data.tagline : "",
@@ -214,6 +221,10 @@ export default function StoreSettingsTab({
         };
 
         setInitialSettings(loaded);
+        setThemePalette(loaded.themePalette);
+        if (loaded.themePalette) {
+          setPalette(loaded.themePalette);
+        }
         setSiteTitle(loaded.siteTitle);
         setSiteTitleBn(loaded.siteTitleBn);
         setTagline(loaded.tagline);
@@ -264,6 +275,7 @@ export default function StoreSettingsTab({
   const hasChanges = useMemo(() => {
     if (logoFile !== null) return true;
     if (logoPreview !== initialLogoUrl) return true;
+    if (themePalette !== initialSettings.themePalette) return true;
     if (siteTitle !== initialSettings.siteTitle) return true;
     if (siteTitleBn !== initialSettings.siteTitleBn) return true;
     if (tagline !== initialSettings.tagline) return true;
@@ -327,6 +339,7 @@ export default function StoreSettingsTab({
     aiNudgeHomeMsgBn,
     aiNudgeProductMsg,
     aiNudgeProductMsgBn,
+    themePalette,
     initialSettings,
   ]);
 
@@ -354,7 +367,7 @@ export default function StoreSettingsTab({
       }
       if (brandDescription?.trim() && !brandDescriptionBn?.trim()) {
         const val = await translateText(brandDescription);
-        if (val) { setBrandDescriptionBn(val.slice(0, 400)); count++; }
+        if (val) { setBrandDescriptionBn(val); count++; }
       }
       if (storeAddress?.trim() && !storeAddressBn?.trim()) {
         const val = await translateText(storeAddress);
@@ -368,14 +381,22 @@ export default function StoreSettingsTab({
         const val = await translateText(footerCopyright);
         if (val) { setFooterCopyrightBn(val.slice(0, 120)); count++; }
       }
+      if (aiNudgeHomeMsg?.trim() && !aiNudgeHomeMsgBn?.trim()) {
+        const val = await translateText(aiNudgeHomeMsg);
+        if (val) { setAiNudgeHomeMsgBn(val.slice(0, 250)); count++; }
+      }
+      if (aiNudgeProductMsg?.trim() && !aiNudgeProductMsgBn?.trim()) {
+        const val = await translateText(aiNudgeProductMsg);
+        if (val) { setAiNudgeProductMsgBn(val.slice(0, 250)); count++; }
+      }
 
       if (count > 0) {
         Swal.fire({
           position: "top-end",
           icon: "success",
-          title: isBn ? "স্টোর সেটিংস সফলভাবে বাংলায় অনুবাদ হয়েছে!" : "Store settings auto-translated to Bangla!",
+          title: isBn ? `${count}টি ফিল্ড সফলভাবে অনুবাদ করা হয়েছে!` : `Auto-translated ${count} fields!`,
           showConfirmButton: false,
-          timer: 1800,
+          timer: 1500,
           toast: true,
         });
       } else {
@@ -384,12 +405,13 @@ export default function StoreSettingsTab({
           icon: "info",
           title: isBn ? "সকল বাংলা ফিল্ড ইতিমধ্যেই পূর্ণ আছে" : "All Bangla fields are already populated",
           showConfirmButton: false,
-          timer: 1800,
+          timer: 1500,
           toast: true,
         });
       }
     } catch (err) {
       console.error(err);
+      Swal.fire("Error", "Auto-translation failed. Please try again.", "error");
     } finally {
       setBatchTranslatingGeneral(false);
     }
@@ -407,6 +429,7 @@ export default function StoreSettingsTab({
     try {
       setSaving(true);
       const formData = new FormData();
+      formData.append("theme_palette", themePalette);
       formData.append("site_title", siteTitle);
       formData.append("site_title_bn", siteTitleBn);
       formData.append("tagline", tagline);
@@ -454,6 +477,7 @@ export default function StoreSettingsTab({
       if (res.ok) {
         const data = await res.json();
         const updated: SiteSettingsState = {
+          themePalette: data.theme_palette || themePalette,
           siteTitle,
           siteTitleBn,
           tagline,
@@ -489,7 +513,10 @@ export default function StoreSettingsTab({
         setLogoPreview(data.logo || null);
         setLogoFile(null);
 
-        // Update global context currency
+        // Update global context palette & currency
+        if (data.theme_palette) {
+          setPalette(data.theme_palette);
+        }
         if (data.currency_code) {
           setCurrency(data.currency_code);
         }
@@ -576,6 +603,77 @@ export default function StoreSettingsTab({
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Left Column: Logo Upload & Brand Identity & Currency */}
             <div className="space-y-6">
+          {/* Theme Palette Selection Card */}
+          <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-accent" />
+              <h2 className="text-base font-black uppercase tracking-tight text-foreground">
+                {isBn ? "ওয়েবসাইট থিম ও কালার" : "Theme & Color Palette"}
+              </h2>
+            </div>
+            <p className="text-xs opacity-70">
+              {isBn
+                ? "ওয়েবসাইটের ব্র্যান্ড কালার নির্বাচন করুন। এটি সমগ্র ওয়েবসাইটের নেভবার, বাটন, অ্যাকসেন্ট ও ব্যাকগ্রাউন্ড নিয়ন্ত্রণ করে।"
+                : "Select the storefront color theme. Controls global branding, navbars, buttons, badges, and surfaces."}
+            </p>
+
+            <div className="space-y-2.5 pt-1">
+              {Object.values(THEME_PALETTES).map((item) => {
+                const isSelected = themePalette === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setThemePalette(item.id);
+                      setPalette(item.id);
+                    }}
+                    className={`w-full p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                      isSelected
+                        ? "border-accent bg-accent/10 shadow-xs ring-1 ring-accent"
+                        : "border-foreground/10 bg-background hover:bg-foreground/5"
+                    }`}
+                  >
+                    <div className="space-y-0.5 min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-foreground">
+                          {isBn ? item.nameBn : item.name}
+                        </span>
+                        {isSelected && (
+                          <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-accent text-white">
+                            {isBn ? "সক্রিয়" : "Active"}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[10px] text-foreground/60 truncate">
+                        {isBn ? item.descriptionBn : item.description}
+                      </p>
+                    </div>
+
+                    {/* Color Swatch Indicators */}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span
+                        className="w-5 h-5 rounded-full border border-black/10 shadow-xs"
+                        style={{ backgroundColor: item.preview.primary }}
+                        title="Primary"
+                      />
+                      <span
+                        className="w-5 h-5 rounded-full border border-black/10 shadow-xs"
+                        style={{ backgroundColor: item.preview.accent }}
+                        title="Accent"
+                      />
+                      <span
+                        className="w-5 h-5 rounded-full border border-black/10 shadow-xs"
+                        style={{ backgroundColor: item.preview.background }}
+                        title="Background"
+                      />
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Currency Configuration Card */}
           <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm space-y-4">
             <div className="flex items-center gap-2">

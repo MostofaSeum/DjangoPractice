@@ -2,14 +2,14 @@
 @custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
 
 :root {
-  /* Light Theme */
-  --logo-color: #f3efe6;
-  --background: #e6e0d4;
-  --foreground: #3a3532;
-  --primary: #3a3532;
+  /* Light Theme - Clean Beauty / Botanical Lilac */
+  --logo-color: #ffffff;
+  --background: #f8f6fa;
+  --foreground: #2b2236;
+  --primary: #836e9f;
   --secondary: #ffffff;
-  --accent: #8b7a66;
-  --button-bg: #3a3532;
+  --accent: #9f84bf;
+  --button-bg: #836e9f;
   --button-fg: #ffffff;
   --bkash: #e2136e;
   --nagad: #f15a24;
@@ -22,15 +22,15 @@
 
 html[data-theme="dark"],
 .dark {
-  /* Dark Theme */
-  --logo-color: #f3efe6;
-  --background: #5b5046;
-  --foreground: #f3efe6;
-  --primary: #11100f;
-  --secondary: #262422;
-  --accent: #ab7180;
-  --button-bg: #2b2f33;
-  --button-fg: #f3efe6;
+  /* Dark Theme - Midnight Velvet & Lavender Glow */
+  --logo-color: #f3edf8;
+  --background: #1b1624;
+  --foreground: #f3edf8;
+  --primary: #272033;
+  --secondary: #221c2e;
+  --accent: #c4a9e5;
+  --button-bg: #8e74ad;
+  --button-fg: #ffffff;
   --bkash: #e2136e;
   --nagad: #f15a24;
   --visible: #34d399;
@@ -73,6 +73,7 @@ body {
   color: var(--foreground) !important;
   border: 1px solid rgba(128, 128, 128, 0.2) !important;
   border-radius: 1.5rem !important;
+  padding: 1.75rem !important;
 }
 
 .swal2-title {
@@ -81,16 +82,49 @@ body {
 
 .swal2-html-container {
   color: var(--foreground) !important;
+  opacity: 0.85;
+}
+
+.swal2-actions {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.875rem !important;
+  margin-top: 1.5rem !important;
 }
 
 .swal2-popup .swal2-styled.swal2-confirm {
-  border-radius: 0.75rem !important;
+  background-color: var(--button-bg) !important;
+  color: var(--button-fg) !important;
+  border-radius: 0.875rem !important;
   font-weight: 700 !important;
+  padding: 0.65rem 1.4rem !important;
+  font-size: 0.875rem !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+  transition: opacity 0.2s ease, transform 0.1s ease !important;
+  margin: 0 !important;
+}
+
+.swal2-popup .swal2-styled.swal2-confirm:hover {
+  opacity: 0.9 !important;
 }
 
 .swal2-popup .swal2-styled.swal2-cancel {
-  border-radius: 0.75rem !important;
+  background-color: transparent !important;
+  color: var(--foreground) !important;
+  border: 1.5px solid rgba(128, 128, 128, 0.25) !important;
+  border-radius: 0.875rem !important;
   font-weight: 700 !important;
+  padding: 0.65rem 1.4rem !important;
+  font-size: 0.875rem !important;
+  box-shadow: none !important;
+  transition: background-color 0.2s ease, border-color 0.2s ease !important;
+  margin: 0 !important;
+}
+
+.swal2-popup .swal2-styled.swal2-cancel:hover {
+  background-color: rgba(128, 128, 128, 0.1) !important;
+  border-color: rgba(128, 128, 128, 0.45) !important;
 }
 
 /* Slim Custom Scrollbars for Admin Layout & Modals */

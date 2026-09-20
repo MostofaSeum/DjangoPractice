@@ -13,7 +13,7 @@ export default function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <div className="w-8 h-8 rounded-full border border-white/20 bg-white/10" />
+      <div className="w-8 h-8 rounded-full border border-foreground/15 bg-foreground/5" />
     );
   }
 
@@ -26,7 +26,7 @@ export default function ThemeToggle() {
         toggleTheme();
       }}
       aria-label="Toggle Light and Dark Mode"
-      className="p-1.5 sm:p-2 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-background hover:text-white transition-all flex items-center justify-center cursor-pointer select-none"
+      className="p-1.5 sm:p-2 rounded-full border border-foreground/15 bg-foreground/5 hover:bg-foreground/10 text-foreground transition-all flex items-center justify-center cursor-pointer select-none"
       title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
     >
       {theme === "light" ? (
@@ -50,7 +50,7 @@ export default function ThemeToggle() {
         <img
           src="/icons/sun.png"
           alt="Light Mode"
-          className="w-4 h-4 object-contain"
+          className="w-4 h-4 object-contain brightness-0 invert"
         />
       )}
     </button>

@@ -156,7 +156,7 @@ export default function AdminHeader({
             onClick={onLogout}
             title={t("admin.header.logout")}
             aria-label={t("admin.header.logout")}
-            className="bg-accent/20 text-accent hover:bg-accent/30 p-1.5 sm:px-3.5 sm:py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider border border-accent/20 transition-colors cursor-pointer flex items-center gap-1.5 shrink-0"
+            className="flex items-center justify-center gap-1.5 p-1.5 sm:px-3.5 sm:py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 border border-red-300/30 bg-red-500/20 text-white hover:bg-red-500/35 hover:border-red-300/50 active:scale-95 cursor-pointer shrink-0 shadow-xs"
           >
             <svg
               className="w-4 h-4 shrink-0"

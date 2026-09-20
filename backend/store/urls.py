@@ -38,7 +38,11 @@ products_router.register('variants', views.ProductVariantViewSet,
 carts_router = routers.NestedDefaultRouter(router, 'carts', lookup='cart')
 carts_router.register('items', views.CartItemViewSet, basename='cart-items')
 
-urlpatterns = router.urls + products_router.urls + carts_router.urls
+from .views_analytics import GA4LiveTrafficView
+
+urlpatterns = router.urls + products_router.urls + carts_router.urls + [
+    path('analytics/ga4-live/', GA4LiveTrafficView.as_view(), name='ga4-live-traffic'),
+]
 # URLConf
 # urlpatterns = [
 #     # path('products/', views.ProductListCreateAPIView.as_view()),

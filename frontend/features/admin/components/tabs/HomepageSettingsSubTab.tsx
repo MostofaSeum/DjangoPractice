@@ -834,44 +834,44 @@ export default function HomepageSettingsSubTab({
                     const file = e.target.files[0];
                     const img = new window.Image();
                     const objectUrl = URL.createObjectURL(file);
-
                     img.onload = () => {
                       const width = img.naturalWidth;
                       const height = img.naturalHeight;
                       const ratio = width / height;
-                      // Target banner is 1907x150 (~12.71 aspect ratio). Allow sensible range [11.5 - 13.5] and minimum width 1200px
-                      const isRatioValid = ratio >= 11.5 && ratio <= 13.5;
-                      const isSizeSufficient = width >= 1200 && height >= 80;
 
-                      if (!isRatioValid || !isSizeSufficient) {
+                      // Minimum width check to prevent blurry low-res graphics
+                      if (width < 1200) {
+                        Swal.fire({
+                          icon: "warning",
+                          title: isBn ? "ছবির রেজোলিউশন কম" : "Low Resolution Image",
+                          text: isBn
+                            ? `ব্যানারের ছবির প্রস্থ কমপক্ষে ১২০০ পিক্সেল হতে হবে (আপনার ছবির সাইজ: ${width} × ${height} পিক্সেল)।`
+                            : `Banner image width must be at least 1200 pixels for optimal sharpness (Your image: ${width} × ${height} px).`,
+                          confirmButtonColor: "var(--button-bg, #836e9f)",
+                        });
                         URL.revokeObjectURL(objectUrl);
                         e.target.value = "";
+                        return;
+                      }
+
+                      // Aspect ratio check: ideal ~10:1 (e.g. 1907x186 ~ 10.25:1, 1920x186 ~ 10.3:1, 1920x200 ~ 9.6:1)
+                      if (ratio < 9.0 || ratio > 11.5) {
                         Swal.fire({
-                          icon: "error",
-                          title: isBn ? "ছবির সাইজ মেলেনি!" : "Invalid Banner Dimensions!",
-                          html: isBn
-                            ? `<p class="text-sm">আপলোডকৃত ব্যানারের সাইজ: <b>${width} x ${height}px</b>।</p>
-                               <p class="text-xs text-foreground/70 mt-2">ব্যানারের সাইজ অবশ্যই <b>১৯০৭ x ১৫০ পিক্সেল</b> (অনুপাত ~১২.৭ : ১) এর অনুরূপ হতে হবে যাতে হোমপেজে ডিজাইন নষ্ট না হয়।</p>`
-                            : `<p class="text-sm">Uploaded image dimensions: <b>${width} x ${height}px</b>.</p>
-                               <p class="text-xs text-foreground/70 mt-2">Banner must match the site banner size of <b>1907 x 150 px</b> (aspect ratio ~12.7:1) to maintain proper layout fit.</p>`,
+                          icon: "warning",
+                          title: isBn ? "অনুপযুক্ত ব্যানার অনুপাত" : "Invalid Aspect Ratio",
+                          text: isBn
+                            ? `ব্যানারের অনুপাত প্রায় ১০:১ হতে হবে (যেমন: ১৯০৭ × ১৮৬ বা ১৯২০ × ১৮৬ বা ১৯২০ × ২০০ পিক্সেল)। আপনার আপলোডকৃত ছবির সাইজ: ${width} × ${height} পিক্সেল (অনুপাত: ${ratio.toFixed(1)}:১)।`
+                            : `Banner must be a slim horizontal strip with approx 10:1 aspect ratio (recommended: 1907 × 186 px or 1920 × 186 px). Your image: ${width} × ${height} px (ratio: ${ratio.toFixed(1)}:1).`,
+                          confirmButtonColor: "var(--button-bg, #836e9f)",
                         });
+                        URL.revokeObjectURL(objectUrl);
+                        e.target.value = "";
                         return;
                       }
 
                       setBannerFile(file);
                       setBannerPreview(objectUrl);
                     };
-
-                    img.onerror = () => {
-                      URL.revokeObjectURL(objectUrl);
-                      e.target.value = "";
-                      Swal.fire({
-                        icon: "error",
-                        title: isBn ? "ত্রুটি" : "Error",
-                        text: isBn ? "ছবি লোড করতে ব্যর্থ হয়েছে।" : "Failed to load image file.",
-                      });
-                    };
-
                     img.src = objectUrl;
                   }
                 }}
@@ -901,11 +901,19 @@ export default function HomepageSettingsSubTab({
                   </label>
                 )}
               </div>
-              <p className="text-[10px] font-semibold text-foreground/70">
-                {isBn
-                  ? "বাধ্যতামূলক সাইজ: ১৯০৭ x ১৫০ পিক্সেল (অনুপাত ১২.৭ : ১) (PNG/JPG/WEBP)"
-                  : "Required size: 1907 x 150 pixels (aspect ratio ~12.7:1) (PNG/JPG/WEBP)"}
-              </p>
+              <div className="space-y-1 pt-1">
+                <p className="text-[11px] font-semibold text-foreground/80">
+                  <span className="opacity-60">{isBn ? "প্রস্তাবিত সাইজ:" : "Recommended size:"} </span>
+                  <span className="font-bold text-foreground">1907 × 186 px</span>
+                  <span className="opacity-50"> {isBn ? "বা" : "or"} </span>
+                  <span className="font-bold text-foreground">1920 × 186 px</span>
+                </p>
+                <p className="text-[10px] text-foreground/50 leading-normal">
+                  {isBn
+                    ? "অনুপাত প্রায় ১০:১ (প্রস্থ কমপক্ষে ১২০০ পিক্সেল)। ফর্ম্যাট: PNG, JPG, WEBP।"
+                    : "Slim banner strip (~10:1 ratio, min width 1200px). Supported: PNG, JPG, WEBP."}
+                </p>
+              </div>
             </div>
 
             <div className="space-y-1.5 pt-2">

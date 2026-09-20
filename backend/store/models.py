@@ -606,6 +606,12 @@ class SiteSetting(models.Model):
         blank=True
     )
     brand_description_bn = models.TextField(default='', blank=True)
+    theme_palette = models.CharField(
+        max_length=50,
+        default='botanical_lilac',
+        blank=True,
+        help_text="Active website color theme palette"
+    )
     logo = models.ImageField(upload_to='store/settings/logos', null=True, blank=True)
     support_phone = models.CharField(max_length=50, default='+880 1700-000000', blank=True)
     support_email = models.EmailField(default='support@vibemart.com', blank=True)

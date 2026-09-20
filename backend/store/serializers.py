@@ -1054,6 +1054,7 @@ class SiteSettingSerializer(serializers.ModelSerializer):
     ai_nudge_product_msg_bn = serializers.CharField(max_length=250, required=False, allow_blank=True)
     footer_copyright = serializers.CharField(max_length=100, required=False, allow_blank=True)
     footer_copyright_bn = serializers.CharField(max_length=120, required=False, allow_blank=True)
+    theme_palette = serializers.CharField(max_length=50, required=False, allow_blank=True)
 
     class Meta:
         model = SiteSetting
@@ -1065,6 +1066,7 @@ class SiteSettingSerializer(serializers.ModelSerializer):
             'tagline_bn',
             'brand_description',
             'brand_description_bn',
+            'theme_palette',
             'logo',
             'support_phone',
             'support_email',

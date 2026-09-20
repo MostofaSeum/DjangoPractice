@@ -81,6 +81,7 @@ export const viewport: Viewport = {
 import { ThemeProvider } from "@/store/ThemeContext";
 import { LanguageProvider } from "@/store/LanguageContext";
 import { getApiBaseUrl } from "@/config/siteConfig";
+import { generateThemeCssVariables, DEFAULT_THEME_PALETTE_ID } from "@/config/themePalettes";
 
 export default async function RootLayout({
   children,
@@ -90,12 +91,16 @@ export default async function RootLayout({
   const apiBaseUrl = getApiBaseUrl();
   let pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim() || "";
   let gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || "";
+  let themePalette = DEFAULT_THEME_PALETTE_ID;
   try {
     const res = await fetch(`${apiBaseUrl}/store/site-settings/`, {
       next: { revalidate: 60 },
     });
     if (res.ok) {
       const data = await res.json();
+      if (data.theme_palette) {
+        themePalette = String(data.theme_palette).trim();
+      }
       if (data.meta_pixel_id) {
         pixelId = String(data.meta_pixel_id).trim();
       }
@@ -106,6 +111,8 @@ export default async function RootLayout({
   } catch {
     // Non-critical fallback
   }
+
+  const dynamicThemeCss = generateThemeCssVariables(themePalette);
 
   return (
     <html
@@ -142,6 +149,31 @@ fbq('track', 'PageView');`,
             </noscript>
           </>
         ) : null}
+        {gaId ? (
+          <>
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+            />
+            <script
+              id="google-analytics-init"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${gaId}', {
+                    page_path: window.location.pathname,
+                  });
+                `,
+              }}
+            />
+          </>
+        ) : null}
+        <style
+          id="vibemart-theme-vars"
+          dangerouslySetInnerHTML={{ __html: dynamicThemeCss }}
+        />
       </head>
       <body className="min-h-full flex flex-col overflow-x-clip transition-colors duration-300">
         <Suspense fallback={null}>

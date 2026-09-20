@@ -2,9 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import Script from "next/script";
 import { siteConfig } from "@/config/siteConfig";
-import { trackGAPageView } from "@/services/googleAnalytics";
+import { initGoogleAnalytics, trackGAPageView } from "@/services/googleAnalytics";
 
 const API_BASE = siteConfig.apiBaseUrl.replace(/\/+$/, "");
 
@@ -18,10 +17,11 @@ export default function GoogleAnalytics({ initialGaId = "" }: GoogleAnalyticsPro
   const [gaId, setGaId] = useState<string>(initialGaId);
   const isFirstRender = useRef(true);
 
-  // Fetch GA measurement ID if not provided initially
+  // 1. Initialize immediately if initialGaId is provided, or fetch dynamically from settings
   useEffect(() => {
     if (initialGaId) {
       setGaId(initialGaId);
+      initGoogleAnalytics(initialGaId);
       return;
     }
 
@@ -46,6 +46,7 @@ export default function GoogleAnalytics({ initialGaId = "" }: GoogleAnalyticsPro
 
       if (isMounted && activeId) {
         setGaId(activeId);
+        initGoogleAnalytics(activeId);
       }
     };
 
@@ -55,7 +56,7 @@ export default function GoogleAnalytics({ initialGaId = "" }: GoogleAnalyticsPro
     };
   }, [initialGaId]);
 
-  // Track page_view on client-side route transitions
+  // 2. Track page_view on client-side route transitions (SPA navigation)
   useEffect(() => {
     if (!gaId) return;
 
@@ -68,28 +69,6 @@ export default function GoogleAnalytics({ initialGaId = "" }: GoogleAnalyticsPro
     trackGAPageView(currentUrl);
   }, [pathname, searchParams, gaId]);
 
-  if (!gaId) return null;
-
-  return (
-    <>
-      <Script
-        strategy="afterInteractive"
-        src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-      />
-      <Script
-        id="google-analytics-init"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${gaId}', {
-              page_path: window.location.pathname,
-            });
-          `,
-        }}
-      />
-    </>
-  );
+  return null;
 }
+

@@ -526,6 +526,16 @@ export default function AdminSidebar({
                   >
                     <span className="truncate">{isBn ? "কুরিয়ার ও ডেলিভারি রিপোর্ট" : "Orders & Delivery Services"}</span>
                   </button>
+                  <button
+                    onClick={() => onSubItemClick(() => handleAnalyticsSubTabSwitch("traffic"))}
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                      isActive && analyticsSubTab === "traffic"
+                        ? "bg-accent text-white shadow-xs font-black"
+                        : "text-background/70 dark:text-foreground/70 hover:text-white dark:hover:text-foreground hover:bg-white/5"
+                    }`}
+                  >
+                    <span className="truncate">{isBn ? "ট্র্যাফিক, GA4 ও মেটা পিক্সেল" : "Traffic, GA4 & Meta Pixel"}</span>
+                  </button>
                 </div>
               )}
 

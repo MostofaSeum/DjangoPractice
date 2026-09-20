@@ -109,7 +109,7 @@ export default function Header() {
   const userName = user?.first_name || user?.username || "Account";
 
   return (
-    <header className="w-full z-50 py-2.5 sm:py-3.5 md:py-5 px-2.5 sm:px-6 md:px-12 bg-primary text-logo sticky top-0 shadow-md border-b border-white/5 transition-colors duration-300">
+    <header className="w-full z-50 py-2.5 sm:py-3.5 md:py-5 px-2.5 sm:px-6 md:px-12 bg-secondary text-foreground sticky top-0 shadow-xs border-b border-foreground/10 transition-colors duration-300">
       <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-1.5 sm:gap-2">
         {/* Brand Logo & Title */}
         <Link
@@ -124,7 +124,7 @@ export default function Header() {
             />
           )}
           {brandTitle && (
-            <span className="text-base sm:text-xl md:text-2xl font-black tracking-tighter uppercase text-logo truncate">
+            <span className="text-base sm:text-xl md:text-2xl font-black tracking-tighter uppercase text-foreground truncate">
               {brandTitle}
             </span>
           )}
@@ -140,8 +140,8 @@ export default function Header() {
                 href={link.href}
                 className={`transition-all py-1 ${
                   isActive
-                    ? "border-b-2 border-current font-black"
-                    : "opacity-90 hover:opacity-100 font-extrabold"
+                    ? "border-b-2 border-accent text-accent font-black"
+                    : "text-foreground/75 hover:text-accent font-extrabold"
                 }`}
               >
                 {link.name}
@@ -164,7 +164,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={() => setDropdownOpen((prev) => !prev)}
-                className="hover:bg-white/25 transition-all bg-white/15 px-2 py-1 sm:px-4 sm:py-2 rounded-full border border-white/30 font-bold flex items-center gap-1 text-logo shadow-sm text-[10px] sm:text-[11px] max-w-[100px] sm:max-w-[170px]"
+                className="hover:bg-foreground/10 transition-all bg-foreground/5 px-2 py-1 sm:px-4 sm:py-2 rounded-full border border-foreground/15 font-bold flex items-center gap-1 text-foreground shadow-xs text-[10px] sm:text-[11px] max-w-[100px] sm:max-w-[170px]"
               >
                 <span className="truncate">
                   {userName}
@@ -189,16 +189,16 @@ export default function Header() {
 
               {/* User Dropdown Menu */}
               {dropdownOpen && (
-                <div className="absolute right-0 mt-3 w-52 bg-primary text-logo border border-white/20 rounded-2xl shadow-2xl overflow-hidden z-50 backdrop-blur-md animate-fadeIn py-2">
+                <div className="absolute right-0 mt-3 w-52 bg-secondary text-foreground border border-foreground/15 rounded-2xl shadow-2xl overflow-hidden z-50 backdrop-blur-md animate-fadeIn py-2">
                   <Link
                     href="/profile"
                     onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/15 transition-colors font-bold text-[11px] uppercase tracking-wider"
+                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-foreground/5 transition-colors font-bold text-[11px] uppercase tracking-wider"
                   >
                     <img
                       src="/user.png"
                       alt="Profile"
-                      className="w-4 h-4 object-contain brightness-0 invert"
+                      className="w-4 h-4 object-contain dark:brightness-0 dark:invert"
                     />
                     {t("nav.profile")}
                   </Link>
@@ -206,7 +206,7 @@ export default function Header() {
                   <Link
                     href="/wishlist"
                     onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/15 transition-colors font-bold text-[11px] uppercase tracking-wider"
+                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-foreground/5 transition-colors font-bold text-[11px] uppercase tracking-wider"
                   >
                     <img
                       src="/love.png"
@@ -216,12 +216,12 @@ export default function Header() {
                     {t("nav.wishlist")}
                   </Link>
 
-                  <div className="my-1.5 border-t border-white/15" />
+                  <div className="my-1.5 border-t border-foreground/10" />
 
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="w-full text-left flex items-center gap-3 px-4 py-2.5 hover:bg-red-500/20 text-red-300 transition-colors font-bold text-[11px] uppercase tracking-wider"
+                    className="w-full text-left flex items-center gap-3 px-4 py-2.5 hover:bg-red-500/15 text-red-500 transition-colors font-bold text-[11px] uppercase tracking-wider"
                   >
                     <img
                       src="/logout.png"
@@ -240,7 +240,7 @@ export default function Header() {
                   ? `/login?redirect=${encodeURIComponent(pathname)}`
                   : "/login"
               }
-              className="ml-0.5 sm:ml-2 md:ml-3 hover:bg-white/25 transition-all bg-white/15 px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full border border-white/30 font-bold shadow-sm text-[10px] sm:text-xs uppercase tracking-wider whitespace-nowrap"
+              className="ml-0.5 sm:ml-2 md:ml-3 hover:bg-foreground/10 transition-all bg-foreground/5 px-2.5 py-1.5 sm:px-5 sm:py-2 rounded-full border border-foreground/15 font-bold shadow-xs text-[10px] sm:text-xs uppercase tracking-wider whitespace-nowrap text-foreground"
             >
               {t("nav.signIn")}
             </Link>
@@ -253,7 +253,7 @@ export default function Header() {
             onClick={() => setMobileMenuOpen((prev) => !prev)}
             aria-label="Toggle navigation menu"
             aria-expanded={mobileMenuOpen}
-            className="md:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 border border-white/20 text-logo transition-all flex flex-col items-center justify-center gap-[4px] sm:gap-[5px] cursor-pointer select-none shrink-0"
+            className="md:hidden w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-foreground/5 hover:bg-foreground/10 active:scale-95 border border-foreground/15 text-foreground transition-all flex flex-col items-center justify-center gap-[4px] sm:gap-[5px] cursor-pointer select-none shrink-0"
           >
             {/* Morphing Hamburger / X Bars */}
             <span
@@ -280,7 +280,7 @@ export default function Header() {
         ref={mobileMenuRef}
         className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
           mobileMenuOpen
-            ? "max-h-80 opacity-100 mt-3 pt-3 pb-2 border-t border-white/10 pointer-events-auto"
+            ? "max-h-80 opacity-100 mt-3 pt-3 pb-2 border-t border-foreground/10 pointer-events-auto"
             : "max-h-0 opacity-0 mt-0 pt-0 pb-0 border-t-0 pointer-events-none"
         }`}
       >
@@ -301,13 +301,13 @@ export default function Header() {
                     : "-translate-y-2 opacity-0"
                 } ${
                   isActive
-                    ? "bg-white/20 text-logo font-black border-l-4 border-accent shadow-sm"
-                    : "text-logo opacity-85 hover:opacity-100 hover:bg-white/10 active:scale-[0.99]"
+                    ? "bg-foreground/10 text-accent font-black border-l-4 border-accent shadow-xs"
+                    : "text-foreground/80 hover:text-accent hover:bg-foreground/5 active:scale-[0.99]"
                 }`}
               >
                 <span>{link.name}</span>
                 {isActive && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent shadow-sm" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent shadow-xs" />
                 )}
               </Link>
             );

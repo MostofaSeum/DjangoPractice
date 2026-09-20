@@ -17,3 +17,5 @@ Pipfile.lock
 media/
 *.log
 Token.txt
+*google-analytics-credentials*.json
+*.json.secret

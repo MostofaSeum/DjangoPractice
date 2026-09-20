@@ -3219,6 +3219,8 @@ export default function AdminDashboardPage() {
               coupons={couponsList}
               analyticsSubTab={analyticsSubTab}
               onSubTabChange={setAnalyticsSubTab}
+              token={token}
+              apiBase={API_BASE}
             />
           )}
 
