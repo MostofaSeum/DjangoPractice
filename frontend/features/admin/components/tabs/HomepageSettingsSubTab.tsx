@@ -942,13 +942,13 @@ export default function HomepageSettingsSubTab({
               onClick={() =>
                 handleFieldChange("top_banner_is_active", !formData.top_banner_is_active)
               }
-              className={`w-14 h-7 rounded-full transition-colors relative cursor-pointer border border-foreground/15 ${
+              className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                 formData.top_banner_is_active ? "bg-visible" : "bg-hidden/80"
               }`}
             >
               <span
-                className={`absolute top-0.5 w-6 h-6 rounded-full bg-secondary shadow-md transition-transform duration-200 ${
-                  formData.top_banner_is_active ? "right-0.5" : "left-0.5"
+                className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition duration-200 ease-in-out ${
+                  formData.top_banner_is_active ? "translate-x-7" : "translate-x-0.5"
                 }`}
               />
             </button>
@@ -2277,13 +2277,13 @@ export default function HomepageSettingsSubTab({
               onClick={() =>
                 handleFieldChange("marquee_is_active", !formData.marquee_is_active)
               }
-              className={`w-14 h-7 rounded-full transition-colors relative cursor-pointer border border-foreground/15 ${
+              className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                 formData.marquee_is_active ? "bg-visible" : "bg-hidden/80"
               }`}
             >
               <span
-                className={`absolute top-0.5 w-6 h-6 rounded-full bg-secondary shadow-md transition-transform duration-200 ${
-                  formData.marquee_is_active ? "right-0.5" : "left-0.5"
+                className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition duration-200 ease-in-out ${
+                  formData.marquee_is_active ? "translate-x-7" : "translate-x-0.5"
                 }`}
               />
             </button>
@@ -2445,13 +2445,13 @@ export default function HomepageSettingsSubTab({
               onClick={() =>
                 handleFieldChange("stats_is_active", !formData.stats_is_active)
               }
-              className={`w-14 h-7 rounded-full transition-colors relative cursor-pointer border border-foreground/15 ${
+              className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                 formData.stats_is_active ? "bg-visible" : "bg-hidden/80"
               }`}
             >
               <span
-                className={`absolute top-0.5 w-6 h-6 rounded-full bg-secondary shadow-md transition-transform duration-200 ${
-                  formData.stats_is_active ? "right-0.5" : "left-0.5"
+                className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition duration-200 ease-in-out ${
+                  formData.stats_is_active ? "translate-x-7" : "translate-x-0.5"
                 }`}
               />
             </button>
@@ -2682,13 +2682,13 @@ export default function HomepageSettingsSubTab({
               onClick={() =>
                 handleFieldChange("why_us_is_active", !formData.why_us_is_active)
               }
-              className={`w-14 h-7 rounded-full transition-colors relative cursor-pointer border border-foreground/15 ${
+              className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                 formData.why_us_is_active ? "bg-visible" : "bg-hidden/80"
               }`}
             >
               <span
-                className={`absolute top-0.5 w-6 h-6 rounded-full bg-secondary shadow-md transition-transform duration-200 ${
-                  formData.why_us_is_active ? "right-0.5" : "left-0.5"
+                className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition duration-200 ease-in-out ${
+                  formData.why_us_is_active ? "translate-x-7" : "translate-x-0.5"
                 }`}
               />
             </button>
