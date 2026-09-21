@@ -1276,19 +1276,7 @@ export default function StoreSettingsTab({
                 {isBn ? "এআই সহকারী ও পপআপ সেটিংস" : "AI Assistant & Popup Settings"}
               </h2>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-bold text-foreground">
-                {isBn ? "চ্যাটবট সক্রিয়" : "AI Chat Active"}
-              </span>
-              <span className="text-[11px] font-bold opacity-70">
-                {aiChatActive
-                  ? isBn
-                    ? "সক্রিয়"
-                    : "Active"
-                  : isBn
-                    ? "নিষ্ক্রিয়"
-                    : "Disabled"}
-              </span>
+            <div>
               <button
                 type="button"
                 onClick={() => setAiChatActive(!aiChatActive)}
@@ -1323,16 +1311,7 @@ export default function StoreSettingsTab({
                     : "Shows a friendly floating speech bubble inviting shoppers to ask questions."}
                 </p>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="text-[11px] font-bold opacity-70">
-                  {aiNudgeActive
-                    ? isBn
-                      ? "সক্রিয়"
-                      : "Active"
-                    : isBn
-                      ? "নিষ্ক্রিয়"
-                      : "Disabled"}
-                </span>
+              <div>
                 <button
                   type="button"
                   onClick={() => setAiNudgeActive(!aiNudgeActive)}

@@ -927,16 +927,7 @@ export default function HomepageSettingsSubTab({
           </div>
 
           {/* Active / Inactive Toggle Switch */}
-          <div className="flex items-center gap-3 self-start sm:self-auto">
-            <span className="text-xs font-bold uppercase tracking-wider text-foreground/80">
-              {formData.top_banner_is_active
-                ? isBn
-                  ? "ব্যানার সক্রিয়"
-                  : "Banner Active"
-                : isBn
-                ? "ব্যানার লুকায়িত"
-                : "Banner Hidden"}
-            </span>
+          <div className="self-start sm:self-auto">
             <button
               type="button"
               onClick={() =>
@@ -2262,16 +2253,7 @@ export default function HomepageSettingsSubTab({
                 : "Manage the scrolling highlight messages displayed directly below the hero section"}
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] font-bold opacity-70">
-              {formData.marquee_is_active
-                ? isBn
-                  ? "সক্রিয়"
-                  : "Active"
-                : isBn
-                  ? "নিষ্ক্রিয়"
-                  : "Disabled"}
-            </span>
+          <div>
             <button
               type="button"
               onClick={() =>
@@ -2667,16 +2649,7 @@ export default function HomepageSettingsSubTab({
                 : "Customize the icons, titles, and descriptions of the 3 feature highlight cards"}
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] font-bold opacity-70">
-              {formData.why_us_is_active
-                ? isBn
-                  ? "সক্রিয়"
-                  : "Active"
-                : isBn
-                  ? "নিষ্ক্রিয়"
-                  : "Disabled"}
-            </span>
+          <div>
             <button
               type="button"
               onClick={() =>
