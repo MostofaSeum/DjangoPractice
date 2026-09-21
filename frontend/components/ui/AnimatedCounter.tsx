@@ -206,9 +206,6 @@ export default function AnimatedCounter({ siteSettings }: AnimatedCounterProps) 
                 className="object-contain max-h-7 max-w-7"
               />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full bg-foreground/5 text-foreground/70">
-              Verified
-            </span>
           </div>
 
           <div className="text-2xl sm:text-4xl font-black text-foreground group-hover:text-accent transition-colors duration-300">

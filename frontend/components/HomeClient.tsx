@@ -27,60 +27,6 @@ interface HomeClientProps {
   apiBaseUrl: string;
 }
 
-const TruckIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M5 18H3c-.6 0-1-.4-1-1V7c0-.6.4-1 1-1h10c.6 0 1 .4 1 1v11" />
-    <path d="M14 9h4l4 4v4c0 .6-.4 1-1 1h-2" />
-    <circle cx="7" cy="18" r="2" />
-    <path d="M15 18H9" />
-    <circle cx="17" cy="18" r="2" />
-  </svg>
-);
-
-const ShieldIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-  </svg>
-);
-
-const DiamondIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M6 3h12l4 6-10 13L2 9Z" />
-    <path d="M11 3 8 9l4 13" />
-    <path d="M12 22 16 9l-3-6" />
-  </svg>
-);
-
 export default function HomeClient({
   trendingProducts,
   featuredCollections,
@@ -254,22 +200,15 @@ export default function HomeClient({
           <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-3 gap-4 md:gap-6 w-full h-full">
             {/* Main Large Bento Item (Text & Main CTA) */}
             <div className="md:col-span-2 md:row-span-2 bg-secondary rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group shadow-sm hover:shadow-xl ambient-border-glow min-h-[360px] md:min-h-0 text-foreground">
-            <div className="absolute top-10 right-10 opacity-10 group-hover:scale-125 group-hover:rotate-12 transition-all duration-700">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="120"
-                height="120"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M6 3h12l4 6-10 13L2 9Z" />
-                <path d="M11 3 8 9l4 13" />
-                <path d="M12 22 16 9l-3-6" />
-              </svg>
+            <div className="absolute top-10 right-10 opacity-10 group-hover:scale-125 group-hover:rotate-12 transition-all duration-700 pointer-events-none">
+              <Image
+                src="/icons/star-filled.png"
+                alt=""
+                width={100}
+                height={100}
+                unoptimized
+                className="object-contain"
+              />
             </div>
             <span className="bg-accent/20 text-foreground text-[10px] font-bold px-3 py-1 mb-8 inline-block uppercase tracking-widest rounded-md self-start">
               {heroBadge}
