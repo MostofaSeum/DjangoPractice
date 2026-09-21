@@ -123,10 +123,18 @@ export default function AnalyticsTab({
       if (res.ok) {
         const data = await res.json();
         setGaLiveData(data);
+        if (data.is_configured === false) {
+          setLiveError(data.message || (isBn ? "গুগল ক্লাউড সার্ভিস অ্যাকাউন্ট কনফিগার করা হয়নি।" : "Google Cloud Service Account is not configured on the backend server."));
+        }
       } else if (res.status === 401 || res.status === 403) {
         setLiveError(isBn ? "লাইভ গুগল ডেটা দেখার জন্য অ্যাডমিন পারমিশন প্রয়োজন।" : "Admin authentication required to access live Google telemetry.");
       } else {
-        setLiveError(isBn ? "গুগল সার্ভার থেকে ডেটা লোড করতে সমস্যা হয়েছে।" : "Failed to load live data from Google servers.");
+        const errorData = await res.json().catch(() => null);
+        setLiveError(
+          errorData?.message ||
+          errorData?.error ||
+          (isBn ? "গুগল সার্ভার থেকে ডেটা লোড করতে সমস্যা হয়েছে।" : "Google Analytics Data API credentials or package not installed on the backend.")
+        );
       }
     } catch (err) {
       console.error("Error fetching live GA4 data:", err);

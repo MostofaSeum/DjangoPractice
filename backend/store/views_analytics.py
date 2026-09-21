@@ -57,14 +57,22 @@ class GA4LiveTrafficView(APIView):
     def get(self, request):
         if not GA_LIB_AVAILABLE:
             return Response(
-                {"error": "google-analytics-data package is not installed on the server."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                {
+                    "is_configured": False,
+                    "error_type": "missing_package",
+                    "message": "google-analytics-data package is not installed on the server. To view real-time Google telemetry directly in this tab, install google-analytics-data in your backend requirements and configure a Google Cloud Service Account.",
+                },
+                status=status.HTTP_200_OK,
             )
 
         client, property_id, err = self.get_client_and_property()
         if err:
             return Response(
-                {"is_configured": False, "message": err},
+                {
+                    "is_configured": False,
+                    "error_type": "missing_credentials",
+                    "message": err,
+                },
                 status=status.HTTP_200_OK,
             )
 
