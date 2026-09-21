@@ -284,7 +284,7 @@ export type ProductSubTab =
   | "sheets-sync";
 export type CollectionSubTab = "all" | "featured" | "add" | "edit";
 export type OrderSubTab = "all" | "returns";
-export type AnalyticsSubTab = "sales" | "coupons" | "payments" | "top-products" | "delivery-orders" | "traffic";
+export type AnalyticsSubTab = "sales" | "coupons" | "payments" | "top-products" | "delivery-orders" | "traffic" | "meta-pixel";
 export type SettingsSubTab = "homepage" | "general";
 
 
