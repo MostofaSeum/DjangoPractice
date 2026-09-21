@@ -42,8 +42,6 @@ export default function IconPickerModal({
   onClose,
   isBn = false,
 }: IconPickerModalProps) {
-  const [customPath, setCustomPath] = useState("");
-
   if (!isOpen) return null;
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,13 +55,6 @@ export default function IconPickerModal({
         }
       };
       reader.readAsDataURL(file);
-    }
-  };
-
-  const handleCustomApply = () => {
-    if (customPath.trim()) {
-      onSelectIcon(customPath.trim());
-      onClose();
     }
   };
 
@@ -164,7 +155,7 @@ export default function IconPickerModal({
           <div className="text-[11px] font-black uppercase tracking-wider opacity-70">
             {isBn ? "অথবা কাস্টম আইকন ফাইল আপলোড করুন" : "Or Upload Custom Icon File"}
           </div>
-          <label className="flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl border border-dashed border-accent/40 bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer text-xs font-bold text-accent">
+          <label className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl border-2 border-dashed border-accent/40 bg-accent/5 hover:bg-accent/10 transition-colors cursor-pointer text-xs font-bold text-accent">
             <span>
               {isBn ? "ডিভাইস থেকে ছবি বাছাই করুন" : "Choose Image From Device (PNG, WebP)"}
             </span>
@@ -175,41 +166,6 @@ export default function IconPickerModal({
               onChange={handleFileUpload}
             />
           </label>
-        </div>
-
-        {/* Custom Path Input */}
-        <div className="space-y-2">
-          <div className="text-[11px] font-black uppercase tracking-wider opacity-70">
-            {isBn ? "অথবা সরাসরি পাথ / লিংক লিখুন" : "Or Enter Path / URL"}
-          </div>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={customPath}
-              onChange={(e) => setCustomPath(e.target.value)}
-              placeholder="/icons/truck.png or https://..."
-              className="flex-1 px-3 py-2 rounded-xl bg-background border border-foreground/15 text-xs font-mono focus:outline-none focus:border-accent"
-            />
-            <button
-              type="button"
-              onClick={handleCustomApply}
-              disabled={!customPath.trim()}
-              className="px-4 py-2 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {isBn ? "প্রয়োগ" : "Apply"}
-            </button>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="flex justify-end pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-foreground/15 text-xs font-bold uppercase tracking-wider hover:bg-foreground/5 transition-colors cursor-pointer"
-          >
-            {isBn ? "বাতিল" : "Cancel"}
-          </button>
         </div>
       </div>
     </div>
