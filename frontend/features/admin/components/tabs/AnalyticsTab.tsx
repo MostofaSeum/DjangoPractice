@@ -843,7 +843,8 @@ export default function AnalyticsTab({
           { id: "payments" as AnalyticsSubTab, label: isBn ? "পেমেন্ট" : "Payments" },
           { id: "top-products" as AnalyticsSubTab, label: isBn ? "টপ প্রোডাক্টস" : "Top Products" },
           { id: "delivery-orders" as AnalyticsSubTab, label: isBn ? "কুরিয়ার রিপোর্ট" : "Delivery" },
-          { id: "traffic" as AnalyticsSubTab, label: isBn ? "ট্র্যাফিক ও পিক্সেল" : "Traffic & Pixels" },
+          { id: "traffic" as AnalyticsSubTab, label: isBn ? "গুগল অ্যানালিটিক্স (GA4)" : "Google Analytics (GA4)" },
+          { id: "meta-pixel" as AnalyticsSubTab, label: isBn ? "মেটা পিক্সেল" : "Meta Pixel" },
         ].map((item) => (
           <button
             key={item.id}
@@ -3092,7 +3093,12 @@ export default function AnalyticsTab({
               </div>
             </div>
           </div>
+        </div>
+      )}
 
+      {/* 7. META (FACEBOOK) PIXEL & CONVERSION SUBSECTION */}
+      {activeSubTab === "meta-pixel" && (
+        <div className="space-y-6">
           {/* Meta (Facebook) Pixel Conversion & Telemetry Hub */}
           <div className="bg-secondary text-foreground p-6 sm:p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300 space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-foreground/10">
