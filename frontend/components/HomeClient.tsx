@@ -253,8 +253,7 @@ export default function HomeClient({
         <section className="relative w-full pt-8 pb-10 px-4 md:px-8 max-w-[1400px] mx-auto flex items-center justify-center z-10">
           <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-3 gap-4 md:gap-6 w-full h-full">
             {/* Main Large Bento Item (Text & Main CTA) */}
-            <div className="md:col-span-2 md:row-span-2 bg-secondary rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group shadow-sm hover:shadow-xl hover:bg-accent/10 hover:border-accent/40 transition-all duration-500 border border-foreground/10 min-h-[360px] md:min-h-0 text-foreground">
-            <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[2rem]" />
+            <div className="md:col-span-2 md:row-span-2 bg-secondary rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group shadow-sm hover:shadow-xl ambient-border-glow min-h-[360px] md:min-h-0 text-foreground">
             <div className="absolute top-10 right-10 opacity-10 group-hover:scale-125 group-hover:rotate-12 transition-all duration-700">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -292,7 +291,7 @@ export default function HomeClient({
           </div>
 
           {/* Top Right Bento Item (Discover Card) */}
-          <div className="md:col-span-2 md:row-span-1 bg-primary rounded-[2rem] p-8 md:p-10 relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0">
+          <div className="md:col-span-2 md:row-span-1 bg-primary rounded-[2rem] p-8 md:p-10 relative overflow-hidden flex flex-col justify-center group shadow-xl ambient-border-glow min-h-[220px] md:min-h-0">
             <Image
               src="/HomePage/Fashion.jpg"
               alt="Discover"
@@ -300,7 +299,6 @@ export default function HomeClient({
               className="object-cover opacity-15 mix-blend-overlay group-hover:opacity-30 group-hover:scale-105 transition-all duration-700"
               unoptimized
             />
-            <div className="absolute inset-0 bg-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[2rem]"></div>
             <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent pointer-events-none"></div>
             <h2 className="text-3xl md:text-4xl font-black mb-3 uppercase tracking-tight relative z-10 text-background dark:text-foreground">
               {discoverTitle}
@@ -322,9 +320,8 @@ export default function HomeClient({
           {bentoTile1.link ? (
             <Link
               href={bentoTile1.link}
-              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
+              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm flex items-center justify-center group ambient-border-glow min-h-[220px] md:min-h-0 cursor-pointer"
             >
-              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTile1.image && (
                 <Image
                   src={bentoTile1.image}
@@ -346,8 +343,7 @@ export default function HomeClient({
               )}
             </Link>
           ) : (
-            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0">
-              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
+            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm flex items-center justify-center group ambient-border-glow min-h-[220px] md:min-h-0">
               {bentoTile1.image && (
                 <Image
                   src={bentoTile1.image}
@@ -374,9 +370,8 @@ export default function HomeClient({
           {bentoTile247.link ? (
             <Link
               href={bentoTile247.link}
-              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
+              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm flex items-center justify-center group ambient-border-glow min-h-[220px] md:min-h-0 cursor-pointer"
             >
-              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTile247.image && (
                 <Image
                   src={bentoTile247.image}
@@ -399,8 +394,7 @@ export default function HomeClient({
               )}
             </Link>
           ) : (
-            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0">
-              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
+            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm flex items-center justify-center group ambient-border-glow min-h-[220px] md:min-h-0">
               {bentoTile247.image && (
                 <Image
                   src={bentoTile247.image}
@@ -428,9 +422,8 @@ export default function HomeClient({
           {bentoTileDelivery.link ? (
             <Link
               href={bentoTileDelivery.link}
-              className="md:col-span-1 md:row-span-1 bg-accent/20 rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl hover:border-accent/40 transition-all duration-500 flex items-end min-h-[220px] md:min-h-0 cursor-pointer"
+              className="md:col-span-1 md:row-span-1 bg-accent/20 rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md ambient-border-glow flex items-end min-h-[220px] md:min-h-0 cursor-pointer"
             >
-              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTileDelivery.image && (
                 <Image
                   src={bentoTileDelivery.image}
@@ -452,8 +445,7 @@ export default function HomeClient({
               )}
             </Link>
           ) : (
-            <div className="md:col-span-1 md:row-span-1 bg-accent/20 rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl hover:border-accent/40 transition-all duration-500 flex items-end min-h-[220px] md:min-h-0">
-              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
+            <div className="md:col-span-1 md:row-span-1 bg-accent/20 rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md ambient-border-glow flex items-end min-h-[220px] md:min-h-0">
               {bentoTileDelivery.image && (
                 <Image
                   src={bentoTileDelivery.image}
@@ -480,9 +472,8 @@ export default function HomeClient({
           {bentoTile2.link ? (
             <Link
               href={bentoTile2.link}
-              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
+              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm flex items-center justify-center group ambient-border-glow min-h-[220px] md:min-h-0 cursor-pointer"
             >
-              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTile2.image && (
                 <Image
                   src={bentoTile2.image}
@@ -505,8 +496,7 @@ export default function HomeClient({
               )}
             </Link>
           ) : (
-            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0">
-              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
+            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm flex items-center justify-center group ambient-border-glow min-h-[220px] md:min-h-0">
               {bentoTile2.image && (
                 <Image
                   src={bentoTile2.image}
@@ -534,9 +524,8 @@ export default function HomeClient({
           {bentoTile3.link ? (
             <Link
               href={bentoTile3.link}
-              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
+              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm flex items-center justify-center group ambient-border-glow min-h-[220px] md:min-h-0 cursor-pointer"
             >
-              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTile3.image && (
                 <Image
                   src={bentoTile3.image}
@@ -559,8 +548,7 @@ export default function HomeClient({
               )}
             </Link>
           ) : (
-            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0">
-              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
+            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm flex items-center justify-center group ambient-border-glow min-h-[220px] md:min-h-0">
               {bentoTile3.image && (
                 <Image
                   src={bentoTile3.image}
@@ -588,9 +576,8 @@ export default function HomeClient({
           {bentoTile4.link ? (
             <Link
               href={bentoTile4.link}
-              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
+              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm flex items-center justify-center group ambient-border-glow min-h-[220px] md:min-h-0 cursor-pointer"
             >
-              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTile4.image && (
                 <Image
                   src={bentoTile4.image}
@@ -613,8 +600,7 @@ export default function HomeClient({
               )}
             </Link>
           ) : (
-            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0">
-              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
+            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm flex items-center justify-center group ambient-border-glow min-h-[220px] md:min-h-0">
               {bentoTile4.image && (
                 <Image
                   src={bentoTile4.image}

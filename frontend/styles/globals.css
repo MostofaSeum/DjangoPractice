@@ -246,3 +246,30 @@ body {
   animation: shimmer-sweep 1.1s ease forwards;
 }
 
+/* Ambient Border Lighting on hover */
+.ambient-border-glow {
+  position: relative;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1.5px solid transparent;
+}
+
+.ambient-border-glow:hover {
+  border-color: var(--primary) !important;
+  box-shadow: 
+    0 0 0 1px var(--primary),
+    0 0 18px 2px color-mix(in srgb, var(--primary) 70%, transparent),
+    0 0 32px 6px color-mix(in srgb, var(--accent) 50%, transparent),
+    0 20px 30px -10px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* For dark mode specifically, give deeper richer glow */
+html[data-theme="dark"] .ambient-border-glow:hover,
+.dark .ambient-border-glow:hover {
+  border-color: var(--accent) !important;
+  box-shadow: 
+    0 0 0 1.5px var(--accent),
+    0 0 22px 3px color-mix(in srgb, var(--accent) 75%, transparent),
+    0 0 45px 10px color-mix(in srgb, var(--primary) 60%, transparent),
+    0 25px 35px -8px rgba(0, 0, 0, 0.6) !important;
+}
+
