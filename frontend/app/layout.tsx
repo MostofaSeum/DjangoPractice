@@ -9,6 +9,7 @@ import Footer from "@/components/ui/Footer";
 import FloatingChatWidget from "@/components/ui/FloatingChatWidget";
 import MetaPixel from "@/components/analytics/MetaPixel";
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
+import GoogleTagManager from "@/components/analytics/GoogleTagManager";
 import { Suspense } from "react";
 
 const geistSans = Geist({
@@ -91,6 +92,7 @@ export default async function RootLayout({
   const apiBaseUrl = getApiBaseUrl();
   let pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim() || "";
   let gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || "";
+  let gtmId = process.env.NEXT_PUBLIC_GTM_ID?.trim() || "";
   let themePalette = DEFAULT_THEME_PALETTE_ID;
   try {
     const res = await fetch(`${apiBaseUrl}/store/site-settings/`, {
@@ -106,6 +108,9 @@ export default async function RootLayout({
       }
       if (data.google_analytics_id) {
         gaId = String(data.google_analytics_id).trim();
+      }
+      if (data.google_tag_manager_id) {
+        gtmId = String(data.google_tag_manager_id).trim();
       }
     }
   } catch {
@@ -176,6 +181,19 @@ fbq('track', 'PageView');`,
         />
       </head>
       <body className="min-h-full flex flex-col overflow-x-clip transition-colors duration-300">
+        {gtmId ? (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+              height="0"
+              width="0"
+              style={{ display: "none", visibility: "hidden" }}
+            />
+          </noscript>
+        ) : null}
+        <Suspense fallback={null}>
+          <GoogleTagManager initialGtmId={gtmId} />
+        </Suspense>
         <Suspense fallback={null}>
           <MetaPixel initialPixelId={pixelId} />
         </Suspense>
