@@ -2371,10 +2371,10 @@ export default function AnalyticsTab({
                 </p>
               </div>
 
-              {/* Action Buttons & Time Range Selector */}
-              <div className="flex flex-wrap items-center gap-3">
-                {/* Real-time GA4 Range Selector Buttons */}
-                <div className="flex items-center p-1 bg-foreground/5 border border-foreground/10 rounded-2xl gap-1">
+              {/* Action Buttons & Time Range Toolbar */}
+              <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto justify-start md:justify-end">
+                {/* Real-time GA4 Range Selector Pills */}
+                <div className="inline-flex items-center p-1 bg-foreground/5 border border-foreground/10 rounded-2xl gap-1">
                   {[
                     { id: "1d", labelEn: "Today", labelBn: "আজ" },
                     { id: "7d", labelEn: "7 Days", labelBn: "৭ দিন" },
@@ -2387,9 +2387,7 @@ export default function AnalyticsTab({
                       <button
                         key={r.id}
                         type="button"
-                        onClick={() => {
-                          setGaTimeRange(r.id as any);
-                        }}
+                        onClick={() => setGaTimeRange(r.id as any)}
                         disabled={isLiveLoading}
                         className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
                           isActive
@@ -2403,30 +2401,33 @@ export default function AnalyticsTab({
                   })}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => fetchLiveGaData(gaTimeRange)}
-                  disabled={isLiveLoading}
-                  className="inline-flex items-center gap-2 px-3.5 py-2.5 bg-foreground/5 hover:bg-foreground/10 text-foreground font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer disabled:opacity-50"
-                  title={isBn ? "তথ্য রিফ্রেশ করুন" : "Refresh Google Analytics"}
-                >
-                  <svg className={`w-3.5 h-3.5 ${isLiveLoading ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  <span>{isLiveLoading ? (isBn ? "লোড হচ্ছে..." : "Syncing...") : (isBn ? "সিঙ্ক করুন" : "Sync Now")}</span>
-                </button>
+                {/* Sync and Console Action Group */}
+                <div className="inline-flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fetchLiveGaData(gaTimeRange)}
+                    disabled={isLiveLoading}
+                    className="inline-flex items-center gap-2 px-3.5 py-2 bg-foreground/5 hover:bg-foreground/10 text-foreground font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer disabled:opacity-50 border border-foreground/10 shadow-xs"
+                    title={isBn ? "তথ্য রিফ্রেশ করুন" : "Refresh Google Analytics"}
+                  >
+                    <svg className={`w-3.5 h-3.5 ${isLiveLoading ? "animate-spin" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>{isLiveLoading ? (isBn ? "লোড হচ্ছে..." : "Syncing...") : (isBn ? "সিঙ্ক" : "Sync")}</span>
+                  </button>
 
-                <a
-                  href="https://analytics.google.com/analytics/web/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-accent text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:opacity-95 transition-opacity shadow-xs cursor-pointer"
-                >
-                  <span>{isBn ? "গুগল কনসোল" : "Open Console"}</span>
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
+                  <a
+                    href="https://analytics.google.com/analytics/web/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-3.5 py-2 bg-accent text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:opacity-95 transition-opacity shadow-xs cursor-pointer whitespace-nowrap"
+                  >
+                    <span>{isBn ? "গুগল কনসোল" : "Open Console"}</span>
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </div>
               </div>
             </div>
 
