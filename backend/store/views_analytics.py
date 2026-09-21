@@ -32,27 +32,38 @@ class GA4LiveTrafficView(APIView):
 
     def get_client_and_property(self):
         property_id = os.environ.get("GA4_PROPERTY_ID", "").strip()
+        credentials_json_str = os.environ.get("GA4_CREDENTIALS_JSON", "").strip()
         credentials_file = os.environ.get("GA4_CREDENTIALS_FILE", "google-analytics-credentials.json").strip()
 
-        # Check full path or relative to backend
-        creds_path = os.path.join(settings.BASE_DIR, credentials_file)
+        if not property_id:
+            return None, None, "GA4_PROPERTY_ID environment variable is not configured"
+
+        # 1. First priority: Direct JSON content in Environment Variable (best for Render/Cloud)
+        if credentials_json_str:
+            try:
+                creds_dict = json.loads(credentials_json_str)
+                credentials = service_account.Credentials.from_service_account_info(creds_dict)
+                client = BetaAnalyticsDataClient(credentials=credentials)
+                return client, property_id, None
+            except Exception as e:
+                return None, None, f"Error parsing GA4_CREDENTIALS_JSON: {str(e)}"
+
+        # 2. Second priority: Local file or Render Secret File
+        creds_path = credentials_file if os.path.isabs(credentials_file) else os.path.join(settings.BASE_DIR, credentials_file)
         if not os.path.exists(creds_path):
             # Check relative to BASE_DIR parent
             parent_path = os.path.join(settings.BASE_DIR.parent, credentials_file)
             if os.path.exists(parent_path):
                 creds_path = parent_path
             else:
-                return None, None, f"Credentials file not found at {creds_path}"
-
-        if not property_id:
-            return None, None, "GA4_PROPERTY_ID not configured"
+                return None, None, f"Credentials file not found at {creds_path}. Please add GA4_CREDENTIALS_JSON or GA4_CREDENTIALS_FILE in Render Environment Variables."
 
         try:
             credentials = service_account.Credentials.from_service_account_file(creds_path)
             client = BetaAnalyticsDataClient(credentials=credentials)
             return client, property_id, None
         except Exception as e:
-            return None, None, f"Error initializing GA4 client: {str(e)}"
+            return None, None, f"Error initializing GA4 client from file: {str(e)}"
 
     def get(self, request):
         if not GA_LIB_AVAILABLE:
