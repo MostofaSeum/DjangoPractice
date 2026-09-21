@@ -2371,17 +2371,37 @@ export default function AnalyticsTab({
               </div>
             </div>
 
-            {/* Error banner if any */}
+            {/* Setup / Configuration Guidance Banner */}
             {liveError && (
-              <div className="mt-4 p-3.5 bg-hidden/10 border border-hidden/20 rounded-2xl text-hidden text-xs font-bold flex items-center justify-between">
-                <span>{liveError}</span>
-                <button
-                  type="button"
-                  onClick={fetchLiveGaData}
-                  className="underline hover:opacity-80 cursor-pointer ml-4"
-                >
-                  {isBn ? "পুনরায় চেষ্টা করুন" : "Retry"}
-                </button>
+              <div className="mt-4 p-4 bg-primary/10 border border-foreground/15 rounded-2xl text-foreground text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-start sm:items-center gap-2.5">
+                  <span className="w-2 h-2 rounded-full bg-accent mt-1 sm:mt-0 shrink-0" />
+                  <div>
+                    <span className="font-bold block sm:inline">
+                      {isBn ? "গুগল ক্লাউড টেলিমেট্রি স্ট্যাটাস: " : "Google Cloud Telemetry Setup: "}
+                    </span>
+                    <span className="opacity-80 leading-relaxed">
+                      {liveError}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                  <a
+                    href="https://analytics.google.com/analytics/web/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 bg-accent text-white rounded-xl font-bold text-[11px] uppercase tracking-wider hover:opacity-90 transition-opacity"
+                  >
+                    {isBn ? "লাইভ ট্র্যাফিক দেখুন" : "View Live in GA4"} &rarr;
+                  </a>
+                  <button
+                    type="button"
+                    onClick={fetchLiveGaData}
+                    className="px-3 py-1.5 bg-foreground/5 hover:bg-foreground/10 rounded-xl font-bold text-[11px] uppercase tracking-wider transition-colors cursor-pointer"
+                  >
+                    {isBn ? "রিফ্রেশ" : "Retry"}
+                  </button>
+                </div>
               </div>
             )}
 
