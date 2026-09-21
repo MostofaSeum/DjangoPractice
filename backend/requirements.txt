@@ -20,3 +20,4 @@ python-dotenv
 drf-spectacular
 cloudinary
 django-cloudinary-storage
+google-analytics-data
