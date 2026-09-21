@@ -109,11 +109,13 @@ class GA4LiveTrafficView(APIView):
         except Exception as e:
             print("GA4 Realtime query error:", e)
 
-        # 2. Key totals (Active Users, Sessions, Page Views, Bounce Rate)
+        # 2. Key totals (Active Users, Sessions, Page Views, Bounce Rate, Engagement Time, Screen Page Views per Session)
         total_active_users = 0
         total_sessions = 0
         total_screen_page_views = 0
         bounce_rate = 0.0
+        avg_session_duration = 0.0
+        views_per_session = 0.0
 
         try:
             overview_req = RunReportRequest(
@@ -124,6 +126,8 @@ class GA4LiveTrafficView(APIView):
                     Metric(name="sessions"),
                     Metric(name="screenPageViews"),
                     Metric(name="bounceRate"),
+                    Metric(name="averageSessionDuration"),
+                    Metric(name="screenPageViewsPerSession"),
                 ],
             )
             overview_res = client.run_report(overview_req)
@@ -133,6 +137,8 @@ class GA4LiveTrafficView(APIView):
                 total_sessions = int(row.metric_values[1].value or 0)
                 total_screen_page_views = int(row.metric_values[2].value or 0)
                 bounce_rate = round(float(row.metric_values[3].value or 0) * 100, 1)
+                avg_session_duration = round(float(row.metric_values[4].value or 0), 1)
+                views_per_session = round(float(row.metric_values[5].value or 0), 2)
         except Exception as e:
             print("GA4 Overview query error:", e)
 
@@ -217,7 +223,6 @@ class GA4LiveTrafficView(APIView):
                 metrics=[Metric(name="activeUsers"), Metric(name="screenPageViews")],
             )
             trend_res = client.run_report(trend_req)
-            # Sort by date
             sorted_rows = sorted(trend_res.rows, key=lambda r: r.dimension_values[0].value)
             for row in sorted_rows:
                 raw_date = row.dimension_values[0].value  # YYYYMMDD
@@ -249,6 +254,127 @@ class GA4LiveTrafficView(APIView):
         except Exception as e:
             print("GA4 Events query error:", e)
 
+        # 8. Feature 1: Geographic / City Breakdown (Dhaka, Chittagong, etc.)
+        cities = []
+        try:
+            city_req = RunReportRequest(
+                property=formatted_property,
+                date_ranges=[DateRange(start_date=start_date_str, end_date="today")],
+                dimensions=[Dimension(name="city"), Dimension(name="country")],
+                metrics=[Metric(name="activeUsers"), Metric(name="sessions")],
+                limit=10,
+            )
+            city_res = client.run_report(city_req)
+            city_total_users = sum(int(r.metric_values[0].value or 0) for r in city_res.rows) or 1
+            for row in city_res.rows:
+                city_name = row.dimension_values[0].value
+                country_name = row.dimension_values[1].value
+                if city_name == "(not set)":
+                    city_name = "Unknown / Other"
+                u_count = int(row.metric_values[0].value or 0)
+                s_count = int(row.metric_values[1].value or 0)
+                cities.append({
+                    "city": city_name,
+                    "country": country_name,
+                    "users": u_count,
+                    "sessions": s_count,
+                    "percentage": round((u_count / city_total_users) * 100, 1),
+                })
+        except Exception as e:
+            print("GA4 Cities query error:", e)
+
+        # 9. Feature 3: Traffic Acquisition & Campaign Attribution (sessionSourceMedium)
+        traffic_sources = []
+        try:
+            source_req = RunReportRequest(
+                property=formatted_property,
+                date_ranges=[DateRange(start_date=start_date_str, end_date="today")],
+                dimensions=[Dimension(name="sessionSourceMedium")],
+                metrics=[Metric(name="sessions"), Metric(name="activeUsers")],
+                limit=10,
+            )
+            source_res = client.run_report(source_req)
+            source_total_sessions = sum(int(r.metric_values[0].value or 0) for r in source_res.rows) or 1
+            for row in source_res.rows:
+                src_name = row.dimension_values[0].value
+                s_count = int(row.metric_values[0].value or 0)
+                u_count = int(row.metric_values[1].value or 0)
+                traffic_sources.append({
+                    "source_medium": src_name,
+                    "sessions": s_count,
+                    "users": u_count,
+                    "percentage": round((s_count / source_total_sessions) * 100, 1),
+                })
+        except Exception as e:
+            print("GA4 Sources query error:", e)
+
+        # 10. Feature 5: Hourly Peak Shopping Times (Hour 0 to 23 distribution)
+        hourly_traffic = []
+        try:
+            hour_req = RunReportRequest(
+                property=formatted_property,
+                date_ranges=[DateRange(start_date=start_date_str, end_date="today")],
+                dimensions=[Dimension(name="hour")],
+                metrics=[Metric(name="activeUsers"), Metric(name="sessions")],
+            )
+            hour_res = client.run_report(hour_req)
+            hour_dict = {f"{h:02d}": {"users": 0, "sessions": 0} for h in range(24)}
+            for row in hour_res.rows:
+                h_str = str(row.dimension_values[0].value).zfill(2)
+                if h_str in hour_dict:
+                    hour_dict[h_str]["users"] += int(row.metric_values[0].value or 0)
+                    hour_dict[h_str]["sessions"] += int(row.metric_values[1].value or 0)
+            for h in range(24):
+                h_key = f"{h:02d}"
+                hourly_traffic.append({
+                    "hour": h_key,
+                    "label": f"{h}:00",
+                    "users": hour_dict[h_key]["users"],
+                    "sessions": hour_dict[h_key]["sessions"],
+                })
+        except Exception as e:
+            print("GA4 Hourly query error:", e)
+
+        # 11. Feature 2: E-Commerce Conversion Drop-Off Funnel
+        # Steps: view_item -> add_to_cart -> begin_checkout -> purchase
+        view_item_count = event_counts.get("view_item", 0)
+        cart_count = event_counts.get("add_to_cart", 0)
+        checkout_count = event_counts.get("begin_checkout", 0)
+        purchase_count = event_counts.get("purchase", 0)
+
+        funnel_steps = [
+            {
+                "step": "view_item",
+                "label": "Product Views",
+                "count": view_item_count,
+                "conversion_rate": 100.0,
+                "dropoff_rate": 0.0,
+            },
+            {
+                "step": "add_to_cart",
+                "label": "Added to Cart",
+                "count": cart_count,
+                "conversion_rate": round((cart_count / view_item_count * 100), 1) if view_item_count > 0 else 0.0,
+                "dropoff_rate": round((100 - (cart_count / view_item_count * 100)), 1) if view_item_count > 0 else 0.0,
+            },
+            {
+                "step": "begin_checkout",
+                "label": "Initiated Checkout",
+                "count": checkout_count,
+                "conversion_rate": round((checkout_count / cart_count * 100), 1) if cart_count > 0 else 0.0,
+                "dropoff_rate": round((100 - (checkout_count / cart_count * 100)), 1) if cart_count > 0 else 0.0,
+            },
+            {
+                "step": "purchase",
+                "label": "Completed Orders",
+                "count": purchase_count,
+                "conversion_rate": round((purchase_count / checkout_count * 100), 1) if checkout_count > 0 else 0.0,
+                "dropoff_rate": round((100 - (purchase_count / checkout_count * 100)), 1) if checkout_count > 0 else 0.0,
+            },
+        ]
+
+        overall_funnel_cr = round((purchase_count / view_item_count * 100), 2) if view_item_count > 0 else 0.0
+
         return Response({
             "is_configured": True,
             "property_id": property_id,
@@ -258,9 +384,18 @@ class GA4LiveTrafficView(APIView):
             "total_sessions": total_sessions,
             "total_screen_page_views": total_screen_page_views,
             "bounce_rate": bounce_rate,
+            "avg_session_duration": avg_session_duration,
+            "views_per_session": views_per_session,
             "channels": channels,
             "devices": devices,
             "top_pages": top_pages,
             "daily_trends": daily_trends,
             "event_counts": event_counts,
+            "cities": cities,
+            "traffic_sources": traffic_sources,
+            "hourly_traffic": hourly_traffic,
+            "funnel": {
+                "steps": funnel_steps,
+                "overall_conversion_rate": overall_funnel_cr,
+            },
         }, status=status.HTTP_200_OK)

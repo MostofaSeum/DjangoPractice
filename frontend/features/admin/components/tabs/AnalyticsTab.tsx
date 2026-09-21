@@ -66,11 +66,26 @@ export default function AnalyticsTab({
     total_sessions: number;
     total_screen_page_views: number;
     bounce_rate: number;
+    avg_session_duration?: number;
+    views_per_session?: number;
     channels: Array<{ channel: string; sessions: number; percentage: number }>;
     devices: Array<{ category: string; users: number; percentage: number }>;
     top_pages: Array<{ path: string; title: string; views: number; users: number }>;
     daily_trends: Array<{ date: string; users: number; views: number }>;
     event_counts?: Record<string, number>;
+    cities?: Array<{ city: string; country: string; users: number; sessions: number; percentage: number }>;
+    traffic_sources?: Array<{ source_medium: string; sessions: number; users: number; percentage: number }>;
+    hourly_traffic?: Array<{ hour: string; label: string; users: number; sessions: number }>;
+    funnel?: {
+      steps: Array<{
+        step: string;
+        label: string;
+        count: number;
+        conversion_rate: number;
+        dropoff_rate: number;
+      }>;
+      overall_conversion_rate: number;
+    };
   } | null>(null);
   const [isLiveLoading, setIsLiveLoading] = useState<boolean>(false);
   const [liveError, setLiveError] = useState<string | null>(null);
@@ -2406,7 +2421,7 @@ export default function AnalyticsTab({
             )}
 
             {/* Status & Realtime Overview (Direct from Google) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-6">
               {/* Card 1: Real-Time Active Users */}
               <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between relative overflow-hidden">
                 <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
@@ -2467,28 +2482,149 @@ export default function AnalyticsTab({
                 <div className="mt-2 text-[10px] font-semibold opacity-60">
                   {isBn
                     ? `বাউন্স রেট: ${gaLiveData?.bounce_rate ?? 0}%`
-                    : `Engagement / Bounce: ${gaLiveData?.bounce_rate ?? 0}%`}
+                    : `Bounce Rate: ${gaLiveData?.bounce_rate ?? 0}%`}
                 </div>
               </div>
 
-              {/* Card 4: Property & Measurement Config */}
+              {/* Card 4: Engagement & Session Quality */}
               <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
                 <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                  {isBn ? "প্রোপার্টি আইডি ও স্ট্রিম" : "GA4 Property & Stream"}
+                  {isBn ? "গড় সেশন সময় ও এনগেজমেন্ট" : "Avg Session & Pages"}
+                </span>
+                <div className="mt-3 flex items-baseline gap-2">
+                  <span className="text-2xl font-black text-nagad font-mono">
+                    {isLiveLoading && !gaLiveData
+                      ? "..."
+                      : (() => {
+                          const sec = Math.round(gaLiveData?.avg_session_duration ?? 0);
+                          const m = Math.floor(sec / 60);
+                          const s = sec % 60;
+                          return `${m}m ${s}s`;
+                        })()}
+                  </span>
+                  <span className="text-xs font-bold opacity-60">
+                    {isBn ? "গড় সময়" : "avg stay"}
+                  </span>
+                </div>
+                <div className="mt-2 text-[10px] font-semibold opacity-60">
+                  {isBn
+                    ? `প্রতি সেশনে পেজ: ${gaLiveData?.views_per_session ?? 0} টি`
+                    : `Pages/Session: ${gaLiveData?.views_per_session ?? 0}`}
+                </div>
+              </div>
+
+              {/* Card 5: Property & Measurement Config */}
+              <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
+                <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
+                  {isBn ? "প্রোপার্টি ও স্ট্রিম" : "GA4 Property & Stream"}
                 </span>
                 <div className="mt-3 space-y-1">
                   <div className="text-xs font-mono font-black text-accent truncate">
-                    {gaLiveData?.property_id ? `ID: ${gaLiveData.property_id}` : (isBn ? "প্রোপার্টি আইডি সেট করা হয়নি" : "No Property ID")}
+                    {gaLiveData?.property_id ? `ID: ${gaLiveData.property_id}` : (isBn ? "প্রোপার্টি সেট নেই" : "No Property ID")}
                   </div>
-                  <div className="text-[11px] font-mono opacity-70">
-                    {gaId ? `Stream: ${gaId}` : (isBn ? "স্ট্রিম আইডি সেট করা হয়নি" : "No Measurement Stream")}
+                  <div className="text-[11px] font-mono opacity-70 truncate">
+                    {gaId ? `Stream: ${gaId}` : (isBn ? "স্ট্রিম সেট নেই" : "No Stream")}
                   </div>
                 </div>
                 <div className="mt-2 text-[10px] font-semibold text-visible flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-visible inline-block"></span>
-                  <span>{isBn ? "ক্লাউড সার্ভিস অ্যাকাউন্ট সংযুক্ত" : "Google Cloud API Connected"}</span>
+                  <span>{isBn ? "ক্লাউড সার্ভিস এপিআই কানেক্টেড" : "Cloud Data API Active"}</span>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* FEATURE 2: E-Commerce Conversion Drop-off Funnel */}
+          <div className="bg-secondary text-foreground p-6 sm:p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-6 border-b border-foreground/10">
+              <div>
+                <h3 className="text-xs font-black uppercase tracking-widest text-foreground flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-accent inline-block" />
+                  {isBn ? "ই-কমার্স কনভার্সন ফানেল ও ড্রপ-অফ অ্যানালিটিক্স" : "E-Commerce Conversion Funnel & Drop-Off (GA4)"}
+                </h3>
+                <p className="text-xs opacity-70 mt-1 font-medium">
+                  {isBn
+                    ? "পণ্য দেখা থেকে শুরু করে কার্টে যোগ, চেকআউট এবং সফল অর্ডার সম্পন্ন হওয়ার প্রতিটি ধাপের কনভার্সন হার।"
+                    : "Track visitor retention and customer drop-offs at every critical purchasing stage."}
+                </p>
+              </div>
+
+              <div className="text-right shrink-0">
+                <span className="text-[10px] uppercase font-black tracking-wider opacity-60 block">
+                  {isBn ? "সামগ্রিক রূপান্তর হার" : "Overall Funnel CR"}
+                </span>
+                <span className="text-xl font-black font-mono text-visible">
+                  {gaLiveData?.funnel?.overall_conversion_rate ?? 0}%
+                </span>
+              </div>
+            </div>
+
+            {/* Funnel Steps Visual Hierarchy */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+              {gaLiveData?.funnel?.steps ? (
+                gaLiveData.funnel.steps.map((step, idx) => {
+                  const stepColors = [
+                    { border: "border-accent/30", text: "text-accent", badge: "bg-accent/15 text-accent" },
+                    { border: "border-visible/30", text: "text-visible", badge: "bg-visible/15 text-visible" },
+                    { border: "border-nagad/30", text: "text-nagad", badge: "bg-nagad/15 text-nagad" },
+                    { border: "border-bkash/30", text: "text-bkash", badge: "bg-bkash/15 text-bkash" },
+                  ];
+                  const col = stepColors[idx % stepColors.length];
+                  const stepNamesBn: Record<string, string> = {
+                    view_item: "পণ্য দর্শন (View Item)",
+                    add_to_cart: "কার্টে যোগ (Add To Cart)",
+                    begin_checkout: "চেকআউট শুরু (Checkout)",
+                    purchase: "অর্ডার সম্পন্ন (Purchase)",
+                  };
+
+                  return (
+                    <div
+                      key={step.step}
+                      className={`p-5 rounded-2xl bg-foreground/5 border ${col.border} flex flex-col justify-between relative overflow-hidden`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-black uppercase tracking-wider opacity-60">
+                            {isBn ? `ধাপ ${idx + 1}` : `Step ${idx + 1}`}
+                          </span>
+                          <span className={`text-[10px] font-mono font-black px-2 py-0.5 rounded-full ${col.badge}`}>
+                            {idx === 0 ? (isBn ? "শুরু (১০০%)" : "100% Base") : `${step.conversion_rate}% CR`}
+                          </span>
+                        </div>
+                        <h4 className="text-sm font-bold text-foreground mt-1">
+                          {isBn ? (stepNamesBn[step.step] || step.label) : step.label}
+                        </h4>
+                      </div>
+
+                      <div className="mt-4">
+                        <div className={`text-2xl font-black font-mono ${col.text}`}>
+                          {step.count.toLocaleString(isBn ? "bn-BD" : undefined)}
+                        </div>
+                        <div className="text-[10px] font-semibold opacity-60 mt-0.5">
+                          {isBn ? "বার এই ইভেন্টটি সম্পন্ন হয়েছে" : "recorded events"}
+                        </div>
+
+                        {idx > 0 && (
+                          <div className="mt-3 pt-2.5 border-t border-foreground/10 flex justify-between items-center text-[10px]">
+                            <span className="opacity-60 font-medium">
+                              {isBn ? "ড্রপ-অফ:" : "Drop-off:"}
+                            </span>
+                            <span className="font-mono font-bold text-hidden">
+                              {step.dropoff_rate}%
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="col-span-4 py-8 text-center text-xs opacity-50 font-bold">
+                  {isLiveLoading
+                    ? (isBn ? "ফানেল মেট্রিক্স লোড হচ্ছে..." : "Loading conversion funnel data...")
+                    : (isBn ? "কোনো ফানেল ডেটা রেকর্ড হয়নি।" : "No e-commerce funnel events recorded yet.")}
+                </div>
+              )}
             </div>
           </div>
 
@@ -2505,12 +2641,6 @@ export default function AnalyticsTab({
               <div className="space-y-4 mt-5">
                 {gaLiveData?.channels && gaLiveData.channels.length > 0 ? (
                   gaLiveData.channels.map((ch, idx) => {
-                    // Distinct vibrant palette from globals.css tokens:
-                    // 0: bg-accent (purple/lavender)
-                    // 1: bg-visible (emerald/green)
-                    // 2: bg-bkash (vibrant magenta)
-                    // 3: bg-nagad (vibrant orange)
-                    // 4: bg-primary
                     const colorClasses = [
                       { fill: "bg-accent", text: "text-accent", dot: "bg-accent" },
                       { fill: "bg-visible", text: "text-visible", dot: "bg-visible" },
@@ -2667,6 +2797,165 @@ export default function AnalyticsTab({
                   {isBn ? "টেক রিপোর্ট দেখুন" : "View Tech Reports"} &rarr;
                 </a>
               </div>
+            </div>
+          </div>
+
+          {/* FEATURE 1 & FEATURE 3: Top Cities / Geographic & Traffic Acquisition / Campaigns */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Feature 1: Geographic / City Breakdown */}
+            <div className="bg-secondary text-foreground p-6 rounded-3xl border border-foreground/10 shadow-sm">
+              <div className="pb-4 border-b border-foreground/10 flex justify-between items-center">
+                <h3 className="text-xs font-black uppercase tracking-widest text-foreground flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-visible inline-block" />
+                  {isBn ? "শীর্ষ শহর ও ভৌগোলিক অবস্থান" : "Top Visitor Cities & Locations (GA4)"}
+                </h3>
+                <span className="text-[10px] font-black uppercase tracking-wider opacity-60 font-mono">
+                  {isBn ? "বিগত ৭ দিন" : "Last 7 Days"}
+                </span>
+              </div>
+
+              <div className="divide-y divide-foreground/10 mt-3">
+                {gaLiveData?.cities && gaLiveData.cities.length > 0 ? (
+                  gaLiveData.cities.map((c, i) => (
+                    <div key={i} className="py-3 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="font-mono text-xs font-black opacity-50 w-5">#{i + 1}</span>
+                        <div className="truncate">
+                          <div className="font-bold text-xs text-foreground truncate">{c.city}</div>
+                          <div className="text-[10px] opacity-60 font-semibold">{c.country}</div>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0 flex items-center gap-4">
+                        <div>
+                          <div className="font-mono text-xs font-black text-foreground">
+                            {c.users.toLocaleString(isBn ? "bn-BD" : undefined)} {isBn ? "ইউজার" : "users"}
+                          </div>
+                          <div className="text-[10px] opacity-60 font-semibold">
+                            {c.sessions} {isBn ? "সেশন" : "sessions"}
+                          </div>
+                        </div>
+                        <span className="font-mono text-xs font-black text-visible px-2 py-0.5 rounded-md bg-visible/10 min-w-[48px] text-center">
+                          {c.percentage}%
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-8 text-center text-xs opacity-50 font-bold">
+                    {isLiveLoading
+                      ? (isBn ? "শহরের তথ্য লোড হচ্ছে..." : "Loading city data from Google...")
+                      : (isBn ? "কোনো শহরের ডেটা পাওয়া যায়নি।" : "No location data recorded yet.")}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Feature 3: Campaign & Ad Source Attribution */}
+            <div className="bg-secondary text-foreground p-6 rounded-3xl border border-foreground/10 shadow-sm">
+              <div className="pb-4 border-b border-foreground/10 flex justify-between items-center">
+                <h3 className="text-xs font-black uppercase tracking-widest text-foreground flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-accent inline-block" />
+                  {isBn ? "ট্র্যাফিক সোর্স ও ক্যাম্পেইন অ্যাট্রিবিউশন" : "Traffic Source / Medium Attribution (GA4)"}
+                </h3>
+                <span className="text-[10px] font-black uppercase tracking-wider opacity-60 font-mono">
+                  {isBn ? "বিজ্ঞাপন ও রেফারেল" : "Ads & Referrals"}
+                </span>
+              </div>
+
+              <div className="divide-y divide-foreground/10 mt-3">
+                {gaLiveData?.traffic_sources && gaLiveData.traffic_sources.length > 0 ? (
+                  gaLiveData.traffic_sources.map((src, i) => (
+                    <div key={i} className="py-3 flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="font-mono text-xs font-bold text-accent truncate">
+                          {src.source_medium}
+                        </div>
+                        <div className="text-[10px] opacity-60 font-semibold mt-0.5">
+                          {src.users} {isBn ? "ইউজার" : "users"}
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0 flex items-center gap-3">
+                        <div className="font-mono text-xs font-black text-foreground">
+                          {src.sessions} {isBn ? "সেশন" : "sessions"}
+                        </div>
+                        <span className="font-mono text-xs font-black text-accent px-2 py-0.5 rounded-md bg-accent/10 min-w-[48px] text-center">
+                          {src.percentage}%
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-8 text-center text-xs opacity-50 font-bold">
+                    {isLiveLoading
+                      ? (isBn ? "সোর্স ডেটা লোড হচ্ছে..." : "Loading source attribution data...")
+                      : (isBn ? "কোনো ক্যাম্পেইন ডেটা পাওয়া যায়নি।" : "No campaign or source data recorded yet.")}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* FEATURE 5: Hourly Peak Shopping Times (Hour 00 to 23 Heatmap) */}
+          <div className="bg-secondary text-foreground p-6 sm:p-8 rounded-3xl border border-foreground/10 shadow-sm transition-colors duration-300">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-6 border-b border-foreground/10">
+              <div>
+                <h3 className="text-xs font-black uppercase tracking-widest text-foreground flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-nagad inline-block" />
+                  {isBn ? "দৈনিক পিক শপিং সময় ও আওয়ারলি ট্র্যাফিক (২৪ ঘণ্টা)" : "Peak Shopping Hours & 24h Activity Distribution (GA4)"}
+                </h3>
+                <p className="text-xs opacity-70 mt-1 font-medium">
+                  {isBn
+                    ? "কোন কোন ঘণ্টায় সবচেয়ে বেশি গ্রাহক ভিজিট করে ও কেনাকাটা করে তার ২৪ ঘণ্টার হিটম্যাপ।"
+                    : "Discover which hours of the day generate the highest customer traffic to optimize ad schedules."}
+                </p>
+              </div>
+            </div>
+
+            {/* 24-Hour Grid Heatmap */}
+            <div className="mt-6">
+              {gaLiveData?.hourly_traffic && gaLiveData.hourly_traffic.length > 0 ? (
+                (() => {
+                  const maxHourlyUsers = Math.max(...gaLiveData.hourly_traffic.map((h) => h.users), 1);
+                  return (
+                    <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-2">
+                      {gaLiveData.hourly_traffic.map((h) => {
+                        const intensity = Math.min(1, h.users / maxHourlyUsers);
+                        const isHighTraffic = intensity > 0.6;
+                        return (
+                          <div
+                            key={h.hour}
+                            className={`p-3 rounded-xl border flex flex-col justify-between items-center transition-all duration-300 ${
+                              isHighTraffic
+                                ? "bg-nagad/15 border-nagad/40 text-foreground"
+                                : intensity > 0.2
+                                ? "bg-foreground/10 border-foreground/15 text-foreground"
+                                : "bg-foreground/5 border-foreground/10 text-foreground"
+                            }`}
+                            title={`${h.label}: ${h.users} visitors (${h.sessions} sessions)`}
+                          >
+                            <span className="text-[10px] font-black font-mono opacity-60">{h.label}</span>
+                            <span className={`text-base font-black font-mono mt-1 ${isHighTraffic ? "text-nagad" : "text-foreground"}`}>
+                              {h.users}
+                            </span>
+                            <div className="w-full bg-foreground/10 h-1.5 rounded-full mt-2 overflow-hidden">
+                              <div
+                                className={`h-full rounded-full ${isHighTraffic ? "bg-nagad" : "bg-accent"}`}
+                                style={{ width: `${Math.max(intensity * 100, 5)}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()
+              ) : (
+                <div className="py-8 text-center text-xs opacity-50 font-bold">
+                  {isLiveLoading
+                    ? (isBn ? "আওয়ারলি ট্র্যাফিক লোড হচ্ছে..." : "Loading hourly distribution data...")
+                    : (isBn ? "কোনো আওয়ারলি ডেটা পাওয়া যায়নি।" : "No hourly activity recorded yet.")}
+                </div>
+              )}
             </div>
           </div>
 
