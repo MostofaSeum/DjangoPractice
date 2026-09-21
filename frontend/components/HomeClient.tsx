@@ -7,6 +7,9 @@ import JoinTheClub from "@/components/ui/JoinTheClub";
 import AddToCartButton from "@/features/products/components/AddToCartButton";
 import ProductImage from "@/components/ui/ProductImage";
 import ProductDeliveryOfferBadge from "@/components/ProductDeliveryOfferBadge";
+import MarqueeTicker from "@/components/ui/MarqueeTicker";
+import ScrollReveal from "@/components/ui/ScrollReveal";
+import AnimatedCounter from "@/components/ui/AnimatedCounter";
 import { useLanguage } from "@/store/LanguageContext";
 import { Product } from "@/types/product";
 
