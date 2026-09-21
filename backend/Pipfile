@@ -16,6 +16,7 @@ djangorestframework-simplejwt = "*"
 celery = "*"
 flower = "*"
 drf-spectacular = "*"
+google-analytics-data = "*"
 
 [dev-packages]
 
