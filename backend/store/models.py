@@ -756,6 +756,18 @@ class SiteSetting(models.Model):
     bento_tile_delivery_image = models.ImageField(upload_to='store/bento/', null=True, blank=True)
     bento_tile_delivery_link = models.CharField(max_length=500, default='', blank=True)
 
+    # Marquee Announcement Ticker
+    marquee_is_active = models.BooleanField(default=True, help_text="Show or hide marquee ticker on homepage")
+    marquee_items_json = models.TextField(default='', blank=True, help_text="JSON list of marquee items {id, text, text_bn, icon, is_active}")
+
+    # Animated Stats & Social Proof Cards
+    stats_is_active = models.BooleanField(default=True, help_text="Show or hide live stats counter on homepage")
+    stats_items_json = models.TextField(default='', blank=True, help_text="JSON list of stats items {id, target, suffix, prefix, decimals, label, label_bn, sub, sub_bn, icon, is_active}")
+
+    # Why Choose Us Feature Cards
+    why_us_is_active = models.BooleanField(default=True, help_text="Show or hide Why Choose Us section")
+    why_us_items_json = models.TextField(default='', blank=True, help_text="JSON list of Why Choose Us items {id, icon, title, title_bn, desc, desc_bn, is_active}")
+
     last_updated = models.DateTimeField(auto_now=True)
 
 

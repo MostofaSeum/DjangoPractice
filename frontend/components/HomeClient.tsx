@@ -10,6 +10,7 @@ import ProductDeliveryOfferBadge from "@/components/ProductDeliveryOfferBadge";
 import MarqueeTicker from "@/components/ui/MarqueeTicker";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import AnimatedCounter from "@/components/ui/AnimatedCounter";
+import { DEFAULT_WHY_US_ITEMS, WhyUsItemConfig } from "@/features/admin/components/tabs/HomepageSettingsSubTab";
 import { useLanguage } from "@/store/LanguageContext";
 import { Product } from "@/types/product";
 
@@ -252,7 +253,8 @@ export default function HomeClient({
         <section className="relative w-full pt-8 pb-10 px-4 md:px-8 max-w-[1400px] mx-auto flex items-center justify-center z-10">
           <div className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-3 gap-4 md:gap-6 w-full h-full">
             {/* Main Large Bento Item (Text & Main CTA) */}
-            <div className="md:col-span-2 md:row-span-2 bg-secondary rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group shadow-sm hover:shadow-xl transition-all duration-500 border border-foreground/10 min-h-[360px] md:min-h-0 text-foreground">
+            <div className="md:col-span-2 md:row-span-2 bg-secondary rounded-[2rem] p-8 md:p-12 flex flex-col justify-center relative overflow-hidden group shadow-sm hover:shadow-xl hover:bg-accent/10 hover:border-accent/40 transition-all duration-500 border border-foreground/10 min-h-[360px] md:min-h-0 text-foreground">
+            <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[2rem]" />
             <div className="absolute top-10 right-10 opacity-10 group-hover:scale-125 group-hover:rotate-12 transition-all duration-700">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -290,7 +292,7 @@ export default function HomeClient({
           </div>
 
           {/* Top Right Bento Item (Discover Card) */}
-          <div className="md:col-span-2 md:row-span-1 bg-primary rounded-[2rem] p-8 md:p-10 relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl transition-all duration-500 min-h-[220px] md:min-h-0">
+          <div className="md:col-span-2 md:row-span-1 bg-primary rounded-[2rem] p-8 md:p-10 relative overflow-hidden flex flex-col justify-center group shadow-xl hover:shadow-2xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0">
             <Image
               src="/HomePage/Fashion.jpg"
               alt="Discover"
@@ -298,6 +300,7 @@ export default function HomeClient({
               className="object-cover opacity-15 mix-blend-overlay group-hover:opacity-30 group-hover:scale-105 transition-all duration-700"
               unoptimized
             />
+            <div className="absolute inset-0 bg-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-[2rem]"></div>
             <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent pointer-events-none"></div>
             <h2 className="text-3xl md:text-4xl font-black mb-3 uppercase tracking-tight relative z-10 text-background dark:text-foreground">
               {discoverTitle}
@@ -319,8 +322,9 @@ export default function HomeClient({
           {bentoTile1.link ? (
             <Link
               href={bentoTile1.link}
-              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
+              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
             >
+              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTile1.image && (
                 <Image
                   src={bentoTile1.image}
@@ -333,7 +337,7 @@ export default function HomeClient({
               {bentoTile1.title && (
                 <>
                   <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-4 text-center">
                     <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
                       {bentoTile1.title}
                     </span>
@@ -342,7 +346,8 @@ export default function HomeClient({
               )}
             </Link>
           ) : (
-            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
+            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0">
+              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTile1.image && (
                 <Image
                   src={bentoTile1.image}
@@ -355,7 +360,7 @@ export default function HomeClient({
               {bentoTile1.title && (
                 <>
                   <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-4 text-center">
                     <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
                       {bentoTile1.title}
                     </span>
@@ -369,8 +374,9 @@ export default function HomeClient({
           {bentoTile247.link ? (
             <Link
               href={bentoTile247.link}
-              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
+              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
             >
+              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTile247.image && (
                 <Image
                   src={bentoTile247.image}
@@ -384,7 +390,7 @@ export default function HomeClient({
               {bentoTile247.title && (
                 <>
                   <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-4 text-center">
                     <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
                       {bentoTile247.title}
                     </span>
@@ -393,7 +399,8 @@ export default function HomeClient({
               )}
             </Link>
           ) : (
-            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
+            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0">
+              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTile247.image && (
                 <Image
                   src={bentoTile247.image}
@@ -407,7 +414,7 @@ export default function HomeClient({
               {bentoTile247.title && (
                 <>
                   <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-4 text-center">
                     <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
                       {bentoTile247.title}
                     </span>
@@ -421,8 +428,9 @@ export default function HomeClient({
           {bentoTileDelivery.link ? (
             <Link
               href={bentoTileDelivery.link}
-              className="md:col-span-1 md:row-span-1 bg-accent/20 rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end min-h-[220px] md:min-h-0 cursor-pointer"
+              className="md:col-span-1 md:row-span-1 bg-accent/20 rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl hover:border-accent/40 transition-all duration-500 flex items-end min-h-[220px] md:min-h-0 cursor-pointer"
             >
+              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTileDelivery.image && (
                 <Image
                   src={bentoTileDelivery.image}
@@ -435,7 +443,7 @@ export default function HomeClient({
               {bentoTileDelivery.title && (
                 <>
                   <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-                  <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-10">
+                  <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-20">
                     <div className="text-xl font-black uppercase tracking-tight mb-1 drop-shadow-md">
                       {bentoTileDelivery.title}
                     </div>
@@ -444,7 +452,8 @@ export default function HomeClient({
               )}
             </Link>
           ) : (
-            <div className="md:col-span-1 md:row-span-1 bg-accent/20 rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl transition-all duration-500 flex items-end min-h-[220px] md:min-h-0">
+            <div className="md:col-span-1 md:row-span-1 bg-accent/20 rounded-[2rem] p-6 md:p-8 text-white relative overflow-hidden group shadow-md hover:shadow-xl hover:border-accent/40 transition-all duration-500 flex items-end min-h-[220px] md:min-h-0">
+              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTileDelivery.image && (
                 <Image
                   src={bentoTileDelivery.image}
@@ -457,7 +466,7 @@ export default function HomeClient({
               {bentoTileDelivery.title && (
                 <>
                   <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-                  <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-10">
+                  <div className="group-hover:-translate-y-1 transition-transform duration-500 relative z-20">
                     <div className="text-xl font-black uppercase tracking-tight mb-1 drop-shadow-md">
                       {bentoTileDelivery.title}
                     </div>
@@ -471,8 +480,9 @@ export default function HomeClient({
           {bentoTile2.link ? (
             <Link
               href={bentoTile2.link}
-              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
+              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
             >
+              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTile2.image && (
                 <Image
                   src={bentoTile2.image}
@@ -486,7 +496,7 @@ export default function HomeClient({
               {bentoTile2.title && (
                 <>
                   <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-4 text-center">
                     <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
                       {bentoTile2.title}
                     </span>
@@ -495,7 +505,8 @@ export default function HomeClient({
               )}
             </Link>
           ) : (
-            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
+            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0">
+              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTile2.image && (
                 <Image
                   src={bentoTile2.image}
@@ -509,7 +520,7 @@ export default function HomeClient({
               {bentoTile2.title && (
                 <>
                   <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-4 text-center">
                     <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
                       {bentoTile2.title}
                     </span>
@@ -523,8 +534,9 @@ export default function HomeClient({
           {bentoTile3.link ? (
             <Link
               href={bentoTile3.link}
-              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
+              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
             >
+              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTile3.image && (
                 <Image
                   src={bentoTile3.image}
@@ -538,7 +550,7 @@ export default function HomeClient({
               {bentoTile3.title && (
                 <>
                   <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-4 text-center">
                     <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
                       {bentoTile3.title}
                     </span>
@@ -547,7 +559,8 @@ export default function HomeClient({
               )}
             </Link>
           ) : (
-            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
+            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0">
+              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTile3.image && (
                 <Image
                   src={bentoTile3.image}
@@ -561,7 +574,7 @@ export default function HomeClient({
               {bentoTile3.title && (
                 <>
                   <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-4 text-center">
                     <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
                       {bentoTile3.title}
                     </span>
@@ -575,8 +588,9 @@ export default function HomeClient({
           {bentoTile4.link ? (
             <Link
               href={bentoTile4.link}
-              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
+              className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0 cursor-pointer"
             >
+              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTile4.image && (
                 <Image
                   src={bentoTile4.image}
@@ -590,7 +604,7 @@ export default function HomeClient({
               {bentoTile4.title && (
                 <>
                   <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-4 text-center">
                     <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
                       {bentoTile4.title}
                     </span>
@@ -599,7 +613,8 @@ export default function HomeClient({
               )}
             </Link>
           ) : (
-            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl transition-all duration-500 min-h-[220px] md:min-h-0">
+            <div className="md:col-span-1 md:row-span-1 bg-secondary rounded-[2rem] relative overflow-hidden shadow-sm border border-foreground/10 flex items-center justify-center group hover:shadow-xl hover:border-accent/40 transition-all duration-500 min-h-[220px] md:min-h-0">
+              <div className="absolute inset-0 bg-accent/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10 rounded-[2rem]" />
               {bentoTile4.image && (
                 <Image
                   src={bentoTile4.image}
@@ -613,7 +628,7 @@ export default function HomeClient({
               {bentoTile4.title && (
                 <>
                   <div className="absolute inset-0 bg-black/45 group-hover:bg-black/35 transition-colors duration-500"></div>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center z-10 p-4 text-center">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20 p-4 text-center">
                     <span className="text-2xl font-black uppercase tracking-widest text-white group-hover:scale-105 transition-all duration-500 drop-shadow-md">
                       {bentoTile4.title}
                     </span>
@@ -628,7 +643,7 @@ export default function HomeClient({
 
       {/* Option A: Continuous Infinite Marquee Ticker */}
       <ScrollReveal direction="up" delayMs={50} className="w-full my-6">
-        <MarqueeTicker />
+        <MarqueeTicker siteSettings={siteSettings} />
       </ScrollReveal>
 
       <main className="pb-12">
@@ -641,10 +656,9 @@ export default function HomeClient({
               </h2>
               <Link
                 href="/collections"
-                className="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 bg-primary/5 text-foreground border border-foreground/15 hover:bg-primary hover:text-secondary rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-widest transition-all shadow-sm inline-flex items-center gap-1 group"
+                className="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 bg-primary/5 text-foreground border border-foreground/15 hover:bg-primary hover:text-secondary rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-widest transition-all shadow-sm inline-flex items-center"
               >
                 <span>{t("categories.viewAll")}</span>
-                <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
               </Link>
             </div>
 
@@ -750,10 +764,9 @@ export default function HomeClient({
               </h2>
               <Link
                 href="/products"
-                className="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 bg-primary/5 text-foreground border border-foreground/15 hover:bg-primary hover:text-secondary rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-widest transition-all shadow-sm inline-flex items-center gap-1 group"
+                className="flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 bg-primary/5 text-foreground border border-foreground/15 hover:bg-primary hover:text-secondary rounded-xl font-bold text-[10px] sm:text-xs uppercase tracking-wider sm:tracking-widest transition-all shadow-sm inline-flex items-center"
               >
                 <span>{t("trending.viewAll")}</span>
-                <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
               </Link>
             </div>
 
@@ -879,54 +892,76 @@ export default function HomeClient({
 
         {/* Option B: Dynamic Animated Counters (Social Proof Stats) */}
         <ScrollReveal direction="up" delayMs={100}>
-          <AnimatedCounter />
+          <AnimatedCounter siteSettings={siteSettings} />
         </ScrollReveal>
 
         {/* Why Choose Us */}
-        <ScrollReveal direction="up" delayMs={100}>
-          <section className="bg-secondary text-foreground border border-foreground/10 mt-6 md:mt-10 py-14 md:py-16 px-8 md:px-12 rounded-[3rem] mx-4 md:mx-12 lg:mx-20 shadow-2xl transition-colors duration-300">
-            <div className="max-w-[1200px] mx-auto">
-              <h2 className="text-3xl font-black text-center mb-10 md:mb-12 uppercase tracking-tighter">
-                {t("whyUs.title")}
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12 text-center">
-                <div className="flex flex-col items-center group">
-                  <div className="w-16 h-16 md:w-20 md:h-20 bg-accent/20 text-foreground rounded-2xl flex items-center justify-center mb-6 transform rotate-3 group-hover:rotate-0 group-hover:scale-110 transition-all duration-300 shadow-md">
-                    <TruckIcon />
+        {(siteSettings?.why_us_is_active ?? true) && (() => {
+          let whyUsItems: WhyUsItemConfig[] = DEFAULT_WHY_US_ITEMS;
+          if (siteSettings?.why_us_items_json) {
+            try {
+              const parsed = JSON.parse(siteSettings.why_us_items_json);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                whyUsItems = parsed;
+              }
+            } catch (e) {
+              console.error("Failed to parse why_us_items_json", e);
+            }
+          }
+          const activeWhyUsItems = whyUsItems.filter(item => item.is_active !== false);
+          if (activeWhyUsItems.length === 0) return null;
+
+          return (
+            <ScrollReveal direction="up" delayMs={100}>
+              <section className="bg-secondary text-foreground border border-foreground/10 mt-6 md:mt-10 py-14 md:py-16 px-8 md:px-12 rounded-[3rem] mx-4 md:mx-12 lg:mx-20 shadow-2xl transition-colors duration-300">
+                <div className="max-w-[1200px] mx-auto">
+                  <h2 className="text-3xl font-black text-center mb-10 md:mb-12 uppercase tracking-tighter">
+                    {t("whyUs.title")}
+                  </h2>
+                  <div className={`grid grid-cols-1 md:grid-cols-${Math.min(activeWhyUsItems.length, 3)} gap-10 md:gap-12 text-center`}>
+                    {activeWhyUsItems.map((item, idx) => {
+                      const title = isBn && item.titleBn ? item.titleBn : item.titleEn;
+                      const desc = isBn && item.descBn ? item.descBn : item.descEn;
+                      const rotateClass = idx % 2 === 0 ? "rotate-3" : "-rotate-3";
+
+                      return (
+                        <div key={item.id || idx} className="flex flex-col items-center group">
+                          <div className={`w-16 h-16 md:w-20 md:h-20 bg-accent/20 text-foreground rounded-2xl flex items-center justify-center mb-6 transform ${rotateClass} group-hover:rotate-0 group-hover:scale-110 transition-all duration-300 shadow-md`}>
+                            {item.icon ? (
+                              <Image
+                                src={item.icon}
+                                alt={title}
+                                width={36}
+                                height={36}
+                                unoptimized
+                                className="object-contain w-8 h-8 md:w-10 md:h-10 transition-transform duration-300 group-hover:scale-110"
+                              />
+                            ) : (
+                              <Image
+                                src="/icons/star-filled.png"
+                                alt=""
+                                width={36}
+                                height={36}
+                                unoptimized
+                                className="object-contain w-8 h-8 md:w-10 md:h-10"
+                              />
+                            )}
+                          </div>
+                          <h3 className="text-xl font-black mb-3 uppercase tracking-widest">
+                            {title}
+                          </h3>
+                          <p className="opacity-70 leading-relaxed text-sm font-medium">
+                            {desc}
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <h3 className="text-xl font-black mb-3 uppercase tracking-widest">
-                    {t("whyUs.fastShippingTitle")}
-                  </h3>
-                  <p className="opacity-70 leading-relaxed text-sm font-medium">
-                    {t("whyUs.fastShippingDesc")}
-                  </p>
                 </div>
-                <div className="flex flex-col items-center group">
-                  <div className="w-16 h-16 md:w-20 md:h-20 bg-accent/20 text-foreground rounded-2xl flex items-center justify-center mb-6 transform -rotate-3 group-hover:rotate-0 group-hover:scale-110 transition-all duration-300 shadow-md">
-                    <DiamondIcon />
-                  </div>
-                  <h3 className="text-xl font-black mb-3 uppercase tracking-widest">
-                    {t("whyUs.eliteQualityTitle")}
-                  </h3>
-                  <p className="opacity-70 leading-relaxed text-sm font-medium">
-                    {t("whyUs.eliteQualityDesc")}
-                  </p>
-                </div>
-                <div className="flex flex-col items-center group">
-                  <div className="w-16 h-16 md:w-20 md:h-20 bg-accent/20 text-foreground rounded-2xl flex items-center justify-center mb-6 transform rotate-3 group-hover:rotate-0 group-hover:scale-110 transition-all duration-300 shadow-md">
-                    <ShieldIcon />
-                  </div>
-                  <h3 className="text-xl font-black mb-3 uppercase tracking-widest">
-                    {t("whyUs.secureCheckoutTitle")}
-                  </h3>
-                  <p className="opacity-70 leading-relaxed text-sm font-medium">
-                    {t("whyUs.secureCheckoutDesc")}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
-        </ScrollReveal>
+              </section>
+            </ScrollReveal>
+          );
+        })()}
       </main>
 
       {/* Join the Club Section */}

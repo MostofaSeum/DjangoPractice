@@ -1136,6 +1136,12 @@ class SiteSettingSerializer(serializers.ModelSerializer):
             'bento_tile_delivery_title_bn',
             'bento_tile_delivery_image',
             'bento_tile_delivery_link',
+            'marquee_is_active',
+            'marquee_items_json',
+            'stats_is_active',
+            'stats_items_json',
+            'why_us_is_active',
+            'why_us_items_json',
             'last_updated',
         ]
 

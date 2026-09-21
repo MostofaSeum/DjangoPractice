@@ -7,6 +7,49 @@ import { Collection } from "@/features/admin/types";
 import Swal from "sweetalert2";
 import AutoTranslateButton from "@/features/admin/components/common/AutoTranslateButton";
 import { translateText, translateWordList } from "@/services/translationService";
+import { DEFAULT_MARQUEE_ITEMS, MarqueeItemConfig } from "@/components/ui/MarqueeTicker";
+import { DEFAULT_STAT_ITEMS, StatItemConfig } from "@/components/ui/AnimatedCounter";
+import IconPickerModal from "@/features/admin/components/common/IconPickerModal";
+
+export interface WhyUsItemConfig {
+  id: string;
+  icon: string;
+  titleEn: string;
+  titleBn: string;
+  descEn: string;
+  descBn: string;
+  is_active: boolean;
+}
+
+export const DEFAULT_WHY_US_ITEMS: WhyUsItemConfig[] = [
+  {
+    id: "fast_shipping",
+    icon: "/icons/truck.png",
+    titleEn: "Fast Shipping",
+    titleBn: "দ্রুত শিপিং",
+    descEn: "Reliable home delivery across all 64 districts in Bangladesh.",
+    descBn: "বাংলাদেশের সকল ৬৪টি জেলায় নির্ভরযোগ্য হোম ডেলিভারি।",
+    is_active: true,
+  },
+  {
+    id: "elite_quality",
+    icon: "/icons/star-filled.png",
+    titleEn: "Elite Quality",
+    titleBn: "সেরা কোয়ালিটি",
+    descEn: "100% genuine and verified authentic cosmetics sourced directly from top brands.",
+    descBn: "১০০% আসল ও পরীক্ষিত প্রসাধনী পণ্য সরাসরি বিশ্বস্ত ব্র্যান্ড থেকে সংগৃহীত।",
+    is_active: true,
+  },
+  {
+    id: "secure_checkout",
+    icon: "/icons/return-arrow.png",
+    titleEn: "Secure Checkout",
+    titleBn: "নিরাপদ চেকআউট",
+    descEn: "Complete peace of mind with Cash on Delivery and trusted instant bKash payment.",
+    descBn: "ক্যাশ অন ডেলিভারি এবং তাত্ক্ষণিক বিকাশ পেমেন্ট সুরক্ষার সম্পূর্ণ নিশ্চয়তা।",
+    is_active: true,
+  },
+];
 
 interface HomepageSettingsSubTabProps {
   apiBase: string;
@@ -60,6 +103,18 @@ interface HomepageSettingsState {
   bento_tile_delivery_title: string;
   bento_tile_delivery_title_bn: string;
   bento_tile_delivery_link: string;
+
+  // Marquee Announcement Ticker
+  marquee_is_active: boolean;
+  marquee_items: MarqueeItemConfig[];
+
+  // Live Stats & Social Proof Cards
+  stats_is_active: boolean;
+  stats_items: StatItemConfig[];
+
+  // Why Choose Us Feature Cards
+  why_us_is_active: boolean;
+  why_us_items: WhyUsItemConfig[];
 }
 
 const DEFAULT_HOMEPAGE_SETTINGS: HomepageSettingsState = {
@@ -103,6 +158,12 @@ const DEFAULT_HOMEPAGE_SETTINGS: HomepageSettingsState = {
   bento_tile_delivery_title: "Fast Delivery",
   bento_tile_delivery_title_bn: "",
   bento_tile_delivery_link: "",
+  marquee_is_active: true,
+  marquee_items: DEFAULT_MARQUEE_ITEMS,
+  stats_is_active: true,
+  stats_items: DEFAULT_STAT_ITEMS,
+  why_us_is_active: true,
+  why_us_items: DEFAULT_WHY_US_ITEMS,
 };
 
 /**
@@ -140,6 +201,14 @@ export default function HomepageSettingsSubTab({
   const [formData, setFormData] = useState<HomepageSettingsState>(
     DEFAULT_HOMEPAGE_SETTINGS
   );
+
+  // Icon Picker Modal State
+  const [iconPickerTarget, setIconPickerTarget] = useState<{
+    type: "marquee" | "stats" | "why_us";
+    index: number;
+    currentIcon: string;
+    title: string;
+  } | null>(null);
 
   // Top Banner Image file & preview
   const [bannerFile, setBannerFile] = useState<File | null>(null);
@@ -231,6 +300,42 @@ export default function HomepageSettingsSubTab({
           bento_tile_delivery_title: data.bento_tile_delivery_title || "Fast Delivery",
           bento_tile_delivery_title_bn: data.bento_tile_delivery_title_bn || "",
           bento_tile_delivery_link: data.bento_tile_delivery_link || "",
+          marquee_is_active: data.marquee_is_active !== false,
+          marquee_items: (() => {
+            if (data.marquee_items_json) {
+              try {
+                const parsed = JSON.parse(data.marquee_items_json);
+                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+              } catch (e) {
+                console.error("Failed to parse marquee_items_json:", e);
+              }
+            }
+            return DEFAULT_MARQUEE_ITEMS;
+          })(),
+          stats_is_active: data.stats_is_active !== false,
+          stats_items: (() => {
+            if (data.stats_items_json) {
+              try {
+                const parsed = JSON.parse(data.stats_items_json);
+                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+              } catch (e) {
+                console.error("Failed to parse stats_items_json:", e);
+              }
+            }
+            return DEFAULT_STAT_ITEMS;
+          })(),
+          why_us_is_active: data.why_us_is_active !== false,
+          why_us_items: (() => {
+            if (data.why_us_items_json) {
+              try {
+                const parsed = JSON.parse(data.why_us_items_json);
+                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+              } catch (e) {
+                console.error("Failed to parse why_us_items_json:", e);
+              }
+            }
+            return DEFAULT_WHY_US_ITEMS;
+          })(),
         };
 
         setInitialSettings(loaded);
@@ -333,6 +438,54 @@ export default function HomepageSettingsSubTab({
 
   const handleFieldChange = (key: keyof HomepageSettingsState, value: any) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleMarqueeItemChange = (
+    index: number,
+    field: keyof MarqueeItemConfig,
+    value: any
+  ) => {
+    setFormData((prev) => {
+      const updated = [...prev.marquee_items];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, marquee_items: updated };
+    });
+  };
+
+  const handleStatItemChange = (
+    index: number,
+    field: keyof StatItemConfig,
+    value: any
+  ) => {
+    setFormData((prev) => {
+      const updated = [...prev.stats_items];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, stats_items: updated };
+    });
+  };
+
+  const handleWhyUsItemChange = (
+    index: number,
+    field: keyof WhyUsItemConfig,
+    value: any
+  ) => {
+    setFormData((prev) => {
+      const updated = [...prev.why_us_items];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, why_us_items: updated };
+    });
+  };
+
+  const handleApplySelectedIcon = (iconPath: string) => {
+    if (!iconPickerTarget) return;
+    const { type, index } = iconPickerTarget;
+    if (type === "marquee") {
+      handleMarqueeItemChange(index, "icon", iconPath);
+    } else if (type === "stats") {
+      handleStatItemChange(index, "icon", iconPath);
+    } else if (type === "why_us") {
+      handleWhyUsItemChange(index, "icon", iconPath);
+    }
   };
 
   const [batchTranslatingHero, setBatchTranslatingHero] = useState(false);
@@ -660,6 +813,18 @@ export default function HomepageSettingsSubTab({
       } else if (!bentoDeliveryPreview && initialBentoDeliveryUrl) {
         payload.append("remove_bento_tile_delivery_image", "true");
       }
+
+      // Marquee Announcement Ticker
+      payload.append("marquee_is_active", String(formData.marquee_is_active));
+      payload.append("marquee_items_json", JSON.stringify(formData.marquee_items));
+
+      // Live Stats & Social Proof Cards
+      payload.append("stats_is_active", String(formData.stats_is_active));
+      payload.append("stats_items_json", JSON.stringify(formData.stats_items));
+
+      // Why Choose Us Feature Cards
+      payload.append("why_us_is_active", String(formData.why_us_is_active));
+      payload.append("why_us_items_json", JSON.stringify(formData.why_us_items));
 
       const res = await fetch(`${apiBase}/store/site-settings/update_settings/`, {
         method: "POST",
@@ -2082,6 +2247,618 @@ export default function HomepageSettingsSubTab({
         </div>
       </div>
 
+      {/* ============================================================ */}
+      {/* SECTION: MARQUEE ANNOUNCEMENT TICKER                         */}
+      {/* ============================================================ */}
+      <div className="bg-secondary rounded-2xl border border-foreground/10 p-6 space-y-6 shadow-sm">
+        <div className="flex items-center justify-between border-b border-foreground/10 pb-4">
+          <div>
+            <h3 className="text-sm font-black uppercase tracking-wider text-foreground">
+              {isBn ? "মারকুই ব্যানার সেটিংস (Marquee Announcement Ticker)" : "Marquee Announcement Ticker"}
+            </h3>
+            <p className="text-xs opacity-60 mt-0.5">
+              {isBn
+                ? "হোমপেজের হিরো সেকশনের নিচে চলমান অ্যানাউন্সমেন্ট টেক্সট নিয়ন্ত্রণ করুন"
+                : "Manage the scrolling highlight messages displayed directly below the hero section"}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-[11px] font-bold opacity-70">
+              {formData.marquee_is_active
+                ? isBn
+                  ? "সক্রিয়"
+                  : "Active"
+                : isBn
+                  ? "নিষ্ক্রিয়"
+                  : "Disabled"}
+            </span>
+            <button
+              type="button"
+              onClick={() =>
+                handleFieldChange("marquee_is_active", !formData.marquee_is_active)
+              }
+              className={`w-14 h-7 rounded-full transition-colors relative cursor-pointer border border-foreground/15 ${
+                formData.marquee_is_active ? "bg-visible" : "bg-hidden/80"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 w-6 h-6 rounded-full bg-secondary shadow-md transition-transform duration-200 ${
+                  formData.marquee_is_active ? "right-0.5" : "left-0.5"
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+
+        {formData.marquee_is_active && (
+          <div className="space-y-4">
+            <div className="text-[11px] font-black uppercase tracking-wider opacity-70">
+              {isBn ? "মারকুই মেসেজ তালিকা (Marquee Items List)" : "Marquee Items List"}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {formData.marquee_items.map((item, idx) => (
+                <div
+                  key={item.id || idx}
+                  className={`p-4 rounded-xl border transition-all ${
+                    item.is_active !== false
+                      ? "border-foreground/15 bg-primary/5"
+                      : "border-foreground/10 bg-foreground/5 opacity-60"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setIconPickerTarget({
+                            type: "marquee",
+                            index: idx,
+                            currentIcon: item.icon || "/icons/check-circle.png",
+                            title: `${isBn ? "আইকন পরিবর্তন করুন" : "Change Icon"} - Item ${idx + 1}`,
+                          })
+                        }
+                        title={isBn ? "আইকন পরিবর্তন করতে ক্লিক করুন" : "Click to change icon"}
+                        className="w-7 h-7 relative flex items-center justify-center p-0.5 rounded-md bg-secondary border border-foreground/15 hover:border-accent hover:scale-105 transition-all cursor-pointer shadow-xs"
+                      >
+                        <Image
+                          src={item.icon || "/icons/check-circle.png"}
+                          alt=""
+                          width={20}
+                          height={20}
+                          unoptimized
+                          className="object-contain max-h-5 max-w-5"
+                        />
+                      </button>
+                      <div>
+                        <span className="text-xs font-black uppercase tracking-wider text-foreground block">
+                          Item {idx + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setIconPickerTarget({
+                              type: "marquee",
+                              index: idx,
+                              currentIcon: item.icon || "/icons/check-circle.png",
+                              title: `${isBn ? "আইকন পরিবর্তন করুন" : "Change Icon"} - Item ${idx + 1}`,
+                            })
+                          }
+                          className="text-[10px] text-accent font-bold hover:underline cursor-pointer"
+                        >
+                          {isBn ? "আইকন পরিবর্তন" : "Change Icon"}
+                        </button>
+                      </div>
+                    </div>
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-bold">
+                      <input
+                        type="checkbox"
+                        checked={item.is_active !== false}
+                        onChange={(e) =>
+                          handleMarqueeItemChange(idx, "is_active", e.target.checked)
+                        }
+                        className="rounded border-foreground/20 text-accent focus:ring-accent cursor-pointer"
+                      />
+                      <span className="text-[10px] uppercase tracking-wider opacity-80">
+                        {item.is_active !== false
+                          ? isBn
+                            ? "প্রদর্শিত"
+                            : "Visible"
+                          : isBn
+                            ? "লুকানো"
+                            : "Hidden"}
+                      </span>
+                    </label>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 block mb-1">
+                        English Text
+                      </label>
+                      <input
+                        type="text"
+                        value={item.text_en || ""}
+                        onChange={(e) =>
+                          handleMarqueeItemChange(idx, "text_en", e.target.value)
+                        }
+                        placeholder="Enter message in English..."
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-foreground/15 text-xs font-semibold focus:outline-none focus:border-accent"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                          বাংলা টেক্সট (Bangla Text)
+                        </label>
+                        <AutoTranslateButton
+                          sourceText={item.text_en}
+                          onTranslated={(translated) =>
+                            handleMarqueeItemChange(idx, "text_bn", translated)
+                          }
+                        />
+                      </div>
+                      <input
+                        type="text"
+                        value={item.text_bn || ""}
+                        onChange={(e) =>
+                          handleMarqueeItemChange(idx, "text_bn", e.target.value)
+                        }
+                        placeholder="বাংলা মেসেজ লিখুন..."
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-foreground/15 text-xs font-semibold focus:outline-none focus:border-accent"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ============================================================ */}
+      {/* SECTION: LIVE STATS & SOCIAL PROOF CARDS                     */}
+      {/* ============================================================ */}
+      <div className="bg-secondary rounded-2xl border border-foreground/10 p-6 space-y-6 shadow-sm">
+        <div className="flex items-center justify-between border-b border-foreground/10 pb-4">
+          <div>
+            <h3 className="text-sm font-black uppercase tracking-wider text-foreground">
+              {isBn ? "লাইভ স্ট্যাটস ও সোশ্যাল প্রুফ কার্ডস (Live Stats & Social Proof Cards)" : "Live Stats & Social Proof Cards"}
+            </h3>
+            <p className="text-xs opacity-60 mt-0.5">
+              {isBn
+                ? "হোমপেজের 'Why Choose Us' সেকশনের উপরে অ্যানিমেটেড সংখ্যা, আইকন ও পরিসংখ্যান পরিবর্তন করুন"
+                : "Customize the animated numbers, icons, labels, and statistics displayed above Why Choose Us"}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-[11px] font-bold opacity-70">
+              {formData.stats_is_active
+                ? isBn
+                  ? "সক্রিয়"
+                  : "Active"
+                : isBn
+                  ? "নিষ্ক্রিয়"
+                  : "Disabled"}
+            </span>
+            <button
+              type="button"
+              onClick={() =>
+                handleFieldChange("stats_is_active", !formData.stats_is_active)
+              }
+              className={`w-14 h-7 rounded-full transition-colors relative cursor-pointer border border-foreground/15 ${
+                formData.stats_is_active ? "bg-visible" : "bg-hidden/80"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 w-6 h-6 rounded-full bg-secondary shadow-md transition-transform duration-200 ${
+                  formData.stats_is_active ? "right-0.5" : "left-0.5"
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+
+        {formData.stats_is_active && (
+          <div className="space-y-4">
+            <div className="text-[11px] font-black uppercase tracking-wider opacity-70">
+              {isBn ? "পরিসংখ্যান কার্ড তালিকা (Stats Cards)" : "Stats Cards Configuration"}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {formData.stats_items.map((stat, idx) => (
+                <div
+                  key={stat.id || idx}
+                  className={`p-4 rounded-xl border transition-all ${
+                    stat.is_active !== false
+                      ? "border-foreground/15 bg-primary/5"
+                      : "border-foreground/10 bg-foreground/5 opacity-60"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setIconPickerTarget({
+                            type: "stats",
+                            index: idx,
+                            currentIcon: stat.icon || "/icons/star-filled.png",
+                            title: `${isBn ? "আইকন পরিবর্তন করুন" : "Change Icon"} - Stat Card ${idx + 1}`,
+                          })
+                        }
+                        title={isBn ? "আইকন পরিবর্তন করতে ক্লিক করুন" : "Click to change icon"}
+                        className="w-8 h-8 relative flex items-center justify-center p-0.5 rounded-md bg-secondary border border-foreground/15 hover:border-accent hover:scale-105 transition-all cursor-pointer shadow-xs"
+                      >
+                        <Image
+                          src={stat.icon || "/icons/star-filled.png"}
+                          alt=""
+                          width={24}
+                          height={24}
+                          unoptimized
+                          className="object-contain max-h-6 max-w-6"
+                        />
+                      </button>
+                      <div>
+                        <span className="text-xs font-black uppercase tracking-wider text-foreground block">
+                          Stat Card {idx + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setIconPickerTarget({
+                              type: "stats",
+                              index: idx,
+                              currentIcon: stat.icon || "/icons/star-filled.png",
+                              title: `${isBn ? "আইকন পরিবর্তন করুন" : "Change Icon"} - Stat Card ${idx + 1}`,
+                            })
+                          }
+                          className="text-[10px] text-accent font-bold hover:underline cursor-pointer"
+                        >
+                          {isBn ? "আইকন পরিবর্তন" : "Change Icon"}
+                        </button>
+                      </div>
+                    </div>
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-bold">
+                      <input
+                        type="checkbox"
+                        checked={stat.is_active !== false}
+                        onChange={(e) =>
+                          handleStatItemChange(idx, "is_active", e.target.checked)
+                        }
+                        className="rounded border-foreground/20 text-accent focus:ring-accent cursor-pointer"
+                      />
+                      <span className="text-[10px] uppercase tracking-wider opacity-80">
+                        {stat.is_active !== false
+                          ? isBn
+                            ? "প্রদর্শিত"
+                            : "Visible"
+                          : isBn
+                            ? "লুকানো"
+                            : "Hidden"}
+                      </span>
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 block mb-1">
+                        Target Value
+                      </label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={stat.target ?? 0}
+                        onChange={(e) =>
+                          handleStatItemChange(idx, "target", parseFloat(e.target.value) || 0)
+                        }
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-foreground/15 text-xs font-semibold focus:outline-none focus:border-accent font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 block mb-1">
+                        Suffix (+, %, ★, etc.)
+                      </label>
+                      <input
+                        type="text"
+                        value={stat.suffix || ""}
+                        onChange={(e) =>
+                          handleStatItemChange(idx, "suffix", e.target.value)
+                        }
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-foreground/15 text-xs font-semibold focus:outline-none focus:border-accent"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 block mb-1">
+                        English Label
+                      </label>
+                      <input
+                        type="text"
+                        value={stat.labelEn || ""}
+                        onChange={(e) =>
+                          handleStatItemChange(idx, "labelEn", e.target.value)
+                        }
+                        placeholder="e.g. Happy Customers"
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-foreground/15 text-xs font-semibold focus:outline-none focus:border-accent"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                          বাংলা লেবেল (Bangla Label)
+                        </label>
+                        <AutoTranslateButton
+                          sourceText={stat.labelEn}
+                          onTranslated={(translated) =>
+                            handleStatItemChange(idx, "labelBn", translated)
+                          }
+                        />
+                      </div>
+                      <input
+                        type="text"
+                        value={stat.labelBn || ""}
+                        onChange={(e) =>
+                          handleStatItemChange(idx, "labelBn", e.target.value)
+                        }
+                        placeholder="যেমনঃ সন্তুষ্ট কাস্টমার"
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-foreground/15 text-xs font-semibold focus:outline-none focus:border-accent"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 block mb-1">
+                        English Subtitle / Note
+                      </label>
+                      <input
+                        type="text"
+                        value={stat.subEn || ""}
+                        onChange={(e) =>
+                          handleStatItemChange(idx, "subEn", e.target.value)
+                        }
+                        placeholder="e.g. Loved nationwide"
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-foreground/15 text-xs font-semibold focus:outline-none focus:border-accent"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                          বাংলা সাবটাইটেল (Bangla Subtitle)
+                        </label>
+                        <AutoTranslateButton
+                          sourceText={stat.subEn}
+                          onTranslated={(translated) =>
+                            handleStatItemChange(idx, "subBn", translated)
+                          }
+                        />
+                      </div>
+                      <input
+                        type="text"
+                        value={stat.subBn || ""}
+                        onChange={(e) =>
+                          handleStatItemChange(idx, "subBn", e.target.value)
+                        }
+                        placeholder="যেমনঃ দেশজুড়ে বিশ্বস্ত"
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-foreground/15 text-xs font-semibold focus:outline-none focus:border-accent"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ============================================================ */}
+      {/* SECTION: WHY CHOOSE US FEATURE CARDS                         */}
+      {/* ============================================================ */}
+      <div className="bg-secondary rounded-2xl border border-foreground/10 p-6 space-y-6 shadow-sm">
+        <div className="flex items-center justify-between border-b border-foreground/10 pb-4">
+          <div>
+            <h3 className="text-sm font-black uppercase tracking-wider text-foreground">
+              {isBn ? "কেন আমাদের নির্বাচন করবেন? (Why Choose Us Cards)" : "Why Choose Us Cards"}
+            </h3>
+            <p className="text-xs opacity-60 mt-0.5">
+              {isBn
+                ? "হোমপেজের ৩টি প্রধান ফিচার কার্ডের আইকন, টাইটেল ও বিবরণ পরিবর্তন করুন"
+                : "Customize the icons, titles, and descriptions of the 3 feature highlight cards"}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-[11px] font-bold opacity-70">
+              {formData.why_us_is_active
+                ? isBn
+                  ? "সক্রিয়"
+                  : "Active"
+                : isBn
+                  ? "নিষ্ক্রিয়"
+                  : "Disabled"}
+            </span>
+            <button
+              type="button"
+              onClick={() =>
+                handleFieldChange("why_us_is_active", !formData.why_us_is_active)
+              }
+              className={`w-14 h-7 rounded-full transition-colors relative cursor-pointer border border-foreground/15 ${
+                formData.why_us_is_active ? "bg-visible" : "bg-hidden/80"
+              }`}
+            >
+              <span
+                className={`absolute top-0.5 w-6 h-6 rounded-full bg-secondary shadow-md transition-transform duration-200 ${
+                  formData.why_us_is_active ? "right-0.5" : "left-0.5"
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+
+        {formData.why_us_is_active && (
+          <div className="space-y-4">
+            <div className="text-[11px] font-black uppercase tracking-wider opacity-70">
+              {isBn ? "ফিচার কার্ড তালিকা (Feature Cards)" : "Feature Cards Configuration"}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {formData.why_us_items.map((item, idx) => (
+                <div
+                  key={item.id || idx}
+                  className={`p-4 rounded-xl border transition-all ${
+                    item.is_active !== false
+                      ? "border-foreground/15 bg-primary/5"
+                      : "border-foreground/10 bg-foreground/5 opacity-60"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setIconPickerTarget({
+                            type: "why_us",
+                            index: idx,
+                            currentIcon: item.icon || "/icons/truck.png",
+                            title: `${isBn ? "আইকন পরিবর্তন করুন" : "Change Icon"} - Feature Card ${idx + 1}`,
+                          })
+                        }
+                        title={isBn ? "আইকন পরিবর্তন করতে ক্লিক করুন" : "Click to change icon"}
+                        className="w-9 h-9 relative flex items-center justify-center p-1 rounded-xl bg-secondary border border-foreground/15 hover:border-accent hover:scale-105 transition-all cursor-pointer shadow-xs"
+                      >
+                        <Image
+                          src={item.icon || "/icons/truck.png"}
+                          alt=""
+                          width={28}
+                          height={28}
+                          unoptimized
+                          className="object-contain max-h-7 max-w-7"
+                        />
+                      </button>
+                      <div>
+                        <span className="text-xs font-black uppercase tracking-wider text-foreground block">
+                          Card {idx + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setIconPickerTarget({
+                              type: "why_us",
+                              index: idx,
+                              currentIcon: item.icon || "/icons/truck.png",
+                              title: `${isBn ? "আইকন পরিবর্তন করুন" : "Change Icon"} - Feature Card ${idx + 1}`,
+                            })
+                          }
+                          className="text-[10px] text-accent font-bold hover:underline cursor-pointer"
+                        >
+                          {isBn ? "আইকন পরিবর্তন" : "Change Icon"}
+                        </button>
+                      </div>
+                    </div>
+                    <label className="flex items-center gap-2 cursor-pointer text-xs font-bold">
+                      <input
+                        type="checkbox"
+                        checked={item.is_active !== false}
+                        onChange={(e) =>
+                          handleWhyUsItemChange(idx, "is_active", e.target.checked)
+                        }
+                        className="rounded border-foreground/20 text-accent focus:ring-accent cursor-pointer"
+                      />
+                      <span className="text-[10px] uppercase tracking-wider opacity-80">
+                        {item.is_active !== false
+                          ? isBn
+                            ? "প্রদর্শিত"
+                            : "Visible"
+                          : isBn
+                            ? "লুকানো"
+                            : "Hidden"}
+                      </span>
+                    </label>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 block mb-1">
+                        English Title
+                      </label>
+                      <input
+                        type="text"
+                        value={item.titleEn || ""}
+                        onChange={(e) =>
+                          handleWhyUsItemChange(idx, "titleEn", e.target.value)
+                        }
+                        placeholder="e.g. Fast Shipping"
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-foreground/15 text-xs font-semibold focus:outline-none focus:border-accent"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                          বাংলা টাইটেল (Bangla Title)
+                        </label>
+                        <AutoTranslateButton
+                          sourceText={item.titleEn}
+                          onTranslated={(translated) =>
+                            handleWhyUsItemChange(idx, "titleBn", translated)
+                          }
+                        />
+                      </div>
+                      <input
+                        type="text"
+                        value={item.titleBn || ""}
+                        onChange={(e) =>
+                          handleWhyUsItemChange(idx, "titleBn", e.target.value)
+                        }
+                        placeholder="যেমনঃ দ্রুত শিপিং"
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-foreground/15 text-xs font-semibold focus:outline-none focus:border-accent"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold uppercase tracking-wider opacity-70 block mb-1">
+                        English Description
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={item.descEn || ""}
+                        onChange={(e) =>
+                          handleWhyUsItemChange(idx, "descEn", e.target.value)
+                        }
+                        placeholder="e.g. Reliable home delivery across BD..."
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-foreground/15 text-xs font-semibold focus:outline-none focus:border-accent resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-[10px] font-bold uppercase tracking-wider opacity-70">
+                          বাংলা বিবরণ (Bangla Description)
+                        </label>
+                        <AutoTranslateButton
+                          sourceText={item.descEn}
+                          onTranslated={(translated) =>
+                            handleWhyUsItemChange(idx, "descBn", translated)
+                          }
+                        />
+                      </div>
+                      <textarea
+                        rows={2}
+                        value={item.descBn || ""}
+                        onChange={(e) =>
+                          handleWhyUsItemChange(idx, "descBn", e.target.value)
+                        }
+                        placeholder="যেমনঃ নির্ভরযোগ্য ডেলিভারি..."
+                        className="w-full px-3 py-2 rounded-lg bg-background border border-foreground/15 text-xs font-semibold focus:outline-none focus:border-accent resize-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* SAVE BUTTON */}
       <div className="flex justify-end pt-4 pb-2">
         <button
@@ -2103,6 +2880,18 @@ export default function HomepageSettingsSubTab({
           )}
         </button>
       </div>
+
+      {/* REUSABLE ICON PICKER MODAL */}
+      {iconPickerTarget && (
+        <IconPickerModal
+          isOpen={Boolean(iconPickerTarget)}
+          currentIcon={iconPickerTarget.currentIcon}
+          title={iconPickerTarget.title}
+          onSelectIcon={handleApplySelectedIcon}
+          onClose={() => setIconPickerTarget(null)}
+          isBn={isBn}
+        />
+      )}
     </form>
   );
 }
