@@ -1277,15 +1277,31 @@ export default function StoreSettingsTab({
               </h2>
             </div>
             <div className="flex items-center gap-3">
-              <label className="text-xs font-bold text-foreground cursor-pointer flex items-center gap-2">
-                <span>{isBn ? "চ্যাটবট সক্রিয়" : "AI Chat Active"}</span>
-                <input
-                  type="checkbox"
-                  checked={aiChatActive}
-                  onChange={(e) => setAiChatActive(e.target.checked)}
-                  className="w-4 h-4 rounded text-accent focus:ring-accent accent-accent cursor-pointer"
+              <span className="text-xs font-bold text-foreground">
+                {isBn ? "চ্যাটবট সক্রিয়" : "AI Chat Active"}
+              </span>
+              <span className="text-[11px] font-bold opacity-70">
+                {aiChatActive
+                  ? isBn
+                    ? "সক্রিয়"
+                    : "Active"
+                  : isBn
+                    ? "নিষ্ক্রিয়"
+                    : "Disabled"}
+              </span>
+              <button
+                type="button"
+                onClick={() => setAiChatActive(!aiChatActive)}
+                className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  aiChatActive ? "bg-visible" : "bg-hidden/80"
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition duration-200 ease-in-out ${
+                    aiChatActive ? "translate-x-7" : "translate-x-0.5"
+                  }`}
                 />
-              </label>
+              </button>
             </div>
           </div>
           <p className="text-xs opacity-70">
@@ -1307,17 +1323,30 @@ export default function StoreSettingsTab({
                     : "Shows a friendly floating speech bubble inviting shoppers to ask questions."}
                 </p>
               </div>
-              <label className="flex items-center gap-2 text-xs font-bold text-foreground cursor-pointer">
-                <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold bg-accent/15 text-accent">
-                  {aiNudgeActive ? (isBn ? "সক্রিয়" : "Active") : (isBn ? "নিষ্ক্রিয়" : "Disabled")}
+              <div className="flex items-center gap-3">
+                <span className="text-[11px] font-bold opacity-70">
+                  {aiNudgeActive
+                    ? isBn
+                      ? "সক্রিয়"
+                      : "Active"
+                    : isBn
+                      ? "নিষ্ক্রিয়"
+                      : "Disabled"}
                 </span>
-                <input
-                  type="checkbox"
-                  checked={aiNudgeActive}
-                  onChange={(e) => setAiNudgeActive(e.target.checked)}
-                  className="w-4 h-4 rounded text-accent focus:ring-accent accent-accent cursor-pointer"
-                />
-              </label>
+                <button
+                  type="button"
+                  onClick={() => setAiNudgeActive(!aiNudgeActive)}
+                  className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                    aiNudgeActive ? "bg-visible" : "bg-hidden/80"
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md transition duration-200 ease-in-out ${
+                      aiNudgeActive ? "translate-x-7" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
 
             {aiNudgeActive && (
