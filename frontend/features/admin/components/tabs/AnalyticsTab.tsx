@@ -58,9 +58,11 @@ export default function AnalyticsTab({
   const [gaId, setGaId] = useState<string>("");
   const [metaPixelId, setMetaPixelId] = useState<string>("");
   const [isGaLoading, setIsGaLoading] = useState<boolean>(true);
+  const [gaTimeRange, setGaTimeRange] = useState<"1d" | "7d" | "15d" | "30d" | "90d">("7d");
   const [gaLiveData, setGaLiveData] = useState<{
     is_configured: boolean;
     property_id?: string;
+    days?: number;
     realtime_active_users: number;
     total_active_users: number;
     total_sessions: number;
@@ -122,7 +124,19 @@ export default function AnalyticsTab({
   }, [effectiveApiBase]);
 
   // Fetch real Google Analytics Data API numbers from Django backend
-  const fetchLiveGaData = async () => {
+  const fetchLiveGaData = async (targetRange?: "1d" | "7d" | "15d" | "30d" | "90d") => {
+    const activeRange = targetRange || gaTimeRange;
+    const daysParam =
+      activeRange === "1d"
+        ? 1
+        : activeRange === "7d"
+        ? 7
+        : activeRange === "15d"
+        ? 15
+        : activeRange === "30d"
+        ? 30
+        : 90;
+
     setIsLiveLoading(true);
     setLiveError(null);
     try {
@@ -131,7 +145,7 @@ export default function AnalyticsTab({
       if (authToken) {
         headers["Authorization"] = `JWT ${authToken}`;
       }
-      const res = await fetch(`${effectiveApiBase}/store/analytics/ga4-live/?days=7`, {
+      const res = await fetch(`${effectiveApiBase}/store/analytics/ga4-live/?days=${daysParam}`, {
         headers,
         cache: "no-store",
       });
@@ -161,9 +175,9 @@ export default function AnalyticsTab({
 
   useEffect(() => {
     if (activeSubTab === "traffic") {
-      fetchLiveGaData();
+      fetchLiveGaData(gaTimeRange);
     }
-  }, [activeSubTab, token]);
+  }, [activeSubTab, gaTimeRange, token]);
 
   // Helper to compute order total
   const getOrderTotal = (order: Order): number => {
@@ -2357,11 +2371,41 @@ export default function AnalyticsTab({
                 </p>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-3">
+              {/* Action Buttons & Time Range Selector */}
+              <div className="flex flex-wrap items-center gap-3">
+                {/* Real-time GA4 Range Selector Buttons */}
+                <div className="flex items-center p-1 bg-foreground/5 border border-foreground/10 rounded-2xl gap-1">
+                  {[
+                    { id: "1d", labelEn: "Today", labelBn: "আজ" },
+                    { id: "7d", labelEn: "7 Days", labelBn: "৭ দিন" },
+                    { id: "15d", labelEn: "15 Days", labelBn: "১৫ দিন" },
+                    { id: "30d", labelEn: "30 Days", labelBn: "৩০ দিন" },
+                    { id: "90d", labelEn: "90 Days", labelBn: "৯০ দিন" },
+                  ].map((r) => {
+                    const isActive = gaTimeRange === r.id;
+                    return (
+                      <button
+                        key={r.id}
+                        type="button"
+                        onClick={() => {
+                          setGaTimeRange(r.id as any);
+                        }}
+                        disabled={isLiveLoading}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                          isActive
+                            ? "bg-accent text-white shadow-xs"
+                            : "text-foreground opacity-70 hover:opacity-100 hover:bg-foreground/5"
+                        } disabled:opacity-50`}
+                      >
+                        {isBn ? r.labelBn : r.labelEn}
+                      </button>
+                    );
+                  })}
+                </div>
+
                 <button
                   type="button"
-                  onClick={fetchLiveGaData}
+                  onClick={() => fetchLiveGaData(gaTimeRange)}
                   disabled={isLiveLoading}
                   className="inline-flex items-center gap-2 px-3.5 py-2.5 bg-foreground/5 hover:bg-foreground/10 text-foreground font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer disabled:opacity-50"
                   title={isBn ? "তথ্য রিফ্রেশ করুন" : "Refresh Google Analytics"}
@@ -2411,7 +2455,7 @@ export default function AnalyticsTab({
                   </a>
                   <button
                     type="button"
-                    onClick={fetchLiveGaData}
+                    onClick={() => fetchLiveGaData(gaTimeRange)}
                     className="px-3 py-1.5 bg-foreground/5 hover:bg-foreground/10 rounded-xl font-bold text-[11px] uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     {isBn ? "রিফ্রেশ" : "Retry"}
@@ -2442,10 +2486,12 @@ export default function AnalyticsTab({
                 </div>
               </div>
 
-              {/* Card 2: Total Active Users (Last 7 Days) */}
+              {/* Card 2: Total Active Users (Dynamic Selected Range) */}
               <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
                 <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                  {isBn ? "মোট ভিজিটর (বিগত ৭ দিন)" : "Active Users (7 Days)"}
+                  {isBn
+                    ? `মোট ভিজিটর (${gaTimeRange === "1d" ? "আজ" : gaTimeRange === "7d" ? "৭ দিন" : gaTimeRange === "15d" ? "১৫ দিন" : gaTimeRange === "30d" ? "৩০ দিন" : "৯০ দিন"})`
+                    : `Active Users (${gaTimeRange === "1d" ? "Today" : gaTimeRange === "7d" ? "7 Days" : gaTimeRange === "15d" ? "15 Days" : gaTimeRange === "30d" ? "30 Days" : "90 Days"})`}
                 </span>
                 <div className="mt-3 flex items-baseline gap-2">
                   <span className="text-3xl font-black text-accent font-mono">
@@ -2467,7 +2513,9 @@ export default function AnalyticsTab({
               {/* Card 3: Screen Page Views */}
               <div className="p-5 rounded-2xl bg-foreground/5 border border-foreground/10 flex flex-col justify-between">
                 <span className="text-[11px] font-black uppercase tracking-wider opacity-60">
-                  {isBn ? "মোট পেজভিউ (বিগত ৭ দিন)" : "Total Page Views (7 Days)"}
+                  {isBn
+                    ? `মোট পেজভিউ (${gaTimeRange === "1d" ? "আজ" : gaTimeRange === "7d" ? "৭ দিন" : gaTimeRange === "15d" ? "১৫ দিন" : gaTimeRange === "30d" ? "৩০ দিন" : "৯০ দিন"})`
+                    : `Total Page Views (${gaTimeRange === "1d" ? "Today" : gaTimeRange === "7d" ? "7 Days" : gaTimeRange === "15d" ? "15 Days" : gaTimeRange === "30d" ? "30 Days" : "90 Days"})`}
                 </span>
                 <div className="mt-3 flex items-baseline gap-2">
                   <span className="text-3xl font-black text-foreground font-mono">
@@ -2810,7 +2858,9 @@ export default function AnalyticsTab({
                   {isBn ? "শীর্ষ শহর ও ভৌগোলিক অবস্থান" : "Top Visitor Cities & Locations (GA4)"}
                 </h3>
                 <span className="text-[10px] font-black uppercase tracking-wider opacity-60 font-mono">
-                  {isBn ? "বিগত ৭ দিন" : "Last 7 Days"}
+                  {isBn
+                    ? `${gaTimeRange === "1d" ? "আজ" : gaTimeRange === "7d" ? "বিগত ৭ দিন" : gaTimeRange === "15d" ? "বিগত ১৫ দিন" : gaTimeRange === "30d" ? "বিগত ৩০ দিন" : "বিগত ৯০ দিন"}`
+                    : `${gaTimeRange === "1d" ? "Today" : gaTimeRange === "7d" ? "Last 7 Days" : gaTimeRange === "15d" ? "Last 15 Days" : gaTimeRange === "30d" ? "Last 30 Days" : "Last 90 Days"}`}
                 </span>
               </div>
 

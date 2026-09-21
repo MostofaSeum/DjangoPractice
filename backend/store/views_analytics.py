@@ -94,7 +94,11 @@ class GA4LiveTrafficView(APIView):
         except ValueError:
             days_int = 7
 
-        start_date_str = f"{days_int}daysAgo"
+        if days_int <= 1:
+            start_date_str = "today"
+            days_int = 1
+        else:
+            start_date_str = f"{days_int}daysAgo"
 
         # 1. Realtime active users (last 30 min)
         realtime_active_users = 0
