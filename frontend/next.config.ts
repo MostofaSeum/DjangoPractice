@@ -7,11 +7,11 @@ const isDev = process.env.NODE_ENV !== "production";
 
 const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://connect.facebook.net https://www.googletagmanager.com https://*.googletagmanager.com;
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://connect.facebook.net https://www.googletagmanager.com https://*.googletagmanager.com https://www.clarity.ms https://*.clarity.ms;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    img-src 'self' blob: data: http://localhost:8000 http://127.0.0.1:8000 https: https://www.facebook.com https://*.google-analytics.com https://*.googletagmanager.com;
+    img-src 'self' blob: data: http://localhost:8000 http://127.0.0.1:8000 https: https://www.facebook.com https://*.google-analytics.com https://*.googletagmanager.com https://*.clarity.ms https://c.bing.com;
     font-src 'self' https://fonts.gstatic.com data:;
-    connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 http://localhost:3000 http://127.0.0.1:3000 ws://localhost:3000 ws://127.0.0.1:3000 https: https://connect.facebook.net https://www.facebook.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com;
+    connect-src 'self' http://localhost:8000 http://127.0.0.1:8000 http://localhost:3000 http://127.0.0.1:3000 ws://localhost:3000 ws://127.0.0.1:3000 https: https://connect.facebook.net https://www.facebook.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://*.clarity.ms https://c.bing.com;
     frame-ancestors 'none';
     form-action 'self';
     base-uri 'self';
