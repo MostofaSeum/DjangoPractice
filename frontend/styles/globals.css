@@ -93,29 +93,6 @@ body {
   margin-top: 1.5rem !important;
 }
 
-/* SweetAlert2 Toast Notification - Compact Height */
-.swal2-popup.swal2-toast {
-  padding: 0.5rem 1rem !important;
-  border-radius: 0.875rem !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
-  align-items: center !important;
-}
-
-.swal2-popup.swal2-toast .swal2-title {
-  margin: 0 !important;
-  padding: 0 0.5rem !important;
-  line-height: 1.3 !important;
-}
-
-.swal2-popup.swal2-toast .swal2-html-container {
-  margin: 0.15rem 0 0 !important;
-  padding: 0 0.5rem !important;
-}
-
-.swal2-popup.swal2-toast .swal2-icon {
-  margin: 0 0.4rem 0 0 !important;
-}
-
 .swal2-popup .swal2-styled.swal2-confirm {
   background-color: var(--button-bg) !important;
   color: var(--button-fg) !important;
