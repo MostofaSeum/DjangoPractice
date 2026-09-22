@@ -67,85 +67,30 @@ body {
     color 0.3s ease;
 }
 
-/* SweetAlert2 Theme Overrides - Regular Modal Dialog */
-body:not(.swal2-toast-shown) .swal2-popup {
+/* SweetAlert2 Theme Overrides */
+.swal2-popup {
   background: var(--secondary) !important;
   color: var(--foreground) !important;
   border: 1px solid rgba(128, 128, 128, 0.2) !important;
   border-radius: 1.5rem !important;
   padding: 1.75rem !important;
-  width: 32em !important;
-  max-width: 90vw !important;
 }
 
-body:not(.swal2-toast-shown) .swal2-title {
+.swal2-title {
   color: var(--foreground) !important;
 }
 
-body:not(.swal2-toast-shown) .swal2-html-container {
+.swal2-html-container {
   color: var(--foreground) !important;
   opacity: 0.85;
 }
 
-body:not(.swal2-toast-shown) .swal2-actions {
+.swal2-actions {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   gap: 0.875rem !important;
   margin-top: 1.5rem !important;
-}
-
-/* SweetAlert2 Toast Notification Overrides (Top/Corner Notifications) */
-body.swal2-toast-shown .swal2-container {
-  width: auto !important;
-  max-width: 90vw !important;
-}
-
-body.swal2-toast-shown .swal2-popup.swal2-toast,
-div:where(.swal2-container) div:where(.swal2-popup).swal2-toast {
-  background: var(--secondary) !important;
-  color: var(--foreground) !important;
-  border: 1px solid rgba(128, 128, 128, 0.2) !important;
-  padding: 0.75rem 1.15rem !important;
-  border-radius: 0.875rem !important;
-  width: auto !important;
-  min-width: 17rem !important;
-  max-width: 25rem !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18) !important;
-  display: grid !important;
-  grid-template-columns: min-content auto min-content !important;
-  align-items: center !important;
-  gap: 0.25rem !important;
-}
-
-body.swal2-toast-shown .swal2-popup.swal2-toast .swal2-title,
-div:where(.swal2-container) .swal2-toast h2:where(.swal2-title) {
-  font-size: 0.925rem !important;
-  font-weight: 600 !important;
-  margin: 0 !important;
-  padding: 0 0.5rem !important;
-  line-height: 1.35 !important;
-  color: var(--foreground) !important;
-}
-
-body.swal2-toast-shown .swal2-popup.swal2-toast .swal2-icon,
-div:where(.swal2-container) .swal2-toast div:where(.swal2-icon) {
-  width: 1.65rem !important;
-  min-width: 1.65rem !important;
-  height: 1.65rem !important;
-  margin: 0 0.5rem 0 0 !important;
-  transform: scale(0.9) !important;
-}
-
-body.swal2-toast-shown .swal2-popup.swal2-toast .swal2-icon .swal2-icon-content {
-  font-size: 1.25rem !important;
-}
-
-body.swal2-toast-shown .swal2-popup.swal2-toast .swal2-html-container,
-div:where(.swal2-container) .swal2-toast div:where(.swal2-html-container) {
-  font-size: 0.85rem !important;
-  margin: 0.25rem 0 0 !important;
-  color: var(--foreground) !important;
 }
 
 .swal2-popup .swal2-styled.swal2-confirm {
