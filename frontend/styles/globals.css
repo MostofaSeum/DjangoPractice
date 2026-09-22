@@ -67,25 +67,27 @@ body {
     color 0.3s ease;
 }
 
-/* SweetAlert2 Theme Overrides */
-.swal2-popup {
+/* SweetAlert2 Theme Overrides - Regular Modal Dialog */
+body:not(.swal2-toast-shown) .swal2-popup {
   background: var(--secondary) !important;
   color: var(--foreground) !important;
   border: 1px solid rgba(128, 128, 128, 0.2) !important;
   border-radius: 1.5rem !important;
   padding: 1.75rem !important;
+  width: 32em !important;
+  max-width: 90vw !important;
 }
 
-.swal2-title {
+body:not(.swal2-toast-shown) .swal2-title {
   color: var(--foreground) !important;
 }
 
-.swal2-html-container {
+body:not(.swal2-toast-shown) .swal2-html-container {
   color: var(--foreground) !important;
   opacity: 0.85;
 }
 
-.swal2-actions {
+body:not(.swal2-toast-shown) .swal2-actions {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -93,35 +95,56 @@ body {
   margin-top: 1.5rem !important;
 }
 
-/* SweetAlert2 Toast Notification Overrides (e.g. top corner alerts) */
-.swal2-popup.swal2-toast {
-  padding: 0.5rem 0.875rem !important;
+/* SweetAlert2 Toast Notification Overrides (Top/Corner Notifications) */
+body.swal2-toast-shown .swal2-container {
+  width: auto !important;
+  max-width: 90vw !important;
+}
+
+body.swal2-toast-shown .swal2-popup.swal2-toast,
+div:where(.swal2-container) div:where(.swal2-popup).swal2-toast {
+  background: var(--secondary) !important;
+  color: var(--foreground) !important;
+  border: 1px solid rgba(128, 128, 128, 0.2) !important;
+  padding: 0.5rem 0.85rem !important;
   border-radius: 0.75rem !important;
   width: auto !important;
   max-width: 20rem !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  display: grid !important;
+  grid-template-columns: min-content auto min-content !important;
   align-items: center !important;
+  font-size: 0.825rem !important;
 }
 
-.swal2-popup.swal2-toast .swal2-title {
+body.swal2-toast-shown .swal2-popup.swal2-toast .swal2-title,
+div:where(.swal2-container) .swal2-toast h2:where(.swal2-title) {
   font-size: 0.825rem !important;
   font-weight: 500 !important;
   margin: 0 !important;
   padding: 0 0.4rem !important;
   line-height: 1.3 !important;
+  color: var(--foreground) !important;
 }
 
-.swal2-popup.swal2-toast .swal2-icon {
-  transform: scale(0.7) !important;
+body.swal2-toast-shown .swal2-popup.swal2-toast .swal2-icon,
+div:where(.swal2-container) .swal2-toast div:where(.swal2-icon) {
+  width: 1.35rem !important;
+  min-width: 1.35rem !important;
+  height: 1.35rem !important;
   margin: 0 0.35rem 0 0 !important;
-  min-width: 1.5rem !important;
-  width: 1.5rem !important;
-  height: 1.5rem !important;
+  transform: scale(0.8) !important;
 }
 
-.swal2-popup.swal2-toast .swal2-html-container {
+body.swal2-toast-shown .swal2-popup.swal2-toast .swal2-icon .swal2-icon-content {
+  font-size: 1.1rem !important;
+}
+
+body.swal2-toast-shown .swal2-popup.swal2-toast .swal2-html-container,
+div:where(.swal2-container) .swal2-toast div:where(.swal2-html-container) {
   font-size: 0.75rem !important;
   margin: 0.2rem 0 0 !important;
+  color: var(--foreground) !important;
 }
 
 .swal2-popup .swal2-styled.swal2-confirm {
