@@ -106,44 +106,45 @@ div:where(.swal2-container) div:where(.swal2-popup).swal2-toast {
   background: var(--secondary) !important;
   color: var(--foreground) !important;
   border: 1px solid rgba(128, 128, 128, 0.2) !important;
-  padding: 0.5rem 0.85rem !important;
-  border-radius: 0.75rem !important;
+  padding: 0.75rem 1.15rem !important;
+  border-radius: 0.875rem !important;
   width: auto !important;
-  max-width: 20rem !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  min-width: 17rem !important;
+  max-width: 25rem !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18) !important;
   display: grid !important;
   grid-template-columns: min-content auto min-content !important;
   align-items: center !important;
-  font-size: 0.825rem !important;
+  gap: 0.25rem !important;
 }
 
 body.swal2-toast-shown .swal2-popup.swal2-toast .swal2-title,
 div:where(.swal2-container) .swal2-toast h2:where(.swal2-title) {
-  font-size: 0.825rem !important;
-  font-weight: 500 !important;
+  font-size: 0.925rem !important;
+  font-weight: 600 !important;
   margin: 0 !important;
-  padding: 0 0.4rem !important;
-  line-height: 1.3 !important;
+  padding: 0 0.5rem !important;
+  line-height: 1.35 !important;
   color: var(--foreground) !important;
 }
 
 body.swal2-toast-shown .swal2-popup.swal2-toast .swal2-icon,
 div:where(.swal2-container) .swal2-toast div:where(.swal2-icon) {
-  width: 1.35rem !important;
-  min-width: 1.35rem !important;
-  height: 1.35rem !important;
-  margin: 0 0.35rem 0 0 !important;
-  transform: scale(0.8) !important;
+  width: 1.65rem !important;
+  min-width: 1.65rem !important;
+  height: 1.65rem !important;
+  margin: 0 0.5rem 0 0 !important;
+  transform: scale(0.9) !important;
 }
 
 body.swal2-toast-shown .swal2-popup.swal2-toast .swal2-icon .swal2-icon-content {
-  font-size: 1.1rem !important;
+  font-size: 1.25rem !important;
 }
 
 body.swal2-toast-shown .swal2-popup.swal2-toast .swal2-html-container,
 div:where(.swal2-container) .swal2-toast div:where(.swal2-html-container) {
-  font-size: 0.75rem !important;
-  margin: 0.2rem 0 0 !important;
+  font-size: 0.85rem !important;
+  margin: 0.25rem 0 0 !important;
   color: var(--foreground) !important;
 }
 
