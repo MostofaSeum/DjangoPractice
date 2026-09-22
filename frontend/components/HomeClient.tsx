@@ -163,11 +163,6 @@ export default function HomeClient({
 
   return (
     <div className="min-h-screen pb-24 bg-background text-foreground font-sans transition-colors duration-300 relative overflow-x-hidden">
-      {/* Marquee Announcement Ticker (Directly under the navbar on the landing page) */}
-      <div className="w-full relative z-20">
-        <MarqueeTicker siteSettings={siteSettings} />
-      </div>
-
       {/* Hero Ambient Glow Aura Orbs */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1400px] h-[750px] pointer-events-none overflow-hidden -z-0">
         <div className="absolute -top-24 left-1/4 w-[500px] md:w-[700px] h-[350px] md:h-[500px] bg-accent/20 dark:bg-accent/15 rounded-full blur-[110px] animate-aura" />

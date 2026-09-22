@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import CartButton from "@/features/cart/components/CartButton";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import LanguageToggle from "@/components/ui/LanguageToggle";
+import MarqueeTicker from "@/components/ui/MarqueeTicker";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
 import { useLanguage } from "@/store/LanguageContext";
@@ -28,6 +29,7 @@ export default function Header() {
   const [brandTitleEn, setBrandTitleEn] = useState("VIBEMART");
   const [brandTitleBn, setBrandTitleBn] = useState("");
   const [brandLogo, setBrandLogo] = useState<string | null>(null);
+  const [siteSettings, setSiteSettings] = useState<any>(null);
 
   const brandTitle = isBn ? (brandTitleBn || brandTitleEn) : brandTitleEn;
 
@@ -39,6 +41,7 @@ export default function Header() {
         });
         if (res.ok) {
           const data = await res.json();
+          setSiteSettings(data);
           if (data.site_title) setBrandTitleEn(data.site_title);
           if (data.site_title_bn) setBrandTitleBn(data.site_title_bn);
           if (data.logo) setBrandLogo(data.logo);
