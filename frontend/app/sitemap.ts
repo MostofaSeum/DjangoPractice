@@ -2,7 +2,13 @@ import { MetadataRoute } from "next";
 import { getApiBaseUrl } from "@/config/siteConfig";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const getSiteUrl = () => {
+    if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/+$/, "");
+    if (process.env.VERCEL_PROJECT_PRODUCTION_URL) return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+    return "https://vibemart-flax.vercel.app";
+  };
+  const siteUrl = getSiteUrl();
   const apiBase = getApiBaseUrl();
 
   const staticRoutes: MetadataRoute.Sitemap = [
