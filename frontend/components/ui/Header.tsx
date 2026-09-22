@@ -318,9 +318,12 @@ export default function Header() {
             );
           })}
         </div>
+      </div>
+      </div>
+
       {/* Marquee Announcement Ticker (Sticky right under navbar, only on landing page) */}
       {pathname === "/" && (
-        <div className="w-full">
+        <div className="w-full shadow-xs">
           <MarqueeTicker siteSettings={siteSettings} />
         </div>
       )}
