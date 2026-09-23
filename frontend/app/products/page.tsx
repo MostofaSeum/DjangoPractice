@@ -4,15 +4,17 @@ import ProductsClient from "@/features/products/components/ProductsClient";
 import { Product } from "@/types/product";
 
 export const metadata: Metadata = {
-  title: "Shop All Products | VibeMart",
-  description: "Browse our exclusive catalog of luxury cosmetics, makeup, skincare, and beauty essentials.",
+  title: "VibeMart Products - Luxury Cosmetics, Skincare & Beauty Catalog",
+  description: "Browse the full collection of VibeMart products. Explore luxury cosmetics, skincare essentials, lipsticks, and beauty collections with nationwide fast delivery.",
+  keywords: ["vibemart products", "vibemart cosmetics", "vibemart store", "beauty products", "makeup catalog", "skincare"],
   alternates: {
     canonical: "/products",
   },
   openGraph: {
-    title: "Shop All Products | VibeMart",
-    description: "Browse our exclusive catalog of luxury cosmetics, makeup, skincare, and beauty essentials.",
+    title: "VibeMart Products - Luxury Cosmetics, Skincare & Beauty Catalog",
+    description: "Browse the full collection of VibeMart products. Explore luxury cosmetics, skincare essentials, lipsticks, and beauty collections.",
     url: "/products",
+    type: "website",
   },
 };
 
