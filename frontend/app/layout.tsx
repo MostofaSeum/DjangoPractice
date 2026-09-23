@@ -57,6 +57,14 @@ export const metadata: Metadata = {
       },
     ],
   },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
   twitter: {
     card: "summary_large_image",
     title: "VibeMart - Premium Cosmetics & Beauty Store",
