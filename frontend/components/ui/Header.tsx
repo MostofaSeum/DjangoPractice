@@ -23,6 +23,7 @@ export default function Header() {
   const { clearCart } = useCart();
   const { t, locale } = useLanguage();
   const isBn = locale === "bn";
+  const isProductsPage = pathname === "/products";
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -136,8 +137,14 @@ export default function Header() {
             )}
           </Link>
 
-          {/* Desktop Search Bar */}
-          <div className="hidden md:flex flex-1 max-w-[220px] lg:max-w-xs xl:max-w-md mx-2 lg:mx-4">
+          {/* Desktop Search Bar with Smooth Fade/Collapse Transition on /products */}
+          <div
+            className={`hidden md:flex flex-1 items-center transition-all duration-300 ease-in-out ${
+              isProductsPage
+                ? "max-w-0 opacity-0 scale-95 mx-0 pointer-events-none overflow-hidden"
+                : "max-w-[220px] lg:max-w-xs xl:max-w-md opacity-100 scale-100 mx-2 lg:mx-4 pointer-events-auto"
+            }`}
+          >
             <ProductSearchBar
               variant="navbar"
               idPrefix="header-desktop"
@@ -299,8 +306,14 @@ export default function Header() {
             : "max-h-0 opacity-0 mt-0 pt-0 pb-0 border-t-0 pointer-events-none overflow-hidden"
         }`}
       >
-        {/* Mobile Search inside Burger Drawer */}
-        <div className="mb-3">
+        {/* Mobile Search inside Burger Drawer with Smooth Collapse on /products */}
+        <div
+          className={`transition-all duration-300 ease-in-out ${
+            isProductsPage
+              ? "max-h-0 opacity-0 mb-0 pointer-events-none overflow-hidden"
+              : "max-h-20 opacity-100 mb-3 pointer-events-auto"
+          }`}
+        >
           <ProductSearchBar
             variant="navbar"
             idPrefix="burger-mobile"
