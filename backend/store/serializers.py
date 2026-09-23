@@ -1044,6 +1044,7 @@ class SiteSettingSerializer(serializers.ModelSerializer):
     whatsapp_number = serializers.CharField(max_length=50, required=False, allow_blank=True)
     meta_pixel_id = serializers.CharField(max_length=50, required=False, allow_blank=True)
     google_analytics_id = serializers.CharField(max_length=50, required=False, allow_blank=True)
+    google_tag_manager_id = serializers.CharField(max_length=50, required=False, allow_blank=True)
     ai_chat_active = serializers.BooleanField(required=False, default=True)
     ai_nudge_active = serializers.BooleanField(required=False, default=True)
     ai_nudge_delay_seconds = serializers.IntegerField(required=False, default=5, min_value=1, max_value=120)
@@ -1080,6 +1081,7 @@ class SiteSettingSerializer(serializers.ModelSerializer):
             'whatsapp_number',
             'meta_pixel_id',
             'google_analytics_id',
+            'google_tag_manager_id',
             'ai_chat_active',
             'ai_nudge_active',
             'ai_nudge_delay_seconds',

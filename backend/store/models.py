@@ -634,6 +634,12 @@ class SiteSetting(models.Model):
         default='',
         help_text="Google Analytics 4 Measurement ID (e.g. G-XXXXXXXXXX)"
     )
+    google_tag_manager_id = models.CharField(
+        max_length=50,
+        blank=True,
+        default='',
+        help_text="Google Tag Manager Container ID (e.g. GTM-XXXXXXX)"
+    )
     
     # AI Assistant (VibeBuddy) & Proactive Nudge Settings
     ai_chat_active = models.BooleanField(default=True, help_text="Enable or disable the AI chat widget storewide")
