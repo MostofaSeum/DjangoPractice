@@ -733,6 +733,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/Address'
           description: ''
+  /api/v1/store/analytics/ga4-live/:
+    get:
+      operationId: api_v1_store_analytics_ga4_live_retrieve
+      description: |-
+        Queries Google Analytics Data API (GA4) directly using Service Account credentials
+        and returns real-time users, traffic channels, device breakdown, and top pages.
+        Accessible by Admin users.
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/v1/store/audit-logs/:
     get:
       operationId: api_v1_store_audit_logs_list
@@ -1414,6 +1428,180 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Coupon'
+          description: ''
+  /api/v1/store/courier-providers/:
+    get:
+      operationId: api_v1_store_courier_providers_list
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourierProvider'
+          description: ''
+    post:
+      operationId: api_v1_store_courier_providers_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourierProvider'
+          description: ''
+  /api/v1/store/courier-providers/{id}/:
+    get:
+      operationId: api_v1_store_courier_providers_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this courier provider.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourierProvider'
+          description: ''
+    put:
+      operationId: api_v1_store_courier_providers_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this courier provider.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourierProvider'
+          description: ''
+    patch:
+      operationId: api_v1_store_courier_providers_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this courier provider.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCourierProviderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCourierProviderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCourierProviderRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourierProvider'
+          description: ''
+    delete:
+      operationId: api_v1_store_courier_providers_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this courier provider.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/store/courier-providers/{id}/test_connection/:
+    post:
+      operationId: api_v1_store_courier_providers_test_connection_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this courier provider.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourierProvider'
           description: ''
   /api/v1/store/customers/:
     get:
@@ -2385,6 +2573,101 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/store/orders/{id}/cancel_order/:
+    post:
+      operationId: api_v1_store_orders_cancel_order_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateOrder'
+          description: ''
+  /api/v1/store/orders/{id}/dispatch_courier/:
+    post:
+      operationId: api_v1_store_orders_dispatch_courier_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateOrder'
+          description: ''
+  /api/v1/store/orders/{id}/update_tracking/:
+    patch:
+      operationId: api_v1_store_orders_update_tracking_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateOrderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateOrderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateOrderRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateOrder'
+          description: ''
   /api/v1/store/payment-settings/:
     get:
       operationId: api_v1_store_payment_settings_list
@@ -3192,6 +3475,40 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProductSerializers'
           description: ''
+  /api/v1/store/products/bulk_upload_zip/:
+    post:
+      operationId: api_v1_store_products_bulk_upload_zip_create
+      description: |-
+        Batch upload product photos via a ZIP archive.
+        Expected structure inside the ZIP:
+          archive.zip
+            └── Product_Title_Or_Slug/  (or Product_Name/)
+                  ├── photo1.jpg
+                  ├── photo2.jpg
+                  ... (up to 5 photos per product will be saved)
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductSerializersRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductSerializersRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductSerializersRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductSerializers'
+          description: ''
   /api/v1/store/products/delete_saved_sheet_url/:
     delete:
       operationId: api_v1_store_products_delete_saved_sheet_url_destroy
@@ -3493,6 +3810,315 @@ paths:
               schema:
                 $ref: '#/components/schemas/Promotion'
           description: ''
+  /api/v1/store/return-requests/:
+    get:
+      operationId: api_v1_store_return_requests_list
+      parameters:
+      - in: query
+        name: order
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: reason
+        schema:
+          type: string
+          enum:
+          - damaged
+          - missing_items
+          - not_as_described
+          - other
+          - size_fit
+          - wrong_item
+        description: |-
+          * `damaged` - Damaged / Defective Product
+          * `wrong_item` - Wrong Product or Variant Received
+          * `not_as_described` - Item Does Not Match Description
+          * `missing_items` - Missing Items / Accessories
+          * `size_fit` - Size / Fit Issue
+          * `other` - Other Reason
+      - in: query
+        name: refund_method
+        schema:
+          type: string
+          enum:
+          - bkash
+          - nagad
+          - vibecoin
+        description: |-
+          * `vibecoin` - VibeCoin Wallet (Instant Store Credit)
+          * `bkash` - bKash Mobile Banking
+          * `nagad` - Nagad Mobile Banking
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - approved
+          - cancelled
+          - pending
+          - picked_up
+          - refunded
+          - rejected
+        description: |-
+          * `pending` - Return Requested
+          * `approved` - Return Approved & Pickup Scheduled
+          * `picked_up` - Parcel Picked Up
+          * `refunded` - Returned & Refund Completed
+          * `rejected` - Return Rejected
+          * `cancelled` - Cancelled by Customer
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReturnRequestList'
+          description: ''
+    post:
+      operationId: api_v1_store_return_requests_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnRequest'
+          description: ''
+  /api/v1/store/return-requests/{id}/:
+    get:
+      operationId: api_v1_store_return_requests_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this return request.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnRequest'
+          description: ''
+    put:
+      operationId: api_v1_store_return_requests_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this return request.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnRequest'
+          description: ''
+    patch:
+      operationId: api_v1_store_return_requests_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this return request.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedReturnRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedReturnRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedReturnRequestRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnRequest'
+          description: ''
+    delete:
+      operationId: api_v1_store_return_requests_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this return request.
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/store/return-requests/{id}/approve_return/:
+    post:
+      operationId: api_v1_store_return_requests_approve_return_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this return request.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnRequest'
+          description: ''
+  /api/v1/store/return-requests/{id}/process_refund/:
+    post:
+      operationId: api_v1_store_return_requests_process_refund_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this return request.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnRequest'
+          description: ''
+  /api/v1/store/return-requests/{id}/reject_return/:
+    post:
+      operationId: api_v1_store_return_requests_reject_return_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this return request.
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnRequest'
+          description: ''
   /api/v1/store/reviews/:
     get:
       operationId: api_v1_store_reviews_list
@@ -3657,6 +4283,187 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/store/site-settings/:
+    get:
+      operationId: api_v1_store_site_settings_list
+      description: |-
+        ViewSet to retrieve and update site & footer settings.
+        GET: Public (AllowAny) - Allows Frontend Header & Footer to read settings.
+        POST / PUT / PATCH: Protected (IsAdminUser) - Only Admins can modify settings or upload logo.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSiteSettingList'
+          description: ''
+    post:
+      operationId: api_v1_store_site_settings_create
+      description: |-
+        ViewSet to retrieve and update site & footer settings.
+        GET: Public (AllowAny) - Allows Frontend Header & Footer to read settings.
+        POST / PUT / PATCH: Protected (IsAdminUser) - Only Admins can modify settings or upload logo.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSetting'
+          description: ''
+  /api/v1/store/site-settings/remove_logo/:
+    post:
+      operationId: api_v1_store_site_settings_remove_logo_create
+      description: |-
+        ViewSet to retrieve and update site & footer settings.
+        GET: Public (AllowAny) - Allows Frontend Header & Footer to read settings.
+        POST / PUT / PATCH: Protected (IsAdminUser) - Only Admins can modify settings or upload logo.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSetting'
+          description: ''
+    delete:
+      operationId: api_v1_store_site_settings_remove_logo_destroy
+      description: |-
+        ViewSet to retrieve and update site & footer settings.
+        GET: Public (AllowAny) - Allows Frontend Header & Footer to read settings.
+        POST / PUT / PATCH: Protected (IsAdminUser) - Only Admins can modify settings or upload logo.
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/store/site-settings/update_settings/:
+    post:
+      operationId: api_v1_store_site_settings_update_settings_create
+      description: |-
+        ViewSet to retrieve and update site & footer settings.
+        GET: Public (AllowAny) - Allows Frontend Header & Footer to read settings.
+        POST / PUT / PATCH: Protected (IsAdminUser) - Only Admins can modify settings or upload logo.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSetting'
+          description: ''
+    put:
+      operationId: api_v1_store_site_settings_update_settings_update
+      description: |-
+        ViewSet to retrieve and update site & footer settings.
+        GET: Public (AllowAny) - Allows Frontend Header & Footer to read settings.
+        POST / PUT / PATCH: Protected (IsAdminUser) - Only Admins can modify settings or upload logo.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSetting'
+          description: ''
+    patch:
+      operationId: api_v1_store_site_settings_update_settings_partial_update
+      description: |-
+        ViewSet to retrieve and update site & footer settings.
+        GET: Public (AllowAny) - Allows Frontend Header & Footer to read settings.
+        POST / PUT / PATCH: Protected (IsAdminUser) - Only Admins can modify settings or upload logo.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSiteSettingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSiteSettingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSiteSettingRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSetting'
+          description: ''
   /api/v1/store/subscribers/:
     get:
       operationId: api_v1_store_subscribers_list
@@ -4866,6 +5673,20 @@ paths:
               schema:
                 $ref: '#/components/schemas/Address'
           description: ''
+  /store/analytics/ga4-live/:
+    get:
+      operationId: store_analytics_ga4_live_retrieve
+      description: |-
+        Queries Google Analytics Data API (GA4) directly using Service Account credentials
+        and returns real-time users, traffic channels, device breakdown, and top pages.
+        Accessible by Admin users.
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
   /store/audit-logs/:
     get:
       operationId: store_audit_logs_list
@@ -5547,6 +6368,180 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Coupon'
+          description: ''
+  /store/courier-providers/:
+    get:
+      operationId: store_courier_providers_list
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourierProvider'
+          description: ''
+    post:
+      operationId: store_courier_providers_create
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourierProvider'
+          description: ''
+  /store/courier-providers/{id}/:
+    get:
+      operationId: store_courier_providers_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this courier provider.
+        required: true
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourierProvider'
+          description: ''
+    put:
+      operationId: store_courier_providers_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this courier provider.
+        required: true
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourierProvider'
+          description: ''
+    patch:
+      operationId: store_courier_providers_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this courier provider.
+        required: true
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCourierProviderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCourierProviderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCourierProviderRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourierProvider'
+          description: ''
+    delete:
+      operationId: store_courier_providers_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this courier provider.
+        required: true
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /store/courier-providers/{id}/test_connection/:
+    post:
+      operationId: store_courier_providers_test_connection_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this courier provider.
+        required: true
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourierProviderRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourierProvider'
           description: ''
   /store/customers/:
     get:
@@ -6518,6 +7513,101 @@ paths:
       responses:
         '204':
           description: No response body
+  /store/orders/{id}/cancel_order/:
+    post:
+      operationId: store_orders_cancel_order_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateOrder'
+          description: ''
+  /store/orders/{id}/dispatch_courier/:
+    post:
+      operationId: store_orders_dispatch_courier_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateOrder'
+          description: ''
+  /store/orders/{id}/update_tracking/:
+    patch:
+      operationId: store_orders_update_tracking_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateOrderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateOrderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateOrderRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateOrder'
+          description: ''
   /store/payment-settings/:
     get:
       operationId: store_payment_settings_list
@@ -7325,6 +8415,40 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProductSerializers'
           description: ''
+  /store/products/bulk_upload_zip/:
+    post:
+      operationId: store_products_bulk_upload_zip_create
+      description: |-
+        Batch upload product photos via a ZIP archive.
+        Expected structure inside the ZIP:
+          archive.zip
+            └── Product_Title_Or_Slug/  (or Product_Name/)
+                  ├── photo1.jpg
+                  ├── photo2.jpg
+                  ... (up to 5 photos per product will be saved)
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductSerializersRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductSerializersRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductSerializersRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductSerializers'
+          description: ''
   /store/products/delete_saved_sheet_url/:
     delete:
       operationId: store_products_delete_saved_sheet_url_destroy
@@ -7626,6 +8750,315 @@ paths:
               schema:
                 $ref: '#/components/schemas/Promotion'
           description: ''
+  /store/return-requests/:
+    get:
+      operationId: store_return_requests_list
+      parameters:
+      - in: query
+        name: order
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: reason
+        schema:
+          type: string
+          enum:
+          - damaged
+          - missing_items
+          - not_as_described
+          - other
+          - size_fit
+          - wrong_item
+        description: |-
+          * `damaged` - Damaged / Defective Product
+          * `wrong_item` - Wrong Product or Variant Received
+          * `not_as_described` - Item Does Not Match Description
+          * `missing_items` - Missing Items / Accessories
+          * `size_fit` - Size / Fit Issue
+          * `other` - Other Reason
+      - in: query
+        name: refund_method
+        schema:
+          type: string
+          enum:
+          - bkash
+          - nagad
+          - vibecoin
+        description: |-
+          * `vibecoin` - VibeCoin Wallet (Instant Store Credit)
+          * `bkash` - bKash Mobile Banking
+          * `nagad` - Nagad Mobile Banking
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - approved
+          - cancelled
+          - pending
+          - picked_up
+          - refunded
+          - rejected
+        description: |-
+          * `pending` - Return Requested
+          * `approved` - Return Approved & Pickup Scheduled
+          * `picked_up` - Parcel Picked Up
+          * `refunded` - Returned & Refund Completed
+          * `rejected` - Return Rejected
+          * `cancelled` - Cancelled by Customer
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReturnRequestList'
+          description: ''
+    post:
+      operationId: store_return_requests_create
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnRequest'
+          description: ''
+  /store/return-requests/{id}/:
+    get:
+      operationId: store_return_requests_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this return request.
+        required: true
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnRequest'
+          description: ''
+    put:
+      operationId: store_return_requests_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this return request.
+        required: true
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnRequest'
+          description: ''
+    patch:
+      operationId: store_return_requests_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this return request.
+        required: true
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedReturnRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedReturnRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedReturnRequestRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnRequest'
+          description: ''
+    delete:
+      operationId: store_return_requests_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this return request.
+        required: true
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /store/return-requests/{id}/approve_return/:
+    post:
+      operationId: store_return_requests_approve_return_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this return request.
+        required: true
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnRequest'
+          description: ''
+  /store/return-requests/{id}/process_refund/:
+    post:
+      operationId: store_return_requests_process_refund_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this return request.
+        required: true
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnRequest'
+          description: ''
+  /store/return-requests/{id}/reject_return/:
+    post:
+      operationId: store_return_requests_reject_return_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this return request.
+        required: true
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReturnRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReturnRequest'
+          description: ''
   /store/reviews/:
     get:
       operationId: store_reviews_list
@@ -7790,6 +9223,187 @@ paths:
       responses:
         '204':
           description: No response body
+  /store/site-settings/:
+    get:
+      operationId: store_site_settings_list
+      description: |-
+        ViewSet to retrieve and update site & footer settings.
+        GET: Public (AllowAny) - Allows Frontend Header & Footer to read settings.
+        POST / PUT / PATCH: Protected (IsAdminUser) - Only Admins can modify settings or upload logo.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSiteSettingList'
+          description: ''
+    post:
+      operationId: store_site_settings_create
+      description: |-
+        ViewSet to retrieve and update site & footer settings.
+        GET: Public (AllowAny) - Allows Frontend Header & Footer to read settings.
+        POST / PUT / PATCH: Protected (IsAdminUser) - Only Admins can modify settings or upload logo.
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSetting'
+          description: ''
+  /store/site-settings/remove_logo/:
+    post:
+      operationId: store_site_settings_remove_logo_create
+      description: |-
+        ViewSet to retrieve and update site & footer settings.
+        GET: Public (AllowAny) - Allows Frontend Header & Footer to read settings.
+        POST / PUT / PATCH: Protected (IsAdminUser) - Only Admins can modify settings or upload logo.
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSetting'
+          description: ''
+    delete:
+      operationId: store_site_settings_remove_logo_destroy
+      description: |-
+        ViewSet to retrieve and update site & footer settings.
+        GET: Public (AllowAny) - Allows Frontend Header & Footer to read settings.
+        POST / PUT / PATCH: Protected (IsAdminUser) - Only Admins can modify settings or upload logo.
+      tags:
+      - store
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /store/site-settings/update_settings/:
+    post:
+      operationId: store_site_settings_update_settings_create
+      description: |-
+        ViewSet to retrieve and update site & footer settings.
+        GET: Public (AllowAny) - Allows Frontend Header & Footer to read settings.
+        POST / PUT / PATCH: Protected (IsAdminUser) - Only Admins can modify settings or upload logo.
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSetting'
+          description: ''
+    put:
+      operationId: store_site_settings_update_settings_update
+      description: |-
+        ViewSet to retrieve and update site & footer settings.
+        GET: Public (AllowAny) - Allows Frontend Header & Footer to read settings.
+        POST / PUT / PATCH: Protected (IsAdminUser) - Only Admins can modify settings or upload logo.
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SiteSettingRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSetting'
+          description: ''
+    patch:
+      operationId: store_site_settings_update_settings_partial_update
+      description: |-
+        ViewSet to retrieve and update site & footer settings.
+        GET: Public (AllowAny) - Allows Frontend Header & Footer to read settings.
+        POST / PUT / PATCH: Protected (IsAdminUser) - Only Admins can modify settings or upload logo.
+      tags:
+      - store
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSiteSettingRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSiteSettingRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSiteSettingRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSetting'
+          description: ''
   /store/subscribers/:
     get:
       operationId: store_subscribers_list
@@ -8606,6 +10220,107 @@ components:
       description: |-
         * `product` - Specific Products
         * `collection` - Collection
+    CourierProvider:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 150
+        provider_code:
+          $ref: '#/components/schemas/ProviderCodeEnum'
+        provider_code_display:
+          type: string
+          readOnly: true
+        api_key:
+          type: string
+          nullable: true
+          maxLength: 255
+        secret_key:
+          type: string
+          nullable: true
+          maxLength: 255
+        client_id:
+          type: string
+          nullable: true
+          maxLength: 150
+        base_url:
+          nullable: true
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 500
+          - type: string
+            maxLength: 0
+        tracking_url_template:
+          type: string
+          nullable: true
+          description: e.g. https://steadfast.com.bd/t/{tracking_code}
+          maxLength: 500
+        is_active:
+          type: boolean
+        is_sandbox:
+          type: boolean
+        notes:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - provider_code_display
+      - updated_at
+    CourierProviderRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        provider_code:
+          $ref: '#/components/schemas/ProviderCodeEnum'
+        api_key:
+          type: string
+          nullable: true
+          maxLength: 255
+        secret_key:
+          type: string
+          nullable: true
+          maxLength: 255
+        client_id:
+          type: string
+          nullable: true
+          maxLength: 150
+        base_url:
+          nullable: true
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 500
+          - type: string
+            maxLength: 0
+        tracking_url_template:
+          type: string
+          nullable: true
+          description: e.g. https://steadfast.com.bd/t/{tracking_code}
+          maxLength: 500
+        is_active:
+          type: boolean
+        is_sandbox:
+          type: boolean
+        notes:
+          type: string
+      required:
+      - name
     CreateOrder:
       type: object
       properties:
@@ -8680,6 +10395,26 @@ components:
           maxLength: 20
       required:
       - cart_id
+    CurrencyCodeEnum:
+      enum:
+      - BDT
+      - USD
+      - EUR
+      - GBP
+      - INR
+      - SAR
+      - AED
+      - CAD
+      type: string
+      description: |-
+        * `BDT` - BDT (৳) - Bangladeshi Taka
+        * `USD` - USD ($) - US Dollar
+        * `EUR` - EUR (€) - Euro
+        * `GBP` - GBP (£) - British Pound
+        * `INR` - INR (₹) - Indian Rupee
+        * `SAR` - SAR (﷼) - Saudi Riyal
+        * `AED` - AED (د.إ) - UAE Dirham
+        * `CAD` - CAD ($) - Canadian Dollar
     CustomerSerializers:
       type: object
       properties:
@@ -9063,6 +10798,7 @@ components:
     NotificationTypeEnum:
       enum:
       - order
+      - return
       - stock
       - system
       - promotion
@@ -9070,6 +10806,7 @@ components:
       type: string
       description: |-
         * `order` - New Order
+        * `return` - Return Request
         * `stock` - Low Stock Alert
         * `system` - System Alert
         * `promotion` - Promotion Expiry Alert
@@ -9126,12 +10863,38 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OrderItem'
+        courier_partner:
+          type: integer
+          nullable: true
+        courier_partner_details:
+          allOf:
+          - $ref: '#/components/schemas/CourierProvider'
+          readOnly: true
+        tracking_code:
+          type: string
+          maxLength: 100
+        tracking_status:
+          $ref: '#/components/schemas/TrackingStatusEnum'
+        tracking_status_display:
+          type: string
+          readOnly: true
+        courier_consignment_id:
+          type: string
+          maxLength: 100
+        courier_response:
+          nullable: true
+        return_requests:
+          type: string
+          readOnly: true
       required:
+      - courier_partner_details
       - customer
       - customer_name
       - id
       - items
       - placed_at
+      - return_requests
+      - tracking_status_display
     OrderItem:
       type: object
       properties:
@@ -9302,6 +11065,52 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Promotion'
+    PaginatedReturnRequestList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReturnRequest'
+    PaginatedSiteSettingList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteSetting'
     PaginatedSubscriberList:
       type: object
       required:
@@ -9464,6 +11273,46 @@ components:
           default: []
         is_active:
           type: boolean
+    PatchedCourierProviderRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        provider_code:
+          $ref: '#/components/schemas/ProviderCodeEnum'
+        api_key:
+          type: string
+          nullable: true
+          maxLength: 255
+        secret_key:
+          type: string
+          nullable: true
+          maxLength: 255
+        client_id:
+          type: string
+          nullable: true
+          maxLength: 150
+        base_url:
+          nullable: true
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 500
+          - type: string
+            maxLength: 0
+        tracking_url_template:
+          type: string
+          nullable: true
+          description: e.g. https://steadfast.com.bd/t/{tracking_code}
+          maxLength: 500
+        is_active:
+          type: boolean
+        is_sandbox:
+          type: boolean
+        notes:
+          type: string
     PatchedCustomerSerializersRequest:
       type: object
       properties:
@@ -9675,6 +11524,45 @@ components:
           type: string
           format: date-time
           nullable: true
+    PatchedReturnRequestRequest:
+      type: object
+      properties:
+        order:
+          type: integer
+        reason:
+          $ref: '#/components/schemas/ReasonEnum'
+        customer_note:
+          type: string
+        refund_method:
+          $ref: '#/components/schemas/RefundMethodEnum'
+        refund_account_number:
+          type: string
+          maxLength: 100
+        proof_image_1:
+          type: string
+          format: binary
+          nullable: true
+        proof_image_2:
+          type: string
+          format: binary
+          nullable: true
+        proof_image_3:
+          type: string
+          format: binary
+          nullable: true
+        admin_note:
+          type: string
+          maxLength: 1500
+        refund_transaction_id:
+          type: string
+          maxLength: 150
+        refund_amount:
+          type: number
+          format: double
+          maximum: 100000000
+          minimum: -100000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
     PatchedReviewRequest:
       type: object
       properties:
@@ -9693,6 +11581,278 @@ components:
           type: string
           format: binary
           nullable: true
+    PatchedSiteSettingRequest:
+      type: object
+      properties:
+        site_title:
+          type: string
+          minLength: 1
+          maxLength: 15
+        site_title_bn:
+          type: string
+          maxLength: 25
+        tagline:
+          type: string
+          maxLength: 30
+        tagline_bn:
+          type: string
+          maxLength: 45
+        brand_description:
+          type: string
+        brand_description_bn:
+          type: string
+        theme_palette:
+          type: string
+          maxLength: 50
+        logo:
+          type: string
+          format: binary
+          nullable: true
+        support_phone:
+          type: string
+          maxLength: 30
+        support_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 100
+          - type: string
+            maxLength: 0
+        store_address:
+          type: string
+          maxLength: 200
+        store_address_bn:
+          type: string
+          maxLength: 250
+        working_hours:
+          type: string
+          maxLength: 60
+        working_hours_bn:
+          type: string
+          maxLength: 80
+        facebook_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 255
+          - type: string
+            maxLength: 0
+        instagram_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 255
+          - type: string
+            maxLength: 0
+        youtube_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 255
+          - type: string
+            maxLength: 0
+        whatsapp_number:
+          type: string
+          maxLength: 50
+        meta_pixel_id:
+          type: string
+          maxLength: 50
+        google_analytics_id:
+          type: string
+          maxLength: 50
+        ai_chat_active:
+          type: boolean
+          default: true
+        ai_nudge_active:
+          type: boolean
+          default: true
+        ai_nudge_delay_seconds:
+          type: integer
+          maximum: 120
+          minimum: 1
+          default: 5
+        ai_nudge_duration_seconds:
+          type: integer
+          maximum: 120
+          minimum: 1
+          default: 8
+        ai_nudge_home_msg:
+          type: string
+          maxLength: 200
+        ai_nudge_home_msg_bn:
+          type: string
+          maxLength: 250
+        ai_nudge_product_msg:
+          type: string
+          maxLength: 200
+        ai_nudge_product_msg_bn:
+          type: string
+          maxLength: 250
+        footer_copyright:
+          type: string
+          maxLength: 100
+        footer_copyright_bn:
+          type: string
+          maxLength: 120
+        currency_code:
+          $ref: '#/components/schemas/CurrencyCodeEnum'
+        top_banner_image:
+          type: string
+          format: binary
+          nullable: true
+        top_banner_link:
+          type: string
+          maxLength: 500
+        top_banner_is_active:
+          type: boolean
+        hero_badge:
+          type: string
+          maxLength: 100
+        hero_badge_bn:
+          type: string
+          maxLength: 100
+        hero_title_prefix:
+          type: string
+          maxLength: 100
+        hero_title_prefix_bn:
+          type: string
+          maxLength: 100
+        hero_rotating_words:
+          type: string
+          maxLength: 500
+        hero_rotating_words_bn:
+          type: string
+          maxLength: 500
+        hero_subtitle:
+          type: string
+        hero_subtitle_bn:
+          type: string
+        hero_btn_text:
+          type: string
+          maxLength: 100
+        hero_btn_text_bn:
+          type: string
+          maxLength: 100
+        hero_btn_link:
+          type: string
+          maxLength: 500
+        discover_title:
+          type: string
+          maxLength: 100
+        discover_title_bn:
+          type: string
+          maxLength: 100
+        discover_subtitle:
+          type: string
+        discover_subtitle_bn:
+          type: string
+        discover_btn_text:
+          type: string
+          maxLength: 100
+        discover_btn_text_bn:
+          type: string
+          maxLength: 100
+        discover_btn_link:
+          type: string
+          maxLength: 500
+        bento_tile_1_title:
+          type: string
+          maxLength: 100
+        bento_tile_1_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_1_collection:
+          type: integer
+          nullable: true
+        bento_tile_1_image:
+          type: string
+          format: binary
+          nullable: true
+        bento_tile_2_title:
+          type: string
+          maxLength: 100
+        bento_tile_2_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_2_collection:
+          type: integer
+          nullable: true
+        bento_tile_2_image:
+          type: string
+          format: binary
+          nullable: true
+        bento_tile_3_title:
+          type: string
+          maxLength: 100
+        bento_tile_3_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_3_collection:
+          type: integer
+          nullable: true
+        bento_tile_3_image:
+          type: string
+          format: binary
+          nullable: true
+        bento_tile_4_title:
+          type: string
+          maxLength: 100
+        bento_tile_4_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_4_collection:
+          type: integer
+          nullable: true
+        bento_tile_4_image:
+          type: string
+          format: binary
+          nullable: true
+        bento_tile_247_title:
+          type: string
+          maxLength: 100
+        bento_tile_247_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_247_image:
+          type: string
+          format: binary
+          nullable: true
+        bento_tile_247_link:
+          type: string
+          maxLength: 500
+        bento_tile_delivery_title:
+          type: string
+          maxLength: 100
+        bento_tile_delivery_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_delivery_image:
+          type: string
+          format: binary
+          nullable: true
+        bento_tile_delivery_link:
+          type: string
+          maxLength: 500
+        marquee_is_active:
+          type: boolean
+          description: Show or hide marquee ticker on homepage
+        marquee_items_json:
+          type: string
+          description: JSON list of marquee items {id, text, text_bn, icon, is_active}
+        stats_is_active:
+          type: boolean
+          description: Show or hide live stats counter on homepage
+        stats_items_json:
+          type: string
+          description: JSON list of stats items {id, target, suffix, prefix, decimals,
+            label, label_bn, sub, sub_bn, icon, is_active}
+        why_us_is_active:
+          type: boolean
+          description: Show or hide Why Choose Us section
+        why_us_items_json:
+          type: string
+          description: JSON list of Why Choose Us items {id, icon, title, title_bn,
+            desc, desc_bn, is_active}
     PatchedSubscriberRequest:
       type: object
       properties:
@@ -10114,6 +12274,246 @@ components:
       required:
       - description
       - discount
+    ProviderCodeEnum:
+      enum:
+      - steadfast
+      - pathao
+      - redx
+      - paperfly
+      type: string
+      description: |-
+        * `steadfast` - Steadfast Courier
+        * `pathao` - Pathao Courier
+        * `redx` - RedX Delivery
+        * `paperfly` - Paperfly
+    ReasonEnum:
+      enum:
+      - damaged
+      - wrong_item
+      - not_as_described
+      - missing_items
+      - size_fit
+      - other
+      type: string
+      description: |-
+        * `damaged` - Damaged / Defective Product
+        * `wrong_item` - Wrong Product or Variant Received
+        * `not_as_described` - Item Does Not Match Description
+        * `missing_items` - Missing Items / Accessories
+        * `size_fit` - Size / Fit Issue
+        * `other` - Other Reason
+    RefundMethodEnum:
+      enum:
+      - vibecoin
+      - bkash
+      - nagad
+      type: string
+      description: |-
+        * `vibecoin` - VibeCoin Wallet (Instant Store Credit)
+        * `bkash` - bKash Mobile Banking
+        * `nagad` - Nagad Mobile Banking
+    ReturnItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        order_item:
+          type: integer
+        product_title:
+          type: string
+          readOnly: true
+        variant_name:
+          type: string
+          readOnly: true
+        product_image:
+          type: string
+          readOnly: true
+        quantity:
+          type: integer
+          maximum: 65535
+          minimum: 0
+        unit_price:
+          type: number
+          format: double
+          maximum: 100000000
+          minimum: -100000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+        refund_amount:
+          type: number
+          format: double
+          maximum: 100000000
+          minimum: -100000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+      required:
+      - id
+      - order_item
+      - product_image
+      - product_title
+      - unit_price
+      - variant_name
+    ReturnItemRequest:
+      type: object
+      properties:
+        order_item:
+          type: integer
+        quantity:
+          type: integer
+          maximum: 65535
+          minimum: 0
+        refund_amount:
+          type: number
+          format: double
+          maximum: 100000000
+          minimum: -100000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+      required:
+      - order_item
+    ReturnRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        order:
+          type: integer
+        order_id:
+          type: integer
+          readOnly: true
+        customer:
+          type: integer
+          readOnly: true
+        customer_name:
+          type: string
+          readOnly: true
+        customer_phone:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        status_display:
+          type: string
+          readOnly: true
+        reason:
+          $ref: '#/components/schemas/ReasonEnum'
+        reason_display:
+          type: string
+          readOnly: true
+        customer_note:
+          type: string
+        refund_method:
+          $ref: '#/components/schemas/RefundMethodEnum'
+        refund_method_display:
+          type: string
+          readOnly: true
+        refund_account_number:
+          type: string
+          maxLength: 100
+        proof_image_1:
+          type: string
+          format: uri
+          nullable: true
+        proof_image_2:
+          type: string
+          format: uri
+          nullable: true
+        proof_image_3:
+          type: string
+          format: uri
+          nullable: true
+        admin_note:
+          type: string
+          maxLength: 1500
+        refund_transaction_id:
+          type: string
+          maxLength: 150
+        refund_amount:
+          type: number
+          format: double
+          maximum: 100000000
+          minimum: -100000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        refunded_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReturnItem'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - customer
+      - customer_name
+      - customer_phone
+      - id
+      - items
+      - order
+      - order_id
+      - reason_display
+      - refund_method_display
+      - refunded_at
+      - status
+      - status_display
+      - updated_at
+    ReturnRequestRequest:
+      type: object
+      properties:
+        order:
+          type: integer
+        reason:
+          $ref: '#/components/schemas/ReasonEnum'
+        customer_note:
+          type: string
+        refund_method:
+          $ref: '#/components/schemas/RefundMethodEnum'
+        refund_account_number:
+          type: string
+          maxLength: 100
+        proof_image_1:
+          type: string
+          format: binary
+          nullable: true
+        proof_image_2:
+          type: string
+          format: binary
+          nullable: true
+        proof_image_3:
+          type: string
+          format: binary
+          nullable: true
+        admin_note:
+          type: string
+          maxLength: 1500
+        refund_transaction_id:
+          type: string
+          maxLength: 150
+        refund_amount:
+          type: number
+          format: double
+          maximum: 100000000
+          minimum: -100000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+      required:
+      - order
     Review:
       type: object
       properties:
@@ -10468,6 +12868,575 @@ components:
           type: boolean
       required:
       - name
+    SiteSetting:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        site_title:
+          type: string
+          maxLength: 15
+        site_title_bn:
+          type: string
+          maxLength: 25
+        tagline:
+          type: string
+          maxLength: 30
+        tagline_bn:
+          type: string
+          maxLength: 45
+        brand_description:
+          type: string
+        brand_description_bn:
+          type: string
+        theme_palette:
+          type: string
+          maxLength: 50
+        logo:
+          type: string
+          format: uri
+          nullable: true
+        support_phone:
+          type: string
+          maxLength: 30
+        support_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 100
+          - type: string
+            maxLength: 0
+        store_address:
+          type: string
+          maxLength: 200
+        store_address_bn:
+          type: string
+          maxLength: 250
+        working_hours:
+          type: string
+          maxLength: 60
+        working_hours_bn:
+          type: string
+          maxLength: 80
+        facebook_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 255
+          - type: string
+            maxLength: 0
+        instagram_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 255
+          - type: string
+            maxLength: 0
+        youtube_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 255
+          - type: string
+            maxLength: 0
+        whatsapp_number:
+          type: string
+          maxLength: 50
+        meta_pixel_id:
+          type: string
+          maxLength: 50
+        google_analytics_id:
+          type: string
+          maxLength: 50
+        ai_chat_active:
+          type: boolean
+          default: true
+        ai_nudge_active:
+          type: boolean
+          default: true
+        ai_nudge_delay_seconds:
+          type: integer
+          maximum: 120
+          minimum: 1
+          default: 5
+        ai_nudge_duration_seconds:
+          type: integer
+          maximum: 120
+          minimum: 1
+          default: 8
+        ai_nudge_home_msg:
+          type: string
+          maxLength: 200
+        ai_nudge_home_msg_bn:
+          type: string
+          maxLength: 250
+        ai_nudge_product_msg:
+          type: string
+          maxLength: 200
+        ai_nudge_product_msg_bn:
+          type: string
+          maxLength: 250
+        footer_copyright:
+          type: string
+          maxLength: 100
+        footer_copyright_bn:
+          type: string
+          maxLength: 120
+        currency_code:
+          $ref: '#/components/schemas/CurrencyCodeEnum'
+        top_banner_image:
+          type: string
+          format: uri
+          nullable: true
+        top_banner_link:
+          type: string
+          maxLength: 500
+        top_banner_is_active:
+          type: boolean
+        hero_badge:
+          type: string
+          maxLength: 100
+        hero_badge_bn:
+          type: string
+          maxLength: 100
+        hero_title_prefix:
+          type: string
+          maxLength: 100
+        hero_title_prefix_bn:
+          type: string
+          maxLength: 100
+        hero_rotating_words:
+          type: string
+          maxLength: 500
+        hero_rotating_words_bn:
+          type: string
+          maxLength: 500
+        hero_subtitle:
+          type: string
+        hero_subtitle_bn:
+          type: string
+        hero_btn_text:
+          type: string
+          maxLength: 100
+        hero_btn_text_bn:
+          type: string
+          maxLength: 100
+        hero_btn_link:
+          type: string
+          maxLength: 500
+        discover_title:
+          type: string
+          maxLength: 100
+        discover_title_bn:
+          type: string
+          maxLength: 100
+        discover_subtitle:
+          type: string
+        discover_subtitle_bn:
+          type: string
+        discover_btn_text:
+          type: string
+          maxLength: 100
+        discover_btn_text_bn:
+          type: string
+          maxLength: 100
+        discover_btn_link:
+          type: string
+          maxLength: 500
+        bento_tile_1_title:
+          type: string
+          maxLength: 100
+        bento_tile_1_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_1_collection:
+          type: integer
+          nullable: true
+        bento_tile_1_image:
+          type: string
+          format: uri
+          nullable: true
+        bento_tile_2_title:
+          type: string
+          maxLength: 100
+        bento_tile_2_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_2_collection:
+          type: integer
+          nullable: true
+        bento_tile_2_image:
+          type: string
+          format: uri
+          nullable: true
+        bento_tile_3_title:
+          type: string
+          maxLength: 100
+        bento_tile_3_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_3_collection:
+          type: integer
+          nullable: true
+        bento_tile_3_image:
+          type: string
+          format: uri
+          nullable: true
+        bento_tile_4_title:
+          type: string
+          maxLength: 100
+        bento_tile_4_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_4_collection:
+          type: integer
+          nullable: true
+        bento_tile_4_image:
+          type: string
+          format: uri
+          nullable: true
+        bento_tile_247_title:
+          type: string
+          maxLength: 100
+        bento_tile_247_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_247_image:
+          type: string
+          format: uri
+          nullable: true
+        bento_tile_247_link:
+          type: string
+          maxLength: 500
+        bento_tile_delivery_title:
+          type: string
+          maxLength: 100
+        bento_tile_delivery_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_delivery_image:
+          type: string
+          format: uri
+          nullable: true
+        bento_tile_delivery_link:
+          type: string
+          maxLength: 500
+        marquee_is_active:
+          type: boolean
+          description: Show or hide marquee ticker on homepage
+        marquee_items_json:
+          type: string
+          description: JSON list of marquee items {id, text, text_bn, icon, is_active}
+        stats_is_active:
+          type: boolean
+          description: Show or hide live stats counter on homepage
+        stats_items_json:
+          type: string
+          description: JSON list of stats items {id, target, suffix, prefix, decimals,
+            label, label_bn, sub, sub_bn, icon, is_active}
+        why_us_is_active:
+          type: boolean
+          description: Show or hide Why Choose Us section
+        why_us_items_json:
+          type: string
+          description: JSON list of Why Choose Us items {id, icon, title, title_bn,
+            desc, desc_bn, is_active}
+        last_updated:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - last_updated
+    SiteSettingRequest:
+      type: object
+      properties:
+        site_title:
+          type: string
+          minLength: 1
+          maxLength: 15
+        site_title_bn:
+          type: string
+          maxLength: 25
+        tagline:
+          type: string
+          maxLength: 30
+        tagline_bn:
+          type: string
+          maxLength: 45
+        brand_description:
+          type: string
+        brand_description_bn:
+          type: string
+        theme_palette:
+          type: string
+          maxLength: 50
+        logo:
+          type: string
+          format: binary
+          nullable: true
+        support_phone:
+          type: string
+          maxLength: 30
+        support_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 100
+          - type: string
+            maxLength: 0
+        store_address:
+          type: string
+          maxLength: 200
+        store_address_bn:
+          type: string
+          maxLength: 250
+        working_hours:
+          type: string
+          maxLength: 60
+        working_hours_bn:
+          type: string
+          maxLength: 80
+        facebook_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 255
+          - type: string
+            maxLength: 0
+        instagram_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 255
+          - type: string
+            maxLength: 0
+        youtube_url:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 255
+          - type: string
+            maxLength: 0
+        whatsapp_number:
+          type: string
+          maxLength: 50
+        meta_pixel_id:
+          type: string
+          maxLength: 50
+        google_analytics_id:
+          type: string
+          maxLength: 50
+        ai_chat_active:
+          type: boolean
+          default: true
+        ai_nudge_active:
+          type: boolean
+          default: true
+        ai_nudge_delay_seconds:
+          type: integer
+          maximum: 120
+          minimum: 1
+          default: 5
+        ai_nudge_duration_seconds:
+          type: integer
+          maximum: 120
+          minimum: 1
+          default: 8
+        ai_nudge_home_msg:
+          type: string
+          maxLength: 200
+        ai_nudge_home_msg_bn:
+          type: string
+          maxLength: 250
+        ai_nudge_product_msg:
+          type: string
+          maxLength: 200
+        ai_nudge_product_msg_bn:
+          type: string
+          maxLength: 250
+        footer_copyright:
+          type: string
+          maxLength: 100
+        footer_copyright_bn:
+          type: string
+          maxLength: 120
+        currency_code:
+          $ref: '#/components/schemas/CurrencyCodeEnum'
+        top_banner_image:
+          type: string
+          format: binary
+          nullable: true
+        top_banner_link:
+          type: string
+          maxLength: 500
+        top_banner_is_active:
+          type: boolean
+        hero_badge:
+          type: string
+          maxLength: 100
+        hero_badge_bn:
+          type: string
+          maxLength: 100
+        hero_title_prefix:
+          type: string
+          maxLength: 100
+        hero_title_prefix_bn:
+          type: string
+          maxLength: 100
+        hero_rotating_words:
+          type: string
+          maxLength: 500
+        hero_rotating_words_bn:
+          type: string
+          maxLength: 500
+        hero_subtitle:
+          type: string
+        hero_subtitle_bn:
+          type: string
+        hero_btn_text:
+          type: string
+          maxLength: 100
+        hero_btn_text_bn:
+          type: string
+          maxLength: 100
+        hero_btn_link:
+          type: string
+          maxLength: 500
+        discover_title:
+          type: string
+          maxLength: 100
+        discover_title_bn:
+          type: string
+          maxLength: 100
+        discover_subtitle:
+          type: string
+        discover_subtitle_bn:
+          type: string
+        discover_btn_text:
+          type: string
+          maxLength: 100
+        discover_btn_text_bn:
+          type: string
+          maxLength: 100
+        discover_btn_link:
+          type: string
+          maxLength: 500
+        bento_tile_1_title:
+          type: string
+          maxLength: 100
+        bento_tile_1_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_1_collection:
+          type: integer
+          nullable: true
+        bento_tile_1_image:
+          type: string
+          format: binary
+          nullable: true
+        bento_tile_2_title:
+          type: string
+          maxLength: 100
+        bento_tile_2_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_2_collection:
+          type: integer
+          nullable: true
+        bento_tile_2_image:
+          type: string
+          format: binary
+          nullable: true
+        bento_tile_3_title:
+          type: string
+          maxLength: 100
+        bento_tile_3_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_3_collection:
+          type: integer
+          nullable: true
+        bento_tile_3_image:
+          type: string
+          format: binary
+          nullable: true
+        bento_tile_4_title:
+          type: string
+          maxLength: 100
+        bento_tile_4_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_4_collection:
+          type: integer
+          nullable: true
+        bento_tile_4_image:
+          type: string
+          format: binary
+          nullable: true
+        bento_tile_247_title:
+          type: string
+          maxLength: 100
+        bento_tile_247_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_247_image:
+          type: string
+          format: binary
+          nullable: true
+        bento_tile_247_link:
+          type: string
+          maxLength: 500
+        bento_tile_delivery_title:
+          type: string
+          maxLength: 100
+        bento_tile_delivery_title_bn:
+          type: string
+          maxLength: 100
+        bento_tile_delivery_image:
+          type: string
+          format: binary
+          nullable: true
+        bento_tile_delivery_link:
+          type: string
+          maxLength: 500
+        marquee_is_active:
+          type: boolean
+          description: Show or hide marquee ticker on homepage
+        marquee_items_json:
+          type: string
+          description: JSON list of marquee items {id, text, text_bn, icon, is_active}
+        stats_is_active:
+          type: boolean
+          description: Show or hide live stats counter on homepage
+        stats_items_json:
+          type: string
+          description: JSON list of stats items {id, target, suffix, prefix, decimals,
+            label, label_bn, sub, sub_bn, icon, is_active}
+        why_us_is_active:
+          type: boolean
+          description: Show or hide Why Choose Us section
+        why_us_items_json:
+          type: string
+          description: JSON list of Why Choose Us items {id, icon, title, title_bn,
+            desc, desc_bn, is_active}
+    StatusEnum:
+      enum:
+      - pending
+      - approved
+      - picked_up
+      - refunded
+      - rejected
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - Return Requested
+        * `approved` - Return Approved & Pickup Scheduled
+        * `picked_up` - Parcel Picked Up
+        * `refunded` - Returned & Refund Completed
+        * `rejected` - Return Rejected
+        * `cancelled` - Cancelled by Customer
     Subscriber:
       type: object
       properties:
@@ -10548,6 +13517,24 @@ components:
           minLength: 1
       required:
       - token
+    TrackingStatusEnum:
+      enum:
+      - pending
+      - packed
+      - in_transit
+      - out_for_delivery
+      - delivered
+      - returned
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - Pending Dispatch
+        * `packed` - Packed / Ready
+        * `in_transit` - Dispatched / In Transit
+        * `out_for_delivery` - Out for Delivery
+        * `delivered` - Delivered
+        * `returned` - Returned / Failed
+        * `cancelled` - Cancelled by Customer
     UpdateCartItemSerializers:
       type: object
       properties:
