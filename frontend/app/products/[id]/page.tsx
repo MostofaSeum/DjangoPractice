@@ -30,7 +30,10 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const apiBaseUrl = getApiBaseUrl();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "") ||
+    "https://vibemart-flax.vercel.app";
 
   try {
     const res = await fetch(`${apiBaseUrl}/store/products/${id}/`, {
@@ -40,11 +43,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       const product: Product = await res.json();
       const title = `${product.title} | VibeMart`;
       const description = product.short_description || product.description?.slice(0, 160) || "Explore this premium product on VibeMart.";
-      const image = product.images?.[0]?.image || `${siteUrl}/HomePage/shopping-cart.png`;
+      const image = product.images?.[0]?.image || `${siteUrl}/brand-icon.png`;
 
       return {
         title,
         description,
+        keywords: [
+          product.title.toLowerCase(),
+          "vibemart products",
+          "buy " + product.title.toLowerCase(),
+          "luxury cosmetics",
+          "skincare",
+        ],
         alternates: {
           canonical: `${siteUrl}/products/${product.id}`,
         },
