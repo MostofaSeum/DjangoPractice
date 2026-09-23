@@ -40,6 +40,7 @@ interface SiteSettingsState {
   whatsappNumber: string;
   metaPixelId: string;
   googleAnalyticsId: string;
+  googleTagManagerId: string;
   aiChatActive: boolean;
   aiNudgeActive: boolean;
   aiNudgeDelaySeconds: number;
@@ -506,6 +507,7 @@ export default function StoreSettingsTab({
           whatsappNumber,
           metaPixelId,
           googleAnalyticsId,
+          googleTagManagerId,
           aiChatActive,
           aiNudgeActive,
           aiNudgeDelaySeconds,
