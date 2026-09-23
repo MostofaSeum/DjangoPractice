@@ -75,6 +75,7 @@ const DEFAULT_SETTINGS: SiteSettingsState = {
   whatsappNumber: "+8801700000000",
   metaPixelId: "",
   googleAnalyticsId: "",
+  googleTagManagerId: "",
   aiChatActive: true,
   aiNudgeActive: true,
   aiNudgeDelaySeconds: 5,
@@ -162,6 +163,7 @@ export default function StoreSettingsTab({
   const [whatsappNumber, setWhatsappNumber] = useState(DEFAULT_SETTINGS.whatsappNumber);
   const [metaPixelId, setMetaPixelId] = useState(DEFAULT_SETTINGS.metaPixelId);
   const [googleAnalyticsId, setGoogleAnalyticsId] = useState(DEFAULT_SETTINGS.googleAnalyticsId);
+  const [googleTagManagerId, setGoogleTagManagerId] = useState(DEFAULT_SETTINGS.googleTagManagerId);
   const [aiChatActive, setAiChatActive] = useState(DEFAULT_SETTINGS.aiChatActive);
   const [aiNudgeActive, setAiNudgeActive] = useState(DEFAULT_SETTINGS.aiNudgeActive);
   const [aiNudgeDelaySeconds, setAiNudgeDelaySeconds] = useState(DEFAULT_SETTINGS.aiNudgeDelaySeconds);
@@ -210,6 +212,7 @@ export default function StoreSettingsTab({
           whatsappNumber: data.whatsapp_number !== undefined && data.whatsapp_number !== null ? data.whatsapp_number : "",
           metaPixelId: data.meta_pixel_id !== undefined && data.meta_pixel_id !== null ? data.meta_pixel_id : "",
           googleAnalyticsId: data.google_analytics_id !== undefined && data.google_analytics_id !== null ? data.google_analytics_id : "",
+          googleTagManagerId: data.google_tag_manager_id !== undefined && data.google_tag_manager_id !== null ? data.google_tag_manager_id : "",
           aiChatActive: data.ai_chat_active !== undefined ? Boolean(data.ai_chat_active) : true,
           aiNudgeActive: data.ai_nudge_active !== undefined ? Boolean(data.ai_nudge_active) : true,
           aiNudgeDelaySeconds: Number(data.ai_nudge_delay_seconds) || 5,
@@ -246,6 +249,7 @@ export default function StoreSettingsTab({
         setWhatsappNumber(loaded.whatsappNumber);
         setMetaPixelId(loaded.metaPixelId);
         setGoogleAnalyticsId(loaded.googleAnalyticsId);
+        setGoogleTagManagerId(loaded.googleTagManagerId);
         setAiChatActive(loaded.aiChatActive);
         setAiNudgeActive(loaded.aiNudgeActive);
         setAiNudgeDelaySeconds(loaded.aiNudgeDelaySeconds);
@@ -297,6 +301,7 @@ export default function StoreSettingsTab({
     if (whatsappNumber !== initialSettings.whatsappNumber) return true;
     if (metaPixelId !== initialSettings.metaPixelId) return true;
     if (googleAnalyticsId !== initialSettings.googleAnalyticsId) return true;
+    if (googleTagManagerId !== initialSettings.googleTagManagerId) return true;
     if (aiChatActive !== initialSettings.aiChatActive) return true;
     if (aiNudgeActive !== initialSettings.aiNudgeActive) return true;
     if (aiNudgeDelaySeconds !== initialSettings.aiNudgeDelaySeconds) return true;
@@ -331,6 +336,7 @@ export default function StoreSettingsTab({
     whatsappNumber,
     metaPixelId,
     googleAnalyticsId,
+    googleTagManagerId,
     aiChatActive,
     aiNudgeActive,
     aiNudgeDelaySeconds,
@@ -451,6 +457,7 @@ export default function StoreSettingsTab({
       formData.append("whatsapp_number", whatsappNumber);
       formData.append("meta_pixel_id", metaPixelId);
       formData.append("google_analytics_id", googleAnalyticsId);
+      formData.append("google_tag_manager_id", googleTagManagerId);
       formData.append("ai_chat_active", String(aiChatActive));
       formData.append("ai_nudge_active", String(aiNudgeActive));
       formData.append("ai_nudge_delay_seconds", String(aiNudgeDelaySeconds));
@@ -1261,6 +1268,41 @@ export default function StoreSettingsTab({
                 {isBn
                   ? "খালি রাখলে গুগল অ্যানালিটিক্স ট্র্যাকিং নিষ্ক্রিয় থাকবে।"
                   : "Leave blank to disable Google Analytics on the storefront."}
+              </p>
+            </div>
+          </div>
+
+          {/* Google Tag Manager (GTM) Settings (For Google Merchant Center & Ads) */}
+          <div className="bg-secondary p-6 sm:p-7 rounded-3xl border border-foreground/10 shadow-sm space-y-5">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-accent" />
+              <h2 className="text-base font-black uppercase tracking-tight text-foreground">
+                {isBn ? "গুগল ট্যাগ ম্যানেজার (GTM) কন্টেইনার" : "Google Tag Manager (GTM) Container"}
+              </h2>
+            </div>
+            <p className="text-xs opacity-70">
+              {isBn
+                ? "Google Merchant Center যাচাইকরণ, Google Ads ডায়নামিক রিমার্কেটিং এবং রূপান্তর ট্র্যাকিংয়ের জন্য আপনার GTM কন্টেইনার আইডি দিন (যেমন: GTM-XXXXXXX)।"
+                : "Enter your Google Tag Manager Container ID (e.g. GTM-XXXXXXX) for Google Merchant Center verification, Google Ads remarketing, and custom tag triggers."}
+            </p>
+
+            <div className="max-w-md space-y-1.5">
+              <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+                <span>{isBn ? "GTM কন্টেইনার আইডি" : "GTM Container ID"}</span>
+                {renderCharCounter(googleTagManagerId.length, 50)}
+              </label>
+              <input
+                type="text"
+                maxLength={50}
+                value={googleTagManagerId}
+                onChange={(e) => setGoogleTagManagerId(e.target.value.trim().toUpperCase().slice(0, 50))}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-background text-foreground text-xs font-mono font-medium border border-foreground/15 focus:outline-none focus:border-accent"
+                placeholder="e.g. GTM-XXXXXXX"
+              />
+              <p className="text-[10px] opacity-60">
+                {isBn
+                  ? "খালি রাখলে গুগল ট্যাগ ম্যানেজার নিষ্ক্রিয় থাকবে।"
+                  : "Leave blank to disable Google Tag Manager."}
               </p>
             </div>
           </div>

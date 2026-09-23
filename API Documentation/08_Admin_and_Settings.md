@@ -44,6 +44,7 @@ Retrieves store brand metadata, bilingual text fields, active currency code, and
   "brand_description": "VibeMart is a recognized multi-category fashion and lifestyle store built on the principle of \"best price at the highest quality\". Our collections are curated with premium materials that are durable, stylish, and perfect for your vibe.",
   "brand_description_bn": "ভাইবমার্ট একটি ফ্যাশন ও লাইফস্টাইল ব্র্যান্ড যা সর্বোচ্চ মান এবং সাশ্রয়ী মূল্যের নিশ্চয়তা দেয়।",
   "logo": "/media/store/settings/logos/vibemart_logo.png",
+  "theme_palette": "botanical_lilac", // Choices: 'botanical_lilac', 'velvet_plum', 'champagne_blush', 'monochrome_slate'
   "currency_code": "BDT", // Choices: 'BDT', 'USD', 'EUR', 'GBP', 'INR', 'SAR', 'AED', 'CAD'
   "support_phone": "+880 1700-000000",
   "support_email": "support@vibemart.com",
@@ -55,6 +56,17 @@ Retrieves store brand metadata, bilingual text fields, active currency code, and
   "instagram_url": "https://instagram.com/vibemart",
   "youtube_url": "https://youtube.com/@vibemart",
   "whatsapp_number": "+8801700000000",
+  "meta_pixel_id": "123456789012345",
+  "google_analytics_id": "G-XXXXXXXXXX",
+  "google_tag_manager_id": "GTM-XXXXXXX",
+  "ai_chat_active": true,
+  "ai_nudge_active": true,
+  "ai_nudge_delay_seconds": 5,
+  "ai_nudge_duration_seconds": 8,
+  "ai_nudge_home_msg": "Welcome to VibeMart! Need any shopping help? Let's chat 👋",
+  "ai_nudge_home_msg_bn": "স্বাগতম VibeMart-এ! কেনাকাটায় কোনো সাহায্য লাগবে? চ্যাট করুন 👋",
+  "ai_nudge_product_msg": "Any confusion or questions? Just ask me",
+  "ai_nudge_product_msg_bn": "কোনো প্রশ্ন বা দ্বিধা আছে? আমাকে জিজ্ঞেস করুন!",
   "footer_copyright": "© 2026 VIBEMART. ALL RIGHTS RESERVED.",
   "footer_copyright_bn": "© ২০২৬ ভাইবমার্ট। সর্বস্বত্ব সংরক্ষিত।",
   "top_banner_image": "/media/store/banners/top_banner.png",
@@ -102,6 +114,12 @@ Retrieves store brand metadata, bilingual text fields, active currency code, and
   "bento_tile_delivery_title_bn": "দ্রুত ডেলিভারি",
   "bento_tile_delivery_image": "/media/store/bento/tile_delivery.png",
   "bento_tile_delivery_link": "/shipping",
+  "marquee_is_active": true,
+  "marquee_items_json": "[{\"id\":\"1\",\"text\":\"100% Genuine Luxury Cosmetics\",\"text_bn\":\"১০০% আসল লাক্সারি প্রসাধনী\",\"icon\":\"Sparkles\",\"is_active\":true}]",
+  "stats_is_active": true,
+  "stats_items_json": "[{\"id\":\"1\",\"target\":15000,\"suffix\":\"+\",\"label\":\"Happy Beauties\",\"label_bn\":\"সন্তুষ্ট গ্রাহক\",\"is_active\":true}]",
+  "why_us_is_active": true,
+  "why_us_items_json": "[{\"id\":\"1\",\"icon\":\"ShieldCheck\",\"title\":\"100% Authentic Brands\",\"title_bn\":\"১০০% আসল ব্র্যান্ড\",\"is_active\":true}]",
   "last_updated": "2026-09-15T10:00:00Z"
 }
 ```
