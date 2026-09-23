@@ -19,7 +19,9 @@
 | 8 | `addresses/<id>/` | PUT / PATCH / DELETE | Customer | Update details or remove a saved delivery address |
 | 9 | `addresses/<id>/set_default/`| POST | Customer | Set a specific address as primary default |
 | 10 | `customers/me/` | GET / PUT | Customer | Retrieve current buyer profile and active VibeCoin rewards balance |
-| 11 | `customers/<id>/history/` | GET | Staff Only | View full lifetime order history and spend metrics for a customer |
+| 11 | `customers/` | GET | Staff Only | List non-staff store customers with search by name, email, phone |
+| 12 | `customers/<id>/` | GET / PUT / PATCH / DELETE | Staff Only | Inspect or update buyer account profile |
+| 13 | `customers/<id>/history/` | GET | Staff Only | View full lifetime order history and spend metrics for a customer |
 
 ---
 

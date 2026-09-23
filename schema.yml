@@ -11660,6 +11660,9 @@ components:
         google_analytics_id:
           type: string
           maxLength: 50
+        google_tag_manager_id:
+          type: string
+          maxLength: 50
         ai_chat_active:
           type: boolean
           default: true
@@ -12949,6 +12952,9 @@ components:
         google_analytics_id:
           type: string
           maxLength: 50
+        google_tag_manager_id:
+          type: string
+          maxLength: 50
         ai_chat_active:
           type: boolean
           default: true
@@ -13226,6 +13232,9 @@ components:
           type: string
           maxLength: 50
         google_analytics_id:
+          type: string
+          maxLength: 50
+        google_tag_manager_id:
           type: string
           maxLength: 50
         ai_chat_active:

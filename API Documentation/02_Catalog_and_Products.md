@@ -22,13 +22,15 @@
 | 11 | `products/save_google_sheet_url/` | POST | Staff Only | Save or update Google Sheet link singleton |
 | 12 | `products/delete_saved_sheet_url/`| DELETE | Staff Only | Disconnect saved Google Sheet link |
 | 13 | `products/sync_google_sheet/` | POST | Staff Only | Fetch public Google Sheet CSV and batch upsert catalog |
-| 14 | `products/<product_pk>/variants/` | GET / POST | Public / Staff | List or add cosmetics shade/size variants |
-| 15 | `products/<product_pk>/variants/<id>/` | GET / PATCH / DELETE | Public / Staff | Inspect, edit, or delete a shade variant |
-| 16 | `products/<product_pk>/images/` | GET / POST | Public / Staff | List gallery images or upload photo |
-| 17 | `products/<product_pk>/images/<id>/` | DELETE | Staff Only | Delete image asset from media storage |
-| 18 | `collections/` | GET / POST | Public / Staff | List collections or create new category |
-| 19 | `collections/<id>/` | GET / PATCH / DELETE | Public / Staff | Get, edit, or delete collection (supports `?include_products=true`) |
-| 20 | `reviews/` | GET / POST | Public / Auth | List verified reviews or submit feedback with photo |
+| 14 | `products/<product_pk>/variants/` | GET / POST | Public / Staff | List or add cosmetics shade/size variants (nested under product) |
+| 15 | `products/<product_pk>/variants/<id>/` | GET / PATCH / DELETE | Public / Staff | Inspect, edit, or delete a shade variant (nested under product) |
+| 16 | `variants/` | GET / POST | Public / Staff | List all product variants across catalog or create a standalone variant |
+| 17 | `variants/<id>/` | GET / PUT / PATCH / DELETE | Public / Staff | Inspect, update, or remove variant directly by variant ID |
+| 18 | `products/<product_pk>/images/` | GET / POST | Public / Staff | List gallery images or upload photo |
+| 19 | `products/<product_pk>/images/<id>/` | DELETE | Staff Only | Delete image asset from media storage |
+| 20 | `collections/` | GET / POST | Public / Staff | List collections or create new category |
+| 21 | `collections/<id>/` | GET / PATCH / DELETE | Public / Staff | Get, edit, or delete collection (supports `?include_products=true`) |
+| 22 | `reviews/` | GET / POST | Public / Auth | List verified reviews or submit feedback with photo |
 
 ---
 
