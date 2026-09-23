@@ -3,15 +3,31 @@ import { getApiBaseUrl } from "@/config/siteConfig";
 import CollectionsClient from "@/features/collections/components/CollectionsClient";
 
 export const metadata: Metadata = {
-  title: "Featured Collections | VibeMart",
-  description: "Explore curated beauty, skincare, lipstick, and cosmetics collections.",
+  title: "VibeMart Collections - Curated Beauty, Makeup & Skincare Sets",
+  description: "Explore curated beauty, skincare, lipstick, and cosmetics collections from VibeMart. Find premium curated beauty routines and exclusive product bundles.",
+  keywords: ["vibemart collections", "vibemart beauty sets", "skincare routines", "curated cosmetics", "makeup bundles", "beauty catalog"],
   alternates: {
     canonical: "/collections",
   },
   openGraph: {
-    title: "Featured Collections | VibeMart",
-    description: "Explore curated beauty, skincare, lipstick, and cosmetics collections.",
+    title: "VibeMart Collections - Curated Beauty, Makeup & Skincare Sets",
+    description: "Explore curated beauty, skincare, lipstick, and cosmetics collections from VibeMart. Find premium curated beauty routines and exclusive product bundles.",
     url: "/collections",
+    type: "website",
+    images: [
+      {
+        url: "/brand-icon.png",
+        width: 1024,
+        height: 1024,
+        alt: "VibeMart Collections",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "VibeMart Collections - Curated Beauty, Makeup & Skincare Sets",
+    description: "Explore curated beauty, skincare, lipstick, and cosmetics collections from VibeMart.",
+    images: ["/brand-icon.png"],
   },
 };
 
