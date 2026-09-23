@@ -9,6 +9,7 @@ import ProductImage from "@/components/ui/ProductImage";
 import ProductDeliveryOfferBadge from "@/components/ProductDeliveryOfferBadge";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import AnimatedCounter from "@/components/ui/AnimatedCounter";
+import ProductSearchBar from "@/features/products/components/ProductSearchBar";
 import { DEFAULT_WHY_US_ITEMS, WhyUsItemConfig } from "@/features/admin/components/tabs/HomepageSettingsSubTab";
 import { useLanguage } from "@/store/LanguageContext";
 import { Product } from "@/types/product";
@@ -192,6 +193,50 @@ export default function HomeClient({
           </div>
         </ScrollReveal>
       )}
+
+      {/* Landing Page Hero Search Bar */}
+      <ScrollReveal direction="up" delayMs={75}>
+        <section className="w-full max-w-[1400px] mx-auto px-4 md:px-8 pt-6 pb-2 relative z-20">
+          <div className="bg-secondary/80 backdrop-blur-md border border-foreground/10 rounded-3xl p-5 md:p-6 shadow-sm transition-all ambient-border-glow">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-accent bg-accent/15 px-3 py-1 rounded-full">
+                  {isBn ? "তাৎক্ষণিক অনুসন্ধান" : "Instant Product Search"}
+                </span>
+                <h2 className="text-lg md:text-xl font-black uppercase tracking-tight text-foreground mt-2">
+                  {isBn ? "আপনার পছন্দের প্রসাধনী খুঁজুন" : "Find Your Signature Beauty Essentials"}
+                </h2>
+              </div>
+              <p className="text-xs text-foreground/70 max-w-sm">
+                {isBn
+                  ? "লিপস্টিক, স্কিনকেয়ার বা মেকআপ পণ্য সরাসরি খুঁজে বের করুন"
+                  : "Search luxury lipsticks, serums, skincare essentials, and more with instant previews."}
+              </p>
+            </div>
+
+            <ProductSearchBar
+              idPrefix="home-hero"
+              className="!mb-0 !max-w-none w-full"
+            />
+
+            {/* Quick Trending Suggestions */}
+            <div className="mt-3.5 flex flex-wrap items-center gap-2 text-xs">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-foreground/50">
+                {isBn ? "জনপ্রিয়:" : "Trending:"}
+              </span>
+              {["Lipstick", "Serum", "Glow", "Foundation", "Moisturizer"].map((tag) => (
+                <Link
+                  key={tag}
+                  href={`/products?search=${encodeURIComponent(tag)}`}
+                  className="px-3 py-1 rounded-full bg-primary/10 hover:bg-primary/20 text-foreground/80 hover:text-accent font-semibold text-[11px] transition-colors"
+                >
+                  #{tag}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      </ScrollReveal>
 
       {/* Bento Box Hero Section */}
       <ScrollReveal direction="none" delayMs={100}>

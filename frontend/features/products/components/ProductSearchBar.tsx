@@ -26,6 +26,8 @@ interface ProductSearchBarProps {
   maxPrice?: string;
   ordering?: string;
   mode?: "customer" | "admin";
+  variant?: "default" | "navbar";
+  idPrefix?: string;
   placeholder?: string;
   onSelectProduct?: (product: ProductSuggestion) => void;
   onSearchSubmit?: (query: string) => void;
@@ -39,6 +41,8 @@ export default function ProductSearchBar({
   maxPrice,
   ordering,
   mode = "customer",
+  variant = "default",
+  idPrefix,
   placeholder,
   onSelectProduct,
   onSearchSubmit,
@@ -268,12 +272,18 @@ export default function ProductSearchBar({
   };
 
   const isAdmin = mode === "admin";
+  const isNavbar = variant === "navbar";
+  const baseId = idPrefix || (isNavbar ? "navbar" : isAdmin ? "admin" : "catalog");
 
   return (
     <div
       ref={containerRef}
       className={`relative ${
-        isAdmin ? "w-full sm:w-auto" : "w-full max-w-3xl mb-8 z-30"
+        isAdmin
+          ? "w-full sm:w-auto"
+          : isNavbar
+            ? "w-full z-40"
+            : "w-full max-w-3xl mb-8 z-30"
       } ${className}`}
     >
       <form
@@ -282,7 +292,7 @@ export default function ProductSearchBar({
           e.stopPropagation();
           handleSubmit(e);
         }}
-        className="flex items-center gap-2 w-full sm:w-auto"
+        className={`flex items-center gap-1.5 sm:gap-2 w-full ${isAdmin ? "sm:w-auto" : ""}`}
       >
         {!isAdmin && minPrice && (
           <input type="hidden" name="minPrice" value={minPrice} />
@@ -294,9 +304,9 @@ export default function ProductSearchBar({
           <input type="hidden" name="ordering" value={ordering} />
         )}
 
-        <div className={`relative ${isAdmin ? "w-full sm:w-60" : "flex-1"}`}>
+        <div className={`relative ${isAdmin ? "w-full sm:w-60" : "flex-1 min-w-0"}`}>
           <input
-            id="catalog-search-input"
+            id={`${baseId}-search-input`}
             type="text"
             name="search"
             value={query}
@@ -316,28 +326,34 @@ export default function ProductSearchBar({
                 ? isBn
                   ? "পণ্য দিয়ে খুঁজুন..."
                   : "Search product..."
-                : t("products.searchPlaceholder"))
+                : isNavbar
+                  ? isBn
+                    ? "পণ্য খুঁজুন..."
+                    : "Search products..."
+                  : t("products.searchPlaceholder"))
             }
             autoComplete="off"
             className={
               isAdmin
                 ? "px-3.5 py-1.5 pr-8 border border-foreground/15 rounded-xl bg-primary/5 dark:bg-primary/30 text-xs font-bold text-foreground outline-none w-full focus:ring-2 focus:ring-accent"
-                : "w-full px-5 py-3 pr-10 border border-foreground/15 rounded-2xl bg-secondary text-sm text-foreground placeholder:text-foreground/50 outline-none focus:border-accent transition-colors shadow-sm"
+                : isNavbar
+                  ? "w-full px-3.5 py-1.5 sm:py-2 pr-8 border border-foreground/15 rounded-xl bg-background/80 focus:bg-secondary text-xs sm:text-sm text-foreground placeholder:text-foreground/50 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all shadow-xs"
+                  : "w-full px-5 py-3 pr-10 border border-foreground/15 rounded-2xl bg-secondary text-sm text-foreground placeholder:text-foreground/50 outline-none focus:border-accent transition-colors shadow-sm"
             }
           />
 
           {query.length > 0 && (
             <button
-              id="catalog-search-clear-btn"
+              id={`${baseId}-search-clear-btn`}
               type="button"
               onClick={handleClear}
               className={`absolute ${
-                isAdmin ? "right-2" : "right-3.5"
+                isAdmin ? "right-2" : isNavbar ? "right-2" : "right-3.5"
               } top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground p-0.5 transition-colors cursor-pointer`}
               aria-label="Clear search"
             >
               <svg
-                className={isAdmin ? "w-3.5 h-3.5" : "w-4 h-4"}
+                className={isAdmin || isNavbar ? "w-3.5 h-3.5" : "w-4 h-4"}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -355,12 +371,12 @@ export default function ProductSearchBar({
           {loading && (
             <div
               className={`absolute ${
-                isAdmin ? "right-7" : "right-10"
+                isAdmin ? "right-7" : isNavbar ? "right-7" : "right-10"
               } top-1/2 -translate-y-1/2`}
             >
               <div
                 className={`${
-                  isAdmin ? "w-3 h-3" : "w-4 h-4"
+                  isAdmin || isNavbar ? "w-3 h-3" : "w-4 h-4"
                 } border-2 border-accent border-t-transparent rounded-full animate-spin`}
               ></div>
             </div>
@@ -368,17 +384,19 @@ export default function ProductSearchBar({
         </div>
 
         <button
-          id="catalog-search-submit-btn"
+          id={`${baseId}-search-submit-btn`}
           type="submit"
           className={
             isAdmin
               ? "px-4 py-1.5 bg-button-bg text-button-fg hover:opacity-90 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-sm cursor-pointer whitespace-nowrap"
-              : "px-6 py-3 bg-button-bg text-button-fg rounded-2xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-sm hover:shadow flex items-center justify-center gap-2 cursor-pointer"
+              : isNavbar
+                ? "px-3 sm:px-4 py-1.5 sm:py-2 bg-button-bg text-button-fg rounded-xl text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+                : "px-6 py-3 bg-button-bg text-button-fg rounded-2xl text-xs font-bold uppercase tracking-widest hover:opacity-90 transition-all shadow-sm hover:shadow flex items-center justify-center gap-2 cursor-pointer"
           }
         >
           {!isAdmin && (
             <svg
-              className="w-4 h-4"
+              className={isNavbar ? "w-3.5 h-3.5" : "w-4 h-4"}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -391,7 +409,13 @@ export default function ProductSearchBar({
               />
             </svg>
           )}
-          {isAdmin ? (isBn ? "অনুসন্ধান" : "Search") : t("products.search")}
+          {isAdmin ? (
+            isBn ? "অনুসন্ধান" : "Search"
+          ) : isNavbar ? (
+            <span className="hidden xl:inline">{t("products.search")}</span>
+          ) : (
+            t("products.search")
+          )}
         </button>
 
         {isAdmin && initialSearch && (
@@ -408,9 +432,9 @@ export default function ProductSearchBar({
       {/* Suggestions Dropdown */}
       {isOpen && query.trim().length >= 1 && (
         <div
-          id="search-suggestions-dropdown"
+          id={`${baseId}-search-suggestions-dropdown`}
           className={`absolute left-0 right-0 ${
-            isAdmin ? "sm:right-auto sm:w-80" : ""
+            isAdmin ? "sm:right-auto sm:w-80" : isNavbar ? "min-w-[280px] sm:min-w-[340px]" : ""
           } top-full mt-2 bg-secondary border border-foreground/15 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150`}
         >
           {suggestions.length > 0 ? (

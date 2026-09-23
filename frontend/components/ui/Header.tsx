@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
 import { useLanguage } from "@/store/LanguageContext";
 import { siteConfig } from "@/config/siteConfig";
+import ProductSearchBar from "@/features/products/components/ProductSearchBar";
 import Swal from "sweetalert2";
 
 const API_BASE = siteConfig.apiBaseUrl.replace(/\/+$/, "");
@@ -119,41 +120,50 @@ export default function Header() {
           {/* Brand Logo & Title */}
           <Link
             href="/"
-          className="flex items-center gap-1.5 sm:gap-3 hover:opacity-90 transition-opacity group shrink min-w-0"
-        >
-          {brandLogo && (
-            <img
-              src={brandLogo}
-              alt={brandTitle}
-              className="h-6 sm:h-8 md:h-9 max-w-[80px] sm:max-w-[120px] object-contain group-hover:scale-105 transition-transform shrink-0"
-            />
-          )}
-          {brandTitle && (
-            <span className="text-base sm:text-xl md:text-2xl font-black tracking-tighter uppercase text-foreground truncate">
-              {brandTitle}
-            </span>
-          )}
-        </Link>
+            className="flex items-center gap-1.5 sm:gap-3 hover:opacity-90 transition-opacity group shrink-0"
+          >
+            {brandLogo && (
+              <img
+                src={brandLogo}
+                alt={brandTitle}
+                className="h-6 sm:h-8 md:h-9 max-w-[80px] sm:max-w-[120px] object-contain group-hover:scale-105 transition-transform shrink-0"
+              />
+            )}
+            {brandTitle && (
+              <span className="text-base sm:text-xl md:text-2xl font-black tracking-tighter uppercase text-foreground truncate">
+                {brandTitle}
+              </span>
+            )}
+          </Link>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex gap-8 text-[11px] font-bold uppercase tracking-widest">
-          {navLinks.map((link) => {
-            const isActive = pathname === link.href;
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`transition-all py-1 ${
-                  isActive
-                    ? "border-b-2 border-accent text-accent font-black"
-                    : "text-foreground/75 hover:text-accent font-extrabold"
-                }`}
-              >
-                {link.name}
-              </Link>
-            );
-          })}
-        </nav>
+          {/* Desktop Search Bar */}
+          <div className="hidden md:flex flex-1 max-w-[220px] lg:max-w-xs xl:max-w-md mx-2 lg:mx-4">
+            <ProductSearchBar
+              variant="navbar"
+              idPrefix="header-desktop"
+              className="w-full"
+            />
+          </div>
+
+          {/* Desktop Navigation Links */}
+          <nav className="hidden md:flex gap-4 lg:gap-6 xl:gap-8 text-[11px] font-bold uppercase tracking-widest shrink-0">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`transition-all py-1 ${
+                    isActive
+                      ? "border-b-2 border-accent text-accent font-black"
+                      : "text-foreground/75 hover:text-accent font-extrabold"
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
+          </nav>
 
         {/* Right Action Icons (Language, Theme, Cart, Auth) */}
         <div className="flex items-center gap-1 sm:gap-2.5 md:gap-5 text-[11px] font-bold uppercase tracking-widest shrink-0">
@@ -277,6 +287,15 @@ export default function Header() {
               }`}
             />
           </button>
+        </div>
+
+        {/* Mobile Search Row (< md) */}
+        <div className="md:hidden max-w-[1400px] mx-auto mt-2.5 pt-2.5 border-t border-foreground/10">
+          <ProductSearchBar
+            variant="navbar"
+            idPrefix="header-mobile"
+            className="w-full"
+          />
         </div>
       </div>
 
