@@ -416,244 +416,284 @@ export default function AdminNotificationBell({
         )}
       </button>
 
-      {/* Notifications Dropdown Panel */}
+      {/* Notifications Dropdown / Mobile Modal Panel */}
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-80 sm:w-96 rounded-2xl bg-secondary text-foreground border border-foreground/15 shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-          {/* Header */}
-          <div className="px-4 py-3.5 border-b border-foreground/10 flex items-center justify-between bg-primary/5">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-black uppercase tracking-wider text-foreground">
-                {t("notifications.title")}
-              </span>
-              {unreadCount > 0 && (
-                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/25">
-                  {formatTemplate(t("notifications.newBadge"), {
-                    count: toBnDigits(unreadCount),
-                  })}
+        <>
+          {/* Mobile backdrop overlay to prevent clicks leaking through and improve focus */}
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 md:hidden animate-in fade-in duration-200"
+            onClick={() => setIsOpen(false)}
+            aria-hidden="true"
+          />
+
+          <div
+            className="
+              fixed inset-x-3 top-16 max-h-[82vh]
+              md:absolute md:inset-x-auto md:right-0 md:top-full md:mt-3 md:w-96 md:max-h-[500px]
+              rounded-2xl bg-secondary text-foreground border border-foreground/15 shadow-2xl z-50 overflow-hidden flex flex-col
+              animate-in fade-in zoom-in-95 duration-200
+            "
+          >
+            {/* Header */}
+            <div className="px-4 py-3.5 border-b border-foreground/10 flex items-center justify-between bg-primary/5 shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-foreground">
+                  {t("notifications.title")}
                 </span>
+                {unreadCount > 0 && (
+                  <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-accent/15 text-accent border border-accent/25">
+                    {formatTemplate(t("notifications.newBadge"), {
+                      count: toBnDigits(unreadCount),
+                    })}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {unreadCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleMarkAllRead}
+                    disabled={isLoading}
+                    className="text-[11px] font-bold uppercase tracking-wider text-accent hover:underline cursor-pointer disabled:opacity-50 px-1 py-0.5"
+                  >
+                    {t("notifications.markAllRead")}
+                  </button>
+                )}
+
+                {/* Mobile close button */}
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  className="md:hidden p-1 rounded-lg text-foreground/70 hover:text-foreground hover:bg-foreground/10 transition-colors cursor-pointer"
+                  aria-label="Close"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Filter Bar */}
+            <div className="px-3 py-2 bg-primary/5 dark:bg-primary/20 border-b border-foreground/10 flex items-center gap-1.5 overflow-x-auto no-scrollbar shrink-0">
+              <button
+                type="button"
+                onClick={() => setActiveFilter("all")}
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                  activeFilter === "all"
+                    ? "bg-secondary text-foreground shadow-xs border border-foreground/15"
+                    : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
+                }`}
+              >
+                <span>{t("notifications.filterAll")}</span>
+                <span
+                  className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
+                    activeFilter === "all" ? "bg-primary/10 text-foreground" : "opacity-60"
+                  }`}
+                >
+                  {toBnDigits(notifications.length)}
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveFilter("order")}
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                  activeFilter === "order"
+                    ? "bg-secondary text-foreground shadow-xs border border-foreground/15"
+                    : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block"></span>
+                <span>{t("notifications.filterOrders")}</span>
+                {ordersCount > 0 && (
+                  <span
+                    className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
+                      activeFilter === "order" ? "bg-primary/10 text-foreground" : "opacity-60"
+                    }`}
+                  >
+                    {toBnDigits(ordersCount)}
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveFilter("return")}
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                  activeFilter === "return"
+                    ? "bg-secondary text-foreground shadow-xs border border-foreground/15"
+                    : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block"></span>
+                <span>{t("notifications.filterReturns")}</span>
+                {returnsCount > 0 && (
+                  <span
+                    className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
+                      activeFilter === "return" ? "bg-primary/10 text-foreground" : "opacity-60"
+                    }`}
+                  >
+                    {toBnDigits(returnsCount)}
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveFilter("promotion")}
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                  activeFilter === "promotion"
+                    ? "bg-secondary text-foreground shadow-xs border border-foreground/15"
+                    : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block opacity-80"></span>
+                <span>{t("notifications.filterPromotions")}</span>
+                {promosCount > 0 && (
+                  <span
+                    className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
+                      activeFilter === "promotion" ? "bg-primary/10 text-foreground" : "opacity-60"
+                    }`}
+                  >
+                    {toBnDigits(promosCount)}
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveFilter("coupon")}
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1.5 shrink-0 ${
+                  activeFilter === "coupon"
+                    ? "bg-secondary text-foreground shadow-xs border border-foreground/15"
+                    : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block opacity-60"></span>
+                <span>{t("notifications.filterCoupons")}</span>
+                {couponsCount > 0 && (
+                  <span
+                    className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
+                      activeFilter === "coupon" ? "bg-primary/10 text-foreground" : "opacity-60"
+                    }`}
+                  >
+                    {toBnDigits(couponsCount)}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            {/* List of Notifications */}
+            <div className="flex-1 overflow-y-auto divide-y divide-foreground/5 overscroll-contain">
+              {filteredNotifications.length === 0 ? (
+                <div className="p-8 text-center text-xs opacity-60 font-bold uppercase tracking-wider">
+                  {notifications.length === 0
+                    ? t("notifications.noNotifications")
+                    : formatTemplate(t("notifications.noFilterResults"), {
+                        type:
+                          activeFilter === "order"
+                            ? t("notifications.filterOrders")
+                            : activeFilter === "return"
+                              ? t("notifications.filterReturns")
+                              : activeFilter === "promotion"
+                                ? t("notifications.filterPromotions")
+                                : t("notifications.filterCoupons"),
+                      })}
+                </div>
+              ) : (
+                filteredNotifications.map((item) => {
+                  const { title: itemTitle, message: itemMessage } = translateNotification(
+                    item.title,
+                    item.message
+                  );
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => handleMarkRead(item)}
+                      className={`p-3.5 transition-colors cursor-pointer flex items-start gap-3 active:scale-[0.99] ${
+                        !item.is_read
+                          ? "bg-primary/10 dark:bg-primary/50 border-l-4 border-accent hover:bg-primary/15 dark:hover:bg-primary/60"
+                          : "hover:bg-primary/5 opacity-85 hover:opacity-100"
+                      }`}
+                    >
+                      <div className="mt-0.5 shrink-0">
+                        {item.notification_type === "order" ? (
+                          <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
+                            <Image
+                              src="/Admin/orders.png"
+                              alt="Order"
+                              width={18}
+                              height={18}
+                              className="object-contain filter dark:invert"
+                            />
+                          </div>
+                        ) : item.notification_type === "return" ? (
+                          <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
+                            <img src="/icons/return-arrow.png" alt="Return" className="w-4 h-4 object-contain dark:invert" />
+                          </div>
+                        ) : item.notification_type === "promotion" ? (
+                          <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
+                            <Image
+                              src="/Admin/sales.png"
+                              alt="Promotion"
+                              width={18}
+                              height={18}
+                              className="object-contain filter dark:invert"
+                            />
+                          </div>
+                        ) : item.notification_type === "coupon" ? (
+                          <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
+                            <Image
+                              src="/Admin/coupons.png"
+                              alt="Coupon"
+                              width={18}
+                              height={18}
+                              className="object-contain filter dark:invert"
+                            />
+                          </div>
+                        ) : (
+                          <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
+                            <Image
+                              src="/notification.png"
+                              alt="Notification"
+                              width={18}
+                              height={18}
+                              className="object-contain filter dark:invert"
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className={`text-xs sm:text-sm truncate ${!item.is_read ? "font-black text-foreground" : "font-semibold text-foreground/90"}`}>
+                            {itemTitle}
+                          </p>
+                          <span className={`text-[10px] shrink-0 ${!item.is_read ? "font-bold text-accent" : "opacity-60 font-medium"}`}>
+                            {formatTime(item.created_at)}
+                          </span>
+                        </div>
+                        <p className={`text-[11px] sm:text-xs mt-0.5 leading-snug break-words ${!item.is_read ? "font-semibold text-foreground" : "text-foreground/75"}`}>
+                          {itemMessage}
+                        </p>
+                      </div>
+
+                      {!item.is_read && (
+                        <span className="w-2.5 h-2.5 rounded-full bg-hidden shrink-0 mt-1.5 shadow-xs animate-pulse" />
+                      )}
+                    </div>
+                  );
+                })
               )}
             </div>
 
-            {unreadCount > 0 && (
-              <button
-                type="button"
-                onClick={handleMarkAllRead}
-                disabled={isLoading}
-                className="text-[10px] font-bold uppercase tracking-wider text-accent hover:underline cursor-pointer disabled:opacity-50"
-              >
-                {t("notifications.markAllRead")}
-              </button>
-            )}
+            {/* Footer */}
+            <div className="p-2 bg-primary/5 border-t border-foreground/10 text-center shrink-0">
+            </div>
           </div>
-
-          {/* Filter Bar */}
-          <div className="px-3 py-2 bg-primary/5 dark:bg-primary/20 border-b border-foreground/10 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-            <button
-              type="button"
-              onClick={() => setActiveFilter("all")}
-              className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
-                activeFilter === "all"
-                  ? "bg-secondary text-foreground shadow-xs border border-foreground/15"
-                  : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
-              }`}
-            >
-              <span>{t("notifications.filterAll")}</span>
-              <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
-                activeFilter === "all" ? "bg-primary/10 text-foreground" : "opacity-60"
-              }`}>
-                {toBnDigits(notifications.length)}
-              </span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveFilter("order")}
-              className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
-                activeFilter === "order"
-                  ? "bg-secondary text-foreground shadow-xs border border-foreground/15"
-                  : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
-              }`}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block"></span>
-              <span>{t("notifications.filterOrders")}</span>
-              {ordersCount > 0 && (
-                <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
-                  activeFilter === "order" ? "bg-primary/10 text-foreground" : "opacity-60"
-                }`}>
-                  {toBnDigits(ordersCount)}
-                </span>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveFilter("return")}
-              className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
-                activeFilter === "return"
-                  ? "bg-secondary text-foreground shadow-xs border border-foreground/15"
-                  : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
-              }`}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block"></span>
-              <span>{t("notifications.filterReturns")}</span>
-              {returnsCount > 0 && (
-                <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
-                  activeFilter === "return" ? "bg-primary/10 text-foreground" : "opacity-60"
-                }`}>
-                  {toBnDigits(returnsCount)}
-                </span>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveFilter("promotion")}
-              className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
-                activeFilter === "promotion"
-                  ? "bg-secondary text-foreground shadow-xs border border-foreground/15"
-                  : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
-              }`}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block opacity-80"></span>
-              <span>{t("notifications.filterPromotions")}</span>
-              {promosCount > 0 && (
-                <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
-                  activeFilter === "promotion" ? "bg-primary/10 text-foreground" : "opacity-60"
-                }`}>
-                  {toBnDigits(promosCount)}
-                </span>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveFilter("coupon")}
-              className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center gap-1 shrink-0 ${
-                activeFilter === "coupon"
-                  ? "bg-secondary text-foreground shadow-xs border border-foreground/15"
-                  : "text-foreground/70 hover:text-foreground hover:bg-foreground/5"
-              }`}
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-accent inline-block opacity-60"></span>
-              <span>{t("notifications.filterCoupons")}</span>
-              {couponsCount > 0 && (
-                <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
-                  activeFilter === "coupon" ? "bg-primary/10 text-foreground" : "opacity-60"
-                }`}>
-                  {toBnDigits(couponsCount)}
-                </span>
-              )}
-            </button>
-          </div>
-
-          {/* List of Notifications */}
-          <div className="max-h-[380px] overflow-y-auto divide-y divide-foreground/5">
-            {filteredNotifications.length === 0 ? (
-              <div className="p-8 text-center text-xs opacity-60 font-bold uppercase tracking-wider">
-                {notifications.length === 0
-                  ? t("notifications.noNotifications")
-                  : formatTemplate(t("notifications.noFilterResults"), {
-                      type:
-                        activeFilter === "order"
-                          ? t("notifications.filterOrders")
-                          : activeFilter === "return"
-                            ? t("notifications.filterReturns")
-                            : activeFilter === "promotion"
-                              ? t("notifications.filterPromotions")
-                              : t("notifications.filterCoupons"),
-                    })}
-              </div>
-            ) : (
-              filteredNotifications.map((item) => {
-                const { title: itemTitle, message: itemMessage } = translateNotification(
-                  item.title,
-                  item.message
-                );
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => handleMarkRead(item)}
-                    className={`p-3.5 transition-colors cursor-pointer flex items-start gap-3 ${
-                      !item.is_read
-                        ? "bg-primary/10 dark:bg-primary/50 border-l-4 border-accent hover:bg-primary/15 dark:hover:bg-primary/60"
-                        : "hover:bg-primary/5 opacity-85 hover:opacity-100"
-                    }`}
-                  >
-                    <div className="mt-0.5 shrink-0">
-                      {item.notification_type === "order" ? (
-                        <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
-                          <Image
-                            src="/Admin/orders.png"
-                            alt="Order"
-                            width={16}
-                            height={16}
-                            className="object-contain filter dark:invert"
-                          />
-                        </div>
-                      ) : item.notification_type === "return" ? (
-                        <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
-                          <img src="/icons/return-arrow.png" alt="Return" className="w-3.5 h-3.5 object-contain dark:invert" />
-                        </div>
-                      ) : item.notification_type === "promotion" ? (
-                        <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
-                          <Image
-                            src="/Admin/sales.png"
-                            alt="Promotion"
-                            width={16}
-                            height={16}
-                            className="object-contain filter dark:invert"
-                          />
-                        </div>
-                      ) : item.notification_type === "coupon" ? (
-                        <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
-                          <Image
-                            src="/Admin/coupons.png"
-                            alt="Coupon"
-                            width={16}
-                            height={16}
-                            className="object-contain filter dark:invert"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-7 h-7 rounded-lg bg-accent/20 flex items-center justify-center p-1.5 border border-accent/30 shadow-xs">
-                          <Image
-                            src="/notification.png"
-                            alt="Notification"
-                            width={16}
-                            height={16}
-                            className="object-contain filter dark:invert"
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className={`text-xs truncate ${!item.is_read ? "font-black text-foreground" : "font-semibold text-foreground/90"}`}>
-                          {itemTitle}
-                        </p>
-                        <span className={`text-[9px] shrink-0 ${!item.is_read ? "font-bold text-accent" : "opacity-60 font-medium"}`}>
-                          {formatTime(item.created_at)}
-                        </span>
-                      </div>
-                      <p className={`text-[11px] mt-0.5 leading-snug line-clamp-2 ${!item.is_read ? "font-semibold text-foreground" : "text-foreground/75"}`}>
-                        {itemMessage}
-                      </p>
-                    </div>
-
-                    {!item.is_read && (
-                      <span className="w-2.5 h-2.5 rounded-full bg-hidden shrink-0 mt-1.5 shadow-xs animate-pulse" />
-                    )}
-                  </div>
-                );
-              })
-            )}
-          </div>
-
-          {/* Footer */}
-          <div className="p-2.5 bg-primary/5 border-t border-foreground/10 text-center">
-          </div>
-        </div>
+        </>
       )}
     </div>
   );
