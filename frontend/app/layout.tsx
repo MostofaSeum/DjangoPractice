@@ -50,10 +50,10 @@ export const metadata: Metadata = {
     siteName: "VibeMart",
     images: [
       {
-        url: "/HomePage/shopping-cart.png",
-        width: 800,
-        height: 600,
-        alt: "VibeMart Store",
+        url: "/brand-icon.png",
+        width: 1024,
+        height: 1024,
+        alt: "VibeMart Brand Emblem",
       },
     ],
   },
@@ -66,9 +66,10 @@ export const metadata: Metadata = {
     apple: "/favicon.ico",
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "VibeMart - Premium Cosmetics & Beauty Store",
     description: "Luxury cosmetics, skincare essentials, lipsticks, and premium beauty products.",
+    images: ["/brand-icon.png"],
   },
   robots: {
     index: true,
