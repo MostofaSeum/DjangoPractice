@@ -288,26 +288,27 @@ export default function Header() {
             />
           </button>
         </div>
-
-        {/* Mobile Search Row (< md) */}
-        <div className="md:hidden max-w-[1400px] mx-auto mt-2.5 pt-2.5 border-t border-foreground/10">
-          <ProductSearchBar
-            variant="navbar"
-            idPrefix="header-mobile"
-            className="w-full"
-          />
-        </div>
       </div>
 
       {/* Mobile Drawer Navigation Menu (Phone View Only) */}
       <div
         ref={mobileMenuRef}
-        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`md:hidden transition-all duration-300 ease-in-out ${
           mobileMenuOpen
-            ? "max-h-80 opacity-100 mt-3 pt-3 pb-2 border-t border-foreground/10 pointer-events-auto"
-            : "max-h-0 opacity-0 mt-0 pt-0 pb-0 border-t-0 pointer-events-none"
+            ? "max-h-[650px] opacity-100 mt-3 pt-3 pb-3 border-t border-foreground/10 pointer-events-auto"
+            : "max-h-0 opacity-0 mt-0 pt-0 pb-0 border-t-0 pointer-events-none overflow-hidden"
         }`}
       >
+        {/* Mobile Search inside Burger Drawer */}
+        <div className="mb-3">
+          <ProductSearchBar
+            variant="navbar"
+            idPrefix="burger-mobile"
+            className="w-full"
+            onAfterNavigate={() => setMobileMenuOpen(false)}
+          />
+        </div>
+
         <div className="flex flex-col gap-1.5">
           {navLinks.map((link, idx) => {
             const isActive = pathname === link.href;

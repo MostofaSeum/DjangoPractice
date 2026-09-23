@@ -31,6 +31,7 @@ interface ProductSearchBarProps {
   placeholder?: string;
   onSelectProduct?: (product: ProductSuggestion) => void;
   onSearchSubmit?: (query: string) => void;
+  onAfterNavigate?: () => void;
   onClear?: () => void;
   className?: string;
 }
@@ -46,6 +47,7 @@ export default function ProductSearchBar({
   placeholder,
   onSelectProduct,
   onSearchSubmit,
+  onAfterNavigate,
   onClear,
   className = "",
 }: ProductSearchBarProps) {
@@ -160,6 +162,9 @@ export default function ProductSearchBar({
     params.delete("page");
 
     router.push(`/products?${params.toString()}`);
+    if (onAfterNavigate) {
+      onAfterNavigate();
+    }
   };
 
   const handleClear = () => {
@@ -200,6 +205,9 @@ export default function ProductSearchBar({
           onSelectProduct(selected);
         } else {
           router.push(`/products/${selected.id}`);
+          if (onAfterNavigate) {
+            onAfterNavigate();
+          }
         }
       } else {
         handleSubmit();
@@ -498,7 +506,12 @@ export default function ProductSearchBar({
                     <Link
                       key={item.id}
                       href={`/products/${item.id}`}
-                      onClick={() => setIsOpen(false)}
+                      onClick={() => {
+                        setIsOpen(false);
+                        if (onAfterNavigate) {
+                          onAfterNavigate();
+                        }
+                      }}
                       onMouseEnter={() => setSelectedIndex(idx)}
                       className={`flex items-center gap-3.5 px-4 py-3 hover:bg-primary/10 transition-colors ${
                         isSelected ? "bg-primary/15" : ""
@@ -536,7 +549,12 @@ export default function ProductSearchBar({
               <div className="p-1.5 border-t border-foreground/10 bg-primary/5">
                 <button
                   type="button"
-                  onClick={() => handleSubmit()}
+                  onClick={() => {
+                    handleSubmit();
+                    if (onAfterNavigate) {
+                      onAfterNavigate();
+                    }
+                  }}
                   className="w-full py-1.5 px-3 rounded-xl bg-button-bg text-button-fg text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity text-center flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {isAdmin
