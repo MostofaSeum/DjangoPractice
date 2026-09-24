@@ -119,6 +119,7 @@ export default function FloatingChatWidget() {
 
   // Clear chat handler
   const handleClearChat = () => {
+    lastScrollTopRef.current = null;
     setMessages([
       {
         id: `welcome_${Date.now()}`,
@@ -147,12 +148,31 @@ export default function FloatingChatWidget() {
     }
   }, [viewMode, isBn, storeName]);
 
-  // Auto-scroll chat to bottom
+  const lastScrollTopRef = useRef<number | null>(null);
+
+  // Auto-scroll chat to bottom on new messages or restore last scroll position when reopening
   useEffect(() => {
-    if (viewMode === "ai_chat" && chatScrollRef.current) {
-      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    if (isOpen && viewMode === "ai_chat" && chatScrollRef.current) {
+      // Use requestAnimationFrame / setTimeout to ensure the DOM layout has updated
+      const timer = setTimeout(() => {
+        if (!chatScrollRef.current) return;
+        if (lastScrollTopRef.current !== null) {
+          chatScrollRef.current.scrollTop = lastScrollTopRef.current;
+        } else {
+          chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+        }
+      }, 50);
+      return () => clearTimeout(timer);
     }
-  }, [messages, isTyping, viewMode]);
+  }, [isOpen, viewMode]);
+
+  // When new messages arrive or bot is typing, auto-scroll to bottom and update lastScrollTopRef
+  useEffect(() => {
+    if (isOpen && viewMode === "ai_chat" && chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+      lastScrollTopRef.current = chatScrollRef.current.scrollHeight;
+    }
+  }, [messages, isTyping]);
 
   // Fetch contact data and AI popup settings from site settings
   useEffect(() => {
@@ -587,6 +607,9 @@ export default function FloatingChatWidget() {
               {/* Message Stream */}
               <div
                 ref={chatScrollRef}
+                onScroll={(e) => {
+                  lastScrollTopRef.current = e.currentTarget.scrollTop;
+                }}
                 className="flex-1 p-3 sm:p-4 overflow-y-auto space-y-3 custom-scrollbar text-xs"
               >
                 {messages.map((m) => (
