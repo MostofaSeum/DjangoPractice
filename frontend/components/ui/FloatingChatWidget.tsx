@@ -124,8 +124,8 @@ export default function FloatingChatWidget() {
         id: `welcome_${Date.now()}`,
         sender: "bot",
         text: isBn
-          ? `হ্যালো! আমি ${storeName}-এর এআই সহকারী VibeBuddy। আমাদের পণ্য, মূল্য, স্টক বা ডেলিভারি চার্জ সম্পর্কে কিছু জানতে চান? আমি সাহায্য করতে পারি!`
-          : `Hello! I'm VibeBuddy, your 24/7 AI shopping companion at ${storeName}. Feel free to ask about our cosmetics, live prices, stock, or delivery charges!`,
+          ? `হ্যালো! আমি ${storeName}-এর এআই বিউটি সহকারী VibeBuddy। আপনার ত্বক, বয়স বা পছন্দের উপযোগী সেরা প্রোডাক্ট নির্বাচন করতে সাহায্য লাগলে বলুন, কিংবা লাইভ স্টক, মূল্য ও ডেলিভারি সম্পর্কে জিজ্ঞেস করুন!`
+          : `Hello! I'm VibeBuddy, your 24/7 AI shopping & beauty companion at ${storeName}. Ask me for personalized skincare/cosmetics suggestions, or check live stock, prices, and delivery charges!`,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       },
     ]);
@@ -139,8 +139,8 @@ export default function FloatingChatWidget() {
           id: "welcome",
           sender: "bot",
           text: isBn
-            ? `হ্যালো! আমি ${storeName}-এর এআই সহকারী VibeBuddy। আমাদের পণ্য, মূল্য, স্টক বা ডেলিভারি চার্জ সম্পর্কে কিছু জানতে চান? আমি সাহায্য করতে পারি!`
-            : `Hello! I'm VibeBuddy, your 24/7 AI shopping companion at ${storeName}. Feel free to ask about our cosmetics, live prices, stock, or delivery charges!`,
+            ? `হ্যালো! আমি ${storeName}-এর এআই বিউটি সহকারী VibeBuddy। আপনার ত্বক, বয়স বা পছন্দের উপযোগী সেরা প্রোডাক্ট নির্বাচন করতে সাহায্য লাগলে বলুন, কিংবা লাইভ স্টক, মূল্য ও ডেলিভারি সম্পর্কে জিজ্ঞেস করুন!`
+            : `Hello! I'm VibeBuddy, your 24/7 AI shopping & beauty companion at ${storeName}. Ask me for personalized skincare/cosmetics suggestions, or check live stock, prices, and delivery charges!`,
           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         },
       ]);
@@ -339,11 +339,11 @@ export default function FloatingChatWidget() {
 
   const quickQuestions = user
     ? isBn
-      ? ["আমার ভাইবকয়েন ব্যালেন্স কত?", "আমার সাম্প্রতিক অর্ডার দেখাও", "গিফট কার্ড কিভাবে রিডিম করব?"]
-      : ["What is my VibeCoin balance?", "Where is my order?", "How to redeem a Gift Card?"]
+      ? ["আমার ত্বকের জন্য প্রোডাক্ট সাজেস্ট করুন", "আমার ভাইবকয়েন ব্যালেন্স কত?", "আমার সাম্প্রতিক অর্ডার দেখাও", "গিফট কার্ড কিভাবে কিনব?"]
+      : ["Suggest skincare for my skin", "What is my VibeCoin balance?", "Where is my order?", "How to buy Gift Cards?"]
     : isBn
-      ? ["ডেলিভারি চার্জ কত?", "পেমেন্ট মেথড কি কি?", "গিফট কার্ড কিভাবে কিনব?"]
-      : ["What are delivery charges?", "What payment methods do you accept?", "How to buy Gift Cards?"];
+      ? ["আমার ত্বকের জন্য প্রোডাক্ট সাজেস্ট করুন", "ডেলিভারি চার্জ কত?", "পেমেন্ট মেথড কি কি?", "গিফট কার্ড কিভাবে কিনব?"]
+      : ["Suggest products for my skin", "What are delivery charges?", "What payment methods do you accept?", "How to buy Gift Cards?"];
 
   return (
     <div
