@@ -149,6 +149,8 @@ export default function Header() {
               variant="navbar"
               idPrefix="header-desktop"
               className="w-full"
+              rotatingWordsEn={siteSettings?.search_rotating_words}
+              rotatingWordsBn={siteSettings?.search_rotating_words_bn}
             />
           </div>
 
@@ -318,6 +320,8 @@ export default function Header() {
             variant="navbar"
             idPrefix="burger-mobile"
             className="w-full"
+            rotatingWordsEn={siteSettings?.search_rotating_words}
+            rotatingWordsBn={siteSettings?.search_rotating_words_bn}
             onAfterNavigate={() => setMobileMenuOpen(false)}
           />
         </div>

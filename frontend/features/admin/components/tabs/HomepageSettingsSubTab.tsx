@@ -69,6 +69,8 @@ interface HomepageSettingsState {
   hero_title_prefix_bn: string;
   hero_rotating_words: string;
   hero_rotating_words_bn: string;
+  search_rotating_words: string;
+  search_rotating_words_bn: string;
   hero_subtitle: string;
   hero_subtitle_bn: string;
   hero_btn_text: string;
@@ -126,6 +128,9 @@ const DEFAULT_HOMEPAGE_SETTINGS: HomepageSettingsState = {
   hero_title_prefix_bn: "",
   hero_rotating_words: "Beauty, Glow, Look, Glam, Charm",
   hero_rotating_words_bn: "",
+  search_rotating_words:
+    "Skincare Essentials, Lipstick & Lip Gloss, Moisturizing Creams, Organic Hair Care, Serum & Sunscreen",
+  search_rotating_words_bn: "",
   hero_subtitle:
     "Experience the intersection of luxury cosmetics, skincare, and radiant beauty aesthetics.",
   hero_subtitle_bn: "",
@@ -266,6 +271,11 @@ export default function HomepageSettingsSubTab({
           hero_rotating_words:
             data.hero_rotating_words || "Beauty, Glow, Look, Glam, Charm",
           hero_rotating_words_bn: data.hero_rotating_words_bn || "",
+          search_rotating_words:
+            data.search_rotating_words !== undefined && data.search_rotating_words !== null
+              ? data.search_rotating_words
+              : "Skincare Essentials, Lipstick & Lip Gloss, Moisturizing Creams, Organic Hair Care, Serum & Sunscreen",
+          search_rotating_words_bn: data.search_rotating_words_bn || "",
           hero_subtitle:
             data.hero_subtitle ||
             "Experience the intersection of luxury cosmetics, skincare, and radiant beauty aesthetics.",
@@ -504,6 +514,9 @@ export default function HomepageSettingsSubTab({
       if (formData.hero_rotating_words?.trim() && !formData.hero_rotating_words_bn?.trim()) {
         updates.hero_rotating_words_bn = await translateWordList(formData.hero_rotating_words);
       }
+      if (formData.search_rotating_words?.trim() && !formData.search_rotating_words_bn?.trim()) {
+        updates.search_rotating_words_bn = await translateWordList(formData.search_rotating_words);
+      }
       if (formData.hero_subtitle?.trim() && !formData.hero_subtitle_bn?.trim()) {
         updates.hero_subtitle_bn = await translateText(formData.hero_subtitle);
       }
@@ -723,6 +736,8 @@ export default function HomepageSettingsSubTab({
       payload.append("hero_title_prefix_bn", formData.hero_title_prefix_bn);
       payload.append("hero_rotating_words", formData.hero_rotating_words);
       payload.append("hero_rotating_words_bn", formData.hero_rotating_words_bn);
+      payload.append("search_rotating_words", formData.search_rotating_words);
+      payload.append("search_rotating_words_bn", formData.search_rotating_words_bn);
       payload.append("hero_subtitle", formData.hero_subtitle);
       payload.append("hero_subtitle_bn", formData.hero_subtitle_bn);
       payload.append("hero_btn_text", formData.hero_btn_text);
@@ -1227,6 +1242,45 @@ export default function HomepageSettingsSubTab({
               value={formData.hero_rotating_words_bn}
               onChange={(e) => handleFieldChange("hero_rotating_words_bn", e.target.value)}
               placeholder="সৌন্দর্য, গ্লো, গ্ল্যামার, চমক, লুক"
+              className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+            />
+          </div>
+
+          {/* Search Bar Animated Words English */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+              <span>{isBn ? "সার্চবার অ্যানিমেটেড শব্দমালা (English - কমা দিয়ে আলাদা)" : "Search Bar Animated Words (EN - comma separated)"}</span>
+              {renderCharCounter(formData.search_rotating_words.length, 250)}
+            </label>
+            <input
+              type="text"
+              maxLength={250}
+              value={formData.search_rotating_words}
+              onChange={(e) => handleFieldChange("search_rotating_words", e.target.value)}
+              placeholder="Skincare Essentials, Lipstick & Lip Gloss, Moisturizing Creams..."
+              className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
+            />
+          </div>
+
+          {/* Search Bar Animated Words Bangla */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-black uppercase tracking-wider opacity-70 flex items-center justify-between">
+              <span>{isBn ? "সার্চবার অ্যানিমেটেড শব্দমালা (বাংলা - কমা দিয়ে আলাদা)" : "Search Bar Animated Words (BN - comma separated)"}</span>
+              <div className="flex items-center gap-2">
+                {renderCharCounter(formData.search_rotating_words_bn.length, 250)}
+                <AutoTranslateButton
+                  sourceText={formData.search_rotating_words}
+                  isWordList={true}
+                  onTranslated={(val) => handleFieldChange("search_rotating_words_bn", val)}
+                />
+              </div>
+            </label>
+            <input
+              type="text"
+              maxLength={250}
+              value={formData.search_rotating_words_bn}
+              onChange={(e) => handleFieldChange("search_rotating_words_bn", e.target.value)}
+              placeholder="স্কিনকেয়ার প্রোডাক্ট, লিপস্টিক ও মেকআপ, ময়েশ্চারাইজিং ক্রিম..."
               className="w-full px-3.5 py-2 rounded-xl bg-primary/5 dark:bg-primary/20 border border-foreground/15 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-accent"
             />
           </div>

@@ -29,6 +29,8 @@ interface ProductSearchBarProps {
   variant?: "default" | "navbar";
   idPrefix?: string;
   placeholder?: string;
+  rotatingWordsEn?: string;
+  rotatingWordsBn?: string;
   onSelectProduct?: (product: ProductSuggestion) => void;
   onSearchSubmit?: (query: string) => void;
   onAfterNavigate?: () => void;
@@ -45,6 +47,8 @@ export default function ProductSearchBar({
   variant = "default",
   idPrefix,
   placeholder,
+  rotatingWordsEn,
+  rotatingWordsBn,
   onSelectProduct,
   onSearchSubmit,
   onAfterNavigate,
@@ -67,21 +71,38 @@ export default function ProductSearchBar({
     process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
   ).replace(/\/+$/, "");
 
-  // 5 animated search words for placeholder typing effect
-  const placeholderWordsEn = [
+  // Default animated search words for placeholder typing effect
+  const defaultWordsEn = [
     "Skincare Essentials",
     "Lipstick & Lip Gloss",
     "Moisturizing Creams",
     "Organic Hair Care",
     "Serum & Sunscreen",
   ];
-  const placeholderWordsBn = [
-    "স্কিনকেয়ার প্রোডাক্ট...",
-    "লিপস্টিক ও মেকআপ...",
-    "ময়েশ্চারাইজিং ক্রিম...",
-    "অর্গানিক হেয়ার অয়েল...",
-    "সিরাম ও সানস্ক্রিন...",
+  const defaultWordsBn = [
+    "স্কিনকেয়ার প্রোডাক্ট",
+    "লিপস্টিক ও মেকআপ",
+    "ময়েশ্চারাইজিং ক্রিম",
+    "অর্গানিক হেয়ার অয়েল",
+    "সিরাম ও সানস্ক্রিন",
   ];
+
+  // Parse comma-separated words from admin settings or fall back to defaults
+  const parsedWordsEn = rotatingWordsEn
+    ? rotatingWordsEn
+        .split(",")
+        .map((w) => w.trim())
+        .filter(Boolean)
+    : [];
+  const wordsEn = parsedWordsEn.length > 0 ? parsedWordsEn : defaultWordsEn;
+
+  const parsedWordsBn = rotatingWordsBn
+    ? rotatingWordsBn
+        .split(",")
+        .map((w) => w.trim())
+        .filter(Boolean)
+    : [];
+  const wordsBn = parsedWordsBn.length > 0 ? parsedWordsBn : defaultWordsBn;
 
   const [animatedPlaceholder, setAnimatedPlaceholder] = useState("");
 
@@ -90,7 +111,9 @@ export default function ProductSearchBar({
     // Only run animated placeholder for navbar variant and when no custom placeholder is passed
     if (variant !== "navbar" || placeholder) return;
 
-    const words = isBn ? placeholderWordsBn : placeholderWordsEn;
+    const words = isBn ? wordsBn : wordsEn;
+    if (!words || words.length === 0) return;
+
     let wordIndex = 0;
     let charIndex = 0;
     let isDeleting = false;
@@ -130,7 +153,7 @@ export default function ProductSearchBar({
     timer = setTimeout(tick, 100);
 
     return () => clearTimeout(timer);
-  }, [isBn, placeholder, variant]);
+  }, [isBn, placeholder, variant, wordsEn, wordsBn]);
 
   // Sync external search value changes if provided
   useEffect(() => {

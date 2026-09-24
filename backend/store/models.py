@@ -700,6 +700,18 @@ class SiteSetting(models.Model):
         blank=True
     )
     hero_rotating_words_bn = models.CharField(max_length=500, default='', blank=True)
+
+    # Search Bar Animated Words
+    search_rotating_words = models.CharField(
+        max_length=500,
+        default='Skincare Essentials, Lipstick & Lip Gloss, Moisturizing Creams, Organic Hair Care, Serum & Sunscreen',
+        blank=True
+    )
+    search_rotating_words_bn = models.CharField(
+        max_length=500,
+        default='স্কিনকেয়ার প্রোডাক্ট, লিপস্টিক ও মেকআপ, ময়েশ্চারাইজিং ক্রিম, অর্গানিক হেয়ার অয়েল, সিরাম ও সানস্ক্রিন',
+        blank=True
+    )
     hero_subtitle = models.TextField(
         default='Experience the intersection of luxury cosmetics, skincare, and radiant beauty aesthetics.',
         blank=True

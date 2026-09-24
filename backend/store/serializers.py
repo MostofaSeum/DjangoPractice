@@ -1102,6 +1102,8 @@ class SiteSettingSerializer(serializers.ModelSerializer):
             'hero_title_prefix_bn',
             'hero_rotating_words',
             'hero_rotating_words_bn',
+            'search_rotating_words',
+            'search_rotating_words_bn',
             'hero_subtitle',
             'hero_subtitle_bn',
             'hero_btn_text',
