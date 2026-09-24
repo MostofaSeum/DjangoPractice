@@ -116,7 +116,7 @@ export default function Header() {
   return (
     <header className="w-full z-50 sticky top-0 transition-colors duration-300">
       {/* Main Navbar Bar */}
-      <div className="w-full py-2.5 sm:py-3.5 md:py-5 px-2.5 sm:px-6 md:px-12 bg-secondary text-foreground shadow-xs border-b border-foreground/10">
+      <div className="w-full relative z-20 py-2.5 sm:py-3.5 md:py-5 px-2.5 sm:px-6 md:px-12 bg-secondary text-foreground shadow-xs border-b border-foreground/10">
         <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-1.5 sm:gap-2">
           {/* Brand Logo & Title */}
           <Link
@@ -139,10 +139,10 @@ export default function Header() {
 
           {/* Desktop Search Bar with Smooth Fade/Collapse Transition on /products */}
           <div
-            className={`hidden md:flex flex-1 items-center transition-all duration-300 ease-in-out ${
+            className={`hidden md:flex flex-1 items-center z-50 transition-all duration-300 ease-in-out ${
               isProductsPage
                 ? "max-w-0 opacity-0 scale-95 mx-0 pointer-events-none overflow-hidden"
-                : "max-w-[220px] lg:max-w-xs xl:max-w-md opacity-100 scale-100 mx-2 lg:mx-4 pointer-events-auto"
+                : "max-w-[220px] lg:max-w-xs xl:max-w-md opacity-100 scale-100 mx-2 lg:mx-4 pointer-events-auto visible"
             }`}
           >
             <ProductSearchBar
@@ -360,7 +360,7 @@ export default function Header() {
 
       {/* Marquee Announcement Ticker (Sticky right under navbar, only on landing page) */}
       {pathname === "/" && (
-        <div className="w-full shadow-xs">
+        <div className="w-full relative z-10 shadow-xs">
           <MarqueeTicker siteSettings={siteSettings} />
         </div>
       )}

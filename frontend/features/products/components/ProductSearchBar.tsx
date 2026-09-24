@@ -399,7 +399,7 @@ export default function ProductSearchBar({
         isAdmin
           ? "w-full sm:w-auto"
           : isNavbar
-            ? "w-full z-40"
+            ? "w-full z-50"
             : "w-full max-w-3xl mb-8 z-30"
       } ${className}`}
     >
@@ -554,7 +554,7 @@ export default function ProductSearchBar({
           id={`${baseId}-search-suggestions-dropdown`}
           className={`absolute left-0 right-0 ${
             isAdmin ? "sm:right-auto sm:w-80" : isNavbar ? "min-w-[280px] sm:min-w-[340px]" : ""
-          } top-full mt-2 bg-secondary border border-foreground/15 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150`}
+          } top-full mt-2 bg-secondary border border-foreground/15 rounded-2xl shadow-2xl overflow-hidden z-[100] animate-in fade-in slide-in-from-top-1 duration-150`}
         >
           {suggestions.length > 0 ? (
             <div className="py-1.5">
