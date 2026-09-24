@@ -67,6 +67,67 @@ export default function ProductSearchBar({
     process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
   ).replace(/\/+$/, "");
 
+  // 5 animated search words for placeholder typing effect
+  const placeholderWordsEn = [
+    "Skincare Essentials",
+    "Lipstick & Lip Gloss",
+    "Moisturizing Creams",
+    "Organic Hair Care",
+    "Serum & Sunscreen",
+  ];
+  const placeholderWordsBn = [
+    "স্কিনকেয়ার প্রোডাক্ট...",
+    "লিপস্টিক ও মেকআপ...",
+    "ময়েশ্চারাইজিং ক্রিম...",
+    "অর্গানিক হেয়ার অয়েল...",
+    "সিরাম ও সানস্ক্রিন...",
+  ];
+
+  const [animatedPlaceholder, setAnimatedPlaceholder] = useState("");
+
+  // Typewriter animation effect
+  useEffect(() => {
+    // Only run animated placeholder if no custom static placeholder is forced and query is empty
+    if (placeholder) return;
+
+    const words = isBn ? placeholderWordsBn : placeholderWordsEn;
+    let wordIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    let timer: NodeJS.Timeout;
+
+    const tick = () => {
+      const currentWord = words[wordIndex % words.length];
+
+      if (isDeleting) {
+        charIndex--;
+      } else {
+        charIndex++;
+      }
+
+      setAnimatedPlaceholder(currentWord.substring(0, charIndex));
+
+      let delay = isDeleting ? 40 : 80;
+
+      if (!isDeleting && charIndex === currentWord.length) {
+        // Pause at end of full word before deleting
+        delay = 2000;
+        isDeleting = true;
+      } else if (isDeleting && charIndex === 0) {
+        // Finished deleting, move to next word
+        isDeleting = false;
+        wordIndex = (wordIndex + 1) % words.length;
+        delay = 500;
+      }
+
+      timer = setTimeout(tick, delay);
+    };
+
+    timer = setTimeout(tick, 200);
+
+    return () => clearTimeout(timer);
+  }, [isBn, placeholder]);
+
   // Sync external search value changes if provided
   useEffect(() => {
     setQuery(initialSearch);
@@ -89,6 +150,7 @@ export default function ProductSearchBar({
     }
 
     setLoading(true);
+    setIsOpen(true);
     debounceTimerRef.current = setTimeout(async () => {
       try {
         const res = await fetch(
@@ -106,11 +168,13 @@ export default function ProductSearchBar({
         } else {
           setSuggestions([]);
           setTotalCount(0);
+          setIsOpen(true);
         }
       } catch (err) {
         console.error("Error fetching product search suggestions:", err);
         setSuggestions([]);
         setTotalCount(0);
+        setIsOpen(true);
       } finally {
         setLoading(false);
       }
@@ -323,22 +387,24 @@ export default function ProductSearchBar({
               setSelectedIndex(-1);
             }}
             onFocus={() => {
-              if (query.trim().length >= 1 && suggestions.length > 0) {
+              if (query.trim().length >= 1) {
                 setIsOpen(true);
               }
             }}
             onKeyDown={handleKeyDown}
             placeholder={
               placeholder ||
-              (isAdmin
-                ? isBn
-                  ? "পণ্য দিয়ে খুঁজুন..."
-                  : "Search product..."
-                : isNavbar
+              (animatedPlaceholder
+                ? (isBn ? `খুঁজুন "${animatedPlaceholder}"` : `Search "${animatedPlaceholder}"`)
+                : isAdmin
                   ? isBn
-                    ? "পণ্য খুঁজুন..."
-                    : "Search products..."
-                  : t("products.searchPlaceholder"))
+                    ? "পণ্য দিয়ে খুঁজুন..."
+                    : "Search product..."
+                  : isNavbar
+                    ? isBn
+                      ? "পণ্য খুঁজুন..."
+                      : "Search products..."
+                    : t("products.searchPlaceholder"))
             }
             autoComplete="off"
             className={
@@ -569,16 +635,21 @@ export default function ProductSearchBar({
             </div>
           ) : (
             !loading && (
-              <div className="py-6 px-4 text-center">
-                <p className="text-xs opacity-70 font-semibold mb-0.5">
+              <div className="py-7 px-4 text-center flex flex-col items-center justify-center bg-secondary text-foreground">
+                <div className="w-10 h-10 rounded-full bg-foreground/5 flex items-center justify-center mb-2.5 text-foreground/40">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <p className="text-xs font-bold text-foreground mb-1">
                   {isBn
                     ? `"${query.trim()}" দিয়ে কোনো পণ্য পাওয়া যায়নি`
                     : `No products found matching "${query.trim()}"`}
                 </p>
-                <p className="text-[10px] opacity-50">
+                <p className="text-[11px] text-foreground/60 max-w-[260px] leading-relaxed">
                   {isBn
-                    ? "বানান সঠিক কিনা যাচাই করুন অথবা অন্য শব্দ দিয়ে চেষ্টা করুন"
-                    : "Try checking your spelling or using different keywords"}
+                    ? "বানান সঠিক কিনা যাচাই করুন অথবা অন্য কোনো শব্দ দিয়ে চেষ্টা করুন"
+                    : "Try checking your spelling or search with different keywords"}
                 </p>
               </div>
             )
