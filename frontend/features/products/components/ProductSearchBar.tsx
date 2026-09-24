@@ -5,11 +5,15 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/store/LanguageContext";
 
+import { ProductVariant } from "@/types";
+
 export interface ProductSuggestion {
   id: number;
   title: string;
   unit_price: number;
   discount_percent?: number;
+  discount_valid_until?: string | null;
+  is_discount_active?: boolean;
   discounted_price?: number;
   inventory?: number;
   short_description?: string;
@@ -18,6 +22,7 @@ export interface ProductSuggestion {
   collection?: number;
   is_trending?: boolean;
   images?: { id?: number; image: string }[];
+  variants?: ProductVariant[];
 }
 
 interface ProductSearchBarProps {
@@ -564,13 +569,25 @@ export default function ProductSearchBar({
 
               <div className="max-h-[340px] overflow-y-auto divide-y divide-foreground/5">
                 {suggestions.map((item, idx) => {
+                  const activeVariant = item.variants?.find((v) => v.is_active !== false);
+                  const basePrice = activeVariant?.price_override
+                    ? Number(activeVariant.price_override)
+                    : Number(item.unit_price || 0);
+
                   const discountPercent = Number(item.discount_percent || 0);
-                  const effectivePrice =
-                    item.discounted_price !== undefined
-                      ? item.discounted_price
-                      : discountPercent > 0
-                        ? item.unit_price * (1 - discountPercent / 100)
-                        : item.unit_price;
+                  const isExpired = item.discount_valid_until && new Date() > new Date(item.discount_valid_until);
+                  const isDiscountActive = item.is_discount_active !== false && !isExpired;
+
+                  let effectivePrice = basePrice;
+                  if (activeVariant?.discounted_price !== undefined) {
+                    effectivePrice = Number(activeVariant.discounted_price);
+                  } else if (item.discounted_price !== undefined && !activeVariant?.price_override) {
+                    effectivePrice = Number(item.discounted_price);
+                  } else if (discountPercent > 0 && isDiscountActive) {
+                    effectivePrice = basePrice * (1 - discountPercent / 100);
+                  }
+
+                  const hasDiscount = isDiscountActive && basePrice > effectivePrice;
 
                   const isSelected = selectedIndex === idx;
 
@@ -600,7 +617,7 @@ export default function ProductSearchBar({
                                 : `Stock: ${item.inventory ?? 0}`}
                             </span>
                             <span className="text-accent font-bold">
-                              {formatCurrency(Number(item.unit_price))}
+                              {formatCurrency(Number(effectivePrice))}
                             </span>
                           </div>
                         </div>
@@ -640,9 +657,9 @@ export default function ProductSearchBar({
                         <div className="text-sm font-black text-accent">
                           {formatCurrency(Number(effectivePrice))}
                         </div>
-                        {discountPercent > 0 && (
+                        {hasDiscount && (
                           <div className="text-[10px] line-through opacity-50">
-                            {formatCurrency(Number(item.unit_price))}
+                            {formatCurrency(Number(basePrice))}
                           </div>
                         )}
                       </div>
