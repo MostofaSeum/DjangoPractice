@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/store/LanguageContext";
@@ -72,37 +72,45 @@ export default function ProductSearchBar({
   ).replace(/\/+$/, "");
 
   // Default animated search words for placeholder typing effect
-  const defaultWordsEn = [
-    "Skincare Essentials",
-    "Lipstick & Lip Gloss",
-    "Moisturizing Creams",
-    "Organic Hair Care",
-    "Serum & Sunscreen",
-  ];
-  const defaultWordsBn = [
-    "স্কিনকেয়ার প্রোডাক্ট",
-    "লিপস্টিক ও মেকআপ",
-    "ময়েশ্চারাইজিং ক্রিম",
-    "অর্গানিক হেয়ার অয়েল",
-    "সিরাম ও সানস্ক্রিন",
-  ];
+  const defaultWordsEn = useMemo(
+    () => [
+      "Skincare Essentials",
+      "Lipstick & Lip Gloss",
+      "Moisturizing Creams",
+      "Organic Hair Care",
+      "Serum & Sunscreen",
+    ],
+    []
+  );
+  const defaultWordsBn = useMemo(
+    () => [
+      "স্কিনকেয়ার প্রোডাক্ট",
+      "লিপস্টিক ও মেকআপ",
+      "ময়েশ্চারাইজিং ক্রিম",
+      "অর্গানিক হেয়ার অয়েল",
+      "সিরাম ও সানস্ক্রিন",
+    ],
+    []
+  );
 
   // Parse comma-separated words from admin settings or fall back to defaults
-  const parsedWordsEn = rotatingWordsEn
-    ? rotatingWordsEn
-        .split(",")
-        .map((w) => w.trim())
-        .filter(Boolean)
-    : [];
-  const wordsEn = parsedWordsEn.length > 0 ? parsedWordsEn : defaultWordsEn;
+  const wordsEn = useMemo(() => {
+    if (!rotatingWordsEn) return defaultWordsEn;
+    const parsed = rotatingWordsEn
+      .split(",")
+      .map((w) => w.trim())
+      .filter(Boolean);
+    return parsed.length > 0 ? parsed : defaultWordsEn;
+  }, [rotatingWordsEn, defaultWordsEn]);
 
-  const parsedWordsBn = rotatingWordsBn
-    ? rotatingWordsBn
-        .split(",")
-        .map((w) => w.trim())
-        .filter(Boolean)
-    : [];
-  const wordsBn = parsedWordsBn.length > 0 ? parsedWordsBn : defaultWordsBn;
+  const wordsBn = useMemo(() => {
+    if (!rotatingWordsBn) return defaultWordsBn;
+    const parsed = rotatingWordsBn
+      .split(",")
+      .map((w) => w.trim())
+      .filter(Boolean);
+    return parsed.length > 0 ? parsed : defaultWordsBn;
+  }, [rotatingWordsBn, defaultWordsBn]);
 
   const [animatedPlaceholder, setAnimatedPlaceholder] = useState("");
 
@@ -118,12 +126,14 @@ export default function ProductSearchBar({
     let charIndex = 0;
     let isDeleting = false;
     let timer: NodeJS.Timeout;
+    let isMounted = true;
 
-    // Immediately show initial state
     const prefix = isBn ? "খুঁজুন " : "Search ";
-    setAnimatedPlaceholder(prefix);
+    // Initial display
+    setAnimatedPlaceholder(`${prefix}"..."`);
 
     const tick = () => {
+      if (!isMounted) return;
       const currentWord = words[wordIndex % words.length];
 
       if (isDeleting) {
@@ -150,9 +160,12 @@ export default function ProductSearchBar({
       timer = setTimeout(tick, delay);
     };
 
-    timer = setTimeout(tick, 100);
+    timer = setTimeout(tick, 150);
 
-    return () => clearTimeout(timer);
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
   }, [isBn, placeholder, variant, wordsEn, wordsBn]);
 
   // Sync external search value changes if provided
@@ -421,8 +434,8 @@ export default function ProductSearchBar({
             onKeyDown={handleKeyDown}
             placeholder={
               placeholder ||
-              (variant === "navbar" && animatedPlaceholder
-                ? animatedPlaceholder
+              (variant === "navbar"
+                ? animatedPlaceholder || (isBn ? 'খুঁজুন "..."' : 'Search "..."')
                 : isAdmin
                   ? isBn
                     ? "পণ্য দিয়ে খুঁজুন..."
