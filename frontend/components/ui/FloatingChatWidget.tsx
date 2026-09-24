@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLanguage } from "@/store/LanguageContext";
 import { useAuth } from "@/store/AuthContext";
@@ -602,8 +603,8 @@ export default function FloatingChatWidget() {
                     >
                       <div className="whitespace-pre-wrap">
                         {m.text.split("\n").map((line, lIdx) => {
-                          // Simple regex to parse **bold** and `code`
-                          const parts = line.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+                          // Regex to parse **bold**, `code`, and markdown [link](url)
+                          const parts = line.split(/(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g);
                           return (
                             <div key={lIdx} className={lIdx > 0 ? "mt-1" : ""}>
                               {parts.map((part, pIdx) => {
@@ -622,6 +623,34 @@ export default function FloatingChatWidget() {
                                     >
                                       {part.slice(1, -1)}
                                     </span>
+                                  );
+                                }
+                                const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+                                if (linkMatch) {
+                                  const linkText = linkMatch[1];
+                                  const linkHref = linkMatch[2];
+                                  const isInternal = linkHref.startsWith("/");
+                                  return isInternal ? (
+                                    <Link
+                                      key={pIdx}
+                                      href={linkHref}
+                                      onClick={() => setIsOpen(false)}
+                                      className="inline-flex items-center gap-1 font-bold text-accent underline decoration-accent/50 hover:decoration-accent transition-colors"
+                                    >
+                                      <span>{linkText}</span>
+                                      <span className="text-[10px]">↗</span>
+                                    </Link>
+                                  ) : (
+                                    <a
+                                      key={pIdx}
+                                      href={linkHref}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1 font-bold text-accent underline decoration-accent/50 hover:decoration-accent transition-colors"
+                                    >
+                                      <span>{linkText}</span>
+                                      <span className="text-[10px]">↗</span>
+                                    </a>
                                   );
                                 }
                                 return <span key={pIdx}>{part}</span>;
