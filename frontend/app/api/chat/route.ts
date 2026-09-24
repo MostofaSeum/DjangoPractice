@@ -91,11 +91,13 @@ DELIVERY CHARGES & TIMELINE:
     console.error("Failed to fetch settings context for AI chat:", err);
   }
 
-  // 2. Fetch live product catalog (comprehensive with categories & descriptions for intelligent recommendations)
+  // 2. Fetch live product catalog & active coupons
+  let couponsText = "";
   try {
-    const [prodRes, collRes] = await Promise.all([
+    const [prodRes, collRes, couponRes] = await Promise.all([
       fetch(`${apiBase}/store/products/?page_size=100`, { next: { revalidate: 60 } }),
       fetch(`${apiBase}/store/collections/`, { next: { revalidate: 60 } }),
+      fetch(`${apiBase}/store/coupons/`, { next: { revalidate: 60 } }),
     ]);
 
     const collectionMap: Record<number, string> = {};
@@ -105,6 +107,47 @@ DELIVERY CHARGES & TIMELINE:
       collArray.forEach((c: any) => {
         if (c.id && c.title) collectionMap[c.id] = c.title;
       });
+    }
+
+    if (couponRes.ok) {
+      const couponData = await couponRes.json();
+      const rawCoupons = Array.isArray(couponData) ? couponData : couponData.results || [];
+      const nowDate = new Date();
+
+      const activeCoupons = rawCoupons.filter((cp: any) => {
+        if (!cp.is_active) return false;
+        if (cp.valid_from && new Date(cp.valid_from) > nowDate) return false;
+        if (cp.valid_to && new Date(cp.valid_to) < nowDate) return false;
+        return true;
+      });
+
+      if (activeCoupons.length > 0) {
+        const cLines = activeCoupons.map((cp: any) => {
+          let appliesTo = "Entire store / all eligible products";
+          if (cp.target_type === "collection" && cp.collection_title) {
+            appliesTo = `Specific Collection: "${cp.collection_title}"`;
+          } else if (cp.target_type === "product" && Array.isArray(cp.products_details) && cp.products_details.length > 0) {
+            const pTitles = cp.products_details.map((pd: any) => pd.title).join(", ");
+            appliesTo = `Specific Products: ${pTitles}`;
+          }
+
+          const expiryStr = cp.valid_to
+            ? new Date(cp.valid_to).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+            : "No expiry";
+
+          return `• CODE: "${cp.code}" | Discount: ${cp.discount_percent}% OFF | Applies To: ${appliesTo} | Valid Until: ${expiryStr}`;
+        });
+
+        couponsText = `
+ACTIVE STORE COUPONS & PROMO CODES:
+${cLines.join("\n")}
+`;
+      } else {
+        couponsText = `
+ACTIVE STORE COUPONS & PROMO CODES:
+None currently available.
+`;
+      }
     }
 
     if (prodRes.ok) {
@@ -147,7 +190,7 @@ ${lines.join("\n")}
     console.error("Failed to fetch products context for AI chat:", err);
   }
 
-  cachedContext = `${settingsText}\n${productsText}`.trim();
+  cachedContext = `${settingsText}\n${couponsText}\n${productsText}`.trim();
   cacheTimestamp = now;
   return cachedContext;
 }
@@ -274,32 +317,49 @@ When a customer asks for a recommendation, suggestion, or advice (e.g. "suggest 
      • Direct them to complete the order manually on the Cart page: remind them that on the cart page they can apply discount coupons/promo codes, review delivery charges, and choose their preferred payment method (COD, bKash, Nagad, VibeCoin).
      • Always include the direct link in markdown: [Go to Cart](/cart).
 
-4. HANDLING OUT OF STOCK OR UNAVAILABLE PRODUCTS:
+4. ADDING TO WISHLIST DIRECTLY FROM CHAT:
+   - When the user expresses intent to save, favorite, or add a product to their wishlist (e.g. "add to wishlist", "save for later", "উইশলিস্টে রাখো", "পছন্দের তালিকায় রাখো", "favorite this product", "add to favorites"):
+     • Identify the exact Product ID from the catalog.
+     • Immediately trigger the wishlist action by appending this EXACT action tag at the bottom of your response:
+       [[ADD_TO_WISHLIST:productId]]
+       Example: [[ADD_TO_WISHLIST:42]]
+     • Warmly let them know that the item has been added to their wishlist!
+     • If they are a guest / not logged in, remind them that signing in helps keep their wishlist synced across all devices.
+     • Always provide the direct link in markdown: [View Wishlist](/wishlist).
+
+5. HANDLING OUT OF STOCK OR UNAVAILABLE PRODUCTS:
    - If the user asks for or needs a specific product, shade, or skincare solution that is currently NOT in our catalog or marked Out of Stock:
      • GENTLE & COURTEOUS NOTIFICATION: Gently acknowledge their exact requirement and explain that while they definitely need this type of product, it is currently out of stock or not yet available in our store.
      • SMART ALTERNATIVE: Suggest the closest available alternative in our catalog that delivers similar benefits (if available).
      • WHATSAPP PRE-ORDER / SOURCING: Invite them to message our team on WhatsApp if they'd like our team to source or restock it for them.
 
+6. ACTIVE COUPONS & PROMO CODES:
+   - When the user asks about discounts, offers, coupons, or promo codes (e.g., "any coupon available?", "what coupons do you have?", "কোন কুপন আছে?", "discount code", "offers"):
+     • Consult the "ACTIVE STORE COUPONS & PROMO CODES" section below.
+     • If active coupons exist: List EVERY active coupon code clearly with its discount percentage, what it applies to (all items, specific collection, or specific products), and its expiry date.
+     • Tell the user how to use it: "You can apply this code on the Cart (/cart) or Checkout (/checkout) page to get your discount!"
+     • If no coupons are currently active: Warmly inform them that there are no active coupon codes right now, but encourage them to check back soon or use VibeCoin wallet points.
+
 GENERAL GUIDELINES & STORE DATA:
-5. ALWAYS rely on the real-time store information, delivery policies, customer profile data, and live product catalog provided below.
-6. INVENTORY & STOCK COUNT POLICY:
+7. ALWAYS rely on the real-time store information, delivery policies, customer profile data, and live product catalog provided below.
+8. INVENTORY & STOCK COUNT POLICY:
    - By default, state whether a product or variant is simply "In Stock" or "Out of Stock".
    - DO NOT reveal the exact inventory number/amount (e.g., "5 available", "12 in stock") during general product recommendations or regular chat.
    - ONLY tell the exact remaining inventory/stock number if the user specifically and explicitly asks (e.g., "How many are left?", "How many in stock?", "কয়টা স্টক আছে?", "How many can I order?").
-7. If the user asks about THEIR OWN ACCOUNT (orders, VibeCoin balance, past purchases):
+9. If the user asks about THEIR OWN ACCOUNT (orders, VibeCoin balance, past purchases):
    - Check the "CURRENT LOGGED-IN CUSTOMER PROFILE" below.
    - If logged in, address them by their name, cite their exact VibeCoin balance, or detail their recent orders and tracking statuses.
    - If NOT logged in, politely invite them to log in to VibeMart first.
-8. If a customer asks about product variants (shades, sizes), look up the Variants field and specify the available options, prices, and whether they are in stock (only give exact variant inventory counts if explicitly asked).
-8. Delivery rules:
+10. If a customer asks about product variants (shades, sizes), look up the Variants field and specify the available options, prices, and whether they are in stock (only give exact variant inventory counts if explicitly asked).
+11. Delivery rules:
    - Inside Dhaka: 1-2 Days (৳60)
    - Outside Dhaka: 3-5 Days (৳130)
    - Free shipping if applicable or promo applied.
-9. Language Adaptability:
+12. Language Adaptability:
    - English inquiries -> Respond in natural, warm, polished English.
    - Bengali (বাংলা) inquiries -> Respond in respectful, natural, fluent Bengali (বাংলা).
    - Banglish inquiries (e.g., "amar skin oily, ki use korbo?") -> Respond in fluent Bengali or friendly Banglish.
-10. CRITICAL FORMATTING RULES:
+13. CRITICAL FORMATTING RULES:
    - NEVER use asterisks (*) for formatting, bullet points, bolding, or italics.
    - For bullet lists, use the clean bullet dot symbol (•) or numbers (1., 2.).
    - Do NOT write * *Heading:* or *Note*. Just write plain text like "Highlights: ..." or "(Note: ...)".
@@ -396,8 +456,12 @@ ${storeContext}
       });
     }
 
-    // Extract any structured actions such as [[ADD_TO_CART:productId:variantId:qty]]
-    const actions: Array<{ type: "ADD_TO_CART"; productId: number; variantId?: number | null; quantity: number }> = [];
+    // Extract any structured actions such as [[ADD_TO_CART:productId:variantId:qty]] or [[ADD_TO_WISHLIST:productId]]
+    const actions: Array<
+      | { type: "ADD_TO_CART"; productId: number; variantId?: number | null; quantity: number }
+      | { type: "ADD_TO_WISHLIST"; productId: number }
+    > = [];
+
     const actionRegex = /\[\[ADD_TO_CART:(\d+):(\d+):(\d+)\]\]/g;
     let actionMatch;
     while ((actionMatch = actionRegex.exec(candidateText)) !== null) {
@@ -414,8 +478,22 @@ ${storeContext}
       }
     }
 
+    const wishlistRegex = /\[\[ADD_TO_WISHLIST:(\d+)\]\]/g;
+    let wishlistMatch;
+    while ((wishlistMatch = wishlistRegex.exec(candidateText)) !== null) {
+      const pId = parseInt(wishlistMatch[1], 10);
+      if (pId) {
+        actions.push({
+          type: "ADD_TO_WISHLIST",
+          productId: pId,
+        });
+      }
+    }
+
     // Strip action tags from visible message text
-    let cleanedReply = candidateText.replace(/\[\[ADD_TO_CART:\d+:\d+:\d+\]\]/g, "");
+    let cleanedReply = candidateText
+      .replace(/\[\[ADD_TO_CART:\d+:\d+:\d+\]\]/g, "")
+      .replace(/\[\[ADD_TO_WISHLIST:\d+\]\]/g, "");
 
     // Sanitize any remaining markdown asterisks from LLM response while preserving product markdown links
     cleanedReply = cleanedReply

@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useLanguage } from "@/store/LanguageContext";
 import { useAuth } from "@/store/AuthContext";
 import { useCart } from "@/store/CartContext";
+import { useWishlist } from "@/hooks/useWishlist";
 import { siteConfig } from "@/config/siteConfig";
 
 const API_BASE = siteConfig.apiBaseUrl.replace(/\/+$/, "");
@@ -23,6 +24,7 @@ interface ChatMessage {
   text: string;
   timestamp: string;
   cartAdded?: boolean;
+  wishlistAdded?: boolean;
 }
 
 export default function FloatingChatWidget() {
@@ -31,6 +33,7 @@ export default function FloatingChatWidget() {
   const isBn = locale === "bn";
   const { user, token } = useAuth();
   const { addToCart } = useCart();
+  const { toggleWishlist, isInWishlist } = useWishlist();
 
   const [isOpen, setIsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"menu" | "ai_chat">("menu");
@@ -329,6 +332,7 @@ export default function FloatingChatWidget() {
         const replyText = data.reply || (isBn ? "আমি বুঝতে পারছি। দয়া করে বিস্তারিত বলুন।" : "I understand. How else can I help?");
         
         let hasCartAction = false;
+        let hasWishlistAction = false;
         if (Array.isArray(data.actions) && data.actions.length > 0) {
           for (const act of data.actions) {
             if (act.type === "ADD_TO_CART" && act.productId) {
@@ -337,6 +341,15 @@ export default function FloatingChatWidget() {
                 await addToCart(act.productId, act.quantity || 1, act.variantId || null);
               } catch (cartErr) {
                 console.error("Chatbot failed to add to cart:", cartErr);
+              }
+            } else if (act.type === "ADD_TO_WISHLIST" && act.productId) {
+              hasWishlistAction = true;
+              try {
+                if (!isInWishlist(act.productId)) {
+                  await toggleWishlist(act.productId);
+                }
+              } catch (wishErr) {
+                console.error("Chatbot failed to add to wishlist:", wishErr);
               }
             }
           }
@@ -350,6 +363,7 @@ export default function FloatingChatWidget() {
             text: replyText,
             timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
             cartAdded: hasCartAction,
+            wishlistAdded: hasWishlistAction,
           },
         ]);
       } else {
@@ -384,11 +398,11 @@ export default function FloatingChatWidget() {
 
   const quickQuestions = user
     ? isBn
-      ? ["আমার ত্বকের জন্য প্রোডাক্ট সাজেস্ট করুন", "আমার ভাইবকয়েন ব্যালেন্স কত?", "আমার সাম্প্রতিক অর্ডার দেখাও", "গিফট কার্ড কিভাবে কিনব?"]
-      : ["Suggest skincare for my skin", "What is my VibeCoin balance?", "Where is my order?", "How to buy Gift Cards?"]
+      ? ["কুপন কোড কি আছে?", "আমার ত্বকের জন্য প্রোডাক্ট সাজেস্ট করুন", "আমার ভাইবকয়েন ব্যালেন্স কত?", "আমার সাম্প্রতিক অর্ডার দেখাও", "গিফট কার্ড কিভাবে কিনব?"]
+      : ["Any discount coupons?", "Suggest skincare for my skin", "What is my VibeCoin balance?", "Where is my order?", "How to buy Gift Cards?"]
     : isBn
-      ? ["আমার ত্বকের জন্য প্রোডাক্ট সাজেস্ট করুন", "ডেলিভারি চার্জ কত?", "পেমেন্ট মেথড কি কি?", "গিফট কার্ড কিভাবে কিনব?"]
-      : ["Suggest products for my skin", "What are delivery charges?", "What payment methods do you accept?", "How to buy Gift Cards?"];
+      ? ["কুপন কোড কি আছে?", "আমার ত্বকের জন্য প্রোডাক্ট সাজেস্ট করুন", "ডেলিভারি চার্জ কত?", "পেমেন্ট মেথড কি কি?", "গিফট কার্ড কিভাবে কিনব?"]
+      : ["Any discount coupons?", "Suggest products for my skin", "What are delivery charges?", "What payment methods do you accept?", "How to buy Gift Cards?"];
 
   return (
     <div
