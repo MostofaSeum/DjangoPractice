@@ -130,12 +130,12 @@ DELIVERY CHARGES & TIMELINE:
             .map((v: any) => {
               const opt = [v.name, v.size, v.color_name].filter(Boolean).join(" - ");
               const vPrice = v.discounted_price || v.effective_price || v.price_override || price;
-              return `${opt || "Variant"} (৳${vPrice}, Stock: ${v.inventory ?? 0})`;
+              return `[Variant ID: ${v.id}] ${opt || "Option"} (৳${vPrice}, Stock: ${v.inventory ?? 0})`;
             })
             .join("; ");
         }
 
-        return `- Product #${p.id}: "${p.title}" | Category: ${category} | Price: ৳${price} (Original: ৳${p.unit_price}) | Status: ${stockStatus} | Variants: [${variantsInfo}] | Highlights: "${descSnippet}" | URL: /products/${p.id}`;
+        return `- Product ID: ${p.id} | Title: "${p.title}" | Category: ${category} | Price: ৳${price} (Original: ৳${p.unit_price}) | Status: ${stockStatus} | Variants: [${variantsInfo}] | Highlights: "${descSnippet}" | URL: /products/${p.id}`;
       });
 
       productsText = `
@@ -264,23 +264,33 @@ When a customer asks for a recommendation, suggestion, or advice (e.g. "suggest 
      • Explain WHY this specific product suits their age, skin type, or concern. Mention the exact price in ৳ (BDT) and whether it is "In Stock" or "Out of Stock" (DO NOT mention the specific inventory/stock count unless the user explicitly asks how many units are available or in stock).
      • Highlight the direct link in standard markdown format (e.g. [View Product](/products/123)).
 
-3. HANDLING OUT OF STOCK OR UNAVAILABLE PRODUCTS:
+3. ADDING TO CART & ORDERING DIRECTLY FROM CHAT:
+   - When the user expresses intent to buy, order, or add a product to cart (e.g. "add to cart", "buy this", "order this product", "আমি এটা কিনতে চাই", "কার্টে এড করে দাও", "order lipstick", "ব্যাগ এ নাও", "i want to purchase this"):
+     • Identify the exact Product ID (and Variant ID if specified) from the catalog.
+     • Immediately trigger the add-to-cart action by appending this EXACT action tag at the bottom of your response:
+       [[ADD_TO_CART:productId:variantIdOr0:quantity]]
+       Example: [[ADD_TO_CART:42:0:1]] or if variant #5 was selected [[ADD_TO_CART:42:5:1]]. If multiple products are requested, output multiple action tags.
+     • Warmly inform the customer that you have added the item(s) to their cart!
+     • Direct them to complete the order manually on the Cart page: remind them that on the cart page they can apply discount coupons/promo codes, review delivery charges, and choose their preferred payment method (COD, bKash, Nagad, VibeCoin).
+     • Always include the direct link in markdown: [Go to Cart](/cart).
+
+4. HANDLING OUT OF STOCK OR UNAVAILABLE PRODUCTS:
    - If the user asks for or needs a specific product, shade, or skincare solution that is currently NOT in our catalog or marked Out of Stock:
      • GENTLE & COURTEOUS NOTIFICATION: Gently acknowledge their exact requirement and explain that while they definitely need this type of product, it is currently out of stock or not yet available in our store.
      • SMART ALTERNATIVE: Suggest the closest available alternative in our catalog that delivers similar benefits (if available).
      • WHATSAPP PRE-ORDER / SOURCING: Invite them to message our team on WhatsApp if they'd like our team to source or restock it for them.
 
 GENERAL GUIDELINES & STORE DATA:
-4. ALWAYS rely on the real-time store information, delivery policies, customer profile data, and live product catalog provided below.
-5. INVENTORY & STOCK COUNT POLICY:
+5. ALWAYS rely on the real-time store information, delivery policies, customer profile data, and live product catalog provided below.
+6. INVENTORY & STOCK COUNT POLICY:
    - By default, state whether a product or variant is simply "In Stock" or "Out of Stock".
    - DO NOT reveal the exact inventory number/amount (e.g., "5 available", "12 in stock") during general product recommendations or regular chat.
    - ONLY tell the exact remaining inventory/stock number if the user specifically and explicitly asks (e.g., "How many are left?", "How many in stock?", "কয়টা স্টক আছে?", "How many can I order?").
-6. If the user asks about THEIR OWN ACCOUNT (orders, VibeCoin balance, past purchases):
+7. If the user asks about THEIR OWN ACCOUNT (orders, VibeCoin balance, past purchases):
    - Check the "CURRENT LOGGED-IN CUSTOMER PROFILE" below.
    - If logged in, address them by their name, cite their exact VibeCoin balance, or detail their recent orders and tracking statuses.
    - If NOT logged in, politely invite them to log in to VibeMart first.
-7. If a customer asks about product variants (shades, sizes), look up the Variants field and specify the available options, prices, and whether they are in stock (only give exact variant inventory counts if explicitly asked).
+8. If a customer asks about product variants (shades, sizes), look up the Variants field and specify the available options, prices, and whether they are in stock (only give exact variant inventory counts if explicitly asked).
 8. Delivery rules:
    - Inside Dhaka: 1-2 Days (৳60)
    - Outside Dhaka: 3-5 Days (৳130)
@@ -386,8 +396,29 @@ ${storeContext}
       });
     }
 
+    // Extract any structured actions such as [[ADD_TO_CART:productId:variantId:qty]]
+    const actions: Array<{ type: "ADD_TO_CART"; productId: number; variantId?: number | null; quantity: number }> = [];
+    const actionRegex = /\[\[ADD_TO_CART:(\d+):(\d+):(\d+)\]\]/g;
+    let actionMatch;
+    while ((actionMatch = actionRegex.exec(candidateText)) !== null) {
+      const pId = parseInt(actionMatch[1], 10);
+      const vId = parseInt(actionMatch[2], 10);
+      const qty = parseInt(actionMatch[3], 10) || 1;
+      if (pId) {
+        actions.push({
+          type: "ADD_TO_CART",
+          productId: pId,
+          variantId: vId > 0 ? vId : null,
+          quantity: qty,
+        });
+      }
+    }
+
+    // Strip action tags from visible message text
+    let cleanedReply = candidateText.replace(/\[\[ADD_TO_CART:\d+:\d+:\d+\]\]/g, "");
+
     // Sanitize any remaining markdown asterisks from LLM response while preserving product markdown links
-    let cleanedReply = candidateText
+    cleanedReply = cleanedReply
       // Replace list bullet patterns like "* *", "* ", "- " at start of line with "• "
       .replace(/^[\s]*[\*\-]\s*[\*\-]?\s*/gm, "• ")
       // Clean patterns like "* *Word:*" or "**Word:**" into "Word:"
@@ -396,7 +427,7 @@ ${storeContext}
       .replace(/\*/g, "")
       .trim();
 
-    return NextResponse.json({ reply: cleanedReply });
+    return NextResponse.json({ reply: cleanedReply, actions });
   } catch (error: any) {
     console.error("AI Chatbot Route Error:", error);
     return NextResponse.json(

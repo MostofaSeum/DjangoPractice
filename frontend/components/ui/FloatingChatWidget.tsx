@@ -6,15 +6,23 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLanguage } from "@/store/LanguageContext";
 import { useAuth } from "@/store/AuthContext";
+import { useCart } from "@/store/CartContext";
 import { siteConfig } from "@/config/siteConfig";
 
 const API_BASE = siteConfig.apiBaseUrl.replace(/\/+$/, "");
+
+interface ChatActionProduct {
+  productId: number;
+  variantId?: number | null;
+  quantity: number;
+}
 
 interface ChatMessage {
   id: string;
   sender: "user" | "bot";
   text: string;
   timestamp: string;
+  cartAdded?: boolean;
 }
 
 export default function FloatingChatWidget() {
@@ -22,6 +30,7 @@ export default function FloatingChatWidget() {
   const { locale } = useLanguage();
   const isBn = locale === "bn";
   const { user, token } = useAuth();
+  const { addToCart } = useCart();
 
   const [isOpen, setIsOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"menu" | "ai_chat">("menu");
@@ -318,6 +327,21 @@ export default function FloatingChatWidget() {
       if (res.ok) {
         const data = await res.json();
         const replyText = data.reply || (isBn ? "আমি বুঝতে পারছি। দয়া করে বিস্তারিত বলুন।" : "I understand. How else can I help?");
+        
+        let hasCartAction = false;
+        if (Array.isArray(data.actions) && data.actions.length > 0) {
+          for (const act of data.actions) {
+            if (act.type === "ADD_TO_CART" && act.productId) {
+              hasCartAction = true;
+              try {
+                await addToCart(act.productId, act.quantity || 1, act.variantId || null);
+              } catch (cartErr) {
+                console.error("Chatbot failed to add to cart:", cartErr);
+              }
+            }
+          }
+        }
+
         setMessages((prev) => [
           ...prev,
           {
@@ -325,6 +349,7 @@ export default function FloatingChatWidget() {
             sender: "bot",
             text: replyText,
             timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            cartAdded: hasCartAction,
           },
         ]);
       } else {
@@ -698,6 +723,35 @@ export default function FloatingChatWidget() {
                         })}
                       </div>
                     </div>
+
+                    {/* Quick action button when items are added to cart or cart is suggested */}
+                    {m.sender === "bot" && (m.cartAdded || m.text.includes("/cart")) && (
+                      <div className="mt-2 flex items-center gap-2">
+                        <Link
+                          href="/cart"
+                          onClick={() => setIsOpen(false)}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-accent text-button-fg font-bold text-xs shadow-md hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-3.5 h-3.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                            />
+                          </svg>
+                          <span>{isBn ? "কার্টে যান ও অর্ডার করুন" : "Go to Cart & Checkout"}</span>
+                          <span className="text-[11px]">→</span>
+                        </Link>
+                      </div>
+                    )}
+
                     <span className="text-[9px] opacity-50 mt-1 px-1">{m.timestamp}</span>
                   </div>
                 ))}
