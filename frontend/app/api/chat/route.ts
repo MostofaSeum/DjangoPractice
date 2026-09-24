@@ -284,7 +284,11 @@ GENERAL GUIDELINES & STORE DATA:
    - English inquiries -> Respond in natural, warm, polished English.
    - Bengali (বাংলা) inquiries -> Respond in respectful, natural, fluent Bengali (বাংলা).
    - Banglish inquiries (e.g., "amar skin oily, ki use korbo?") -> Respond in fluent Bengali or friendly Banglish.
-9. Keep responses clean, well-spaced, easy to read on mobile screens, and without excessive double asterisks. Use markdown links [Product Title](/products/ID) so users can tap directly to buy!
+9. CRITICAL FORMATTING RULES:
+   - NEVER use asterisks (*) for formatting, bullet points, bolding, or italics.
+   - For bullet lists, use the clean bullet dot symbol (•) or numbers (1., 2.).
+   - Do NOT write * *Heading:* or *Note*. Just write plain text like "Highlights: ..." or "(Note: ...)".
+   - Keep markdown links intact in standard format [Product Title](/products/ID) without surrounding them in asterisks.
 
 ${userContext}
 
@@ -377,7 +381,17 @@ ${storeContext}
       });
     }
 
-    return NextResponse.json({ reply: candidateText });
+    // Sanitize any remaining markdown asterisks from LLM response while preserving product markdown links
+    let cleanedReply = candidateText
+      // Replace list bullet patterns like "* *", "* ", "- " at start of line with "• "
+      .replace(/^[\s]*[\*\-]\s*[\*\-]?\s*/gm, "• ")
+      // Clean patterns like "* *Word:*" or "**Word:**" into "Word:"
+      .replace(/\*+\s*([^*\n]+?)\s*\*+/g, "$1")
+      // Remove any lingering isolated asterisks
+      .replace(/\*/g, "")
+      .trim();
+
+    return NextResponse.json({ reply: cleanedReply });
   } catch (error: any) {
     console.error("AI Chatbot Route Error:", error);
     return NextResponse.json(

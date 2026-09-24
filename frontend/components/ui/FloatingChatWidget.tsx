@@ -602,17 +602,30 @@ export default function FloatingChatWidget() {
                       }`}
                     >
                       <div className="whitespace-pre-wrap">
-                        {m.text.split("\n").map((line, lIdx) => {
-                          // Regex to parse **bold**, `code`, and markdown [link](url)
-                          const parts = line.split(/(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g);
+                        {m.text.split("\n").map((rawLine, lIdx) => {
+                          // Clean leading bullet asterisks / hyphens (* or * * or -) into a neat bullet dot
+                          let line = rawLine.replace(/^[\s]*[\*\-]\s*[\*\-]?\s*/g, "• ");
+                          
+                          // If there are broken combinations like "* *Highlights:*" normalize to "**Highlights:**"
+                          line = line.replace(/\*\s+\*([^*\n]+?)\*/g, "**$1**");
+
+                          // Regex to parse **bold**, *italic*, `code`, and markdown [link](url)
+                          const parts = line.split(/(\*\*[^*]+\*\*|\*[^*\n]+\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g);
                           return (
                             <div key={lIdx} className={lIdx > 0 ? "mt-1" : ""}>
                               {parts.map((part, pIdx) => {
                                 if (part.startsWith("**") && part.endsWith("**")) {
                                   return (
                                     <strong key={pIdx} className="font-semibold text-foreground">
-                                      {part.slice(2, -2)}
+                                      {part.slice(2, -2).replace(/\*/g, "")}
                                     </strong>
+                                  );
+                                }
+                                if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
+                                  return (
+                                    <em key={pIdx} className="italic text-foreground/90">
+                                      {part.slice(1, -1).replace(/\*/g, "")}
+                                    </em>
                                   );
                                 }
                                 if (part.startsWith("`") && part.endsWith("`")) {
@@ -653,7 +666,9 @@ export default function FloatingChatWidget() {
                                     </a>
                                   );
                                 }
-                                return <span key={pIdx}>{part}</span>;
+                                // Remove any leftover stray asterisks in plain text
+                                const cleanedPart = part.replace(/\*/g, "");
+                                return <span key={pIdx}>{cleanedPart}</span>;
                               })}
                             </div>
                           );
