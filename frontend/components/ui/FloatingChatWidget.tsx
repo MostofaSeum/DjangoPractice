@@ -744,24 +744,16 @@ export default function FloatingChatWidget() {
                         <Link
                           href="/cart"
                           onClick={() => setIsOpen(false)}
-                          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-accent text-button-fg font-bold text-xs shadow-md hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+                          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent text-button-fg font-bold text-xs shadow-md hover:opacity-95 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
                         >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="w-3.5 h-3.5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth="2.5"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                            />
-                          </svg>
+                          <Image
+                            src="/shopping-cart-white-icon.webp"
+                            width={16}
+                            height={16}
+                            alt="Cart"
+                            className="w-4 h-4 object-contain brightness-0 invert"
+                          />
                           <span>{isBn ? "কার্টে যান ও অর্ডার করুন" : "Go to Cart & Checkout"}</span>
-                          <span className="text-[11px]">→</span>
                         </Link>
                       </div>
                     )}
