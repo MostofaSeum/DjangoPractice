@@ -159,12 +159,27 @@ None currently available.
         const stockStatus = stock > 0 ? `In Stock (${stock} available)` : "Out of Stock";
         const category = collectionMap[p.collection] || "General Beauty & Cosmetics";
 
-        // Clean description snippet for skin type & benefits matching
-        const rawDesc = (p.short_description || p.description || "")
-          .replace(/<[^>]*>/g, " ")
-          .replace(/\s+/g, " ")
-          .trim();
-        const descSnippet = rawDesc ? rawDesc.slice(0, 180) : "Authentic premium cosmetics product.";
+        // Clean short_description and full description for rich product explanations
+        const cleanText = (val: string) =>
+          (val || "")
+            .replace(/<[^>]*>/g, " ")
+            .replace(/&nbsp;/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+
+        const shortDesc = cleanText(p.short_description);
+        const fullDesc = cleanText(p.description);
+        
+        let descInfo = "";
+        if (shortDesc && shortDesc.toLowerCase() !== "short description") {
+          descInfo += `Short Summary: "${shortDesc.slice(0, 250)}". `;
+        }
+        if (fullDesc) {
+          descInfo += `Full Details: "${fullDesc.slice(0, 450)}".`;
+        }
+        if (!descInfo) {
+          descInfo = `Details: "${(shortDesc || fullDesc || "Authentic premium product at VibeMart.").slice(0, 250)}".`;
+        }
 
         // Format variants (shades, sizes, options)
         let variantsInfo = "None";
@@ -178,7 +193,7 @@ None currently available.
             .join("; ");
         }
 
-        return `- Product ID: ${p.id} | Title: "${p.title}" | Category: ${category} | Price: ৳${price} (Original: ৳${p.unit_price}) | Status: ${stockStatus} | Variants: [${variantsInfo}] | Highlights: "${descSnippet}" | URL: /products/${p.id}`;
+        return `- Product ID: ${p.id} | Title: "${p.title}" | Category: ${category} | Price: ৳${price} (Original: ৳${p.unit_price}) | Status: ${stockStatus} | Variants: [${variantsInfo}] | Description & Benefits: ${descInfo} | URL: /products/${p.id}`;
       });
 
       productsText = `
@@ -299,12 +314,18 @@ When a customer asks for a recommendation, suggestion, or advice (e.g. "suggest 
      • Budget or Preference (if applicable).
    - Keep the tone encouraging, warm, and professional (in English or Bengali depending on customer language).
 
-2. MATCHING & TAILORED RECOMMENDATIONS & PRODUCT DETAILS:
-   - When a user asks about a specific product or its details, or when matching products to their needs:
-     • Thoroughly analyze the "CURRENT INVENTORY & PRODUCT CATALOG (LIVE STORE PRODUCTS)" below.
-     • Check the category, title, variants, and product highlights (benefits, ingredients, formula).
-     • Present the key product highlights, exact price in ৳ (BDT), variants (if any), whether it is "In Stock" or "Out of Stock", and include the direct link in standard markdown format (e.g. [View Product](/products/123)).
-     • IMPORTANT CALL TO ACTION: Always end your product details or recommendation by asking the user if they would like you to add the product to their cart (e.g., "Would you like me to add this to your cart?" or in Bengali "আপনি কি এটি আপনার কার্টে যোগ করতে চান?").
+2. MATCHING, PRODUCT DETAILS & CONSULTATION PROTOCOL:
+   - When a user asks about a specific product or its details, or when recommending products:
+     • Thoroughly analyze the product from the "CURRENT INVENTORY & PRODUCT CATALOG (LIVE STORE PRODUCTS)" below.
+     • DO NOT just dump technical raw text (like "Highlights: Short Description" or "Variant ID: 9").
+     • Provide a beautifully written, engaging response with:
+       • Product Title & Category with markdown link: [Product Title](/products/123).
+       • Price: Exact price in ৳ (BDT) (and original price if discounted).
+       • Status: State "In Stock" or "Out of Stock" (no stock quantities unless explicitly asked).
+       • Product Overview & Key Benefits: Write a clean, warm, helpful 2-4 sentence summary of what the product does, what it is for, its formula/features, and how it benefits the user (based on the description & details provided in the catalog).
+       • Available Options/Shades: If variants exist, list the options cleanly by name, size, or color (e.g., "100ml (৳50), 20ml (৳4)") without mentioning technical internal IDs to the customer.
+     • CALL TO ACTION: Always close your explanation by warmly asking:
+       "Would you like me to add this to your cart?" (or in Bengali: "আপনি কি এটি আপনার কার্টে যোগ করতে চান?")
      • If the user responds with "yes", "sure", "add it", "yeah", "হাঁ", "হ্যাঁ", "এড করো", "add to cart", or any positive confirmation, immediately trigger the [[ADD_TO_CART:productId:variantIdOr0:quantity]] action tag for that product!
 
 3. ADDING TO CART & ORDERING DIRECTLY FROM CHAT:
@@ -429,7 +450,7 @@ ${storeContext}
             contents: formattedContents,
             generationConfig: {
               temperature: 0.4,
-              maxOutputTokens: 500,
+              maxOutputTokens: 750,
             },
           }),
         });
