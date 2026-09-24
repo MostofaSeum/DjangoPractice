@@ -85,16 +85,20 @@ export default function ProductSearchBar({
 
   const [animatedPlaceholder, setAnimatedPlaceholder] = useState("");
 
-  // Typewriter animation effect
+  // Typewriter animation effect - ONLY active on navbar search bar
   useEffect(() => {
-    // Only run animated placeholder if no custom static placeholder is forced and query is empty
-    if (placeholder) return;
+    // Only run animated placeholder for navbar variant and when no custom placeholder is passed
+    if (variant !== "navbar" || placeholder) return;
 
     const words = isBn ? placeholderWordsBn : placeholderWordsEn;
     let wordIndex = 0;
     let charIndex = 0;
     let isDeleting = false;
     let timer: NodeJS.Timeout;
+
+    // Immediately show initial state
+    const prefix = isBn ? "খুঁজুন " : "Search ";
+    setAnimatedPlaceholder(prefix);
 
     const tick = () => {
       const currentWord = words[wordIndex % words.length];
@@ -105,28 +109,28 @@ export default function ProductSearchBar({
         charIndex++;
       }
 
-      setAnimatedPlaceholder(currentWord.substring(0, charIndex));
+      setAnimatedPlaceholder(`${prefix}"${currentWord.substring(0, charIndex)}"`);
 
-      let delay = isDeleting ? 40 : 80;
+      let delay = isDeleting ? 35 : 75;
 
       if (!isDeleting && charIndex === currentWord.length) {
-        // Pause at end of full word before deleting
-        delay = 2000;
+        // Pause at end of full word before backspacing
+        delay = 1800;
         isDeleting = true;
       } else if (isDeleting && charIndex === 0) {
-        // Finished deleting, move to next word
+        // Finished backspacing this word, switch immediately to next word
         isDeleting = false;
         wordIndex = (wordIndex + 1) % words.length;
-        delay = 500;
+        delay = 400;
       }
 
       timer = setTimeout(tick, delay);
     };
 
-    timer = setTimeout(tick, 200);
+    timer = setTimeout(tick, 100);
 
     return () => clearTimeout(timer);
-  }, [isBn, placeholder]);
+  }, [isBn, placeholder, variant]);
 
   // Sync external search value changes if provided
   useEffect(() => {
@@ -394,8 +398,8 @@ export default function ProductSearchBar({
             onKeyDown={handleKeyDown}
             placeholder={
               placeholder ||
-              (animatedPlaceholder
-                ? (isBn ? `খুঁজুন "${animatedPlaceholder}"` : `Search "${animatedPlaceholder}"`)
+              (variant === "navbar" && animatedPlaceholder
+                ? animatedPlaceholder
                 : isAdmin
                   ? isBn
                     ? "পণ্য দিয়ে খুঁজুন..."
