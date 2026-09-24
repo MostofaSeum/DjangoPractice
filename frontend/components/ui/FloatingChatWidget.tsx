@@ -740,7 +740,7 @@ export default function FloatingChatWidget() {
 
                     {/* Quick action button when items are added to cart or cart is suggested */}
                     {m.sender === "bot" && (m.cartAdded || m.text.includes("/cart")) && (
-                      <div className="mt-2 flex items-center gap-2">
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
                         <Link
                           href="/cart"
                           onClick={() => setIsOpen(false)}
@@ -761,6 +761,28 @@ export default function FloatingChatWidget() {
                             />
                           </svg>
                           <span>{isBn ? "কার্টে যান ও অর্ডার করুন" : "Go to Cart & Checkout"}</span>
+                          <span className="text-[11px]">→</span>
+                        </Link>
+                      </div>
+                    )}
+
+                    {/* Quick action button when items are added to wishlist or wishlist is suggested */}
+                    {m.sender === "bot" && (m.wishlistAdded || m.text.includes("/wishlist")) && (
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <Link
+                          href="/wishlist"
+                          onClick={() => setIsOpen(false)}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-background border border-foreground/15 hover:border-accent text-foreground font-bold text-xs shadow-xs hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-3.5 h-3.5 text-accent"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                          >
+                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                          </svg>
+                          <span>{isBn ? "উইশলিস্ট দেখুন" : "View Wishlist"}</span>
                           <span className="text-[11px]">→</span>
                         </Link>
                       </div>
